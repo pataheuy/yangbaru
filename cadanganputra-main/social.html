@@ -11,48 +11,50 @@
         body { background-color: #fafafa; color: #111; }
 
         /* --- HEADER (Pufutara Original Style) --- */
-        .navbar { 
-            background: #fff; 
-            padding: 15px 30px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            border-bottom: 1px solid #f2f2f2; 
-            position: sticky; 
-            top: 0; 
-            z-index: 1000; 
-        }
+        .navbar { background: #fff; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f2f2f2; position: sticky; top: 0; z-index: 1000; }
         .logo { font-size: 1.6rem; font-weight: 900; cursor: pointer; letter-spacing: -1px; color: #000; }
         .nav-right { display: flex; align-items: center; gap: 20px; }
         .btn-upload-head { background: #111; color: #fff; border: none; padding: 9px 20px; border-radius: 30px; cursor: pointer; font-weight: 700; display: flex; align-items: center; gap: 6px; font-size: 0.9rem; }
         .profile-area { display: flex; align-items: center; gap: 12px; padding-left: 20px; border-left: 1px solid #eee; }
-        .avatar { width: 38px; height: 38px; background: #2b82fb; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1rem; }
-        .u-name { font-weight: 600; font-size: 1rem; color: #333; }
+        .avatar { width: 38px; height: 38px; background: #2b82fb; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1rem; cursor: pointer;}
+        .u-name { font-weight: 600; font-size: 1rem; color: #333; cursor: pointer;}
         .btn-logout { color: #cc0000; font-weight: 800; cursor: pointer; font-size: 1rem; background: none; border: none; padding: 0; }
 
         /* --- SCREENS --- */
         .screen { display: none; padding: 30px 15px; }
         .active { display: block; }
 
-        /* --- FEED & POST CARDS (Gaya IG) --- */
+        /* --- FEED & POST CARDS --- */
         .feed-container { max-width: 550px; margin: 0 auto; display: flex; flex-direction: column; gap: 25px; }
-        .post-card { 
-            background: #fff; 
-            border-radius: 18px; 
-            overflow: hidden; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
-            border: 1px solid #efefef;
-        }
-        .post-header { padding: 15px; display: flex; align-items: center; gap: 12px; }
-        .post-avatar { width: 35px; height: 35px; background: #111; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; }
-        .post-user { font-weight: 700; font-size: 0.95rem; }
+        .post-card { background: #fff; border-radius: 18px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid #efefef; }
+        .post-header { padding: 15px; display: flex; align-items: center; gap: 12px; position: relative; }
+        .post-avatar { width: 35px; height: 35px; background: #111; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; cursor: pointer; }
+        .post-user { font-weight: 700; font-size: 0.95rem; cursor: pointer; flex: 1; }
+        .post-user:hover { text-decoration: underline; }
+        .btn-delete { background: none; border: none; color: #cc0000; font-size: 0.85rem; font-weight: 700; cursor: pointer; padding: 5px 10px; border-radius: 8px; }
+        .btn-delete:hover { background: #ffeeee; }
         
         .post-content { padding: 0 15px 15px 15px; font-size: 0.95rem; line-height: 1.4; color: #222; white-space: pre-wrap; }
         .post-media { width: 100%; max-height: 600px; object-fit: contain; background: #f9f9f9; display: block; }
         
-        .post-footer { padding: 15px; border-top: 1px solid #fafafa; display: flex; gap: 15px; }
-        .btn-action { background: none; border: none; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; gap: 5px; color: #111; font-weight: 600; transition: 0.2s; }
-        .btn-action:hover { opacity: 0.7; }
+        .post-footer { padding: 15px; border-top: 1px solid #fafafa; display: flex; gap: 20px; }
+        .btn-action { background: none; border: none; font-size: 1rem; cursor: pointer; display: flex; align-items: center; gap: 6px; color: #444; font-weight: 600; transition: 0.2s; }
+        .btn-action:hover { opacity: 0.7; color: #000; }
+
+        /* --- COMMENTS --- */
+        .comments-section { padding: 0 15px 15px 15px; background: #fff; display: none; border-top: 1px dashed #eee; margin-top: -5px; }
+        .comment-list { max-height: 200px; overflow-y: auto; margin-bottom: 10px; padding-top: 10px; }
+        .comment-item { margin-bottom: 8px; font-size: 0.9rem; line-height: 1.3; }
+        .comment-input-area { display: flex; gap: 10px; }
+        .comment-input-area input { margin: 0; flex: 1; padding: 10px; border-radius: 20px; font-size: 0.9rem; }
+        .comment-input-area button { background: #111; color: #fff; border: none; padding: 0 15px; border-radius: 20px; font-weight: 600; cursor: pointer; }
+
+        /* --- PROFILE HEADER --- */
+        .profile-header { text-align: center; margin-bottom: 30px; padding: 30px; background: #fff; border-radius: 20px; border: 1px solid #eee; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+        .profile-big-avatar { width: 80px; height: 80px; background: #111; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold; margin: 0 auto 15px auto; }
+        .profile-name { font-size: 1.5rem; font-weight: 800; margin-bottom: 15px; }
+        .btn-follow { background: #2b82fb; color: #fff; border: none; padding: 10px 30px; border-radius: 30px; font-weight: 700; cursor: pointer; font-size: 1rem; }
+        .btn-follow.is-following { background: #eee; color: #111; }
 
         /* --- MODALS & FORMS --- */
         .auth-container { display: flex; align-items: center; justify-content: center; height: 85vh; }
@@ -68,12 +70,13 @@
 <body>
 
     <div class="navbar" id="uiHeader" style="display:none;">
-        <div class="logo" onclick="location.reload()">PufutaraSocial</div>
+        <div class="logo" onclick="goHome()">PufutaraSocial</div>
         <div class="nav-right">
+            <span style="font-weight: 600; cursor:pointer;" onclick="goHome()">🏠 Beranda</span>
             <button class="btn-upload-head" onclick="openPostModal()">+ Buat Post</button>
             <div class="profile-area">
-                <div class="avatar" id="avaCircle">P</div>
-                <span class="u-name" id="labelName">User</span>
+                <div class="avatar" id="avaCircle" onclick="goProfile(_me.email)">P</div>
+                <span class="u-name" id="labelName" onclick="goProfile(_me.email)">User</span>
                 <button class="btn-logout" onclick="logout()">Keluar</button>
             </div>
         </div>
@@ -83,7 +86,6 @@
         <div class="auth-container">
             <div class="auth-card">
                 <h1 style="margin-bottom:10px; font-weight:800;">Masuk PufutaraSocial</h1>
-                <p style="color:#777; margin-bottom:30px;">Gabungkan cerita dan momenmu</p>
                 <input type="email" id="email" placeholder="Email">
                 <input type="password" id="password" placeholder="Password">
                 <button class="btn-primary" onclick="handleAuth()">Login / Daftar</button>
@@ -92,33 +94,42 @@
     </div>
 
     <div id="screenFeed" class="screen">
-        <div class="feed-container" id="mainFeed">
+        <div class="feed-container" id="mainFeed"></div>
+    </div>
+
+    <div id="screenProfile" class="screen">
+        <div class="feed-container">
+            <div class="profile-header">
+                <div class="profile-big-avatar" id="profAvatar">U</div>
+                <div class="profile-name" id="profName">User Email</div>
+                <button class="btn-follow" id="btnFollow" onclick="toggleFollow()">Ikuti</button>
             </div>
+            <h3 style="margin-bottom: 10px;">Postingan</h3>
+            <div id="profileFeed"></div>
+        </div>
     </div>
 
     <div class="modal-overlay" id="postModal">
         <div class="modal-box">
             <h2 style="margin-bottom:20px">Buat Postingan Baru</h2>
-            
             <textarea id="postText" placeholder="Apa yang sedang kamu pikirkan?"></textarea>
-            
             <div style="margin: 15px 0; padding: 15px; background: #f9f9f9; border-radius: 12px; border: 1px dashed #ccc;">
                 <label style="font-weight: 600; font-size: 0.9rem; display: block; margin-bottom: 8px;">Tambah Foto/Video (Opsional)</label>
                 <input type="file" id="postMedia" accept="image/*,video/*">
             </div>
-
             <button class="btn-primary" id="btnRunPost" onclick="publishPost()">Bagikan</button>
             <button onclick="closePostModal()" style="width:100%; border:none; background:none; margin-top:15px; cursor:pointer; color:#999; font-weight:600;">Batal</button>
         </div>
     </div>
 
     <script>
-        // Pakai Supabase Keys Pufutara milikmu
+        // Supabase Keys
         const _URL = 'https://puywjdopumlzvmzbcudr.supabase.co';
         const _KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1eXdqZG9wdW1senZtemJjdWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDE3MTksImV4cCI6MjA4NzkxNzcxOX0.vvThyjtK2SlA9oA9Mr_XOmt1R_tNZk-ib3PO9XpiiSc';
         const _sb = supabase.createClient(_URL, _KEY);
 
         let _me = null;
+        let _currentProfileView = null; // Menyimpan email profil yang sedang dilihat
 
         // --- AUTH ---
         async function handleAuth() {
@@ -129,65 +140,177 @@
         }
         async function logout() { await _sb.auth.signOut(); location.reload(); }
 
-        // --- CORE NAVIGATION ---
+        // --- NAVIGATION ---
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
         }
 
-        // --- LOAD FEED ---
-        async function loadFeed() {
-            const feed = document.getElementById('mainFeed');
-            feed.innerHTML = '<p style="text-align:center; color:#777;">Memuat timeline...</p>';
+        function goHome() {
+            showScreen('screenFeed');
+            loadPosts('mainFeed');
+        }
+
+        // --- PROFIL & FOLLOW ---
+        async function goProfile(email) {
+            _currentProfileView = email;
+            showScreen('screenProfile');
             
-            const { data, error } = await _sb.from('pufutarasocial_posts').select('*').order('id', {ascending:false});
+            const username = email.split('@')[0];
+            document.getElementById('profAvatar').innerText = username[0].toUpperCase();
+            document.getElementById('profName').innerText = username;
             
-            if (error) {
-                feed.innerHTML = `<p style="text-align:center; color:red;">Gagal memuat: ${error.message} (Cek RLS di Supabase!)</p>`;
-                return;
+            const btn = document.getElementById('btnFollow');
+            if (email === _me.email) {
+                btn.style.display = 'none'; // Sembunyikan tombol follow di profil sendiri
+            } else {
+                btn.style.display = 'inline-block';
+                // Cek status follow
+                const { data } = await _sb.from('pufutarasocial_follows')
+                    .select('*').eq('follower_email', _me.email).eq('target_email', email);
+                
+                if (data && data.length > 0) {
+                    btn.innerText = "Mengikuti"; btn.classList.add('is-following');
+                } else {
+                    btn.innerText = "Ikuti"; btn.classList.remove('is-following');
+                }
             }
 
-            feed.innerHTML = '';
+            loadPosts('profileFeed', email);
+        }
+
+        async function toggleFollow() {
+            const target = _currentProfileView;
+            const btn = document.getElementById('btnFollow');
             
-            if(data.length === 0) {
-                feed.innerHTML = '<p style="text-align:center; color:#777;">Belum ada postingan. Jadilah yang pertama!</p>';
-                return;
+            if (btn.innerText === "Ikuti") {
+                await _sb.from('pufutarasocial_follows').insert({ follower_email: _me.email, target_email: target });
+                btn.innerText = "Mengikuti"; btn.classList.add('is-following');
+            } else {
+                await _sb.from('pufutarasocial_follows').delete().match({ follower_email: _me.email, target_email: target });
+                btn.innerText = "Ikuti"; btn.classList.remove('is-following');
             }
+        }
+
+        // --- LOAD POSTS (Bisa untuk Beranda atau Profil) ---
+        async function loadPosts(containerId, filterEmail = null) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '<p style="text-align:center; color:#777;">Memuat...</p>';
+            
+            let query = _sb.from('pufutarasocial_post').select('*').order('id', {ascending:false});
+            if (filterEmail) query = query.eq('uploader', filterEmail);
+            
+            const { data, error } = await query;
+            if (error) { container.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`; return; }
+            
+            container.innerHTML = '';
+            if(data.length === 0) { container.innerHTML = '<p style="text-align:center; color:#777;">Belum ada postingan.</p>'; return; }
 
             data.forEach(post => {
                 const username = post.uploader.split('@')[0];
                 const initial = username[0].toUpperCase();
-                
                 let mediaHTML = '';
+                
                 if (post.media_url) {
-                    // Cek apakah URL itu video (mp4, webm) atau gambar
                     if (post.media_url.match(/\.(mp4|webm|ogg)/i)) {
                         mediaHTML = `<video class="post-media" src="${post.media_url}" controls></video>`;
                     } else {
-                        mediaHTML = `<img class="post-media" src="${post.media_url}" alt="Post Media">`;
+                        mediaHTML = `<img class="post-media" src="${post.media_url}">`;
                     }
                 }
+
+                // Tombol hapus HANYA muncul jika uploader == user yang login
+                const deleteBtn = (post.uploader === _me.email) 
+                    ? `<button class="btn-delete" onclick="deletePost(${post.id})">🗑️ Hapus</button>` : '';
 
                 const card = document.createElement('div');
                 card.className = 'post-card';
                 card.innerHTML = `
                     <div class="post-header">
-                        <div class="post-avatar">${initial}</div>
-                        <div class="post-user">${username}</div>
+                        <div class="post-avatar" onclick="goProfile('${post.uploader}')">${initial}</div>
+                        <div class="post-user" onclick="goProfile('${post.uploader}')">${username}</div>
+                        ${deleteBtn}
                     </div>
                     ${post.content ? `<div class="post-content">${escapeHTML(post.content)}</div>` : ''}
                     ${mediaHTML}
                     <div class="post-footer">
-                        <button class="btn-action" onclick="likePost(${post.id}, ${post.likes || 0})">
-                            ❤️ <span id="like-count-${post.id}">${post.likes || 0}</span>
-                        </button>
+                        <button class="btn-action" onclick="votePost(${post.id}, 'likes', ${post.likes || 0})">❤️ <span id="likes-${post.id}">${post.likes || 0}</span></button>
+                        <button class="btn-action" onclick="votePost(${post.id}, 'unlikes', ${post.unlikes || 0})">👎 <span id="unlikes-${post.id}">${post.unlikes || 0}</span></button>
+                        <button class="btn-action" onclick="toggleComments(${post.id})">💬 Komentar</button>
+                    </div>
+                    
+                    <div class="comments-section" id="comment-sec-${post.id}">
+                        <div class="comment-list" id="comment-list-${post.id}">Memuat komentar...</div>
+                        <div class="comment-input-area">
+                            <input type="text" id="input-com-${post.id}" placeholder="Tulis komentar...">
+                            <button onclick="sendComment(${post.id})">Kirim</button>
+                        </div>
                     </div>
                 `;
-                feed.appendChild(card);
+                container.appendChild(card);
             });
         }
 
-        // --- POSTING / UPLOAD ---
+        // --- FITUR POSTINGAN (Hapus, Vote) ---
+        async function deletePost(id) {
+            if(confirm("Yakin ingin menghapus postingan ini selamanya?")) {
+                await _sb.from('pufutarasocial_post').delete().eq('id', id);
+                // Refresh halaman sesuai layar yang aktif
+                if (document.getElementById('screenProfile').classList.contains('active')) {
+                    goProfile(_currentProfileView);
+                } else {
+                    goHome();
+                }
+            }
+        }
+
+        async function votePost(id, type, currentVal) {
+            const newVal = currentVal + 1;
+            document.getElementById(`${type}-${id}`).innerText = newVal;
+            event.currentTarget.setAttribute('onclick', `votePost(${id}, '${type}', ${newVal})`);
+            await _sb.from('pufutarasocial_post').update({ [type]: newVal }).eq('id', id);
+        }
+
+        // --- KOMENTAR ---
+        async function toggleComments(postId) {
+            const sec = document.getElementById(`comment-sec-${postId}`);
+            if (sec.style.display === 'block') {
+                sec.style.display = 'none';
+            } else {
+                sec.style.display = 'block';
+                loadComments(postId);
+            }
+        }
+
+        async function loadComments(postId) {
+            const list = document.getElementById(`comment-list-${postId}`);
+            const { data } = await _sb.from('pufutarasocial_comments').select('*').eq('post_id', postId).order('id', {ascending:true});
+            
+            if (!data || data.length === 0) {
+                list.innerHTML = '<span style="color:#999; font-size:0.9rem;">Belum ada komentar.</span>';
+                return;
+            }
+            
+            list.innerHTML = data.map(c => `
+                <div class="comment-item">
+                    <b style="cursor:pointer;" onclick="goProfile('${c.uploader}')">${c.uploader.split('@')[0]}</b>: ${escapeHTML(c.comment)}
+                </div>
+            `).join('');
+        }
+
+        async function sendComment(postId) {
+            const input = document.getElementById(`input-com-${postId}`);
+            const text = input.value.trim();
+            if (!text) return;
+
+            input.disabled = true;
+            await _sb.from('pufutarasocial_comments').insert({ post_id: postId, uploader: _me.email, comment: text });
+            input.value = '';
+            input.disabled = false;
+            loadComments(postId); // Refresh daftar komentar
+        }
+
+        // --- UPLOAD POSTINGAN ---
         function openPostModal() { document.getElementById('postModal').style.display = 'flex'; }
         function closePostModal() { document.getElementById('postModal').style.display = 'none'; }
 
@@ -196,62 +319,28 @@
             const file = document.getElementById('postMedia').files[0];
             const btn = document.getElementById('btnRunPost');
 
-            if(!text && !file) return alert("Isi teks atau pilih media untuk diposting!");
+            if(!text && !file) return alert("Isi teks atau pilih media!");
 
-            btn.innerText = "Mengirim...";
-            btn.disabled = true;
-
+            btn.innerText = "Mengirim..."; btn.disabled = true;
             let mediaUrl = null;
 
-            // Jika ada file gambar/video
             if (file) {
                 const path = Date.now() + "_" + file.name.replace(/\s+/g, '_');
-                const { error: uploadErr } = await _sb.storage.from('pufutarasocial_media').upload(path, file);
-                
-                if (uploadErr) {
-                    alert("Gagal upload media: " + uploadErr.message);
-                    btn.innerText = "Bagikan"; btn.disabled = false;
-                    return;
-                }
+                await _sb.storage.from('pufutarasocial_media').upload(path, file);
                 mediaUrl = _sb.storage.from('pufutarasocial_media').getPublicUrl(path).data.publicUrl;
             }
 
-            // Simpan ke Database
-            const { error: dbErr } = await _sb.from('pufutarasocial_posts').insert({ 
-                content: text, 
-                media_url: mediaUrl, 
-                uploader: _me.email 
-            });
-
-            if (dbErr) {
-                alert("Gagal memposting: " + dbErr.message);
-            } else {
-                closePostModal();
-                document.getElementById('postText').value = '';
-                document.getElementById('postMedia').value = '';
-                loadFeed();
-            }
+            await _sb.from('pufutarasocial_post').insert({ content: text, media_url: mediaUrl, uploader: _me.email });
+            closePostModal();
+            document.getElementById('postText').value = '';
+            document.getElementById('postMedia').value = '';
+            goHome(); // Refresh beranda
             
-            btn.innerText = "Bagikan";
-            btn.disabled = false;
+            btn.innerText = "Bagikan"; btn.disabled = false;
         }
 
-        // --- LIKES ---
-        async function likePost(id, currentLikes) {
-            const newLikes = currentLikes + 1;
-            document.getElementById(`like-count-${id}`).innerText = newLikes;
-            
-            // Update UI sementara sebelum refresh
-            event.currentTarget.setAttribute('onclick', `likePost(${id}, ${newLikes})`);
-            
-            await _sb.from('pufutarasocial_posts').update({ likes: newLikes }).eq('id', id);
-        }
-
-        // --- UTILS ---
         function escapeHTML(str) {
-            return str.replace(/[&<>'"]/g, tag => ({
-                '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
-            }[tag]));
+            return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag]));
         }
 
         // --- INIT ---
@@ -262,8 +351,7 @@
                 document.getElementById('uiHeader').style.display = 'flex';
                 document.getElementById('labelName').innerText = _me.email.split('@')[0];
                 document.getElementById('avaCircle').innerText = _me.email[0].toUpperCase();
-                showScreen('screenFeed');
-                loadFeed();
+                goHome();
             }
         });
     </script>
