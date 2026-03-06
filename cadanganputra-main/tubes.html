@@ -3,276 +3,349 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PufutaraTube Pro</title>
+    <title>PufutaraTube</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background-color: #f9f9f9; color: #111; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
+        body { background-color: #f1f1f1; color: #111; height: 100vh; display: flex; flex-direction: column; }
 
-        /* Header Putih Bergaris */
-        .navbar { background: #fff; padding: 10px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e0e0e0; z-index: 100; }
-        .logo { font-size: 1.4rem; font-weight: bold; cursor: pointer; }
-        .logo span { background: #111; color: #fff; padding: 2px 8px; border-radius: 4px; margin-left: 4px; }
+        /* HEADER (Style Gambar 6) */
+        .navbar { background: #fff; padding: 10px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e0e0e0; position: sticky; top: 0; z-index: 1000; }
+        .logo { font-size: 1.3rem; font-weight: bold; cursor: pointer; text-decoration: none; color: #111; }
+        .logo span { background: #111; color: #fff; padding: 2px 6px; border-radius: 4px; margin-left: 3px; }
         
-        .search-bar { display: flex; flex: 1; max-width: 500px; margin: 0 20px; border: 1px solid #ccc; border-radius: 20px; overflow: hidden; }
-        .search-bar input { flex: 1; padding: 8px 15px; border: none; outline: none; }
-        .search-bar button { padding: 8px 20px; border: none; background: #f8f8f8; cursor: pointer; border-left: 1px solid #ccc; }
+        .search-bar { display: flex; flex: 1; max-width: 450px; margin: 0 20px; border: 1px solid #ccc; border-radius: 20px; overflow: hidden; }
+        .search-bar input { flex: 1; padding: 8px 15px; border: none; outline: none; font-size: 0.9rem; }
+        .search-bar button { padding: 8px 18px; border: none; background: #f8f8f8; cursor: pointer; border-left: 1px solid #ccc; font-weight: 500; }
 
-        .nav-actions { display: flex; align-items: center; gap: 15px; }
-        .account-box { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.9rem; border-left: 1px solid #ddd; padding-left: 15px; }
-        .avatar { width: 32px; height: 32px; background: #007bff; color: #fff; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; }
+        .nav-right { display: flex; align-items: center; gap: 15px; }
+        .btn-upload-trigger { background: #111; color: #fff; border: none; padding: 7px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 5px; font-size: 0.85rem; }
+        
+        .user-profile { display: flex; align-items: center; gap: 10px; padding-left: 15px; border-left: 1px solid #ddd; }
+        .avatar { width: 32px; height: 32px; background: #2196F3; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; }
+        .user-name { font-weight: 500; font-size: 0.9rem; color: #333; }
+        .btn-logout { background: none; border: none; color: #cc0000; font-weight: bold; cursor: pointer; font-size: 0.9rem; margin-left: 5px; }
 
-        /* Main Area */
+        /* LOGIN SCREEN (Style Gambar 8) */
+        #screenAuth { display: flex; align-items: center; justify-content: center; height: 100vh; background: #f9f9f9; }
+        .login-card { background: #fff; padding: 40px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); text-align: center; border: 1px solid #ddd; }
+        .login-card h2 { font-size: 1.5rem; margin-bottom: 10px; }
+        .login-card p { color: #666; font-size: 0.9rem; margin-bottom: 25px; }
+        .login-card input { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #ddd; border-radius: 8px; outline: none; }
+        .btn-login { width: 100%; padding: 12px; background: #111; color: #fff; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+
+        /* CONTENT */
         .screen { display: none; flex: 1; overflow-y: auto; padding: 20px; }
         .active { display: block; }
+        .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+        .v-card { cursor: pointer; background: #fff; border-radius: 10px; overflow: hidden; transition: 0.2s; border: 1px solid #eee; }
+        .v-card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .v-thumb { width: 100%; height: 140px; object-fit: cover; background: #000; }
+        .v-info { padding: 12px; }
+        .v-title { font-weight: bold; font-size: 0.95rem; margin-bottom: 5px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .v-sub { font-size: 0.8rem; color: #666; }
 
-        /* Video Grid */
-        .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
-        .video-card { cursor: pointer; background: #fff; border-radius: 8px; overflow: hidden; transition: 0.2s; }
-        .video-card:hover { transform: scale(1.02); }
-        .thumb { width: 100%; height: 150px; background: #000; object-fit: cover; }
-        .v-info { padding: 10px; }
-        .v-title { font-weight: bold; font-size: 0.95rem; margin-bottom: 4px; }
-        .v-meta { font-size: 0.8rem; color: #666; }
-
-        /* Watch Page */
-        .watch-grid { max-width: 1100px; margin: 0 auto; }
+        /* WATCH PAGE */
+        .watch-container { max-width: 1000px; margin: 0 auto; }
         video { width: 100%; border-radius: 12px; background: #000; max-height: 500px; }
-        .video-details { margin-top: 15px; }
-        .action-btns { display: flex; gap: 10px; margin: 10px 0; align-items: center; }
-        .btn { padding: 8px 15px; border-radius: 20px; border: none; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 5px; }
-        .btn-sub { background: #111; color: #fff; }
-        .btn-sub.unsub { background: #eee; color: #111; }
-        .btn-delete { background: #ff4d4d; color: white; width: 100%; margin-top: 30px; }
+        .video-meta { margin-top: 15px; }
+        .btn-group { display: flex; gap: 10px; margin: 15px 0; align-items: center; }
+        .btn-action { padding: 8px 16px; border-radius: 20px; border: 1px solid #ddd; background: #f8f8f8; cursor: pointer; font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; gap: 5px; }
+        .btn-sub { background: #111; color: #fff; border: none; }
+        .btn-sub.subscribed { background: #eee; color: #666; }
+        .btn-delete-video { background: #ffeded; color: #d32f2f; border: 1px solid #ffcdd2; width: 100%; margin-top: 40px; padding: 10px; border-radius: 8px; cursor: pointer; font-weight: bold; }
 
-        /* Tabs Upload */
-        .tab-header { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        .tab-btn { flex: 1; padding: 10px; cursor: pointer; text-align: center; border-radius: 5px; }
-        .tab-btn.active { background: #111; color: #fff; }
-
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 200; justify-content: center; align-items: center; }
-        .modal-content { background: #fff; padding: 25px; border-radius: 12px; width: 90%; max-width: 450px; }
-
-        .auth-card { max-width: 350px; margin: 100px auto; text-align: center; padding: 30px; background: white; border-radius: 10px; border: 1px solid #ddd; }
-        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; }
+        /* MODAL UPLOAD */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
+        .modal-box { background: #fff; padding: 30px; border-radius: 12px; width: 90%; max-width: 450px; }
+        .tab-menu { display: flex; border-bottom: 2px solid #eee; margin-bottom: 20px; }
+        .tab-item { flex: 1; padding: 10px; text-align: center; cursor: pointer; font-weight: bold; color: #888; }
+        .tab-item.active { color: #111; border-bottom: 2px solid #111; }
     </style>
 </head>
 <body>
 
-    <div class="navbar">
+    <div class="navbar" id="mainNav" style="display:none;">
         <div class="logo" onclick="location.reload()">Pufutara<span>Tube</span></div>
-        <div class="search-bar" id="uiSearch" style="display:none;">
-            <input type="text" id="keyword" placeholder="Cari di Pufutara...">
-            <button onclick="loadFeed(document.getElementById('keyword').value)">Cari</button>
+        
+        <div class="search-bar">
+            <input type="text" id="searchIn" placeholder="Cari video...">
+            <button onclick="searchVideo()">Cari</button>
         </div>
-        <div class="nav-actions" id="uiNav" style="display:none;">
-            <button onclick="openUpload()" style="border:none; background:none; cursor:pointer; font-weight:bold;">➕ Upload</button>
-            <div class="account-box">
-                <div class="avatar" id="myInitial" onclick="openChannel(_userEmail)">P</div>
-                <span id="myName" onclick="openChannel(_userEmail)" style="cursor:pointer">User</span>
-                <button onclick="logout()" style="border:none; color:red; background:none; cursor:pointer; font-size:0.7rem;">Logout</button>
+
+        <div class="nav-right">
+            <button class="btn-upload-trigger" onclick="openModal()">+ Upload</button>
+            <div class="user-profile">
+                <div class="avatar" id="userInitial">U</div>
+                <span class="user-name" id="userName">User</span>
+                <button class="btn-logout" onclick="logout()">Keluar</button>
             </div>
         </div>
     </div>
 
     <div id="screenAuth" class="screen active">
-        <div class="auth-card">
-            <h2>PufutaraTube</h2>
+        <div class="login-card">
+            <h2>Masuk PufutaraTube</h2>
+            <p>Gunakan akun Pufutara kamu</p>
             <input type="email" id="email" placeholder="Email">
-            <input type="password" id="pass" placeholder="Password">
-            <button onclick="auth()" style="width:100%; padding:10px; background:#111; color:#fff; border:none; border-radius:5px; cursor:pointer;">Masuk / Daftar</button>
+            <input type="password" id="password" placeholder="Password">
+            <button class="btn-login" onclick="handleAuth()">Login / Daftar</button>
+            <p id="authMsg" style="margin-top:15px; font-size:0.8rem;"></p>
         </div>
     </div>
 
     <div id="screenHome" class="screen">
-        <h3 id="feedTitle" style="margin-bottom:15px">Video Terbaru</h3>
+        <h3 id="feedTitle" style="margin-bottom:20px;">Video Terbaru</h3>
         <div class="video-grid" id="gridVideo"></div>
     </div>
 
     <div id="screenWatch" class="screen">
-        <div class="watch-grid">
-            <video id="player" controls autoplay></video>
-            <div class="video-details">
-                <h2 id="wTitle">Judul Video</h2>
-                <div class="v-meta"><span id="wViews">0</span> views • <span id="wUploader">User</span></div>
+        <div class="watch-container">
+            <video id="mainPlayer" controls autoplay></video>
+            <div class="video-meta">
+                <h2 id="videoTitle" style="font-size: 1.3rem;">Judul Video</h2>
+                <div style="font-size: 0.85rem; color: #666; margin-top: 5px;">
+                    <span id="videoViews">0</span> ditonton • <span id="videoUploader" style="font-weight:bold; color:#111; cursor:pointer;" onclick="openChannel(this.innerText)">User</span>
+                </div>
                 
-                <div class="action-btns">
-                    <button class="btn" onclick="vote('likes')">👍 <span id="wLikes">0</span></button>
-                    <button class="btn" onclick="vote('unlikes')">👎 <span id="wUnlikes">0</span></button>
-                    <button class="btn btn-sub" id="btnSub" onclick="toggleSub()">Subscribe</button>
-                    <span id="subCount" style="font-size:0.8rem; color:#666;">0 subs</span>
+                <div class="btn-group">
+                    <button class="btn-action" onclick="handleVote('likes')">👍 <span id="countLike">0</span></button>
+                    <button class="btn-action" onclick="handleVote('unlikes')">👎 <span id="countUnlike">0</span></button>
+                    <button class="btn-action btn-sub" id="btnSub" onclick="toggleSubscribe()">Subscribe</button>
+                    <span id="totalSubs" style="font-size:0.8rem; color:#666; margin-left:5px;">0 subs</span>
                 </div>
 
-                <hr style="margin:20px 0; border:0; border-top:1px solid #eee;">
+                <hr style="border:0; border-top:1px solid #eee; margin:20px 0;">
+                
                 <h4>Komentar</h4>
                 <div style="display:flex; gap:10px; margin:15px 0;">
-                    <input type="text" id="commIn" placeholder="Tulis komentar..." style="margin:0">
-                    <button onclick="sendComm()" style="padding:0 20px; background:#111; color:white; border:none; border-radius:5px; cursor:pointer">Kirim</button>
+                    <input type="text" id="commInput" placeholder="Tulis komentar..." style="flex:1; padding:10px; border:1px solid #ddd; border-radius:5px;">
+                    <button onclick="postComment()" style="padding:10px 20px; background:#111; color:#fff; border:none; border-radius:5px; cursor:pointer;">Kirim</button>
                 </div>
-                <div id="commList"></div>
+                <div id="commentList"></div>
 
-                <button id="btnDelVideo" class="btn btn-delete" style="display:none;" onclick="deleteThisVideo()">Hapus Video Ini (Permanen)</button>
+                <button id="btnDeleteVideo" class="btn-delete-video" style="display:none;" onclick="confirmDeleteVideo()">Hapus Video Ini</button>
             </div>
         </div>
     </div>
 
-    <div class="modal" id="modalUpload">
-        <div class="modal-content">
-            <div class="tab-header">
-                <div id="tab1" class="tab-btn active" onclick="setUploadType('file')">Upload File</div>
-                <div id="tab2" class="tab-btn" onclick="setUploadType('link')">Tempel Link</div>
+    <div class="modal" id="uploadModal">
+        <div class="modal-box">
+            <h3 style="margin-bottom:15px;">Upload Video</h3>
+            <div class="tab-menu">
+                <div class="tab-item active" id="tabFile" onclick="changeTab('file')">File Lokal</div>
+                <div id="tabLink" class="tab-item" onclick="changeTab('link')">Link Eksternal</div>
             </div>
+            
             <input type="text" id="upTitle" placeholder="Judul Video">
             
-            <div id="boxFile">
-                <p style="font-size:0.7rem; color:red;">Maksimal 50MB</p>
+            <div id="areaFile">
                 <input type="file" id="upFile" accept="video/*">
+                <p style="font-size:0.7rem; color:red;">Max 50MB untuk file lokal</p>
             </div>
-            
-            <div id="boxLink" style="display:none;">
-                <input type="text" id="upUrl" placeholder="Link Video (mp4/direct link)">
+            <div id="areaLink" style="display:none;">
+                <input type="text" id="upUrl" placeholder="Tempel URL Video (.mp4)">
             </div>
 
-            <button onclick="startUpload()" id="btnGoUpload" style="width:100%; padding:12px; background:#111; color:white; border:none; border-radius:5px; margin-top:10px; cursor:pointer;">Publish Video</button>
-            <button onclick="document.getElementById('modalUpload').style.display='none'" style="width:100%; background:none; border:none; margin-top:10px; cursor:pointer">Batal</button>
-            <p id="upStatus" style="font-size:0.8rem; text-align:center; margin-top:10px;"></p>
+            <button class="btn-login" id="btnDoUpload" onclick="processUpload()">Publish Video</button>
+            <button onclick="closeModal()" style="width:100%; background:none; border:none; margin-top:10px; cursor:pointer; font-size:0.9rem;">Batal</button>
+            <p id="upProgress" style="text-align:center; font-size:0.8rem; margin-top:10px;"></p>
         </div>
     </div>
 
     <script>
-        const _CONFIG = {
-            URL: 'https://puywjdopumlzvmzbcudr.supabase.co',
-            KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1eXdqZG9wdW1senZtemJjdWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDE3MTksImV4cCI6MjA4NzkxNzcxOX0.vvThyjtK2SlA9oA9Mr_XOmt1R_tNZk-ib3PO9XpiiSc'
-        };
-        const _client = window.supabase.createClient(_CONFIG.URL, _CONFIG.KEY);
-        let _userEmail = '', _curVid = null, _upType = 'file';
+        const _URL = 'https://puywjdopumlzvmzbcudr.supabase.co';
+        const _KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1eXdqZG9wdW1senZtemJjdWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDE3MTksImV4cCI6MjA4NzkxNzcxOX0.vvThyjtK2SlA9oA9Mr_XOmt1R_tNZk-ib3PO9XpiiSc';
+        const _sb = supabase.createClient(_URL, _KEY);
 
-        // --- AUTH ---
-        async function auth() {
+        let _user = null;
+        let _curVid = null;
+        let _uploadMode = 'file';
+
+        // --- AUTH LOGIC ---
+        async function handleAuth() {
             const email = document.getElementById('email').value;
-            const pass = document.getElementById('pass').value;
-            const { data, error } = await _client.auth.signInWithPassword({ email, password: pass });
+            const pass = document.getElementById('password').value;
+            const msg = document.getElementById('authMsg');
+            msg.innerText = "Memproses...";
+
+            const { data, error } = await _sb.auth.signInWithPassword({ email, password: pass });
             if (error) {
-                await _client.auth.signUp({ email, password: pass });
-                alert("Akun didaftarkan! Silakan klik masuk lagi.");
+                const { error: signUpErr } = await _sb.auth.signUp({ email, password: pass });
+                if (signUpErr) msg.innerText = "Gagal: " + signUpErr.message;
+                else msg.innerText = "Akun dibuat! Silakan Login kembali.";
             } else {
-                _userEmail = data.user.email;
-                initApp();
+                location.reload();
             }
         }
 
-        function logout() { _client.auth.signOut(); location.reload(); }
+        async function logout() { await _sb.auth.signOut(); location.reload(); }
 
-        function initApp() {
-            document.getElementById('screenAuth').style.display = 'none';
-            document.getElementById('uiSearch').style.display = 'flex';
-            document.getElementById('uiNav').style.display = 'flex';
-            document.getElementById('myName').innerText = _userEmail.split('@')[0];
-            document.getElementById('myInitial').innerText = _userEmail[0].toUpperCase();
-            showScreen('screenHome');
-            loadFeed();
-        }
-
+        // --- NAVIGATION ---
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            if(id !== 'screenWatch') document.getElementById('player').pause();
+            if(id !== 'screenWatch') document.getElementById('mainPlayer').pause();
         }
 
-        // --- FEED & CHANNEL ---
-        async function loadFeed(key = '', uploader = '') {
+        // --- LOAD VIDEOS ---
+        async function loadFeed(search = '', uploader = '') {
             const grid = document.getElementById('gridVideo');
-            grid.innerHTML = 'Memuat...';
-            let q = _client.from('pufutaratube_videos').select('*').order('id', {ascending:false});
+            grid.innerHTML = 'Memuat video...';
             
-            if(key) q = q.ilike('title', `%${key}%`);
-            if(uploader) {
-                q = q.eq('uploader', uploader);
-                document.getElementById('feedTitle').innerText = "Channel: " + uploader.split('@')[0];
-            } else {
-                document.getElementById('feedTitle').innerText = "Video Terbaru";
+            let query = _sb.from('pufutaratube_videos').select('*').order('id', {ascending: false});
+            if(search) query = query.ilike('title', `%${search}%`);
+            if(uploader) query = query.eq('uploader', uploader);
+
+            const { data } = await query;
+            grid.innerHTML = '';
+            
+            if(!data || data.length === 0) {
+                grid.innerHTML = '<p>Video tidak ditemukan.</p>';
+                return;
             }
 
-            const { data } = await q;
-            grid.innerHTML = '';
             data.forEach(v => {
-                const div = document.createElement('div');
-                div.className = 'video-card';
-                div.onclick = () => openWatch(v);
-                div.innerHTML = `
-                    <video class="thumb" src="${v.video_url}#t=0.5"></video>
+                const card = document.createElement('div');
+                card.className = 'v-card';
+                card.onclick = () => openWatch(v);
+                card.innerHTML = `
+                    <video class="v-thumb" src="${v.video_url}#t=1"></video>
                     <div class="v-info">
                         <div class="v-title">${v.title}</div>
-                        <div class="v-meta">${v.uploader.split('@')[0]} • ${v.views} views</div>
+                        <div class="v-sub">${v.uploader.split('@')[0]} • ${v.views} views</div>
                     </div>
                 `;
-                grid.appendChild(div);
+                grid.appendChild(card);
             });
         }
 
-        function openChannel(email) {
-            showScreen('screenHome');
-            loadFeed('', email);
-        }
-
-        // --- WATCH ---
+        // --- WATCH & SOCIAL FEATURES ---
         async function openWatch(v) {
             _curVid = v;
             showScreen('screenWatch');
-            document.getElementById('player').src = v.video_url;
-            document.getElementById('wTitle').innerText = v.title;
-            document.getElementById('wUploader').innerText = v.uploader.split('@')[0];
-            document.getElementById('wLikes').innerText = v.likes;
-            document.getElementById('wUnlikes').innerText = v.unlikes || 0;
-            document.getElementById('wViews').innerText = v.views + 1;
+            const player = document.getElementById('mainPlayer');
+            player.src = v.video_url;
+            document.getElementById('videoTitle').innerText = v.title;
+            document.getElementById('videoUploader').innerText = v.uploader.split('@')[0];
+            document.getElementById('videoViews').innerText = v.views + 1;
+            document.getElementById('countLike').innerText = v.likes || 0;
+            document.getElementById('countUnlike').innerText = v.unlikes || 0;
 
-            // Cek Owner untuk tombol hapus
-            document.getElementById('btnDelVideo').style.display = (_userEmail === v.uploader) ? 'block' : 'none';
+            // Hapus video hanya jika pemilik
+            document.getElementById('btnDeleteVideo').style.display = (_user.email === v.uploader) ? 'block' : 'none';
 
-            await _client.from('pufutaratube_videos').update({ views: v.views + 1 }).eq('id', v.id);
-            loadComm();
-            checkSub();
+            await _sb.from('pufutaratube_videos').update({ views: v.views + 1 }).eq('id', v.id);
+            loadComments();
+            updateSubscribeUI();
         }
 
-        async function vote(type) {
-            _curVid[type] += 1;
-            document.getElementById(type === 'likes' ? 'wLikes' : 'wUnlikes').innerText = _curVid[type];
-            await _client.from('pufutaratube_videos').update({ [type]: _curVid[type] }).eq('id', _curVid.id);
-        }
+        async function updateSubscribeUI() {
+            const { data } = await _sb.from('pufutaratube_subs').select('*').eq('target_uploader', _curVid.uploader);
+            const subCount = data.length;
+            document.getElementById('totalSubs').innerText = `${subCount} subs`;
 
-        async function deleteThisVideo() {
-            if(!confirm("Yakin mau hapus video ini? Tidak bisa dikembalikan!")) return;
-            await _client.from('pufutaratube_videos').delete().eq('id', _curVid.id);
-            alert("Video dihapus.");
-            location.reload();
-        }
-
-        // --- SUBSCRIBER ---
-        async function checkSub() {
-            const { data } = await _client.from('pufutaratube_subs').select('*').eq('target_uploader', _curVid.uploader);
-            const count = data.length;
-            document.getElementById('subCount').innerText = `${count} subs`;
-            
-            const isSub = data.find(s => s.follower_email === _userEmail);
+            const isSubbed = data.find(s => s.follower_email === _user.email);
             const btn = document.getElementById('btnSub');
-            btn.innerText = isSub ? "Unsubscribe" : "Subscribe";
-            btn.className = isSub ? "btn btn-sub unsub" : "btn btn-sub";
+            btn.innerText = isSubbed ? "Subscribed" : "Subscribe";
+            if(isSubbed) btn.classList.add('subscribed'); else btn.classList.remove('subscribed');
         }
 
-        async function toggleSub() {
+        async function toggleSubscribe() {
             const btn = document.getElementById('btnSub');
             if(btn.innerText === "Subscribe") {
-                await _client.from('pufutaratube_subs').insert({ follower_email: _userEmail, target_uploader: _curVid.uploader });
+                await _sb.from('pufutaratube_subs').insert({ follower_email: _user.email, target_uploader: _curVid.uploader });
             } else {
-                await _client.from('pufutaratube_subs').delete().match({ follower_email: _userEmail, target_uploader: _curVid.uploader });
+                await _sb.from('pufutaratube_subs').delete().match({ follower_email: _user.email, target_uploader: _curVid.uploader });
             }
-            checkSub();
+            updateSubscribeUI();
         }
 
-        // --- KOMENTAR ---
-        async function loadComm() {
-            const { data } = await _client.from('pufutaratube_comments').select('*').eq('video_id', _curVid.id).order('id',{ascending:false});
-            const list = document.getElementById('commList');
+        async function handleVote(type) {
+            const newVal = (_curVid[type] || 0) + 1;
+            _curVid[type] = newVal;
+            document.getElementById(type === 'likes' ? 'countLike' : 'countUnlike').innerText = newVal;
+            await _sb.from('pufutaratube_videos').update({ [type]: newVal }).eq('id', _curVid.id);
+        }
+
+        // --- UPLOAD LOGIC ---
+        function openModal() { document.getElementById('uploadModal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('uploadModal').style.display = 'none'; }
+        
+        function changeTab(mode) {
+            _uploadMode = mode;
+            document.getElementById('tabFile').className = mode === 'file' ? 'tab-item active' : 'tab-item';
+            document.getElementById('tabLink').className = mode === 'link' ? 'tab-item active' : 'tab-item';
+            document.getElementById('areaFile').style.display = mode === 'file' ? 'block' : 'none';
+            document.getElementById('areaLink').style.display = mode === 'link' ? 'block' : 'none';
+        }
+
+        async function processUpload() {
+            const title = document.getElementById('upTitle').value;
+            const progress = document.getElementById('upProgress');
+            if(!title) return alert("Judul wajib diisi!");
+
+            progress.innerText = "Sedang memproses...";
+            let finalUrl = "";
+
+            if(_uploadMode === 'file') {
+                const file = document.getElementById('upFile').files[0];
+                if(!file) return alert("Pilih file video!");
+                const fName = `${Date.now()}_${file.name}`;
+                const { data, error } = await _sb.storage.from('pufutaratube_videos').upload(fName, file);
+                if(error) return alert("Gagal upload: " + error.message);
+                finalUrl = _sb.storage.from('pufutaratube_videos').getPublicUrl(fName).data.publicUrl;
+            } else {
+                finalUrl = document.getElementById('upUrl').value;
+                if(!finalUrl) return alert("Masukkan URL video!");
+            }
+
+            const { error: dbErr } = await _sb.from('pufutaratube_videos').insert({
+                title: title, video_url: finalUrl, uploader: _user.email
+            });
+
+            if(dbErr) alert(dbErr.message);
+            else location.reload();
+        }
+
+        async function confirmDeleteVideo() {
+            if(confirm("Hapus video ini secara permanen?")) {
+                await _sb.from('pufutaratube_videos').delete().eq('id', _curVid.id);
+                location.reload();
+            }
+        }
+
+        // --- INIT APP ---
+        _sb.auth.getSession().then(({data}) => {
+            if(data.session) {
+                _user = data.session.user;
+                document.getElementById('screenAuth').style.display = 'none';
+                document.getElementById('mainNav').style.display = 'flex';
+                document.getElementById('userName').innerText = _user.email.split('@')[0];
+                document.getElementById('userInitial').innerText = _user.email[0].toUpperCase();
+                showScreen('screenHome');
+                loadFeed();
+            }
+        });
+
+        // Search Trigger
+        function searchVideo() {
+            const val = document.getElementById('searchIn').value;
+            showScreen('screenHome');
+            loadFeed(val);
+        }
+
+        function openChannel(name) {
+            const emailPart = name + "@"; // Estimasi pencarian uploader berdasarkan nama depan
+            showScreen('screenHome');
+            document.getElementById('feedTitle').innerText = "Channel: " + name;
+            loadFeed('', emailPart);
+        }
+
+        // Komentar
+        async function loadComments() {
+            const { data } = await _sb.from('pufutaratube_comments').select('*').eq('video_id', _curVid.id).order('id', {ascending:false});
+            const list = document.getElementById('commentList');
             list.innerHTML = '';
             data.forEach(c => {
                 list.innerHTML += `<div style="margin-bottom:10px; font-size:0.9rem;">
@@ -281,56 +354,13 @@
             });
         }
 
-        async function sendComm() {
-            const txt = document.getElementById('commIn').value;
-            if(!txt) return;
-            await _client.from('pufutaratube_comments').insert({ video_id: _curVid.id, uploader: _userEmail, comment: txt });
-            document.getElementById('commIn').value = '';
-            loadComm();
+        async function postComment() {
+            const inp = document.getElementById('commInput');
+            if(!inp.value) return;
+            await _sb.from('pufutaratube_comments').insert({ video_id: _curVid.id, uploader: _user.email, comment: inp.value });
+            inp.value = '';
+            loadComments();
         }
-
-        // --- UPLOAD ---
-        function openUpload() { document.getElementById('modalUpload').style.display='flex'; }
-        
-        function setUploadType(t) {
-            _upType = t;
-            document.getElementById('tab1').className = t === 'file' ? 'tab-btn active' : 'tab-btn';
-            document.getElementById('tab2').className = t === 'link' ? 'tab-btn active' : 'tab-btn';
-            document.getElementById('boxFile').style.display = t === 'file' ? 'block' : 'none';
-            document.getElementById('boxLink').style.display = t === 'link' ? 'block' : 'none';
-        }
-
-        async function startUpload() {
-            const title = document.getElementById('upTitle').value;
-            const status = document.getElementById('upStatus');
-            if(!title) return alert("Isi judul!");
-
-            status.innerText = "Processing...";
-            let finalUrl = "";
-
-            if(_upType === 'file') {
-                const file = document.getElementById('upFile').files[0];
-                if(!file) return alert("Pilih file!");
-                const fName = Date.now() + "_" + file.name;
-                const { error } = await _client.storage.from('pufutaratube_videos').upload(fName, file);
-                if(error) return alert(error.message);
-                finalUrl = _client.storage.from('pufutaratube_videos').getPublicUrl(fName).data.publicUrl;
-            } else {
-                finalUrl = document.getElementById('upUrl').value;
-                if(!finalUrl) return alert("Isi link!");
-            }
-
-            await _client.from('pufutaratube_videos').insert({
-                title, video_url: finalUrl, uploader: _userEmail
-            });
-
-            status.innerText = "Berhasil!";
-            setTimeout(() => location.reload(), 1000);
-        }
-
-        _client.auth.getSession().then(({data}) => { 
-            if(data.session) { _userEmail = data.session.user.email; initApp(); } 
-        });
     </script>
 </body>
 </html>
