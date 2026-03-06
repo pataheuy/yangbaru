@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pufutara News</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background-color: #fcfcfc;
+            color: #111;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- Sidebar (Kiri) --- */
+        .sidebar {
+            width: 260px;
+            background-color: #fff;
+            border-right: 1px solid #eaeaea;
+            display: flex;
+            flex-direction: column;
+            padding: 30px 24px;
+            z-index: 10;
+            flex-shrink: 0;
+        }
+
+        .logo { font-size: 1.5rem; font-weight: 900; letter-spacing: -1px; margin-bottom: 50px; }
+        .logo span { color: #888; font-weight: 400; }
+
+        .nav-menu { list-style: none; display: flex; flex-direction: column; gap: 15px; }
+        .nav-menu li { width: 100%; }
+        .nav-btn {
+            background: none; border: none; text-align: left; width: 100%;
+            font-size: 1rem; font-weight: 600; color: #777; padding: 10px 15px;
+            border-radius: 8px; cursor: pointer; transition: all 0.2s;
+        }
+        .nav-btn:hover { background: #f5f5f5; color: #111; }
+        .nav-btn.active { background: #111; color: #fff; }
+
+        /* --- Main Content (Kanan - Feed Berita) --- */
+        .main-feed {
+            flex: 1; overflow-y: auto; padding: 40px 60px; position: relative;
+        }
+        .main-feed::-webkit-scrollbar { width: 6px; }
+        .main-feed::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
+
+        /* Tombol Kembali & Header */
+        .header-container { margin-bottom: 40px; }
+        .back-btn { 
+            text-decoration: none; color: #999; font-size: 0.9rem; font-weight: 600;
+            transition: 0.3s; display: inline-block; margin-bottom: 20px;
+        }
+        .back-btn:hover { color: #111; }
+        
+        .top-bar { display: flex; justify-content: space-between; align-items: center; }
+        .greeting { font-size: 2.5rem; font-weight: 900; letter-spacing: -1px; }
+        .date-today { color: #888; font-weight: 500; margin-top: 5px; }
+
+        /* --- Article Grid (Ukuran Normal & Proporsional) --- */
+        .article-grid {
+            display: grid;
+            /* Menggunakan auto-fit agar card tidak dipaksa kecil. 
+               Di layar besar otomatis 4 kolom, di layar kecil menyesuaikan */
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+            gap: 30px;
+        }
+
+        .article-card {
+            background: #fff; border: 1px solid #eaeaea; border-radius: 16px;
+            overflow: hidden; cursor: pointer; transition: transform 0.3s, box-shadow 0.3s;
+            display: flex; flex-direction: column;
+        }
+        .article-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.06); }
+
+        .article-img { width: 100%; height: 200px; background-color: #eee; position: relative; }
+        .category-tag {
+            position: absolute; top: 15px; left: 15px; background: #fff;
+            color: #111; font-size: 0.75rem; font-weight: 700; padding: 5px 12px;
+            border-radius: 100px; text-transform: uppercase; letter-spacing: 1px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .article-content { padding: 22px; flex: 1; display: flex; flex-direction: column; }
+        .article-title { font-size: 1.15rem; font-weight: 800; line-height: 1.4; margin-bottom: 10px; }
+        .article-excerpt { font-size: 0.9rem; color: #666; line-height: 1.6; margin-bottom: 20px; flex: 1; }
+        .article-meta { display: flex; justify-content: space-between; font-size: 0.8rem; color: #999; font-weight: 500; }
+
+        /* --- Reader View (Mode Baca Overlay) --- */
+        .reader-view {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #fff; z-index: 100; overflow-y: auto;
+            transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reader-view.open { transform: translateY(0); }
+
+        .reader-container { max-width: 700px; margin: 0 auto; padding: 60px 20px 100px; }
+        
+        .close-btn {
+            background: #f5f5f5; border: none; padding: 10px 20px; border-radius: 100px;
+            font-weight: 600; font-size: 0.9rem; cursor: pointer; margin-bottom: 40px; transition: 0.2s;
+        }
+        .close-btn:hover { background: #e0e0e0; }
+
+        .read-category { color: #888; text-transform: uppercase; font-size: 0.85rem; font-weight: 700; letter-spacing: 1px; margin-bottom: 15px; }
+        .read-title { font-size: 2.8rem; font-weight: 900; line-height: 1.2; letter-spacing: -1px; margin-bottom: 20px; }
+        .read-meta { font-size: 0.95rem; color: #666; margin-bottom: 40px; padding-bottom: 30px; border-bottom: 1px solid #eee; }
+        
+        .read-body { font-size: 1.15rem; line-height: 1.8; color: #333; }
+        .read-body p { margin-bottom: 25px; }
+        .read-body h3 { font-size: 1.5rem; font-weight: 800; margin: 40px 0 15px; }
+
+        /* Empty State */
+        .no-article { grid-column: 1 / -1; text-align: center; padding: 50px; color: #888; font-size: 1.1rem; display: none; }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="logo">PUFUTARA.<span>NEWS</span></div>
+        <ul class="nav-menu">
+            <li><button class="nav-btn active" data-filter="all">Semua Berita</button></li>
+            <li><button class="nav-btn" data-filter="coding">Coding & Dev</button></li>
+            <li><button class="nav-btn" data-filter="tech">Teknologi</button></li>
+            <li><button class="nav-btn" data-filter="lifestyle">Lifestyle</button></li>
+        </ul>
+    </aside>
+
+    <main class="main-feed">
+        <div class="header-container">
+            <a href="index.html" class="back-btn">← Kembali ke Archive</a>
+            <header class="top-bar">
+                <div>
+                    <h1 class="greeting">Edisi Hari Ini.</h1>
+                    <p class="date-today" id="currentDate">Memuat tanggal...</p>
+                </div>
+            </header>
+        </div>
+
+        <div class="article-grid" id="articleGrid">
+            
+            <article class="article-card" data-category="coding">
+                <div class="article-img" style="background: linear-gradient(45deg, #111, #444);"><span class="category-tag">Coding</span></div>
+                <div class="article-content">
+                    <h2 class="article-title">Mengapa SPA Makin Populer?</h2>
+                    <p class="article-excerpt">SPA memberikan pengalaman pengguna yang mulus tanpa refresh halaman saat bernavigasi.</p>
+                    <div class="article-meta"><span>Oleh Putra</span><span>3 min read</span></div>
+                </div>
+                <div class="hidden-content" style="display: none;"><p>Dalam dunia pengembangan web modern, Single Page Application (SPA) telah menjadi standar baru.</p><h3>Pengalaman Pengguna Tanpa Jeda</h3><p>Keuntungan terbesar dari SPA adalah kecepatannya saat perpindahan antar tab atau menu yang terjadi secara instan.</p></div>
+            </article>
+
+            <article class="article-card" data-category="tech">
+                <div class="article-img" style="background: linear-gradient(45deg, #e0e0e0, #f5f5f5);"><span class="category-tag">Tech</span></div>
+                <div class="article-content">
+                    <h2 class="article-title">AI Semakin Pintar, Siapa Terancam?</h2>
+                    <p class="article-excerpt">Perkembangan kecerdasan buatan berjalan sangat cepat mengubah lanskap industri.</p>
+                    <div class="article-meta"><span>Oleh Editor</span><span>5 min read</span></div>
+                </div>
+                <div class="hidden-content" style="display: none;"><p>Kecerdasan Buatan (AI) bukan lagi sekadar fiksi ilmiah. Banyak pekerjaan yang sifatnya repetitif mulai diotomatisasi.</p><h3>Adaptasi adalah Kunci</h3><p>Daripada takut, para profesional disarankan mulai menggunakan AI sebagai alat bantu untuk meningkatkan produktivitas.</p></div>
+            </article>
+
+            <article class="article-card" data-category="lifestyle">
+                <div class="article-img" style="background: linear-gradient(45deg, #555, #888);"><span class="category-tag">Lifestyle</span></div>
+                <div class="article-content">
+                    <h2 class="article-title">Setup Meja Kerja Minimalis</h2>
+                    <p class="article-excerpt">Lingkungan kerja sangat mempengaruhi mood. Berikut tips menata meja agar tetap fokus.</p>
+                    <div class="article-meta"><span>Oleh Putra</span><span>4 min read</span></div>
+                </div>
+                <div class="hidden-content" style="display: none;"><p>Pernah merasa buntu saat ngoding? Bisa jadi masalahnya pada meja kerja Anda yang berantakan.</p><h3>Prinsip Minimalisme</h3><p>Singkirkan barang tidak perlu. Sisakan hanya laptop, keyboard, mouse, dan segelas kopi.</p></div>
+            </article>
+
+            <article class="article-card" data-category="coding">
+                <div class="article-img" style="background: linear-gradient(45deg, #222, #000);"><span class="category-tag">Coding</span></div>
+                <div class="article-content">
+                    <h2 class="article-title">Mitos Seputar "Dark Mode"</h2>
+                    <p class="article-excerpt">Apakah dark mode benar-benar menyelamatkan mata kita, atau hanya sekadar estetika?</p>
+                    <div class="article-meta"><span>Oleh Editor</span><span>3 min read</span></div>
+                </div>
+                <div class="hidden-content" style="display: none;"><p>Perdebatan antara pengguna Dark Mode dan Light Mode tidak pernah ada habisnya.</p><h3>Fakta Medis vs Estetika</h3><p>Di lingkungan minim cahaya, Dark Mode terbukti mengurangi silau layar yang menyilaukan.</p></div>
+            </article>
+
+            <article class="article-card" data-category="tech">
+                <div class="article-img" style="background: linear-gradient(45deg, #444, #777);"><span class="category-tag">Tech</span></div>
+                <div class="article-content">
+                    <h2 class="article-title">Masa Depan Era Web3</h2>
+                    <p class="article-excerpt">Desentralisasi internet perlahan mulai mengubah total cara kita berinteraksi online.</p>
+                    <div class="article-meta"><span>Oleh Putra</span><span>6 min read</span></div>
+                </div>
+                <div class="hidden-content" style="display: none;"><p>Web3 menjanjikan internet yang lebih terbuka dan tidak dikontrol oleh raksasa teknologi.</p><h3>Tantangan Adopsi</h3><p>Masih banyak hambatan teknis yang perlu diselesaikan sebelum Web3 bisa digunakan oleh masyarakat umum secara masal.</p></div>
+            </article>
+
+            <article class="article-card" data-category="coding">
+                <div class="article-img" style="background: linear-gradient(45deg, #888, #bbb);"><span class="category-tag">Coding</span></div>
+                <div class="article-content">
+                    <h2 class="article-title">Framework vs Vanilla JS</h2>
+                    <p class="article-excerpt">Kapan sebaiknya menggunakan framework dan kapan cukup dengan Vanilla JavaScript murni?</p>
+                    <div class="article-meta"><span>Oleh Editor</span><span>4 min read</span></div>
+                </div>
+                <div class="hidden-content" style="display: none;"><p>Memahami dasar-dasar Vanilla JS sangat penting sebelum terjun ke framework seperti React atau Vue.</p><h3>Fundamental itu Kunci</h3><p>Framework datang dan pergi, tapi fundamental JavaScript akan selalu relevan di dunia web development.</p></div>
+            </article>
+
+            <article class="article-card" data-category="lifestyle">
+                <div class="article-img" style="background: linear-gradient(45deg, #1a1a1a, #333);"><span class="category-tag">Lifestyle</span></div>
+                <div class="article-content">
+                    <h2 class="article-title">Burnout di Kalangan Developer</h2>
+                    <p class="article-excerpt">Gejala dan cara ampuh mengatasi kelelahan mental akibat terlalu sering begadang koding.</p>
+                    <div class="article-meta"><span>Oleh Putra</span><span>5 min read</span></div>
+                </div>
+                <div class="hidden-content" style="display: none;"><p>Kerja di depan layar berjam-jam tanpa istirahat sangat rentan memicu burnout.</p><h3>Pentingnya Jeda</h3><p>Lakukan peregangan setiap 2 jam sekali dan jangan lupa untuk memiliki hobi di luar dunia digital.</p></div>
+            </article>
+
+            <article class="article-card" data-category="tech">
+                <div class="article-img" style="background: linear-gradient(45deg, #ccc, #eee);"><span class="category-tag">Tech</span></div>
+                <div class="article-content">
+                    <h2 class="article-title">Review Gadget Bulan Ini</h2>
+                    <p class="article-excerpt">Komparasi laptop terbaik untuk programming di tahun ini berdasarkan performa tangguhnya.</p>
+                    <div class="article-meta"><span>Oleh Editor</span><span>7 min read</span></div>
+                </div>
+                <div class="hidden-content" style="display: none;"><p>Memilih laptop untuk ngoding tidak selalu harus yang paling mahal, tapi yang spesifikasinya pas.</p><h3>RAM dan Storage</h3><p>Prioritaskan RAM minimal 16GB dan SSD yang kencang untuk kompilasi kode yang lebih cepat.</p></div>
+            </article>
+
+            <article class="article-card" data-category="coding">
+                <div class="article-img" style="background: linear-gradient(45deg, #555, #222);"><span class="category-tag">Coding</span></div>
+                <div class="article-content">
+                    <h2 class="article-title">Panduan Mudah CSS Grid</h2>
+                    <p class="article-excerpt">Cara mudah membuat layout kompleks hanya dengan beberapa baris kode CSS Grid.</p>
+                    <div class="article-meta"><span>Oleh Putra</span><span>4 min read</span></div>
+                </div>
+                <div class="hidden-content" style="display: none;"><p>CSS Grid telah mengubah cara kita membuat layout di web secara drastis.</p><h3>Dua Dimensi</h3><p>Berbeda dengan Flexbox yang fokus pada satu arah, Grid memungkinkan pengaturan kolom dan baris sekaligus.</p></div>
+            </article>
+
+            <article class="article-card" data-category="lifestyle">
+                <div class="article-img" style="background: linear-gradient(45deg, #999, #666);"><span class="category-tag">Lifestyle</span></div>
+                <div class="article-content">
+                    <h2 class="article-title">Kopi dan Produktivitas</h2>
+                    <p class="article-excerpt">Mitos bahwa kopi membuat kita lebih pintar ngoding, seberapa akurat menurut medis?</p>
+                    <div class="article-meta"><span>Oleh Editor</span><span>3 min read</span></div>
+                </div>
+                <div class="hidden-content" style="display: none;"><p>Kopi sudah menjadi "bahan bakar" wajib bagi sebagian besar programmer di seluruh dunia.</p><h3>Batas Wajar</h3><p>Kafein memang membantu fokus, namun konsumsi berlebihan justru bisa memicu kegelisahan dan menurunkan kualitas kode.</p></div>
+            </article>
+
+            <article class="article-card" data-category="tech">
+                <div class="article-img" style="background: linear-gradient(45deg, #0f0f0f, #4a4a4a);"><span class="category-tag">Tech</span></div>
+                <div class="article-content">
+                    <h2 class="article-title">Keamanan Siber di 2026</h2>
+                    <p class="article-excerpt">Tren ancaman siber terbaru dan bagaimana cara utama melindungi data aplikasi Anda.</p>
+                    <div class="article-meta"><span>Oleh Putra</span><span>5 min read</span></div>
+                </div>
+                <div class="hidden-content" style="display: none;"><p>Dengan semakin canggihnya teknologi, metode peretasan pun ikut berkembang secara signifikan.</p><h3>Enkripsi Total</h3><p>Penerapan end-to-end encryption bukan lagi fitur tambahan, melainkan standar wajib bagi setiap aplikasi modern.</p></div>
+            </article>
+
+            <article class="article-card" data-category="coding">
+                <div class="article-img" style="background: linear-gradient(45deg, #d4d4d4, #ffffff);"><span class="category-tag">Coding</span></div>
+                <div class="article-content">
+                    <h2 class="article-title">Clean Code Itu Sangat Penting</h2>
+                    <p class="article-excerpt">Menulis kode bukan hanya untuk dibaca komputer, tapi untuk dibaca oleh manusia lainnya.</p>
+                    <div class="article-meta"><span>Oleh Editor</span><span>4 min read</span></div>
+                </div>
+                <div class="hidden-content" style="display: none;"><p>Kode yang berjalan belum tentu kode yang baik. Kode yang baik adalah yang mudah dipahami.</p><h3>Penamaan Variabel</h3><p>Berhentilah menggunakan singkatan aneh. Gunakan nama variabel yang mendeskripsikan tujuan dari data tersebut.</p></div>
+            </article>
+
+            <div class="no-article" id="noArticleMsg">Belum ada artikel di kategori ini.</div>
+        </div>
+    </main>
+
+    <div class="reader-view" id="readerView">
+        <div class="reader-container">
+            <button class="close-btn" id="closeReaderBtn">← Kembali ke Feed</button>
+            
+            <div class="read-category" id="readCategory">Kategori</div>
+            <h1 class="read-title" id="readTitle">Judul Artikel</h1>
+            <div class="read-meta" id="readMeta">Oleh Penulis • Waktu Baca</div>
+            
+            <div class="read-body" id="readBody">
+                </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // 1. Tampilkan Tanggal Hari Ini
+            const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = new Date().toLocaleDateString('id-ID', dateOptions);
+
+            // 2. Sistem Filter Kategori
+            const filterBtns = document.querySelectorAll('.nav-btn');
+            const articles = document.querySelectorAll('.article-card');
+            const noArticleMsg = document.getElementById('noArticleMsg');
+
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    const targetCat = btn.getAttribute('data-filter');
+                    let visibleCount = 0;
+
+                    articles.forEach(article => {
+                        const articleCat = article.getAttribute('data-category');
+                        if (targetCat === 'all' || targetCat === articleCat) {
+                            article.style.display = 'flex';
+                            visibleCount++;
+                        } else {
+                            article.style.display = 'none';
+                        }
+                    });
+
+                    noArticleMsg.style.display = (visibleCount === 0) ? 'block' : 'none';
+                });
+            });
+
+            // 3. Mode Baca (Reader Mode)
+            const readerView = document.getElementById('readerView');
+            const closeReaderBtn = document.getElementById('closeReaderBtn');
+            
+            const readTitle = document.getElementById('readTitle');
+            const readCategory = document.getElementById('readCategory');
+            const readMeta = document.getElementById('readMeta');
+            const readBody = document.getElementById('readBody');
+
+            articles.forEach(article => {
+                article.addEventListener('click', () => {
+                    const title = article.querySelector('.article-title').textContent;
+                    const category = article.querySelector('.category-tag').textContent;
+                    const metaElements = article.querySelectorAll('.article-meta span');
+                    const hiddenContent = article.querySelector('.hidden-content').innerHTML;
+
+                    readTitle.textContent = title;
+                    readCategory.textContent = category;
+                    readMeta.textContent = `${metaElements[0].textContent} • ${metaElements[1].textContent}`;
+                    readBody.innerHTML = hiddenContent;
+
+                    readerView.classList.add('open');
+                });
+            });
+
+            closeReaderBtn.addEventListener('click', () => {
+                readerView.classList.remove('open');
+            });
+        });
+    </script>
+</body>
+</html>

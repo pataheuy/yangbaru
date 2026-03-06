@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pufutara Archive</title>
+    <style>
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: #ffffff;
+            color: #000000;
+            line-height: 1.6;
+            overflow-x: hidden;
+            height: auto; 
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* --- Header & Navbar --- */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            animation: slideDown 0.8s ease forwards;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 1.5rem;
+            letter-spacing: -1px;
+            text-transform: uppercase;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav ul li { margin-left: 30px; }
+        nav ul li a {
+            text-decoration: none;
+            color: #666;
+            font-size: 0.95rem;
+            transition: color 0.3s;
+        }
+        nav ul li a:hover { color: #000; }
+
+        /* --- Hero Section --- */
+        .hero {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 85vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            z-index: 10;
+            margin-top: 20px;
+            animation: fadeInScale 1.2s ease-out forwards;
+            background-color: #fff;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 6;
+        }
+
+        .hero h1 {
+            font-size: 4.5rem;
+            font-weight: 900;
+            line-height: 1.05;
+            margin-bottom: 25px;
+            letter-spacing: -3px;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: #666;
+            max-width: 700px;
+            margin: 0 auto 45px;
+        }
+
+        .btn {
+            display: inline-block;
+            background: #000;
+            color: #fff;
+            padding: 18px 35px;
+            text-decoration: none;
+            font-weight: 600;
+            border-radius: 18px; 
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+
+        /* --- Project Grid --- */
+        .main-content {
+            position: relative;
+            z-index: 100;
+            margin-top: 80vh;
+        }
+
+        .zoom-wrapper {
+            transform-origin: center top;
+            transition: transform 0.1s ease-out;
+            background: #ffffff;
+            border-top: 1px solid #f0f0f0;
+            box-shadow: 0 -25px 60px rgba(0,0,0,0.04);
+        }
+
+        .features {
+            padding: 20px 0 80px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+
+        .card-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            transition: all 0.7s cubic-bezier(0.165, 0.84, 0.44, 1);
+            opacity: 0;
+            transform: translateY(40px);
+        }
+
+        .card-link.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .card {
+            padding: 25px;
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 20px;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            min-height: 200px; /* Ukuran lebih kecil karena tanpa gambar */
+            height: 100%;
+        }
+
+        .card-link:hover .card {
+            border-color: #000;
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.07);
+        }
+
+        .card h3 { font-size: 1.3rem; margin-bottom: 12px; font-weight: 700; }
+        .card p { color: #777; font-size: 0.95rem; }
+        .card .tag { 
+            font-size: 0.7rem; 
+            color: #bbb; 
+            text-transform: uppercase; 
+            letter-spacing: 2px;
+            margin-bottom: 13px; 
+            display: block; 
+            font-weight: 600;
+        }
+
+        /* Footer */
+        footer {
+            padding: 100px 0 40px;
+            background: #fff;
+            border-top: 1px solid #eee;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 80px;
+        }
+
+        .footer-brand .footer-logo { font-weight: 800; font-size: 1.6rem; margin-bottom: 25px; display: block; }
+        .footer-col h4 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 30px; font-weight: 700; }
+        .footer-col ul { list-style: none; }
+        .footer-col ul li { margin-bottom: 15px; }
+        .footer-col ul li a { text-decoration: none; color: #777; font-size: 0.95rem; transition: 0.3s; }
+        .footer-col ul li a:hover { color: #000; }
+
+        .footer-bottom {
+            padding-top: 30px;
+            border-top: 1px solid #f5f5f5;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #bbb;
+            font-size: 0.85rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) { 
+            .grid { grid-template-columns: repeat(3, 1fr); }
+            .hero h1 { font-size: 4rem; }
+        }
+        @media (max-width: 768px) { 
+            .hero h1 { font-size: 3rem; } 
+            .grid { grid-template-columns: repeat(2, 1fr); }
+            .hero { height: 80vh; }
+            .main-content { margin-top: 80vh; }
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
+        }
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">PUFUTARA archive.</div>
+                <ul>
+                    <li><a href="#">Layanan</a></li>
+                    <li><a href="#proyek-section" id="navProyek">Proyek</a></li>
+                    <li><a href="#">Arsip</a></li>
+                    <li><a href="#">Kontak</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero" id="heroSec">
+        <div class="hero-overlay" id="heroOverlay"></div>
+        <div class="container hero-content">
+            <h1>Satu proyek, satu tempat.<br> Ini dia Pufutara Archive.</h1>
+            <p>Apa yang putra lakukan kalau megang pc? kalo ga deepseek ya pasti gemini. sampe muak yang lain ngeliat nya, tapi yang namanya minat. sedikit demi sedikit lama lama jadi bukit. dan inilah hasilnya.</p>
+            <a id="scrollBtn" class="btn">Mau liat? Scroll dong!</a>
+        </div>
+    </section>
+
+    <div class="main-content" id="proyek-section">
+        <div class="zoom-wrapper" id="zoomElement">
+            <section class="features">
+                <div class="container">
+                    <div class="grid">
+                        
+                        <a href="OS.html" class="card-link" target="_blank">
+                            <div class="card">
+                                <span class="tag">01 / Operating System</span>
+                                <h3>PufutaraOS</h3>
+                                <p>Sistem operasi modern dan serba guna berbasis web. cita cita putra waktu kecil akhirnya terwujud!</p>
+                            </div>
+                        </a>
+
+                        <a href="workspace.html" class="card-link" target="_blank">
+                            <div class="card">
+                                <span class="tag">02 / Productivity Hub</span>
+                                <h3>PufutaraWorkspace</h3>
+                                <p>Pusat Productivity App dari pufutara, gabungan dari beberapa projek yang menjadi satu kesatuan!</p>
+                            </div>
+                        </a>
+
+                        <a href="doc.html" class="card-link" target="_blank">
+                            <div class="card">
+                                <span class="tag">03 / Writing & Document</span>
+                                <h3>PufutaraWriter</h3>
+                                <p>Pengolahan kata yang cepat, simpel dan modern! mudah diakses di mana saja dan pastinya, ringan!</p>
+                            </div>
+                        </a>
+
+                        <a href="Paint.html" class="card-link" target="_blank">
+                            <div class="card">
+                                <span class="tag">04 / Draw & Paint</span>
+                                <h3>PufutaraProPaint</h3>
+                                <p>menggambar dan mengsketsa apapun dengan mudah. aplikasi Pemula, tools Profesional</p>
+                            </div>
+                        </a>
+
+                        <a href="spin wheel.html" class="card-link" target="_blank">
+                            <div class="card">
+                                <span class="tag">05 / Education</span>
+                                <h3>PufutaraSpinWheel</h3>
+                                <p>Putuskan sesuatu dengan cepat dan tak terduga! biasa nya di pake pak ulil buat bikin kelompok b indo sih.</p>
+                            </div>
+                        </a>
+
+                        <a href="https://pufuta.vercel.app" class="card-link" target="_blank">
+                            <div class="card">
+                                <span class="tag">06 / Website</span>
+                                <h3>PufutaraWeb</h3>
+                                <p>Ya ini ma gausah ada deskripsi semua orang juga dah pd tw. btw pw nya putraganteng y.</p>
+                            </div>
+                        </a>
+
+                        <a href="chat.html" class="card-link" target="_blank">
+                            <div class="card">
+                                <span class="tag">07 / Relax</span>
+                                <h3>PufutaraChat</h3>
+                                <p>Obrolan Simple, tambah akun, login, langsung chat ke semua orang!.</p>
+                            </div>
+                        </a>
+
+                        <a href="todo.html" class="card-link" target="_blank">
+                            <div class="card">
+                                <span class="tag">08 / Focus List</span>
+                                <h3>PufutaraToDo</h3>
+                                <p>Todo list fokus yang simpel dan modern, mudah di pakai dan mudah di laksanakan, cocok buat putra yg pelupa.</p>
+                            </div>
+                        </a>
+
+                        <a href="habit tracker.html" class="card-link" target="_blank">
+                            <div class="card">
+                                <span class="tag">09 / Habits</span>
+                                <h3>PufutaraHabitTracker</h3>
+                                <p>Monitoring proses membangun kebiasaan baik dan menghilangkan kebiasaan yang buruk.</p>
+                            </div>
+                        </a>
+
+                        <a href="https://kanay.vercel.app" class="card-link" target="_blank">
+                            <div class="card">
+                                <span class="tag">10 / BEM Nostalgia</span>
+                                <h3>PufutaraWeb Old</h3>
+                                <p>Huhhuhu, udahlah gausah ada deskrip, tanya aja ke anak BEM se sikma apa nih web.</p>
+                            </div>
+                        </a>
+
+                        <a href="index.html" class="card-link" target="_blank">
+                            <div class="card">
+                                <span class="tag">11 / The Center</span>
+                                <h3>PufutaraArchive</h3>
+                                <p>Yang anda lihat ini, yaitulah pufutara archive, sebagai platform pusat arsip proyek proyek nya putra..</p>
+                            </div>
+                        </a>
+
+                        <a href="game.html" class="card-link" target="_blank">
+                            <div class="card">
+                                <span class="tag">12 / You Know lah</span>
+                                <h3>PufutaraMiniGames</h3>
+                                <p>Yagitulah, belom jadi si tapi lagi dibuat, kasih ide game dong but pufutara minigames!.</p>
+                            </div>
+                        </a>
+
+                        <a href="news.html" class="card-link">
+                            <div class="card">
+                                <span class="tag">13 / News Update</span>
+                                <h3>PufutaraNews</h3>
+                                <p>Kalkulator sains simpel dan akurat buat bantu ngerjain tugas Labkom atau Matematika tanpa ribet.</p>
+                            </div>
+                        </a>
+
+                        <a href="audio.html" class="card-link">
+                            <div class="card">
+                                <span class="tag">14 / Audio Flow</span>
+                                <h3>PufutaraAudioLibrary</h3>
+                                <p>Dengerin lo-fi beat dan ambience suara alam biar kodingnya makin fokus, chill, dan gak spaneng.</p>
+                            </div>
+                        </a>
+
+                        <a href="library.html" class="card-link">
+                            <div class="card">
+                                <span class="tag">15 / DigLib Tech</span>
+                                <h3>PufutaraDigLib</h3>
+                                <p>Cek kondisi cuaca terkini di Jalancagak biar tau harus bawa payung atau enggak pas mau ke Labkom.</p>
+                            </div>
+                        </a>
+
+                        <a href="gallery.html" class="card-link">
+                            <div class="card">
+                                <span class="tag">16 / Global Storage!</span>
+                                <h3>PufutaraGallery</h3>
+                                <p>Pertamakalinya PUTRA BELAJAR FULL STACK DEVOLOPER!. upload foto auto ke save ke server dan bisa diakses semua orang!</p>
+                            </div>
+                        </a>
+
+                    </div>
+                </div>
+            </section>
+
+            <footer>
+                <div class="container">
+                    <div class="footer-grid">
+                        <div class="footer-brand">
+                            <span class="footer-logo">PUFUTARA.</span>
+                            <p>Seorang pelajar yang lagi tergila-gila dengan koding dan ingin membuat lebih banyak lagi proyek-proyek koding dan html yang bermanfaat dan menarik!</p>
+                        </div>
+                        <div class="footer-col">
+                            <h4>Keahlian</h4>
+                            <ul>
+                                <li><a href="#">UI monokrom</a></li>
+                                <li><a href="#">UI modern & simpel</a></li>
+                            </ul>
+                        </div>
+                        <div class="footer-col">
+                            <h4>Internal</h4>
+                            <ul>
+                                <li><a href="#">Arsip Proyek</a></li>
+                                <li><a href="#">Isi</a></li>
+                            </ul>
+                        </div>
+                        <div class="footer-col">
+                            <h4>Hubungi</h4>
+                            <ul>
+                                <li><a href="#">Putra ajam</a></li>
+                                <li><a href="#">pufutara@gmail.com</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="footer-bottom">
+                        <p>&copy; 2026 Pufutara. Sebuah perjalanan yang bikin cape euy.</p>
+                        <p>labkom 1, PC 17 Smpit Assyifa Boarding School Jalancagak 1 Putra</p>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        const zoomElement = document.getElementById('zoomElement');
+        const heroSec = document.getElementById('heroSec');
+        const heroOverlay = document.getElementById('heroOverlay');
+        const cardLinks = document.querySelectorAll('.card-link');
+        const scrollBtn = document.getElementById('scrollBtn');
+        const navProyek = document.getElementById('navProyek');
+
+        function smoothScrollWithOffset(targetId, offset) {
+            const targetElement = document.getElementById(targetId);
+            const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
+            window.scrollTo({
+                top: targetPosition - offset,
+                behavior: 'smooth'
+            });
+        }
+
+        scrollBtn.addEventListener('click', () => {
+            smoothScrollWithOffset('proyek-section', 80);
+        });
+
+        navProyek.addEventListener('click', (e) => {
+            e.preventDefault();
+            smoothScrollWithOffset('proyek-section', 80);
+        });
+
+        window.addEventListener('scroll', () => {
+            const scrollPos = window.scrollY;
+            const windowHeight = window.innerHeight;
+            
+            let progress = scrollPos / (windowHeight * 0.6);
+            if (progress > 1) progress = 1;
+
+            heroOverlay.style.opacity = progress;
+
+            const scaleValue = 1.1 - (0.1 * progress);
+            zoomElement.style.transform = `scale(${scaleValue})`;
+
+            heroSec.style.transform = `translateY(${-scrollPos * 0.3}px)`;
+
+            cardLinks.forEach((card, index) => {
+                const cardTop = card.getBoundingClientRect().top;
+                if (cardTop < windowHeight - 50) {
+                    setTimeout(() => {
+                        card.classList.add('show');
+                    }, (index % 4) * 100); 
+                }
+            });
+        });
+
+        window.dispatchEvent(new Event('scroll'));
+    </script>
+</body>
+</html>
+

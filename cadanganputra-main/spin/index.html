@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Pufutara Spin Wheel </title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Poppins:wght@600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<style>
+:root{ --bg:#fff; --text:#111; --muted:#6b7280; --border:#e5e7eb; }
+*{box-sizing:border-box}
+body{ margin:0; font-family:Inter,sans-serif; background:var(--bg); color:var(--text); height:100vh; display:flex; overflow:hidden; }
+
+.main{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative; }
+h1{ font-family:Poppins; font-weight:600; margin:0; }
+.desc{ font-size:14px; color:var(--muted); margin-top:4px; }
+
+.settings-card{ position:absolute; bottom:20px; right:20px; background:#f3f4f6; border-radius:12px; padding:10px 14px; cursor:pointer; box-shadow:0 4px 10px rgba(0,0,0,.08); font-size:20px; z-index: 100; transition: .25s; }
+.settings-card:hover{ transform:rotate(20deg) scale(1.1); }
+
+.wheel-wrap{ margin-top:24px; position:relative; cursor: pointer; transition: transform 0.2s; }
+.wheel-wrap:hover { transform: scale(1.01); } 
+.wheel-wrap:active { transform: scale(0.99); } 
+
+canvas{ border-radius:50%; box-shadow: 0 20px 60px rgba(0,0,0,0.1); } 
+
+.pointer{ position:absolute; right:-15px; top:50%; transform:translateY(-50%); width:0; height:0; border-top:15px solid transparent; border-bottom:15px solid transparent; border-right:25px solid #111; z-index: 10; cursor: pointer; }
+
+.sidebar{ width:320px; background:#fff; border-left:1px solid var(--border); padding:20px; position:absolute; right:0; top:0; bottom:0; transform:translateX(0); transition:.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 90; overflow-y: auto; }
+.sidebar.hide{ transform:translateX(100%); }
+textarea{ width:100%; font-family:Inter; font-size:14px; padding:12px; border-radius:10px; border:1px solid var(--border); resize:none; background: #f9fafb; outline:none; transition: .2s; }
+textarea:focus { border-color: #111; background: #fff; }
+#input { height: 220px; }
+
+.btn-group { display: flex; gap: 8px; margin-top: 10px; }
+.sidebar button { padding: 10px; border: none; border-radius: 10px; cursor: pointer; font-weight: 500; transition: all .25s ease; }
+
+.btn-reshuffle { background: #e5e7eb; color: #111; flex: 1; }
+.btn-reshuffle:hover { background: #d1d5db; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+
+.update-btn { background: #111; color: #fff; width: 100%; margin-top: 12px; font-weight: 600; letter-spacing: 0.5px; }
+.update-btn:hover { background: #000; transform: scale(1.02); box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
+
+.history-list { margin-top: 10px; list-style: none; padding: 0; }
+.history-item { padding: 8px 12px; border-bottom: 1px solid #f3f4f6; display: flex; justify-content: space-between; font-size: 14px;}
+
+.popup{ position:fixed; inset:0; background:rgba(0,0,0,0.3); display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:.25s ease; z-index: 200; backdrop-filter: blur(4px); }
+.popup.show{ opacity:1; pointer-events:auto; }
+.popup-box{ background:#fff; padding:50px; border-radius:32px; text-align:center; transform:scale(.8); transition:.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); min-width: 350px; box-shadow: 0 30px 60px rgba(0,0,0,0.15); border: none; }
+
+#popupCustomMsg { font-weight: 300; font-size: 18px; color: var(--muted); margin-bottom: 10px; display: block; }
+#popupWinnerName { font-weight: 700; font-size: 42px; color: var(--text); display: block; font-family: 'Poppins'; }
+.popup-box button { outline: none; border: none; }
+</style>
+</head>
+
+<body>
+<div class="main">
+  <div class="settings-card" onclick="toggleSidebar()">⚙️</div>
+  <h1>Pufutara Spin Wheel</h1>
+  <div class="desc">Klik roda atau panah untuk memutar wheel nya yak.</div>
+  
+  <div class="wheel-wrap" onclick="spin()">
+    <div class="pointer"></div>
+    <canvas id="wheel" width="500" height="500"></canvas>
+  </div>
+</div>
+
+<div class="sidebar" id="sidebar">
+  <h2>Entries</h2>
+  <textarea id="input">pufu miaw miaw
+alwi terong
+handy jackpot
+reja sapy
+hambrut
+pradimos
+hibatucang
+dapeng
+praborai
+eggjio
+raistong
+ranggos nigos 
+susi ( sugeng siti )
+habiburrejos</textarea>
+  <div class="btn-group">
+    <button class="btn-reshuffle" onclick="manualReshuffle()">🎲 Reshuffle List</button>
+  </div>
+  <h3>Kustomisasi Kalimat</h3>
+  <textarea id="msgInput" style="height:50px;">pemenangnya adalah..</textarea>
+  <button class="update-btn" onclick="updateItems()">UPDATE WHEEL</button>
+  <hr style="margin-top:20px; border:0; border-top:1px solid #eee;">
+  <h3>Riwayat Pemenang</h3>
+  <div id="history" class="history-list"></div>
+</div>
+
+<div class="popup" id="popup">
+  <div class="popup-box">
+    <span id="popupCustomMsg"></span> <span id="popupWinnerName"></span> 
+    <div style="display:flex; gap:12px; margin-top:30px; justify-content:center;">
+      <button style="background:#f3f4f6; color:#111; padding:12px 30px; border-radius:999px; cursor:pointer; font-weight:600;" onclick="closePopupWithSidebar()">Lanjut</button>
+      <button style="background:#111; color:#fff; padding:12px 30px; border-radius:999px; cursor:pointer; font-weight:600;" onclick="removeItemWithSidebar()">Hapus Nama</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let items=[], angle=0, selectedIndex=null, history=[];
+let isSpinning = false; 
+
+const wheel = document.getElementById("wheel"), sidebar = document.getElementById("sidebar"), ctx = wheel.getContext("2d");
+const c = wheel.width/2, r = c-10, inputArea = document.getElementById("input");
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function playTick(isFast = false){
+  const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+  osc.type = isFast ? 'square' : 'triangle'; 
+  osc.frequency.setValueAtTime(isFast ? 180 : 140, audioCtx.currentTime);
+  gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+  osc.connect(gain); gain.connect(audioCtx.destination);
+  osc.start(); osc.stop(audioCtx.currentTime + 0.03);
+}
+
+function playVictorySound() {
+  const notes = [261.63, 329.63, 392.00, 523.25];
+  notes.forEach((freq, i) => {
+    const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime + (i * 0.1));
+    gain.gain.setValueAtTime(0.1, audioCtx.currentTime + (i * 0.1));
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(audioCtx.currentTime + (i * 0.1)); osc.stop(audioCtx.currentTime + 1.2);
+  });
+}
+
+function updateItems(){ items = inputArea.value.split("\n").map(i=>i.trim()).filter(i=>i); draw(); }
+
+function draw(){
+  ctx.clearRect(0,0,wheel.width,wheel.height);
+  if(!items.length) return;
+  const slice = 2*Math.PI/items.length;
+  items.forEach((t,i)=>{
+    ctx.beginPath(); ctx.moveTo(c,c);
+    ctx.arc(c,c,r,angle+i*slice,angle+(i+1)*slice);
+    ctx.fillStyle = i%2===0 ? "#ffffff" : "#f1f3f5"; 
+    ctx.fill();
+    
+    ctx.save(); ctx.translate(c,c); ctx.rotate(angle+i*slice+slice/2);
+    ctx.textAlign = "right"; ctx.font = "bold 16px Inter, Arial"; ctx.fillStyle = "#111";
+    ctx.fillText(t.substring(0,20), r-25, 6); ctx.restore();
+  });
+}
+
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
+
+function manualReshuffle() { 
+  updateItems(); 
+  shuffleArray(items); 
+  inputArea.value = items.join("\n"); 
+  draw(); 
+}
+
+function spin(){
+  if(isSpinning || items.length === 0) return;
+  if(audioCtx.state === 'suspended') audioCtx.resume();
+  
+  isSpinning = true; 
+  sidebar.classList.add("hide"); 
+
+  const duration = 6000; 
+  const startAngle = angle;
+  const extraSpins = Math.PI * 2 * (10 + Math.floor(Math.random() * 5)); 
+  const totalRotation = extraSpins + (Math.random() * Math.PI * 2);
+  
+  let startTime = null;
+  let lastSliceIdx = -1;
+
+  function easeOutQuint(x) { return 1 - Math.pow(1 - x, 5); }
+
+  function animate(currentTime) {
+    if (!startTime) startTime = currentTime;
+    let elapsed = currentTime - startTime;
+    let progress = Math.min(elapsed / duration, 1);
+    
+    angle = startAngle + (easeOutQuint(progress) * totalRotation);
+    draw();
+
+    const slice = 2 * Math.PI / items.length;
+    const currentSliceIdx = Math.floor((2 * Math.PI - (angle % (2 * Math.PI))) / slice) % items.length;
+    if(lastSliceIdx !== currentSliceIdx){ 
+      if (progress < 0.99) playTick(progress > 0.8); 
+      lastSliceIdx = currentSliceIdx; 
+    }
+
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      finalizeSpin();
+    }
+  }
+  requestAnimationFrame(animate);
+}
+
+// LOGIK BARU: ASYNC DENGAN CHANCE 40% TROLL
+async function finalizeSpin() {
+  const slice = 2 * Math.PI / items.length;
+  selectedIndex = Math.floor((2 * Math.PI - (angle % (2 * Math.PI))) / slice) % items.length;
+  
+  // Peluang 40% untuk ngereshuffle tiba-tiba (Fake-out)
+  const isTroll = Math.random() < 0.4;
+
+  if (isTroll) {
+    // Berhenti sejenak biar seolah-olah sudah selesai (efek suspense)
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    // Reshuffle 30 kali dengan cepat
+    for (let i = 0; i < 30; i++) {
+      shuffleArray(items);
+      inputArea.value = items.join("\n");
+      draw();
+      playTick(true); // Suara tick cepat
+      await new Promise(resolve => setTimeout(resolve, 60)); 
+    }
+    
+    // Pilih pemenang baru secara acak setelah diacak-acak
+    selectedIndex = Math.floor(Math.random() * items.length);
+  }
+
+  isSpinning = false;
+  setTimeout(() => {
+      playVictorySound();
+      document.getElementById("popupCustomMsg").innerText = document.getElementById("msgInput").value.trim();
+      document.getElementById("popupWinnerName").innerText = items[selectedIndex];
+      
+      history.unshift(items[selectedIndex]);
+      updateHistory();
+      document.getElementById("popup").classList.add("show");
+      confetti({ particleCount: 200, spread: 80, origin: { y: 0.6 } });
+  }, 300);
+}
+
+function updateHistory() { document.getElementById("history").innerHTML = history.map((n, i) => `<div class="history-item"><span>${n}</span><span style="color:#9ca3af;font-size:11px;">#${history.length-i}</span></div>`).join(''); }
+function closePopupWithSidebar() { document.getElementById("popup").classList.remove("show"); sidebar.classList.remove("hide"); }
+function removeItemWithSidebar() {
+    items.splice(selectedIndex,1); inputArea.value = items.join("\n"); draw();
+    closePopupWithSidebar();
+}
+function toggleSidebar(){ sidebar.classList.toggle("hide"); }
+updateItems();
+</script>
+</body>
+</html>

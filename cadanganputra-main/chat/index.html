@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pufutara Chat - Pro Storage</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        body { background-color: #f0f0f0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        
+        .app-container { 
+            width: 100%; max-width: 720px; height: 80vh; 
+            background: #fff; border-radius: 12px; overflow: hidden; 
+            display: flex; flex-direction: column; position: relative;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .wa-header { background: #111; color: #fff; padding: 15px; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
+        .screen { display: none; flex: 1; flex-direction: column; overflow: hidden; background: #fff; position: relative; }
+        .active { display: flex; }
+
+        /* Auth Screen */
+        .auth-screen { padding: 40px; text-align: center; justify-content: center; align-items: center; }
+        .auth-screen input { width: 100%; max-width: 300px; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; display: block; margin: 0 auto 10px; }
+        .btn { padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; max-width: 300px; }
+        .btn-black { background: #111; color: #fff; margin-bottom: 10px; }
+
+        /* Chat Area */
+        .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #f9f9f9; }
+        .msg { max-width: 80%; padding: 10px 14px; border-radius: 10px; font-size: 0.9rem; position: relative; line-height: 1.4; cursor: pointer; transition: 0.2s; word-wrap: break-word; }
+        .msg:hover { opacity: 0.9; }
+        .msg-me { background: #111; color: #fff; align-self: flex-end; border-bottom-right-radius: 2px; }
+        .msg-other { background: #eee; color: #000; align-self: flex-start; border-bottom-left-radius: 2px; }
+        
+        /* Image Upload Styles */
+        .msg img { max-width: 100%; max-height: 300px; border-radius: 8px; margin-top: 5px; display: block; object-fit: cover; border: 1px solid rgba(0,0,0,0.1); }
+        
+        /* Quote / Reply Style */
+        .msg-quote { background: rgba(0,0,0,0.05); border-left: 3px solid #111; padding: 6px 10px; margin-bottom: 8px; border-radius: 4px; font-size: 0.8rem; }
+        .msg-me .msg-quote { background: rgba(255,255,255,0.15); border-left-color: #fff; }
+
+        /* Input Area & Banners */
+        .reply-banner { padding: 10px 15px; background: #e5e5e5; font-size: 0.85rem; display: none; justify-content: space-between; align-items: center; border-top: 1px solid #ccc; }
+        .input-area { padding: 10px 15px; display: flex; gap: 8px; border-top: 1px solid #eee; background: #fff; align-items: center; }
+        .input-area input[type="text"] { flex: 1; padding: 12px 18px; border-radius: 25px; border: 1px solid #ddd; outline: none; }
+        .btn-icon { background: #555; color: #fff; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1.1rem; display: flex; justify-content: center; align-items: center; transition: 0.3s; }
+        .btn-send { background: #111; color: #fff; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; display: flex; justify-content: center; align-items: center;}
+
+        /* Action Menu (Popup) */
+        .action-menu { position: absolute; background: #fff; border-radius: 8px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); display: none; flex-direction: column; z-index: 100; border: 1px solid #eee; overflow: hidden; width: 120px; }
+        .action-menu button { padding: 12px; border: none; background: none; text-align: left; cursor: pointer; border-bottom: 1px solid #f0f0f0; }
+        .action-menu button:hover { background: #f9f9f9; }
+    </style>
+</head>
+<body>
+
+    <div id="actionMenu" class="action-menu">
+        <button id="btnReply" onclick="actionReply()">Balas ↩️</button>
+        <button id="btnDel" onclick="actionDelete()" style="color:red; font-weight:bold;">Hapus 🗑️</button>
+    </div>
+
+    <div class="app-container">
+        <div class="wa-header">
+            <div>
+                <h2 id="headerTitle">Pufutara</h2>
+                <small id="userSubtitle" style="display:none; color: #bbb; font-size: 0.75rem;">Masuk sebagai: </small>
+            </div>
+            <button onclick="logout()" id="logoutBtn" style="display:none; color:white; background:none; border:none; cursor:pointer; font-size: 0.85rem; padding: 5px; text-decoration: underline;">Logout</button>
+        </div>
+
+        <div id="authScreen" class="screen active auth-screen">
+            <h1 style="margin-bottom: 20px;">Selamat Datang</h1>
+            <input type="email" id="emailIn" placeholder="Email">
+            <input type="password" id="passIn" placeholder="Password">
+            <button class="btn btn-black" onclick="handleAuth()">Login / Masuk</button>
+            <p id="authErr" style="color:red; font-size:0.8rem; margin-top: 10px;"></p>
+        </div>
+
+        <div id="chatScreen" class="screen">
+            <div id="chatMessages" class="chat-messages"></div>
+            
+            <div id="replyBanner" class="reply-banner">
+                <div id="replyTxt" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90%;"></div>
+                <div onclick="cancelReply()" style="cursor:pointer; font-weight:bold; padding: 0 10px;">✕</div>
+            </div>
+
+            <div class="input-area">
+                <input type="file" id="imgUpload" accept="image/*" style="display:none;" onchange="handleImageUpload()">
+                <button id="btnImg" class="btn-icon" onclick="document.getElementById('imgUpload').click()" title="Kirim Gambar">📷</button>
+                
+                <input type="text" id="msgIn" placeholder="Ketik pesan..." onkeypress="if(event.key==='Enter')sendMessage()">
+                <button class="btn-send" onclick="sendMessage()">➤</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const _CONFIG = {
+            URL: 'https://puywjdopumlzvmzbcudr.supabase.co',
+            KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1eXdqZG9wdW1senZtemJjdWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDE3MTksImV4cCI6MjA4NzkxNzcxOX0.vvThyjtK2SlA9oA9Mr_XOmt1R_tNZk-ib3PO9XpiiSc'
+        };
+
+        const _client = window.supabase.createClient(_CONFIG.URL, _CONFIG.KEY);
+        let _userEmail = '';
+        let selectedMsg = null;
+        let replyingTo = null;
+
+        // --- AUTH ---
+        async function handleAuth() {
+            const email = document.getElementById('emailIn').value;
+            const password = document.getElementById('passIn').value;
+            const errBox = document.getElementById('authErr');
+            errBox.innerText = "Sabar, lagi dicek...";
+
+            const { data, error } = await _client.auth.signInWithPassword({ email, password });
+            
+            if (error) {
+                const { error: upErr } = await _client.auth.signUp({ email, password });
+                if (upErr) errBox.innerText = upErr.message;
+                else { errBox.style.color = "green"; errBox.innerText = "Akun dibuat! Silakan klik Login lagi."; }
+            } else {
+                _userEmail = data.user.email;
+                enterChat();
+            }
+        }
+
+        async function logout() { await _client.auth.signOut(); location.reload(); }
+
+        function enterChat() {
+            document.getElementById('authScreen').style.display = 'none';
+            document.getElementById('chatScreen').style.display = 'flex';
+            document.getElementById('logoutBtn').style.display = 'block';
+            
+            const namaUser = _userEmail.split('@')[0];
+            const subtitleEl = document.getElementById('userSubtitle');
+            subtitleEl.innerText = `Masuk sebagai: ${namaUser}`;
+            subtitleEl.style.display = 'block';
+            
+            loadMessages();
+            listenRealtime();
+        }
+
+        // --- CORE CHAT ---
+        async function loadMessages() {
+            const { data } = await _client.from('global_chat')
+                .select('id, sender, message')
+                .order('id', { ascending: false })
+                .limit(50);
+            
+            if (data) {
+                document.getElementById('chatMessages').innerHTML = '';
+                data.reverse().forEach(m => renderMessage(m));
+            }
+        }
+
+        async function sendMessage() {
+            const inp = document.getElementById('msgIn');
+            const txt = inp.value.trim();
+            if (!txt) return;
+            inp.value = '';
+
+            let finalMessage = txt;
+            if (replyingTo) {
+                finalMessage = `|RPLY|${replyingTo.sender}|${replyingTo.text}|${txt}`;
+                cancelReply(); 
+            }
+
+            await _client.from('global_chat').insert([{ sender: _userEmail, message: finalMessage }]);
+        }
+
+        // --- UPLOAD GAMBAR VIA STORAGE ---
+        async function handleImageUpload() {
+            const fileInput = document.getElementById('imgUpload');
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            // Batasi ukuran gambar (contoh: 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert("Ukuran gambar maksimal 5MB ya!");
+                fileInput.value = '';
+                return;
+            }
+
+            const btnImg = document.getElementById('btnImg');
+            btnImg.innerText = "⏳"; // Ubah icon jadi loading
+            btnImg.disabled = true;
+
+            try {
+                // 1. Bikin nama file unik pakai timestamp
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+                const filePath = `public/${fileName}`;
+
+                // 2. Upload file ke Storage Bucket 'chat_images'
+                const { error: uploadError } = await _client.storage
+                    .from('chat_images')
+                    .upload(filePath, file);
+
+                if (uploadError) throw uploadError;
+
+                // 3. Ambil URL Publiknya
+                const { data: publicUrlData } = _client.storage
+                    .from('chat_images')
+                    .getPublicUrl(filePath);
+
+                const imgUrl = publicUrlData.publicUrl;
+
+                // 4. Kirim URL-nya ke tabel chat (pakai penanda |URLIMG|)
+                const payload = `|URLIMG|${imgUrl}`;
+                await _client.from('global_chat').insert([{ sender: _userEmail, message: payload }]);
+
+            } catch (err) {
+                console.error("Error upload:", err);
+                alert("Gagal kirim gambar. Pastikan bucket 'chat_images' sudah dibuat dan public!");
+            } finally {
+                // Kembalikan tombol seperti semula
+                btnImg.innerText = "📷";
+                btnImg.disabled = false;
+                fileInput.value = ''; 
+            }
+        }
+
+        function renderMessage(m) {
+            if (document.getElementById(`msg-${m.id}`)) return;
+
+            const box = document.getElementById('chatMessages');
+            const isMe = m.sender === _userEmail;
+            const div = document.createElement('div');
+            
+            div.id = `msg-${m.id}`;
+            div.className = `msg ${isMe ? 'msg-me' : 'msg-other'}`;
+
+            let displayTxt = m.message;
+            let quoteHtml = '';
+            let rawTextForReply = m.message; 
+
+            // CEK KALAU PESAN INI ADALAH GAMBAR (DARI STORAGE)
+            if (displayTxt.startsWith('|URLIMG|')) {
+                const imgUrl = displayTxt.replace('|URLIMG|', '');
+                // Klik gambar untuk buka di tab baru (biar bisa di-zoom)
+                displayTxt = `<img src="${imgUrl}" alt="Gambar" onclick="window.open('${imgUrl}', '_blank')">`;
+                rawTextForReply = "[Gambar]"; 
+            }
+            // CEK KALAU PESAN INI BALASAN
+            else if (displayTxt.startsWith('|RPLY|')) {
+                const parts = displayTxt.split('|');
+                if (parts.length >= 4) {
+                    const rSender = parts[2].split('@')[0];
+                    const rText = parts[3];
+                    quoteHtml = `<div class="msg-quote"><strong>${rSender}</strong><br>${rText}</div>`;
+                    displayTxt = parts.slice(4).join('|'); 
+                    rawTextForReply = displayTxt;
+                }
+            }
+
+            div.innerHTML = `${quoteHtml}<b style="font-size: 0.7rem; color: ${isMe ? '#a5d6a7' : '#075e54'};">${m.sender.split('@')[0]}</b><br>${displayTxt}`;
+            
+            div.onclick = (e) => {
+                e.stopPropagation();
+                selectedMsg = { id: m.id, sender: m.sender, text: rawTextForReply, isMe };
+                
+                const menu = document.getElementById('actionMenu');
+                menu.style.display = 'flex';
+                menu.style.left = Math.min(e.pageX, window.innerWidth - 130) + 'px';
+                menu.style.top = Math.min(e.pageY, window.innerHeight - 100) + 'px';
+                
+                document.getElementById('btnDel').style.display = isMe ? 'block' : 'none';
+            };
+
+            box.appendChild(div);
+            box.scrollTop = box.scrollHeight; 
+        }
+
+        function actionReply() {
+            replyingTo = selectedMsg;
+            document.getElementById('replyBanner').style.display = 'flex';
+            document.getElementById('replyTxt').innerText = `Balas ${selectedMsg.sender.split('@')[0]}: ${selectedMsg.text}`;
+            document.getElementById('msgIn').focus();
+        }
+
+        function cancelReply() { replyingTo = null; document.getElementById('replyBanner').style.display = 'none'; }
+
+        async function actionDelete() {
+            if(confirm("Yakin ingin menghapus pesan ini?")) {
+                await _client.from('global_chat').delete().eq('id', selectedMsg.id);
+                document.getElementById(`msg-${selectedMsg.id}`).remove(); 
+            }
+        }
+
+        document.addEventListener('click', () => { document.getElementById('actionMenu').style.display = 'none'; });
+
+        function listenRealtime() {
+            _client.channel('public_chat')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'global_chat' }, payload => {
+                    if (payload.eventType === 'INSERT') renderMessage(payload.new);
+                    else if (payload.eventType === 'DELETE') {
+                        const el = document.getElementById(`msg-${payload.old.id}`);
+                        if(el) el.remove();
+                    }
+                }).subscribe();
+        }
+
+        _client.auth.getSession().then(({data}) => {
+            if(data.session) { _userEmail = data.session.user.email; enterChat(); }
+        });
+    </script>
+</body>
+</html>

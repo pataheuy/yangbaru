@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pufutara Balanced Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --bg: #f1f5f9;
+    --card: #ffffff;
+    --text: #111827;
+    --muted: #94a3b8;
+    --accent: #111111;
+    --border: #e5e7eb;
+    --dot-empty: #f1f5f9;
+    --danger-hover: #fee2e2;
+    --danger-text: #ef4444;
+}
+
+* { box-sizing: border-box; outline: none; }
+
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 40px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.dashboard-container {
+    width: 100%;
+    max-width: 1100px;
+    /* Agar container mengisi tinggi layar jika konten sedikit */
+    display: flex; 
+    flex-direction: column;
+}
+
+/* --- HEADER REVISI (RAPAT) --- */
+.dashboard-header {
+    margin-bottom: 25px;
+    /* Tidak lagi flex row, tapi block agar menumpuk */
+}
+
+h1.dash-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 32px;
+    margin: 0;
+    line-height: 1; /* Line height rapat */
+    letter-spacing: -1px;
+}
+
+.dash-date {
+    color: var(--muted);
+    font-size: 14px;
+    font-weight: 500;
+    margin-top: 4px; /* Jarak sangat dekat dengan judul */
+}
+
+/* --- GRID LAYOUT --- */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+    align-items: stretch; /* PENTING: Agar kedua kolom sama tinggi */
+}
+
+@media (max-width: 850px) {
+    .dashboard-grid { grid-template-columns: 1fr; }
+}
+
+.column {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    height: 100%; /* Mengisi tinggi grid */
+}
+
+/* --- WIDGET STYLE --- */
+.widget-card {
+    background: var(--card);
+    padding: 30px;
+    border-radius: 32px;
+    box-shadow: 0 15px 35px -12px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+}
+
+.widget-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;
+    margin: 0 0 20px 0;
+    color: var(--text);
+    font-weight: 600;
+}
+
+/* --- WIDGET 1: TASKS (KIRI ATAS) --- */
+.todo-widget {
+    min-height: 450px; /* Tinggi dasar Task List */
+}
+
+.todo-list-container {
+    flex: 1;
+    overflow-y: auto;
+    /* Custom Scrollbar halus */
+    scrollbar-width: thin;
+    scrollbar-color: #f1f5f9 transparent;
+}
+
+.input-group { display: flex; gap: 10px; margin-bottom: 20px; }
+.input-group input {
+    flex: 1; padding: 12px 16px; border: 1px solid var(--border);
+    border-radius: 14px; font-family: 'Inter'; background: #f9fafb;
+}
+.btn-add {
+    background: var(--accent); color: #fff; border: none;
+    padding: 0 18px; border-radius: 14px; cursor: pointer; font-weight: 600;
+}
+.todo-list { list-style: none; padding: 0; margin: 0; }
+.todo-item {
+    display: flex; align-items: center; padding: 12px 0;
+    border-bottom: 1px solid #f8fafc;
+}
+.check-btn {
+    width: 20px; height: 20px; border: 2px solid var(--border);
+    border-radius: 6px; margin-right: 12px; cursor: pointer; flex-shrink: 0;
+}
+.todo-item.completed .check-btn { background: var(--accent); border-color: var(--accent); }
+.todo-text { flex: 1; font-size: 14px; font-weight: 500; }
+.todo-item.completed .todo-text { text-decoration: line-through; color: var(--muted); }
+.btn-del {
+    border: none; background: transparent; color: var(--muted);
+    cursor: pointer; opacity: 0; transition: 0.2s; font-size: 12px;
+}
+.todo-item:hover .btn-del { opacity: 1; }
+
+/* --- WIDGET 2: NOTES (KIRI BAWAH) --- */
+.note-widget {
+    flex: 1; /* Mengisi sisa ruang kolom kiri */
+    min-height: 200px;
+}
+.note-area {
+    width: 100%;
+    flex: 1; /* TextArea mengisi penuh widget */
+    border: none; resize: none;
+    font-family: 'Inter'; font-size: 14px; line-height: 1.6;
+    color: var(--text); background: transparent;
+}
+.note-status { font-size: 11px; color: var(--muted); text-align: right; margin-top: 5px; }
+
+/* --- WIDGET 3: POMODORO (KANAN ATAS) --- */
+.pomo-widget {
+    text-align: center;
+    /* Tinggi secukupnya konten */
+}
+.timer-display {
+    font-family: 'Poppins'; font-size: 72px; font-weight: 700;
+    letter-spacing: -3px; line-height: 1; margin: 15px 0 20px 0;
+}
+.modes-container {
+    display: inline-flex; background: #f1f5f9; padding: 4px;
+    border-radius: 14px; margin-bottom: 10px;
+}
+.mode-btn {
+    padding: 6px 16px; border: none; background: transparent;
+    font-size: 12px; font-weight: 600; color: var(--muted); cursor: pointer;
+    border-radius: 10px; transition: 0.2s;
+}
+.mode-btn.active { background: white; color: var(--text); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+.pomo-btn {
+    background: var(--accent); color: white; border: none;
+    padding: 12px 40px; border-radius: 16px; cursor: pointer;
+    font-weight: 600; font-size: 14px; transition: 0.2s;
+}
+
+/* --- WIDGET 4: HABITS (KANAN BAWAH - DIPANJANGIN) --- */
+.habit-widget {
+    flex: 1; /* KUNCI: Widget ini akan memanjang mengisi sisa kolom kanan */
+    display: flex;
+    flex-direction: column;
+}
+.habit-list {
+    flex: 1; /* List area mengisi ruang kosong */
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    overflow-y: auto; /* Scroll jika terlalu banyak */
+}
+.habit-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-bottom: 10px; border-bottom: 1px solid #f8fafc;
+}
+.habit-meta { display: flex; flex-direction: column; }
+.habit-name { font-weight: 600; font-size: 14px; }
+.habit-streak { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.dots-container { display: flex; gap: 5px; }
+.dot {
+    width: 20px; height: 20px; background: var(--dot-empty);
+    border-radius: 50%; cursor: pointer; transition: 0.2s;
+}
+.dot.active { background: var(--accent); transform: scale(1.1); }
+
+.habit-input-group {
+    margin-top: 20px; display: flex; gap: 8px;
+}
+.habit-input-group input {
+    flex: 1; padding: 10px 14px; border: 1px solid var(--border);
+    border-radius: 12px; font-size: 13px; font-family: 'Inter';
+}
+
+</style>
+</head>
+<body>
+
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1 class="dash-title">Workspace.</h1>
+        <div class="dash-date" id="dashDate">Senin, 25 Oktober</div>
+    </div>
+
+    <div class="dashboard-grid">
+        
+        <div class="column">
+            <div class="widget-card todo-widget">
+                <div class="widget-title">Tasks</div>
+                <div class="input-group">
+                    <input type="text" id="todoInput" placeholder="Tambah tugas..." autocomplete="off">
+                    <button class="btn-add" onclick="addTask()">+</button>
+                </div>
+                <div class="todo-list-container">
+                    <ul class="todo-list" id="todoList"></ul>
+                </div>
+            </div>
+
+            <div class="widget-card note-widget">
+                <div class="widget-title">Quick Notes</div>
+                <textarea class="note-area" id="dashNote" placeholder="Tulis ide di sini..."></textarea>
+                <div class="note-status" id="noteStatus">Auto-saved</div>
+            </div>
+        </div>
+
+        <div class="column">
+            <div class="widget-card pomo-widget">
+                <div class="modes-container">
+                    <button class="mode-btn active" onclick="setMode('work', this)">Focus</button>
+                    <button class="mode-btn" onclick="setMode('short', this)">Rest</button>
+                    <button class="mode-btn" onclick="setMode('long', this)">Chill</button>
+                </div>
+                <div class="timer-display" id="pomoTimer">25:00</div>
+                <button class="pomo-btn" id="startBtn" onclick="toggleTimer()">Start Focus</button>
+            </div>
+
+            <div class="widget-card habit-widget">
+                <div class="widget-title">Habit Tracker</div>
+                <div class="habit-list" id="habitList">
+                    </div>
+                <div class="habit-input-group">
+                    <input type="text" id="habitInput" placeholder="Habit baru...">
+                    <button class="btn-add" onclick="addHabit()" style="font-size:14px; padding:0 14px;">Add</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+// --- UTILS ---
+const dateOptions = { weekday: 'long', day: 'numeric', month: 'long' };
+document.getElementById('dashDate').innerText = new Date().toLocaleDateString('id-ID', dateOptions);
+
+// --- 1. TODO LOGIC ---
+let todos = JSON.parse(localStorage.getItem('puf_v5_todos')) || [];
+function saveTodos() { localStorage.setItem('puf_v5_todos', JSON.stringify(todos)); renderTodos(); }
+function addTask() {
+    const input = document.getElementById('todoInput');
+    if (!input.value.trim()) return;
+    todos.push({ id: Date.now(), text: input.value, completed: false });
+    input.value = ''; saveTodos();
+}
+function toggleTodo(id) { todos = todos.map(t => t.id === id ? {...t, completed: !t.completed} : t); saveTodos(); }
+function delTodo(id) { todos = todos.filter(t => t.id !== id); saveTodos(); }
+function renderTodos() {
+    const list = document.getElementById('todoList');
+    list.innerHTML = '';
+    todos.forEach(t => {
+        const li = document.createElement('li');
+        li.className = `todo-item ${t.completed ? 'completed' : ''}`;
+        li.innerHTML = `
+            <div class="check-btn" onclick="toggleTodo(${t.id})"></div>
+            <span class="todo-text">${t.text}</span>
+            <button class="btn-del" onclick="delTodo(${t.id})">✕</button>
+        `;
+        list.appendChild(li);
+    });
+}
+document.getElementById('todoInput').addEventListener('keydown', e => e.key === 'Enter' && addTask());
+
+// --- 2. NOTES LOGIC ---
+const noteArea = document.getElementById('dashNote');
+noteArea.value = localStorage.getItem('puf_v5_notes') || '';
+noteArea.addEventListener('input', () => {
+    localStorage.setItem('puf_v5_notes', noteArea.value);
+    document.getElementById('noteStatus').innerText = 'Saving...';
+    setTimeout(() => document.getElementById('noteStatus').innerText = 'Saved', 1000);
+});
+
+// --- 3. POMODORO LOGIC ---
+let timerId = null, timeLeft = 1500, totalTime = 1500;
+function updateDisplay() {
+    const m = Math.floor(timeLeft / 60);
+    const s = timeLeft % 60;
+    document.getElementById('pomoTimer').innerText = `${m}:${s < 10 ? '0'+s : s}`;
+    document.title = timerId ? `Focusing (${m}:${s < 10 ? '0'+s : s})` : 'Workspace';
+}
+function setMode(mode, btn) {
+    const times = { work: 1500, short: 300, long: 900 };
+    timeLeft = totalTime = times[mode];
+    document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    stopTimer(); updateDisplay();
+}
+function toggleTimer() {
+    if (timerId) { stopTimer(); } else {
+        document.getElementById('startBtn').innerText = 'Pause';
+        timerId = setInterval(() => {
+            if (timeLeft <= 0) { clearInterval(timerId); alert('Selesai!'); resetTimer(); return; }
+            timeLeft--; updateDisplay();
+        }, 1000);
+    }
+}
+function stopTimer() { clearInterval(timerId); timerId = null; document.getElementById('startBtn').innerText = 'Start Focus'; }
+function resetTimer() { stopTimer(); timeLeft = totalTime; updateDisplay(); }
+
+// --- 4. HABIT LOGIC ---
+let habits = JSON.parse(localStorage.getItem('puf_v5_habits')) || [];
+function saveHabits() { localStorage.setItem('puf_v5_habits', JSON.stringify(habits)); renderHabits(); }
+function addHabit() {
+    const input = document.getElementById('habitInput');
+    if (!input.value.trim()) return;
+    habits.push({ id: Date.now(), name: input.value, days: Array(7).fill(false) });
+    input.value = ''; saveHabits();
+}
+function toggleHabit(hId, dayIdx) {
+    habits = habits.map(h => { if (h.id === hId) h.days[dayIdx] = !h.days[dayIdx]; return h; });
+    saveHabits();
+}
+function renderHabits() {
+    const list = document.getElementById('habitList');
+    list.innerHTML = '';
+    habits.forEach(h => {
+        let dots = '';
+        h.days.forEach((d, i) => dots += `<div class="dot ${d?'active':''}" onclick="toggleHabit(${h.id},${i})"></div>`);
+        const item = document.createElement('div');
+        item.className = 'habit-item';
+        item.innerHTML = `
+            <div class="habit-meta">
+                <span class="habit-name">${h.name}</span>
+                <span class="habit-streak">${h.days.filter(Boolean).length}/7 days</span>
+            </div>
+            <div class="dots-container">${dots}</div>
+        `;
+        list.appendChild(item);
+    });
+}
+
+// INITIALIZE
+renderTodos(); renderHabits(); updateDisplay();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,220 @@
+<html lang="id"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pufutara Contact</title>
+<link rel="icon" href="img/kucingjempol.png" type="iconweb">
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Poppins:wght@600;700&amp;display=swap" rel="stylesheet">
+
+<style>
+/* ========== RESET ========== */
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  font-family:'Inter',sans-serif;
+  background:#fff;
+  color:#111;
+}
+
+/* ========== PAGE WRAP ========== */
+.isi{
+  padding-top:55px;
+}
+
+/* ========== HEADER ========== */
+.page-header{
+  max-width:720px;
+  margin:0 auto;
+  padding:20px 20px 0;
+  text-align:center;
+  animation:fadeDown .7s ease forwards;
+}
+
+.page-header h1{
+  font-family:'Poppins',sans-serif;
+  font-size:clamp(2.2rem,5vw,3rem);
+  font-weight:700;
+}
+
+.page-header p{
+  color:#555;
+  line-height:1.7;
+  margin-top:10px;
+}
+
+/* divider */
+.page-header::after{
+  content:"";
+  display:block;
+  width:80px;
+  height:1px;
+  margin:24px auto 0;
+  background:#bbb;
+}
+
+@keyframes fadeDown{
+  from{opacity:0;transform:translateY(-12px)}
+  to{opacity:1;transform:none}
+}
+
+/* ========== CONTACT SECTION ========== */
+.contact-section{
+  max-width:560px;
+  margin:32px auto 70px;
+  padding:0 20px;
+  animation:fadeUp .7s ease .1s both;
+}
+
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(14px)}
+  to{opacity:1;transform:none}
+}
+
+/* ========== FORM ========== */
+.contact-form{
+  margin-top:16px;
+}
+
+.form-group{
+  margin-bottom:18px;
+}
+
+.form-group label{
+  display:block;
+  font-size:.85rem;
+  font-weight:600;
+  margin-bottom:6px;
+  color:#222;
+}
+
+.form-group input,
+.form-group textarea{
+  width:100%;
+  padding:12px 14px;
+  border:1px solid #ddd;
+  border-radius:12px;
+  font-family:'Inter',sans-serif;
+  font-size:.95rem;
+  transition:border .2s, box-shadow .2s, transform .2s;
+}
+
+.form-group textarea{
+  height: 70px;
+}
+
+.form-group input:hover,
+.form-group textarea:hover{
+  border-color:#aaa;
+}
+
+.form-group input:focus,
+.form-group textarea:focus{
+  outline:none;
+  border-color:#999;
+  box-shadow:0 0 0 3px rgba(0,0,0,.05);
+  transform:translateY(-1px);
+}
+
+/* ========== BUTTON ========== */
+.btn-submit{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:14px;
+  background:#000;
+  color:#fff;
+  font-size:.95rem;
+  font-weight:600;
+  cursor:pointer;
+  transition:
+    transform .15s ease,
+    box-shadow .15s ease,
+    opacity .15s ease;
+}
+
+.btn-submit:hover{
+  opacity:.9;
+  box-shadow:0 8px 20px rgba(0,0,0,.18);
+}
+
+.btn-submit:active{
+  transform:scale(.97);
+}
+
+/* ========== NOTE ========== */
+.contact-note{
+  text-align:center;
+  margin-top:14px;
+  font-size:.8rem;
+  color:#666;
+}
+</style>
+</head>
+
+<body>
+
+<audio src="audio/vineboom.mp3" autoplay=""></audio>
+
+<div class="isi">
+
+<header class="page-header">
+  <h1>Kontak</h1>
+  <p>
+    Karena banyak yang request lagu sejak PufutaMuslim hadir,
+    admin bikinin form biar kamu bisa kirim saran, kritik,
+    dan request lagu dengan gampang.
+  </p>
+</header>
+
+<section class="contact-section">
+
+  <form id="contactForm" class="contact-form">
+
+    <div class="form-group">
+      <label>Nama</label>
+      <input type="text" placeholder="Nama kamu" required="">
+    </div>
+
+    <div class="form-group">
+      <label>Email</label>
+      <input type="text" placeholder="email@gmail.com">
+    </div>
+
+    <div class="form-group">
+      <label>Pesan / Saran</label>
+      <textarea rows="5" placeholder="Tulis saran, kritik &amp; request lagu di sini" required=""></textarea>
+    </div>
+
+    <button type="submit" class="btn-submit">
+      Kirim ke Admin
+    </button>
+
+    <p class="contact-note">
+      Atau kirim langsung ke Gmail:
+      <strong>pufutara@gmail.com</strong>
+    </p>
+
+  </form>
+
+</section>
+</div>
+
+<script>
+document.getElementById("contactForm").addEventListener("submit",function(e){
+  e.preventDefault();
+  this.reset();
+});
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+
+
+
+
+</body></html>

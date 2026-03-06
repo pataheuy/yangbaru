@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Modern Warships - Tactical Audio FX</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #87ceeb; font-family: 'Segoe UI', sans-serif; }
+        #ui {
+            position: absolute; bottom: 30px; left: 30px;
+            color: white; background: rgba(0, 20, 40, 0.85);
+            padding: 20px; border-radius: 12px; border: 2px solid #00ffff;
+            pointer-events: none;
+        }
+        .speed-val { font-size: 32px; color: #00ffff; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div id="ui">
+    <strong>STEALTH DESTROYER COMMAND</strong><br>
+    <span class="speed-val" id="speed">0</span> <small>KNOTS</small>
+    <div style="font-size: 11px; color: #aaa; margin-top: 5px;">
+        KLIK KIRI: Meriam (Meledak) | SPACE: Rudal (Semburan Api)
+    </div>
+</div>
+
+<script type="module">
+    import * as THREE from 'https://cdn.skypack.dev/three@0.136.0';
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x87ceeb);
+    scene.fog = new THREE.Fog(0x87ceeb, 100, 1200);
+
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 5000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // --- AUDIO SYSTEM (Suara Api & Ledakan) ---
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    const playExplosion = () => {
+        const osc = audioCtx.createOscillator();
+        const noise = audioCtx.createBufferSource();
+        const gain = audioCtx.createGain();
+        
+        // Membuat noise untuk tekstur ledakan
+        const bufferSize = audioCtx.sampleRate * 0.5;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+        noise.buffer = buffer;
+
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(100, audioCtx.currentTime);
+        filter.frequency.exponentialRampToValueAtTime(10, audioCtx.currentTime + 0.4);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        gain.gain.setValueAtTime(0.8, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
+
+        noise.start(); noise.stop(audioCtx.currentTime + 0.5);
+    };
+
+    const playRocketSizzle = () => {
+        const bufferSize = audioCtx.sampleRate * 1.5;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+
+        const noise = audioCtx.createBufferSource();
+        noise.buffer = buffer;
+        const gain = audioCtx.createGain();
+        const filter = audioCtx.createBiquadFilter();
+
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(400, audioCtx.currentTime);
+        filter.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 1);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.2);
+
+        noise.start(); noise.stop(audioCtx.currentTime + 1.2);
+    };
+
+    // --- LIGHTING ---
+    const sun = new THREE.DirectionalLight(0xffffff, 1.2);
+    sun.position.set(100, 300, 100);
+    scene.add(sun, new THREE.AmbientLight(0x405070, 0.6));
+
+    // --- SEA & ISLANDS ---
+    const sea = new THREE.Mesh(new THREE.PlaneGeometry(10000, 10000), new THREE.MeshStandardMaterial({ color: 0x005b96 }));
+    sea.rotation.x = -Math.PI/2;
+    scene.add(sea);
+
+    const createIsland = (x, z, r) => {
+        const isl = new THREE.Mesh(new THREE.CylinderGeometry(r, r*1.2, 5, 12), new THREE.MeshStandardMaterial({color: 0x228b22}));
+        isl.position.set(x, 1, z); scene.add(isl);
+    };
+    createIsland(400, 400, 50); createIsland(-400, 800, 70);
+
+    // --- SHIP MODEL ---
+    const shipGroup = new THREE.Group();
+    const matGrey = new THREE.MeshStandardMaterial({ color: 0x7f8c8d });
+    const matDark = new THREE.MeshStandardMaterial({ color: 0x2c3e50 });
+
+    const hullShape = new THREE.Shape();
+    hullShape.moveTo(-2, -8); hullShape.lineTo(2, -8); hullShape.lineTo(2, 4); hullShape.lineTo(0, 11); hullShape.lineTo(-2, 4);
+    const hullMesh = new THREE.Mesh(new THREE.ExtrudeGeometry(hullShape, {depth: 3, bevelEnabled: true}), matGrey);
+    hullMesh.rotation.x = Math.PI/2; hullMesh.position.y = 1.8;
+    shipGroup.add(hullMesh);
+
+    const bridge = new THREE.Mesh(new THREE.BoxGeometry(3, 3, 7), matGrey);
+    bridge.position.set(0, 3.2, -1);
+    shipGroup.add(bridge);
+
+    const turretGroup = new THREE.Group();
+    const turretBody = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1, 2), matDark);
+    const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 3), matDark);
+    barrel.rotation.x = Math.PI/2; barrel.position.z = 1.5;
+    turretGroup.add(turretBody, barrel);
+    turretGroup.position.set(0, 2.5, 6); 
+    shipGroup.add(turretGroup);
+
+    const muzzleFlash = new THREE.PointLight(0xffaa00, 0, 20);
+    muzzleFlash.position.set(0, 0, 3); turretGroup.add(muzzleFlash);
+
+    scene.add(shipGroup);
+
+    // --- SYSTEMS ---
+    const particles = [];
+    const projectiles = [];
+    let speed = 0; const keys = {}; const mouse = new THREE.Vector2();
+
+    const shoot = (isVLS) => {
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+        const m = new THREE.Mesh(new THREE.SphereGeometry(0.25), new THREE.MeshBasicMaterial({color: isVLS ? 0xff4400 : 0xffff00}));
+        if(isVLS) {
+            m.position.copy(shipGroup.localToWorld(new THREE.Vector3(0, 3, 1)));
+            m.velocity = new THREE.Vector3(0, 0.8, 0);
+            playRocketSizzle();
+        } else {
+            m.position.copy(turretGroup.localToWorld(new THREE.Vector3(0, 0, 3)));
+            const dir = new THREE.Vector3(0, 0, 1).applyQuaternion(turretGroup.getWorldQuaternion(new THREE.Quaternion()));
+            m.velocity = dir.multiplyScalar(2.5);
+            muzzleFlash.intensity = 15; setTimeout(() => muzzleFlash.intensity = 0, 50);
+            playExplosion();
+        }
+        m.life = 120; scene.add(m); projectiles.push(m);
+    };
+
+    window.addEventListener('keydown', (e) => { keys[e.code] = true; if(e.code === 'Space') shoot(true); });
+    window.addEventListener('keyup', (e) => keys[e.code] = false);
+    window.addEventListener('mousedown', () => shoot(false));
+    window.addEventListener('mousemove', (e) => {
+        mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    });
+
+    function update() {
+        if (keys['KeyW']) speed = Math.min(speed + 0.004, 0.8);
+        if (keys['KeyS']) speed = Math.max(speed - 0.006, -0.2);
+        if (keys['KeyA'] && Math.abs(speed) > 0.01) shipGroup.rotation.y += 0.015;
+        if (keys['KeyD'] && Math.abs(speed) > 0.01) shipGroup.rotation.y -= 0.015;
+        speed *= 0.995;
+        shipGroup.position.x += Math.sin(shipGroup.rotation.y) * speed;
+        shipGroup.position.z += Math.cos(shipGroup.rotation.y) * speed;
+
+        const ray = new THREE.Raycaster();
+        ray.setFromCamera(mouse, camera);
+        const intersect = ray.intersectObject(sea);
+        if(intersect.length > 0) {
+            const localTarget = shipGroup.worldToLocal(intersect[0].point.clone());
+            turretGroup.rotation.y = Math.atan2(localTarget.x - turretGroup.position.x, localTarget.z - turretGroup.position.z);
+        }
+
+        if(Math.abs(speed) > 0.2) {
+            const p = new THREE.Mesh(new THREE.SphereGeometry(0.3), new THREE.MeshBasicMaterial({color: 0xffffff, transparent: true, opacity: 0.3}));
+            p.position.copy(shipGroup.position).add(new THREE.Vector3((Math.random()-0.5)*3, 0, -8).applyQuaternion(shipGroup.quaternion));
+            p.life = 40; scene.add(p); particles.push(p);
+        }
+
+        const camPos = new THREE.Vector3(-Math.sin(shipGroup.rotation.y)*35, 18, -Math.cos(shipGroup.rotation.y)*35);
+        camera.position.lerp(shipGroup.position.clone().add(camPos), 0.1);
+        camera.lookAt(shipGroup.position);
+
+        [...projectiles, ...particles].forEach((obj, i, arr) => {
+            if(obj.velocity) obj.position.add(obj.velocity);
+            if(--obj.life <= 0) { scene.remove(obj); arr.splice(i, 1); }
+        });
+        document.getElementById('speed').innerText = Math.round(speed * 100);
+    }
+
+    function animate() { requestAnimationFrame(animate); update(); renderer.render(scene, camera); }
+    animate();
+</script>
+</body>
+</html>

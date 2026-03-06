@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pufutara Habit Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+    --bg: #f3f4f6;
+    --card: #ffffff;
+    --text: #111111;
+    --muted: #94a3b8;
+    --accent: #111111;
+    --dot-empty: #f1f5f9;
+}
+
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.habit-card {
+    background: var(--card);
+    width: 100%;
+    max-width: 450px;
+    padding: 40px;
+    border-radius: 32px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.05);
+}
+
+h1 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 26px;
+    margin: 0 0 10px 0;
+    letter-spacing: -0.5px;
+}
+
+.desc {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 30px;
+}
+
+.habit-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #f8fafc;
+}
+
+.habit-info {
+    flex: 1;
+}
+
+.habit-name {
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: 4px;
+}
+
+.habit-streak {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.dots-container {
+    display: flex;
+    gap: 8px;
+}
+
+.dot {
+    width: 24px;
+    height: 24px;
+    background: var(--dot-empty);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dot.active {
+    background: var(--accent);
+    transform: scale(1.1);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.dot:hover:not(.active) {
+    background: #e2e8f0;
+}
+
+/* Input Minimalis */
+.add-habit {
+    display: flex;
+    margin-top: 30px;
+    gap: 10px;
+}
+
+input {
+    flex: 1;
+    padding: 12px 20px;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    font-family: 'Inter';
+}
+
+button {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 0 20px;
+    border-radius: 14px;
+    cursor: pointer;
+    font-weight: 600;
+}
+</style>
+</head>
+<body>
+
+<div class="habit-card">
+    <h1>Habits.</h1>
+    <div class="desc">7 hari terakhir. Konsistensi adalah kunci.</div>
+
+    <div id="habitList">
+        </div>
+
+    <div class="add-habit">
+        <input type="text" id="habitInput" placeholder="Tambah habit baru...">
+        <button onclick="addHabit()">+</button>
+    </div>
+</div>
+
+<script>
+let habits = JSON.parse(localStorage.getItem('puf_habits')) || [];
+
+function save() {
+    localStorage.setItem('p_habits', JSON.stringify(habits));
+    render();
+}
+
+function addHabit() {
+    const input = document.getElementById('habitInput');
+    if (!input.value.trim()) return;
+    
+    habits.push({
+        id: Date.now(),
+        name: input.value,
+        // Array 7 hari (false = belum dilakukan)
+        days: [false, false, false, false, false, false, false]
+    });
+    
+    input.value = '';
+    save();
+}
+
+function toggleDay(habitId, dayIndex) {
+    habits = habits.map(h => {
+        if (h.id === habitId) {
+            h.days[dayIndex] = !h.days[dayIndex];
+        }
+        return h;
+    });
+    save();
+}
+
+function render() {
+    const list = document.getElementById('habitList');
+    list.innerHTML = '';
+    
+    habits.forEach(h => {
+        const item = document.createElement('div');
+        item.className = 'habit-item';
+        
+        let dotsHtml = '';
+        h.days.forEach((done, index) => {
+            dotsHtml += `<div class="dot ${done ? 'active' : ''}" onclick="toggleDay(${h.id}, ${index})"></div>`;
+        });
+
+        item.innerHTML = `
+            <div class="habit-info">
+                <div class="habit-name">${h.name}</div>
+                <div class="habit-streak">${h.days.filter(d => d).length}/7 hari selesai</div>
+            </div>
+            <div class="dots-container">
+                ${dotsHtml}
+            </div>
+        `;
+        list.appendChild(item);
+    });
+}
+
+render();
+</script>
+</body>
+</html>
