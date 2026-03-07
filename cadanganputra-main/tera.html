@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terraria Multiplayer - Supabase</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background-color: #2c3e50; font-family: sans-serif; color: white; overflow: hidden; }
+        canvas { background-color: #87CEEB; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 4px solid #1a252f; border-radius: 8px; cursor: crosshair; }
+        #ui-info { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 5px; pointer-events: none; }
+    </style>
+</head>
+<body>
+
+    <div id="ui-info">Online: <span id="player-count">1</span></div>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+    <script>
+        // --- KONFIGURASI SUPABASE ---
+        const SUPABASE_URL = 'URL_KAMU_DISINI';
+        const SUPABASE_KEY = 'KEY_ANON_KAMU_DISINI';
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const blockSize = 40;
+        const WORLD_COLS = 150;
+        const WORLD_ROWS = 40;
+
+        let map = [];
+        let otherPlayers = {}; 
+        let myId = Math.random().toString(36).substring(7); // ID Random unik buat sesi ini
+        let camera = { x: 0, y: 0 };
+
+        // Inventaris & Pemain (Sama seperti sebelumnya)
+        let inventory = [{id:0,count:0},{id:0,count:0},{id:0,count:0},{id:0,count:0},{id:0,count:0}];
+        let selectedSlot = 0;
+        const player = { x: 400, y: 100, width: 24, height: 36, vx: 0, vy: 0, speed: 5, jumpPower: -10, gravity: 0.6, grounded: false, color: '#e74c3c' };
+        const keys = { a: false, d: false };
+
+        // --- REALTIME CHANNEL ---
+        const gameChannel = supabase.channel('world_1', {
+            config: { broadcast: { self: false }, presence: { key: myId } }
+        });
+
+        // 1. Sinkronisasi Gerakan (Broadcast)
+        gameChannel.on('broadcast', { event: 'move' }, (payload) => {
+            otherPlayers[payload.payload.id] = payload.payload;
+        }).on('broadcast', { event: 'block_update' }, (payload) => {
+            const { x, y, type } = payload.payload;
+            map[y][x] = type;
+        });
+
+        // 2. Sinkronisasi Pemain Masuk/Keluar (Presence)
+        gameChannel.on('presence', { event: 'sync' }, () => {
+            const state = gameChannel.presenceState();
+            document.getElementById('player-count').innerText = Object.keys(state).length;
+        }).on('presence', { event: 'join' }, ({ newPresences }) => {
+            console.log('Player join:', newPresences);
+        }).on('presence', { event: 'leave' }, ({ leftPresences }) => {
+            leftPresences.forEach(p => delete otherPlayers[p.id]);
+        });
+
+        gameChannel.subscribe(async (status) => {
+            if (status === 'SUBSCRIBED') {
+                await gameChannel.track({ id: myId, x: player.x, y: player.y });
+                loadWorld(); // Ambil map dari DB
+            }
+        });
+
+        // --- LOGIKA MAP ---
+        async function loadWorld() {
+            const { data } = await supabase.from('worlds').select('map_data').eq('name', 'main_world').single();
+            if (data && data.map_data && data.map_data.length > 0) {
+                map = data.map_data;
+            } else {
+                generateInitialMap();
+                saveWorld(); // Simpan jika baru pertama kali
+            }
+        }
+
+        async function saveWorld() {
+            await supabase.from('worlds').upsert({ name: 'main_world', map_data: map });
+        }
+
+        function generateInitialMap() {
+            for (let y = 0; y < WORLD_ROWS; y++) map[y] = new Array(WORLD_COLS).fill(0);
+            let h = 15;
+            for (let x = 0; x < WORLD_COLS; x++) {
+                if (Math.random() < 0.3) h += (Math.random() < 0.5 ? 1 : -1);
+                for (let y = h; y < WORLD_ROWS; y++) {
+                    if (y === h) map[y][x] = 1;
+                    else if (y < h+4) map[y][x] = 2;
+                    else map[y][x] = 3;
+                }
+            }
+        }
+
+        // --- INPUT & UPDATE ---
+        window.addEventListener('keydown', e => {
+            if (e.key === 'a' || e.key === 'A') keys.a = true;
+            if (e.key === 'd' || e.key === 'D') keys.d = true;
+            if ((e.key === 'w' || e.key === 'W' || e.key === ' ') && player.grounded) {
+                player.vy = player.jumpPower; player.grounded = false;
+            }
+            if (['1','2','3','4','5'].includes(e.key)) selectedSlot = parseInt(e.key) - 1;
+        });
+        window.addEventListener('keyup', e => {
+            if (e.key === 'a' || e.key === 'A') keys.a = false;
+            if (e.key === 'd' || e.key === 'D') keys.d = false;
+        });
+
+        canvas.addEventListener('mousedown', e => {
+            const rect = canvas.getBoundingClientRect();
+            const gx = Math.floor((e.clientX - rect.left + camera.x) / blockSize);
+            const gy = Math.floor((e.clientY - rect.top + camera.y) / blockSize);
+            
+            let type = 0;
+            if (e.button === 0 && map[gy][gx] !== 0) { // Hancurkan
+                type = 0;
+                map[gy][gx] = 0;
+            } else if (e.button === 2 && map[gy][gx] === 0) { // Taruh (Pakai blok 1/rumput buat contoh)
+                type = 1;
+                map[gy][gx] = 1;
+            } else return;
+
+            // Broadcast ke orang lain
+            gameChannel.send({ type: 'broadcast', event: 'block_update', payload: { x: gx, y: gy, type } });
+            saveWorld(); // Update ke DB biar permanen
+        });
+        canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+        function update() {
+            player.vx = keys.a ? -player.speed : (keys.d ? player.speed : 0);
+            player.x += player.vx;
+            // (Fisika kolisi sama seperti sebelumnya...)
+            player.vy += player.gravity; player.y += player.vy;
+            if (player.y > (WORLD_ROWS-1)*blockSize) { player.y = 100; player.vy = 0; } // Reset jika jatuh
+            
+            // Kolisi sederhana (biar kode pendek)
+            let gy = Math.floor((player.y + player.height) / blockSize);
+            let gx = Math.floor((player.x + player.width/2) / blockSize);
+            if (map[gy] && map[gy][gx] !== 0) {
+                player.y = gy * blockSize - player.height;
+                player.vy = 0; player.grounded = true;
+            }
+
+            camera.x = player.x - canvas.width/2;
+            camera.y = player.y - canvas.height/2;
+
+            // Broadcast posisi ke orang lain
+            gameChannel.send({ type: 'broadcast', event: 'move', payload: { id: myId, x: player.x, y: player.y } });
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.save(); ctx.translate(-camera.x, -camera.y);
+
+            // Gambar Map
+            for (let y = 0; y < WORLD_ROWS; y++) {
+                for (let x = 0; x < WORLD_COLS; x++) {
+                    if (map[y][x] === 1) ctx.fillStyle = '#4cc753';
+                    else if (map[y][x] === 2) ctx.fillStyle = '#79553a';
+                    else if (map[y][x] === 3) ctx.fillStyle = '#7a7a7a';
+                    else continue;
+                    ctx.fillRect(x * blockSize, y * blockSize, blockSize, blockSize);
+                }
+            }
+
+            // Gambar Kamu
+            ctx.fillStyle = player.color;
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+
+            // Gambar Pemain Lain
+            for (let id in otherPlayers) {
+                const p = otherPlayers[id];
+                ctx.fillStyle = 'blue'; // Pemain lain warna biru
+                ctx.fillRect(p.x, p.y, player.width, player.height);
+            }
+
+            ctx.restore();
+            requestAnimationFrame(() => { update(); draw(); });
+        }
+        
+        // Mulai Game Loop
+        draw();
+    </script>
+</body>
+</html>
