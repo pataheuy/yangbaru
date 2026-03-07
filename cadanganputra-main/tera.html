@@ -3,293 +3,679 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terraria Multiplayer - Final Fix</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <title>Multiplayer 3D - Tanah Hijau & Langit Biru</title>
     <style>
-        body { margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background-color: #2c3e50; font-family: sans-serif; color: white; overflow: hidden; }
-        canvas { background-color: #87CEEB; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 4px solid #1a252f; border-radius: 8px; cursor: crosshair; }
-        #ui-info { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 5px; pointer-events: none; }
-        p { margin-top: 10px; font-size: 14px; color: #bdc3c7; }
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        
+        #ui-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 100;
+            color: white;
+            background: rgba(0,0,0,0.7);
+            padding: 15px;
+            border-radius: 8px;
+            pointer-events: none;
+        }
+        
+        #controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 100;
+            color: white;
+            background: rgba(0,0,0,0.5);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        #login-panel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 200;
+            background: rgba(30, 30, 40, 0.95);
+            padding: 30px;
+            border-radius: 10px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
+        
+        #login-panel input {
+            display: block;
+            width: 250px;
+            margin: 15px auto;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-size: 16px;
+        }
+        
+        #login-panel input::placeholder {
+            color: rgba(255,255,255,0.5);
+        }
+        
+        #login-panel button {
+            margin: 10px;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            background: #4CAF50;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        #login-panel button:hover {
+            background: #45a049;
+        }
+        
+        #login-panel button:last-child {
+            background: #2196F3;
+        }
+        
+        #login-panel button:last-child:hover {
+            background: #0b7dda;
+        }
+        
+        #status {
+            margin-top: 10px;
+            color: #ff6b6b;
+            min-height: 20px;
+        }
+        
+        #players-count {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #4CAF50;
+        }
+        
+        #sql-editor {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+            width: 400px;
+            background: rgba(20, 20, 30, 0.95);
+            border-radius: 8px;
+            padding: 15px;
+            color: white;
+            backdrop-filter: blur(5px);
+        }
+        
+        #sql-editor textarea {
+            width: 100%;
+            height: 150px;
+            background: rgba(0,0,0,0.5);
+            color: #fff;
+            border: 1px solid #444;
+            border-radius: 5px;
+            padding: 10px;
+            font-family: monospace;
+            resize: vertical;
+        }
+        
+        #sql-editor button {
+            margin-top: 10px;
+            padding: 8px 20px;
+            background: #ff9800;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        #sql-result {
+            margin-top: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
-
-    <div id="ui-info">Online: <span id="player-count">1</span> | Slot Aktif: <span id="active-slot">1</span></div>
-    <canvas id="gameCanvas" width="800" height="600"></canvas>
-    <p>Klik Kiri: Hancurkan | Klik Kanan: Bangun | 1-5: Pilih Slot | W/A/D: Gerak</p>
-
+    <!-- UI Container -->
+    <div id="ui-container">
+        <div id="players-count">Players Online: 0</div>
+        <div id="player-id">ID: -</div>
+        <div id="position-display">Position: 0, 0, 0</div>
+    </div>
+    
+    <div id="controls">
+        <b>Controls:</b><br>
+        WASD: Move<br>
+        Space: Jump<br>
+        Mouse: Look around
+    </div>
+    
+    <!-- SQL Editor -->
+    <div id="sql-editor">
+        <h3>SQL Editor (Supabase)</h3>
+        <textarea id="sql-query" placeholder="Contoh: SELECT * FROM players;">SELECT * FROM players;</textarea>
+        <button onclick="executeSQL()">Execute SQL</button>
+        <button onclick="setupDatabase()" style="background: #4CAF50;">Setup Database</button>
+        <div id="sql-result">Hasil query akan muncul di sini...</div>
+    </div>
+    
+    <!-- Login Panel -->
+    <div id="login-panel">
+        <h2>Multiplayer 3D</h2>
+        <input type="text" id="username" placeholder="Username" autocomplete="off">
+        <input type="password" id="password" placeholder="Password">
+        <button onclick="login()">Login</button>
+        <button onclick="register()">Register</button>
+        <div id="status"></div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <script>
-        // --- 1. KONFIGURASI SUPABASE ---
-        // GANTI DENGAN DATA PROJECT KAMU SENDIRI
-        const SUPABASE_URL = 'https://puywjdopumlzvmzbcudr.supabase.co'; 
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1eXdqZG9wdW1senZtemJjdWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDE3MTksImV4cCI6MjA4NzkxNzcxOX0.vvThyjtK2SlA9oA9Mr_XOmt1R_tNZk-ib3PO9XpiiSc'; 
-
-        // Gunakan nama 'supa' agar tidak bentrok dengan library global
-        const supa = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const blockSize = 40;
-        const WORLD_COLS = 150;
-        const WORLD_ROWS = 40;
-
-        let map = [];
-        let otherPlayers = {}; 
-        let myId = Math.random().toString(36).substring(7);
-        let camera = { x: 0, y: 0 };
-        let isMapLoaded = false;
-
-        // Inventory (5 Slot) & Pemain
-        let inventory = [{id:0,count:0},{id:0,count:0},{id:0,count:0},{id:0,count:0},{id:0,count:0}];
-        let selectedSlot = 0;
-
-        const player = { 
-            x: 0, y: 0, 
-            width: 24, height: 36, 
-            vx: 0, vy: 0, 
-            speed: 5, jumpPower: -10, 
-            gravity: 0.6, grounded: false, 
-            color: '#e74c3c' 
-        };
-
-        const keys = { a: false, d: false };
-
-        // --- 2. MULTIPLAYER REALTIME ---
-        const gameChannel = supa.channel('world_1', {
-            config: { broadcast: { self: false }, presence: { key: myId } }
-        });
-
-        gameChannel
-            .on('broadcast', { event: 'move' }, (payload) => {
-                otherPlayers[payload.payload.id] = payload.payload;
-            })
-            .on('broadcast', { event: 'block_update' }, (payload) => {
-                const { x, y, type } = payload.payload;
-                if(map[y]) map[y][x] = type;
-            })
-            .on('presence', { event: 'sync' }, () => {
-                const state = gameChannel.presenceState();
-                document.getElementById('player-count').innerText = Object.keys(state).length;
-            })
-            .on('presence', { event: 'leave' }, ({ leftPresences }) => {
-                leftPresences.forEach(p => delete otherPlayers[p.id]);
-            })
-            .subscribe(async (status) => {
-                if (status === 'SUBSCRIBED') {
-                    await gameChannel.track({ id: myId, x: player.x, y: player.y });
-                    loadWorld();
+        // Supabase Configuration
+        const SUPABASE_URL = 'https://puywjdopumlzvmzbcudr.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1eXdqZG9wdW1senZtemJjdWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDE3MTksImV4cCI6MjA4NzkxNzcxOX0.vvThyjtK2SlA9oA9Mr_XOmt1R_tNZk-ib3PO9XpiiSc';
+        const supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // Game variables
+        let scene, camera, renderer;
+        let players = {};
+        let localPlayer;
+        let keys = {};
+        let mouseSensitivity = 0.002;
+        let pitch = 0;
+        let velocity = new THREE.Vector3();
+        let gravity = 20;
+        let jumpSpeed = 10;
+        let onGround = true;
+        let moveSpeed = 10;
+        let lastUpdate = 0;
+        let updateInterval = 50; // ms
+        let playerId = null;
+        let currentUser = null;
+        
+        // Initialize Three.js
+        function initScene() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x87CEEB); // Sky blue
+            
+            // Camera
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 2, 5);
+            
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            document.body.appendChild(renderer.domElement);
+            
+            // Green ground
+            const groundGeometry = new THREE.PlaneGeometry(100, 100);
+            const groundMaterial = new THREE.MeshStandardMaterial({ color: 0x4CAF50 });
+            const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+            ground.rotation.x = -Math.PI / 2;
+            ground.position.y = 0;
+            ground.receiveShadow = true;
+            scene.add(ground);
+            
+            // Grid helper for better visibility
+            const gridHelper = new THREE.GridHelper(100, 20, 0x888888, 0x444444);
+            gridHelper.position.y = 0.01;
+            scene.add(gridHelper);
+            
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0x404060);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+            directionalLight.position.set(10, 20, 10);
+            directionalLight.castShadow = true;
+            directionalLight.shadow.mapSize.width = 1024;
+            directionalLight.shadow.mapSize.height = 1024;
+            scene.add(directionalLight);
+            
+            // Add some clouds/markers
+            for (let i = 0; i < 5; i++) {
+                const markerGeo = new THREE.SphereGeometry(0.5);
+                const markerMat = new THREE.MeshStandardMaterial({ color: 0xffaa00 });
+                const marker = new THREE.Mesh(markerGeo, markerMat);
+                marker.position.set((Math.random() - 0.5) * 40, 5, (Math.random() - 0.5) * 40);
+                scene.add(marker);
+            }
+            
+            // Input handling
+            document.addEventListener('keydown', (e) => keys[e.code] = true);
+            document.addEventListener('keyup', (e) => keys[e.code] = false);
+            
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('click', () => {
+                if (currentUser) {
+                    renderer.domElement.requestPointerLock();
                 }
             });
-
-        // --- 3. MAP SYNC & SPAWN LOGIC ---
-        async function loadWorld() {
-            // Ambil data map pertama yang tersedia di tabel
-            const { data, error } = await supa.from('worlds').select('map_data').limit(1).maybeSingle();
             
-            if (data && data.map_data && data.map_data.length > 0) {
-                map = data.map_data;
-                finalizeSetup();
+            // Window resize
+            window.addEventListener('resize', onWindowResize, false);
+            
+            // Start game loop
+            gameLoop();
+        }
+        
+        function createPlayerMesh(color = 0xff0000) {
+            const group = new THREE.Group();
+            
+            // Body
+            const bodyGeo = new THREE.CylinderGeometry(0.5, 0.5, 1.5);
+            const bodyMat = new THREE.MeshStandardMaterial({ color: color });
+            const body = new THREE.Mesh(bodyGeo, bodyMat);
+            body.position.y = 0.75;
+            body.castShadow = true;
+            body.receiveShadow = true;
+            group.add(body);
+            
+            // Head
+            const headGeo = new THREE.SphereGeometry(0.4);
+            const headMat = new THREE.MeshStandardMaterial({ color: 0xffcc99 });
+            const head = new THREE.Mesh(headGeo, headMat);
+            head.position.y = 1.75;
+            head.castShadow = true;
+            head.receiveShadow = true;
+            group.add(head);
+            
+            // Arms
+            const armGeo = new THREE.CylinderGeometry(0.2, 0.2, 1);
+            const armMat = new THREE.MeshStandardMaterial({ color: color });
+            
+            // Left arm
+            const leftArm = new THREE.Mesh(armGeo, armMat);
+            leftArm.position.set(-0.7, 1.2, 0);
+            leftArm.rotation.z = 0.2;
+            leftArm.castShadow = true;
+            group.add(leftArm);
+            
+            // Right arm
+            const rightArm = new THREE.Mesh(armGeo, armMat);
+            rightArm.position.set(0.7, 1.2, 0);
+            rightArm.rotation.z = -0.2;
+            rightArm.castShadow = true;
+            group.add(rightArm);
+            
+            return group;
+        }
+        
+        function onMouseMove(event) {
+            if (!currentUser || !document.pointerLockElement) return;
+            
+            // Horizontal rotation (yaw)
+            localPlayer.rotation.y -= event.movementX * mouseSensitivity;
+            
+            // Vertical rotation (pitch)
+            pitch -= event.movementY * mouseSensitivity;
+            pitch = Math.max(-Math.PI/2, Math.min(Math.PI/2, pitch));
+            camera.rotation.x = pitch;
+        }
+        
+        function updateMovement(deltaTime) {
+            if (!localPlayer || !currentUser) return;
+            
+            // Ground check
+            onGround = localPlayer.position.y <= 1.1;
+            
+            // Movement direction
+            const moveDirection = new THREE.Vector3();
+            
+            if (keys['KeyW']) moveDirection.z -= 1;
+            if (keys['KeyS']) moveDirection.z += 1;
+            if (keys['KeyA']) moveDirection.x -= 1;
+            if (keys['KeyD']) moveDirection.x += 1;
+            
+            moveDirection.normalize();
+            
+            // Apply rotation to movement direction
+            const angle = localPlayer.rotation.y;
+            const forward = new THREE.Vector3(-Math.sin(angle), 0, -Math.cos(angle));
+            const right = new THREE.Vector3(Math.cos(angle), 0, -Math.sin(angle));
+            
+            const moveX = right.multiplyScalar(moveDirection.x);
+            const moveZ = forward.multiplyScalar(moveDirection.z);
+            
+            const move = new THREE.Vector3().addVectors(moveX, moveZ);
+            
+            // Apply movement
+            localPlayer.position.x += move.x * moveSpeed * deltaTime;
+            localPlayer.position.z += move.z * moveSpeed * deltaTime;
+            
+            // Jump
+            if (keys['Space'] && onGround) {
+                velocity.y = jumpSpeed;
+                onGround = false;
+            }
+            
+            // Gravity
+            if (!onGround) {
+                velocity.y -= gravity * deltaTime;
             } else {
-                // Jika kosong (setelah truncate), generate baru
-                generateInitialMap();
-                await supa.from('worlds').insert([{ name: 'main_world', map_data: map }]);
-                finalizeSetup();
+                velocity.y = 0;
             }
-        }
-
-        function finalizeSetup() {
-            isMapLoaded = true;
-            findSpawnPoint(); // Cari tanah agar tidak spawn di bawah tanah
-        }
-
-        function findSpawnPoint() {
-            let spawnX = Math.floor(WORLD_COLS / 2);
-            for (let y = 0; y < WORLD_ROWS; y++) {
-                if (map[y] && map[y][spawnX] !== 0) {
-                    player.x = spawnX * blockSize;
-                    player.y = (y - 2) * blockSize; 
-                    return;
-                }
-            }
-            player.x = 400; player.y = 100;
-        }
-
-        function generateInitialMap() {
-            for (let y = 0; y < WORLD_ROWS; y++) map[y] = new Array(WORLD_COLS).fill(0);
-            let h = 18;
-            for (let x = 0; x < WORLD_COLS; x++) {
-                if (Math.random() < 0.3) h += (Math.random() < 0.5 ? 1 : -1);
-                if (h < 10) h = 10; if (h > 25) h = 25;
-                for (let y = h; y < WORLD_ROWS; y++) {
-                    if (y === h) map[y][x] = 1; // Rumput
-                    else if (y < h+4) map[y][x] = 2; // Tanah
-                    else map[y][x] = 3; // Batu
-                }
-            }
-            // Awan (ID 6)
-            for(let i=0; i<40; i++) {
-                let cx = Math.floor(Math.random()*(WORLD_COLS-4));
-                let cy = Math.floor(Math.random()*6)+3;
-                map[cy][cx] = 6; map[cy][cx+1] = 6; map[cy][cx+2] = 6; map[cy-1][cx+1] = 6;
-            }
-        }
-
-        // --- 4. INPUT & ACTIONS ---
-        window.addEventListener('keydown', e => {
-            const k = e.key.toLowerCase();
-            if (k === 'a') keys.a = true;
-            if (k === 'd') keys.d = true;
-            if ((k === 'w' || e.key === ' ') && player.grounded) {
-                player.vy = player.jumpPower; player.grounded = false;
-            }
-            if (['1','2','3','4','5'].includes(e.key)) {
-                selectedSlot = parseInt(e.key) - 1;
-                document.getElementById('active-slot').innerText = e.key;
-            }
-        });
-        window.addEventListener('keyup', e => {
-            const k = e.key.toLowerCase();
-            if (k === 'a') keys.a = false;
-            if (k === 'd') keys.d = false;
-        });
-
-        canvas.addEventListener('mousedown', e => {
-            if (!isMapLoaded) return;
-            const rect = canvas.getBoundingClientRect();
-            const gx = Math.floor((e.clientX - rect.left + camera.x) / blockSize);
-            const gy = Math.floor((e.clientY - rect.top + camera.y) / blockSize);
             
-            if (gy < 0 || gy >= WORLD_ROWS || gx < 0 || gx >= WORLD_COLS) return;
-
-            if (e.button === 0) { // Klik Kiri: Hancurkan
-                if (map[gy][gx] !== 0) {
-                    addToInventory(map[gy][gx]);
-                    map[gy][gx] = 0;
-                    updateWorld(gx, gy, 0);
-                }
-            } else if (e.button === 2) { // Klik Kanan: Bangun
-                const item = inventory[selectedSlot];
-                if (item.id !== 0 && item.count > 0 && map[gy][gx] === 0) {
-                    map[gy][gx] = item.id;
-                    item.count--;
-                    if(item.count === 0) item.id = 0;
-                    updateWorld(gx, gy, map[gy][gx]);
-                }
+            localPlayer.position.y += velocity.y * deltaTime;
+            
+            // Keep on ground
+            if (localPlayer.position.y < 1) {
+                localPlayer.position.y = 1;
+                velocity.y = 0;
             }
-        });
-
-        async function updateWorld(x, y, type) {
-            gameChannel.send({ type: 'broadcast', event: 'block_update', payload: { x, y, type } });
-            await supa.from('worlds').upsert({ name: 'main_world', map_data: map });
-        }
-
-        function addToInventory(id) {
-            for (let i=0; i<5; i++) {
-                if (inventory[i].id === id) { inventory[i].count++; return; }
-            }
-            for (let i=0; i<5; i++) {
-                if (inventory[i].id === 0) { inventory[i].id = id; inventory[i].count = 1; return; }
+            
+            // Update camera position to follow player
+            camera.position.copy(localPlayer.position);
+            camera.position.y += 1.6;
+            
+            // Update UI
+            document.getElementById('position-display').innerHTML = 
+                `Position: ${localPlayer.position.x.toFixed(1)}, ${localPlayer.position.y.toFixed(1)}, ${localPlayer.position.z.toFixed(1)}`;
+            
+            // Send update to server
+            const now = Date.now();
+            if (now - lastUpdate > updateInterval) {
+                updatePlayerPosition();
+                lastUpdate = now;
             }
         }
-
-        canvas.addEventListener('contextmenu', e => e.preventDefault());
-
-        // --- 5. PHYSICS & RENDER ---
-        function update() {
-            if (!isMapLoaded) return;
-
-            player.vx = keys.a ? -player.speed : (keys.d ? player.speed : 0);
-            player.x += player.vx;
-            if (isColliding(player.x, player.y)) player.x -= player.vx;
-
-            player.vy += player.gravity;
-            player.y += player.vy;
-            player.grounded = false;
-
-            if (isColliding(player.x, player.y)) {
-                if (player.vy > 0) {
-                    player.y = Math.floor((player.y + player.height) / blockSize) * blockSize - player.height;
-                    player.grounded = true;
-                } else {
-                    player.y = Math.floor(player.y / blockSize) * blockSize + blockSize;
-                }
-                player.vy = 0;
+        
+        async function updatePlayerPosition() {
+            if (!currentUser || !localPlayer) return;
+            
+            try {
+                const { error } = await supabase
+                    .from('player_positions')
+                    .upsert({
+                        user_id: currentUser.id,
+                        position_x: localPlayer.position.x,
+                        position_y: localPlayer.position.y,
+                        position_z: localPlayer.position.z,
+                        rotation_y: localPlayer.rotation.y,
+                        last_updated: new Date()
+                    });
+                    
+                if (error) console.error('Update position error:', error);
+            } catch (e) {
+                console.error('Failed to update position:', e);
             }
-
-            camera.x = player.x - canvas.width/2;
-            camera.y = player.y - canvas.height/2;
-            camera.x = Math.max(0, Math.min(camera.x, WORLD_COLS * blockSize - canvas.width));
-            camera.y = Math.max(0, Math.min(camera.y, WORLD_ROWS * blockSize - canvas.height));
-
-            gameChannel.send({ type: 'broadcast', event: 'move' , payload: { id: myId, x: player.x, y: player.y } });
         }
-
-        function isColliding(px, py) {
-            let left = Math.floor((px + 2) / blockSize);
-            let right = Math.floor((px + player.width - 2) / blockSize);
-            let top = Math.floor(py / blockSize);
-            let bottom = Math.floor((py + player.height - 1) / blockSize);
-            for (let y = top; y <= bottom; y++) {
-                for (let x = left; x <= right; x++) {
-                    if (map[y] && map[y][x] !== 0 && map[y][x] !== 6) return true;
-                }
+        
+        async function loadOtherPlayers() {
+            try {
+                const { data, error } = await supabase
+                    .from('player_positions')
+                    .select('*, players(username)')
+                    .neq('user_id', currentUser?.id);
+                    
+                if (error) throw error;
+                
+                data.forEach(playerData => {
+                    if (!players[playerData.user_id] && playerData.user_id !== currentUser?.id) {
+                        addPlayer(playerData);
+                    }
+                });
+            } catch (e) {
+                console.error('Load players error:', e);
             }
-            return false;
         }
-
-        function drawBlock(id, x, y, size) {
-            if (id === 1) ctx.fillStyle = '#4cc753'; 
-            else if (id === 2) ctx.fillStyle = '#79553a'; 
-            else if (id === 3) ctx.fillStyle = '#7a7a7a'; 
-            else if (id === 6) ctx.fillStyle = '#ffffff'; 
-            else return;
-            ctx.fillRect(x, y, size, size);
+        
+        function addPlayer(playerData) {
+            const color = Math.random() * 0xffffff;
+            const playerMesh = createPlayerMesh(color);
+            playerMesh.position.set(
+                playerData.position_x || 0,
+                playerData.position_y || 1,
+                playerData.position_z || 0
+            );
+            playerMesh.rotation.y = playerData.rotation_y || 0;
+            
+            // Add name tag
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 256;
+            canvas.height = 128;
+            ctx.fillStyle = 'white';
+            ctx.font = 'Bold 40px Arial';
+            ctx.fillText(playerData.username || 'Player', 10, 60);
+            
+            const texture = new THREE.CanvasTexture(canvas);
+            const material = new THREE.SpriteMaterial({ map: texture });
+            const sprite = new THREE.Sprite(material);
+            sprite.scale.set(2, 1, 1);
+            sprite.position.y = 2.5;
+            playerMesh.add(sprite);
+            
+            scene.add(playerMesh);
+            players[playerData.user_id] = playerMesh;
         }
-
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            if (!isMapLoaded) {
-                ctx.fillStyle = "white"; 
-                ctx.font = "20px Arial";
-                ctx.fillText("Syncing World...", 330, 300);
-                requestAnimationFrame(draw); return;
+        
+        async function syncPlayers() {
+            if (!currentUser) return;
+            
+            try {
+                const { data, error } = await supabase
+                    .from('player_positions')
+                    .select('*, players(username)')
+                    .neq('user_id', currentUser.id);
+                    
+                if (error) throw error;
+                
+                // Update existing players
+                data.forEach(playerData => {
+                    if (players[playerData.user_id]) {
+                        const player = players[playerData.user_id];
+                        player.position.set(
+                            playerData.position_x || 0,
+                            playerData.position_y || 1,
+                            playerData.position_z || 0
+                        );
+                        player.rotation.y = playerData.rotation_y || 0;
+                    } else if (playerData.user_id !== currentUser.id) {
+                        addPlayer(playerData);
+                    }
+                });
+                
+                // Remove disconnected players
+                const activeIds = new Set(data.map(p => p.user_id));
+                Object.keys(players).forEach(id => {
+                    if (!activeIds.has(id)) {
+                        scene.remove(players[id]);
+                        delete players[id];
+                    }
+                });
+                
+                document.getElementById('players-count').innerHTML = 
+                    `Players Online: ${Object.keys(players).length + 1}`;
+                    
+            } catch (e) {
+                console.error('Sync error:', e);
             }
-
-            ctx.save(); ctx.translate(-camera.x, -camera.y);
-
-            let sCol = Math.floor(camera.x / blockSize);
-            let eCol = sCol + 22;
-            for (let y = 0; y < WORLD_ROWS; y++) {
-                for (let x = sCol; x < eCol; x++) {
-                    if (map[y] && map[y][x] !== 0) drawBlock(map[y][x], x * blockSize, y * blockSize, blockSize);
-                }
-            }
-
-            for (let id in otherPlayers) {
-                ctx.fillStyle = '#3498db'; // Player lain warna Biru
-                ctx.fillRect(otherPlayers[id].x, otherPlayers[id].y, player.width, player.height);
-            }
-
-            ctx.fillStyle = player.color; // Kamu warna Merah
-            ctx.fillRect(player.x, player.y, player.width, player.height);
-
-            ctx.restore();
-
-            // UI Inventory
-            for (let i=0; i<5; i++) {
-                ctx.fillStyle = i === selectedSlot ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.5)';
-                ctx.fillRect(20 + i*50, canvas.height - 70, 45, 45);
-                if (inventory[i].id !== 0) {
-                    drawBlock(inventory[i].id, 27 + i*50, canvas.height - 63, 30);
-                    ctx.fillStyle = 'white'; ctx.fillText(inventory[i].count, 25 + i*50, canvas.height - 30);
-                }
-            }
-
-            update();
-            requestAnimationFrame(draw);
         }
-
-        draw();
+        
+        function gameLoop() {
+            requestAnimationFrame(gameLoop);
+            
+            const deltaTime = 0.016; // Assume 60fps
+            
+            if (localPlayer && currentUser) {
+                updateMovement(deltaTime);
+            }
+            
+            renderer.render(scene, camera);
+        }
+        
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        
+        // Authentication functions
+        async function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const status = document.getElementById('status');
+            
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: username + '@game.local', // Simple email format
+                    password: password
+                });
+                
+                if (error) throw error;
+                
+                currentUser = data.user;
+                playerId = currentUser.id;
+                
+                // Check if player exists in players table
+                const { data: playerData } = await supabase
+                    .from('players')
+                    .select('*')
+                    .eq('id', currentUser.id)
+                    .single();
+                    
+                if (!playerData) {
+                    await supabase
+                        .from('players')
+                        .insert({ id: currentUser.id, username: username });
+                }
+                
+                // Create local player
+                localPlayer = createPlayerMesh(0x00ff00);
+                localPlayer.position.set(0, 1, 0);
+                scene.add(localPlayer);
+                
+                // Hide login panel
+                document.getElementById('login-panel').classList.add('hidden');
+                document.getElementById('player-id').innerHTML = `ID: ${currentUser.id.substring(0, 8)}...`;
+                
+                // Start sync
+                setInterval(syncPlayers, 1000);
+                
+                status.innerHTML = 'Login berhasil!';
+            } catch (e) {
+                status.innerHTML = 'Login gagal: ' + e.message;
+            }
+        }
+        
+        async function register() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const status = document.getElementById('status');
+            
+            try {
+                const { data, error } = await supabase.auth.signUp({
+                    email: username + '@game.local',
+                    password: password
+                });
+                
+                if (error) throw error;
+                
+                status.innerHTML = 'Registrasi berhasil! Silakan login.';
+            } catch (e) {
+                status.innerHTML = 'Registrasi gagal: ' + e.message;
+            }
+        }
+        
+        // SQL Editor functions
+        window.executeSQL = async function() {
+            const query = document.getElementById('sql-query').value;
+            const resultDiv = document.getElementById('sql-result');
+            
+            try {
+                const { data, error } = await supabase.rpc('exec_sql', { 
+                    sql_query: query 
+                });
+                
+                if (error) throw error;
+                
+                resultDiv.innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+            } catch (e) {
+                resultDiv.innerHTML = 'Error: ' + e.message;
+            }
+        };
+        
+        window.setupDatabase = async function() {
+            const resultDiv = document.getElementById('sql-result');
+            
+            const sql = `
+                -- Enable UUID extension
+                CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+                
+                -- Players table
+                CREATE TABLE IF NOT EXISTS players (
+                    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+                    username TEXT UNIQUE NOT NULL,
+                    created_at TIMESTAMP DEFAULT NOW()
+                );
+                
+                -- Player positions table
+                CREATE TABLE IF NOT EXISTS player_positions (
+                    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+                    user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+                    position_x FLOAT DEFAULT 0,
+                    position_y FLOAT DEFAULT 1,
+                    position_z FLOAT DEFAULT 0,
+                    rotation_y FLOAT DEFAULT 0,
+                    last_updated TIMESTAMP DEFAULT NOW(),
+                    UNIQUE(user_id)
+                );
+                
+                -- Enable RLS
+                ALTER TABLE players ENABLE ROW LEVEL SECURITY;
+                ALTER TABLE player_positions ENABLE ROW LEVEL SECURITY;
+                
+                -- Create policies
+                DROP POLICY IF EXISTS "Users can read all players" ON players;
+                CREATE POLICY "Users can read all players" 
+                    ON players FOR SELECT USING (true);
+                
+                DROP POLICY IF EXISTS "Users can update own position" ON player_positions;
+                CREATE POLICY "Users can update own position" 
+                    ON player_positions FOR ALL 
+                    USING (auth.uid() = user_id);
+                    
+                DROP POLICY IF EXISTS "Users can read all positions" ON player_positions;
+                CREATE POLICY "Users can read all positions" 
+                    ON player_positions FOR SELECT USING (true);
+            `;
+            
+            try {
+                const { error } = await supabase.rpc('exec_sql', { sql_query: sql });
+                
+                if (error) throw error;
+                
+                resultDiv.innerHTML = '✅ Database berhasil disetup!';
+            } catch (e) {
+                resultDiv.innerHTML = '❌ Error: ' + e.message;
+            }
+        };
+        
+        // Initialize
+        initScene();
     </script>
 </body>
 </html>
