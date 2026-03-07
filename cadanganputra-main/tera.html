@@ -3,24 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terraria Multiplayer - Supabase</title>
+    <title>Terraria Multiplayer - Fixed Version</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body { margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background-color: #2c3e50; font-family: sans-serif; color: white; overflow: hidden; }
         canvas { background-color: #87CEEB; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 4px solid #1a252f; border-radius: 8px; cursor: crosshair; }
         #ui-info { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 5px; pointer-events: none; }
+        p { margin-top: 10px; font-size: 14px; color: #bdc3c7; }
     </style>
 </head>
 <body>
 
-    <div id="ui-info">Online: <span id="player-count">1</span></div>
+    <div id="ui-info">Online: <span id="player-count">1</span> | Slot Aktif: <span id="active-slot">1</span></div>
     <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <p>Klik Kiri: Hancurkan | Klik Kanan: Bangun | 1-5: Pilih Slot | W/A/D: Gerak</p>
 
     <script>
-        // --- KONFIGURASI SUPABASE ---
-        const SUPABASE_URL = 'https://puywjdopumlzvmzbcudr.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1eXdqZG9wdW1senZtemJjdWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDE3MTksImV4cCI6MjA4NzkxNzcxOX0.vvThyjtK2SlA9oA9Mr_XOmt1R_tNZk-ib3PO9XpiiSc';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // --- 1. KONFIGURASI SUPABASE (ISI DENGAN DATA KAMU) ---
+        const SUPABASE_URL = 'URL_PROJECT_KAMU'; 
+        const SUPABASE_KEY = 'ANON_KEY_KAMU'; 
+
+        // Ganti nama variabel jadi 'supa' supaya tidak error SyntaxError
+        const supa = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -30,58 +34,67 @@
 
         let map = [];
         let otherPlayers = {}; 
-        let myId = Math.random().toString(36).substring(7); // ID Random unik buat sesi ini
+        let myId = Math.random().toString(36).substring(7);
         let camera = { x: 0, y: 0 };
 
-        // Inventaris & Pemain (Sama seperti sebelumnya)
-        let inventory = [{id:0,count:0},{id:0,count:0},{id:0,count:0},{id:0,count:0},{id:0,count:0}];
+        // --- 2. SISTEM INVENTORY & PEMAIN ---
+        let inventory = [
+            { id: 0, count: 0 }, { id: 0, count: 0 }, { id: 0, count: 0 },
+            { id: 0, count: 0 }, { id: 0, count: 0 }
+        ];
         let selectedSlot = 0;
-        const player = { x: 400, y: 100, width: 24, height: 36, vx: 0, vy: 0, speed: 5, jumpPower: -10, gravity: 0.6, grounded: false, color: '#e74c3c' };
+
+        const player = { 
+            x: 400, y: 100, 
+            width: 24, height: 36, 
+            vx: 0, vy: 0, 
+            speed: 5, jumpPower: -10, 
+            gravity: 0.6, grounded: false, 
+            color: '#e74c3c' 
+        };
+
         const keys = { a: false, d: false };
 
-        // --- REALTIME CHANNEL ---
-        const gameChannel = supabase.channel('world_1', {
+        // --- 3. REALTIME LOGIC ---
+        const gameChannel = supa.channel('world_1', {
             config: { broadcast: { self: false }, presence: { key: myId } }
         });
 
-        // 1. Sinkronisasi Gerakan (Broadcast)
-        gameChannel.on('broadcast', { event: 'move' }, (payload) => {
-            otherPlayers[payload.payload.id] = payload.payload;
-        }).on('broadcast', { event: 'block_update' }, (payload) => {
-            const { x, y, type } = payload.payload;
-            map[y][x] = type;
-        });
+        gameChannel
+            .on('broadcast', { event: 'move' }, (payload) => {
+                otherPlayers[payload.payload.id] = payload.payload;
+            })
+            .on('broadcast', { event: 'block_update' }, (payload) => {
+                const { x, y, type } = payload.payload;
+                if(map[y]) map[y][x] = type;
+            })
+            .on('presence', { event: 'sync' }, () => {
+                const state = gameChannel.presenceState();
+                document.getElementById('player-count').innerText = Object.keys(state).length;
+            })
+            .on('presence', { event: 'leave' }, ({ leftPresences }) => {
+                leftPresences.forEach(p => delete otherPlayers[p.id]);
+            })
+            .subscribe(async (status) => {
+                if (status === 'SUBSCRIBED') {
+                    await gameChannel.track({ id: myId, x: player.x, y: player.y });
+                    loadWorld();
+                }
+            });
 
-        // 2. Sinkronisasi Pemain Masuk/Keluar (Presence)
-        gameChannel.on('presence', { event: 'sync' }, () => {
-            const state = gameChannel.presenceState();
-            document.getElementById('player-count').innerText = Object.keys(state).length;
-        }).on('presence', { event: 'join' }, ({ newPresences }) => {
-            console.log('Player join:', newPresences);
-        }).on('presence', { event: 'leave' }, ({ leftPresences }) => {
-            leftPresences.forEach(p => delete otherPlayers[p.id]);
-        });
-
-        gameChannel.subscribe(async (status) => {
-            if (status === 'SUBSCRIBED') {
-                await gameChannel.track({ id: myId, x: player.x, y: player.y });
-                loadWorld(); // Ambil map dari DB
-            }
-        });
-
-        // --- LOGIKA MAP ---
+        // --- 4. DATABASE & MAP LOGIC ---
         async function loadWorld() {
-            const { data } = await supabase.from('worlds').select('map_data').eq('name', 'main_world').single();
+            const { data, error } = await supa.from('worlds').select('map_data').eq('name', 'main_world').single();
             if (data && data.map_data && data.map_data.length > 0) {
                 map = data.map_data;
             } else {
                 generateInitialMap();
-                saveWorld(); // Simpan jika baru pertama kali
+                saveWorld();
             }
         }
 
         async function saveWorld() {
-            await supabase.from('worlds').upsert({ name: 'main_world', map_data: map });
+            await supa.from('worlds').upsert({ name: 'main_world', map_data: map });
         }
 
         function generateInitialMap() {
@@ -89,26 +102,36 @@
             let h = 15;
             for (let x = 0; x < WORLD_COLS; x++) {
                 if (Math.random() < 0.3) h += (Math.random() < 0.5 ? 1 : -1);
+                if (h < 10) h = 10; if (h > 25) h = 25;
                 for (let y = h; y < WORLD_ROWS; y++) {
-                    if (y === h) map[y][x] = 1;
-                    else if (y < h+4) map[y][x] = 2;
-                    else map[y][x] = 3;
+                    if (y === h) map[y][x] = 1; // Rumput
+                    else if (y < h+4) map[y][x] = 2; // Tanah
+                    else map[y][x] = 3; // Batu
                 }
+            }
+            // Tambah Awan (Blok 6)
+            for(let i=0; i<30; i++) {
+                let cx = Math.floor(Math.random()*(WORLD_COLS-3));
+                let cy = Math.floor(Math.random()*5)+3;
+                map[cy][cx] = 6; map[cy][cx+1] = 6; map[cy-1][cx+1] = 6;
             }
         }
 
-        // --- INPUT & UPDATE ---
+        // --- 5. INPUT & ACTIONS ---
         window.addEventListener('keydown', e => {
-            if (e.key === 'a' || e.key === 'A') keys.a = true;
-            if (e.key === 'd' || e.key === 'D') keys.d = true;
-            if ((e.key === 'w' || e.key === 'W' || e.key === ' ') && player.grounded) {
+            if (e.key.toLowerCase() === 'a') keys.a = true;
+            if (e.key.toLowerCase() === 'd') keys.d = true;
+            if ((e.key.toLowerCase() === 'w' || e.key === ' ') && player.grounded) {
                 player.vy = player.jumpPower; player.grounded = false;
             }
-            if (['1','2','3','4','5'].includes(e.key)) selectedSlot = parseInt(e.key) - 1;
+            if (['1','2','3','4','5'].includes(e.key)) {
+                selectedSlot = parseInt(e.key) - 1;
+                document.getElementById('active-slot').innerText = e.key;
+            }
         });
         window.addEventListener('keyup', e => {
-            if (e.key === 'a' || e.key === 'A') keys.a = false;
-            if (e.key === 'd' || e.key === 'D') keys.d = false;
+            if (e.key.toLowerCase() === 'a') keys.a = false;
+            if (e.key.toLowerCase() === 'd') keys.d = false;
         });
 
         canvas.addEventListener('mousedown', e => {
@@ -116,74 +139,141 @@
             const gx = Math.floor((e.clientX - rect.left + camera.x) / blockSize);
             const gy = Math.floor((e.clientY - rect.top + camera.y) / blockSize);
             
-            let type = 0;
-            if (e.button === 0 && map[gy][gx] !== 0) { // Hancurkan
-                type = 0;
-                map[gy][gx] = 0;
-            } else if (e.button === 2 && map[gy][gx] === 0) { // Taruh (Pakai blok 1/rumput buat contoh)
-                type = 1;
-                map[gy][gx] = 1;
-            } else return;
+            if (gy < 0 || gy >= WORLD_ROWS || gx < 0 || gx >= WORLD_COLS) return;
 
-            // Broadcast ke orang lain
-            gameChannel.send({ type: 'broadcast', event: 'block_update', payload: { x: gx, y: gy, type } });
-            saveWorld(); // Update ke DB biar permanen
+            if (e.button === 0) { // Klik Kiri: Hancurkan
+                const blockId = map[gy][gx];
+                if (blockId !== 0) {
+                    addToInventory(blockId);
+                    map[gy][gx] = 0;
+                    broadcastBlock(gx, gy, 0);
+                }
+            } else if (e.button === 2) { // Klik Kanan: Bangun
+                const item = inventory[selectedSlot];
+                if (item.id !== 0 && item.count > 0 && map[gy][gx] === 0) {
+                    map[gy][gx] = item.id;
+                    item.count--;
+                    if(item.count === 0) item.id = 0;
+                    broadcastBlock(gx, gy, map[gy][gx]);
+                }
+            }
+            saveWorld();
         });
         canvas.addEventListener('contextmenu', e => e.preventDefault());
 
+        function addToInventory(id) {
+            for (let i=0; i<5; i++) {
+                if (inventory[i].id === id) { inventory[i].count++; return; }
+            }
+            for (let i=0; i<5; i++) {
+                if (inventory[i].id === 0) { inventory[i].id = id; inventory[i].count = 1; return; }
+            }
+        }
+
+        function broadcastBlock(x, y, type) {
+            gameChannel.send({ type: 'broadcast', event: 'block_update', payload: { x, y, type } });
+        }
+
+        // --- 6. UPDATE & RENDER ---
         function update() {
             player.vx = keys.a ? -player.speed : (keys.d ? player.speed : 0);
             player.x += player.vx;
-            // (Fisika kolisi sama seperti sebelumnya...)
-            player.vy += player.gravity; player.y += player.vy;
-            if (player.y > (WORLD_ROWS-1)*blockSize) { player.y = 100; player.vy = 0; } // Reset jika jatuh
             
-            // Kolisi sederhana (biar kode pendek)
-            let gy = Math.floor((player.y + player.height) / blockSize);
-            let gx = Math.floor((player.x + player.width/2) / blockSize);
-            if (map[gy] && map[gy][gx] !== 0) {
-                player.y = gy * blockSize - player.height;
-                player.vy = 0; player.grounded = true;
+            // Kolisi Horizontal
+            if (isColliding(player.x, player.y)) {
+                player.x -= player.vx;
             }
+
+            player.vy += player.gravity;
+            player.y += player.vy;
+            player.grounded = false;
+
+            // Kolisi Vertikal
+            if (isColliding(player.x, player.y)) {
+                if (player.vy > 0) {
+                    player.y = Math.floor((player.y + player.height) / blockSize) * blockSize - player.height;
+                    player.grounded = true;
+                } else {
+                    player.y = Math.floor(player.y / blockSize) * blockSize + blockSize;
+                }
+                player.vy = 0;
+            }
+
+            // Batas Dunia
+            if (player.y > WORLD_ROWS * blockSize) player.y = 0;
 
             camera.x = player.x - canvas.width/2;
             camera.y = player.y - canvas.height/2;
+            camera.x = Math.max(0, Math.min(camera.x, WORLD_COLS * blockSize - canvas.width));
+            camera.y = Math.max(0, Math.min(camera.y, WORLD_ROWS * blockSize - canvas.height));
 
-            // Broadcast posisi ke orang lain
             gameChannel.send({ type: 'broadcast', event: 'move', payload: { id: myId, x: player.x, y: player.y } });
+        }
+
+        function isColliding(px, py) {
+            let left = Math.floor((px + 2) / blockSize);
+            let right = Math.floor((px + player.width - 2) / blockSize);
+            let top = Math.floor(py / blockSize);
+            let bottom = Math.floor((py + player.height - 1) / blockSize);
+            for (let y = top; y <= bottom; y++) {
+                for (let x = left; x <= right; x++) {
+                    if (map[y] && map[y][x] !== 0 && map[y][x] !== 5) return true;
+                }
+            }
+            return false;
+        }
+
+        function drawBlock(id, x, y, size) {
+            if (id === 1) ctx.fillStyle = '#4cc753'; // Rumput
+            else if (id === 2) ctx.fillStyle = '#79553a'; // Tanah
+            else if (id === 3) ctx.fillStyle = '#7a7a7a'; // Batu
+            else if (id === 6) ctx.fillStyle = '#ffffff'; // Awan
+            else return;
+            ctx.fillRect(x, y, size, size);
+            ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+            ctx.strokeRect(x, y, size, size);
         }
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.save(); ctx.translate(-camera.x, -camera.y);
 
-            // Gambar Map
+            // Render Map
+            let sCol = Math.floor(camera.x / blockSize);
+            let eCol = sCol + 22;
             for (let y = 0; y < WORLD_ROWS; y++) {
-                for (let x = 0; x < WORLD_COLS; x++) {
-                    if (map[y][x] === 1) ctx.fillStyle = '#4cc753';
-                    else if (map[y][x] === 2) ctx.fillStyle = '#79553a';
-                    else if (map[y][x] === 3) ctx.fillStyle = '#7a7a7a';
-                    else continue;
-                    ctx.fillRect(x * blockSize, y * blockSize, blockSize, blockSize);
+                for (let x = sCol; x < eCol; x++) {
+                    if (map[y] && map[y][x] !== 0) drawBlock(map[y][x], x * blockSize, y * blockSize, blockSize);
                 }
             }
 
-            // Gambar Kamu
+            // Pemain Lain
+            for (let id in otherPlayers) {
+                ctx.fillStyle = '#3498db';
+                ctx.fillRect(otherPlayers[id].x, otherPlayers[id].y, player.width, player.height);
+            }
+
+            // Pemain Lokal
             ctx.fillStyle = player.color;
             ctx.fillRect(player.x, player.y, player.width, player.height);
 
-            // Gambar Pemain Lain
-            for (let id in otherPlayers) {
-                const p = otherPlayers[id];
-                ctx.fillStyle = 'blue'; // Pemain lain warna biru
-                ctx.fillRect(p.x, p.y, player.width, player.height);
+            ctx.restore();
+
+            // Render Inventory UI
+            for (let i=0; i<5; i++) {
+                ctx.fillStyle = i === selectedSlot ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.5)';
+                ctx.fillRect(20 + i*50, canvas.height - 70, 45, 45);
+                ctx.strokeStyle = 'white'; ctx.strokeRect(20 + i*50, canvas.height - 70, 45, 45);
+                if (inventory[i].id !== 0) {
+                    drawBlock(inventory[i].id, 27 + i*50, canvas.height - 63, 30);
+                    ctx.fillStyle = 'white'; ctx.font = '12px Arial';
+                    ctx.fillText(inventory[i].count, 25 + i*50, canvas.height - 30);
+                }
             }
 
-            ctx.restore();
             requestAnimationFrame(() => { update(); draw(); });
         }
-        
-        // Mulai Game Loop
+
         draw();
     </script>
 </body>
