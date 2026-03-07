@@ -25,20 +25,27 @@
         .profile-area { display: flex; align-items: center; gap: 12px; padding-left: 20px; border-left: 1px solid #eee; }
         .avatar { width: 38px; height: 38px; background: #2b82fb; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1rem; cursor: pointer;}
         .btn-logout { color: #cc0000; font-weight: 800; cursor: pointer; font-size: 1rem; background: none; border: none; padding: 0; }
-        .btn-login-green { color: #28a745; font-weight: 800; cursor: pointer; font-size: 1rem; background: none; border: none; padding: 0; } /* Tombol Login Hijau */
+        .btn-login-green { color: #28a745; font-weight: 800; cursor: pointer; font-size: 1rem; background: none; border: none; padding: 0; }
 
         /* --- SCREENS --- */
         .screen { display: none; padding: 30px; max-width: 1400px; margin: 0 auto; }
         .active { display: block; }
 
+        /* --- LOGIN SCREEN (FIXED) --- */
+        #screenAuth { background-color: #f9f9f9; align-items: center; justify-content: center; height: 75vh; padding: 0; }
+        #screenAuth.active { display: flex; } /* Tampil flex HANYA saat active, jadi gak bocor ke Beranda */
+
+        .auth-card { background: #fff; padding: 50px 40px; border-radius: 24px; width: 100%; max-width: 420px; box-shadow: 0 10px 40px rgba(0,0,0,0.04); text-align: center; }
+        .auth-card h1 { font-size: 24px; font-weight: 800; margin-bottom: 10px; }
+        .auth-card p { color: #777; font-size: 14px; margin-bottom: 35px; }
+        .auth-input { width: 100%; padding: 16px 20px; margin-bottom: 15px; border: 1px solid #efefef; background: #fafafa; border-radius: 14px; outline: none; font-size: 15px; }
+        .btn-login-black { width: 100%; padding: 16px; background: #000; color: #fff; border: none; border-radius: 14px; font-weight: 700; cursor: pointer; font-size: 15px; margin-top: 10px; }
+
+
         /* --- VIDEO GRID & CARDS --- */
         .video-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; row-gap: 35px; }
         
-        .v-card { 
-            cursor: pointer; background: #fff; border-radius: 16px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.06); transition: transform 0.2s ease, box-shadow 0.2s ease; 
-            padding-bottom: 15px; overflow: hidden; border: 1px solid #f2f2f2; display: flex; flex-direction: column;
-        }
+        .v-card { cursor: pointer; background: #fff; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); transition: transform 0.2s ease, box-shadow 0.2s ease; padding-bottom: 15px; overflow: hidden; border: 1px solid #f2f2f2; display: flex; flex-direction: column; }
         .v-card:hover { transform: translateY(-6px); box-shadow: 0 12px 24px rgba(0,0,0,0.15); }
         .v-thumb { width: 100%; height: 180px; object-fit: cover; background: #000; border-radius: 0; transition: 0.2s; border-bottom: 1px solid #f2f2f2; }
         .v-info-row { display: flex; gap: 12px; margin-top: 15px; padding: 0 15px; }
@@ -79,14 +86,6 @@
         .channel-name { font-size: 2rem; font-weight: 800; margin-bottom: 5px; }
         .channel-stats { color: #666; margin-bottom: 15px; font-size: 0.95rem; }
         
-        /* --- LOGIN SCREEN --- */
-        #screenAuth { background-color: #f9f9f9; display: flex; align-items: center; justify-content: center; height: 75vh; padding: 0; }
-        .auth-card { background: #fff; padding: 50px 40px; border-radius: 24px; width: 100%; max-width: 420px; box-shadow: 0 10px 40px rgba(0,0,0,0.04); text-align: center; }
-        .auth-card h1 { font-size: 24px; font-weight: 800; margin-bottom: 10px; }
-        .auth-card p { color: #777; font-size: 14px; margin-bottom: 35px; }
-        .auth-input { width: 100%; padding: 16px 20px; margin-bottom: 15px; border: 1px solid #efefef; background: #fafafa; border-radius: 14px; outline: none; font-size: 15px; }
-        .btn-login-black { width: 100%; padding: 16px; background: #000; color: #fff; border: none; border-radius: 14px; font-weight: 700; cursor: pointer; font-size: 15px; margin-top: 10px; }
-
         /* --- MODALS & MISC --- */
         .btn-primary { width: 100%; padding: 15px; background: #111; color: #fff; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 1rem; }
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 2000; align-items: center; justify-content: center; }
@@ -156,10 +155,8 @@
         <div class="watch-layout">
             <div class="watch-main">
                 <div id="playerBox"></div>
-                
                 <div style="margin-top: 15px;">
                     <h1 id="vTitle" style="font-size:1.4rem; font-weight:800; margin-bottom:10px;">Judul Video</h1>
-                    
                     <div class="v-header-row">
                         <div style="display:flex; align-items:center; gap:12px;">
                             <div class="v-ava" id="vAva" style="width:40px; height:40px; cursor:pointer;" onclick="openChannel(_vid.uploader)">U</div>
@@ -169,7 +166,6 @@
                             </div>
                             <button class="btn-action btn-sub" id="wSubBtn" onclick="toggleSubWatch()" style="margin-left:15px;">Subscribe</button>
                         </div>
-                        
                         <div style="display:flex; gap:10px;">
                             <div style="display:flex; background:#f2f2f2; border-radius:25px; overflow:hidden;">
                                 <button class="btn-action" style="border:none; border-radius:0; border-right:1px solid #ddd;" onclick="doVote('likes')">👍 <span id="vLikes">0</span></button>
@@ -178,11 +174,9 @@
                             <button class="btn-action">Bagikan</button>
                         </div>
                     </div>
-
                     <div style="background:#f2f2f2; padding:15px; border-radius:12px; margin-top:15px; font-size:0.9rem;">
                         <b id="vViews">0</b> ditonton
                     </div>
-
                 </div>
 
                 <hr style="border:0; border-top:1px solid #ddd; margin:25px 0;">
@@ -198,7 +192,6 @@
                 <div id="commBox"></div>
                 <button id="delBtn" class="btn-primary" style="display:none; background:#cc0000; margin-top:40px;" onclick="delVideo()">🗑️ Hapus Video Saya</button>
             </div>
-
             <div class="watch-sidebar" id="recomGrid"></div>
         </div>
     </div>
@@ -219,7 +212,6 @@
     </div>
 
     <script>
-        // Supabase Init
         const _URL = 'https://puywjdopumlzvmzbcudr.supabase.co';
         const _KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1eXdqZG9wdW1senZtemJjdWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDE3MTksImV4cCI6MjA4NzkxNzcxOX0.vvThyjtK2SlA9oA9Mr_XOmt1R_tNZk-ib3PO9XpiiSc';
         const _sb = supabase.createClient(_URL, _KEY);
@@ -227,14 +219,12 @@
         let _me = null, _vid = null, _uType = 'file';
         let _currentChannel = null;
 
-        // --- HELPER UNTUK YOUTUBE ---
         function getYTId(url) {
             const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
             const match = url.match(regExp);
             return (match && match[2].length === 11) ? match[2] : null;
         }
 
-        // --- AUTH ---
         async function handleAuth() {
             const email = document.getElementById('email').value, pass = document.getElementById('password').value;
             const { data, error } = await _sb.auth.signInWithPassword({ email, password: pass });
@@ -243,18 +233,16 @@
         }
         async function logout() { await _sb.auth.signOut(); location.reload(); }
 
-        // Minta Login Kalau Belum
         function requireLogin() {
             if (!_me) { nav('screenAuth'); return false; }
             return true;
         }
 
-        // --- NAVIGASI & PENCARIAN ---
         function nav(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             window.scrollTo(0,0);
-            if(id !== 'screenWatch') document.getElementById('playerBox').innerHTML = ''; // Stop video
+            if(id !== 'screenWatch') document.getElementById('playerBox').innerHTML = ''; 
         }
         function goHome() { 
             document.getElementById('searchInput').value = '';
@@ -270,7 +258,6 @@
             getFeed('mainGrid', null, term);
         }
 
-        // --- RENDER GRID (BERANDA, PENCARIAN & CHANNEL) ---
         async function getFeed(containerId, uploaderEmail = null, searchTerm = null) {
             const grid = document.getElementById(containerId);
             grid.innerHTML = '<p style="color:#777;">Memuat video...</p>';
@@ -309,9 +296,8 @@
             });
         }
 
-        // --- CHANNEL PAGE ---
         async function openChannel(email) {
-            if(!email) return; // Kalau guest ngga bisa buka profil sendiri (karena null)
+            if(!email) return; 
             _currentChannel = email;
             const username = email.split('@')[0];
             
@@ -320,12 +306,8 @@
             document.getElementById('chEmail').innerText = "@" + username.toLowerCase();
             
             const btn = document.getElementById('chSubBtn');
-            if (_me?.email === email) {
-                btn.style.display = 'none'; 
-            } else {
-                btn.style.display = 'block';
-                await updateSubButtonUI(email, 'chSubBtn');
-            }
+            if (_me?.email === email) { btn.style.display = 'none'; } 
+            else { btn.style.display = 'block'; await updateSubButtonUI(email, 'chSubBtn'); }
 
             const { count } = await _sb.from('pufutaratube_subs').select('*', { count: 'exact', head: true }).eq('target_uploader', email);
             document.getElementById('chSubCount').innerText = count || 0;
@@ -334,7 +316,6 @@
             getFeed('channelGrid', email);
         }
 
-        // --- WATCH PAGE ---
         async function openWatch(v) {
             _vid = v; 
             nav('screenWatch');
@@ -342,11 +323,8 @@
             const pBox = document.getElementById('playerBox');
             const ytId = getYTId(v.video_url);
             
-            if (ytId) {
-                pBox.innerHTML = `<iframe src="https://www.youtube.com/embed/${ytId}?autoplay=1" style="width:100%; height:100%; border:none;" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
-            } else {
-                pBox.innerHTML = `<video src="${v.video_url}" style="width:100%; height:100%; object-fit:contain;" controls autoplay></video>`;
-            }
+            if (ytId) { pBox.innerHTML = `<iframe src="https://www.youtube.com/embed/${ytId}?autoplay=1" style="width:100%; height:100%; border:none;" allow="autoplay; encrypted-media" allowfullscreen></iframe>`; } 
+            else { pBox.innerHTML = `<video src="${v.video_url}" style="width:100%; height:100%; object-fit:contain;" controls autoplay></video>`; }
 
             const username = v.uploader.split('@')[0];
             document.getElementById('vTitle').innerText = v.title;
@@ -395,7 +373,6 @@
             });
         }
 
-        // --- SISTEM SUBSCRIBE & LIKE ---
         async function updateSubButtonUI(targetEmail, btnId) {
             const btn = document.getElementById(btnId);
             if (!_me) { btn.innerText = "Subscribe"; btn.classList.remove('is-sub'); return; }
@@ -431,7 +408,6 @@
             await _sb.from('pufutaratube_videos').update({ [t]: _vid[t] }).eq('id', _vid.id);
         }
 
-        // --- KOMENTAR ---
         async function addComm() {
             if(!requireLogin()) return;
             const val = document.getElementById('commText').value.trim();
@@ -442,4 +418,93 @@
 
         async function loadComments() {
             const { data } = await _sb.from('pufutaratube_comments').select('*').eq('video_id', _vid.id).order('id',{ascending:false});
-            document.getElementById('commBox').innerHTML = data.map(c
+            document.getElementById('commBox').innerHTML = data.map(c => {
+                const uname = c.uploader.split('@')[0];
+                return `
+                <div class="comment-item">
+                    <div class="comment-ava" style="cursor:pointer;" onclick="openChannel('${c.uploader}')">${uname[0].toUpperCase()}</div>
+                    <div>
+                        <b style="font-size:0.9rem; cursor:pointer;" onclick="openChannel('${c.uploader}')">@${uname}</b>
+                        <p style="font-size:0.95rem; margin-top:3px; color:#222;">${c.comment}</p>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function checkUpload() {
+            if(!requireLogin()) return;
+            openModal();
+        }
+        function openModal() { document.getElementById('uploadModal').style.display='flex'; }
+        function closeModal() { document.getElementById('uploadModal').style.display='none'; }
+        function upMode(m) {
+            _uType = m;
+            document.getElementById('tFile').style.background = m === 'file' ? '#111' : '#eee';
+            document.getElementById('tFile').style.color = m === 'file' ? '#fff' : '#111';
+            document.getElementById('tLink').style.background = m === 'link' ? '#111' : '#eee';
+            document.getElementById('tLink').style.color = m === 'link' ? '#fff' : '#111';
+            document.getElementById('areaFile').style.display = m === 'file' ? 'block' : 'none';
+            document.getElementById('areaLink').style.display = m === 'link' ? 'block' : 'none';
+        }
+
+        async function runUpload() {
+            const title = document.getElementById('inTitle').value;
+            if(!title) return alert("Judul wajib diisi!");
+            document.getElementById('btnRunUpload').innerText = "Sedang Memproses...";
+            let url = "";
+            if(_uType === 'file') {
+                const f = document.getElementById('inFile').files[0];
+                if(!f) { alert("Pilih file videonya!"); document.getElementById('btnRunUpload').innerText="Upload Sekarang"; return; }
+                const path = Date.now() + "_" + f.name.replace(/\s+/g, '_');
+                await _sb.storage.from('pufutaratube_videos').upload(path, f);
+                url = _sb.storage.from('pufutaratube_videos').getPublicUrl(path).data.publicUrl;
+            } else { 
+                url = document.getElementById('inUrl').value; 
+                if(!url) { alert("Masukkan URL!"); document.getElementById('btnRunUpload').innerText="Upload Sekarang"; return;}
+            }
+            
+            await _sb.from('pufutaratube_videos').insert({ title, video_url: url, uploader: _me.email });
+            location.reload();
+        }
+
+        async function delVideo() {
+            if(confirm("Yakin ingin menghapus video ini selamanya?")) {
+                await _sb.from('pufutaratube_videos').delete().eq('id', _vid.id);
+                goHome();
+            }
+        }
+
+        _sb.auth.getSession().then(({data}) => {
+            document.getElementById('uiHeader').style.display = 'flex';
+            const authBtn = document.getElementById('authBtn');
+            const ava = document.getElementById('avaCircle');
+            const komenAva = document.getElementById('myKomenAva');
+
+            if(data.session) {
+                _me = data.session.user;
+                const myUname = _me.email.split('@')[0];
+                ava.innerText = myUname[0].toUpperCase();
+                ava.style.display = 'flex';
+                komenAva.innerText = myUname[0].toUpperCase();
+                
+                authBtn.innerText = 'Keluar';
+                authBtn.className = 'btn-logout';
+                authBtn.onclick = logout;
+            } else {
+                _me = null;
+                ava.style.display = 'none';
+                komenAva.innerText = '?';
+                
+                authBtn.innerText = 'Login';
+                authBtn.className = 'btn-login-green';
+                authBtn.onclick = () => {
+                    document.getElementById('email').value = '';
+                    document.getElementById('password').value = '';
+                    nav('screenAuth');
+                };
+            }
+            goHome();
+        });
+    </script>
+</body>
+</html>
