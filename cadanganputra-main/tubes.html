@@ -43,6 +43,8 @@
             padding-bottom: 15px;
             overflow: hidden;
             border: 1px solid #f2f2f2;
+            display: flex;
+            flex-direction: column;
         }
         .v-card:hover { 
             transform: translateY(-6px); 
@@ -62,7 +64,7 @@
         .watch-sidebar { width: 380px; flex-shrink: 0; display: flex; flex-direction: column; gap: 15px; }
         @media (max-width: 950px) { .watch-layout { flex-direction: column; } .watch-sidebar { width: 100%; } }
         
-        #player { width: 100%; border-radius: 12px; background: #000; aspect-ratio: 16/9; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        #playerBox { width: 100%; border-radius: 12px; background: #000; aspect-ratio: 16/9; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; }
         .v-header-row { margin-top: 15px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 15px; }
         .btn-action { padding: 8px 16px; border-radius: 25px; border: 1px solid #ddd; background: #f2f2f2; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 6px; font-size: 0.9rem; transition: 0.2s; }
         .btn-action:hover { background: #e5e5e5; }
@@ -165,7 +167,8 @@
     <div id="screenWatch" class="screen">
         <div class="watch-layout">
             <div class="watch-main">
-                <video id="player" controls autoplay></video>
+                <div id="playerBox"></div>
+                
                 <div style="margin-top: 15px;">
                     <h1 id="vTitle" style="font-size:1.4rem; font-weight:800; margin-bottom:10px;">Judul Video</h1>
                     
@@ -218,11 +221,11 @@
             <h2 style="margin-bottom:25px">Upload Video Baru</h2>
             <div style="display:flex; gap:10px; margin-bottom:20px;">
                 <button id="tFile" class="btn-primary" onclick="upMode('file')" style="flex:1;">File Lokal</button>
-                <button id="tLink" class="btn-primary" onclick="upMode('link')" style="flex:1; background:#eee; color:#111;">Link URL</button>
+                <button id="tLink" class="btn-primary" onclick="upMode('link')" style="flex:1; background:#eee; color:#111;">Link URL (YT/.mp4)</button>
             </div>
             <input type="text" id="inTitle" placeholder="Ketik Judul Video Menarik...">
             <div id="areaFile" style="margin:10px 0;"><input type="file" id="inFile" accept="video/*" style="border:none; padding:0;"></div>
-            <div id="areaLink" style="display:none;"><input type="text" id="inUrl" placeholder="Masukkan Link video (.mp4)"></div>
+            <div id="areaLink" style="display:none;"><input type="text" id="inUrl" placeholder="Masukkan Link YouTube atau Link video (.mp4)"></div>
             <button class="btn-primary" id="btnRunUpload" onclick="runUpload()" style="margin-top:20px;">Upload Sekarang</button>
             <button onclick="closeModal()" style="width:100%; border:none; background:none; margin-top:15px; cursor:pointer; color:#999; font-weight:600;">Batal</button>
         </div>
@@ -236,6 +239,13 @@
 
         let _me = null, _vid = null, _uType = 'file';
         let _currentChannel = null;
+
+        // --- HELPER UNTUK YOUTUBE ---
+        function getYTId(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
 
         // --- AUTH ---
         async function handleAuth() {
@@ -251,7 +261,7 @@
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             window.scrollTo(0,0);
-            if(id !== 'screenWatch') document.getElementById('player').pause();
+            if(id !== 'screenWatch') document.getElementById('playerBox').innerHTML = ''; // Stop video
         }
         function goHome() { 
             document.getElementById('searchInput').value = '';
@@ -263,7 +273,6 @@
         function doSearch() {
             const term = document.getElementById('searchInput').value.trim();
             if (!term) return goHome();
-            
             nav('screenHome');
             document.getElementById('homeTitle').innerText = 'Hasil Pencarian: "' + term + '"';
             getFeed('mainGrid', null, term);
@@ -276,7 +285,7 @@
             
             let q = _sb.from('pufutaratube_videos').select('*').order('id', {ascending:false});
             if(uploaderEmail) q = q.eq('uploader', uploaderEmail);
-            if(searchTerm) q = q.ilike('title', `%${searchTerm}%`); // Fitur Pencarian di DB
+            if(searchTerm) q = q.ilike('title', `%${searchTerm}%`);
             
             const { data } = await q;
             grid.innerHTML = '';
@@ -287,11 +296,16 @@
 
             data.forEach(v => {
                 const username = v.uploader.split('@')[0];
+                const ytId = getYTId(v.video_url);
+                const thumbMedia = ytId 
+                    ? `<img class="v-thumb" src="https://img.youtube.com/vi/${ytId}/mqdefault.jpg">` 
+                    : `<video class="v-thumb" src="${v.video_url}#t=0.5"></video>`;
+
                 const c = document.createElement('div');
                 c.className = 'v-card';
                 c.onclick = () => openWatch(v);
                 c.innerHTML = `
-                    <video class="v-thumb" src="${v.video_url}#t=0.5"></video>
+                    ${thumbMedia}
                     <div class="v-info-row">
                         <div class="v-ava">${username[0].toUpperCase()}</div>
                         <div class="v-info">
@@ -336,8 +350,16 @@
             _vid = v; 
             nav('screenWatch');
             
+            const pBox = document.getElementById('playerBox');
+            const ytId = getYTId(v.video_url);
+            
+            if (ytId) {
+                pBox.innerHTML = `<iframe src="https://www.youtube.com/embed/${ytId}?autoplay=1" style="width:100%; height:100%; border:none;" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+            } else {
+                pBox.innerHTML = `<video src="${v.video_url}" style="width:100%; height:100%; object-fit:contain;" controls autoplay></video>`;
+            }
+
             const username = v.uploader.split('@')[0];
-            document.getElementById('player').src = v.video_url;
             document.getElementById('vTitle').innerText = v.title;
             document.getElementById('vUser').innerText = username;
             document.getElementById('vAva').innerText = username[0].toUpperCase();
@@ -366,11 +388,16 @@
             const { data } = await _sb.from('pufutaratube_videos').select('*').neq('id', currentVidId).order('id', {ascending:false}).limit(10);
             
             data?.forEach(v => {
+                const ytId = getYTId(v.video_url);
+                const thumbMedia = ytId 
+                    ? `<img class="mini-thumb" src="https://img.youtube.com/vi/${ytId}/mqdefault.jpg">` 
+                    : `<video class="mini-thumb" src="${v.video_url}#t=0.5"></video>`;
+
                 const c = document.createElement('div');
                 c.className = 'mini-card';
                 c.onclick = () => openWatch(v);
                 c.innerHTML = `
-                    <video class="mini-thumb" src="${v.video_url}#t=0.5"></video>
+                    ${thumbMedia}
                     <div class="mini-info">
                         <div class="mini-title">${v.title}</div>
                         <div class="mini-meta">${v.uploader.split('@')[0]}<br>${v.views || 0} ditonton</div>
@@ -468,7 +495,10 @@
                 const path = Date.now() + "_" + f.name.replace(/\s+/g, '_');
                 await _sb.storage.from('pufutaratube_videos').upload(path, f);
                 url = _sb.storage.from('pufutaratube_videos').getPublicUrl(path).data.publicUrl;
-            } else { url = document.getElementById('inUrl').value; }
+            } else { 
+                url = document.getElementById('inUrl').value; 
+                if(!url) { alert("Masukkan URL!"); document.getElementById('btnRunUpload').innerText="Upload Sekarang"; return;}
+            }
             
             await _sb.from('pufutaratube_videos').insert({ title, video_url: url, uploader: _me.email });
             location.reload();
