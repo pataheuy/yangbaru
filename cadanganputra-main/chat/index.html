@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pufutara Chat - Global & Private</title>
+    <title>Pufutara Chat</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* Global Styles */
@@ -28,7 +28,7 @@
         .app-wrapper {
             width: 100%;
             max-width: 1000px;
-            height: 60vh; /* Tinggi dikurangi lagi sesuai permintaan (dari 80vh ke 60vh) */
+            height: 60vh;
             background: #fff;
             border: 1px solid #eee;
             border-radius: 20px;
@@ -140,9 +140,8 @@
         .msg { max-width: 75%; padding: 12px 16px; border-radius: 16px; font-size: 0.9rem; line-height: 1.5; cursor: pointer; position: relative; word-wrap: break-word; }
         .msg-me { background: #000; color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
         .msg-other { background: #f8f8f8; color: #000; border: 1px solid #eee; align-self: flex-start; border-bottom-left-radius: 4px; }
-        .msg-sender { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; display: block; }
-        .msg-me .msg-sender { color: #888; display: none; }
-        .msg-other .msg-sender { color: #555; }
+        .msg-sender { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; display: block; }
+        .msg-me .msg-sender { display: none; }
         
         .msg img { max-width: 100%; max-height: 250px; border-radius: 8px; margin-top: 8px; display: block; object-fit: cover; border: 1px solid rgba(255,255,255,0.2); cursor: zoom-in; }
 
@@ -286,6 +285,20 @@
         let selectedMsg = null;
         let replyingTo = null;
 
+        // --- WARNA UNIK USER ---
+        // Palet warna yang kontras dengan background terang
+        const userColors = ['#e11d48', '#2563eb', '#16a34a', '#9333ea', '#ea580c', '#0d9488', '#c026d3', '#4f46e5', '#b45309', '#059669'];
+        
+        // Fungsi untuk meng-hash email/username menjadi indeks warna
+        function getColorForUser(email) {
+            let hash = 0;
+            for (let i = 0; i < email.length; i++) {
+                hash = email.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            const index = Math.abs(hash) % userColors.length;
+            return userColors[index];
+        }
+
         // --- AUTHENTICATION ---
         async function handleAuth() {
             const email = document.getElementById('emailIn').value;
@@ -423,7 +436,7 @@
                 titleEl.innerText = targetEmail.split('@')[0];
                 statusEl.innerText = targetEmail;
                 statusEl.style.color = "#888";
-                noticeEl.style.display = "block"; // Tampilkan Notice
+                noticeEl.style.display = "block"; 
             }
 
             document.getElementById('appWrapper').classList.add('mobile-chat-active');
@@ -485,7 +498,6 @@
 
             const payload = { sender: _userEmail, message: finalMessage, is_read: false };
             
-            // --- OPTIMISTIC UI: Render Langsung di Chat Lokal ---
             const tempId = 'temp-' + Date.now();
             const optimisticMsg = { id: tempId, sender: _userEmail, message: finalMessage, created_at: new Date().toISOString(), is_read: false };
             
@@ -495,21 +507,19 @@
                 renderSidebar();
             }
 
-            // --- Kirim ke DB Background ---
             if (currentChatType === 'global') {
                 await _client.from('global_chat').insert([payload]);
             } else {
                 payload.receiver = currentTargetEmail;
                 const { data } = await _client.from('private_chat').insert([payload]).select();
                 
-                // Update ID lokal yang 'temp' ke ID asli dari server jika sudah terkirim
                 if(data && data[0]) {
                     const realId = data[0].id;
                     const tempEl = document.getElementById(`msg-${currentChatType}-${tempId}`);
                     const existingRealEl = document.getElementById(`msg-${currentChatType}-${realId}`);
                     
-                    if(existingRealEl && tempEl) tempEl.remove(); // Jika realtime duluan merender
-                    else if (tempEl) tempEl.id = `msg-${currentChatType}-${realId}`; // Timpa ID
+                    if(existingRealEl && tempEl) tempEl.remove(); 
+                    else if (tempEl) tempEl.id = `msg-${currentChatType}-${realId}`; 
                 }
             }
         }
@@ -534,7 +544,6 @@
                 const payloadMsg = `|URLIMG|${publicUrlData.publicUrl}`;
                 const dbPayload = { sender: _userEmail, message: payloadMsg, is_read: false };
                 
-                // --- OPTIMISTIC UI Gambar ---
                 const tempId = 'temp-' + Date.now();
                 if (currentChatType === 'private') {
                     renderMessage({ id: tempId, sender: _userEmail, message: payloadMsg, created_at: new Date().toISOString(), is_read: false });
@@ -564,7 +573,6 @@
             const box = document.getElementById('chatMessages');
             if(box.innerHTML.includes('Belum ada pesan')) box.innerHTML = '';
 
-            // Cegah duplikasi
             if (document.getElementById(`msg-${currentChatType}-${m.id}`)) return;
 
             const isMe = m.sender === _userEmail;
@@ -594,13 +602,15 @@
             }
 
             const senderName = m.sender.split('@')[0];
-            const showName = (currentChatType === 'global' && !isMe) ? `<span class="msg-sender">${senderName}</span>` : '';
+            const senderColor = getColorForUser(m.sender); // Ambil warna dari fungsi hash
+            
+            // Terapkan warna ke style inline, berlaku hanya untuk orang lain di Global Chat
+            const showName = (currentChatType === 'global' && !isMe) ? `<span class="msg-sender" style="color: ${senderColor};">${senderName}</span>` : '';
             
             div.innerHTML = `${quoteHtml}${showName}${displayTxt}`;
             
             div.onclick = (e) => {
                 e.stopPropagation();
-                // Cegah hapus pesan yang belum masuk database (id = temp-...)
                 if(typeof m.id === 'string' && m.id.startsWith('temp-')) return;
 
                 selectedMsg = { id: m.id, sender: m.sender, text: rawTextForReply, isMe };
