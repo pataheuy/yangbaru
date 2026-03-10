@@ -263,6 +263,28 @@
     </footer>
 
     <script>
+
+        const allMusicCards = document.querySelectorAll('.music-card');
+
+        // GENERATE 100 LAGU OTOMATIS
+const grids = document.querySelectorAll('.music-grid');
+
+for(let i = 1; i <= 100; i++){
+
+    const card = document.createElement("div");
+    card.className = "music-card";
+    card.setAttribute("data-src",`https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${(i%16)+1}.mp3`);
+
+    card.innerHTML = `
+        <div class="cover-art" style="background:#${Math.floor(Math.random()*999999)}">
+            <div class="play-hover-btn"></div>
+        </div>
+        <h3>Track ${i}</h3>
+        <p>Pufutara Music</p>
+    `;
+
+    grids[0].appendChild(card);
+}
         document.addEventListener('DOMContentLoaded', () => {
             
             // --- 1. SISTEM TAB (SPA LOGIC) ---
