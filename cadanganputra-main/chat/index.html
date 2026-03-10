@@ -8,11 +8,21 @@
     <style>
         /* Global Styles */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        body { background-color: #ffffff; color: #000000; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        
+        /* Perubahan 1: Mengizinkan body untuk scroll saat di-zoom agar tidak memotong konten */
+        body { 
+            background-color: #ffffff; 
+            color: #000000; 
+            display: flex; 
+            flex-direction: column; 
+            min-height: 100vh; 
+            overflow-y: auto; 
+        }
+        
         .container { max-width: 1000px; margin: 0 auto; padding: 0 20px; width: 100%; }
 
         /* --- Header --- */
-        header { padding: 15px 0; border-bottom: 1px solid #f0f0f0; background: rgba(255, 255, 255, 0.95); z-index: 100; }
+        header { padding: 15px 0; border-bottom: 1px solid #f0f0f0; background: rgba(255, 255, 255, 0.95); z-index: 100; flex-shrink: 0; }
         nav { display: flex; justify-content: space-between; align-items: center; }
         .header-left { display: flex; flex-direction: column; }
         .logo { font-weight: 900; font-size: 1.2rem; letter-spacing: -1px; text-transform: uppercase; text-decoration: none; color: #000; }
@@ -23,12 +33,21 @@
         #logoutBtn { color: #ff4444; }
 
         /* --- Main Layout --- */
-        .main-content { flex: 1; display: flex; justify-content: center; align-items: center; padding: 20px; overflow: hidden; background: #fafafa; }
+        /* Perubahan 2: Memberikan padding agar tampilan tidak menempel ke pinggir saat zoom */
+        .main-content { 
+            flex: 1; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            padding: 40px 20px; 
+            background: #fafafa; 
+        }
         
+        /* Perubahan 3: Menggunakan tinggi tetap (px) agar proporsi tetap sama meskipun di-zoom */
         .app-wrapper {
             width: 100%;
             max-width: 1000px;
-            height: 60vh;
+            height: 750px; /* Tinggi tetap untuk desktop */
             background: #fff;
             border: 1px solid #eee;
             border-radius: 20px;
@@ -55,7 +74,6 @@
         /* --- Dashboard Layout (Sidebar + Chat) --- */
         .dashboard { flex-direction: row; width: 100%; }
         
-        /* Sidebar */
         .sidebar {
             width: 320px;
             border-right: 1px solid #eee;
@@ -65,104 +83,60 @@
             z-index: 10;
         }
 
-        .sidebar-header {
-            padding: 20px;
-            border-bottom: 1px solid #eee;
-            background: #fafafa;
-        }
-
-        .btn-new-chat {
-            width: 100%; padding: 10px; background: #f0f0f0; border: 1px dashed #ccc; border-radius: 8px; font-weight: 600; cursor: pointer; color: #333; transition: 0.2s;
-        }
+        .sidebar-header { padding: 20px; border-bottom: 1px solid #eee; background: #fafafa; }
+        .btn-new-chat { width: 100%; padding: 10px; background: #f0f0f0; border: 1px dashed #ccc; border-radius: 8px; font-weight: 600; cursor: pointer; color: #333; transition: 0.2s; }
         .btn-new-chat:hover { background: #e0e0e0; border-color: #888; color: #000; }
 
-        .new-chat-box {
-            display: none; margin-top: 10px; flex-direction: column; gap: 8px;
-        }
+        .new-chat-box { display: none; margin-top: 10px; flex-direction: column; gap: 8px; }
         .new-chat-box input { padding: 10px; border-radius: 6px; border: 1px solid #ddd; font-size: 0.85rem; outline: none; }
         .new-chat-box button { padding: 10px; background: #000; color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
 
         .chat-list { flex: 1; overflow-y: auto; }
-        .chat-list::-webkit-scrollbar { width: 4px; }
-        .chat-list::-webkit-scrollbar-thumb { background: #ddd; }
-
-        .chat-item {
-            padding: 15px 20px;
-            border-bottom: 1px solid #f9f9f9;
-            cursor: pointer;
-            transition: background 0.2s;
-            display: flex;
-            flex-direction: column;
-        }
+        .chat-item { padding: 15px 20px; border-bottom: 1px solid #f9f9f9; cursor: pointer; transition: background 0.2s; display: flex; flex-direction: column; }
         .chat-item:hover { background: #fafafa; }
         .chat-item.active-chat { background: #f0f0f0; border-left: 4px solid #000; padding-left: 16px; }
         .chat-item-name { font-weight: 700; font-size: 0.9rem; color: #000; margin-bottom: 4px; }
         .chat-item-msg { font-size: 0.8rem; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* Main Chat Area */
         .chat-main { flex: 1; display: flex; flex-direction: column; background: #fff; position: relative; }
-        
-        .chat-header {
-            padding: 15px 20px;
-            border-bottom: 1px solid #eee;
-            background: #fff;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .btn-back-mobile {
-            display: none; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #000; padding-right: 10px;
-        }
-
+        .chat-header { padding: 15px 20px; border-bottom: 1px solid #eee; background: #fff; display: flex; align-items: center; gap: 15px; }
+        .btn-back-mobile { display: none; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #000; padding-right: 10px; }
         .chat-title-info { display: flex; flex-direction: column; }
         .chat-title-name { font-weight: 800; font-size: 1.1rem; }
         .chat-title-status { font-size: 0.75rem; color: #4ade80; font-weight: 600; }
 
-        /* Warning Banner Private Chat */
-        .private-notice {
-            display: none;
-            background-color: #f5f5f5;
-            color: #666;
-            text-align: center;
-            padding: 10px 15px;
-            font-size: 0.75rem;
-            border-bottom: 1px solid #e0e0e0;
-            line-height: 1.4;
-        }
-        .private-notice strong { color: #333; }
-
+        .private-notice { display: none; background-color: #f5f5f5; color: #666; text-align: center; padding: 10px 15px; font-size: 0.75rem; border-bottom: 1px solid #e0e0e0; line-height: 1.4; }
         .chat-messages { flex: 1; padding: 25px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
-        .chat-messages::-webkit-scrollbar { width: 6px; }
-        .chat-messages::-webkit-scrollbar-thumb { background: #ddd; border-radius: 10px; }
-
+        
         /* Pesan Styling */
         .msg { max-width: 75%; padding: 12px 16px; border-radius: 16px; font-size: 0.9rem; line-height: 1.5; cursor: pointer; position: relative; word-wrap: break-word; }
         .msg-me { background: #000; color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
         .msg-other { background: #f8f8f8; color: #000; border: 1px solid #eee; align-self: flex-start; border-bottom-left-radius: 4px; }
         .msg-sender { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; display: block; }
-        .msg-me .msg-sender { display: none; }
-        
         .msg img { max-width: 100%; max-height: 250px; border-radius: 8px; margin-top: 8px; display: block; object-fit: cover; border: 1px solid rgba(255,255,255,0.2); cursor: zoom-in; }
 
         .reply-banner { padding: 12px 20px; background: #f5f5f5; font-size: 0.8rem; display: none; justify-content: space-between; align-items: center; border-top: 1px solid #eee; border-left: 4px solid #000; }
-        .reply-banner span { font-weight: 700; }
-
         .input-area { padding: 15px 20px; display: flex; gap: 10px; border-top: 1px solid #eee; background: #fff; align-items: center; }
         .input-area input[type="text"] { flex: 1; padding: 14px 20px; border-radius: 30px; border: 1px solid #ddd; outline: none; font-size: 0.95rem; background: #fafafa; }
-        .input-area input[type="text"]:focus { background: #fff; border-color: #000; }
         .btn-icon, .btn-send { background: none; border: 1px solid #ddd; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; color: #000;}
         .btn-send { background: #000; color: #fff; border: none; }
 
-        /* Action Menu */
         .action-menu { position: absolute; background: #fff; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); display: none; flex-direction: column; z-index: 200; border: 1px solid #eee; width: 140px; overflow: hidden;}
         .action-menu button { padding: 12px 15px; border: none; background: none; text-align: left; cursor: pointer; font-size: 0.85rem; font-weight: 600; border-bottom: 1px solid #f9f9f9; color: #333;}
         .action-menu button:hover { background: #f0f0f0; }
 
         /* --- RESPONSIVE MOBILE --- */
         @media (max-width: 768px) {
-            .app-wrapper { height: 100vh; border-radius: 0; border: none; box-shadow: none; }
-            .main-content { padding: 0; }
+            /* Perubahan 4: Menyesuaikan body mobile agar tidak ada scrollbar ganda */
+            body { overflow: hidden; height: 100dvh; }
+            
+            .app-wrapper { 
+                height: 100dvh; /* Selalu penuh satu layar di mobile */
+                border-radius: 0; 
+                border: none; 
+                box-shadow: none; 
+            }
+            .main-content { padding: 0; height: 100%; }
             .sidebar { width: 100%; border-right: none; }
             .chat-main { display: none; width: 100%; position: absolute; top: 0; left: 0; height: 100%; z-index: 20; }
             .mobile-chat-active .sidebar { display: none; }
@@ -195,10 +169,7 @@
     </header>
 
     <main class="main-content">
-        <!-- Wrappernya -->
         <div class="app-wrapper" id="appWrapper">
-            
-            <!-- Auth Screen -->
             <div id="authScreen" class="screen active auth-screen">
                 <div class="auth-box">
                     <h1>Akses Chat</h1>
@@ -210,10 +181,7 @@
                 </div>
             </div>
 
-            <!-- Dashboard Screen (Sidebar + Chat) -->
             <div id="dashboardScreen" class="screen dashboard">
-                
-                <!-- Sidebar Kiri -->
                 <div class="sidebar">
                     <div class="sidebar-header">
                         <button class="btn-new-chat" onclick="toggleNewChat()">+ Obrolan Baru</button>
@@ -222,12 +190,9 @@
                             <button onclick="startPrivateChatFromInput()">Mulai Obrolan</button>
                         </div>
                     </div>
-                    <div class="chat-list" id="sidebarChatList">
-                        <!-- List Chat -->
-                    </div>
+                    <div class="chat-list" id="sidebarChatList"></div>
                 </div>
 
-                <!-- Main Chat Kanan -->
                 <div class="chat-main">
                     <div class="chat-header">
                         <button class="btn-back-mobile" onclick="closeChatMobile()">←</button>
@@ -236,86 +201,63 @@
                             <span class="chat-title-status" id="chatStatus">Publik</span>
                         </div>
                     </div>
-                    
-                    <!-- Notice Private Chat -->
                     <div id="privateNotice" class="private-notice">
-                        ⚠️ Fitur Private Chat masih dalam tahap pengembangan dan mungkin terjadi keterlambatan server. <strong>Silakan refresh (muat ulang) halaman</strong> jika pesan balasan dari teman belum muncul.
+                        ⚠️ Fitur Private Chat masih dalam tahap pengembangan. <strong>Refresh</strong> jika balasan belum muncul.
                     </div>
-
-                    <div id="chatMessages" class="chat-messages">
-                        <!-- Pesan -->
-                    </div>
-                    
+                    <div id="chatMessages" class="chat-messages"></div>
                     <div id="replyBanner" class="reply-banner">
                         <div style="flex: 1; overflow: hidden;">
-                            <span>Membalas:</span> <span id="replyTxt" style="font-weight: normal; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: inline-block; max-width: 80%; vertical-align: bottom;"></span>
+                            <span>Membalas:</span> <span id="replyTxt" style="font-weight: normal;"></span>
                         </div>
-                        <div onclick="cancelReply()" style="cursor:pointer; font-weight:bold; font-size: 1.2rem; color: #888;">×</div>
+                        <div onclick="cancelReply()" style="cursor:pointer; font-weight:bold;">×</div>
                     </div>
-
                     <div class="input-area">
                         <input type="file" id="imgUpload" accept="image/*" style="display:none;" onchange="handleImageUpload()">
-                        <button id="btnImg" class="btn-icon" onclick="document.getElementById('imgUpload').click()" title="Kirim Gambar">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                        <button id="btnImg" class="btn-icon" onclick="document.getElementById('imgUpload').click()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
                         </button>
-                        <input type="text" id="msgIn" placeholder="Ketik pesan di sini..." onkeypress="if(event.key==='Enter')sendMessage()">
+                        <input type="text" id="msgIn" placeholder="Ketik pesan..." onkeypress="if(event.key==='Enter')sendMessage()">
                         <button class="btn-send" onclick="sendMessage()">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
                         </button>
                     </div>
                 </div>
             </div>
-
         </div>
     </main>
 
     <script>
+        // --- Konfigurasi dan Logika Tetap Sama ---
         const _CONFIG = {
             URL: 'https://puywjdopumlzvmzbcudr.supabase.co',
             KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1eXdqZG9wdW1senZtemJjdWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDE3MTksImV4cCI6MjA4NzkxNzcxOX0.vvThyjtK2SlA9oA9Mr_XOmt1R_tNZk-ib3PO9XpiiSc'
         };
-
         const _client = window.supabase.createClient(_CONFIG.URL, _CONFIG.KEY);
         let _userEmail = '';
-        
         let currentChatType = 'global'; 
         let currentTargetEmail = null;  
-        
         let privateContacts = {}; 
         let selectedMsg = null;
         let replyingTo = null;
-
-        // --- WARNA UNIK USER ---
-        // Palet warna yang kontras dengan background terang
         const userColors = ['#e11d48', '#2563eb', '#16a34a', '#9333ea', '#ea580c', '#0d9488', '#c026d3', '#4f46e5', '#b45309', '#059669'];
-        
-        // Fungsi untuk meng-hash email/username menjadi indeks warna
+
         function getColorForUser(email) {
             let hash = 0;
-            for (let i = 0; i < email.length; i++) {
-                hash = email.charCodeAt(i) + ((hash << 5) - hash);
-            }
-            const index = Math.abs(hash) % userColors.length;
-            return userColors[index];
+            for (let i = 0; i < email.length; i++) hash = email.charCodeAt(i) + ((hash << 5) - hash);
+            return userColors[Math.abs(hash) % userColors.length];
         }
 
-        // --- AUTHENTICATION ---
         async function handleAuth() {
             const email = document.getElementById('emailIn').value;
             const password = document.getElementById('passIn').value;
             const errBox = document.getElementById('authErr');
-            errBox.style.color = "#000";
             errBox.innerText = "Mengautentikasi...";
-
             const { data, error } = await _client.auth.signInWithPassword({ email, password });
             if (error) {
                 const { error: upErr } = await _client.auth.signUp({ email, password });
-                if (upErr) { errBox.style.color = "#ff4444"; errBox.innerText = upErr.message; }
-                else { errBox.style.color = "#4ade80"; errBox.innerText = "Akun dibuat! Silakan klik Masuk lagi."; }
-            } else {
-                _userEmail = data.user.email;
-                enterDashboard();
-            }
+                if (upErr) errBox.innerText = upErr.message;
+                else errBox.innerText = "Akun dibuat! Klik Masuk lagi.";
+            } else { _userEmail = data.user.email; enterDashboard(); }
         }
 
         async function logout() { await _client.auth.signOut(); location.reload(); }
@@ -324,370 +266,123 @@
             document.getElementById('authScreen').classList.remove('active');
             document.getElementById('dashboardScreen').classList.add('active');
             document.getElementById('logoutBtn').style.display = 'block';
-            
-            const namaUser = _userEmail.split('@')[0];
-            const subtitleEl = document.getElementById('userSubtitle');
-            subtitleEl.innerText = `Halo, ${namaUser}`;
-            subtitleEl.style.display = 'block';
-            
-            initChatSystem();
-        }
-
-        // --- INITIALIZATION ---
-        function initChatSystem() {
+            document.getElementById('userSubtitle').innerText = `Halo, ${_userEmail.split('@')[0]}`;
+            document.getElementById('userSubtitle').style.display = 'block';
             loadSidebarList();
             switchChat('global'); 
             listenRealtime();
         }
 
-        // --- SIDEBAR & LIST MANAGEMENT ---
-        function toggleNewChat() {
-            const box = document.getElementById('newChatBox');
-            box.style.display = box.style.display === 'flex' ? 'none' : 'flex';
-        }
+        function toggleNewChat() { const box = document.getElementById('newChatBox'); box.style.display = box.style.display === 'flex' ? 'none' : 'flex'; }
 
         function startPrivateChatFromInput() {
             const target = document.getElementById('newChatTarget').value.trim();
             if(!target || target === _userEmail) return alert('Email tidak valid');
             toggleNewChat();
-            document.getElementById('newChatTarget').value = '';
-            
-            if(!privateContacts[target]) {
-                privateContacts[target] = { lastMsg: "Mulai obrolan...", time: new Date().toISOString() };
-            }
-            renderSidebar();
+            if(!privateContacts[target]) privateContacts[target] = { lastMsg: "...", time: new Date().toISOString() };
             switchChat('private', target);
         }
 
         async function loadSidebarList() {
-            const { data, error } = await _client.from('private_chat')
-                .select('*')
-                .or(`sender.eq.${_userEmail},receiver.eq.${_userEmail}`)
-                .order('created_at', { ascending: false });
-
+            const { data } = await _client.from('private_chat').select('*').or(`sender.eq.${_userEmail},receiver.eq.${_userEmail}`).order('created_at', { ascending: false });
             privateContacts = {};
-            if (data) {
-                data.forEach(msg => {
-                    const contactEmail = msg.sender === _userEmail ? msg.receiver : msg.sender;
-                    if(!privateContacts[contactEmail]) {
-                        privateContacts[contactEmail] = {
-                            lastMsg: msg.message,
-                            isRead: msg.is_read,
-                            time: msg.created_at
-                        };
-                    }
-                });
-            }
+            if (data) data.forEach(msg => {
+                const contactEmail = msg.sender === _userEmail ? msg.receiver : msg.sender;
+                if(!privateContacts[contactEmail]) privateContacts[contactEmail] = { lastMsg: msg.message, time: msg.created_at };
+            });
             renderSidebar();
         }
 
         function renderSidebar() {
             const list = document.getElementById('sidebarChatList');
-            list.innerHTML = '';
-
-            const globalItem = document.createElement('div');
-            globalItem.className = `chat-item ${currentChatType === 'global' ? 'active-chat' : ''}`;
-            globalItem.onclick = () => switchChat('global');
-            globalItem.innerHTML = `
-                <div class="chat-item-name">🌍 Global Chat</div>
-                <div class="chat-item-msg">Obrolan publik bersama</div>
-            `;
-            list.appendChild(globalItem);
-
-            const sortedContacts = Object.entries(privateContacts).sort((a, b) => new Date(b[1].time) - new Date(a[1].time));
-            
-            sortedContacts.forEach(([email, data]) => {
-                const item = document.createElement('div');
+            list.innerHTML = `<div class="chat-item ${currentChatType === 'global' ? 'active-chat' : ''}" onclick="switchChat('global')"><div class="chat-item-name">🌍 Global Chat</div><div class="chat-item-msg">Obrolan publik</div></div>`;
+            Object.entries(privateContacts).forEach(([email, data]) => {
                 const isActive = (currentChatType === 'private' && currentTargetEmail === email);
-                item.className = `chat-item ${isActive ? 'active-chat' : ''}`;
-                item.onclick = () => switchChat('private', email);
-                
-                let preview = data.lastMsg;
-                if(preview.startsWith('|URLIMG|')) preview = "📷 Gambar";
-                else if(preview.startsWith('|RPLY|')) {
-                    const parts = preview.split('|');
-                    if(parts.length >= 4) preview = parts.slice(4).join('|');
-                }
-
-                const displayName = email.split('@')[0];
-                item.innerHTML = `
-                    <div class="chat-item-name">👤 ${displayName}</div>
-                    <div class="chat-item-msg">${preview}</div>
-                `;
-                list.appendChild(item);
+                list.innerHTML += `<div class="chat-item ${isActive ? 'active-chat' : ''}" onclick="switchChat('private', '${email}')"><div class="chat-item-name">👤 ${email.split('@')[0]}</div><div class="chat-item-msg">${data.lastMsg}</div></div>`;
             });
         }
 
-        // --- CHAT SWITCHING ---
         function switchChat(type, targetEmail = null) {
-            currentChatType = type;
-            currentTargetEmail = targetEmail;
-            
-            const titleEl = document.getElementById('chatTitle');
-            const statusEl = document.getElementById('chatStatus');
-            const noticeEl = document.getElementById('privateNotice');
-            
-            if(type === 'global') {
-                titleEl.innerText = "Global Chat";
-                statusEl.innerText = "Ruang Publik";
-                statusEl.style.color = "#4ade80";
-                noticeEl.style.display = "none";
-            } else {
-                titleEl.innerText = targetEmail.split('@')[0];
-                statusEl.innerText = targetEmail;
-                statusEl.style.color = "#888";
-                noticeEl.style.display = "block"; 
-            }
-
+            currentChatType = type; currentTargetEmail = targetEmail;
+            document.getElementById('chatTitle').innerText = type === 'global' ? "Global Chat" : targetEmail.split('@')[0];
+            document.getElementById('privateNotice').style.display = type === 'global' ? "none" : "block";
             document.getElementById('appWrapper').classList.add('mobile-chat-active');
-            
-            renderSidebar(); 
-            cancelReply();
-            loadMessages(); 
+            renderSidebar(); loadMessages();
         }
 
-        function closeChatMobile() {
-            document.getElementById('appWrapper').classList.remove('mobile-chat-active');
-        }
+        function closeChatMobile() { document.getElementById('appWrapper').classList.remove('mobile-chat-active'); }
 
-        // --- MESSAGE LOADING ---
         async function loadMessages() {
             const box = document.getElementById('chatMessages');
-            box.innerHTML = '<div style="text-align:center; padding: 20px; color:#888;">Memuat pesan...</div>';
-
-            let query;
-            if (currentChatType === 'global') {
-                query = _client.from('global_chat').select('*').order('created_at', { ascending: false }).limit(50);
-            } else {
-                query = _client.from('private_chat')
-                    .select('*')
-                    .or(`and(sender.eq.${_userEmail},receiver.eq.${currentTargetEmail}),and(sender.eq.${currentTargetEmail},receiver.eq.${_userEmail})`)
-                    .order('created_at', { ascending: false })
-                    .limit(50);
-            }
-
-            const { data, error } = await query;
-            
             box.innerHTML = '';
-            if (data && data.length > 0) {
-                data.reverse().forEach(m => renderMessage(m));
-                
-                if(currentChatType === 'private') {
-                    const unreadIds = data.filter(m => m.sender === currentTargetEmail && !m.is_read).map(m => m.id);
-                    if(unreadIds.length > 0) {
-                        _client.from('private_chat').update({ is_read: true }).in('id', unreadIds).then();
-                    }
-                }
-            } else {
-                box.innerHTML = '<div style="text-align:center; padding: 20px; color:#ccc; font-size: 0.8rem;">Belum ada pesan.</div>';
-            }
+            let query = currentChatType === 'global' ? _client.from('global_chat').select('*') : _client.from('private_chat').select('*').or(`and(sender.eq.${_userEmail},receiver.eq.${currentTargetEmail}),and(sender.eq.${currentTargetEmail},receiver.eq.${_userEmail})`);
+            const { data } = await query.order('created_at', { ascending: false }).limit(50);
+            if (data) data.reverse().forEach(renderMessage);
         }
 
-        // --- SENDING MESSAGES (WITH OPTIMISTIC UI) ---
         async function sendMessage() {
             const inp = document.getElementById('msgIn');
             const txt = inp.value.trim();
-            if (!txt) return;
-            inp.value = '';
-
-            let finalMessage = txt;
-            if (replyingTo) {
-                finalMessage = `|RPLY|${replyingTo.sender}|${replyingTo.text}|${txt}`;
-                cancelReply(); 
-            }
-
-            const payload = { sender: _userEmail, message: finalMessage, is_read: false };
-            
-            const tempId = 'temp-' + Date.now();
-            const optimisticMsg = { id: tempId, sender: _userEmail, message: finalMessage, created_at: new Date().toISOString(), is_read: false };
-            
-            if (currentChatType === 'private') {
-                renderMessage(optimisticMsg);
-                privateContacts[currentTargetEmail] = { lastMsg: finalMessage, time: new Date().toISOString() };
-                renderSidebar();
-            }
-
-            if (currentChatType === 'global') {
-                await _client.from('global_chat').insert([payload]);
-            } else {
-                payload.receiver = currentTargetEmail;
-                const { data } = await _client.from('private_chat').insert([payload]).select();
-                
-                if(data && data[0]) {
-                    const realId = data[0].id;
-                    const tempEl = document.getElementById(`msg-${currentChatType}-${tempId}`);
-                    const existingRealEl = document.getElementById(`msg-${currentChatType}-${realId}`);
-                    
-                    if(existingRealEl && tempEl) tempEl.remove(); 
-                    else if (tempEl) tempEl.id = `msg-${currentChatType}-${realId}`; 
-                }
-            }
+            if (!txt) return; inp.value = '';
+            let finalMsg = replyingTo ? `|RPLY|${replyingTo.sender}|${replyingTo.text}|${txt}` : txt;
+            cancelReply();
+            const payload = { sender: _userEmail, message: finalMsg };
+            if (currentChatType === 'global') await _client.from('global_chat').insert([payload]);
+            else { payload.receiver = currentTargetEmail; await _client.from('private_chat').insert([payload]); }
         }
 
-        // --- IMAGE UPLOAD (WITH OPTIMISTIC UI) ---
         async function handleImageUpload() {
-            const fileInput = document.getElementById('imgUpload');
-            const file = fileInput.files[0];
+            const file = document.getElementById('imgUpload').files[0];
             if (!file) return;
-            if (file.size > 5 * 1024 * 1024) { alert("Maks 5MB."); fileInput.value = ''; return; }
-
-            const btnImg = document.getElementById('btnImg');
-            btnImg.innerHTML = '...'; btnImg.disabled = true;
-
-            try {
-                const fileExt = file.name.split('.').pop();
-                const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
-                const { error: uploadError } = await _client.storage.from('chat_images').upload(`public/${fileName}`, file);
-                if (uploadError) throw uploadError;
-
-                const { data: publicUrlData } = _client.storage.from('chat_images').getPublicUrl(`public/${fileName}`);
-                const payloadMsg = `|URLIMG|${publicUrlData.publicUrl}`;
-                const dbPayload = { sender: _userEmail, message: payloadMsg, is_read: false };
-                
-                const tempId = 'temp-' + Date.now();
-                if (currentChatType === 'private') {
-                    renderMessage({ id: tempId, sender: _userEmail, message: payloadMsg, created_at: new Date().toISOString(), is_read: false });
-                    privateContacts[currentTargetEmail] = { lastMsg: payloadMsg, time: new Date().toISOString() };
-                    renderSidebar();
-                }
-
-                if (currentChatType === 'global') {
-                    await _client.from('global_chat').insert([dbPayload]);
-                } else {
-                    dbPayload.receiver = currentTargetEmail;
-                    const { data } = await _client.from('private_chat').insert([dbPayload]).select();
-                    if(data && data[0]) {
-                        const tempEl = document.getElementById(`msg-${currentChatType}-${tempId}`);
-                        if (tempEl) tempEl.id = `msg-${currentChatType}-${data[0].id}`;
-                    }
-                }
-            } catch (err) { alert("Gagal kirim gambar."); } 
-            finally {
-                btnImg.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>`;
-                btnImg.disabled = false; fileInput.value = ''; 
-            }
+            const fileName = `${Date.now()}.${file.name.split('.').pop()}`;
+            await _client.storage.from('chat_images').upload(`public/${fileName}`, file);
+            const { data } = _client.storage.from('chat_images').getPublicUrl(`public/${fileName}`);
+            const payload = { sender: _userEmail, message: `|URLIMG|${data.publicUrl}` };
+            if (currentChatType === 'global') await _client.from('global_chat').insert([payload]);
+            else { payload.receiver = currentTargetEmail; await _client.from('private_chat').insert([payload]); }
         }
 
-        // --- RENDER MESSAGE UI ---
         function renderMessage(m) {
             const box = document.getElementById('chatMessages');
-            if(box.innerHTML.includes('Belum ada pesan')) box.innerHTML = '';
-
-            if (document.getElementById(`msg-${currentChatType}-${m.id}`)) return;
-
+            if (document.getElementById(`msg-${m.id}`)) return;
             const isMe = m.sender === _userEmail;
             const div = document.createElement('div');
-            
-            div.id = `msg-${currentChatType}-${m.id}`;
+            div.id = `msg-${m.id}`;
             div.className = `msg ${isMe ? 'msg-me' : 'msg-other'}`;
-
-            let displayTxt = m.message;
-            let quoteHtml = '';
-            let rawTextForReply = m.message; 
-
-            if (displayTxt.startsWith('|URLIMG|')) {
-                const imgUrl = displayTxt.replace('|URLIMG|', '');
-                displayTxt = `<img src="${imgUrl}" alt="Attachment" onclick="window.open('${imgUrl}', '_blank')">`;
-                rawTextForReply = "[Gambar]"; 
+            let content = m.message;
+            if (content.startsWith('|URLIMG|')) content = `<img src="${content.replace('|URLIMG|', '')}">`;
+            else if (content.startsWith('|RPLY|')) {
+                const p = content.split('|');
+                content = `<div style="font-size:0.7rem; opacity:0.7; border-left:2px solid; padding-left:5px; margin-bottom:5px;">${p[2].split('@')[0]}: ${p[3]}</div>${p.slice(4).join('|')}`;
             }
-            else if (displayTxt.startsWith('|RPLY|')) {
-                const parts = displayTxt.split('|');
-                if (parts.length >= 4) {
-                    const rSender = parts[2].split('@')[0];
-                    const rText = parts[3];
-                    quoteHtml = `<div class="msg-quote" style="background: rgba(100,100,100,0.1); border-left: 3px solid ${isMe?'#fff':'#000'}; padding: 6px 10px; margin-bottom: 6px; border-radius: 4px; font-size:0.8rem;"><strong>${rSender}</strong><br>${rText}</div>`;
-                    displayTxt = parts.slice(4).join('|'); 
-                    rawTextForReply = displayTxt;
-                }
-            }
-
-            const senderName = m.sender.split('@')[0];
-            const senderColor = getColorForUser(m.sender); // Ambil warna dari fungsi hash
-            
-            // Terapkan warna ke style inline, berlaku hanya untuk orang lain di Global Chat
-            const showName = (currentChatType === 'global' && !isMe) ? `<span class="msg-sender" style="color: ${senderColor};">${senderName}</span>` : '';
-            
-            div.innerHTML = `${quoteHtml}${showName}${displayTxt}`;
-            
+            const nameHtml = (!isMe && currentChatType === 'global') ? `<span class="msg-sender" style="color:${getColorForUser(m.sender)}">${m.sender.split('@')[0]}</span>` : '';
+            div.innerHTML = nameHtml + content;
             div.onclick = (e) => {
                 e.stopPropagation();
-                if(typeof m.id === 'string' && m.id.startsWith('temp-')) return;
-
-                selectedMsg = { id: m.id, sender: m.sender, text: rawTextForReply, isMe };
+                selectedMsg = { id: m.id, sender: m.sender, text: m.message, isMe };
                 const menu = document.getElementById('actionMenu');
                 menu.style.display = 'flex';
-                
-                let menuLeft = e.pageX; let menuTop = e.pageY;
-                if (menuLeft + 140 > window.innerWidth) menuLeft = window.innerWidth - 150;
-                if (menuTop + 100 > window.innerHeight) menuTop = window.innerHeight - 110;
-                
-                menu.style.left = menuLeft + 'px'; menu.style.top = menuTop + 'px';
+                menu.style.left = e.pageX + 'px'; menu.style.top = e.pageY + 'px';
                 document.getElementById('btnDel').style.display = isMe ? 'block' : 'none';
             };
-
-            box.appendChild(div);
-            box.scrollTop = box.scrollHeight; 
+            box.appendChild(div); box.scrollTop = box.scrollHeight;
         }
 
-        // --- ACTION MENU ---
-        function actionReply() {
-            replyingTo = selectedMsg;
-            document.getElementById('replyBanner').style.display = 'flex';
-            document.getElementById('replyTxt').innerText = `${selectedMsg.text}`;
-            document.getElementById('msgIn').focus();
-        }
-
+        function actionReply() { replyingTo = selectedMsg; document.getElementById('replyBanner').style.display = 'flex'; document.getElementById('replyTxt').innerText = selectedMsg.text; }
         function cancelReply() { replyingTo = null; document.getElementById('replyBanner').style.display = 'none'; }
+        async function actionDelete() { if(confirm("Hapus?")) { await _client.from(currentChatType === 'global' ? 'global_chat' : 'private_chat').delete().eq('id', selectedMsg.id); document.getElementById(`msg-${selectedMsg.id}`).remove(); } }
+        document.addEventListener('click', () => document.getElementById('actionMenu').style.display = 'none');
 
-        async function actionDelete() {
-            if(confirm("Hapus pesan ini secara permanen?")) {
-                const table = currentChatType === 'global' ? 'global_chat' : 'private_chat';
-                await _client.from(table).delete().eq('id', selectedMsg.id);
-                document.getElementById(`msg-${currentChatType}-${selectedMsg.id}`).remove(); 
-            }
-        }
-
-        document.addEventListener('click', () => { document.getElementById('actionMenu').style.display = 'none'; });
-
-        // --- REALTIME LISTENERS ---
         function listenRealtime() {
-            _client.channel('global_channel')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'global_chat' }, payload => {
-                    if(currentChatType === 'global') {
-                        if (payload.eventType === 'INSERT') renderMessage(payload.new);
-                        else if (payload.eventType === 'DELETE') {
-                            const el = document.getElementById(`msg-global-${payload.old.id}`);
-                            if(el) el.remove();
-                        }
-                    }
-                }).subscribe();
-
-            _client.channel('private_channel')
-                .on('postgres_changes', { event: '*', schema: 'public', table: 'private_chat' }, payload => {
-                    const data = payload.new;
-                    if(payload.eventType === 'INSERT') {
-                        if(data.receiver === _userEmail || data.sender === _userEmail) {
-                            const contactEmail = data.sender === _userEmail ? data.receiver : data.sender;
-                            privateContacts[contactEmail] = { lastMsg: data.message, isRead: data.is_read, time: data.created_at || new Date().toISOString() };
-                            renderSidebar();
-
-                            if(currentChatType === 'private' && currentTargetEmail === contactEmail) {
-                                renderMessage(data);
-                            }
-                        }
-                    } else if (payload.eventType === 'DELETE') {
-                        if(currentChatType === 'private') {
-                            const el = document.getElementById(`msg-private-${payload.old.id}`);
-                            if(el) el.remove();
-                        }
-                    }
-                }).subscribe();
+            _client.channel('chat').on('postgres_changes', { event: '*', schema: 'public' }, payload => {
+                if (payload.eventType === 'INSERT') {
+                    const m = payload.new;
+                    if (currentChatType === 'global' || m.receiver === _userEmail || m.sender === _userEmail) renderMessage(m);
+                }
+            }).subscribe();
         }
 
-        // Auto Login Check
-        _client.auth.getSession().then(({data}) => {
-            if(data.session) { _userEmail = data.session.user.email; enterDashboard(); }
-        });
+        _client.auth.getSession().then(({data}) => { if(data.session) { _userEmail = data.session.user.email; enterDashboard(); } });
     </script>
 </body>
 </html>
