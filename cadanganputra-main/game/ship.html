@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>3D Warship: Ocean Cleanup Edition</title>
+    <style>
+        body { margin: 0; overflow: hidden; font-family: 'Courier New', Courier, monospace; background: #87CEEB; }
+        #ui {
+            position: absolute; top: 20px; left: 20px; color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8); pointer-events: none;
+        }
+        #score { font-size: 2rem; font-weight: bold; color: #ffeb3b; }
+        #msg {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            color: #fff; font-size: 2.5rem; display: none; text-align: center;
+            background: rgba(255, 0, 0, 0.6); padding: 30px; border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        button {
+            margin-top: 20px; padding: 15px 30px; font-size: 1.2rem;
+            background: #2ecc71; color: white; border: none; border-radius: 10px; cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="ui">
+        <h1>MISI PATROLI LAUT</h1>
+        <p>Gunakan Panah <b>KIRI / KANAN</b> untuk navigasi</p>
+        <div id="score">Skor: 0</div>
+    </div>
+
+    <div id="msg">
+        KAPAL KARAM / MENABRAK!<br>
+        <button onclick="location.reload()">Coba Lagi</button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script>
+        let scene, camera, renderer, ship, ocean;
+        let obstacles = [];
+        let clouds = [];
+        let particles = [];
+        let score = 0;
+        let alive = true;
+
+        function init() {
+            scene = new THREE.Scene();
+            scene.fog = new THREE.Fog(0x87CEEB, 20, 160);
+
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 7, 12);
+            camera.lookAt(0, 2, 0);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            // LIGHTING
+            const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1);
+            scene.add(hemiLight);
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            dirLight.position.set(10, 20, 10);
+            scene.add(dirLight);
+
+            // SKY & CLOUDS
+            createSky();
+
+            // SHIP
+            createShip();
+
+            // OCEAN
+            const oceanGeo = new THREE.PlaneGeometry(1000, 1000);
+            const oceanMat = new THREE.MeshPhongMaterial({ color: 0x0077be, shininess: 80 });
+            ocean = new THREE.Mesh(oceanGeo, oceanMat);
+            ocean.rotation.x = -Math.PI / 2;
+            scene.add(ocean);
+
+            // WAKE PARTICLES (Efek Air Muncrat)
+            createParticleSystem();
+
+            spawnObstacles();
+            animate();
+        }
+
+        function createSky() {
+            // Background langit
+            const skyGeo = new THREE.SphereGeometry(500, 32, 32);
+            const skyMat = new THREE.MeshBasicMaterial({ color: 0x87CEEB, side: THREE.BackSide });
+            scene.add(new THREE.Mesh(skyGeo, skyMat));
+
+            // Tambah Awan
+            for(let i=0; i<20; i++) {
+                const cloudGroup = new THREE.Group();
+                const count = 3 + Math.floor(Math.random() * 3);
+                for(let j=0; j<count; j++) {
+                    const geo = new THREE.SphereGeometry(2, 8, 8);
+                    const mat = new THREE.MeshLambertMaterial({ color: 0xffffff });
+                    const part = new THREE.Mesh(geo, mat);
+                    part.position.x = j * 1.5;
+                    part.position.y = Math.random();
+                    part.scale.set(1, 0.6, 1);
+                    cloudGroup.add(part);
+                }
+                cloudGroup.position.set(Math.random()*200-100, 20 + Math.random()*10, -Math.random()*150);
+                scene.add(cloudGroup);
+                clouds.push(cloudGroup);
+            }
+        }
+
+        function createShip() {
+            ship = new THREE.Group();
+            // Badan Kapal
+            const hull = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.8, 5), new THREE.MeshPhongMaterial({color: 0x333333}));
+            ship.add(hull);
+            // Menara
+            const cabin = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1.5), new THREE.MeshPhongMaterial({color: 0x555555}));
+            cabin.position.y = 0.8;
+            ship.add(cabin);
+            scene.add(ship);
+        }
+
+        function createParticleSystem() {
+            const pGeo = new THREE.SphereGeometry(0.1, 4, 4);
+            const pMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.8 });
+            for(let i=0; i<30; i++) {
+                const p = new THREE.Mesh(pGeo, pMat);
+                p.visible = false;
+                scene.add(p);
+                particles.push({ mesh: p, life: 0 });
+            }
+        }
+
+        function spawnObstacles() {
+            const types = ['enemy', 'mine', 'island', 'trash'];
+            for(let i = 0; i < 40; i++) {
+                const type = types[Math.floor(Math.random() * types.length)];
+                let obs;
+                
+                if(type === 'enemy') {
+                    obs = new THREE.Mesh(new THREE.BoxGeometry(2, 1, 4), new THREE.MeshPhongMaterial({color: 0x770000}));
+                } else if(type === 'mine') {
+                    obs = new THREE.Mesh(new THREE.SphereGeometry(0.8, 8, 8), new THREE.MeshPhongMaterial({color: 0x111111}));
+                } else if(type === 'island') {
+                    obs = new THREE.Mesh(new THREE.ConeGeometry(3, 2, 8), new THREE.MeshPhongMaterial({color: 0x228b22}));
+                } else {
+                    obs = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), new THREE.MeshPhongMaterial({color: 0xffffff}));
+                }
+
+                obs.userData = { type: type };
+                obs.position.x = (Math.random() - 0.5) * 40;
+                obs.position.z = -i * 30 - 50;
+                scene.add(obs);
+                obstacles.push(obs);
+            }
+        }
+
+        // CONTROL
+        let moveLeft = false, moveRight = false;
+        window.addEventListener('keydown', (e) => {
+            if(e.key === "ArrowLeft") moveLeft = true;
+            if(e.key === "ArrowRight") moveRight = true;
+        });
+        window.addEventListener('keyup', (e) => {
+            if(e.key === "ArrowLeft") moveLeft = false;
+            if(e.key === "ArrowRight") moveRight = false;
+        });
+
+        function animate() {
+            if (!alive) return;
+            requestAnimationFrame(animate);
+
+            // Gerakan Kapal
+            if(moveLeft && ship.position.x > -18) ship.position.x -= 0.3;
+            if(moveRight && ship.position.x < 18) ship.position.x += 0.3;
+            ship.rotation.z = (moveLeft ? 0.1 : (moveRight ? -0.1 : 0));
+
+            // Update Awan
+            clouds.forEach(c => {
+                c.position.z += 0.05;
+                if(c.position.z > 20) c.position.z = -150;
+            });
+
+            // Update Efek Air (Particles)
+            particles.forEach(p => {
+                if(p.life <= 0) {
+                    p.mesh.position.set(ship.position.x + (Math.random()-0.5), 0.1, ship.position.z + 2.5);
+                    p.mesh.visible = true;
+                    p.life = 1.0;
+                } else {
+                    p.life -= 0.05;
+                    p.mesh.position.z += 0.5;
+                    p.mesh.position.y += 0.05;
+                    p.mesh.scale.set(p.life, p.life, p.life);
+                    if(p.life <= 0) p.mesh.visible = false;
+                }
+            });
+
+            // Update Obstacles
+            obstacles.forEach(obs => {
+                obs.position.z += 0.5 + (score/5000);
+                
+                // Rotasi ranjau/sampah biar keren
+                if(obs.userData.type === 'mine' || obs.userData.type === 'trash') {
+                    obs.rotation.y += 0.05;
+                }
+
+                // Cek Tabrakan
+                if (Math.abs(obs.position.z - ship.position.z) < 2 && Math.abs(obs.position.x - ship.position.x) < 2) {
+                    gameOver();
+                }
+
+                if (obs.position.z > 15) {
+                    obs.position.z = -120;
+                    obs.position.x = (Math.random() - 0.5) * 40;
+                    score += 10;
+                    document.getElementById('score').innerText = "Skor: " + score;
+                }
+            });
+
+            // Efek Ombak Kapal
+            ship.position.y = Math.sin(Date.now() * 0.005) * 0.15;
+            ship.rotation.x = Math.sin(Date.now() * 0.002) * 0.05;
+
+            renderer.render(scene, camera);
+        }
+
+        function gameOver() {
+            alive = false;
+            document.getElementById('msg').style.display = "block";
+        }
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        init();
+    </script>
+</body>
+</html>
