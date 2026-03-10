@@ -1,7 +1,10 @@
-<html lang="id"><head>
+<!DOCTYPE html>
+<html lang="id">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PufutaraPlayGames </title>
+    <title>PufutaraPlayGames</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -109,6 +112,9 @@
         .game-card:nth-child(1) { animation-delay: 0.2s; }
         .game-card:nth-child(2) { animation-delay: 0.3s; }
         .game-card:nth-child(3) { animation-delay: 0.4s; }
+        .game-card:nth-child(4) { animation-delay: 0.5s; }
+        .game-card:nth-child(5) { animation-delay: 0.6s; }
+        .game-card:nth-child(6) { animation-delay: 0.7s; }
 
         .game-card:hover {
             border-color: #000;
@@ -187,29 +193,56 @@
         <section class="hero-detail">
             <span class="tag-status">Under Development</span>
             <h1>PlayGames.</h1>
-            <p>Kumpulan mini games kodingan Putra. Dari yang bikin emosi sampai yang bikin santai, semuanya ada di sini (kalau udah jadi).</p>
+            <p>Kumpulan mini games kodingan Putra. Dari yang bikin emosi sampai yang bikin santai, semuanya ada di sini.</p>
         </section>
 
         <div class="game-grid">
+            <!-- Game 1 -->
             <div class="game-card">
                 <span style="font-size: 0.7rem; color: #ccc; font-weight: 700; display: block; margin-bottom: 10px; letter-spacing: 1px;">ACTION</span>
                 <h3>PufutaraNeon-Slash</h3>
-                <p>Game Roguelike explore dengan mode chaos..</p>
+                <p>Game Roguelike mode neon explore dengan mode chaos! makin susah boy! ati ati kalo main!</p>
                 <a href="neonslash.html" class="play-btn">Mainkan Sekarang</a>
             </div>
 
+            <!-- Game 2 -->
             <div class="game-card">
                 <span style="font-size: 0.7rem; color: #ccc; font-weight: 700; display: block; margin-bottom: 10px; letter-spacing: 1px;">PUZZLE</span>
-                <h3>AnimalRunner!</h3>
-                <p>Ywd main aja. seru buat bewan sama adek kelas atau presbem</p>
+                <h3>multi player AnimalRunner!</h3>
+                <p>bertahan, tetap berlari dan hindari rintangan! seru buat mabar di 1 komputer!</p>
                 <a href="animal.html" class="play-btn">Mainkan Sekarang</a>
             </div>
 
-            <div class="game-card locked">
-                <span style="font-size: 0.7rem; color: #ccc; font-weight: 700; display: block; margin-bottom: 10px; letter-spacing: 1px;">ADVENTURE</span>
-                <h3>Coming Soon</h3>
-                <p>Game ini masih dalam tahap pengembangan di PC 17 Labkom.</p>
-                <a href="#" class="play-btn">Locked</a>
+            <!-- Game 3 (Baru) -->
+            <div class="game-card">
+                <span style="font-size: 0.7rem; color: #ccc; font-weight: 700; display: block; margin-bottom: 10px; letter-spacing: 1px;">ARCADE</span>
+                <h3>2D Cross Animal</h3>
+                <p>Game menyeberang seru untuk 2 player! Buktikan siapa yang lebih lincah dan cepat.</p>
+                <a href="cross.html" class="play-btn">Mainkan Sekarang</a>
+            </div>
+
+            <!-- Game 4 (Baru) -->
+            <div class="game-card">
+                <span style="font-size: 0.7rem; color: #ccc; font-weight: 700; display: block; margin-bottom: 10px; letter-spacing: 1px;">SPORTS</span>
+                <h3>Voli 2 Player</h3>
+                <p>Adu ketangkasan voli 1 vs 1 dengan temanmu dalam mode kompetitif ini.</p>
+                <a href="voli.html" class="play-btn">Mainkan Sekarang</a>
+            </div>
+
+            <!-- Game 5 (Baru) -->
+            <div class="game-card">
+                <span style="font-size: 0.7rem; color: #ccc; font-weight: 700; display: block; margin-bottom: 10px; letter-spacing: 1px;">ACTION</span>
+                <h3>3D Warship</h3>
+                <p>Kendalikan kapal perang laut dalam pertempuran 3D yang menegangkan dan strategis.</p>
+                <a href="ship.html" class="play-btn">Mainkan Sekarang</a>
+            </div>
+
+            <!-- Game 6 (Baru) -->
+            <div class="game-card">
+                <span style="font-size: 0.7rem; color: #ccc; font-weight: 700; display: block; margin-bottom: 10px; letter-spacing: 1px;">CASUAL</span>
+                <h3>Memory Card</h3>
+                <p>Latih daya ingatmu dengan mencocokkan kartu-kartu yang tersembunyi. Main santai!</p>
+                <a href="memory.html" class="play-btn">Mainkan Sekarang</a>
             </div>
         </div>
     </div>
@@ -218,4 +251,259 @@
         <p>© 2026 PufutaraPlayGames. Precision in Every Pixel.</p>
     </footer>
 
-</body></html>
+</body>
+</html><!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PufutaraPlayGames</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: #fff;
+            color: #000;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 25px;
+        }
+
+        /* --- Header --- */
+        header {
+            padding: 30px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .back-btn {
+            color: #999;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover { color: #000; }
+
+        /* --- Hero Section (With Animation) --- */
+        .hero-detail {
+            padding: 100px 0 60px;
+            text-align: center;
+            /* Animasi untuk seluruh section hero */
+            opacity: 0;
+            transform: translateY(20px);
+            animation: slideUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+
+        .tag-status {
+            display: inline-block;
+            padding: 6px 15px;
+            background: #f5f5f5;
+            border: 1px solid #eee;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            color: #888;
+        }
+
+        .hero-detail h1 {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 900;
+            letter-spacing: -2px;
+            margin-bottom: 20px;
+        }
+
+        .hero-detail p {
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto;
+            font-size: 1.1rem;
+        }
+
+        /* --- Game Grid --- */
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 50px;
+            padding-bottom: 100px;
+        }
+
+        .game-card {
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 24px;
+            padding: 30px;
+            transition: 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            position: relative;
+            overflow: hidden;
+            
+            /* Animasi Masuk Kartu */
+            opacity: 0;
+            transform: translateY(40px);
+            animation: slideUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        }
+
+        /* Delay agar judul muncul dulu, baru kartu satu per satu */
+        .game-card:nth-child(1) { animation-delay: 0.2s; }
+        .game-card:nth-child(2) { animation-delay: 0.3s; }
+        .game-card:nth-child(3) { animation-delay: 0.4s; }
+        .game-card:nth-child(4) { animation-delay: 0.5s; }
+        .game-card:nth-child(5) { animation-delay: 0.6s; }
+        .game-card:nth-child(6) { animation-delay: 0.7s; }
+
+        .game-card:hover {
+            border-color: #000;
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+        }
+
+        .game-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+
+        .game-card p {
+            color: #777;
+            font-size: 0.9rem;
+            margin-bottom: 25px;
+        }
+
+        .play-btn {
+            display: inline-block;
+            color: #fff;
+            background: #000;
+            padding: 10px 25px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.85rem;
+            transition: 0.3s;
+        }
+
+        .play-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .locked .play-btn {
+            background: #eee;
+            color: #aaa;
+            pointer-events: none;
+        }
+
+        /* --- Global Keyframes --- */
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        footer {
+            padding: 60px 0;
+            border-top: 1px solid #f0f0f0;
+            text-align: center;
+            color: #bbb;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <a href="index.html" class="back-btn">← Kembali ke Archive</a>
+            <div style="font-weight: 800; letter-spacing: -1px;">PUFUTARA.</div>
+        </header>
+
+        <section class="hero-detail">
+            <span class="tag-status">Under Development</span>
+            <h1>PlayGames.</h1>
+            <p>Kumpulan mini games kodingan Putra. Dari yang bikin emosi sampai yang bikin santai, semuanya ada di sini.</p>
+        </section>
+
+        <div class="game-grid">
+            <!-- Game 1 -->
+            <div class="game-card">
+                <span style="font-size: 0.7rem; color: #ccc; font-weight: 700; display: block; margin-bottom: 10px; letter-spacing: 1px;">ACTION</span>
+                <h3>PufutaraNeon-Slash</h3>
+                <p>Game Roguelike mode neon explore dengan mode chaos! makin susah boy! ati ati kalo main!</p>
+                <a href="neonslash.html" class="play-btn">Mainkan Sekarang</a>
+            </div>
+
+            <!-- Game 2 -->
+            <div class="game-card">
+                <span style="font-size: 0.7rem; color: #ccc; font-weight: 700; display: block; margin-bottom: 10px; letter-spacing: 1px;">PUZZLE</span>
+                <h3>multi player AnimalRunner!</h3>
+                <p>bertahan, tetap berlari dan hindari rintangan! seru buat mabar di 1 komputer!</p>
+                <a href="animal.html" class="play-btn">Mainkan Sekarang</a>
+            </div>
+
+            <!-- Game 3 (Baru) -->
+            <div class="game-card">
+                <span style="font-size: 0.7rem; color: #ccc; font-weight: 700; display: block; margin-bottom: 10px; letter-spacing: 1px;">ARCADE</span>
+                <h3>2D Cross Animal</h3>
+                <p>Game menyeberang seru untuk 2 player! Buktikan siapa yang lebih lincah dan cepat.</p>
+                <a href="cross.html" class="play-btn">Mainkan Sekarang</a>
+            </div>
+
+            <!-- Game 4 (Baru) -->
+            <div class="game-card">
+                <span style="font-size: 0.7rem; color: #ccc; font-weight: 700; display: block; margin-bottom: 10px; letter-spacing: 1px;">SPORTS</span>
+                <h3>Voli 2 Player</h3>
+                <p>Adu ketangkasan voli 1 vs 1 dengan temanmu dalam mode kompetitif ini.</p>
+                <a href="voli.html" class="play-btn">Mainkan Sekarang</a>
+            </div>
+
+            <!-- Game 5 (Baru) -->
+            <div class="game-card">
+                <span style="font-size: 0.7rem; color: #ccc; font-weight: 700; display: block; margin-bottom: 10px; letter-spacing: 1px;">ACTION</span>
+                <h3>3D Warship</h3>
+                <p>Kendalikan kapal perang laut dalam pertempuran 3D yang menegangkan dan strategis.</p>
+                <a href="ship.html" class="play-btn">Mainkan Sekarang</a>
+            </div>
+
+            <!-- Game 6 (Baru) -->
+            <div class="game-card">
+                <span style="font-size: 0.7rem; color: #ccc; font-weight: 700; display: block; margin-bottom: 10px; letter-spacing: 1px;">CASUAL</span>
+                <h3>Memory Card</h3>
+                <p>Latih daya ingatmu dengan mencocokkan kartu-kartu yang tersembunyi. Main santai!</p>
+                <a href="memory.html" class="play-btn">Mainkan Sekarang</a>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2026 PufutaraPlayGames. Precision in Every Pixel.</p>
+    </footer>
+
+</body>
+</html>
