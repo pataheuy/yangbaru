@@ -101,7 +101,7 @@
         .app-wrapper {
             width: 100%;
             max-width: 800px;
-            height: 100%;
+            height: 80vh; /* Tinggi dikurangi 20% (menjadi 80% dari tinggi layar) */
             background: #fff;
             border: 1px solid #eee;
             border-radius: 20px;
@@ -352,17 +352,8 @@
         .action-menu button:hover { background: #f0f0f0; color: #000; }
         .action-menu button:last-child { border-bottom: none; }
 
-        /* --- Footer --- */
-        footer {
-            padding: 15px 0;
-            text-align: center;
-            font-size: 0.75rem;
-            color: #bbb;
-            background: #ffffff;
-        }
-
         @media (max-width: 600px) {
-            .app-wrapper { border-radius: 0; border: none; box-shadow: none; }
+            .app-wrapper { border-radius: 0; border: none; box-shadow: none; height: 100vh; }
             .main-content { padding: 0; }
             .msg { max-width: 85%; }
         }
@@ -435,12 +426,6 @@
 
         </div>
     </main>
-
-    <footer>
-        <div class="container">
-            <p>DESIGNED BY PUTRA @ LABKOM 17 - 2026</p>
-        </div>
-    </footer>
 
     <script>
         const _CONFIG = {
