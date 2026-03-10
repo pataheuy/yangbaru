@@ -1,0 +1,1 @@
+Entahlah.. pokonya kaliansemuaudahtau
