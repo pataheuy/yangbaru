@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Card Game</title>
+    <style>
+        body {
+            background-color: #1a1a2e;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        h1 { margin-bottom: 10px; }
+
+        .game-container {
+            display: grid;
+            grid-template-columns: repeat(4, 80px);
+            grid-gap: 10px;
+        }
+
+        .card {
+            width: 80px;
+            height: 100px;
+            background-color: #16213e;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            cursor: pointer;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.4s;
+            border: 2px solid #0f3460;
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+            background-color: #e94560;
+        }
+
+        .card.matched {
+            background-color: #2ecc71;
+            cursor: default;
+        }
+
+        .card .front, .card .back {
+            position: absolute;
+            backface-visibility: hidden;
+        }
+
+        .card .back {
+            transform: rotateY(180deg);
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            background-color: #e94560;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover { background-color: #ff5e78; }
+    </style>
+</head>
+<body>
+
+    <h1>Memory Match</h1>
+    <p>Cari pasangan simbol yang sama!</p>
+    
+    <div class="game-container" id="gameBoard"></div>
+
+    <button onclick="resetGame()">Restart Game</button>
+
+    <script>
+        const symbols = ['🍎', '🍌', '🍒', '🍇', '🍉', '🍍', '🥝', '🍋'];
+        let cards = [...symbols, ...symbols]; // Duplikasi simbol untuk pasangan
+        let flippedCards = [];
+        let matchedCount = 0;
+        let lockBoard = false;
+
+        function shuffle(array) {
+            return array.sort(() => Math.random() - 0.5);
+        }
+
+        function createBoard() {
+            const board = document.getElementById('gameBoard');
+            board.innerHTML = '';
+            shuffle(cards).forEach((symbol, index) => {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                card.dataset.symbol = symbol;
+                card.innerHTML = `
+                    <div class="front">?</div>
+                    <div class="back">${symbol}</div>
+                `;
+                card.addEventListener('click', flipCard);
+                board.appendChild(card);
+            });
+        }
+
+        function flipCard() {
+            if (lockBoard || this.classList.contains('flipped') || this.classList.contains('matched')) return;
+
+            this.classList.add('flipped');
+            flippedCards.push(this);
+
+            if (flippedCards.length === 2) {
+                checkMatch();
+            }
+        }
+
+        function checkMatch() {
+            lockBoard = true;
+            const [card1, card2] = flippedCards;
+
+            if (card1.dataset.symbol === card2.dataset.symbol) {
+                card1.classList.add('matched');
+                card2.classList.add('matched');
+                matchedCount += 2;
+                resetTurn();
+                
+                if (matchedCount === cards.length) {
+                    setTimeout(() => alert('Selamat! Kamu berhasil mencocokkan semua kartu! 🎉'), 500);
+                }
+            } else {
+                setTimeout(() => {
+                    card1.classList.remove('flipped');
+                    card2.classList.remove('flipped');
+                    resetTurn();
+                }, 1000);
+            }
+        }
+
+        function resetTurn() {
+            flippedCards = [];
+            lockBoard = false;
+        }
+
+        function resetGame() {
+            matchedCount = 0;
+            flippedCards = [];
+            lockBoard = false;
+            createBoard();
+        }
+
+        // Jalankan game saat pertama kali dibuka
+        createBoard();
+    </script>
+</body>
+</html>
