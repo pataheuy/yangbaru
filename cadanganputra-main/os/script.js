@@ -549,6 +549,7 @@ const apps = {
         title: 'Memory Game', w: 450, h: 500,
         content: `<div class="game-container"><h3>Memory Game</h3><p>Coming soon...</p></div>`
     }
+    
 };
 
 // ========== LOCKSCREEN LOGIC ==========
@@ -667,6 +668,8 @@ function initStartMenu() {
         { id: 'snake', icon: '🐍', label: 'Snake' },
         { id: 'tictactoe', icon: '⭕❌', label: 'Tic Tac Toe' },
         { id: 'memory', icon: '🧠', label: 'Memory' }
+
+        
     ];
     
     appItems.forEach(app => {
@@ -1012,6 +1015,8 @@ function closeStartMenu(e) {
     const menu = document.getElementById('startMenu'); 
     if (menu.classList.contains('show')) menu.classList.remove('show'); 
 }
+
+
 
 // ========== DOCK LOGIC dengan Drag & Drop ==========
 function initDock() {
@@ -2260,3 +2265,1006 @@ document.addEventListener('mouseup',()=>{
     isResizing=false; 
     resizeWin=null; 
 });
+
+// ========== OFFICE SUITE APPS ==========
+
+// WORD PROCESSOR APP
+apps['word'] = {
+    title: 'Pufutara Word', 
+    w: 900, 
+    h: 600,
+    content: `
+    <div class="word-processor" id="word-processor">
+        <div class="word-toolbar">
+            <div class="word-toolbar-group">
+                <button class="word-btn" onclick="wordFormat('bold')" title="Tebal"><i class="fas fa-bold"></i></button>
+                <button class="word-btn" onclick="wordFormat('italic')" title="Miring"><i class="fas fa-italic"></i></button>
+                <button class="word-btn" onclick="wordFormat('underline')" title="Garis Bawah"><i class="fas fa-underline"></i></button>
+                <button class="word-btn" onclick="wordFormat('strikeThrough')" title="Coret"><i class="fas fa-strikethrough"></i></button>
+            </div>
+            <div class="word-toolbar-group">
+                <select class="word-font-select" id="word-font" onchange="wordFormat('fontName', this.value)">
+                    <option value="Arial">Arial</option>
+                    <option value="Times New Roman">Times New Roman</option>
+                    <option value="Courier New">Courier New</option>
+                    <option value="Georgia">Georgia</option>
+                    <option value="Verdana">Verdana</option>
+                    <option value="Inter">Inter</option>
+                </select>
+                <select class="word-size-select" id="word-size" onchange="wordFormat('fontSize', this.value + 'px')">
+                    <option value="12">12</option>
+                    <option value="14">14</option>
+                    <option value="16">16</option>
+                    <option value="18">18</option>
+                    <option value="20">20</option>
+                    <option value="24">24</option>
+                    <option value="28">28</option>
+                    <option value="32">32</option>
+                    <option value="36">36</option>
+                </select>
+            </div>
+            <div class="word-toolbar-group">
+                <button class="word-btn" onclick="wordAlign('justifyLeft')" title="Rata Kiri"><i class="fas fa-align-left"></i></button>
+                <button class="word-btn" onclick="wordAlign('justifyCenter')" title="Tengah"><i class="fas fa-align-center"></i></button>
+                <button class="word-btn" onclick="wordAlign('justifyRight')" title="Rata Kanan"><i class="fas fa-align-right"></i></button>
+                <button class="word-btn" onclick="wordAlign('justifyFull')" title="Rata Kanan Kiri"><i class="fas fa-align-justify"></i></button>
+            </div>
+            <div class="word-toolbar-group">
+                <button class="word-btn" onclick="wordList('insertUnorderedList')" title="Bullet"><i class="fas fa-list-ul"></i></button>
+                <button class="word-btn" onclick="wordList('insertOrderedList')" title="Numbering"><i class="fas fa-list-ol"></i></button>
+            </div>
+            <div class="word-toolbar-group">
+                <input type="color" id="word-color" onchange="wordFormat('foreColor', this.value)" value="#000000" title="Warna Teks">
+                <input type="color" id="word-bgcolor" onchange="wordFormat('hiliteColor', this.value)" value="#ffff00" title="Highlight">
+            </div>
+            <div class="word-toolbar-group">
+                <button class="word-btn" onclick="wordSave()" title="Simpan"><i class="fas fa-save"></i></button>
+                <button class="word-btn" onclick="wordLoad()" title="Buka"><i class="fas fa-folder-open"></i></button>
+                <button class="word-btn" onclick="wordNew()" title="Baru"><i class="fas fa-file"></i></button>
+                <button class="word-btn" onclick="wordPrint()" title="Print"><i class="fas fa-print"></i></button>
+            </div>
+        </div>
+        <div class="word-editor-container">
+            <div class="word-ruler"></div>
+            <div class="word-editor" id="word-editor" contenteditable="true" oninput="updateWordCount()" onkeyup="updateWordCount()">
+                <h1>Selamat Datang di Pufutara Word</h1>
+                <p>Ini adalah dokumen baru. Silakan tulis apa saja di sini...</p>
+                <p><b>Fitur yang tersedia:</b></p>
+                <ul>
+                    <li>Format teks (tebal, miring, garis bawah)</li>
+                    <li>Pilihan font dan ukuran</li>
+                    <li>Warna teks dan highlight</li>
+                    <li>Rata teks (kiri, tengah, kanan, justify)</li>
+                    <li>Bullet dan numbering</li>
+                    <li>Simpan dan buka dokumen</li>
+                </ul>
+            </div>
+            <div class="word-statusbar">
+                <span>Kata: <span id="word-count">0</span></span>
+                <span>Karakter: <span id="char-count">0</span></span>
+                <span>Halaman 1 dari 1</span>
+            </div>
+        </div>
+    </div>
+    `
+};
+
+// SPREADSHEET APP
+apps['spreadsheet'] = {
+    title: 'Pufutara Spreadsheet', 
+    w: 950, 
+    h: 600,
+    content: `
+    <div class="spreadsheet" id="spreadsheet">
+        <div class="spreadsheet-toolbar">
+            <div class="spreadsheet-toolbar-group">
+                <button class="spreadsheet-btn" onclick="spreadsheetNew()" title="Baru"><i class="fas fa-file"></i></button>
+                <button class="spreadsheet-btn" onclick="spreadsheetSave()" title="Simpan"><i class="fas fa-save"></i></button>
+                <button class="spreadsheet-btn" onclick="spreadsheetLoad()" title="Buka"><i class="fas fa-folder-open"></i></button>
+            </div>
+            <div class="spreadsheet-toolbar-group">
+                <button class="spreadsheet-btn" onclick="spreadsheetFormat('bold')" title="Tebal"><i class="fas fa-bold"></i></button>
+                <button class="spreadsheet-btn" onclick="spreadsheetFormat('italic')" title="Miring"><i class="fas fa-italic"></i></button>
+                <button class="spreadsheet-btn" onclick="spreadsheetFormat('underline')" title="Garis Bawah"><i class="fas fa-underline"></i></button>
+            </div>
+            <div class="spreadsheet-toolbar-group">
+                <select class="spreadsheet-font" id="spreadsheet-font" onchange="spreadsheetFormat('fontFamily', this.value)">
+                    <option value="Arial">Arial</option>
+                    <option value="Times New Roman">Times New Roman</option>
+                    <option value="Courier New">Courier New</option>
+                </select>
+                <select class="spreadsheet-size" id="spreadsheet-size" onchange="spreadsheetFormat('fontSize', this.value + 'px')">
+                    <option value="11">11</option>
+                    <option value="12">12</option>
+                    <option value="14">14</option>
+                    <option value="16">16</option>
+                    <option value="18">18</option>
+                </select>
+            </div>
+            <div class="spreadsheet-toolbar-group">
+                <select class="spreadsheet-align" onchange="spreadsheetFormat('textAlign', this.value)">
+                    <option value="left">Rata Kiri</option>
+                    <option value="center">Tengah</option>
+                    <option value="right">Rata Kanan</option>
+                </select>
+            </div>
+            <div class="spreadsheet-toolbar-group">
+                <input type="color" id="spreadsheet-color" onchange="spreadsheetFormat('color', this.value)" value="#000000" title="Warna Teks">
+                <input type="color" id="spreadsheet-bgcolor" onchange="spreadsheetFormat('backgroundColor', this.value)" value="#ffffff" title="Warna Latar">
+            </div>
+            <div class="spreadsheet-formula-bar">
+                <span class="formula-label">fx</span>
+                <input type="text" class="formula-input" id="formula-input" placeholder="Masukkan rumus atau nilai" onkeydown="spreadsheetFormulaKey(event)">
+            </div>
+        </div>
+        <div class="spreadsheet-container" id="spreadsheet-container"></div>
+        <div class="spreadsheet-sheet-tabs">
+            <div class="sheet-tab active" onclick="spreadsheetSwitchSheet(0)">Sheet1</div>
+            <div class="sheet-tab" onclick="spreadsheetAddSheet()">+</div>
+        </div>
+    </div>
+    `
+};
+
+// PRESENTATION APP
+apps['presentation'] = {
+    title: 'Pufutara Presentation', 
+    w: 1000, 
+    h: 650,
+    content: `
+    <div class="presentation" id="presentation">
+        <div class="presentation-toolbar">
+            <div class="presentation-toolbar-group">
+                <button class="presentation-btn" onclick="presentationNew()" title="Baru"><i class="fas fa-file"></i> Baru</button>
+                <button class="presentation-btn" onclick="presentationSave()" title="Simpan"><i class="fas fa-save"></i> Simpan</button>
+                <button class="presentation-btn" onclick="presentationLoad()" title="Buka"><i class="fas fa-folder-open"></i> Buka</button>
+            </div>
+            <div class="presentation-toolbar-group">
+                <button class="presentation-btn" onclick="presentationAddSlide()" title="Tambah Slide"><i class="fas fa-plus"></i> Slide</button>
+                <button class="presentation-btn" onclick="presentationDeleteSlide()" title="Hapus Slide"><i class="fas fa-trash"></i></button>
+                <button class="presentation-btn" onclick="presentationDuplicateSlide()" title="Duplikat Slide"><i class="fas fa-copy"></i></button>
+            </div>
+            <div class="presentation-toolbar-group">
+                <select class="presentation-layout" id="presentation-layout" onchange="presentationChangeLayout(this.value)">
+                    <option value="title">Judul</option>
+                    <option value="title-content">Judul & Konten</option>
+                    <option value="two-content">Dua Kolom</option>
+                    <option value="blank">Kosong</option>
+                </select>
+            </div>
+            <div class="presentation-toolbar-group">
+                <button class="presentation-btn" onclick="presentationAddText()" title="Tambah Teks"><i class="fas fa-font"></i></button>
+                <button class="presentation-btn" onclick="presentationAddImage()" title="Tambah Gambar"><i class="fas fa-image"></i></button>
+                <button class="presentation-btn" onclick="presentationAddTable()" title="Tambah Tabel"><i class="fas fa-table"></i></button>
+                <button class="presentation-btn" onclick="presentationAddShape()" title="Tambah Shape"><i class="fas fa-shapes"></i></button>
+            </div>
+            <div class="presentation-toolbar-group">
+                <button class="presentation-btn" onclick="presentationPlay()" title="Tayangkan"><i class="fas fa-play"></i> Tayang</button>
+            </div>
+        </div>
+        <div class="presentation-main">
+            <div class="presentation-slides" id="presentation-slides"></div>
+            <div class="presentation-editor">
+                <div class="presentation-slide-canvas" id="presentation-slide-canvas"></div>
+            </div>
+            <div class="presentation-properties" id="presentation-properties">
+                <h3>Properti Elemen</h3>
+                <div class="property-group">
+                    <label class="property-label">Posisi X</label>
+                    <input type="number" class="property-input" id="prop-x" value="0" onchange="updateElementProperty('x', this.value)">
+                </div>
+                <div class="property-group">
+                    <label class="property-label">Posisi Y</label>
+                    <input type="number" class="property-input" id="prop-y" value="0" onchange="updateElementProperty('y', this.value)">
+                </div>
+                <div class="property-group">
+                    <label class="property-label">Lebar</label>
+                    <input type="number" class="property-input" id="prop-width" value="100" onchange="updateElementProperty('width', this.value)">
+                </div>
+                <div class="property-group">
+                    <label class="property-label">Tinggi</label>
+                    <input type="number" class="property-input" id="prop-height" value="50" onchange="updateElementProperty('height', this.value)">
+                </div>
+                <div class="property-group">
+                    <label class="property-label">Warna Teks</label>
+                    <input type="color" class="property-color" id="prop-color" value="#000000" onchange="updateElementProperty('color', this.value)">
+                </div>
+                <div class="property-group">
+                    <label class="property-label">Ukuran Font</label>
+                    <input type="number" class="property-input" id="prop-fontsize" value="16" onchange="updateElementProperty('fontSize', this.value + 'px')">
+                </div>
+            </div>
+        </div>
+    </div>
+    `
+};
+
+// ========== WORD PROCESSOR FUNCTIONS ==========
+let currentWordDoc = null;
+
+function wordFormat(command, value = null) {
+    document.execCommand(command, false, value);
+    document.getElementById('word-editor').focus();
+    updateWordCount();
+}
+
+function wordAlign(command) {
+    document.execCommand(command, false, null);
+    document.getElementById('word-editor').focus();
+}
+
+function wordList(command) {
+    document.execCommand(command, false, null);
+    document.getElementById('word-editor').focus();
+}
+
+function updateWordCount() {
+    const editor = document.getElementById('word-editor');
+    if (!editor) return;
+    
+    const text = editor.innerText || '';
+    const words = text.trim().split(/\s+/).filter(w => w.length > 0).length;
+    const chars = text.length;
+    
+    document.getElementById('word-count').textContent = words;
+    document.getElementById('char-count').textContent = chars;
+}
+
+function wordSave() {
+    const editor = document.getElementById('word-editor');
+    const content = editor.innerHTML;
+    const filename = prompt('Simpan sebagai:', 'Dokumen Pufutara.html');
+    
+    if (filename) {
+        const blob = new Blob([content], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename.endsWith('.html') ? filename : filename + '.html';
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+}
+
+function wordLoad() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.html,.txt';
+    input.onchange = (e) => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            document.getElementById('word-editor').innerHTML = e.target.result;
+            updateWordCount();
+        };
+        reader.readAsText(file);
+    };
+    input.click();
+}
+
+function wordNew() {
+    if (confirm('Buat dokumen baru? Semua perubahan yang belum disimpan akan hilang.')) {
+        document.getElementById('word-editor').innerHTML = '<h1>Dokumen Baru</h1><p>Mulai menulis di sini...</p>';
+        updateWordCount();
+    }
+}
+
+function wordPrint() {
+    const editor = document.getElementById('word-editor');
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <html>
+        <head>
+            <title>Print Document</title>
+            <style>
+                body { font-family: Arial; padding: 40px; }
+            </style>
+        </head>
+        <body>${editor.innerHTML}</body>
+        </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+}
+
+// ========== SPREADSHEET FUNCTIONS ==========
+let spreadsheetData = [];
+let selectedCell = null;
+let spreadsheetSheets = [{
+    name: 'Sheet1',
+    data: []
+}];
+let currentSheet = 0;
+
+function initSpreadsheet() {
+    // Initialize 20 rows x 10 columns
+    for (let i = 0; i < 20; i++) {
+        spreadsheetData[i] = [];
+        for (let j = 0; j < 10; j++) {
+            spreadsheetData[i][j] = '';
+        }
+    }
+    renderSpreadsheet();
+}
+
+function renderSpreadsheet() {
+    const container = document.getElementById('spreadsheet-container');
+    if (!container) return;
+    
+    let html = '<div class="spreadsheet-grid">';
+    
+    // Header row (A, B, C, ...)
+    html += '<div class="spreadsheet-row spreadsheet-row-header">';
+    html += '<div class="spreadsheet-cell header"></div>';
+    for (let j = 0; j < 10; j++) {
+        const colLetter = String.fromCharCode(65 + j);
+        html += `<div class="spreadsheet-cell header">${colLetter}</div>`;
+    }
+    html += '</div>';
+    
+    // Data rows
+    for (let i = 0; i < 20; i++) {
+        html += '<div class="spreadsheet-row">';
+        html += `<div class="spreadsheet-cell header">${i + 1}</div>`;
+        
+        for (let j = 0; j < 10; j++) {
+            const cellId = `cell-${i}-${j}`;
+            const value = spreadsheetData[i][j] || '';
+            const isSelected = selectedCell && selectedCell.row === i && selectedCell.col === j;
+            
+            html += `<div class="spreadsheet-cell ${isSelected ? 'selected' : ''}" 
+                          id="${cellId}"
+                          onclick="selectCell(${i}, ${j})"
+                          ondblclick="editCell(${i}, ${j})"
+                          data-row="${i}" data-col="${j}">${value}</div>`;
+        }
+        html += '</div>';
+    }
+    
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+function selectCell(row, col) {
+    selectedCell = { row, col };
+    renderSpreadsheet();
+    
+    // Update formula bar
+    const formulaInput = document.getElementById('formula-input');
+    if (formulaInput) {
+        formulaInput.value = spreadsheetData[row][col] || '';
+    }
+}
+
+function editCell(row, col) {
+    const cell = document.getElementById(`cell-${row}-${col}`);
+    if (!cell) return;
+    
+    const currentValue = spreadsheetData[row][col] || '';
+    cell.classList.add('editing');
+    cell.setAttribute('contenteditable', 'true');
+    cell.focus();
+    
+    cell.onblur = () => {
+        const newValue = cell.innerText;
+        spreadsheetData[row][col] = newValue;
+        cell.classList.remove('editing');
+        cell.setAttribute('contenteditable', 'false');
+        cell.innerText = newValue;
+        
+        // Check if it's a formula
+        if (newValue.startsWith('=')) {
+            calculateFormula(row, col, newValue);
+        }
+        
+        selectCell(row, col);
+    };
+    
+    cell.onkeydown = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            cell.blur();
+        }
+    };
+}
+
+function calculateFormula(row, col, formula) {
+    try {
+        // Parse simple formulas like =A1+B1
+        const expr = formula.substring(1).toUpperCase();
+        
+        // Replace cell references with values
+        const parsed = expr.replace(/[A-Z]+[0-9]+/g, (match) => {
+            const colLetter = match.match(/[A-Z]+/)[0];
+            const rowNum = parseInt(match.match(/[0-9]+/)[0]) - 1;
+            const colNum = colLetter.charCodeAt(0) - 65;
+            
+            if (rowNum >= 0 && rowNum < 20 && colNum >= 0 && colNum < 10) {
+                const val = spreadsheetData[rowNum][colNum];
+                return parseFloat(val) || 0;
+            }
+            return 0;
+        });
+        
+        const result = eval(parsed);
+        spreadsheetData[row][col] = result;
+        renderSpreadsheet();
+        selectCell(row, col);
+    } catch (e) {
+        spreadsheetData[row][col] = '#ERROR';
+        renderSpreadsheet();
+    }
+}
+
+function spreadsheetFormat(command, value) {
+    if (!selectedCell) return;
+    
+    const { row, col } = selectedCell;
+    const cell = document.getElementById(`cell-${row}-${col}`);
+    if (!cell) return;
+    
+    if (command === 'bold') {
+        cell.style.fontWeight = cell.style.fontWeight === 'bold' ? 'normal' : 'bold';
+    } else if (command === 'italic') {
+        cell.style.fontStyle = cell.style.fontStyle === 'italic' ? 'normal' : 'italic';
+    } else if (command === 'underline') {
+        cell.style.textDecoration = cell.style.textDecoration === 'underline' ? 'none' : 'underline';
+    } else if (command === 'fontFamily') {
+        cell.style.fontFamily = value;
+    } else if (command === 'fontSize') {
+        cell.style.fontSize = value;
+    } else if (command === 'textAlign') {
+        cell.style.textAlign = value;
+    } else if (command === 'color') {
+        cell.style.color = value;
+    } else if (command === 'backgroundColor') {
+        cell.style.backgroundColor = value;
+    }
+}
+
+function spreadsheetFormulaKey(e) {
+    if (e.key === 'Enter') {
+        const input = e.target;
+        const value = input.value;
+        
+        if (selectedCell) {
+            spreadsheetData[selectedCell.row][selectedCell.col] = value;
+            
+            if (value.startsWith('=')) {
+                calculateFormula(selectedCell.row, selectedCell.col, value);
+            } else {
+                renderSpreadsheet();
+                selectCell(selectedCell.row, selectedCell.col);
+            }
+        }
+    }
+}
+
+function spreadsheetSave() {
+    const data = JSON.stringify(spreadsheetData);
+    const filename = prompt('Simpan sebagai:', 'Spreadsheet.json');
+    
+    if (filename) {
+        const blob = new Blob([data], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename.endsWith('.json') ? filename : filename + '.json';
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+}
+
+function spreadsheetLoad() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = (e) => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            spreadsheetData = JSON.parse(e.target.result);
+            renderSpreadsheet();
+        };
+        reader.readAsText(file);
+    };
+    input.click();
+}
+
+function spreadsheetNew() {
+    if (confirm('Buat spreadsheet baru?')) {
+        spreadsheetData = [];
+        initSpreadsheet();
+    }
+}
+
+function spreadsheetAddSheet() {
+    const sheetName = prompt('Nama sheet baru:', `Sheet${spreadsheetSheets.length + 1}`);
+    if (sheetName) {
+        spreadsheetSheets.push({
+            name: sheetName,
+            data: []
+        });
+        // Switch to new sheet
+        spreadsheetSwitchSheet(spreadsheetSheets.length - 1);
+    }
+}
+
+function spreadsheetSwitchSheet(index) {
+    currentSheet = index;
+    spreadsheetData = spreadsheetSheets[index].data || [];
+    if (spreadsheetData.length === 0) {
+        initSpreadsheet();
+    } else {
+        renderSpreadsheet();
+    }
+    
+    // Update tab UI
+    const tabs = document.querySelectorAll('.sheet-tab');
+    tabs.forEach((tab, i) => {
+        if (i === index) tab.classList.add('active');
+        else tab.classList.remove('active');
+    });
+}
+
+// ========== PRESENTATION FUNCTIONS ==========
+let presentationSlides = [];
+let currentSlide = 0;
+let selectedElement = null;
+
+function initPresentation() {
+    // Create default slide
+    presentationSlides = [{
+        id: 'slide-0',
+        elements: [
+            {
+                type: 'text',
+                content: 'Judul Presentasi',
+                x: 200,
+                y: 150,
+                width: 400,
+                height: 80,
+                fontSize: '48px',
+                color: '#000000',
+                align: 'center'
+            },
+            {
+                type: 'text',
+                content: 'Subjudul atau deskripsi',
+                x: 200,
+                y: 250,
+                width: 400,
+                height: 50,
+                fontSize: '24px',
+                color: '#666666',
+                align: 'center'
+            }
+        ]
+    }];
+    
+    renderSlideThumbnails();
+    renderCurrentSlide();
+}
+
+function renderSlideThumbnails() {
+    const container = document.getElementById('presentation-slides');
+    if (!container) return;
+    
+    let html = '';
+    presentationSlides.forEach((slide, index) => {
+        html += `
+        <div class="presentation-slide-thumb ${index === currentSlide ? 'active' : ''}" 
+             onclick="selectSlide(${index})">
+            <div class="presentation-slide-number">${index + 1}</div>
+            <div class="presentation-slide-preview">
+                <div class="preview-title">Slide ${index + 1}</div>
+                <div class="preview-content">${slide.elements.length} elemen</div>
+            </div>
+        </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+}
+
+function renderCurrentSlide() {
+    const canvas = document.getElementById('presentation-slide-canvas');
+    if (!canvas || !presentationSlides[currentSlide]) return;
+    
+    canvas.innerHTML = '';
+    canvas.style.position = 'relative';
+    canvas.style.backgroundColor = 'white';
+    
+    const slide = presentationSlides[currentSlide];
+    
+    slide.elements.forEach((element, index) => {
+        const el = document.createElement('div');
+        el.className = `presentation-element ${element.type}-element ${selectedElement === index ? 'selected' : ''}`;
+        el.style.position = 'absolute';
+        el.style.left = element.x + 'px';
+        el.style.top = element.y + 'px';
+        el.style.width = element.width + 'px';
+        el.style.height = element.height + 'px';
+        el.style.color = element.color || '#000000';
+        el.style.fontSize = element.fontSize || '16px';
+        el.style.textAlign = element.align || 'left';
+        el.setAttribute('data-element-index', index);
+        
+        if (element.type === 'text') {
+            el.innerHTML = element.content;
+            el.setAttribute('contenteditable', 'true');
+            el.onclick = (e) => {
+                e.stopPropagation();
+                selectElement(index);
+            };
+            el.onblur = () => {
+                element.content = el.innerHTML;
+            };
+        } else if (element.type === 'image') {
+            const img = document.createElement('img');
+            img.src = element.src || 'https://via.placeholder.com/200x150';
+            img.style.width = '100%';
+            img.style.height = '100%';
+            img.style.objectFit = 'contain';
+            el.appendChild(img);
+            el.onclick = (e) => {
+                e.stopPropagation();
+                selectElement(index);
+            };
+        }
+        
+        makeElementDraggable(el, index);
+        canvas.appendChild(el);
+    });
+}
+
+function makeElementDraggable(element, index) {
+    let isDragging = false;
+    let startX, startY, startLeft, startTop;
+    
+    element.addEventListener('mousedown', (e) => {
+        if (e.target !== element) return;
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        startLeft = parseInt(element.style.left) || 0;
+        startTop = parseInt(element.style.top) || 0;
+        
+        const onMouseMove = (e) => {
+            if (!isDragging) return;
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            element.style.left = (startLeft + dx) + 'px';
+            element.style.top = (startTop + dy) + 'px';
+            
+            // Update element data
+            presentationSlides[currentSlide].elements[index].x = startLeft + dx;
+            presentationSlides[currentSlide].elements[index].y = startTop + dy;
+        };
+        
+        const onMouseUp = () => {
+            isDragging = false;
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+        };
+        
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+    });
+}
+
+function selectSlide(index) {
+    currentSlide = index;
+    selectedElement = null;
+    renderSlideThumbnails();
+    renderCurrentSlide();
+    updatePropertiesPanel();
+}
+
+function selectElement(index) {
+    selectedElement = index;
+    renderCurrentSlide();
+    updatePropertiesPanel();
+}
+
+function updatePropertiesPanel() {
+    if (selectedElement === null || !presentationSlides[currentSlide]) return;
+    
+    const element = presentationSlides[currentSlide].elements[selectedElement];
+    
+    document.getElementById('prop-x').value = element.x || 0;
+    document.getElementById('prop-y').value = element.y || 0;
+    document.getElementById('prop-width').value = element.width || 100;
+    document.getElementById('prop-height').value = element.height || 50;
+    document.getElementById('prop-color').value = element.color || '#000000';
+    document.getElementById('prop-fontsize').value = parseInt(element.fontSize) || 16;
+}
+
+function updateElementProperty(prop, value) {
+    if (selectedElement === null || !presentationSlides[currentSlide]) return;
+    
+    const element = presentationSlides[currentSlide].elements[selectedElement];
+    
+    if (prop === 'x' || prop === 'y' || prop === 'width' || prop === 'height') {
+        element[prop] = parseInt(value);
+    } else if (prop === 'color') {
+        element.color = value;
+    } else if (prop === 'fontSize') {
+        element.fontSize = value;
+    }
+    
+    renderCurrentSlide();
+}
+
+function presentationAddSlide() {
+    const newSlide = {
+        id: 'slide-' + presentationSlides.length,
+        elements: [
+            {
+                type: 'text',
+                content: 'Judul Slide Baru',
+                x: 200,
+                y: 200,
+                width: 400,
+                height: 80,
+                fontSize: '36px',
+                color: '#000000',
+                align: 'center'
+            }
+        ]
+    };
+    
+    presentationSlides.push(newSlide);
+    selectSlide(presentationSlides.length - 1);
+}
+
+function presentationDeleteSlide() {
+    if (presentationSlides.length <= 1) {
+        alert('Tidak bisa menghapus slide terakhir');
+        return;
+    }
+    
+    if (confirm('Hapus slide ini?')) {
+        presentationSlides.splice(currentSlide, 1);
+        if (currentSlide >= presentationSlides.length) {
+            currentSlide = presentationSlides.length - 1;
+        }
+        selectSlide(currentSlide);
+    }
+}
+
+function presentationDuplicateSlide() {
+    const slide = presentationSlides[currentSlide];
+    const duplicate = JSON.parse(JSON.stringify(slide));
+    duplicate.id = 'slide-' + presentationSlides.length;
+    
+    presentationSlides.splice(currentSlide + 1, 0, duplicate);
+    selectSlide(currentSlide + 1);
+}
+
+function presentationAddText() {
+    const newElement = {
+        type: 'text',
+        content: 'Teks baru',
+        x: 100,
+        y: 100,
+        width: 200,
+        height: 50,
+        fontSize: '16px',
+        color: '#000000',
+        align: 'left'
+    };
+    
+    presentationSlides[currentSlide].elements.push(newElement);
+    selectedElement = presentationSlides[currentSlide].elements.length - 1;
+    renderCurrentSlide();
+    updatePropertiesPanel();
+}
+
+function presentationAddImage() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = (e) => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const newElement = {
+                type: 'image',
+                src: e.target.result,
+                x: 100,
+                y: 100,
+                width: 300,
+                height: 200
+            };
+            
+            presentationSlides[currentSlide].elements.push(newElement);
+            selectedElement = presentationSlides[currentSlide].elements.length - 1;
+            renderCurrentSlide();
+        };
+        reader.readAsDataURL(file);
+    };
+    input.click();
+}
+
+function presentationChangeLayout(layout) {
+    // Implementation for changing slide layout
+    alert('Fitur ganti layout akan segera hadir!');
+}
+
+function presentationAddShape() {
+    const newElement = {
+        type: 'text',
+        content: '⬜ Shape',
+        x: 100,
+        y: 100,
+        width: 150,
+        height: 100,
+        fontSize: '16px',
+        color: '#000000',
+        align: 'center',
+        backgroundColor: '#3b82f6',
+        color: 'white',
+        borderRadius: '8px',
+        padding: '8px'
+    };
+    
+    presentationSlides[currentSlide].elements.push(newElement);
+    selectedElement = presentationSlides[currentSlide].elements.length - 1;
+    renderCurrentSlide();
+}
+
+function presentationPlay() {
+    // Open presentation in fullscreen
+    const win = window.open('', '_blank');
+    let slidesHtml = '';
+    
+    presentationSlides.forEach((slide, index) => {
+        slidesHtml += `<div class="presentation-full-slide" style="display: ${index === 0 ? 'flex' : 'none'};">`;
+        slidesHtml += `<div class="presentation-full-content" style="position: relative; width: 960px; height: 540px; margin: auto;">`;
+        
+        slide.elements.forEach(element => {
+            if (element.type === 'text') {
+                slidesHtml += `<div style="position: absolute; left: ${element.x}px; top: ${element.y}px; width: ${element.width}px; height: ${element.height}px; font-size: ${element.fontSize}; color: ${element.color}; text-align: ${element.align};">${element.content}</div>`;
+            } else if (element.type === 'image') {
+                slidesHtml += `<img src="${element.src}" style="position: absolute; left: ${element.x}px; top: ${element.y}px; width: ${element.width}px; height: ${element.height}px; object-fit: contain;">`;
+            }
+        });
+        
+        slidesHtml += '</div></div>';
+    });
+    
+    win.document.write(`
+        <html>
+        <head>
+            <title>Presentation - Pufutara OS</title>
+            <style>
+                body { margin: 0; background: black; display: flex; flex-direction: column; height: 100vh; }
+                .presentation-container { flex: 1; display: flex; flex-direction: column; }
+                .presentation-full-slide { flex: 1; display: flex; align-items: center; justify-content: center; }
+                .presentation-nav { 
+                    position: fixed; 
+                    bottom: 20px; 
+                    left: 50%; 
+                    transform: translateX(-50%);
+                    display: flex; 
+                    gap: 20px; 
+                    background: rgba(0,0,0,0.7); 
+                    padding: 10px 20px; 
+                    border-radius: 40px;
+                    color: white;
+                }
+                .nav-btn { 
+                    cursor: pointer; 
+                    padding: 8px 16px; 
+                    border-radius: 20px; 
+                    background: #3b82f6; 
+                    border: none; 
+                    color: white;
+                }
+                .nav-btn:hover { background: #2563eb; }
+                .slide-number { color: white; font-size: 14px; }
+            </style>
+        </head>
+        <body>
+            <div class="presentation-container" id="presentation-container">
+                ${slidesHtml}
+            </div>
+            <div class="presentation-nav">
+                <button class="nav-btn" onclick="prevSlide()">◀ Sebelumnya</button>
+                <span class="slide-number" id="slide-num">1 / ${presentationSlides.length}</span>
+                <button class="nav-btn" onclick="nextSlide()">Berikutnya ▶</button>
+            </div>
+            <script>
+                let currentSlide = 0;
+                const slides = document.querySelectorAll('.presentation-full-slide');
+                const slideNum = document.getElementById('slide-num');
+                
+                function showSlide(index) {
+                    slides.forEach((slide, i) => {
+                        slide.style.display = i === index ? 'flex' : 'none';
+                    });
+                    slideNum.textContent = (index + 1) + ' / ' + slides.length;
+                }
+                
+                window.prevSlide = function() {
+                    if (currentSlide > 0) {
+                        currentSlide--;
+                        showSlide(currentSlide);
+                    }
+                };
+                
+                window.nextSlide = function() {
+                    if (currentSlide < slides.length - 1) {
+                        currentSlide++;
+                        showSlide(currentSlide);
+                    }
+                };
+                
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'ArrowLeft') prevSlide();
+                    if (e.key === 'ArrowRight') nextSlide();
+                });
+            <\/script>
+        </body>
+        </html>
+    `);
+    win.document.close();
+}
+
+function presentationSave() {
+    const data = JSON.stringify(presentationSlides);
+    const filename = prompt('Simpan presentasi sebagai:', 'Presentasi.json');
+    
+    if (filename) {
+        const blob = new Blob([data], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename.endsWith('.json') ? filename : filename + '.json';
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+}
+
+function presentationLoad() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = (e) => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            presentationSlides = JSON.parse(e.target.result);
+            currentSlide = 0;
+            selectedElement = null;
+            renderSlideThumbnails();
+            renderCurrentSlide();
+        };
+        reader.readAsText(file);
+    };
+    input.click();
+}
+
+function presentationNew() {
+    if (confirm('Buat presentasi baru?')) {
+        initPresentation();
+    }
+}
+
+// Override openApp to initialize office apps
+const originalOpenApp = openApp;
+openApp = function(id) {
+    originalOpenApp(id);
+    
+    // Initialize office apps when opened
+    setTimeout(() => {
+        if (id === 'word') {
+            updateWordCount();
+        } else if (id === 'spreadsheet') {
+            initSpreadsheet();
+        } else if (id === 'presentation') {
+            initPresentation();
+        }
+    }, 200);
+};

@@ -1913,3 +1913,709 @@ body {
     height: 100%; 
     overflow-y: auto; 
 }
+
+/* ========== OFFICE SUITE STYLES ========== */
+
+/* --- WORD PROCESSOR --- */
+.word-processor {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #fff;
+    font-family: 'Inter', sans-serif;
+}
+
+.word-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #f3f4f6;
+    border-bottom: 1px solid #e5e7eb;
+    min-height: 48px;
+}
+
+.word-toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0 8px;
+    border-right: 1px solid #d1d5db;
+}
+
+.word-toolbar-group:last-child {
+    border-right: none;
+}
+
+.word-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #4b5563;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.word-btn:hover {
+    background: #e5e7eb;
+    color: #111;
+}
+
+.word-btn.active {
+    background: #3b82f6;
+    color: white;
+}
+
+.word-font-select, .word-size-select {
+    padding: 6px 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 13px;
+    background: white;
+    cursor: pointer;
+    outline: none;
+}
+
+.word-font-select:hover, .word-size-select:hover {
+    border-color: #9ca3af;
+}
+
+.word-font-select:focus, .word-size-select:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59,130,246,0.2);
+}
+
+#word-color {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    cursor: pointer;
+    padding: 2px;
+}
+
+.word-editor-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #e5e7eb;
+    padding: 20px;
+}
+
+.word-ruler {
+    height: 24px;
+    background: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 8px;
+    position: relative;
+}
+
+.word-ruler::before {
+    content: "";
+    position: absolute;
+    left: 50px;
+    right: 50px;
+    height: 1px;
+    background: #d1d5db;
+    top: 50%;
+}
+
+.word-editor {
+    flex: 1;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 40px 60px;
+    overflow-y: auto;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    outline: none;
+}
+
+.word-editor:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+}
+
+.word-editor h1 {
+    font-size: 32px;
+    margin-bottom: 16px;
+    font-weight: 700;
+}
+
+.word-editor h2 {
+    font-size: 24px;
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+
+.word-editor p {
+    margin-bottom: 12px;
+}
+
+.word-editor ul, .word-editor ol {
+    margin-left: 24px;
+    margin-bottom: 12px;
+}
+
+.word-statusbar {
+    display: flex;
+    gap: 24px;
+    padding: 6px 12px;
+    background: #f9fafb;
+    border-top: 1px solid #e5e7eb;
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 8px;
+    border-radius: 4px;
+}
+
+/* --- SPREADSHEET --- */
+.spreadsheet {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #fff;
+}
+
+.spreadsheet-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #f3f4f6;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.spreadsheet-toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0 8px;
+    border-right: 1px solid #d1d5db;
+}
+
+.spreadsheet-toolbar-group:last-child {
+    border-right: none;
+}
+
+.spreadsheet-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #4b5563;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.spreadsheet-btn:hover {
+    background: #e5e7eb;
+    color: #111;
+}
+
+.spreadsheet-btn.active {
+    background: #3b82f6;
+    color: white;
+}
+
+.spreadsheet-font, .spreadsheet-size, .spreadsheet-align {
+    padding: 6px 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 13px;
+    background: white;
+    cursor: pointer;
+    outline: none;
+}
+
+#spreadsheet-color {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    cursor: pointer;
+    padding: 2px;
+}
+
+.spreadsheet-formula-bar {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    margin-left: 8px;
+}
+
+.formula-label {
+    font-weight: 600;
+    color: #3b82f6;
+    padding: 0 4px;
+}
+
+.formula-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 13px;
+    padding: 6px 0;
+}
+
+.spreadsheet-container {
+    flex: 1;
+    overflow: auto;
+    padding: 10px;
+    background: #f9fafb;
+}
+
+.spreadsheet-grid {
+    display: inline-block;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.spreadsheet-row {
+    display: flex;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.spreadsheet-row:last-child {
+    border-bottom: none;
+}
+
+.spreadsheet-row-header {
+    background: #f3f4f6;
+    font-weight: 600;
+    color: #4b5563;
+}
+
+.spreadsheet-cell {
+    width: 100px;
+    min-width: 100px;
+    height: 30px;
+    border-right: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+    font-size: 13px;
+    outline: none;
+    cursor: cell;
+    user-select: text;
+}
+
+.spreadsheet-cell:last-child {
+    border-right: none;
+}
+
+.spreadsheet-cell.header {
+    background: #f3f4f6;
+    font-weight: 600;
+    color: #4b5563;
+    justify-content: center;
+    cursor: default;
+}
+
+.spreadsheet-cell.selected {
+    background: #e0f2fe;
+    border: 2px solid #3b82f6;
+}
+
+.spreadsheet-cell.editing {
+    background: white;
+    border: 2px solid #3b82f6;
+    box-shadow: 0 0 0 1px #3b82f6;
+}
+
+.spreadsheet-sheet-tabs {
+    display: flex;
+    gap: 4px;
+    padding: 8px 12px;
+    background: #f3f4f6;
+    border-top: 1px solid #e5e7eb;
+}
+
+.sheet-tab {
+    padding: 6px 16px;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.sheet-tab.active {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+}
+
+.sheet-tab:hover:not(.active) {
+    background: #e5e7eb;
+}
+
+/* --- PRESENTATION --- */
+.presentation {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #1e1e2f;
+}
+
+.presentation-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #2d2d3a;
+    border-bottom: 1px solid #40404d;
+}
+
+.presentation-toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0 8px;
+    border-right: 1px solid #40404d;
+}
+
+.presentation-toolbar-group:last-child {
+    border-right: none;
+}
+
+.presentation-btn {
+    padding: 6px 12px;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #e5e7eb;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+
+.presentation-btn i {
+    font-size: 14px;
+}
+
+.presentation-btn:hover {
+    background: #40404d;
+    color: white;
+}
+
+.presentation-layout {
+    padding: 6px 12px;
+    border: 1px solid #40404d;
+    border-radius: 6px;
+    background: #2d2d3a;
+    color: #e5e7eb;
+    font-size: 13px;
+    cursor: pointer;
+    outline: none;
+}
+
+.presentation-layout option {
+    background: #2d2d3a;
+    color: #e5e7eb;
+}
+
+.presentation-main {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+    background: #1e1e2f;
+}
+
+.presentation-slides {
+    width: 200px;
+    background: #2d2d3a;
+    border-right: 1px solid #40404d;
+    overflow-y: auto;
+    padding: 12px;
+}
+
+.presentation-slide-thumb {
+    background: #1e1e2f;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    padding: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    aspect-ratio: 16/9;
+    position: relative;
+}
+
+.presentation-slide-thumb:hover {
+    border-color: #3b82f6;
+}
+
+.presentation-slide-thumb.active {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59,130,246,0.3);
+}
+
+.presentation-slide-number {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: #3b82f6;
+    color: white;
+    width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.presentation-slide-preview {
+    width: 100%;
+    height: 100%;
+    background: white;
+    border-radius: 4px;
+    font-size: 8px;
+    overflow: hidden;
+}
+
+.preview-title {
+    background: #3b82f6;
+    color: white;
+    padding: 2px;
+    font-weight: bold;
+}
+
+.preview-content {
+    padding: 2px;
+}
+
+.presentation-editor {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    overflow: auto;
+}
+
+.presentation-slide-canvas {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    aspect-ratio: 16/9;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+    cursor: default;
+}
+
+.presentation-slide-canvas.editing {
+    cursor: text;
+}
+
+.presentation-element {
+    position: absolute;
+    cursor: move;
+    border: 1px solid transparent;
+    user-select: none;
+}
+
+.presentation-element:hover {
+    border: 1px dashed #3b82f6;
+}
+
+.presentation-element.selected {
+    border: 2px solid #3b82f6;
+}
+
+.presentation-element.text-element {
+    padding: 8px;
+    outline: none;
+    min-width: 50px;
+    min-height: 20px;
+}
+
+.presentation-element.text-element[contenteditable="true"] {
+    cursor: text;
+    border: 1px solid #3b82f6;
+    background: rgba(59,130,246,0.05);
+}
+
+.presentation-image-element {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.presentation-properties {
+    width: 250px;
+    background: #2d2d3a;
+    border-left: 1px solid #40404d;
+    padding: 16px;
+    color: #e5e7eb;
+    overflow-y: auto;
+}
+
+.presentation-properties h3 {
+    font-size: 14px;
+    margin-bottom: 16px;
+    color: white;
+}
+
+.property-group {
+    margin-bottom: 16px;
+}
+
+.property-label {
+    font-size: 12px;
+    color: #9ca3af;
+    margin-bottom: 4px;
+    display: block;
+}
+
+.property-input {
+    width: 100%;
+    padding: 6px 8px;
+    background: #1e1e2f;
+    border: 1px solid #40404d;
+    border-radius: 4px;
+    color: white;
+    font-size: 12px;
+    outline: none;
+}
+
+.property-input:focus {
+    border-color: #3b82f6;
+}
+
+.property-color {
+    width: 100%;
+    height: 30px;
+    border: 1px solid #40404d;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* --- DIALOG UNTUK OFFICE SUITE --- */
+.office-dialog-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+}
+
+.office-dialog {
+    background: white;
+    border-radius: 12px;
+    width: 400px;
+    max-width: 90%;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+}
+
+.office-dialog-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.office-dialog-header h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.office-dialog-close {
+    cursor: pointer;
+    font-size: 20px;
+    color: #9ca3af;
+}
+
+.office-dialog-close:hover {
+    color: #111;
+}
+
+.office-dialog-content {
+    padding: 20px;
+}
+
+.office-dialog-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    margin-bottom: 16px;
+    outline: none;
+}
+
+.office-dialog-input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59,130,246,0.2);
+}
+
+.office-dialog-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.office-dialog-btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+}
+
+.office-dialog-btn-primary {
+    background: #3b82f6;
+    color: white;
+}
+
+.office-dialog-btn-primary:hover {
+    background: #2563eb;
+}
+
+.office-dialog-btn-secondary {
+    background: #f3f4f6;
+    color: #4b5563;
+}
+
+.office-dialog-btn-secondary:hover {
+    background: #e5e7eb;
+}
