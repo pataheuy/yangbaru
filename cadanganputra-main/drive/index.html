@@ -324,7 +324,7 @@
             <div class="auth-logo">PUFUTARA.</div>
             <h1>Akses Pufutara Cloud</h1>
             <p class="subtitle">Secure minimal storage platform</p>
-            <input type="email" id="emailIn" placeholder="Email Address">
+            <input type="email" id="emailIn" placeholder="Email Address" autocomplete="off">
             <input type="password" id="passIn" placeholder="Password">
             
             <div style="display: flex; align-items: center; min-height: 44px; margin-top: 8px;">
@@ -502,15 +502,46 @@
             const password = document.getElementById('passIn').value;
             const errBox = document.getElementById('authErr');
             
+            if (!email || !password) {
+                errBox.style.visibility = 'visible';
+                errBox.style.color = '#d93025';
+                errBox.innerText = "Email dan password wajib diisi!";
+                return;
+            }
+
             errBox.style.visibility = 'visible'; 
             errBox.style.color = '#000'; 
             errBox.innerText = "Memeriksa info...";
 
-            const { data, error } = await _client.auth.signInWithPassword({ email, password });
+            // 1. Coba Login (Sign In) dulu
+            let { data, error } = await _client.auth.signInWithPassword({ email, password });
+            
             if (error) { 
-                errBox.style.color = '#d93025'; 
-                errBox.innerText = error.message; 
+                // 2. Jika gagal login, otomatis coba daftarkan (Sign Up) sebagai akun baru
+                const { data: signUpData, error: signUpError } = await _client.auth.signUp({ email, password });
+                
+                if (signUpError) {
+                    errBox.style.color = '#d93025';
+                    // Kalau errornya 'already registered', berarti email ada tapi passwordnya salah
+                    if (signUpError.message.toLowerCase().includes('already registered')) {
+                        errBox.innerText = "Password salah untuk email ini.";
+                    } else {
+                        errBox.innerText = signUpError.message; // Contoh: Password minimal 6 karakter
+                    }
+                } else {
+                    // 3. Pendaftaran Berhasil
+                    if (signUpData.session) {
+                        // Jika auto-confirm di Supabase diaktifkan, dia bisa langsung masuk
+                        _userEmail = signUpData.user.email;
+                        enterDrive();
+                    } else {
+                        // Jika settingan Supabase minta konfirmasi email
+                        errBox.style.color = '#0f9d58'; // Warna Hijau
+                        errBox.innerText = "Akun dibuat! Silakan cek email Anda untuk verifikasi.";
+                    }
+                }
             } else { 
+                // Login Berhasil
                 _userEmail = data.user.email; 
                 enterDrive(); 
             }
