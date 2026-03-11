@@ -40,7 +40,6 @@
 
         /* --- Sidebar --- */
         .sidebar { width: 300px; display: flex; flex-direction: column; background: var(--pf-white); border-right: 1px solid var(--pf-gray-border); transition: all 0.3s ease; }
-        
         .sidebar-header { padding: 24px 24px 12px 24px; display: flex; justify-content: space-between; align-items: center; }
         .sidebar-title { font-size: 0.75rem; font-weight: 700; color: var(--pf-text-muted); text-transform: uppercase; letter-spacing: 1px; }
         .btn-icon-small { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--pf-black); display: flex; align-items: center; justify-content: center; }
@@ -48,7 +47,7 @@
         .sidebar-scroll { flex: 1; overflow-y: auto; padding-bottom: 20px; }
         
         .chat-item { 
-            padding: 15px 24px; /* Area atas bawah diperbesar 20% */
+            padding: 15px 24px; 
             display: flex; align-items: center; gap: 14px; cursor: pointer; transition: 0.15s; position: relative;
             border-bottom: 1px solid transparent;
         }
@@ -57,9 +56,24 @@
         .chat-item.active-chat .chat-preview { color: #aaaaaa; }
         .chat-item.active-chat .chat-name { color: var(--pf-white); }
         
-        .avatar-circle { width: 40px; height: 40px; border-radius: 50%; background: var(--pf-gray-border); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 700; color: var(--pf-black); flex-shrink: 0; border: none;}
-        .chat-item.active-chat .avatar-circle { border-color: transparent; }
+        /* Tombol Hapus Chat di Sidebar */
+        .btn-delete-sidebar {
+            opacity: 0;
+            background: none;
+            border: none;
+            color: var(--pf-text-muted);
+            cursor: pointer;
+            padding: 5px;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .chat-item:hover .btn-delete-sidebar { opacity: 1; }
+        .btn-delete-sidebar:hover { color: var(--pf-danger) !important; transform: scale(1.2); }
+        .chat-item.active-chat .btn-delete-sidebar { color: #aaaaaa; }
 
+        .avatar-circle { width: 40px; height: 40px; border-radius: 50%; background: var(--pf-gray-border); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 700; color: var(--pf-black); flex-shrink: 0; border: none;}
         .chat-info { flex: 1; overflow: hidden; display: flex; flex-direction: column; gap: 2px; }
         .chat-name { font-size: 0.95rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--pf-black); }
         .chat-preview { font-size: 0.8rem; color: var(--pf-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -75,15 +89,10 @@
         /* --- BUBBLE STYLING --- */
         .msg-group { display: flex; flex-direction: column; width: 100%; }
         .msg-row { display: flex; gap: 14px; max-width: 85%; align-items: flex-start; }
-        
         .msg-row.me { align-self: flex-end; flex-direction: row-reverse; }
-        
         .msg-content-wrapper { display: flex; flex-direction: column; gap: 4px; }
         .msg-row.me .msg-content-wrapper { align-items: flex-end; }
-
         .msg-name { font-size: 0.8rem; font-weight: 600; margin-bottom: 2px; padding: 0 4px;}
-        
-        /* JAM DI BAWAH GELEMBUNG */
         .msg-time { font-size: 0.7rem; color: var(--pf-text-muted); font-weight: 500; padding: 0 4px; margin-top: 2px; }
 
         .msg-bubble {
@@ -92,81 +101,54 @@
         }
         .msg-bubble:active { opacity: 0.8; }
 
-        /* Orang Lain (Kiri) */
-        .msg-row.other .msg-bubble {
-            background-color: var(--pf-white);
-            color: var(--pf-black);
-            border: 1px solid var(--pf-gray-border);
-            border-radius: 18px 18px 18px 4px;
-        }
+        .msg-row.other .msg-bubble { background-color: var(--pf-white); color: var(--pf-black); border: 1px solid var(--pf-gray-border); border-radius: 18px 18px 18px 4px; }
+        .msg-row.me .msg-bubble { background-color: var(--pf-black); color: var(--pf-white); border-radius: 18px 18px 4px 18px; }
 
-        /* Saya (Kanan) */
-        .msg-row.me .msg-bubble {
-            background-color: var(--pf-black);
-            color: var(--pf-white);
-            border-radius: 18px 18px 4px 18px;
-        }
-
-        /* UKURAN GAMBAR 40% */
-        .msg-img { width: 40%; min-width: 120px; border-radius: 12px; border: 1px solid var(--pf-gray-border); cursor: zoom-in; display: block; box-shadow: none; }
+        .msg-img { width: 40%; min-width: 120px; border-radius: 12px; border: 1px solid var(--pf-gray-border); cursor: zoom-in; display: block; }
         .msg-row.me .msg-img { margin-left: auto; border-color: #333; }
 
-        .msg-quote {
-            background: rgba(255,255,255,0.15); padding: 8px 12px; border-radius: 8px; font-size: 0.8rem; margin-bottom: 8px; border-left: 3px solid rgba(255,255,255,0.8);
-        }
+        .msg-quote { background: rgba(255,255,255,0.15); padding: 8px 12px; border-radius: 8px; font-size: 0.8rem; margin-bottom: 8px; border-left: 3px solid rgba(255,255,255,0.8); }
         .msg-row.other .msg-quote { background: var(--pf-gray-light); border-left-color: var(--pf-text-muted); }
 
         /* --- Input Area --- */
         .input-container { padding: 0 32px 32px 32px; background: transparent; }
         .input-wrapper { background: var(--pf-gray-light); border-radius: 32px; padding: 8px 16px; display: flex; align-items: center; gap: 12px; border: 1px solid transparent; transition: 0.2s; }
-        .input-wrapper:focus-within { background: var(--pf-white); border-color: var(--pf-black); box-shadow: none; }
+        .input-wrapper:focus-within { background: var(--pf-white); border-color: var(--pf-black); }
         .input-field { flex: 1; border: none; background: transparent; padding: 12px 8px; font-size: 1rem; outline: none; color: var(--pf-black); font-weight: 500; }
-        .input-field::placeholder { color: var(--pf-text-muted); font-weight: 400; }
         
         .btn-action { background: transparent; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--pf-text-muted); transition: 0.2s;}
         .btn-action:hover { background: rgba(0,0,0,0.05); color: var(--pf-black); }
         .btn-send { background: var(--pf-black); color: var(--pf-white); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; transition: 0.2s; }
-        .btn-send:hover { transform: scale(1.05); }
 
-        /* Context Menu (Balas & Hapus) */
-        .action-menu { position: absolute; background: var(--pf-white); border: 1px solid var(--pf-gray-border); border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); display: none; flex-direction: column; z-index: 500; overflow: hidden; min-width: 150px; padding: 4px; }
+        /* Menu Konteks Pesan */
+        .action-menu { position: absolute; background: var(--pf-white); border: 1px solid var(--pf-gray-border); border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: none; flex-direction: column; z-index: 500; overflow: hidden; min-width: 150px; padding: 4px; }
         .action-menu button { padding: 12px 16px; border: none; background: none; text-align: left; cursor: pointer; font-size: 0.85rem; font-weight: 600; color: var(--pf-black); border-radius: 8px;}
         .action-menu button:hover { background: var(--pf-gray-light); }
         .action-menu button.danger { color: var(--pf-danger); }
 
-        /* Auth Screen */
+        /* Modals & Auth */
         .auth-screen { position: fixed; inset: 0; background: var(--pf-white); z-index: 1000; display: flex; align-items: center; justify-content: center; }
         .auth-card { width: 100%; max-width: 400px; padding: 40px; text-align: center; }
-        .auth-title { font-size: 2rem; font-weight: 900; margin-bottom: 8px; letter-spacing: -1px; text-transform: uppercase; }
-        .auth-subtitle { color: var(--pf-text-muted); margin-bottom: 40px; font-size: 0.95rem; }
-        .auth-input { width: 100%; padding: 16px; margin-bottom: 16px; border: 1px solid var(--pf-gray-border); border-radius: 12px; font-size: 1rem; outline: none; transition: 0.2s; background: var(--pf-gray-light); }
-        .auth-input:focus { border-color: var(--pf-black); background: var(--pf-white); }
-        .btn-login { width: 100%; padding: 16px; background: var(--pf-black); color: var(--pf-white); border: none; border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: 0.2s; }
-        .btn-login:hover { opacity: 0.9; }
+        .auth-input { width: 100%; padding: 16px; margin-bottom: 16px; border: 1px solid var(--pf-gray-border); border-radius: 12px; font-size: 1rem; outline: none; background: var(--pf-gray-light); }
+        .btn-login { width: 100%; padding: 16px; background: var(--pf-black); color: var(--pf-white); border: none; border-radius: 12px; font-weight: 700; cursor: pointer; }
         
-        /* Bar Balasan */
         .reply-bar { background: var(--pf-black); color: var(--pf-white); padding: 12px 32px; font-size: 0.85rem; display: none; justify-content: space-between; align-items: center; margin: 0 32px 16px 32px; border-radius: 12px; }
         .reply-bar button { background: none; border: none; color: var(--pf-white); cursor: pointer; font-size: 1.2rem; }
 
-        /* Modals */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 550; display: none; backdrop-filter: blur(2px); }
-        .new-chat-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--pf-white); padding: 32px; border-radius: 20px; z-index: 600; display: none; flex-direction: column; gap: 20px; width: 90%; max-width: 400px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-        .modal-actions { display: flex; gap: 12px; margin-top: 8px; }
-        .modal-actions button { flex: 1; padding: 14px; border-radius: 12px; font-weight: 700; cursor: pointer; border: none; font-size: 0.95rem;}
-        .btn-cancel { background: var(--pf-gray-light); color: var(--pf-black); }
-        .btn-confirm { background: var(--pf-black); color: var(--pf-white); }
-
-        /* SVG Icons */
+        .new-chat-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--pf-white); padding: 32px; border-radius: 20px; z-index: 600; display: none; flex-direction: column; gap: 20px; width: 90%; max-width: 400px; }
+        .modal-actions { display: flex; gap: 12px; }
+        .modal-actions button { flex: 1; padding: 14px; border-radius: 12px; font-weight: 700; cursor: pointer; border: none; }
+        
         .icon { width: 20px; height: 20px; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; fill: none; }
     </style>
 </head>
 <body>
 
-    <!-- Layar Login -->
     <div id="authScreen" class="auth-screen">
         <div class="auth-card">
-            <h1 class="auth-title">Pufutara Chat</h1>
-            <p class="auth-subtitle">Minimalis. Cepat. Hitam Putih.</p>
+            <h1 style="font-weight:900; letter-spacing:-1px; text-transform:uppercase; margin-bottom:8px;">Pufutara Chat</h1>
+            <p style="color:var(--pf-text-muted); margin-bottom:40px;">Minimalis. Cepat. Hitam Putih.</p>
             <input type="email" id="emailIn" class="auth-input" placeholder="Alamat Email">
             <input type="password" id="passIn" class="auth-input" placeholder="Kata Sandi">
             <button class="btn-login" onclick="handleAuth()">Masuk / Daftar</button>
@@ -174,20 +156,18 @@
         </div>
     </div>
 
-    <!-- Menu Konteks Pesan (Muncul Saat Gelembung Diklik) -->
     <div id="actionMenu" class="action-menu">
         <button onclick="actionReply()">Balas Pesan</button>
         <button id="btnDel" class="danger" onclick="actionDelete()">Hapus Pesan</button>
     </div>
 
-    <!-- Modal Chat Baru -->
     <div id="modalOverlay" class="modal-overlay" onclick="closeModals()"></div>
     <div id="newChatModal" class="new-chat-modal">
         <h3 style="font-weight:800; font-size: 1.5rem; letter-spacing: -0.5px;">Chat Baru</h3>
         <input type="email" id="newChatTarget" class="auth-input" style="margin-bottom:0;" placeholder="Email pengguna lain...">
         <div class="modal-actions">
-            <button class="btn-cancel" onclick="closeModals()">Batal</button>
-            <button class="btn-confirm" onclick="startPrivateChatFromInput()">Mulai Obrolan</button>
+            <button class="btn-cancel" style="background:var(--pf-gray-light);" onclick="closeModals()">Batal</button>
+            <button class="btn-confirm" style="background:var(--pf-black); color:white;" onclick="startPrivateChatFromInput()">Mulai Obrolan</button>
         </div>
     </div>
 
@@ -203,13 +183,10 @@
 
     <div class="main-container">
         <aside class="sidebar">
-            <div class="sidebar-header">
-                <span class="sidebar-title">Menu Utama</span>
-            </div>
+            <div class="sidebar-header"><span class="sidebar-title">Menu Utama</span></div>
             <div class="sidebar-scroll">
-                
                 <div class="chat-item active-chat" id="globalChatLink" onclick="switchChat('global')">
-                    <div class="avatar-circle" style="background-color: var(--pf-black); color: var(--pf-white);">
+                    <div class="avatar-circle" style="background: var(--pf-black); color: white;">
                         <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
                     </div>
                     <div class="chat-info">
@@ -235,26 +212,19 @@
                     <div class="chat-status-text" id="chatStatus">Terhubung ke jaringan publik</div>
                 </div>
             </div>
-
             <div class="chat-messages" id="chatMessages"></div>
-
             <div id="replyBar" class="reply-bar">
                 <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1;">
                     <span style="font-weight:700;">Membalas:</span> <span id="replyTxt" style="opacity: 0.8; margin-left: 8px;"></span>
                 </div>
                 <button onclick="cancelReply()">✕</button>
             </div>
-
             <div class="input-container">
                 <div class="input-wrapper">
                     <input type="file" id="imgUpload" accept="image/*" style="display:none;" onchange="handleImageUpload()">
-                    <button class="btn-action" onclick="document.getElementById('imgUpload').click()" title="Kirim Gambar">
-                        <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
-                    </button>
-                    <input type="text" id="msgIn" class="input-field" placeholder="Ketik pesan Anda di sini..." onkeypress="if(event.key==='Enter')sendMessage()">
-                    <button class="btn-send" onclick="sendMessage()">
-                        <svg class="icon" viewBox="0 0 24 24" style="width: 18px; height: 18px;"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-                    </button>
+                    <button class="btn-action" onclick="document.getElementById('imgUpload').click()"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg></button>
+                    <input type="text" id="msgIn" class="input-field" placeholder="Ketik pesan..." onkeypress="if(event.key==='Enter')sendMessage()">
+                    <button class="btn-send" onclick="sendMessage()"><svg class="icon" viewBox="0 0 24 24" style="width: 18px; height: 18px;"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
                 </div>
             </div>
         </main>
@@ -274,70 +244,44 @@
         let selectedMsg = null;
         let replyingTo = null;
 
-        // Palet warna khusus untuk setiap pengguna (32 variasi warna)
-        const userColors = [
-            '#e02424', '#0b57d0', '#188038', '#f29900', '#9333ea', '#e52592', '#12b5cb', '#4285f4',
-            '#d97706', '#059669', '#4f46e5', '#db2777', '#0891b2', '#ea580c', '#65a30d', '#7c3aed',
-            '#be123c', '#0f766e', '#1d4ed8', '#a21caf', '#b45309', '#4d7c0f', '#4338ca', '#c026d3',
-            '#0e7490', '#c2410c', '#15803d', '#6d28d9', '#9f1239', '#0369a1', '#b91c1c', '#a16207'
-        ];
+        const userColors = ['#e02424', '#0b57d0', '#188038', '#f29900', '#9333ea', '#e52592', '#12b5cb', '#4285f4', '#d97706', '#059669', '#4f46e5', '#db2777', '#0891b2', '#ea580c', '#65a30d', '#7c3aed'];
         
         function getColorForUser(email) {
-            let hash = 5381; // Menggunakan algoritma hash djb2 yang lebih baik
-            for (let i = 0; i < email.length; i++) {
-                hash = ((hash << 5) + hash) + email.charCodeAt(i); 
-            }
+            let hash = 0;
+            for (let i = 0; i < email.length; i++) hash = email.charCodeAt(i) + ((hash << 5) - hash);
             return userColors[Math.abs(hash) % userColors.length];
         }
 
         async function handleAuth() {
             const email = document.getElementById('emailIn').value;
             const password = document.getElementById('passIn').value;
-            const errBox = document.getElementById('authErr');
-            errBox.innerText = "Memproses...";
             const { data, error } = await _client.auth.signInWithPassword({ email, password });
             if (error) {
                 const { error: upErr } = await _client.auth.signUp({ email, password });
-                if (upErr) errBox.innerText = upErr.message;
-                else {
-                    errBox.style.color = "black";
-                    errBox.innerText = "Akun dibuat! Silakan klik tombol lagi untuk masuk.";
-                }
+                if (upErr) document.getElementById('authErr').innerText = upErr.message;
+                else document.getElementById('authErr').innerText = "Akun dibuat! Klik masuk lagi.";
             } else { _userEmail = data.user.email; enterDashboard(); }
         }
 
         function enterDashboard() {
             document.getElementById('authScreen').style.display = 'none';
             document.getElementById('logoutBtn').style.display = 'block';
-            
-            // Halo, [nama user]
-            const name = _userEmail.split('@')[0];
-            const greetingEl = document.getElementById('headerGreeting');
-            greetingEl.innerText = `Halo, ${name}`;
-            greetingEl.style.display = 'inline';
-            
+            document.getElementById('headerGreeting').innerText = `Halo, ${_userEmail.split('@')[0]}`;
+            document.getElementById('headerGreeting').style.display = 'inline';
             loadSidebarList();
             switchChat('global'); 
             listenRealtime();
         }
 
         function logout() { _client.auth.signOut(); location.reload(); }
-
-        function openNewChatModal() { 
-            document.getElementById('modalOverlay').style.display = 'block'; 
-            document.getElementById('newChatModal').style.display = 'flex'; 
-            document.getElementById('newChatTarget').focus(); 
-        }
-        function closeModals() { 
-            document.getElementById('modalOverlay').style.display = 'none'; 
-            document.getElementById('newChatModal').style.display = 'none'; 
-        }
+        function openNewChatModal() { document.getElementById('modalOverlay').style.display = 'block'; document.getElementById('newChatModal').style.display = 'flex'; }
+        function closeModals() { document.getElementById('modalOverlay').style.display = 'none'; document.getElementById('newChatModal').style.display = 'none'; }
 
         function startPrivateChatFromInput() {
             const target = document.getElementById('newChatTarget').value.trim();
             if(!target || target === _userEmail) return;
             closeModals();
-            if(!privateContacts[target]) privateContacts[target] = { lastMsg: "Mulai percakapan...", time: new Date().toISOString() };
+            if(!privateContacts[target]) privateContacts[target] = { lastMsg: "...", time: new Date().toISOString() };
             renderSidebar();
             switchChat('private', target);
         }
@@ -346,8 +290,8 @@
             const { data } = await _client.from('private_chat').select('*').or(`sender.eq.${_userEmail},receiver.eq.${_userEmail}`).order('created_at', { ascending: false });
             privateContacts = {};
             if (data) data.forEach(msg => {
-                const contactEmail = msg.sender === _userEmail ? msg.receiver : msg.sender;
-                if(!privateContacts[contactEmail]) privateContacts[contactEmail] = { lastMsg: msg.message, time: msg.created_at };
+                const partner = msg.sender === _userEmail ? msg.receiver : msg.sender;
+                if(!privateContacts[partner]) privateContacts[partner] = { lastMsg: msg.message, time: msg.created_at };
             });
             renderSidebar();
         }
@@ -367,30 +311,40 @@
                 if(preview.startsWith('|URLIMG|')) preview = "📷 Gambar";
                 else if(preview.startsWith('|RPLY|')) preview = preview.split('|').pop();
 
-                const name = email.split('@')[0];
-                const color = getColorForUser(email);
-
                 item.innerHTML = `
-                    <div class="avatar-circle" style="background-color: ${isActive ? 'var(--pf-white)' : color}; color: ${isActive ? 'var(--pf-black)' : 'white'};">${name[0].toUpperCase()}</div>
+                    <div class="avatar-circle" style="background:${isActive ? 'white' : getColorForUser(email)}; color:${isActive ? 'black' : 'white'};">${email[0].toUpperCase()}</div>
                     <div class="chat-info">
-                        <span class="chat-name">${name}</span>
+                        <span class="chat-name">${email.split('@')[0]}</span>
                         <span class="chat-preview">${preview}</span>
                     </div>
+                    <button class="btn-delete-sidebar" onclick="event.stopPropagation(); deletePrivateChat('${email}')" title="Hapus Chat">
+                        <svg class="icon" style="width:16px; height:16px;" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
                 `;
                 list.appendChild(item);
             });
         }
 
+        // FUNGSI BARU: Hapus Chat Pribadi (Klik Kiri Icon di Sidebar)
+        async function deletePrivateChat(targetEmail) {
+            if (!confirm(`Hapus semua pesan dengan ${targetEmail}? Tindakan ini permanen.`)) return;
+            const { error } = await _client.from('private_chat')
+                .delete()
+                .or(`and(sender.eq.${_userEmail},receiver.eq.${targetEmail}),and(sender.eq.${targetEmail},receiver.eq.${_userEmail})`);
+            
+            if (!error) {
+                delete privateContacts[targetEmail];
+                if (currentTargetEmail === targetEmail) switchChat('global');
+                renderSidebar();
+            } else {
+                alert("Gagal menghapus chat.");
+            }
+        }
+
         function switchChat(type, targetEmail = null) {
             currentChatType = type; currentTargetEmail = targetEmail;
-            const titleEl = document.getElementById('chatTitle');
-            const statusEl = document.getElementById('chatStatus');
-            
-            if(type === 'global') {
-                titleEl.innerText = "Obrolan Global"; statusEl.innerText = "Terhubung ke jaringan publik";
-            } else {
-                titleEl.innerText = targetEmail.split('@')[0]; statusEl.innerText = targetEmail;
-            }
+            document.getElementById('chatTitle').innerText = type === 'global' ? "Obrolan Global" : targetEmail.split('@')[0];
+            document.getElementById('chatStatus').innerText = type === 'global' ? "Terhubung ke jaringan publik" : targetEmail;
             cancelReply(); renderSidebar(); loadMessages();
         }
 
@@ -418,7 +372,6 @@
             let quoteHtml = '';
             let rawText = m.message;
 
-            // Logika gambar dan ukuran 60% serta target Pufutarachat
             if (displayTxt.startsWith('|URLIMG|')) {
                 const url = displayTxt.replace('|URLIMG|', '');
                 displayTxt = `<img src="${url}" class="msg-img" onclick="window.open('${url}', 'pufutarachat')">`;
@@ -431,57 +384,42 @@
             }
 
             const time = new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            const userColor = getColorForUser(m.sender);
+            const color = getColorForUser(m.sender);
 
-            // HTML dengan Jam DI BAWAH Gelembung & Warna Unik Pengguna
             if (isMe) {
                 group.innerHTML = `
                     <div class="msg-row me">
                         <div class="msg-content-wrapper">
                             <div class="msg-bubble" onclick="showActionMenu(event, '${m.id}', '${m.sender}', \`${rawText.replace(/`/g, '\\`')}\`, true)">
-                                ${quoteHtml}
-                                ${displayTxt}
+                                ${quoteHtml}${displayTxt}
                             </div>
                             <div class="msg-time">${time}</div>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             } else {
                 group.innerHTML = `
                     <div class="msg-row other">
-                        <div class="avatar-circle" style="width:36px; height:36px; background-color: ${userColor}; color: white; border: none;">${m.sender[0].toUpperCase()}</div>
+                        <div class="avatar-circle" style="width:36px; height:36px; background:${color}; color:white;">${m.sender[0].toUpperCase()}</div>
                         <div class="msg-content-wrapper">
-                            <div class="msg-name" style="color: ${userColor};">${m.sender.split('@')[0]}</div>
+                            <div class="msg-name" style="color:${color}">${m.sender.split('@')[0]}</div>
                             <div class="msg-bubble" onclick="showActionMenu(event, '${m.id}', '${m.sender}', \`${rawText.replace(/`/g, '\\`')}\`, false)">
-                                ${quoteHtml}
-                                ${displayTxt}
+                                ${quoteHtml}${displayTxt}
                             </div>
                             <div class="msg-time">${time}</div>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             }
-
             box.appendChild(group);
             box.scrollTop = box.scrollHeight;
         }
 
-        // --- Fitur Balas & Hapus (Klik Gelembung) ---
         function showActionMenu(e, id, sender, text, isMe) {
             e.stopPropagation();
             selectedMsg = { id, sender, text };
             const menu = document.getElementById('actionMenu');
             menu.style.display = 'flex';
-            
-            // Posisi di dekat kursor
-            let xPos = e.pageX;
-            let yPos = e.pageY;
-            
-            if (xPos + 160 > window.innerWidth) xPos = window.innerWidth - 170;
-            if (yPos + 100 > window.innerHeight) yPos = window.innerHeight - 110;
-            
-            menu.style.left = xPos + 'px';
-            menu.style.top = yPos + 'px';
+            menu.style.left = Math.min(e.pageX, window.innerWidth - 170) + 'px';
+            menu.style.top = Math.min(e.pageY, window.innerHeight - 110) + 'px';
             document.getElementById('btnDel').style.display = isMe ? 'block' : 'none';
         }
 
@@ -490,34 +428,26 @@
             document.getElementById('replyBar').style.display = 'flex'; 
             document.getElementById('replyTxt').innerText = selectedMsg.text; 
             document.getElementById('msgIn').focus(); 
-            document.getElementById('actionMenu').style.display = 'none';
-        }
-        
-        function cancelReply() { 
-            replyingTo = null; 
-            document.getElementById('replyBar').style.display = 'none'; 
-        }
-        
-        async function actionDelete() { 
-            try {
-                if(!confirm("Anda yakin ingin menghapus pesan ini?")) return; 
-                const table = currentChatType === 'global' ? 'global_chat' : 'private_chat'; 
-                const { error } = await _client.from(table).delete().eq('id', selectedMsg.id); 
-                if (error) console.error("Gagal menghapus pesan:", error);
-                document.getElementById('actionMenu').style.display = 'none';
-            } catch (err) {
-                console.error(err);
-            }
         }
 
-        // --- Kirim Pesan & Upload ---
+        // FUNGSI: Hapus Pesan Individu
+        async function actionDelete() { 
+            if(!confirm("Hapus pesan ini?")) return; 
+            const table = currentChatType === 'global' ? 'global_chat' : 'private_chat'; 
+            const { error } = await _client.from(table).delete().eq('id', selectedMsg.id); 
+            if (!error) {
+                const el = document.getElementById(`msg-${currentChatType}-${selectedMsg.id}`);
+                if(el) el.remove();
+            }
+            document.getElementById('actionMenu').style.display = 'none';
+        }
+
         async function sendMessage() {
             const inp = document.getElementById('msgIn');
             const txt = inp.value.trim();
             if (!txt) return;
-            inp.value = '';
-            let finalMsg = txt;
-            if (replyingTo) { finalMsg = `|RPLY|${replyingTo.sender}|${replyingTo.text}|${txt}`; cancelReply(); }
+            let finalMsg = replyingTo ? `|RPLY|${replyingTo.sender}|${replyingTo.text}|${txt}` : txt;
+            cancelReply(); inp.value = '';
             const payload = { sender: _userEmail, message: finalMsg };
             if (currentChatType === 'global') await _client.from('global_chat').insert([payload]);
             else { payload.receiver = currentTargetEmail; await _client.from('private_chat').insert([payload]); }
@@ -526,42 +456,37 @@
         async function handleImageUpload() {
             const file = document.getElementById('imgUpload').files[0];
             if (!file) return;
-            const fileName = `${Date.now()}_img.${file.name.split('.').pop()}`;
-            await _client.storage.from('chat_images').upload(`public/${fileName}`, file);
-            const { data } = _client.storage.from('chat_images').getPublicUrl(`public/${fileName}`);
+            const path = `public/${Date.now()}_${file.name}`;
+            await _client.storage.from('chat_images').upload(path, file);
+            const { data } = _client.storage.from('chat_images').getPublicUrl(path);
             const payload = { sender: _userEmail, message: `|URLIMG|${data.publicUrl}` };
             if (currentChatType === 'global') await _client.from('global_chat').insert([payload]);
             else { payload.receiver = currentTargetEmail; await _client.from('private_chat').insert([payload]); }
-            document.getElementById('imgUpload').value = '';
         }
+
+        function cancelReply() { replyingTo = null; document.getElementById('replyBar').style.display = 'none'; }
 
         function listenRealtime() {
             _client.channel('any').on('postgres_changes', { event: '*', schema: 'public' }, payload => {
                 if (payload.eventType === 'INSERT') {
                     if (payload.table === 'global_chat' && currentChatType === 'global') renderMessage(payload.new);
                     if (payload.table === 'private_chat') {
-                        const isRel = (payload.new.sender === _userEmail || payload.new.receiver === _userEmail);
-                        if (isRel) {
-                            const partner = payload.new.sender === _userEmail ? payload.new.receiver : payload.new.sender;
+                        const partner = payload.new.sender === _userEmail ? payload.new.receiver : payload.new.sender;
+                        if (payload.new.sender === _userEmail || payload.new.receiver === _userEmail) {
                             privateContacts[partner] = { lastMsg: payload.new.message, time: payload.new.created_at };
                             renderSidebar();
                             if (currentChatType === 'private' && currentTargetEmail === partner) renderMessage(payload.new);
                         }
                     }
-                }
-                if (payload.eventType === 'DELETE') {
-                    const tablePrefix = payload.table.split('_')[0]; // Mendapatkan 'global' atau 'private'
-                    const msgEl = document.getElementById(`msg-${tablePrefix}-${payload.old.id}`);
-                    if (msgEl) msgEl.remove();
+                } else if (payload.eventType === 'DELETE') {
+                    const id = `msg-${payload.table === 'global_chat' ? 'global' : 'private'}-${payload.old.id}`;
+                    const el = document.getElementById(id);
+                    if(el) el.remove();
                 }
             }).subscribe();
         }
 
-        // Klik di luar menu untuk menutup
-        document.addEventListener('click', (e) => { 
-            if(!e.target.closest('#actionMenu')) document.getElementById('actionMenu').style.display = 'none'; 
-        });
-        
+        document.addEventListener('click', () => document.getElementById('actionMenu').style.display = 'none');
         _client.auth.getSession().then(({data}) => { if(data.session) { _userEmail = data.session.user.email; enterDashboard(); } });
     </script>
 </body>
