@@ -21,7 +21,6 @@
             overflow: hidden;
         }
 
-        /* --- Layout Utama --- */
         .app-container { 
             display: flex; 
             flex: 1; 
@@ -29,9 +28,9 @@
             max-width: 1200px;
             margin: 0 auto;
             width: 100%;
+            position: relative;
         }
 
-        /* --- Main Content --- */
         .main-view {
             flex: 1; 
             overflow-y: auto; 
@@ -39,10 +38,10 @@
             background: #fff; 
             padding-bottom: 120px;
             box-shadow: 0 0 20px rgba(0,0,0,0.02);
+            scrollbar-width: none;
         }
         
-        .main-view::-webkit-scrollbar { width: 8px; }
-        .main-view::-webkit-scrollbar-thumb { background: #ddd; border-radius: 4px; }
+        .main-view::-webkit-scrollbar { display: none; }
 
         header.top-bar { 
             display: flex; 
@@ -51,348 +50,320 @@
             margin-bottom: 40px; 
         }
         
-        .logo { 
-            font-size: 1.4rem; 
-            font-weight: 900; 
-            letter-spacing: -1px; 
-        }
+        .logo { font-size: 1.4rem; font-weight: 900; letter-spacing: -1px; }
 
-        .back-btn { text-decoration: none; color: #999; font-size: 0.9rem; transition: 0.3s; }
-        .back-btn:hover { color: #000; }
-        
         .profile-btn { 
-            width: 35px; 
-            height: 35px; 
-            background: #000; 
-            color: #fff; 
-            border-radius: 50%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-weight: 700; 
-            font-size: 0.9rem; 
+            width: 35px; height: 35px; background: #000; color: #fff; 
+            border-radius: 50%; display: flex; align-items: center; 
+            justify-content: center; font-weight: 700; font-size: 0.9rem; 
         }
 
         h1.greeting { font-size: 2.5rem; font-weight: 900; letter-spacing: -1.5px; margin-bottom: 15px; }
-        .section-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 20px; margin-top: 30px;}
+        
+        .section-title-container { 
+            display: flex; justify-content: space-between; align-items: center; 
+            margin-bottom: 20px; margin-top: 30px;
+        }
+        .section-title { font-size: 1.2rem; font-weight: 800; }
 
-        /* --- Search Bar --- */
+        .upload-btn {
+            background: #000; color: #fff; padding: 8px 16px; 
+            border-radius: 100px; font-size: 0.8rem; font-weight: 600; 
+            cursor: pointer; border: none;
+        }
+
         .search-container { margin-bottom: 40px; }
         .search-bar { 
-            width: 100%; 
-            max-width: 500px; 
-            padding: 14px 24px; 
-            border: 1px solid #eee; 
-            border-radius: 100px; 
-            font-size: 0.95rem; 
-            outline: none; 
-            background: #f9f9f9; 
-            transition: all 0.3s ease; 
+            width: 100%; max-width: 500px; padding: 14px 24px; 
+            border: 1px solid #eee; border-radius: 100px; font-size: 0.95rem; 
+            outline: none; background: #f9f9f9; transition: all 0.3s ease; 
         }
         .search-bar:focus { border-color: #000; background: #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
 
-        /* --- Music Grid --- */
-        .music-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); 
-            gap: 25px; 
-            margin-bottom: 40px; 
-        }
+        .music-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 40px; }
         
         .music-card { 
-            background: #fff; 
-            padding: 15px; 
-            border-radius: 12px; 
-            border: 1px solid #f0f0f0; 
-            transition: all 0.3s ease; 
-            cursor: pointer; 
-            position: relative; 
+            background: #fff; padding: 12px 20px; border-radius: 8px; 
+            border: 1px solid transparent; transition: all 0.2s ease; 
+            cursor: pointer; display: flex; align-items: center; gap: 20px;
         }
         
-        .music-card:hover { 
-            background: #f9f9f9; 
-            border-color: #e0e0e0; 
-            transform: translateY(-3px); 
-        }
+        .music-card:hover { background: #f9f9f9; border-color: #f0f0f0; }
 
         .cover-art { 
-            width: 100%; 
-            aspect-ratio: 1/1; 
-            background: #eee; 
-            border-radius: 8px; 
-            margin-bottom: 15px; 
-            position: relative; 
+            width: 48px; height: 48px; flex-shrink: 0; background: #eee; 
+            border-radius: 4px; display: flex; align-items: center; justify-content: center;
         }
         
         .play-hover-btn { 
-            position: absolute; 
-            bottom: 10px; 
-            right: 10px; 
-            width: 45px; 
-            height: 45px; 
-            background: #000; 
-            border-radius: 50%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            color: #fff; 
-            opacity: 0; 
-            transform: translateY(10px); 
-            transition: all 0.3s ease; 
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2); 
+            width: 24px; height: 24px; background: rgba(0,0,0,0.7); 
+            border-radius: 50%; display: flex; align-items: center; 
+            justify-content: center; color: #fff; opacity: 0; transition: opacity 0.2s ease; 
         }
         
-        .music-card:hover .play-hover-btn { opacity: 1; transform: translateY(0); }
+        .music-card:hover .play-hover-btn { opacity: 1; }
         .play-hover-btn::after { 
-            content: ''; 
-            border-top: 6px solid transparent; 
-            border-bottom: 6px solid transparent; 
-            border-left: 10px solid #fff; 
-            margin-left: 3px; 
+            content: ''; border-top: 4px solid transparent; border-bottom: 4px solid transparent; 
+            border-left: 6px solid #fff; margin-left: 2px; 
         }
 
-        .music-card h3 { 
-            font-size: 0.95rem; 
-            font-weight: 700; 
-            margin-bottom: 5px; 
-            white-space: nowrap; 
-            overflow: hidden; 
-            text-overflow: ellipsis; 
-        }
-        .music-card p { font-size: 0.8rem; color: #888; }
+        .song-details { flex: 1; display: flex; justify-content: space-between; align-items: center; }
+        .music-card h3 { font-size: 0.95rem; font-weight: 600; color: #000; }
+        .music-card p { font-size: 0.85rem; color: #888; min-width: 150px; text-align: right; }
         
-        .no-results { 
-            display: none; 
-            text-align: center; 
-            padding: 40px 0; 
-            color: #888; 
-            grid-column: 1 / -1; 
-            font-size: 1.1rem;
-            background: #f9f9f9;
-            border-radius: 12px;
-            border: 1px dashed #ddd;
-        }
+        .no-results { display: none; text-align: center; padding: 40px 0; color: #888; }
 
         /* --- Player Bar --- */
-        .player-bar { 
-            position: fixed; 
-            bottom: 0; 
-            left: 0;
-            width: 100%; 
-            height: 90px; 
-            background: rgba(255, 255, 255, 0.95); 
-            backdrop-filter: blur(10px); 
-            border-top: 1px solid #eee; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            padding: 0 30px; 
-            z-index: 1000; 
+        .player-bar-container {
+            position: fixed; bottom: 0; left: 0; width: 100%; 
+            display: flex; justify-content: center; z-index: 1000;
         }
+
+        .player-bar { 
+            width: 100%; max-width: 1200px; height: 100px; 
+            background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(20px); 
+            border-top: 1px solid #eee; display: flex; justify-content: space-between; 
+            align-items: center; padding: 0 40px; 
+        }
+
         .now-playing { display: flex; align-items: center; gap: 15px; width: 30%; }
-        .np-cover { width: 56px; height: 56px; background: #e6e6e6; border-radius: 6px; transition: background 0.3s; }
-        .np-info h4 { font-size: 0.95rem; font-weight: 700; }
+        .np-cover { width: 56px; height: 56px; background: #e6e6e6; border-radius: 6px; }
+        .np-info h4 { font-size: 0.95rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .np-info p { font-size: 0.75rem; color: #888; }
+        
         .player-controls { display: flex; flex-direction: column; align-items: center; width: 40%; }
         .control-buttons { display: flex; align-items: center; gap: 20px; margin-bottom: 8px; }
-        .btn-control { background: none; border: none; color: #666; font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
-        .btn-control:hover { color: #000; }
-        .btn-play-main { width: 35px; height: 35px; background: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
-        .btn-play-main:hover { transform: scale(1.05); }
-        .btn-play-main::after { content: ''; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-left: 8px solid #fff; margin-left: 2px; }
-        .btn-play-main.playing::after { border: none; border-left: 3px solid #fff; border-right: 3px solid #fff; width: 10px; height: 12px; margin-left: 0; }
-        .playback-bar { display: flex; align-items: center; gap: 10px; width: 100%; max-width: 500px; }
-        .playback-bar span { font-size: 0.7rem; color: #888; font-variant-numeric: tabular-nums; }
+        .btn-control { background: none; border: none; color: #666; font-size: 1.2rem; cursor: pointer; }
+        
+        .btn-play-main { 
+            width: 40px; height: 40px; background: #000; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; cursor: pointer; 
+        }
+        .btn-play-main::after { 
+            content: ''; border-top: 5px solid transparent; border-bottom: 5px solid transparent; 
+            border-left: 8px solid #fff; margin-left: 2px; 
+        }
+        .btn-play-main.playing::after { 
+            content: none; border: none; border-left: 3px solid #fff; border-right: 3px solid #fff; 
+            width: 10px; height: 12px; margin-left: 0; 
+        }
+        
+        .playback-bar { display: flex; align-items: center; gap: 12px; width: 100%; max-width: 400px; }
+        .playback-bar span { font-size: 0.7rem; color: #888; width: 35px; }
         .progress-bar { flex: 1; height: 4px; background: #eee; border-radius: 2px; position: relative; cursor: pointer; }
-        .progress-bar .fill { position: absolute; top: 0; left: 0; height: 100%; width: 0%; background: #000; border-radius: 2px; transition: width 0.1s linear; }
+        .progress-bar .fill { position: absolute; top: 0; left: 0; height: 100%; width: 0%; background: #000; border-radius: 2px; }
+        
         .volume-controls { width: 30%; display: flex; justify-content: flex-end; align-items: center; }
-        .vol-bar { width: 100px; height: 4px; background: #eee; border-radius: 2px; margin-left: 10px; cursor: pointer; position: relative; }
+        .vol-bar { width: 80px; height: 4px; background: #eee; border-radius: 2px; margin-left: 10px; cursor: pointer; position: relative; }
         .vol-bar .fill { position: absolute; height: 100%; width: 100%; background: #000; border-radius: 2px; }
     </style>
 </head>
 <body>
 
-    <audio id="mainAudio" src=""></audio>
+    <audio id="mainAudio"></audio>
 
     <div class="app-container">
         <main class="main-view">
             <header class="top-bar">
-                <div class="logo">PUFUTARA.</div>
-                <div style="display: flex; gap: 20px; align-items: center;">
-                    <a href="index.html" class="back-btn">← Kembali ke Archive</a>
-                    <div class="profile-btn">P</div>
-                </div>
+                <div class="logo">PUFUTARA MP3.</div>
+                <div class="profile-btn">P</div>
             </header>
 
             <h1 class="greeting">Temukan Lagumu.</h1>
             
             <div class="search-container">
-                <input type="text" id="searchInput" class="search-bar" placeholder="Cari judul lagu atau genre...">
+                <input type="text" id="searchInput" class="search-bar" placeholder="Cari judul lagu atau ketik password...">
             </div>
 
-            <h2 class="section-title">Semua Koleksi (21)</h2>
+            <div class="section-title-container">
+                <h2 class="section-title" id="listTitle">Semua Koleksi (15)</h2>
+                <label for="localFileInput" class="upload-btn">Tambah Lagu Lokal</label>
+                <input type="file" id="localFileInput" accept="audio/*" style="display: none;">
+            </div>
             
-            <div class="music-grid" id="searchGrid">
-                <div class="music-card" data-src="../lagu/alhijrotu.mp3"><div class="cover-art" style="background: #e0e0e0;"><div class="play-hover-btn"></div></div><h3>Alhijrotu</h3><p>Lagu Islami</p></div>
-                <div class="music-card" data-src="../lagu/alitirof.mp3"><div class="cover-art" style="background: #ebebeb;"><div class="play-hover-btn"></div></div><h3>Al-Itiraf</h3><p>Lagu Islami</p></div>
-                <div class="music-card" data-src="../lagu/lataqul.mp3"><div class="cover-art" style="background: #f5f5f5;"><div class="play-hover-btn"></div></div><h3>Lataqul li wahdi</h3><p>Lagu Islami</p></div>
-                <div class="music-card" data-src="../lagu/qolbi.mp3"><div class="cover-art" style="background: #dcdcdc;"><div class="play-hover-btn"></div></div><h3>QOlbi Fil Madinah</h3><p>Lagu Islami</p></div>
-                <div class="music-card" data-src="../lagu/rahmatun.mp3"><div class="cover-art" style="background: #eaeaea;"><div class="play-hover-btn"></div></div><h3>Rahmatun lil alameen</h3><p>Lagu Islami</p></div>
-                <div class="music-card" data-src="../lagu/assadayah.mp3"><div class="cover-art" style="background: #f0f0f0;"><div class="play-hover-btn"></div></div><h3>Shalawat Assadayah</h3><p>Lagu Islami</p></div>
-                <div class="music-card" data-src="../lagu/server-down-blues.mp3"><div class="cover-art" style="background: #e8e8e8;"><div class="play-hover-btn"></div></div><h3>Server Down Blues</h3><p>Jazz / Lo-fi</p></div>
-                <div class="music-card" data-src="../lagu/terminal-echoes.mp3"><div class="cover-art" style="background: #dfdfdf;"><div class="play-hover-btn"></div></div><h3>Terminal Echoes</h3><p>Cyberpunk Vibes</p></div>
-                <div class="music-card" data-src="../lagu/infinite-loop.mp3"><div class="cover-art" style="background: #f7f7f7;"><div class="play-hover-btn"></div></div><h3>Infinite Loop</h3><p>Trance</p></div>
-                <div class="music-card" data-src="../lagu/api-request-timeout.mp3"><div class="cover-art" style="background: #e2e2e2;"><div class="play-hover-btn"></div></div><h3>API Request Timeout</h3><p>Slow Tempo</p></div>
-                <div class="music-card" data-src="../lagu/koding-sampai-pagi.mp3"><div class="cover-art" style="background: #ececec;"><div class="play-hover-btn"></div></div><h3>Koding Sampai Pagi</h3><p>Lofi Beats</p></div>
-                <div class="music-card" data-src="../lagu/404-not-found.mp3"><div class="cover-art" style="background: #f2f2f2;"><div class="play-hover-btn"></div></div><h3>404 Not Found</h3><p>Chill Vibes</p></div>
-                <div class="music-card" data-src="../lagu/git-commit-push.mp3"><div class="cover-art" style="background: #e6e6e6;"><div class="play-hover-btn"></div></div><h3>Git Commit Push</h3><p>Pop Rock</p></div>
-                <div class="music-card" data-src="../lagu/merge-conflict-stress.mp3"><div class="cover-art" style="background: #dadada;"><div class="play-hover-btn"></div></div><h3>Merge Conflict Stress</h3><p>Heavy Metal</p></div>
-                <div class="music-card" data-src="../lagu/refactoring-dreams.mp3"><div class="cover-art" style="background: #eeeeee;"><div class="play-hover-btn"></div></div><h3>Refactoring Dreams</h3><p>Dream Pop</p></div>
-                <div class="music-card" data-src="../lagu/dark-mode-on.mp3"><div class="cover-art" style="background: #e4e4e4;"><div class="play-hover-btn"></div></div><h3>Dark Mode On</h3><p>Synthwave</p></div>
-                <div class="music-card" data-src="../lagu/stack-overflow-fix.mp3"><div class="cover-art" style="background: #f4f4f4;"><div class="play-hover-btn"></div></div><h3>Stack Overflow Fix</h3><p>Indie Folk</p></div>
-                <div class="music-card" data-src="../lagu/database-migration.mp3"><div class="cover-art" style="background: #d8d8d8;"><div class="play-hover-btn"></div></div><h3>Database Migration</h3><p>Techno</p></div>
-                <div class="music-card" data-src="../lagu/sprint-review-chill.mp3"><div class="cover-art" style="background: #e9e9e9;"><div class="play-hover-btn"></div></div><h3>Sprint Review Chill</h3><p>Bossa Nova</p></div>
-                <div class="music-card" data-src="../lagu/localhost-3000.mp3"><div class="cover-art" style="background: #f1f1f1;"><div class="play-hover-btn"></div></div><h3>Localhost:3000</h3><p>House Music</p></div>
-                <div class="music-card" data-src="../lagu/hello-world-acoustic.mp3"><div class="cover-art" style="background: #e1e1e1;"><div class="play-hover-btn"></div></div><h3>Hello World Acoustic</h3><p>Unplugged</p></div>
-                
-                <div class="no-results" id="noResults">Hmm, lagu yang kamu cari belum dikoding.</div>
-            </div>
-
+            <div class="music-list" id="musicList"></div>
+            <div class="no-results" id="noResults">Hmm, lagu tidak ditemukan.</div>
         </main>
     </div>
 
-    <footer class="player-bar">
-        <div class="now-playing">
-            <div class="np-cover" id="npCover"></div>
-            <div class="np-info">
-                <h4 id="npTitle">Pilih Lagu...</h4>
-                <p>Pufutara Audio</p>
+    <div class="player-bar-container">
+        <footer class="player-bar">
+            <div class="now-playing">
+                <div class="np-cover" id="npCover"></div>
+                <div class="np-info">
+                    <h4 id="npTitle">Pilih Lagu...</h4>
+                    <p id="npArtist">Pufutara Audio</p>
+                </div>
             </div>
-        </div>
-        <div class="player-controls">
-            <div class="control-buttons">
-                <button class="btn-control">⏮</button>
-                <div class="btn-play-main" id="playBtn"></div>
-                <button class="btn-control">⏭</button>
+            <div class="player-controls">
+                <div class="control-buttons">
+                    <button class="btn-control">⏮</button>
+                    <div class="btn-play-main" id="playBtn"></div>
+                    <button class="btn-control">⏭</button>
+                </div>
+                <div class="playback-bar">
+                    <span id="currentTimeText">0:00</span>
+                    <div class="progress-bar" id="progressBar"><div class="fill" id="progressFill"></div></div>
+                    <span id="durationTimeText">0:00</span>
+                </div>
             </div>
-            <div class="playback-bar">
-                <span id="currentTime">0:00</span>
-                <div class="progress-bar" id="progressBar"><div class="fill" id="progressFill"></div></div>
-                <span id="durationTime">0:00</span>
+            <div class="volume-controls">
+                <span style="font-size: 0.8rem; color: #666;">Vol</span>
+                <div class="vol-bar" id="volumeBar"><div class="fill" id="volumeFill"></div></div>
             </div>
-        </div>
-        <div class="volume-controls">
-            <span style="font-size: 0.8rem; color: #666;">Vol</span>
-            <div class="vol-bar" id="volumeBar"><div class="fill" id="volumeFill"></div></div>
-        </div>
-    </footer>
+        </footer>
+    </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            
-            // --- FITUR PENCARIAN ---
-            const searchInput = document.getElementById('searchInput');
-            const searchGrid = document.getElementById('searchGrid');
-            const searchCards = document.querySelectorAll('#searchGrid .music-card');
-            const noResults = document.getElementById('noResults');
+        /**
+         * CARA MENGISI LAGU:
+         * Ganti bagian src: "" di bawah ini dengan link lagu MP3 kamu.
+         * Contoh: src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
+         * Jika kamu punya file di komputer, tulis nama filenya: src: "lagu.mp3" (harus satu folder).
+         */
+        const mainSongs = [
+            { title: "Alhijrotu Rihlah tu habina", genre: "Lofi", color: "#e0e0e0", src: "..lagu/alhijrotu.mp3" },
+            { title: "Al-Itiraf", genre: "Chillwave", color: "#ebebeb", src: "..lagu/alitiraf.mp3" },
+            { title: "Lataqul li wahdi", genre: "Acoustic", color: "#f5f5f5", src: "..lagu/Lataqul.mp3" },
+            { title: "Assadayah", genre: "Upbeat", color: "#dcdcdc", src: "..lagu/assadayah.mp3" },
+            { title: "Qolbi Fil Madinah", genre: "Ambient", color: "#eaeaea", src: "..lagu/qolbi.mp3" },
+            { title: "Rahmatun lil alamen", genre: "Electronic", color: "#f0f0f0", src: "..lagu/rahmatun.mp3" },
+            { title: "Server Down Blues", genre: "Jazz", color: "#e8e8e8", src: "" },
+            { title: "Terminal Echoes", genre: "Cyberpunk", color: "#dfdfdf", src: "" },
+            { title: "Infinite Loop", genre: "Trance", color: "#f7f7f7", src: "" },
+            { title: "API Request Timeout", genre: "Slow", color: "#e2e2e2", src: "" },
+            { title: "Koding Sampai Pagi", genre: "Lofi Beats", color: "#ececec", src: "" },
+            { title: "404 Not Found", genre: "Chill", color: "#f2f2f2", src: "" },
+            { title: "Git Commit Push", genre: "Pop Rock", color: "#e6e6e6", src: "" },
+            { title: "Merge Conflict Stress", genre: "Metal", color: "#dadada", src: "" },
+            { title: "Refactoring Dreams", genre: "Dream Pop", color: "#eeeeee", src: "" }
+        ];
 
-            searchInput.addEventListener('input', (e) => {
-                const query = e.target.value.toLowerCase().trim();
-                let hasVisibleCards = false;
+        const secretSongs = [
+            { title: "Senja di Braga", genre: "Jazz", color: "#e0e0e0", src: "" },
+            { title: "Macet Pasteur", genre: "Punk Rock", color: "#ebebeb", src: "" },
+            { title: "Bubur Ayam Meta", genre: "Funny Pop", color: "#f5f5f5", src: "" },
+            { title: "Cuaca Dingin Lembang", genre: "Folk", color: "#dcdcdc", src: "" },
+            { title: "Dago Malam Hari", genre: "Synthwave", color: "#eaeaea", src: "" },
+            { title: "Angkot Antapani", genre: "Disco", color: "#f0f0f0", src: "" },
+            { title: "Cilok Digital", genre: "Electronic", color: "#e8e8e8", src: "" },
+            { title: "Gerimis di Gasibu", genre: "Ballad", color: "#dfdfdf", src: "" },
+            { title: "Taman Lansia Vibes", genre: "Reggae", color: "#f7f7f7", src: "" },
+            { title: "Seblak Pedas Level 10", genre: "Hardcore", color: "#e2e2e2", src: "" },
+            { title: "Surapati Sunset", genre: "Lo-fi", color: "#ececec", src: "" },
+            { title: "Kos-kosan Error", genre: "Garage Rock", color: "#f2f2f2", src: "" },
+            { title: "ITB vs Unpad Derby", genre: "Orchestra", color: "#e6e6e6", src: "" },
+            { title: "Suara Cipaganti", genre: "Nature", color: "#dadada", src: "" },
+            { title: "Bandung Tetap Sama", genre: "Sentimental", color: "#eeeeee", src: "" }
+        ];
 
-                searchCards.forEach(card => {
-                    const title = card.querySelector('h3').textContent.toLowerCase();
-                    const desc = card.querySelector('p').textContent.toLowerCase();
-                    if (title.includes(query) || desc.includes(query)) {
-                        card.style.display = ''; 
-                        hasVisibleCards = true;
-                    } else {
-                        card.style.display = 'none'; 
-                    }
-                });
-                noResults.style.display = (!hasVisibleCards && query !== '') ? 'block' : 'none';
+        let currentList = [...mainSongs];
+        let isEasterEgg = false;
+
+        const musicListContainer = document.getElementById('musicList');
+        const searchInput = document.getElementById('searchInput');
+        const listTitle = document.getElementById('listTitle');
+        const localFileInput = document.getElementById('localFileInput');
+        const audio = document.getElementById('mainAudio');
+        const playBtn = document.getElementById('playBtn');
+        const npTitle = document.getElementById('npTitle');
+        const npArtist = document.getElementById('npArtist');
+        const npCover = document.getElementById('npCover');
+        const progressFill = document.getElementById('progressFill');
+        const currentTimeText = document.getElementById('currentTimeText');
+        const durationTimeText = document.getElementById('durationTimeText');
+
+        function renderMusic(songs) {
+            musicListContainer.innerHTML = '';
+            songs.forEach(song => {
+                const card = document.createElement('div');
+                card.className = 'music-card';
+                card.innerHTML = `
+                    <div class="cover-art" style="background: ${song.color};"><div class="play-hover-btn"></div></div>
+                    <div class="song-details">
+                        <h3>${song.title}</h3>
+                        <p>${song.genre}</p>
+                    </div>
+                `;
+                card.onclick = () => playSong(song);
+                musicListContainer.appendChild(card);
             });
+            listTitle.textContent = isEasterEgg ? `Lagu Tersembunyi (${songs.length})` : `Semua Koleksi (${songs.length})`;
+        }
 
-            // --- FITUR AUDIO PLAYER ---
-            const audioPlayer = document.getElementById('mainAudio');
-            const playBtn = document.getElementById('playBtn');
-            const npTitle = document.getElementById('npTitle');
-            const npCover = document.getElementById('npCover');
-            const progressBar = document.getElementById('progressBar');
-            const progressFill = document.getElementById('progressFill');
-            const currentTimeEl = document.getElementById('currentTime');
-            const durationTimeEl = document.getElementById('durationTime');
-            const volumeBar = document.getElementById('volumeBar');
-            const volumeFill = document.getElementById('volumeFill');
-            
-            const allMusicCards = document.querySelectorAll('.music-card');
-
-            const formatTime = (time) => {
-                if (isNaN(time)) return "0:00";
-                const m = Math.floor(time / 60);
-                const s = Math.floor(time % 60);
-                return `${m}:${s < 10 ? '0' : ''}${s}`;
+        localFileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const fileURL = URL.createObjectURL(file);
+            const newSong = {
+                title: file.name.replace(/\.[^/.]+$/, ""),
+                genre: "Lagu Lokal",
+                color: "#" + Math.floor(Math.random()*16777215).toString(16),
+                src: fileURL
             };
-
-            allMusicCards.forEach(card => {
-                card.addEventListener('click', () => {
-                    const songSrc = card.getAttribute('data-src');
-                    
-                    // Update UI Info
-                    npTitle.textContent = card.querySelector('h3').textContent;
-                    npCover.style.background = card.querySelector('.cover-art').style.background;
-                    
-                    // Load and Play
-                    audioPlayer.src = songSrc;
-                    audioPlayer.play().catch(e => {
-                        console.error("Gagal memutar lagu. Pastikan file ada di folder ../lagu/", e);
-                        // Optional: Beri info visual ke user jika file tidak ditemukan
-                    });
-                    
-                    playBtn.classList.add('playing');
-                });
-            });
-
-            playBtn.addEventListener('click', () => {
-                if (!audioPlayer.src || audioPlayer.src.endsWith(window.location.pathname)) return;
-                if (audioPlayer.paused) {
-                    audioPlayer.play();
-                    playBtn.classList.add('playing');
-                } else {
-                    audioPlayer.pause();
-                    playBtn.classList.remove('playing');
-                }
-            });
-
-            audioPlayer.addEventListener('timeupdate', () => {
-                if (audioPlayer.duration) {
-                    progressFill.style.width = `${(audioPlayer.currentTime / audioPlayer.duration) * 100}%`;
-                }
-                currentTimeEl.textContent = formatTime(audioPlayer.currentTime);
-            });
-
-            audioPlayer.addEventListener('loadedmetadata', () => {
-                durationTimeEl.textContent = formatTime(audioPlayer.duration);
-            });
-
-            progressBar.addEventListener('click', (e) => {
-                if (!audioPlayer.duration) return;
-                const clickX = e.clientX - progressBar.getBoundingClientRect().left;
-                audioPlayer.currentTime = (clickX / progressBar.offsetWidth) * audioPlayer.duration;
-            });
-
-            audioPlayer.addEventListener('ended', () => {
-                playBtn.classList.remove('playing');
-                progressFill.style.width = `0%`;
-            });
-
-            volumeBar.addEventListener('click', (e) => {
-                let vol = (e.clientX - volumeBar.getBoundingClientRect().left) / volumeBar.offsetWidth;
-                vol = Math.max(0, Math.min(1, vol));
-                audioPlayer.volume = vol;
-                volumeFill.style.width = `${vol * 100}%`;
-            });
+            currentList.unshift(newSong);
+            renderMusic(currentList);
         });
+
+        searchInput.addEventListener('input', (e) => {
+            const val = e.target.value.toLowerCase().trim();
+            if (val === "putrasigma" && !isEasterEgg) {
+                isEasterEgg = true;
+                currentList = [...secretSongs];
+                renderMusic(currentList);
+                searchInput.value = ""; 
+                return;
+            }
+            const filtered = currentList.filter(s => 
+                s.title.toLowerCase().includes(val) || s.genre.toLowerCase().includes(val)
+            );
+            renderMusic(filtered);
+            document.getElementById('noResults').style.display = filtered.length === 0 ? 'block' : 'none';
+        });
+
+        function playSong(song) {
+            npTitle.textContent = song.title;
+            npArtist.textContent = song.genre === "Lagu Lokal" ? "Unggahan Kamu" : (isEasterEgg ? "Bandung Secret Tracks" : "Pufutara Audio");
+            npCover.style.background = song.color;
+            
+            if (song.src && song.src !== "") {
+                audio.src = song.src;
+                audio.play().catch(e => console.error("Gagal memutar lagu:", e));
+                playBtn.classList.add('playing');
+            } else {
+                audio.src = "";
+                playBtn.classList.remove('playing');
+                alert("Maaf, link lagu '" + song.title + "' belum diisi di kode.");
+            }
+        }
+
+        playBtn.addEventListener('click', () => {
+            if (!audio.src) return;
+            if (audio.paused) {
+                audio.play();
+                playBtn.classList.add('playing');
+            } else {
+                audio.pause();
+                playBtn.classList.remove('playing');
+            }
+        });
+
+        audio.addEventListener('timeupdate', () => {
+            if (audio.duration) {
+                const pct = (audio.currentTime / audio.duration) * 100;
+                progressFill.style.width = pct + "%";
+                currentTimeText.textContent = formatTime(audio.currentTime);
+                durationTimeText.textContent = formatTime(audio.duration);
+            }
+        });
+
+        function formatTime(seconds) {
+            const min = Math.floor(seconds / 60);
+            const sec = Math.floor(seconds % 60);
+            return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+        }
+
+        renderMusic(mainSongs);
     </script>
 </body>
 </html>
