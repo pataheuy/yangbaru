@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Pufutara Cloud</title>
     <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -41,6 +41,7 @@
         #authScreen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #fff; display: flex; justify-content: center; align-items: center; z-index: 9999;
+            padding: 20px;
         }
         .auth-container { 
             width: 100%; max-width: 420px; padding: 50px 40px; border-radius: 24px; 
@@ -69,9 +70,17 @@
         /* --- TOP HEADER --- */
         .top-header {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 12px 24px; height: 72px; background: var(--bg-color); border-bottom: 1px solid var(--border);
+            padding: 12px 24px; min-height: 72px; background: var(--bg-color); border-bottom: 1px solid var(--border);
+            z-index: 50;
         }
         .logo-area { display: flex; align-items: center; width: 238px; font-size: 20px; font-weight: 900; color: var(--primary); letter-spacing: -1px; }
+        
+        /* Tombol Hamburger (Khusus Mobile) */
+        .hamburger-btn {
+            display: none; background: transparent; border: none; font-size: 24px; cursor: pointer; color: var(--primary); 
+            margin-right: 12px; align-items: center; justify-content: center; padding: 4px; border-radius: 8px;
+        }
+        .hamburger-btn:active { background: var(--surface-container); }
 
         .search-container {
             flex: 1; max-width: 650px; background: var(--surface-container); border-radius: 16px;
@@ -111,10 +120,17 @@
         .dropdown-item .material-symbols-outlined { font-size: 18px; }
 
         /* --- MAIN LAYOUT --- */
-        .drive-body { display: flex; flex: 1; overflow: hidden; }
+        .drive-body { display: flex; flex: 1; overflow: hidden; position: relative; }
 
-        /* --- SIDEBAR --- */
-        .sidebar { width: 260px; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; background: var(--bg-color); border-right: 1px solid var(--border); }
+        /* --- SIDEBAR & OVERLAY --- */
+        .sidebar-overlay {
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.4); z-index: 90; backdrop-filter: blur(2px); opacity: 0; transition: opacity 0.3s;
+        }
+        .sidebar { 
+            width: 260px; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; 
+            background: var(--bg-color); border-right: 1px solid var(--border); z-index: 95; transition: transform 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
         .btn-new {
             background: var(--primary); color: var(--on-primary); border: none; padding: 14px 24px;
             border-radius: 16px; display: inline-flex; align-items: center; gap: 12px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: 0.3s; width: 100%; justify-content: center;
@@ -162,10 +178,7 @@
         .file-preview .material-symbols-outlined { font-size: 56px; color: #ccc; transition: 0.3s; }
         .file-card:hover .file-preview .material-symbols-outlined { color: var(--primary); transform: scale(1.1); }
 
-        /* Badge untuk penanda (Favorit/Shared) */
-        .file-badge-container {
-            position: absolute; top: 12px; left: 12px; display: flex; gap: 6px; z-index: 5;
-        }
+        .file-badge-container { position: absolute; top: 12px; left: 12px; display: flex; gap: 6px; z-index: 5; }
         .badge-icon {
             background: rgba(255,255,255,0.9); padding: 4px; border-radius: 8px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
@@ -206,7 +219,7 @@
         /* EMPTY STATE */
         .empty-state {
             grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding-top: 80px; color: var(--text-muted); animation: fadeIn 0.5s ease;
+            padding-top: 80px; color: var(--text-muted); animation: fadeIn 0.5s ease; text-align: center;
         }
         .empty-state .material-symbols-outlined { font-size: 64px; color: #ddd; margin-bottom: 16px; }
         .empty-state h3 { font-weight: 600; font-size: 1.25rem; color: var(--text-main); margin-bottom: 8px;}
@@ -214,13 +227,13 @@
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- MODAL STYLES --- */
+        /* --- MODALS --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4);
             display: none; justify-content: center; align-items: center; z-index: 10000; backdrop-filter: blur(4px);
         }
         .modal-box {
-            background: var(--surface); width: 100%; max-width: 400px; border-radius: 24px; padding: 32px;
+            background: var(--surface); width: 90%; max-width: 400px; border-radius: 24px; padding: 32px;
             box-shadow: 0 24px 48px rgba(0,0,0,0.1); animation: fadeIn 0.3s ease; position: relative;
         }
         .modal-box h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 8px; }
@@ -233,7 +246,7 @@
         .modal-close { position: absolute; top: 24px; right: 24px; background: none; border: none; cursor: pointer; color: var(--text-muted); }
         .modal-close:hover { color: var(--primary); }
 
-        /* --- PREVIEW MODAL STYLES --- */
+        /* PREVIEW MODAL */
         .preview-box {
             background: var(--surface); width: 90%; height: 90%; border-radius: 16px;
             display: flex; flex-direction: column; overflow: hidden;
@@ -250,6 +263,57 @@
         }
         .preview-content iframe { width: 100%; height: 100%; border: none; background: white;}
         .preview-content img, .preview-content video { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+        /* ========================================= */
+        /* MEDIA QUERIES UNTUK RESPONSIVE DI MOBILE  */
+        /* ========================================= */
+        @media (max-width: 768px) {
+            /* Auth Layout */
+            .auth-container { padding: 40px 24px; border-radius: 16px; border: none; }
+            
+            /* Header Top Wrap */
+            .top-header { flex-wrap: wrap; height: auto; padding: 12px 16px; gap: 8px; }
+            .hamburger-btn { display: flex; }
+            .logo-area { width: auto; font-size: 18px; }
+            
+            /* Search Bar Pindah Ke Bawah di HP */
+            .search-container { order: 3; flex: 0 0 100%; max-width: 100%; margin-top: 8px; height: 44px; }
+            
+            .profile-area { padding-left: 0; gap: 8px; }
+            .profile-btn { width: 36px; height: 36px; }
+            
+            /* Mengubah Sidebar menjadi Drawer (Menu Geser dari Kiri) */
+            .sidebar {
+                position: absolute; top: 0; left: -280px; width: 280px; height: 100%; 
+                box-shadow: 4px 0 24px rgba(0,0,0,0.1); padding-top: 24px;
+            }
+            .sidebar.active { transform: translateX(280px); }
+            .sidebar-overlay.active { display: block; opacity: 1; }
+
+            /* Main Content Adjustments */
+            .main-toolbar { padding: 16px; flex-direction: column; align-items: flex-start; gap: 12px; }
+            .main-toolbar div { width: 100%; justify-content: flex-end; }
+            .main-toolbar h2 { font-size: 1.25rem; }
+            
+            /* Grid File Mengecil agar muat di HP */
+            .file-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); padding: 8px 16px 32px; gap: 12px; }
+            .file-preview { height: 120px; }
+            .file-info-area { padding: 12px; gap: 8px; }
+            .file-name { font-size: 0.85rem; }
+
+            /* Modal Adjustments */
+            .modal-box { padding: 24px; width: 92%; }
+            .preview-box { width: 100%; height: 100%; border-radius: 0; } /* Full screen preview */
+            .preview-header { padding: 12px 16px; }
+        }
+
+        /* KHUSUS PERANGKAT TOUCH/HP (Agar tombol share/hapus otomatis terlihat tanpa harus di-hover) */
+        @media (hover: none) {
+            .card-actions-overlay { 
+                opacity: 1; background: rgba(255,255,255,0.95); box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+            }
+            .file-card { box-shadow: 0 4px 12px rgba(0,0,0,0.03); border-color: #f0f0f0; }
+        }
     </style>
 </head>
 <body>
@@ -273,7 +337,10 @@
     <!-- DRIVE SCREEN -->
     <div id="driveScreen">
         <header class="top-header">
-            <div class="logo-area">PUFUTARA.</div>
+            <div class="logo-area">
+                <button class="hamburger-btn" onclick="toggleSidebar()"><span class="material-symbols-outlined">menu</span></button>
+                PUFUTARA.
+            </div>
             <div class="search-container">
                 <span class="material-symbols-outlined">search</span>
                 <input type="text" id="searchInput" placeholder="Cari file di Cloud..." onkeyup="searchFiles()">
@@ -300,8 +367,11 @@
         </header>
 
         <div class="drive-body">
+            <!-- OVERLAY (Khusus Mobile saat sidebar terbuka) -->
+            <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
             <!-- SIDEBAR -->
-            <aside class="sidebar">
+            <aside class="sidebar" id="appSidebar">
                 <input type="file" id="fileUpload" style="display:none;" onchange="uploadFile()">
                 <button class="btn-new" id="btnUpload" onclick="document.getElementById('fileUpload').click()">
                     <span class="material-symbols-outlined">add</span> Upload Baru
@@ -342,7 +412,6 @@
     </div>
 
     <!-- MODALS -->
-
     <!-- Modal In-App Preview -->
     <div class="modal-overlay" id="filePreviewModal" onclick="closePreviewModal(event)">
         <div class="preview-box" id="previewBox" onclick="event.stopPropagation()">
@@ -353,8 +422,7 @@
                     <button class="profile-btn" onclick="closePreviewBtn()" title="Tutup"><span class="material-symbols-outlined">close</span></button>
                 </div>
             </div>
-            <div class="preview-content" id="previewContent">
-            </div>
+            <div class="preview-content" id="previewContent"></div>
         </div>
     </div>
 
@@ -364,9 +432,7 @@
             <button class="modal-close" onclick="closeModalBtn('shareModal')"><span class="material-symbols-outlined">close</span></button>
             <h3>Bagikan File</h3>
             <p class="modal-sub" id="shareFileName">file_name.jpg</p>
-            
             <input type="email" id="shareEmailInput" autocomplete="off" placeholder="Ketik email tujuan (cth: budi@gmail.com)">
-            
             <button class="btn-black" style="width: 100%; margin-top: 8px;" onclick="processShare()">Kirim Undangan</button>
         </div>
     </div>
@@ -415,15 +481,20 @@
         let _userEmail = '';
         let _userFolder = '';
         let _allFiles = [];
-        let _sharedWithMe = []; // Data file dari database
+        let _sharedWithMe = [];
         let _currentNav = 'all';
         let _isAscending = true;
         let _currentView = 'grid';
         let _fileToShare = null;
         let _fileToRename = null; 
-        
         let _currentPreviewName = '';
         let _currentPreviewFolder = '';
+
+        // --- MOBILE SIDEBAR TOGGLE ---
+        function toggleSidebar() {
+            document.getElementById('appSidebar').classList.toggle('active');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
+        }
 
         // --- AUTH & PROFILE MENU ---
         async function handleAuth() {
@@ -445,10 +516,7 @@
             }
         }
 
-        async function logout() { 
-            await _client.auth.signOut(); 
-            location.reload(); 
-        }
+        async function logout() { await _client.auth.signOut(); location.reload(); }
 
         async function enterDrive() {
             document.getElementById('authScreen').style.display = 'none';
@@ -462,31 +530,16 @@
             loadFiles();
         }
 
-        // MENGAMBIL DATA DARI DATABASE (SUPABASE TABLE)
         async function loadFilesSharedWithMe() {
             try {
-                // Mengambil data dari table "shared_files"
-                const { data, error } = await _client
-                    .from('shared_files')
-                    .select('*')
-                    .eq('shared_to_email', _userEmail);
-
+                const { data, error } = await _client.from('shared_files').select('*').eq('shared_to_email', _userEmail);
                 if (data && !error) {
                     _sharedWithMe = data.map(item => ({
-                        name: item.file_name,
-                        ownerEmail: item.owner_email,
-                        ownerFolder: item.owner_folder,
-                        isSharedWithMe: true,
-                        isFavorite: false,
-                        updated_at: item.created_at
+                        name: item.file_name, ownerEmail: item.owner_email, ownerFolder: item.owner_folder,
+                        isSharedWithMe: true, isFavorite: false, updated_at: item.created_at
                     }));
-                } else {
-                    _sharedWithMe = [];
-                }
-            } catch (err) {
-                console.error("Gagal memuat file yang dibagikan:", err);
-                _sharedWithMe = [];
-            }
+                } else _sharedWithMe = [];
+            } catch (err) { _sharedWithMe = []; }
         }
 
         function toggleProfileMenu() {
@@ -502,7 +555,7 @@
             }
         });
 
-        // --- LOCAL STORAGE HELPERS ---
+        // --- LOCAL STORAGE ---
         function getLocalData(key) { return JSON.parse(localStorage.getItem(`pufu_${key}_${_userEmail}`)) || []; }
         function saveLocalData(key, data) { localStorage.setItem(`pufu_${key}_${_userEmail}`, JSON.stringify(data)); }
         function getSharedData() { return JSON.parse(localStorage.getItem(`pufu_shared_${_userEmail}`)) || {}; }
@@ -525,15 +578,12 @@
                 return f;
             });
             
-            sortFilesArray();
-            updateStorageUI(_allFiles);
-            applyNavFilter();
+            sortFilesArray(); updateStorageUI(_allFiles); applyNavFilter();
         }
 
         function updateStorageUI(files) {
             const MAX_BYTES = 15 * 1024 * 1024 * 1024;
             let usedBytes = files.reduce((acc, f) => acc + (f.metadata?.size || 0), 0);
-            
             let displaySize = usedBytes < 1024*1024 ? (usedBytes/1024).toFixed(1)+' KB' : 
                               usedBytes < 1024*1024*1024 ? (usedBytes/(1024*1024)).toFixed(2)+' MB' : 
                               (usedBytes/(1024*1024*1024)).toFixed(2)+' GB';
@@ -552,17 +602,17 @@
             const titles = { all: 'Cloud Saya', shared: 'File yang Dibagikan', recent: 'Terbaru Diupload', favorite: 'File Favorit', trash: 'Keranjang Sampah' };
             document.getElementById('currentNavTitle').innerText = titles[navType];
             
+            // Tutup sidebar otomatis di mode HP setelah klik menu
+            if(window.innerWidth <= 768) toggleSidebar();
+
             if(navType === 'shared') loadFilesSharedWithMe().then(applyNavFilter);
             else applyNavFilter();
         }
 
         function applyNavFilter() {
             let filtered = [];
-
             if (_currentNav === 'shared') {
-                const mySharedFiles = _allFiles.filter(f => f.sharedWith.length > 0);
-                const othersSharedFiles = _sharedWithMe; 
-                filtered = [...mySharedFiles, ...othersSharedFiles];
+                filtered = [..._allFiles.filter(f => f.sharedWith.length > 0), ..._sharedWithMe];
             } else {
                 filtered = [..._allFiles];
                 if (_currentNav === 'favorite') filtered = filtered.filter(f => f.isFavorite);
@@ -572,11 +622,8 @@
             const term = document.getElementById('searchInput').value.toLowerCase();
             if(term) filtered = filtered.filter(f => f.name.toLowerCase().includes(term));
 
-            if (_currentNav === 'recent') {
-                filtered.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
-            } else {
-                _isAscending ? filtered.sort((a, b) => a.name.localeCompare(b.name)) : filtered.sort((a, b) => b.name.localeCompare(a.name));
-            }
+            if (_currentNav === 'recent') filtered.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+            else _isAscending ? filtered.sort((a, b) => a.name.localeCompare(b.name)) : filtered.sort((a, b) => b.name.localeCompare(a.name));
             
             renderFileList(filtered);
         }
@@ -600,11 +647,9 @@
                 if (_currentNav === 'favorite') { msg = 'Belum ada Favorit'; subMsg = 'Klik ikon Bintang pada file untuk menambahkannya ke sini.'; icon = 'star_border'; }
                 if (_currentNav === 'trash') { msg = 'Sampah Kosong'; subMsg = 'File yang dihapus akan terhapus secara permanen.'; icon = 'delete_outline'; }
                 if (document.getElementById('searchInput').value) { msg = 'File tidak ditemukan'; subMsg = 'Coba kata kunci lain.'; icon = 'search_off'; }
-
                 grid.innerHTML = `<div class="empty-state"><span class="material-symbols-outlined">${icon}</span><h3>${msg}</h3><p>${subMsg}</p></div>`;
                 return;
             }
-
             grid.innerHTML = ''; 
             filesArray.forEach(file => renderFileCard(file));
         }
@@ -625,11 +670,8 @@
             const { data: publicUrlData } = _client.storage.from(BUCKET_NAME).getPublicUrl(`${targetFolder}/${file.name}`);
             const fileUrl = publicUrlData.publicUrl;
 
-            // Karena file dari DB tidak ada info mimetype lengkap, kita gunakan ekstensi untuk deteksi icon
             const ext = file.name.split('.').pop().toLowerCase();
-            const isImgLocal = file.metadata?.mimetype?.startsWith('image/');
-            const isImgShared = file.isSharedWithMe && ['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(ext);
-            const isImg = isImgLocal || isImgShared;
+            const isImg = file.metadata?.mimetype?.startsWith('image/') || (file.isSharedWithMe && ['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(ext));
 
             let visualHtml = isImg ? `<img src="${fileUrl}" alt="preview" loading="lazy">` : `<span class="material-symbols-outlined">${file.name.endsWith('.pdf') ? 'picture_as_pdf' : 'description'}</span>`;
             let fileIcon = isImg ? 'image' : (file.name.endsWith('.pdf') ? 'picture_as_pdf' : 'draft');
@@ -640,40 +682,25 @@
             if(file.isSharedWithMe) badgesHtml += `<div class="badge-icon shared" style="color: #0f9d58;" title="Diterima Dari Orang Lain"><span class="material-symbols-outlined">downloading</span></div>`;
 
             let metaText = `${formatBytes(file.metadata?.size)} • ${new Date(file.updated_at).toLocaleDateString('id-ID')}`;
-            if(file.isSharedWithMe) {
-                metaText = `<span class="shared-info" style="color: #0f9d58;">Dari: ${file.ownerEmail}</span>`;
-            } else if(file.sharedWith && file.sharedWith.length > 0) {
-                metaText = `<span class="shared-info">Ke: ${file.sharedWith[0]}${file.sharedWith.length > 1 ? ', ...' : ''}</span>`;
-            }
+            if(file.isSharedWithMe) metaText = `<span class="shared-info" style="color: #0f9d58;">Dari: ${file.ownerEmail}</span>`;
+            else if(file.sharedWith && file.sharedWith.length > 0) metaText = `<span class="shared-info">Ke: ${file.sharedWith[0]}${file.sharedWith.length > 1 ? ', ...' : ''}</span>`;
 
             const favBtnClass = file.isFavorite ? 'action-icon-btn active-fav' : 'action-icon-btn';
 
-            let actionsHtml = '';
-            if (file.isSharedWithMe) {
-                actionsHtml = `<button class="action-icon-btn" onclick="actionDownload('${file.name}', event, '${targetFolder}')" title="Download"><span class="material-symbols-outlined">download</span></button>`;
-            } else {
-                actionsHtml = `
-                    <button class="${favBtnClass}" onclick="actionToggleFav('${file.name}', event)" title="Favorit"><span class="material-symbols-outlined">star</span></button>
-                    <button class="action-icon-btn" onclick="actionOpenShare('${file.name}', event)" title="Bagikan"><span class="material-symbols-outlined">person_add</span></button>
-                    <button class="action-icon-btn" onclick="actionRename('${file.name}', event)" title="Ganti Nama"><span class="material-symbols-outlined">edit</span></button>
-                    <button class="action-icon-btn" onclick="actionDownload('${file.name}', event, '${targetFolder}')" title="Download"><span class="material-symbols-outlined">download</span></button>
-                    <button class="action-icon-btn" onclick="deleteFile('${file.name}', event)" title="Hapus"><span class="material-symbols-outlined">delete</span></button>
-                `;
-            }
+            let actionsHtml = file.isSharedWithMe 
+                ? `<button class="action-icon-btn" onclick="actionDownload('${file.name}', event, '${targetFolder}')"><span class="material-symbols-outlined">download</span></button>` 
+                : `<button class="${favBtnClass}" onclick="actionToggleFav('${file.name}', event)"><span class="material-symbols-outlined">star</span></button>
+                   <button class="action-icon-btn" onclick="actionOpenShare('${file.name}', event)"><span class="material-symbols-outlined">person_add</span></button>
+                   <button class="action-icon-btn" onclick="actionRename('${file.name}', event)"><span class="material-symbols-outlined">edit</span></button>
+                   <button class="action-icon-btn" onclick="actionDownload('${file.name}', event, '${targetFolder}')"><span class="material-symbols-outlined">download</span></button>
+                   <button class="action-icon-btn" onclick="deleteFile('${file.name}', event)"><span class="material-symbols-outlined">delete</span></button>`;
 
             card.onclick = () => openFilePreview(fileUrl, file.name, file.metadata?.mimetype, targetFolder);
-
             card.innerHTML = `
-                <div class="file-preview">
-                    <div class="file-badge-container">${badgesHtml}</div>
-                    ${visualHtml}
-                </div>
+                <div class="file-preview"><div class="file-badge-container">${badgesHtml}</div>${visualHtml}</div>
                 <div class="file-info-area">
                     <span class="material-symbols-outlined file-type-icon">${fileIcon}</span>
-                    <div class="file-name-block">
-                        <div class="file-name" title="${file.name}">${file.name}</div>
-                        <div class="file-meta">${metaText}</div>
-                    </div>
+                    <div class="file-name-block"><div class="file-name" title="${file.name}">${file.name}</div><div class="file-meta">${metaText}</div></div>
                 </div>
                 <div class="card-actions-overlay">${actionsHtml}</div>
             `;
@@ -682,198 +709,108 @@
 
         // --- IN-APP PREVIEW HANDLER ---
         function openFilePreview(url, name, mimetype, folderPath) {
-            _currentPreviewName = name;
-            _currentPreviewFolder = folderPath;
-
+            _currentPreviewName = name; _currentPreviewFolder = folderPath;
             document.getElementById('previewTitle').innerText = name;
             const contentDiv = document.getElementById('previewContent');
-            
             contentDiv.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite; font-size:48px; color:#ccc;">sync</span>';
             openModal('filePreviewModal');
 
-            const mime = mimetype || '';
-            const ext = name.split('.').pop().toLowerCase();
+            const mime = mimetype || ''; const ext = name.split('.').pop().toLowerCase();
             let html = '';
 
-            if (mime.startsWith('image/') || ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'].includes(ext)) {
-                html = `<img src="${url}" alt="${name}">`;
-            } else if (mime.startsWith('video/') || ['mp4', 'webm', 'ogg'].includes(ext)) {
-                html = `<video src="${url}" controls autoplay></video>`;
-            } else if (mime.startsWith('audio/') || ['mp3', 'wav', 'ogg'].includes(ext)) {
-                html = `<audio src="${url}" controls autoplay></audio>`;
-            } else if (mime === 'application/pdf' || ['pdf', 'html', 'txt'].includes(ext)) {
-                html = `<iframe src="${url}"></iframe>`;
-            } else {
-                html = `<div style="text-align:center; color:var(--text-muted);">
-                            <span class="material-symbols-outlined" style="font-size:64px; margin-bottom:16px;">unknown_document</span>
-                            <p>Pratinjau tidak tersedia untuk format file ini.</p>
-                            <button class="btn-black" style="margin-top:16px;" onclick="downloadCurrentPreview()">Download File</button>
-                        </div>`;
-            }
+            if (mime.startsWith('image/') || ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'].includes(ext)) html = `<img src="${url}" alt="${name}">`;
+            else if (mime.startsWith('video/') || ['mp4', 'webm', 'ogg'].includes(ext)) html = `<video src="${url}" controls autoplay></video>`;
+            else if (mime.startsWith('audio/') || ['mp3', 'wav', 'ogg'].includes(ext)) html = `<audio src="${url}" controls autoplay></audio>`;
+            else if (mime === 'application/pdf' || ['pdf', 'html', 'txt'].includes(ext)) html = `<iframe src="${url}"></iframe>`;
+            else html = `<div style="text-align:center; color:var(--text-muted);"><span class="material-symbols-outlined" style="font-size:64px; margin-bottom:16px;">unknown_document</span><p>Pratinjau tidak tersedia untuk format file ini.</p><button class="btn-black" style="margin-top:16px;" onclick="downloadCurrentPreview()">Download File</button></div>`;
             setTimeout(() => { contentDiv.innerHTML = html; }, 100);
         }
 
-        function closePreviewModal(event) {
-            if (event.target.id === 'filePreviewModal') {
-                document.getElementById('filePreviewModal').style.display = 'none';
-                document.getElementById('previewContent').innerHTML = ''; 
-            }
-        }
-        
-        function closePreviewBtn() {
-            document.getElementById('filePreviewModal').style.display = 'none';
-            document.getElementById('previewContent').innerHTML = '';
-        }
+        function closePreviewModal(event) { if (event.target.id === 'filePreviewModal') { closePreviewBtn(); } }
+        function closePreviewBtn() { document.getElementById('filePreviewModal').style.display = 'none'; document.getElementById('previewContent').innerHTML = ''; }
+        function downloadCurrentPreview() { if(_currentPreviewName) actionDownload(_currentPreviewName, null, _currentPreviewFolder); }
 
-        function downloadCurrentPreview() {
-            if(_currentPreviewName) {
-                const mockEvent = { stopPropagation: () => {}, currentTarget: document.createElement('button') };
-                actionDownload(_currentPreviewName, mockEvent, _currentPreviewFolder);
-            }
-        }
-
-        // --- ACTIONS: FAVORITE ---
+        // --- ACTIONS ---
         function actionToggleFav(fileName, event) {
-            event.stopPropagation();
-            let favs = getLocalData('favs');
-            const index = favs.indexOf(fileName);
-            
-            if (index > -1) favs.splice(index, 1);
-            else favs.push(fileName);
-            
+            event.stopPropagation(); let favs = getLocalData('favs'); const index = favs.indexOf(fileName);
+            if (index > -1) favs.splice(index, 1); else favs.push(fileName);
             saveLocalData('favs', favs);
-            
-            const fileObj = _allFiles.find(f => f.name === fileName);
-            if(fileObj) fileObj.isFavorite = (index === -1);
+            const fileObj = _allFiles.find(f => f.name === fileName); if(fileObj) fileObj.isFavorite = (index === -1);
             applyNavFilter();
         }
 
-        // --- ACTIONS: SHARE (MENGGUNAKAN DATABASE) ---
         function actionOpenShare(fileName, event) {
-            event.stopPropagation();
-            _fileToShare = fileName;
+            event.stopPropagation(); _fileToShare = fileName;
             document.getElementById('shareFileName').innerText = fileName;
             document.getElementById('shareEmailInput').value = '';
-            openModal('shareModal');
-            setTimeout(() => document.getElementById('shareEmailInput').focus(), 100);
+            openModal('shareModal'); setTimeout(() => document.getElementById('shareEmailInput').focus(), 100);
         }
 
         async function processShare() {
             const emailTarget = document.getElementById('shareEmailInput').value.trim();
-            
-            if(!emailTarget) {
-                alert('Tolong masukkan email tujuan!'); 
-                return;
-            }
-
-            if(emailTarget === _userEmail) {
-                alert('Anda tidak bisa membagikan file ke diri Anda sendiri.'); 
-                return;
-            }
+            if(!emailTarget) return alert('Tolong masukkan email tujuan!'); 
+            if(emailTarget === _userEmail) return alert('Anda tidak bisa membagikan file ke diri sendiri.'); 
 
             const btn = document.querySelector('#shareModal .btn-black');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = 'Mengirim...'; btn.disabled = true;
-
-            const fileObj = _allFiles.find(f => f.name === _fileToShare);
+            const originalText = btn.innerHTML; btn.innerHTML = 'Mengirim...'; btn.disabled = true;
 
             try {
-                // INSERT DATA KE DATABASE SUPABASE
                 const { error } = await _client.from('shared_files').insert([{
-                    file_name: fileObj.name,
-                    owner_email: _userEmail,
-                    owner_folder: _userFolder,
-                    shared_to_email: emailTarget
+                    file_name: _fileToShare, owner_email: _userEmail, owner_folder: _userFolder, shared_to_email: emailTarget
                 }]);
-
                 if (error) throw error;
 
-                // Update UI Lokal kita (tandai sebagai telah dibagikan)
                 let sharedMap = getSharedData();
                 if(!sharedMap[_fileToShare]) sharedMap[_fileToShare] = [];
                 if(!sharedMap[_fileToShare].includes(emailTarget)) sharedMap[_fileToShare].push(emailTarget);
                 saveSharedData(sharedMap);
-                fileObj.sharedWith = sharedMap[_fileToShare];
+                _allFiles.find(f => f.name === _fileToShare).sharedWith = sharedMap[_fileToShare];
 
-                closeModalBtn('shareModal');
-                alert(`Selesai! File berhasil dibagikan ke ${emailTarget}`);
-                applyNavFilter();
-
-            } catch (err) {
-                alert('Terjadi kesalahan saat membagikan file: ' + err.message);
-            } finally {
-                btn.innerHTML = originalText; btn.disabled = false;
-            }
+                closeModalBtn('shareModal'); alert(`Selesai! File berhasil dibagikan ke ${emailTarget}`); applyNavFilter();
+            } catch (err) { alert('Terjadi kesalahan: ' + err.message); } 
+            finally { btn.innerHTML = originalText; btn.disabled = false; }
         }
 
-        // --- ACTIONS: RENAME ---
         function actionRename(fileName, event) {
-            event.stopPropagation();
-            _fileToRename = fileName;
+            event.stopPropagation(); _fileToRename = fileName;
             document.getElementById('renameInput').value = fileName;
-            openModal('renameModal');
-            setTimeout(() => document.getElementById('renameInput').focus(), 100);
+            openModal('renameModal'); setTimeout(() => document.getElementById('renameInput').focus(), 100);
         }
 
         async function processRename() {
             const newName = document.getElementById('renameInput').value.trim();
             if(!newName || newName === _fileToRename) return;
-
-            const oldPath = `${_userFolder}/${_fileToRename}`;
-            const newPath = `${_userFolder}/${newName.replace(/\s+/g, '_')}`;
-
+            const oldPath = `${_userFolder}/${_fileToRename}`; const newPath = `${_userFolder}/${newName.replace(/\s+/g, '_')}`;
             closeModalBtn('renameModal');
             
             const { error } = await _client.storage.from(BUCKET_NAME).move(oldPath, newPath);
-            if(error) {
-                alert("Gagal mengganti nama: " + error.message);
-            } else {
+            if(error) alert("Gagal mengganti nama: " + error.message);
+            else {
                 let favs = getLocalData('favs');
-                if(favs.includes(_fileToRename)) {
-                    favs = favs.filter(f => f !== _fileToRename);
-                    favs.push(newName);
-                    saveLocalData('favs', favs);
-                }
-                
+                if(favs.includes(_fileToRename)) { saveLocalData('favs', [...favs.filter(f => f !== _fileToRename), newName]); }
                 let sharedMap = getSharedData();
-                if(sharedMap[_fileToRename]) {
-                    sharedMap[newName] = sharedMap[_fileToRename];
-                    delete sharedMap[_fileToRename];
-                    saveSharedData(sharedMap);
-                }
-
+                if(sharedMap[_fileToRename]) { sharedMap[newName] = sharedMap[_fileToRename]; delete sharedMap[_fileToRename]; saveSharedData(sharedMap); }
                 loadFiles(); 
             }
         }
 
-        // --- UPLOAD / DOWNLOAD / DELETE ---
         async function uploadFile() {
-            const input = document.getElementById('fileUpload');
-            const file = input.files[0];
-            if (!file) return;
-
-            const btn = document.getElementById('btnUpload');
-            const originalHTML = btn.innerHTML;
-            btn.innerHTML = `<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span> Uploading...`;
-            btn.disabled = true;
+            const input = document.getElementById('fileUpload'); const file = input.files[0]; if (!file) return;
+            const btn = document.getElementById('btnUpload'); const originalHTML = btn.innerHTML;
+            btn.innerHTML = `<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span> Uploading...`; btn.disabled = true;
 
             try {
-                const filePath = `${_userFolder}/${file.name.replace(/\s+/g, '_')}`;
-                const { error } = await _client.storage.from(BUCKET_NAME).upload(filePath, file, { upsert: true });
-                if (error) throw error;
-                loadFiles();
+                const { error } = await _client.storage.from(BUCKET_NAME).upload(`${_userFolder}/${file.name.replace(/\s+/g, '_')}`, file, { upsert: true });
+                if (error) throw error; loadFiles();
             } catch (err) { alert("Gagal upload: " + err.message); } 
             finally { btn.innerHTML = originalHTML; btn.disabled = false; input.value = ''; }
         }
 
         async function actionDownload(fileName, event, customFolder = null) {
-            if(event) event.stopPropagation();
-            const btn = event ? event.currentTarget : null;
+            if(event) event.stopPropagation(); const btn = event ? event.currentTarget : null;
             if(btn) btn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span>';
-            
-            const targetFolder = customFolder || _userFolder;
             try {
-                const { data, error } = await _client.storage.from(BUCKET_NAME).download(`${targetFolder}/${fileName}`);
+                const { data, error } = await _client.storage.from(BUCKET_NAME).download(`${customFolder || _userFolder}/${fileName}`);
                 if (error) throw error;
                 const url = URL.createObjectURL(data), a = document.createElement('a');
                 a.href = url; a.download = fileName; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
@@ -887,10 +824,8 @@
                 const { error } = await _client.storage.from(BUCKET_NAME).remove([`${_userFolder}/${fileName}`]);
                 if (error) alert("Gagal menghapus: " + error.message);
                 else {
-                    let favs = getLocalData('favs');
-                    if(favs.includes(fileName)) saveLocalData('favs', favs.filter(f => f !== fileName));
-                    let shared = getSharedData();
-                    if(shared[fileName]) { delete shared[fileName]; saveSharedData(shared); }
+                    let favs = getLocalData('favs'); if(favs.includes(fileName)) saveLocalData('favs', favs.filter(f => f !== fileName));
+                    let shared = getSharedData(); if(shared[fileName]) { delete shared[fileName]; saveSharedData(shared); }
                     loadFiles(); 
                 }
             }
@@ -901,7 +836,7 @@
         function closeModal(event, id) { if(event.target.id === id) document.getElementById(id).style.display = 'none'; }
         function closeModalBtn(id) { document.getElementById(id).style.display = 'none'; }
 
-        // Cek Session
+        // Cek Session Awal
         _client.auth.getSession().then(({data}) => {
             if(data.session) { _userEmail = data.session.user.email; enterDrive(); } 
             else document.getElementById('authScreen').style.display = 'flex';
