@@ -53,30 +53,22 @@
         }
         .chat-item:hover { background-color: var(--pf-gray-light); }
         .chat-item.active-chat { background-color: var(--pf-black); color: var(--pf-white); }
-        .chat-item.active-chat .chat-preview { color: #aaaaaa; }
-        .chat-item.active-chat .chat-name { color: var(--pf-white); }
         
-        /* Tombol Hapus Chat di Sidebar */
-        .btn-delete-sidebar {
-            opacity: 0;
-            background: none;
-            border: none;
-            color: var(--pf-text-muted);
-            cursor: pointer;
-            padding: 5px;
+        /* Tombol Hapus di Sidebar */
+        .delete-chat-btn {
+            position: absolute; right: 15px; opacity: 0;
+            background: rgba(224, 36, 36, 0.1); color: var(--pf-danger);
+            border: none; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem; font-weight: 700;
             transition: 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
-        .chat-item:hover .btn-delete-sidebar { opacity: 1; }
-        .btn-delete-sidebar:hover { color: var(--pf-danger) !important; transform: scale(1.2); }
-        .chat-item.active-chat .btn-delete-sidebar { color: #aaaaaa; }
+        .chat-item:hover .delete-chat-btn { opacity: 1; }
+        .delete-chat-btn:hover { background: var(--pf-danger); color: white; }
 
-        .avatar-circle { width: 40px; height: 40px; border-radius: 50%; background: var(--pf-gray-border); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 700; color: var(--pf-black); flex-shrink: 0; border: none;}
+        .avatar-circle { width: 40px; height: 40px; border-radius: 50%; background: var(--pf-gray-border); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 700; color: var(--pf-black); flex-shrink: 0; }
         .chat-info { flex: 1; overflow: hidden; display: flex; flex-direction: column; gap: 2px; }
         .chat-name { font-size: 0.95rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--pf-black); }
         .chat-preview { font-size: 0.8rem; color: var(--pf-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .active-chat .chat-name, .active-chat .chat-preview { color: white; }
 
         /* --- Chat Area --- */
         .chat-view { flex: 1; display: flex; flex-direction: column; background: var(--pf-white); position: relative; }
@@ -100,13 +92,11 @@
             cursor: pointer; transition: opacity 0.2s;
         }
         .msg-bubble:active { opacity: 0.8; }
-
         .msg-row.other .msg-bubble { background-color: var(--pf-white); color: var(--pf-black); border: 1px solid var(--pf-gray-border); border-radius: 18px 18px 18px 4px; }
         .msg-row.me .msg-bubble { background-color: var(--pf-black); color: var(--pf-white); border-radius: 18px 18px 4px 18px; }
 
         .msg-img { width: 40%; min-width: 120px; border-radius: 12px; border: 1px solid var(--pf-gray-border); cursor: zoom-in; display: block; }
         .msg-row.me .msg-img { margin-left: auto; border-color: #333; }
-
         .msg-quote { background: rgba(255,255,255,0.15); padding: 8px 12px; border-radius: 8px; font-size: 0.8rem; margin-bottom: 8px; border-left: 3px solid rgba(255,255,255,0.8); }
         .msg-row.other .msg-quote { background: var(--pf-gray-light); border-left-color: var(--pf-text-muted); }
 
@@ -120,13 +110,13 @@
         .btn-action:hover { background: rgba(0,0,0,0.05); color: var(--pf-black); }
         .btn-send { background: var(--pf-black); color: var(--pf-white); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; transition: 0.2s; }
 
-        /* Menu Konteks Pesan */
-        .action-menu { position: absolute; background: var(--pf-white); border: 1px solid var(--pf-gray-border); border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: none; flex-direction: column; z-index: 500; overflow: hidden; min-width: 150px; padding: 4px; }
+        /* Menu Konteks */
+        .action-menu { position: absolute; background: var(--pf-white); border: 1px solid var(--pf-gray-border); border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: none; flex-direction: column; z-index: 500; overflow: hidden; min-width: 150px; padding: 4px; }
         .action-menu button { padding: 12px 16px; border: none; background: none; text-align: left; cursor: pointer; font-size: 0.85rem; font-weight: 600; color: var(--pf-black); border-radius: 8px;}
         .action-menu button:hover { background: var(--pf-gray-light); }
         .action-menu button.danger { color: var(--pf-danger); }
 
-        /* Modals & Auth */
+        /* Auth Screen */
         .auth-screen { position: fixed; inset: 0; background: var(--pf-white); z-index: 1000; display: flex; align-items: center; justify-content: center; }
         .auth-card { width: 100%; max-width: 400px; padding: 40px; text-align: center; }
         .auth-input { width: 100%; padding: 16px; margin-bottom: 16px; border: 1px solid var(--pf-gray-border); border-radius: 12px; font-size: 1rem; outline: none; background: var(--pf-gray-light); }
@@ -139,7 +129,6 @@
         .new-chat-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--pf-white); padding: 32px; border-radius: 20px; z-index: 600; display: none; flex-direction: column; gap: 20px; width: 90%; max-width: 400px; }
         .modal-actions { display: flex; gap: 12px; }
         .modal-actions button { flex: 1; padding: 14px; border-radius: 12px; font-weight: 700; cursor: pointer; border: none; }
-        
         .icon { width: 20px; height: 20px; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; fill: none; }
     </style>
 </head>
@@ -166,8 +155,8 @@
         <h3 style="font-weight:800; font-size: 1.5rem; letter-spacing: -0.5px;">Chat Baru</h3>
         <input type="email" id="newChatTarget" class="auth-input" style="margin-bottom:0;" placeholder="Email pengguna lain...">
         <div class="modal-actions">
-            <button class="btn-cancel" style="background:var(--pf-gray-light);" onclick="closeModals()">Batal</button>
-            <button class="btn-confirm" style="background:var(--pf-black); color:white;" onclick="startPrivateChatFromInput()">Mulai Obrolan</button>
+            <button style="background:var(--pf-gray-light);" onclick="closeModals()">Batal</button>
+            <button style="background:var(--pf-black); color:white;" onclick="startPrivateChatFromInput()">Mulai Obrolan</button>
         </div>
     </div>
 
@@ -259,7 +248,7 @@
             if (error) {
                 const { error: upErr } = await _client.auth.signUp({ email, password });
                 if (upErr) document.getElementById('authErr').innerText = upErr.message;
-                else document.getElementById('authErr').innerText = "Akun dibuat! Klik masuk lagi.";
+                else document.getElementById('authErr').innerText = "Akun dibuat! Masuk kembali.";
             } else { _userEmail = data.user.email; enterDashboard(); }
         }
 
@@ -268,9 +257,7 @@
             document.getElementById('logoutBtn').style.display = 'block';
             document.getElementById('headerGreeting').innerText = `Halo, ${_userEmail.split('@')[0]}`;
             document.getElementById('headerGreeting').style.display = 'inline';
-            loadSidebarList();
-            switchChat('global'); 
-            listenRealtime();
+            loadSidebarList(); switchChat('global'); listenRealtime();
         }
 
         function logout() { _client.auth.signOut(); location.reload(); }
@@ -282,8 +269,7 @@
             if(!target || target === _userEmail) return;
             closeModals();
             if(!privateContacts[target]) privateContacts[target] = { lastMsg: "...", time: new Date().toISOString() };
-            renderSidebar();
-            switchChat('private', target);
+            renderSidebar(); switchChat('private', target);
         }
 
         async function loadSidebarList() {
@@ -312,32 +298,30 @@
                 else if(preview.startsWith('|RPLY|')) preview = preview.split('|').pop();
 
                 item.innerHTML = `
-                    <div class="avatar-circle" style="background:${isActive ? 'white' : getColorForUser(email)}; color:${isActive ? 'black' : 'white'};">${email[0].toUpperCase()}</div>
+                    <div class="avatar-circle" style="background:${getColorForUser(email)}; color:white;">${email[0].toUpperCase()}</div>
                     <div class="chat-info">
                         <span class="chat-name">${email.split('@')[0]}</span>
                         <span class="chat-preview">${preview}</span>
                     </div>
-                    <button class="btn-delete-sidebar" onclick="event.stopPropagation(); deletePrivateChat('${email}')" title="Hapus Chat">
-                        <svg class="icon" style="width:16px; height:16px;" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                    </button>
+                    <button class="delete-chat-btn" onclick="event.stopPropagation(); deleteFullConversation('${email}')">Hapus</button>
                 `;
                 list.appendChild(item);
             });
         }
 
-        // FUNGSI BARU: Hapus Chat Pribadi (Klik Kiri Icon di Sidebar)
-        async function deletePrivateChat(targetEmail) {
-            if (!confirm(`Hapus semua pesan dengan ${targetEmail}? Tindakan ini permanen.`)) return;
-            const { error } = await _client.from('private_chat')
-                .delete()
+        // FUNGSI BARU: Hapus Seluruh Riwayat Chat Pribadi (Klik Kiri Tombol Hapus)
+        async function deleteFullConversation(targetEmail) {
+            if(!confirm(`Hapus semua chat dengan ${targetEmail}?`)) return;
+            // Menghapus baris di mana saya pengirim & target penerima, ATAU sebaliknya
+            const { error } = await _client.from('private_chat').delete()
                 .or(`and(sender.eq.${_userEmail},receiver.eq.${targetEmail}),and(sender.eq.${targetEmail},receiver.eq.${_userEmail})`);
             
-            if (!error) {
+            if(!error) {
                 delete privateContacts[targetEmail];
-                if (currentTargetEmail === targetEmail) switchChat('global');
+                if(currentTargetEmail === targetEmail) switchChat('global');
                 renderSidebar();
             } else {
-                alert("Gagal menghapus chat.");
+                alert("Gagal menghapus riwayat chat.");
             }
         }
 
@@ -349,8 +333,7 @@
         }
 
         async function loadMessages() {
-            const box = document.getElementById('chatMessages');
-            box.innerHTML = '';
+            const box = document.getElementById('chatMessages'); box.innerHTML = '';
             let query = currentChatType === 'global' 
                 ? _client.from('global_chat').select('*').order('created_at', { ascending: false }).limit(50)
                 : _client.from('private_chat').select('*').or(`and(sender.eq.${_userEmail},receiver.eq.${currentTargetEmail}),and(sender.eq.${currentTargetEmail},receiver.eq.${_userEmail})`).order('created_at', { ascending: false }).limit(50);
@@ -362,15 +345,11 @@
         function renderMessage(m) {
             const box = document.getElementById('chatMessages');
             if (document.getElementById(`msg-${currentChatType}-${m.id}`)) return;
-
             const isMe = m.sender === _userEmail;
             const group = document.createElement('div');
             group.id = `msg-${currentChatType}-${m.id}`;
             group.className = 'msg-group';
-
-            let displayTxt = m.message;
-            let quoteHtml = '';
-            let rawText = m.message;
+            let displayTxt = m.message, quoteHtml = '', rawText = m.message;
 
             if (displayTxt.startsWith('|URLIMG|')) {
                 const url = displayTxt.replace('|URLIMG|', '');
@@ -379,63 +358,36 @@
             } else if (displayTxt.startsWith('|RPLY|')) {
                 const parts = displayTxt.split('|');
                 quoteHtml = `<div class="msg-quote"><strong>${parts[2].split('@')[0]}</strong>: ${parts[3]}</div>`;
-                displayTxt = parts.slice(4).join('|');
-                rawText = displayTxt;
+                displayTxt = parts.slice(4).join('|'); rawText = displayTxt;
             }
-
             const time = new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            const color = getColorForUser(m.sender);
-
             if (isMe) {
-                group.innerHTML = `
-                    <div class="msg-row me">
-                        <div class="msg-content-wrapper">
-                            <div class="msg-bubble" onclick="showActionMenu(event, '${m.id}', '${m.sender}', \`${rawText.replace(/`/g, '\\`')}\`, true)">
-                                ${quoteHtml}${displayTxt}
-                            </div>
-                            <div class="msg-time">${time}</div>
-                        </div>
-                    </div>`;
+                group.innerHTML = `<div class="msg-row me"><div class="msg-content-wrapper"><div class="msg-bubble" onclick="showActionMenu(event, '${m.id}', '${m.sender}', \`${rawText.replace(/`/g, '\\`')}\`, true)">${quoteHtml}${displayTxt}</div><div class="msg-time">${time}</div></div></div>`;
             } else {
-                group.innerHTML = `
-                    <div class="msg-row other">
-                        <div class="avatar-circle" style="width:36px; height:36px; background:${color}; color:white;">${m.sender[0].toUpperCase()}</div>
-                        <div class="msg-content-wrapper">
-                            <div class="msg-name" style="color:${color}">${m.sender.split('@')[0]}</div>
-                            <div class="msg-bubble" onclick="showActionMenu(event, '${m.id}', '${m.sender}', \`${rawText.replace(/`/g, '\\`')}\`, false)">
-                                ${quoteHtml}${displayTxt}
-                            </div>
-                            <div class="msg-time">${time}</div>
-                        </div>
-                    </div>`;
+                group.innerHTML = `<div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:${getColorForUser(m.sender)}; color:white;">${m.sender[0].toUpperCase()}</div><div class="msg-content-wrapper"><div class="msg-name" style="color:${getColorForUser(m.sender)}">${m.sender.split('@')[0]}</div><div class="msg-bubble" onclick="showActionMenu(event, '${m.id}', '${m.sender}', \`${rawText.replace(/`/g, '\\`')}\`, false)">${quoteHtml}${displayTxt}</div><div class="msg-time">${time}</div></div></div>`;
             }
-            box.appendChild(group);
-            box.scrollTop = box.scrollHeight;
+            box.appendChild(group); box.scrollTop = box.scrollHeight;
         }
 
         function showActionMenu(e, id, sender, text, isMe) {
-            e.stopPropagation();
-            selectedMsg = { id, sender, text };
-            const menu = document.getElementById('actionMenu');
-            menu.style.display = 'flex';
+            e.stopPropagation(); selectedMsg = { id, sender, text };
+            const menu = document.getElementById('actionMenu'); menu.style.display = 'flex';
             menu.style.left = Math.min(e.pageX, window.innerWidth - 170) + 'px';
             menu.style.top = Math.min(e.pageY, window.innerHeight - 110) + 'px';
             document.getElementById('btnDel').style.display = isMe ? 'block' : 'none';
         }
 
-        function actionReply() { 
-            replyingTo = selectedMsg; 
-            document.getElementById('replyBar').style.display = 'flex'; 
-            document.getElementById('replyTxt').innerText = selectedMsg.text; 
-            document.getElementById('msgIn').focus(); 
-        }
+        function actionReply() { replyingTo = selectedMsg; document.getElementById('replyBar').style.display = 'flex'; document.getElementById('replyTxt').innerText = selectedMsg.text; document.getElementById('msgIn').focus(); }
 
-        // FUNGSI: Hapus Pesan Individu
+        // FUNGSI PERBAIKAN: Hapus Pesan Tunggal
         async function actionDelete() { 
-            if(!confirm("Hapus pesan ini?")) return; 
+            if(!confirm("Hapus pesan ini?")) return;
             const table = currentChatType === 'global' ? 'global_chat' : 'private_chat'; 
+            // Pastikan ID dikirim dengan benar ke kueri filter
             const { error } = await _client.from(table).delete().eq('id', selectedMsg.id); 
-            if (!error) {
+            if (error) {
+                alert("Gagal menghapus pesan: " + error.message);
+            } else {
                 const el = document.getElementById(`msg-${currentChatType}-${selectedMsg.id}`);
                 if(el) el.remove();
             }
@@ -443,8 +395,7 @@
         }
 
         async function sendMessage() {
-            const inp = document.getElementById('msgIn');
-            const txt = inp.value.trim();
+            const inp = document.getElementById('msgIn'); const txt = inp.value.trim();
             if (!txt) return;
             let finalMsg = replyingTo ? `|RPLY|${replyingTo.sender}|${replyingTo.text}|${txt}` : txt;
             cancelReply(); inp.value = '';
@@ -454,8 +405,7 @@
         }
 
         async function handleImageUpload() {
-            const file = document.getElementById('imgUpload').files[0];
-            if (!file) return;
+            const file = document.getElementById('imgUpload').files[0]; if (!file) return;
             const path = `public/${Date.now()}_${file.name}`;
             await _client.storage.from('chat_images').upload(path, file);
             const { data } = _client.storage.from('chat_images').getPublicUrl(path);
@@ -479,8 +429,8 @@
                         }
                     }
                 } else if (payload.eventType === 'DELETE') {
-                    const id = `msg-${payload.table === 'global_chat' ? 'global' : 'private'}-${payload.old.id}`;
-                    const el = document.getElementById(id);
+                    const tableKey = payload.table === 'global_chat' ? 'global' : 'private';
+                    const el = document.getElementById(`msg-${tableKey}-${payload.old.id}`);
                     if(el) el.remove();
                 }
             }).subscribe();
