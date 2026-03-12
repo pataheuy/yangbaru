@@ -315,7 +315,11 @@
             loadSidebarList(); switchChat('global'); listenRealtime();
         }
 
-        function logout() { _client.auth.signOut(); location.reload(); }
+        // --- FIXED LOGOUT FUNCTION ---
+        async function logout() { 
+            await _client.auth.signOut(); 
+            location.reload(); 
+        }
         
         function openNewChatModal() { 
             document.getElementById('modalOverlay').style.display = 'block'; 
