@@ -1,384 +1,284 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
+<html lang="id"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Pufutara Chat</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* --- Modern Minimalist Tokens --- */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        /* --- Pufutara Minimalist Tokens --- */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
         
         :root {
-            --bg-body: #f4f5f7;
-            --bg-panel: #ffffff;
-            --bg-chat: #fafafa;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --border-light: #e2e8f0;
-            --accent: #0f172a;
-            --accent-hover: #1e293b;
-            --accent-light: #f1f5f9;
-            --bubble-me: #0f172a;
-            --bubble-me-text: #ffffff;
-            --bubble-other: #ffffff;
-            --bubble-other-text: #0f172a;
-            --danger: #ef4444;
-            --danger-bg: #fef2f2;
+            --pf-black: #000000;
+            --pf-white: #ffffff;
+            --pf-gray-light: #fafafa;
+            --pf-gray-border: #efefef;
+            --pf-text-main: #111111;
+            --pf-text-muted: #888888;
+            --pf-danger: #e02424;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        
-        body { 
-            background-color: var(--bg-body); 
-            color: var(--text-main); 
-            height: 100vh; 
-            overflow: hidden; 
-            display: flex; 
-            flex-direction: column; 
-        }
+        body { background-color: var(--pf-white); color: var(--pf-text-main); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-
-        /* --- Header (Glassmorphism) --- */
+        /* --- Header --- */
         header { 
-            /* Perbaikan Lebar Header */
-            width: 100%; max-width: 1600px; margin: 0 auto;
-            height: 68px; padding: 0 28px; display: flex; align-items: center; justify-content: space-between;
-            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(226, 232, 240, 0.6); z-index: 200; position: relative;
+            height: 64px; padding: 0 24px; display: flex; align-items: center; justify-content: space-between;
+            background: var(--pf-white); border-bottom: 1px solid var(--pf-gray-border); z-index: 200; position: relative;
         }
-        .header-left { display: flex; align-items: center; gap: 16px; }
+        .header-left { display: flex; align-items: center; gap: 12px; }
         
+        /* Mobile Menu Button */
         .mobile-menu-btn {
-            display: none; background: none; border: none; cursor: pointer; color: var(--text-main);
-            align-items: center; justify-content: center; padding: 8px; border-radius: 8px; transition: 0.2s;
+            display: none; background: none; border: none; cursor: pointer; color: var(--pf-black);
+            align-items: center; justify-content: center; padding: 4px;
         }
-        .mobile-menu-btn:hover { background: var(--accent-light); }
         
-        .logo { font-size: 1.25rem; font-weight: 800; color: var(--text-main); text-decoration: none; letter-spacing: -0.5px; }
-        .greeting { font-size: 0.9rem; font-weight: 500; color: var(--text-muted); display: none; background: var(--accent-light); padding: 4px 12px; border-radius: 20px; }
+        .logo { font-size: 1.25rem; font-weight: 900; color: var(--pf-black); text-decoration: none; letter-spacing: -0.5px; text-transform: uppercase; }
+        .greeting { font-size: 0.95rem; font-weight: 500; color: var(--pf-text-muted); display: none; }
         
         .header-right { display: flex; align-items: center; gap: 16px; }
-        .btn-outline { 
-            border: 1px solid var(--border-light); background: transparent; color: var(--text-main); 
-            padding: 8px 18px; border-radius: 12px; font-weight: 600; font-size: 0.85rem; 
-            cursor: pointer; transition: all 0.2s ease; 
-        }
-        .btn-outline:hover { background: var(--bg-body); border-color: #cbd5e1; }
+        .btn-outline { border: 1px solid var(--pf-gray-border); background: var(--pf-white); color: var(--pf-black); padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 0.8rem; cursor: pointer; transition: 0.2s; }
+        .btn-outline:hover { background: var(--pf-gray-light); }
 
         /* --- Main Layout --- */
-        .main-container { flex: 1; display: flex; overflow: hidden; position: relative; width: 100%; max-width: 1600px; margin: 0 auto; }
+        .main-container { flex: 1; display: flex; overflow: hidden; position: relative; width: 100%; }
 
         /* --- Sidebar --- */
-        .sidebar { 
-            width: 320px; display: flex; flex-direction: column; background: var(--bg-panel); 
-            border-right: 1px solid var(--border-light); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-            z-index: 100; flex-shrink: 0; 
-        }
-        .sidebar-header { padding: 24px 20px 12px 20px; display: flex; justify-content: space-between; align-items: center; }
-        .sidebar-title { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-        .btn-icon-small { 
-            background: var(--accent-light); border: none; width: 28px; height: 28px; border-radius: 8px;
-            cursor: pointer; color: var(--text-main); display: flex; align-items: center; justify-content: center; transition: 0.2s;
-        }
-        .btn-icon-small:hover { background: #e2e8f0; }
+        .sidebar { width: 300px; display: flex; flex-direction: column; background: var(--pf-white); border-right: 1px solid var(--pf-gray-border); transition: transform 0.3s ease; z-index: 100; flex-shrink: 0; }
+        .sidebar-header { padding: 24px 24px 12px 24px; display: flex; justify-content: space-between; align-items: center; }
+        .sidebar-title { font-size: 0.75rem; font-weight: 700; color: var(--pf-text-muted); text-transform: uppercase; letter-spacing: 1px; }
+        .btn-icon-small { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--pf-black); display: flex; align-items: center; justify-content: center; }
 
-        .sidebar-scroll { flex: 1; overflow-y: auto; padding-bottom: 24px; }
+        .sidebar-scroll { flex: 1; overflow-y: auto; padding-bottom: 20px; }
         
         .chat-item { 
-            margin: 4px 12px; padding: 12px; border-radius: 12px;
-            display: flex; align-items: center; gap: 14px; cursor: pointer; transition: all 0.2s ease; position: relative;
+            padding: 15px 24px; 
+            display: flex; align-items: center; gap: 14px; cursor: pointer; transition: 0.15s; position: relative;
+            border-bottom: 1px solid transparent;
         }
-        .chat-item:hover { background-color: var(--accent-light); }
-        .chat-item.active-chat { background-color: var(--accent); color: var(--bg-panel); box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15); }
+        .chat-item:hover { background-color: var(--pf-gray-light); }
+        .chat-item.active-chat { background-color: var(--pf-black); color: var(--pf-white); }
         
+        /* Tombol X Hapus di Sidebar */
         .delete-chat-btn {
-            position: absolute; right: 12px; opacity: 0;
-            background: var(--bg-panel); color: var(--text-muted);
-            border: 1px solid var(--border-light); border-radius: 8px;
-            cursor: pointer; font-size: 1rem; width: 28px; height: 28px;
-            display: flex; align-items: center; justify-content: center;
-            transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            position: absolute; right: 20px; opacity: 0;
+            background: none; color: var(--pf-text-muted);
+            border: none; cursor: pointer; font-size: 1.2rem; font-weight: 400;
+            transition: 0.2s; padding: 5px;
         }
         .chat-item:hover .delete-chat-btn { opacity: 1; }
-        .delete-chat-btn:hover { color: var(--danger); border-color: var(--danger); background: var(--danger-bg); transform: scale(1.05); }
-        .active-chat .delete-chat-btn { background: var(--accent-hover); color: #cbd5e1; border: none; }
-        .active-chat .delete-chat-btn:hover { color: #fca5a5; background: rgba(255,255,255,0.1); }
+        .delete-chat-btn:hover { color: var(--pf-danger); transform: scale(1.1); }
+        .active-chat .delete-chat-btn { color: #888; }
+        .active-chat .delete-chat-btn:hover { color: #ff5f5f; }
 
-        .avatar-circle { 
-            width: 44px; height: 44px; border-radius: 14px; background: var(--accent-light); 
-            display: flex; align-items: center; justify-content: center; font-size: 1rem; 
-            font-weight: 700; color: var(--text-main); flex-shrink: 0; 
-        }
-        .chat-info { flex: 1; overflow: hidden; display: flex; flex-direction: column; gap: 4px; }
+        .avatar-circle { width: 40px; height: 40px; border-radius: 50%; background: var(--pf-gray-border); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 700; color: var(--pf-black); flex-shrink: 0; }
+        .chat-info { flex: 1; overflow: hidden; display: flex; flex-direction: column; gap: 2px; }
         .chat-name { font-size: 0.95rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: inherit; }
-        .chat-preview { font-size: 0.8rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .active-chat .chat-name, .active-chat .chat-preview { color: var(--bg-panel); opacity: 0.9; }
+        .chat-preview { font-size: 0.8rem; color: var(--pf-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .active-chat .chat-name, .active-chat .chat-preview { color: white; }
 
         /* --- Chat Area --- */
-        .chat-view { flex: 1; display: flex; flex-direction: column; background: var(--bg-chat); position: relative; width: 100%; overflow: hidden; }
-        .chat-view-header { 
-            height: 76px; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; 
-            background: transparent;
-        }
-        .chat-view-name { font-weight: 700; font-size: 1.25rem; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.3px;}
-        .chat-status-text { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+        .chat-view { flex: 1; display: flex; flex-direction: column; background: var(--pf-white); position: relative; width: 100%; overflow: hidden; }
+        .chat-view-header { height: 72px; padding: 0 32px; border-bottom: 1px solid var(--pf-gray-border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+        .chat-view-name { font-weight: 700; font-size: 1.2rem; color: var(--pf-black); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+        .chat-status-text { font-size: 0.8rem; color: var(--pf-text-muted); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
 
-        .chat-messages { flex: 1; padding: 24px 32px; overflow-y: auto; display: flex; flex-direction: column; gap: 24px; }
+        .chat-messages { flex: 1; padding: 32px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
 
         /* --- BUBBLE STYLING --- */
-        .msg-group { display: flex; flex-direction: column; width: 100%; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .msg-wrapper { max-width: 80%; display: flex; flex-direction: column; }
-        .msg-wrapper.me { align-self: flex-end; align-items: flex-end; }
-        .msg-wrapper.other { align-self: flex-start; align-items: flex-start; }
-
-        .msg-row { display: flex; gap: 10px; align-items: flex-end; width: 100%; }
-        .msg-wrapper.me .msg-row { justify-content: flex-end; }
-
-        .msg-name { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; margin-left: 46px; line-height: 1;}
-        .msg-time { font-size: 0.65rem; color: var(--text-muted); font-weight: 500; opacity: 0.8; margin-top: 4px; line-height: 1; padding: 0 4px; }
-        .msg-wrapper.other .msg-time { margin-left: 46px; padding: 0; }
+        .msg-group { display: flex; flex-direction: column; width: 100%; }
+        .msg-row { display: flex; gap: 14px; max-width: 85%; align-items: flex-start; }
+        .msg-row.me { align-self: flex-end; flex-direction: row-reverse; }
+        .msg-content-wrapper { display: flex; flex-direction: column; gap: 4px; }
+        .msg-row.me .msg-content-wrapper { align-items: flex-end; }
+        .msg-name { font-size: 0.8rem; font-weight: 600; margin-bottom: 2px; padding: 0 4px;}
+        .msg-time { font-size: 0.7rem; color: var(--pf-text-muted); font-weight: 500; padding: 0 4px; margin-top: 2px; }
 
         .msg-bubble {
-            padding: 12px 16px; font-size: 0.95rem; line-height: 1.5; word-wrap: break-word; position: relative;
-            cursor: pointer; transition: transform 0.1s, opacity 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            padding: 12px 18px; font-size: 0.95rem; line-height: 1.5; word-wrap: break-word; position: relative;
+            cursor: pointer; transition: opacity 0.2s;
         }
-        .msg-bubble:active { transform: scale(0.98); }
-        .msg-wrapper.other .msg-bubble { background-color: var(--bubble-other); color: var(--bubble-other-text); border: 1px solid var(--border-light); border-radius: 18px 18px 18px 4px; }
-        .msg-wrapper.me .msg-bubble { background-color: var(--bubble-me); color: var(--bubble-me-text); border-radius: 18px 18px 4px 18px; }
+        .msg-bubble:active { opacity: 0.8; }
+        .msg-row.other .msg-bubble { background-color: var(--pf-white); color: var(--pf-black); border: 1px solid var(--pf-gray-border); border-radius: 18px 18px 18px 4px; }
+        .msg-row.me .msg-bubble { background-color: var(--pf-black); color: var(--pf-white); border-radius: 18px 18px 4px 18px; }
 
-        .msg-img { width: 100%; max-width: 280px; border-radius: 12px; cursor: zoom-in; display: block; object-fit: cover; }
-        .msg-quote { 
-            background: rgba(255,255,255,0.1); padding: 10px 14px; border-radius: 10px; 
-            font-size: 0.85rem; margin-bottom: 10px; border-left: 3px solid rgba(255,255,255,0.5); 
-        }
-        .msg-wrapper.other .msg-quote { background: var(--bg-body); border-left-color: #cbd5e1; }
+        .msg-img { width: 40%; min-width: 120px; max-width: 100%; border-radius: 12px; border: 1px solid var(--pf-gray-border); cursor: zoom-in; display: block; }
+        .msg-row.me .msg-img { margin-left: auto; border-color: #333; }
+        .msg-quote { background: rgba(255,255,255,0.15); padding: 8px 12px; border-radius: 8px; font-size: 0.8rem; margin-bottom: 8px; border-left: 3px solid rgba(255,255,255,0.8); }
+        .msg-row.other .msg-quote { background: var(--pf-gray-light); border-left-color: var(--pf-text-muted); }
 
-        /* --- Floating Input Area --- */
+        /* --- Input Area --- */
         .input-container { padding: 0 32px 32px 32px; background: transparent; flex-shrink: 0; }
-        .input-wrapper { 
-            background: var(--bg-panel); border-radius: 24px; padding: 10px 14px 10px 20px; 
-            display: flex; align-items: center; gap: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.06);
-            border: 1px solid var(--border-light); transition: all 0.3s ease; 
-        }
-        .input-wrapper:focus-within { box-shadow: 0 8px 30px rgba(15, 23, 42, 0.1); border-color: #cbd5e1; transform: translateY(-2px); }
-        .input-field { flex: 1; border: none; background: transparent; padding: 10px 0; font-size: 0.95rem; outline: none; color: var(--text-main); font-weight: 500; min-width: 0; }
-        .input-field::placeholder { color: #94a3b8; }
+        .input-wrapper { background: var(--pf-gray-light); border-radius: 32px; padding: 8px 16px; display: flex; align-items: center; gap: 12px; border: 1px solid transparent; transition: 0.2s; }
+        .input-wrapper:focus-within { background: var(--pf-white); border-color: var(--pf-black); }
+        .input-field { flex: 1; border: none; background: transparent; padding: 12px 8px; font-size: 1rem; outline: none; color: var(--pf-black); font-weight: 500; min-width: 0; }
         
-        .btn-action { background: transparent; border: none; width: 42px; height: 42px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-muted); transition: 0.2s; flex-shrink: 0;}
-        .btn-action:hover { background: var(--bg-body); color: var(--text-main); }
-        .btn-send { background: var(--accent); color: var(--bg-panel); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; transition: 0.2s; flex-shrink: 0; box-shadow: 0 4px 10px rgba(15,23,42,0.2); }
-        .btn-send:hover { background: var(--accent-hover); transform: scale(1.05); }
+        .btn-action { background: transparent; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--pf-text-muted); transition: 0.2s; flex-shrink: 0;}
+        .btn-action:hover { background: rgba(0,0,0,0.05); color: var(--pf-black); }
+        .btn-send { background: var(--pf-black); color: var(--pf-white); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
 
-        /* Context Menu Popover */
-        .action-menu { 
-            position: absolute; background: var(--bg-panel); border: 1px solid var(--border-light); 
-            border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); display: none; flex-direction: column; 
-            z-index: 500; overflow: hidden; min-width: 160px; padding: 6px; 
-            animation: popIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        @keyframes popIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-        .action-menu button { padding: 12px 16px; border: none; background: none; text-align: left; cursor: pointer; font-size: 0.9rem; font-weight: 600; color: var(--text-main); border-radius: 10px; transition: 0.2s;}
-        .action-menu button:hover { background: var(--accent-light); }
-        .action-menu button.danger { color: var(--danger); }
-        .action-menu button.danger:hover { background: var(--danger-bg); }
+        /* Menu Konteks */
+        .action-menu { position: absolute; background: var(--pf-white); border: 1px solid var(--pf-gray-border); border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: none; flex-direction: column; z-index: 500; overflow: hidden; min-width: 150px; padding: 4px; }
+        .action-menu button { padding: 12px 16px; border: none; background: none; text-align: left; cursor: pointer; font-size: 0.85rem; font-weight: 600; color: var(--pf-black); border-radius: 8px;}
+        .action-menu button:hover { background: var(--pf-gray-light); }
+        .action-menu button.danger { color: var(--pf-danger); }
 
-        /* Modals & Screens */
-        .auth-screen { position: fixed; inset: 0; background: var(--bg-body); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .auth-card { 
-            width: 100%; max-width: 420px; padding: 48px; text-align: center; 
-            background: var(--bg-panel); border-radius: 32px; box-shadow: 0 20px 40px rgba(0,0,0,0.05);
-            border: 1px solid rgba(255,255,255,0.5);
-        }
-        .auth-input { 
-            width: 100%; padding: 16px 20px; margin-bottom: 16px; border: 1px solid var(--border-light); 
-            border-radius: 16px; font-size: 1rem; outline: none; background: #f8fafc; transition: 0.2s;
-        }
-        .auth-input:focus { border-color: var(--accent); background: var(--bg-panel); box-shadow: 0 0 0 4px var(--accent-light); }
-        .btn-login { width: 100%; padding: 18px; background: var(--accent); color: var(--bg-panel); border: none; border-radius: 16px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 8px;}
-        .btn-login:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(15,23,42,0.15); }
+        /* Modals */
+        .auth-screen { position: fixed; inset: 0; background: var(--pf-white); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .auth-card { width: 100%; max-width: 400px; padding: 40px; text-align: center; }
+        .auth-input { width: 100%; padding: 16px; margin-bottom: 16px; border: 1px solid var(--pf-gray-border); border-radius: 12px; font-size: 1rem; outline: none; background: var(--pf-gray-light); }
+        .btn-login { width: 100%; padding: 16px; background: var(--pf-black); color: var(--pf-white); border: none; border-radius: 12px; font-weight: 700; cursor: pointer; }
         
-        .reply-bar { 
-            background: var(--bg-panel); color: var(--text-main); padding: 14px 24px; font-size: 0.85rem; 
-            display: none; justify-content: space-between; align-items: center; 
-            margin: 0 32px 16px 32px; border-radius: 16px; border: 1px solid var(--border-light);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03); border-left: 4px solid var(--accent);
-        }
-        .reply-bar button { background: var(--accent-light); width: 28px; height: 28px; border-radius: 50%; border: none; color: var(--text-main); cursor: pointer; font-size: 0.9rem; transition: 0.2s; display: flex; align-items: center; justify-content: center;}
-        .reply-bar button:hover { background: #e2e8f0; }
+        .reply-bar { background: var(--pf-black); color: var(--pf-white); padding: 12px 32px; font-size: 0.85rem; display: none; justify-content: space-between; align-items: center; margin: 0 32px 16px 32px; border-radius: 12px; }
+        .reply-bar button { background: none; border: none; color: var(--pf-white); cursor: pointer; font-size: 1.2rem; }
 
-        .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); z-index: 550; display: none; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
-        .new-chat-modal { 
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--bg-panel); 
-            padding: 36px; border-radius: 28px; z-index: 600; display: none; flex-direction: column; gap: 24px; 
-            width: 90%; max-width: 420px; box-shadow: 0 25px 50px rgba(0,0,0,0.15);
-            animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 550; display: none; backdrop-filter: blur(2px); }
+        .new-chat-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--pf-white); padding: 32px; border-radius: 20px; z-index: 600; display: none; flex-direction: column; gap: 20px; width: 90%; max-width: 400px; }
         .modal-actions { display: flex; gap: 12px; }
-        .modal-actions button { flex: 1; padding: 16px; border-radius: 14px; font-size: 0.95rem; font-weight: 700; cursor: pointer; border: none; transition: 0.2s; }
-        .btn-cancel { background: var(--accent-light); color: var(--text-main); }
-        .btn-cancel:hover { background: #e2e8f0; }
-        .btn-primary { background: var(--accent); color: white; }
-        .btn-primary:hover { background: var(--accent-hover); }
-
+        .modal-actions button { flex: 1; padding: 14px; border-radius: 12px; font-weight: 700; cursor: pointer; border: none; }
         .icon { width: 20px; height: 20px; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; fill: none; }
 
         /* --- RESPONSIVE MEDIA QUERIES --- */
         @media (max-width: 768px) {
-            header { padding: 0 20px; height: 60px; }
+            header { padding: 0 16px; }
             .mobile-menu-btn { display: flex; }
             .logo { font-size: 1.1rem; }
             .greeting { display: none !important; }
             
+            /* Sidebar jadi off-canvas menu di HP */
             .sidebar {
                 position: absolute; left: 0; top: 0; bottom: 0;
                 transform: translateX(-100%);
                 width: 85%; max-width: 320px;
-                box-shadow: 10px 0 30px rgba(0,0,0,0.1);
-                z-index: 300; 
+                box-shadow: 4px 0 15px rgba(0,0,0,0.1);
+                z-index: 300; /* Ditingkatkan agar berada di atas segalanya saat terbuka */
             }
             .sidebar.open { transform: translateX(0); }
+            
+            /* Overlay saat sidebar terbuka di HP */
             .sidebar-overlay {
                 display: none; position: absolute; inset: 0;
-                background: rgba(15, 23, 42, 0.4); z-index: 250; backdrop-filter: blur(2px);
+                background: rgba(0,0,0,0.4); z-index: 250;
             }
             .sidebar-overlay.open { display: block; }
 
-            .chat-view-header { padding: 0 20px; height: 64px; }
-            .chat-messages { padding: 20px; gap: 20px; }
-            .input-container { padding: 0 16px 20px 16px; }
-            .reply-bar { padding: 12px 16px; margin: 0 16px 12px 16px; }
+            /* Penyesuaian Ruang Chat di HP */
+            .chat-view-header { padding: 0 16px; height: 60px; }
+            .chat-messages { padding: 16px; gap: 16px; }
+            .input-container { padding: 0 16px 16px 16px; }
+            .reply-bar { padding: 10px 16px; margin: 0 16px 10px 16px; }
             
-            .msg-wrapper { max-width: 90%; }
-            .msg-img { max-width: 220px; }
+            .msg-row { max-width: 95%; }
+            .msg-img { width: 70%; }
             
-            .auth-card { padding: 32px 24px; border-radius: 24px; box-shadow: none; border: none; background: transparent;}
-            .auth-screen { background: var(--bg-panel); }
+            .auth-card { padding: 20px; }
+
+            /* Mencegah input field zoom otomatis di iOS */
             .input-field, .auth-input { font-size: 16px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Layar Login/Register -->
-    <div id="authScreen" class="auth-screen">
+    <div id="authScreen" class="auth-screen" style="display: none;">
         <div class="auth-card">
-            <div style="width: 60px; height: 60px; background: var(--accent); border-radius: 20px; margin: 0 auto 24px auto; display: flex; align-items: center; justify-content: center; color: white;">
-                <svg class="icon" viewBox="0 0 24 24" style="width: 32px; height: 32px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-            </div>
-            <h1 style="font-weight:800; letter-spacing:-1px; margin-bottom:8px; font-size: 1.8rem;">Pufutara</h1>
-            <p style="color:var(--text-muted); margin-bottom:40px; font-size: 0.95rem;">Ngobrol lebih simpel, cepat, dan elegan.</p>
+            <h1 style="font-weight:900; letter-spacing:-1px; text-transform:uppercase; margin-bottom:8px;">Pufutara Chat</h1>
+            <p style="color:var(--pf-text-muted); margin-bottom:40px;">Minimalis. Cepat. Hitam Putih.</p>
             <input type="email" id="emailIn" class="auth-input" placeholder="Alamat Email">
             <input type="password" id="passIn" class="auth-input" placeholder="Kata Sandi">
             <button class="btn-login" onclick="handleAuth()">Masuk / Daftar</button>
-            <p id="authErr" style="color:var(--danger); font-size:0.85rem; margin-top: 20px; font-weight: 500;"></p>
+            <p id="authErr" style="color:var(--pf-danger); font-size:0.85rem; margin-top: 16px; font-weight: 600;"></p>
         </div>
     </div>
 
-    <!-- Context Menu Pesan -->
     <div id="actionMenu" class="action-menu">
-        <button onclick="actionReply()">
-            <svg class="icon" style="width:16px; height:16px; display:inline; margin-right:8px; vertical-align:middle;" viewBox="0 0 24 24"><polyline points="9 17 4 12 9 7"></polyline><path d="M20 18v-2a4 4 0 0 0-4-4H4"></path></svg>
-            Balas Pesan
-        </button>
-        <button id="btnDel" class="danger" onclick="actionDelete()">
-            <svg class="icon" style="width:16px; height:16px; display:inline; margin-right:8px; vertical-align:middle;" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-            Hapus Pesan
-        </button>
+        <button onclick="actionReply()">Balas Pesan</button>
+        <button id="btnDel" class="danger" onclick="actionDelete()">Hapus Pesan</button>
     </div>
 
-    <!-- Modal Chat Baru -->
     <div id="modalOverlay" class="modal-overlay" onclick="closeModals()"></div>
     <div id="newChatModal" class="new-chat-modal">
-        <div>
-            <h3 style="font-weight:700; font-size: 1.4rem; letter-spacing: -0.5px; margin-bottom: 6px;">Mulai Chat Baru</h3>
-            <p style="color: var(--text-muted); font-size: 0.9rem;">Masukkan email teman Anda untuk memulai percakapan pribadi.</p>
-        </div>
-        <input type="email" id="newChatTarget" class="auth-input" style="margin-bottom:0;" placeholder="contoh: teman@email.com">
+        <h3 style="font-weight:800; font-size: 1.5rem; letter-spacing: -0.5px;">Chat Baru</h3>
+        <input type="email" id="newChatTarget" class="auth-input" style="margin-bottom:0;" placeholder="Email pengguna lain...">
         <div class="modal-actions">
-            <button class="btn-cancel" onclick="closeModals()">Batal</button>
-            <button class="btn-primary" onclick="startPrivateChatFromInput()">Mulai Obrolan</button>
+            <button style="background:var(--pf-gray-light);" onclick="closeModals()">Batal</button>
+            <button style="background:var(--pf-black); color:white;" onclick="startPrivateChatFromInput()">Mulai Obrolan</button>
         </div>
     </div>
 
-    <!-- Header Aplikasi -->
     <header>
         <div class="header-left">
             <button class="mobile-menu-btn" onclick="toggleSidebar()">
                 <svg class="icon" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
             </button>
-            <a href="#" class="logo">Pufutara CHat.</a>
-            <span class="greeting" id="headerGreeting"></span>
+            <a href="#" class="logo">PUFUTARA CHAT</a>
+            <span class="greeting" id="headerGreeting" style="display: inline;">Halo, pufutara</span>
         </div>
         <div class="header-right">
-            <button onclick="logout()" id="logoutBtn" class="btn-outline" style="display:none;">Keluar</button>
+            <button onclick="logout()" id="logoutBtn" class="btn-outline" style="display: block;">Keluar</button>
         </div>
     </header>
 
-    <!-- Layout Utama -->
     <div class="main-container">
-        <!-- Overlay Sidebar Mobile -->
         <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
         
-        <!-- Sidebar Menu -->
         <aside class="sidebar" id="appSidebar">
-            <div class="sidebar-header"><span class="sidebar-title">Eksplorasi</span></div>
+            <div class="sidebar-header"><span class="sidebar-title">Menu Utama</span></div>
             <div class="sidebar-scroll">
                 <div class="chat-item active-chat" id="globalChatLink" onclick="switchChat('global')">
-                    <div class="avatar-circle" style="background: rgba(255,255,255,0.2); color: white;">
+                    <div class="avatar-circle" style="background: var(--pf-black); color: white;">
                         <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
                     </div>
                     <div class="chat-info">
-                        <span class="chat-name">Ruang Publik</span>
-                        <span class="chat-preview">Ngobrol bersama semua orang</span>
+                        <span class="chat-name">Obrolan Global</span>
+                        <span class="chat-preview">Publik</span>
                     </div>
                 </div>
 
-                <div class="sidebar-header" style="margin-top: 16px;">
-                    <span class="sidebar-title">Pesan Langsung</span>
+                <div class="sidebar-header" style="margin-top: 10px;">
+                    <span class="sidebar-title">Pesan Pribadi</span>
                     <button class="btn-icon-small" onclick="openNewChatModal()">
-                        <svg class="icon" viewBox="0 0 24 24" style="width:16px; height:16px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        <svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                     </button>
                 </div>
-                <div id="sidebarChatList"></div>
+                <div id="sidebarChatList"><div class="chat-item ">
+                    <div class="avatar-circle" style="background:#12b5cb; color:white;">F</div>
+                    <div class="chat-info">
+                        <span class="chat-name">faqih</span>
+                        <span class="chat-preview">halo king</span>
+                    </div>
+                    <button class="delete-chat-btn" onclick="event.stopPropagation(); deleteFullConversation('faqih@gmail.com')">✕</button>
+                </div><div class="chat-item ">
+                    <div class="avatar-circle" style="background:#059669; color:white;">F</div>
+                    <div class="chat-info">
+                        <span class="chat-name">fatih</span>
+                        <span class="chat-preview">hai</span>
+                    </div>
+                    <button class="delete-chat-btn" onclick="event.stopPropagation(); deleteFullConversation('fatih@gmail.com')">✕</button>
+                </div></div>
             </div>
         </aside>
 
-        <!-- Area Obrolan -->
         <main class="chat-view">
             <div class="chat-view-header">
                 <div style="min-width: 0;">
-                    <div class="chat-view-name" id="chatTitle">Ruang Publik</div>
+                    <div class="chat-view-name" id="chatTitle">Obrolan Global</div>
                     <div class="chat-status-text" id="chatStatus">Terhubung ke jaringan publik</div>
                 </div>
             </div>
-            
-            <div class="chat-messages" id="chatMessages"></div>
-            
-            <div id="replyBar" class="reply-bar">
+            <div class="chat-messages" id="chatMessages"><div id="msg-global-146" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#12b5cb; color:white;">C</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#12b5cb">cwetoajarwiro</div><div class="msg-bubble" onclick="showActionMenu(event, '146', 'cwetoajarwiro@gmail.com', `balcklist aja ustad`, false)">balcklist aja ustad</div><div class="msg-time">08:19</div></div></div></div><div id="msg-global-147" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#f29900; color:white;">C</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#f29900">cwetodaimon</div><div class="msg-bubble" onclick="showActionMenu(event, '147', 'cwetodaimon@gmail.com', `Woi`, false)">Woi</div><div class="msg-time">08:20</div></div></div></div><div id="msg-global-148" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#f29900; color:white;">C</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#f29900">cwetodaimon</div><div class="msg-bubble" onclick="showActionMenu(event, '148', 'cwetodaimon@gmail.com', `Jangan main main`, false)">Jangan main main</div><div class="msg-time">08:21</div></div></div></div><div id="msg-global-149" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#f29900; color:white;">C</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#f29900">cwetodaimon</div><div class="msg-bubble" onclick="showActionMenu(event, '149', 'cwetodaimon@gmail.com', `Ana laporin ustad isep ya`, false)">Ana laporin ustad isep ya</div><div class="msg-time">08:21</div></div></div></div><div id="msg-global-150" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#65a30d; color:white;">A</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#65a30d">azamhafidz</div><div class="msg-bubble" onclick="showActionMenu(event, '150', 'azamhafidz@g', `ampun tad`, false)">ampun tad</div><div class="msg-time">14:08</div></div></div></div><div id="msg-global-151" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#65a30d; color:white;">A</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#65a30d">azamhafidz</div><div class="msg-bubble" onclick="showActionMenu(event, '151', 'azamhafidz@g', `jangan cepuanlah`, false)">jangan cepuanlah</div><div class="msg-time">14:08</div></div></div></div><div id="msg-global-152" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#ea580c; color:white;">H</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#ea580c">hanif</div><div class="msg-bubble" onclick="showActionMenu(event, '152', 'hanif@gmail.com', `hhhhh`, false)">hhhhh</div><div class="msg-time">14:15</div></div></div></div><div id="msg-global-155" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#4285f4; color:white;">L</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#4285f4">luqman</div><div class="msg-bubble" onclick="showActionMenu(event, '155', 'luqman@g', `apansi`, false)"><div class="msg-quote"><strong>azamhafidz</strong>: jangan cepuanlah</div>apansi</div><div class="msg-time">14:20</div></div></div></div><div id="msg-global-156" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#4285f4; color:white;">L</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#4285f4">luqman</div><div class="msg-bubble" onclick="showActionMenu(event, '156', 'luqman@g', `fdvtrv`, false)">fdvtrv</div><div class="msg-time">14:20</div></div></div></div><div id="msg-global-157" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#4285f4; color:white;">L</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#4285f4">luqman</div><div class="msg-bubble" onclick="showActionMenu(event, '157', 'luqman@g', `jnbkj`, false)">jnbkj</div><div class="msg-time">14:20</div></div></div></div><div id="msg-global-158" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#4285f4; color:white;">L</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#4285f4">luqman</div><div class="msg-bubble" onclick="showActionMenu(event, '158', 'luqman@g', `aku cinta pki`, false)">aku cinta pki</div><div class="msg-time">14:20</div></div></div></div><div id="msg-global-159" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#4285f4; color:white;">L</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#4285f4">luqman</div><div class="msg-bubble" onclick="showActionMenu(event, '159', 'luqman@g', `aku cinta nazi`, false)">aku cinta nazi</div><div class="msg-time">14:20</div></div></div></div><div id="msg-global-163" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#4285f4; color:white;">L</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#4285f4">luqman</div><div class="msg-bubble" onclick="showActionMenu(event, '163', 'luqman@g', `[Gambar]`, false)"><img src="https://puywjdopumlzvmzbcudr.supabase.co/storage/v1/object/public/chat_images/public/1772617828352_434y64.png" class="msg-img" onclick="window.open('https://puywjdopumlzvmzbcudr.supabase.co/storage/v1/object/public/chat_images/public/1772617828352_434y64.png', 'pufutarachat')"></div><div class="msg-time">14:43</div></div></div></div><div id="msg-global-164" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#4285f4; color:white;">L</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#4285f4">luqman</div><div class="msg-bubble" onclick="showActionMenu(event, '164', 'luqman@g', `kece nih bos`, false)">kece nih bos</div><div class="msg-time">14:43</div></div></div></div><div id="msg-global-165" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#4285f4; color:white;">L</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#4285f4">luqman</div><div class="msg-bubble" onclick="showActionMenu(event, '165', 'luqman@g', `kekuatan ai mengguncang dunia`, false)">kekuatan ai mengguncang dunia</div><div class="msg-time">14:43</div></div></div></div><div id="msg-global-166" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#4285f4; color:white;">L</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#4285f4">luqman</div><div class="msg-bubble" onclick="showActionMenu(event, '166', 'luqman@g', `[Gambar]`, false)"><img src="https://puywjdopumlzvmzbcudr.supabase.co/storage/v1/object/public/chat_images/public/1772617859834_yhy3yr.jpg" class="msg-img" onclick="window.open('https://puywjdopumlzvmzbcudr.supabase.co/storage/v1/object/public/chat_images/public/1772617859834_yhy3yr.jpg', 'pufutarachat')"></div><div class="msg-time">14:43</div></div></div></div><div id="msg-global-167" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#4285f4; color:white;">P</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#4285f4">pufutara</div><div class="msg-bubble" onclick="showActionMenu(event, '167', 'pufutara@g', `yey ada hanif lele`, false)">yey ada hanif lele</div><div class="msg-time">14:44</div></div></div></div><div id="msg-global-168" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#4285f4; color:white;">P</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#4285f4">pufutara</div><div class="msg-bubble" onclick="showActionMenu(event, '168', 'pufutara@g', `gacor 🐬`, false)">gacor 🐬</div><div class="msg-time">14:44</div></div></div></div><div id="msg-global-169" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#4285f4; color:white;">P</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#4285f4">pufutara</div><div class="msg-bubble" onclick="showActionMenu(event, '169', 'pufutara@g', `ih ganteng`, false)"><div class="msg-quote"><strong>luqman</strong>: [Gambar]</div>ih ganteng</div><div class="msg-time">16:45</div></div></div></div><div id="msg-global-170" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#ea580c; color:white;">H</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#ea580c">hanif</div><div class="msg-bubble" onclick="showActionMenu(event, '170', 'hanif@gmail.com', `[Gambar]`, false)"><img src="https://puywjdopumlzvmzbcudr.supabase.co/storage/v1/object/public/chat_images/public/1772759975921_bzy51n.jpg" class="msg-img" onclick="window.open('https://puywjdopumlzvmzbcudr.supabase.co/storage/v1/object/public/chat_images/public/1772759975921_bzy51n.jpg', 'pufutarachat')"></div><div class="msg-time">08:19</div></div></div></div><div id="msg-global-172" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#ea580c; color:white;">H</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#ea580c">hanif</div><div class="msg-bubble" onclick="showActionMenu(event, '172', 'hanif@gmail.com', `bapuks`, false)"><div class="msg-quote"><strong>hanif</strong>: [Gambar]</div>bapuks</div><div class="msg-time">08:20</div></div></div></div><div id="msg-global-174" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#ea580c; color:white;">H</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#ea580c">hanif</div><div class="msg-bubble" onclick="showActionMenu(event, '174', 'hanif@gmail.com', `asbok bandung bapuk`, false)">asbok bandung bapuk</div><div class="msg-time">10:50</div></div></div></div><div id="msg-global-175" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#0891b2; color:white;">M</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#0891b2">mahar</div><div class="msg-bubble" onclick="showActionMenu(event, '175', 'mahar@g', `HALO TMN TMN`, false)">HALO TMN TMN</div><div class="msg-time">11:02</div></div></div></div><div id="msg-global-176" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#0891b2; color:white;">M</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#0891b2">mahar</div><div class="msg-bubble" onclick="showActionMenu(event, '176', 'mahar@g', `yg tengah bapuk`, false)"><div class="msg-quote"><strong>hanif</strong>: [Gambar]</div>yg tengah bapuk</div><div class="msg-time">11:03</div></div></div></div><div id="msg-global-177" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#4285f4; color:white;">S</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#4285f4">satrio</div><div class="msg-bubble" onclick="showActionMenu(event, '177', 'satrio@g', `gaje`, false)">gaje</div><div class="msg-time">11:04</div></div></div></div><div id="msg-global-178" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#4285f4; color:white;">S</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#4285f4">satrio</div><div class="msg-bubble" onclick="showActionMenu(event, '178', 'satrio@g', `apasi berisik`, false)"><div class="msg-quote"><strong>luqman</strong>: aku cinta nazi</div>apasi berisik</div><div class="msg-time">11:06</div></div></div></div><div id="msg-global-179" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#4285f4; color:white;">S</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#4285f4">satrio</div><div class="msg-bubble" onclick="showActionMenu(event, '179', 'satrio@g', `a`, false)">a</div><div class="msg-time">11:10</div></div></div></div><div id="msg-global-180" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#4285f4; color:white;">S</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#4285f4">satrio</div><div class="msg-bubble" onclick="showActionMenu(event, '180', 'satrio@g', `halo`, false)">halo</div><div class="msg-time">11:10</div></div></div></div><div id="msg-global-181" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#4285f4; color:white;">L</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#4285f4">luqman</div><div class="msg-bubble" onclick="showActionMenu(event, '181', 'luqman@g', `[Gambar]`, false)"><img src="https://puywjdopumlzvmzbcudr.supabase.co/storage/v1/object/public/chat_images/public/1772779739370_mlab6a.png" class="msg-img" onclick="window.open('https://puywjdopumlzvmzbcudr.supabase.co/storage/v1/object/public/chat_images/public/1772779739370_mlab6a.png', 'pufutarachat')"></div><div class="msg-time">13:49</div></div></div></div><div id="msg-global-182" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#65a30d; color:white;">A</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#65a30d">azamhafidz</div><div class="msg-bubble" onclick="showActionMenu(event, '182', 'azamhafidz@g', `APASIH LUKMAN SOK ASIKKKK`, false)">APASIH LUKMAN SOK ASIKKKK</div><div class="msg-time">13:49</div></div></div></div><div id="msg-global-183" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#65a30d; color:white;">A</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#65a30d">azamhafidz</div><div class="msg-bubble" onclick="showActionMenu(event, '183', 'azamhafidz@g', `buuu`, false)">buuu</div><div class="msg-time">13:49</div></div></div></div><div id="msg-global-184" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#65a30d; color:white;">A</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#65a30d">azamhafidz</div><div class="msg-bubble" onclick="showActionMenu(event, '184', 'azamhafidz@g', `gak biasa gambar y lu`, false)">gak biasa gambar y lu</div><div class="msg-time">13:49</div></div></div></div><div id="msg-global-185" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#4285f4; color:white;">L</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#4285f4">luqman</div><div class="msg-bubble" onclick="showActionMenu(event, '185', 'luqman@g', `[Gambar]`, false)"><img src="https://puywjdopumlzvmzbcudr.supabase.co/storage/v1/object/public/chat_images/public/1772779784520_32pj6.webp" class="msg-img" onclick="window.open('https://puywjdopumlzvmzbcudr.supabase.co/storage/v1/object/public/chat_images/public/1772779784520_32pj6.webp', 'pufutarachat')"></div><div class="msg-time">13:49</div></div></div></div><div id="msg-global-186" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#4285f4; color:white;">L</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#4285f4">luqman</div><div class="msg-bubble" onclick="showActionMenu(event, '186', 'luqman@g', `anti nazi, pro islamis`, false)">anti nazi, pro islamis</div><div class="msg-time">13:50</div></div></div></div><div id="msg-global-187" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#65a30d; color:white;">A</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#65a30d">azamhafidz</div><div class="msg-bubble" onclick="showActionMenu(event, '187', 'azamhafidz@g', `tolong aku aku buth medkit`, false)">tolong aku aku buth medkit</div><div class="msg-time">14:38</div></div></div></div><div id="msg-global-188" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#4285f4; color:white;">P</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#4285f4">pufutara</div><div class="msg-bubble" onclick="showActionMenu(event, '188', 'pufutara@g', `Berisik`, false)">Berisik</div><div class="msg-time">16:03</div></div></div></div><div id="msg-global-189" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#059669; color:white;">M</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#059669">mbg</div><div class="msg-bubble" onclick="showActionMenu(event, '189', 'mbg@g', `ANAK ANAK MAU MBG DARI ADMIN?`, false)">ANAK ANAK MAU MBG DARI ADMIN?</div><div class="msg-time">16:07</div></div></div></div><div id="msg-global-190" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#4285f4; color:white;">P</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#4285f4">pufutara</div><div class="msg-bubble" onclick="showActionMenu(event, '190', 'pufutara@g', `GK`, false)">GK</div><div class="msg-time">16:07</div></div></div></div><div id="msg-global-191" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#65a30d; color:white;">F</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#65a30d">figo.satya7</div><div class="msg-bubble" onclick="showActionMenu(event, '191', 'figo.satya7@smp.belajar.id', `kece.`, false)">kece.</div><div class="msg-time">10:16</div></div></div></div><div id="msg-global-192" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#65a30d; color:white;">F</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#65a30d">figo.satya7</div><div class="msg-bubble" onclick="showActionMenu(event, '192', 'figo.satya7@smp.belajar.id', `[Gambar]`, false)"><img src="https://puywjdopumlzvmzbcudr.supabase.co/storage/v1/object/public/chat_images/public/1772853391716_fkv05ke.jpg" class="msg-img" onclick="window.open('https://puywjdopumlzvmzbcudr.supabase.co/storage/v1/object/public/chat_images/public/1772853391716_fkv05ke.jpg', 'pufutarachat')"></div><div class="msg-time">10:16</div></div></div></div><div id="msg-global-193" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#65a30d; color:white;">F</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#65a30d">figo.satya7</div><div class="msg-bubble" onclick="showActionMenu(event, '193', 'figo.satya7@smp.belajar.id', `haikyu print gratis`, false)">haikyu print gratis</div><div class="msg-time">10:16</div></div></div></div><div id="msg-global-194" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#4285f4; color:white;">P</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#4285f4">pufutara</div><div class="msg-bubble" onclick="showActionMenu(event, '194', 'pufutara@g', `[Gambar]`, false)"><img src="https://puywjdopumlzvmzbcudr.supabase.co/storage/v1/object/public/chat_images/public/1773135089159.jpg" class="msg-img" onclick="window.open('https://puywjdopumlzvmzbcudr.supabase.co/storage/v1/object/public/chat_images/public/1773135089159.jpg', 'pufutarachat')"></div><div class="msg-time">16:31</div></div></div></div><div id="msg-global-195" class="msg-group"><div class="msg-row me"><div class="msg-content-wrapper"><div class="msg-bubble" onclick="showActionMenu(event, '195', 'pufutara@gmail.com', `aku jga mw`, true)">aku jga mw</div><div class="msg-time">10:15</div></div></div></div><div id="msg-global-196" class="msg-group"><div class="msg-row me"><div class="msg-content-wrapper"><div class="msg-bubble" onclick="showActionMenu(event, '196', 'pufutara@gmail.com', `tap dong`, true)">tap dong</div><div class="msg-time">10:15</div></div></div></div><div id="msg-global-197" class="msg-group"><div class="msg-row me"><div class="msg-content-wrapper"><div class="msg-bubble" onclick="showActionMenu(event, '197', 'pufutara@gmail.com', `woi ajam hapis mana nih`, true)">woi ajam hapis mana nih</div><div class="msg-time">10:15</div></div></div></div><div id="msg-global-198" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#4285f4; color:white;">P</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#4285f4">pufutara</div><div class="msg-bubble" onclick="showActionMenu(event, '198', 'pufutara@g', `halo`, false)">halo</div><div class="msg-time">13:45</div></div></div></div><div id="msg-global-199" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#4285f4; color:white;">P</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#4285f4">pufutara</div><div class="msg-bubble" onclick="showActionMenu(event, '199', 'pufutara@g', `halo`, false)">halo</div><div class="msg-time">13:45</div></div></div></div><div id="msg-global-200" class="msg-group"><div class="msg-row me"><div class="msg-content-wrapper"><div class="msg-bubble" onclick="showActionMenu(event, '200', 'pufutara@gmail.com', `ajam hapis`, true)">ajam hapis</div><div class="msg-time">16:18</div></div></div></div><div id="msg-global-202" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#4285f4; color:white;">H</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#4285f4">haha</div><div class="msg-bubble" onclick="showActionMenu(event, '202', 'haha@g', `halo`, false)">halo</div><div class="msg-time">18:11</div></div></div></div><div id="msg-global-204" class="msg-group"><div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:#12b5cb; color:white;">A</div><div class="msg-content-wrapper"><div class="msg-name" style="color:#12b5cb">aca</div><div class="msg-bubble" onclick="showActionMenu(event, '204', 'aca@g', `Halo teman teman aku ade nya pufutara`, false)">Halo teman teman aku ade nya pufutara</div><div class="msg-time">11:33</div></div></div></div></div>
+            <div id="replyBar" class="reply-bar" style="display: none;">
                 <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1;">
-                    <span style="font-weight:700; opacity:0.8;">Membalas:</span> <span id="replyTxt" style="font-weight: 500; margin-left: 6px;"></span>
+                    <span style="font-weight:700;">Membalas:</span> <span id="replyTxt" style="opacity: 0.8; margin-left: 8px;"></span>
                 </div>
                 <button onclick="cancelReply()">✕</button>
             </div>
-            
             <div class="input-container">
                 <div class="input-wrapper">
                     <input type="file" id="imgUpload" accept="image/*" style="display:none;" onchange="handleImageUpload()">
-                    <button class="btn-action" onclick="document.getElementById('imgUpload').click()">
-                        <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
-                    </button>
-                    <input type="text" id="msgIn" class="input-field" placeholder="Ketik pesan Anda..." onkeypress="if(event.key==='Enter')sendMessage()">
-                    <button class="btn-send" onclick="sendMessage()">
-                        <svg class="icon" viewBox="0 0 24 24" style="width: 18px; height: 18px;"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-                    </button>
+                    <button class="btn-action" onclick="document.getElementById('imgUpload').click()"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg></button>
+                    <input type="text" id="msgIn" class="input-field" placeholder="Ketik pesan..." onkeypress="if(event.key==='Enter')sendMessage()">
+                    <button class="btn-send" onclick="sendMessage()"><svg class="icon" viewBox="0 0 24 24" style="width: 18px; height: 18px;"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg></button>
                 </div>
             </div>
         </main>
@@ -398,13 +298,15 @@
         let selectedMsg = null;
         let replyingTo = null;
 
-        const userColors = ['#f43f5e', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#6366f1', '#f97316', '#14b8a6', '#84cc16'];
+        const userColors = ['#e02424', '#0b57d0', '#188038', '#f29900', '#9333ea', '#e52592', '#12b5cb', '#4285f4', '#d97706', '#059669', '#4f46e5', '#db2777', '#0891b2', '#ea580c', '#65a30d', '#7c3aed'];
+        
         function getColorForUser(email) {
             let hash = 0;
             for (let i = 0; i < email.length; i++) hash = email.charCodeAt(i) + ((hash << 5) - hash);
             return userColors[Math.abs(hash) % userColors.length];
         }
 
+        // --- Logika Hamburger Menu HP ---
         function toggleSidebar() {
             document.getElementById('appSidebar').classList.toggle('open');
             document.getElementById('sidebarOverlay').classList.toggle('open');
@@ -413,47 +315,36 @@
         async function handleAuth() {
             const email = document.getElementById('emailIn').value;
             const password = document.getElementById('passIn').value;
-            const btn = document.querySelector('.btn-login');
-            
-            btn.innerText = "Memproses...";
             const { data, error } = await _client.auth.signInWithPassword({ email, password });
-            
             if (error) {
                 const { error: upErr } = await _client.auth.signUp({ email, password });
-                if (upErr) {
-                    document.getElementById('authErr').innerText = upErr.message;
-                    btn.innerText = "Masuk / Daftar";
-                }
-                else {
-                    document.getElementById('authErr').style.color = "#10b981"; 
-                    document.getElementById('authErr').innerText = "Akun berhasil dibuat! Silakan klik masuk lagi.";
-                    btn.innerText = "Masuk / Daftar";
-                }
+                if (upErr) document.getElementById('authErr').innerText = upErr.message;
+                else document.getElementById('authErr').innerText = "Akun dibuat! Klik masuk lagi.";
             } else { _userEmail = data.user.email; enterDashboard(); }
         }
 
         function enterDashboard() {
             document.getElementById('authScreen').style.display = 'none';
             document.getElementById('logoutBtn').style.display = 'block';
-            document.getElementById('headerGreeting').innerText = `👋 ${_userEmail.split('@')[0]}`;
-            document.getElementById('headerGreeting').style.display = 'inline-block';
+            document.getElementById('headerGreeting').innerText = `Halo, ${_userEmail.split('@')[0]}`;
+            document.getElementById('headerGreeting').style.display = 'inline';
             loadSidebarList(); switchChat('global'); listenRealtime();
         }
 
-        async function logout() { await _client.auth.signOut(); location.reload(); }
+        // --- FIXED LOGOUT FUNCTION ---
+        async function logout() { 
+            await _client.auth.signOut(); 
+            location.reload(); 
+        }
         
         function openNewChatModal() { 
             document.getElementById('modalOverlay').style.display = 'block'; 
             document.getElementById('newChatModal').style.display = 'flex';
-            document.getElementById('newChatTarget').focus();
+            // Tutup sidebar jika modal dibuka di HP
             if(window.innerWidth <= 768) toggleSidebar(); 
         }
         
-        function closeModals() { 
-            document.getElementById('modalOverlay').style.display = 'none'; 
-            document.getElementById('newChatModal').style.display = 'none'; 
-            document.getElementById('newChatTarget').value = '';
-        }
+        function closeModals() { document.getElementById('modalOverlay').style.display = 'none'; document.getElementById('newChatModal').style.display = 'none'; }
 
         function startPrivateChatFromInput() {
             const target = document.getElementById('newChatTarget').value.trim();
@@ -476,11 +367,7 @@
         function renderSidebar() {
             const list = document.getElementById('sidebarChatList');
             list.innerHTML = '';
-            
-            const globalLink = document.getElementById('globalChatLink');
-            globalLink.className = `chat-item ${currentChatType === 'global' ? 'active-chat' : ''}`;
-            globalLink.querySelector('.avatar-circle').style.background = currentChatType === 'global' ? 'rgba(255,255,255,0.2)' : 'var(--accent-light)';
-            globalLink.querySelector('.avatar-circle').style.color = currentChatType === 'global' ? 'white' : 'var(--text-main)';
+            document.getElementById('globalChatLink').className = `chat-item ${currentChatType === 'global' ? 'active-chat' : ''}`;
             
             Object.entries(privateContacts).sort((a, b) => new Date(b[1].time) - new Date(a[1].time)).forEach(([email, data]) => {
                 const item = document.createElement('div');
@@ -492,25 +379,20 @@
                 if(preview.startsWith('|URLIMG|')) preview = "📷 Gambar";
                 else if(preview.startsWith('|RPLY|')) preview = preview.split('|').pop();
 
-                const avatarBg = isActive ? 'rgba(255,255,255,0.2)' : `${getColorForUser(email)}20`;
-                const avatarColor = isActive ? 'white' : getColorForUser(email);
-
                 item.innerHTML = `
-                    <div class="avatar-circle" style="background:${avatarBg}; color:${avatarColor};">${email[0].toUpperCase()}</div>
+                    <div class="avatar-circle" style="background:${isActive ? 'white' : getColorForUser(email)}; color:${isActive ? 'black' : 'white'};">${email[0].toUpperCase()}</div>
                     <div class="chat-info">
                         <span class="chat-name">${email.split('@')[0]}</span>
                         <span class="chat-preview">${preview}</span>
                     </div>
-                    <button class="delete-chat-btn" onclick="event.stopPropagation(); deleteFullConversation('${email}')">
-                        <svg class="icon" viewBox="0 0 24 24" style="width:14px;height:14px;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                    </button>
+                    <button class="delete-chat-btn" onclick="event.stopPropagation(); deleteFullConversation('${email}')">✕</button>
                 `;
                 list.appendChild(item);
             });
         }
 
         async function deleteFullConversation(targetEmail) {
-            if(!confirm(`Apakah Anda yakin ingin menghapus seluruh percakapan dengan ${targetEmail}?`)) return;
+            if(!confirm(`Hapus seluruh riwayat chat dengan ${targetEmail}?`)) return;
             const { error } = await _client.from('private_chat').delete()
                 .or(`and(sender.eq.${_userEmail},receiver.eq.${targetEmail}),and(sender.eq.${targetEmail},receiver.eq.${_userEmail})`);
             
@@ -525,10 +407,11 @@
 
         function switchChat(type, targetEmail = null) {
             currentChatType = type; currentTargetEmail = targetEmail;
-            document.getElementById('chatTitle').innerText = type === 'global' ? "Ruang Publik" : targetEmail.split('@')[0];
+            document.getElementById('chatTitle').innerText = type === 'global' ? "Obrolan Global" : targetEmail.split('@')[0];
             document.getElementById('chatStatus').innerText = type === 'global' ? "Terhubung ke jaringan publik" : targetEmail;
             cancelReply(); renderSidebar(); loadMessages();
             
+            // Otomatis menutup menu sidebar jika diklik via HP
             if(window.innerWidth <= 768) {
                 document.getElementById('appSidebar').classList.remove('open');
                 document.getElementById('sidebarOverlay').classList.remove('open');
@@ -536,25 +419,17 @@
         }
 
         async function loadMessages() {
-            const box = document.getElementById('chatMessages'); 
-            box.innerHTML = '<div style="text-align:center; color:var(--text-muted); font-size:0.85rem; margin-top:20px;">Memuat pesan...</div>';
+            const box = document.getElementById('chatMessages'); box.innerHTML = '';
             let query = currentChatType === 'global' 
                 ? _client.from('global_chat').select('*').order('created_at', { ascending: false }).limit(50)
                 : _client.from('private_chat').select('*').or(`and(sender.eq.${_userEmail},receiver.eq.${currentTargetEmail}),and(sender.eq.${currentTargetEmail},receiver.eq.${_userEmail})`).order('created_at', { ascending: false }).limit(50);
             const { data } = await query;
-            box.innerHTML = '';
-            if (data && data.length > 0) {
-                data.reverse().forEach(m => renderMessage(m));
-            } else {
-                box.innerHTML = '<div style="text-align:center; color:var(--text-muted); font-size:0.85rem; margin-top:40px;">Belum ada pesan. Jadilah yang pertama menyapa!</div>';
-            }
+            if (data) data.reverse().forEach(m => renderMessage(m));
             box.scrollTop = box.scrollHeight;
         }
 
         function renderMessage(m) {
             const box = document.getElementById('chatMessages');
-            if(box.innerHTML.includes("Belum ada pesan") || box.innerHTML.includes("Memuat pesan")) box.innerHTML = '';
-
             if (document.getElementById(`msg-${currentChatType}-${m.id}`)) return;
             const isMe = m.sender === _userEmail;
             const group = document.createElement('div');
@@ -568,63 +443,42 @@
                 rawText = "[Gambar]";
             } else if (displayTxt.startsWith('|RPLY|')) {
                 const parts = displayTxt.split('|');
-                const senderName = parts[2] === _userEmail ? "Anda" : parts[2].split('@')[0];
-                quoteHtml = `<div class="msg-quote"><strong>${senderName}</strong>: ${parts[3]}</div>`;
+                quoteHtml = `<div class="msg-quote"><strong>${parts[2].split('@')[0]}</strong>: ${parts[3]}</div>`;
                 displayTxt = parts.slice(4).join('|'); rawText = displayTxt;
             }
-            
-            const timeDate = new Date(m.created_at);
-            const time = timeDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            
+            const time = new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             if (isMe) {
-                group.innerHTML = `
-                <div class="msg-wrapper me">
-                    <div class="msg-row">
-                        <div class="msg-bubble" onclick="showActionMenu(event, '${m.id}', '${m.sender}', \`${rawText.replace(/`/g, '\\`')}\`, true)">${quoteHtml}${displayTxt}</div>
-                    </div>
-                    <div class="msg-time">${time}</div>
-                </div>`;
+                group.innerHTML = `<div class="msg-row me"><div class="msg-content-wrapper"><div class="msg-bubble" onclick="showActionMenu(event, '${m.id}', '${m.sender}', \`${rawText.replace(/`/g, '\\`')}\`, true)">${quoteHtml}${displayTxt}</div><div class="msg-time">${time}</div></div></div>`;
             } else {
-                const userColor = getColorForUser(m.sender);
-                group.innerHTML = `
-                <div class="msg-wrapper other">
-                    <div class="msg-name" style="color:${userColor}">${m.sender.split('@')[0]}</div>
-                    <div class="msg-row">
-                        <div class="avatar-circle" style="width:36px; height:36px; background:${userColor}20; color:${userColor}; font-size:0.85rem; border-radius:12px; flex-shrink:0;">${m.sender[0].toUpperCase()}</div>
-                        <div class="msg-bubble" onclick="showActionMenu(event, '${m.id}', '${m.sender}', \`${rawText.replace(/`/g, '\\`')}\`, false)">${quoteHtml}${displayTxt}</div>
-                    </div>
-                    <div class="msg-time">${time}</div>
-                </div>`;
+                group.innerHTML = `<div class="msg-row other"><div class="avatar-circle" style="width:36px; height:36px; background:${getColorForUser(m.sender)}; color:white;">${m.sender[0].toUpperCase()}</div><div class="msg-content-wrapper"><div class="msg-name" style="color:${getColorForUser(m.sender)}">${m.sender.split('@')[0]}</div><div class="msg-bubble" onclick="showActionMenu(event, '${m.id}', '${m.sender}', \`${rawText.replace(/`/g, '\\`')}\`, false)">${quoteHtml}${displayTxt}</div><div class="msg-time">${time}</div></div></div>`;
             }
             box.appendChild(group); box.scrollTop = box.scrollHeight;
         }
 
         function showActionMenu(e, id, sender, text, isMe) {
             e.stopPropagation(); selectedMsg = { id, sender, text };
-            const menu = document.getElementById('actionMenu'); 
-            menu.style.display = 'flex';
+            const menu = document.getElementById('actionMenu'); menu.style.display = 'flex';
             
-            let posX = e.pageX; let posY = e.pageY;
-            if (posX + 180 > window.innerWidth) posX = window.innerWidth - 180;
-            if (posY + 120 > window.innerHeight) posY = window.innerHeight - 120;
+            // Mencegah menu keluar layar di HP
+            let posX = e.pageX;
+            let posY = e.pageY;
+            if (posX + 170 > window.innerWidth) posX = window.innerWidth - 170;
+            if (posY + 110 > window.innerHeight) posY = window.innerHeight - 110;
 
-            menu.style.left = posX + 'px'; menu.style.top = posY + 'px';
+            menu.style.left = posX + 'px';
+            menu.style.top = posY + 'px';
             document.getElementById('btnDel').style.display = isMe ? 'block' : 'none';
         }
 
-        function actionReply() { 
-            replyingTo = selectedMsg; 
-            document.getElementById('replyBar').style.display = 'flex'; 
-            document.getElementById('replyTxt').innerText = selectedMsg.text; 
-            document.getElementById('msgIn').focus(); 
-        }
+        function actionReply() { replyingTo = selectedMsg; document.getElementById('replyBar').style.display = 'flex'; document.getElementById('replyTxt').innerText = selectedMsg.text; document.getElementById('msgIn').focus(); }
 
         async function actionDelete() { 
-            if(!confirm("Yakin ingin menghapus pesan ini?")) return;
+            if(!confirm("Hapus pesan ini?")) return;
             const table = currentChatType === 'global' ? 'global_chat' : 'private_chat'; 
             const { error } = await _client.from(table).delete().eq('id', selectedMsg.id); 
-            if (error) alert("Gagal menghapus pesan: " + error.message);
-            else {
+            if (error) {
+                alert("Gagal menghapus pesan: " + error.message);
+            } else {
                 const el = document.getElementById(`msg-${currentChatType}-${selectedMsg.id}`);
                 if(el) el.remove();
             }
@@ -636,10 +490,6 @@
             if (!txt) return;
             let finalMsg = replyingTo ? `|RPLY|${replyingTo.sender}|${replyingTo.text}|${txt}` : txt;
             cancelReply(); inp.value = '';
-            
-            const box = document.getElementById('chatMessages');
-            setTimeout(() => { box.scrollTop = box.scrollHeight; }, 100);
-
             const payload = { sender: _userEmail, message: finalMsg };
             if (currentChatType === 'global') await _client.from('global_chat').insert([payload]);
             else { payload.receiver = currentTargetEmail; await _client.from('private_chat').insert([payload]); }
@@ -647,20 +497,12 @@
 
         async function handleImageUpload() {
             const file = document.getElementById('imgUpload').files[0]; if (!file) return;
-            const inp = document.getElementById('msgIn');
-            const originalPlaceholder = inp.placeholder;
-            inp.placeholder = "Mengunggah gambar..."; inp.disabled = true;
-
             const path = `public/${Date.now()}_${file.name}`;
             await _client.storage.from('chat_images').upload(path, file);
             const { data } = _client.storage.from('chat_images').getPublicUrl(path);
             const payload = { sender: _userEmail, message: `|URLIMG|${data.publicUrl}` };
-            
             if (currentChatType === 'global') await _client.from('global_chat').insert([payload]);
             else { payload.receiver = currentTargetEmail; await _client.from('private_chat').insert([payload]); }
-
-            inp.placeholder = originalPlaceholder; inp.disabled = false;
-            document.getElementById('imgUpload').value = '';
         }
 
         function cancelReply() { replyingTo = null; document.getElementById('replyBar').style.display = 'none'; }
@@ -686,10 +528,9 @@
             }).subscribe();
         }
 
-        document.addEventListener('click', () => { document.getElementById('actionMenu').style.display = 'none'; });
-        _client.auth.getSession().then(({data}) => { 
-            if(data.session) { _userEmail = data.session.user.email; enterDashboard(); } 
-        });
+        document.addEventListener('click', () => document.getElementById('actionMenu').style.display = 'none');
+        _client.auth.getSession().then(({data}) => { if(data.session) { _userEmail = data.session.user.email; enterDashboard(); } });
     </script>
-</body>
-</html>
+
+
+</body></html>
