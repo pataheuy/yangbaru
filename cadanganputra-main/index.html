@@ -241,16 +241,48 @@
             font-size: 0.85rem;
         }
 
-        /* Responsive */
+        /* =========================================
+           RESPONSIVE MEDIA QUERIES (UPDATED)
+        ========================================= */
+        
+        /* Tablet Landscape & Medium Screens */
         @media (max-width: 1024px) { 
             .grid { grid-template-columns: repeat(3, 1fr); }
             .hero h1 { font-size: 4rem; }
+            .footer-grid { grid-template-columns: 1fr 1fr; gap: 40px; } /* Footer jadi 2 kolom di tablet */
         }
+        
+        /* Tablet Portrait & Large Phones */
         @media (max-width: 768px) { 
-            .hero h1 { font-size: 3rem; } 
-            .grid { grid-template-columns: repeat(2, 1fr); }
+            /* Perbaiki navigasi agar rapi di layar kecil */
+            header { padding: 15px 0; }
+            nav { flex-direction: column; gap: 15px; }
+            nav ul { flex-wrap: wrap; justify-content: center; }
+            nav ul li { margin: 5px 15px; }
+            
+            /* Sesuaikan Hero */
+            .hero h1 { font-size: 2.8rem; letter-spacing: -1px; } 
+            .hero p { font-size: 1rem; padding: 0 10px; margin-bottom: 30px; }
             .hero { height: 80vh; }
             .main-content { margin-top: 80vh; }
+            
+            /* Grid Project jadi 2 kolom */
+            .grid { grid-template-columns: repeat(2, 1fr); }
+            
+            /* Sesuaikan ukuran Footer */
+            footer { padding: 60px 0 30px; }
+            .footer-grid { grid-template-columns: 1fr; text-align: center; gap: 40px; margin-bottom: 40px; }
+            .footer-bottom { flex-direction: column; gap: 15px; text-align: center; }
+        }
+
+        /* Mobile Phones */
+        @media (max-width: 480px) {
+            .hero h1 { font-size: 2.2rem; }
+            .btn { padding: 15px 25px; font-size: 0.95rem; }
+            
+            /* Grid Project jadi 1 kolom di HP */
+            .grid { grid-template-columns: 1fr; }
+            .card { min-height: auto; }
         }
 
         @keyframes slideDown {
@@ -534,10 +566,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
