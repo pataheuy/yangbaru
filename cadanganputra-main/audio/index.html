@@ -99,13 +99,6 @@
             position: relative;
         }
         
-        .loop-indicator {
-            position: absolute; top: -5px; right: -5px; background: #000; 
-            color: #fff; border-radius: 50%; width: 18px; height: 18px; 
-            display: none; align-items: center; justify-content: center; font-size: 10px;
-        }
-        .looping .loop-indicator { display: flex; }
-
         .play-hover-btn { 
             width: 24px; height: 24px; background: rgba(0,0,0,0.7); 
             border-radius: 50%; display: flex; align-items: center; 
@@ -170,13 +163,6 @@
         .vol-bar { width: 80px; height: 4px; background: #eee; border-radius: 2px; margin-left: 10px; cursor: pointer; position: relative; }
         .vol-bar .fill { position: absolute; height: 100%; width: 100%; background: #000; border-radius: 2px; }
 
-        /* Tooltip */
-        .tooltip {
-            position: fixed; background: rgba(0,0,0,0.8); color: #fff; padding: 5px 10px;
-            border-radius: 4px; font-size: 11px; pointer-events: none; z-index: 2000;
-            display: none;
-        }
-
         @media (max-width: 768px) {
             .main-view { padding: 20px; padding-bottom: 140px; }
             .player-bar { position: relative; flex-direction: column; padding: 15px 20px; height: auto; align-items: flex-start; gap: 12px; }
@@ -191,7 +177,6 @@
 <body>
 
     <audio id="mainAudio"></audio>
-    <div id="tooltip" class="tooltip">Klik Kanan: Ulangi Lagu</div>
 
     <div class="app-container">
         <main class="main-view">
@@ -220,9 +205,7 @@
     <div class="player-bar-container">
         <footer class="player-bar">
             <div class="now-playing">
-                <div class="np-cover" id="npCover">
-                    <div class="loop-indicator" id="mainLoopIndicator">🔁</div>
-                </div>
+                <div class="np-cover" id="npCover"></div>
                 <div class="np-info">
                     <h4 id="npTitle">Pilih Lagu...</h4>
                     <p id="npArtist">Pufutara Audio</p>
@@ -249,12 +232,12 @@
 
     <script>
         const mainSongs = [
-            { id: 1, title: "Alhijrotu Rihlah tu habina", genre: "Lofi", color: "#e0e0e0", src: "../lagu/alhijrotu.mp3" },
-            { id: 2, title: "Al-Itiraf", genre: "Chillwave", color: "#ebebeb", src: "../lagu/alitirof.mp3" },
-            { id: 3, title: "Lataqul li wahdi", genre: "Acoustic", color: "#f5f5f5", src: "../lagu/assadayah.mp3" },
-            { id: 4, title: "Assadayah", genre: "Upbeat", color: "#dcdcdc", src: "../lagu/lataqul.mp3" },
-            { id: 5, title: "Qolbi Fil Madinah", genre: "Ambient", color: "#eaeaea", src: "../lagu/qolbi.mp3" },
-            { id: 6, title: "Rahmatun lil alamen", genre: "Electronic", color: "#f0f0f0", src: "../lagu/rahmatun.mp3" },
+            { id: 1, title: "Alhijrotu Rihlah tu habina", genre: "Lofi", color: "#e0e0e0", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+            { id: 2, title: "Al-Itiraf", genre: "Chillwave", color: "#ebebeb", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+            { id: 3, title: "Lataqul li wahdi", genre: "Acoustic", color: "#f5f5f5", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
+            { id: 4, title: "Assadayah", genre: "Upbeat", color: "#dcdcdc", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
+            { id: 5, title: "Qolbi Fil Madinah", genre: "Ambient", color: "#eaeaea", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" },
+            { id: 6, title: "Rahmatun lil alamen", genre: "Electronic", color: "#f0f0f0", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3" },
             { id: 7, title: "Server Down Blues", genre: "Jazz", color: "#e8e8e8", src: "" },
             { id: 8, title: "Terminal Echoes", genre: "Cyberpunk", color: "#dfdfdf", src: "" },
             { id: 9, title: "Infinite Loop", genre: "Trance", color: "#f7f7f7", src: "" },
@@ -277,7 +260,7 @@
         let currentList = [...mainSongs];
         let isEasterEgg = false;
         let currentSongIndex = -1;
-        let isLooping = false; // Status untuk loop satu lagu
+        let isLooping = false; 
 
         const musicListContainer = document.getElementById('musicList');
         const searchInput = document.getElementById('searchInput');
@@ -295,18 +278,15 @@
         const volumeBar = document.getElementById('volumeBar');
         const currentTimeText = document.getElementById('currentTimeText');
         const durationTimeText = document.getElementById('durationTimeText');
-        const mainLoopIndicator = document.getElementById('mainLoopIndicator');
-        const tooltip = document.getElementById('tooltip');
 
         function renderMusic(songs) {
             musicListContainer.innerHTML = '';
             songs.forEach((song, index) => {
                 const card = document.createElement('div');
-                card.className = `music-card ${currentSongIndex === index ? 'playing' : ''} ${isLooping && currentSongIndex === index ? 'looping' : ''}`;
+                card.className = `music-card ${currentSongIndex === index ? 'playing' : ''}`;
                 card.dataset.id = song.id;
                 card.innerHTML = `
                     <div class="cover-art" style="background: ${song.color};">
-                        <div class="loop-indicator">🔁</div>
                         <div class="play-hover-btn"></div>
                     </div>
                     <div class="song-details">
@@ -315,24 +295,17 @@
                     </div>
                 `;
                 
-                // Klik kiri: Putar lagu
                 card.addEventListener('click', () => playSong(song));
                 
-                // Klik kanan: Toggle Loop lagu ini
                 card.addEventListener('contextmenu', (e) => {
                     e.preventDefault();
                     if (currentSongIndex === index) {
                         isLooping = !isLooping;
                         audio.loop = isLooping;
-                        mainLoopIndicator.style.display = isLooping ? 'flex' : 'none';
-                        renderMusic(currentList); // Update UI indikator di list
                     } else {
-                        // Putar dulu baru loop
                         playSong(song);
                         isLooping = true;
                         audio.loop = true;
-                        mainLoopIndicator.style.display = 'flex';
-                        renderMusic(currentList);
                     }
                 });
 
@@ -358,12 +331,10 @@
             } else {
                 audio.src = "";
                 playBtn.classList.remove('playing');
-                alert(`Link lagu "${song.title}" belum tersedia.`);
             }
             renderMusic(currentList);
         }
 
-        // Navigasi
         function playNext() {
             if (currentSongIndex === -1) return;
             let nextIndex = currentSongIndex + 1;
@@ -392,14 +363,12 @@
         nextBtn.addEventListener('click', playNext);
         prevBtn.addEventListener('click', playPrev);
 
-        // OTOMATIS LANJUT KE BAWAH
         audio.addEventListener('ended', () => {
             if (!isLooping) {
                 playNext();
             }
         });
 
-        // Seek Bar (Maju Mundur)
         progressBar.addEventListener('click', (e) => {
             if (!audio.duration) return;
             const rect = progressBar.getBoundingClientRect();
@@ -407,7 +376,6 @@
             audio.currentTime = pct * audio.duration;
         });
 
-        // Time Update UI
         audio.addEventListener('timeupdate', () => {
             if (audio.duration) {
                 const pct = (audio.currentTime / audio.duration) * 100;
@@ -423,7 +391,6 @@
             return `${m}:${s < 10 ? '0' : ''}${s}`;
         }
 
-        // Volume
         volumeBar.addEventListener('click', (e) => {
             const rect = volumeBar.getBoundingClientRect();
             let pct = (e.clientX - rect.left) / rect.width;
@@ -432,7 +399,6 @@
             volumeFill.style.width = (pct * 100) + "%";
         });
 
-        // Search & Easter Egg
         searchInput.addEventListener('input', (e) => {
             const val = e.target.value.toLowerCase().trim();
             if (val === "putrasigma") {
@@ -452,7 +418,6 @@
             document.getElementById('noResults').style.display = filtered.length === 0 ? 'block' : 'none';
         });
 
-        // Local Upload
         document.getElementById('localFileInput').addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
@@ -466,14 +431,6 @@
             });
             renderMusic(currentList);
         });
-
-        // Info Tooltip on startup
-        setTimeout(() => {
-            tooltip.style.display = "block";
-            tooltip.style.left = "20px";
-            tooltip.style.top = "80px";
-            setTimeout(() => tooltip.style.display = "none", 4000);
-        }, 1000);
 
         renderMusic(mainSongs);
     </script>
