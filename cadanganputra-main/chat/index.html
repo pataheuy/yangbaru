@@ -54,15 +54,17 @@
         .chat-item:hover { background-color: var(--pf-gray-light); }
         .chat-item.active-chat { background-color: var(--pf-black); color: var(--pf-white); }
         
-        /* Tombol Hapus di Sidebar */
+        /* Tombol X Hapus di Sidebar */
         .delete-chat-btn {
-            position: absolute; right: 15px; opacity: 0;
-            background: rgba(224, 36, 36, 0.1); color: var(--pf-danger);
-            border: none; border-radius: 6px; padding: 4px 8px; font-size: 0.75rem; font-weight: 700;
-            transition: 0.2s;
+            position: absolute; right: 20px; opacity: 0;
+            background: none; color: var(--pf-text-muted);
+            border: none; cursor: pointer; font-size: 1.2rem; font-weight: 400;
+            transition: 0.2s; padding: 5px;
         }
         .chat-item:hover .delete-chat-btn { opacity: 1; }
-        .delete-chat-btn:hover { background: var(--pf-danger); color: white; }
+        .delete-chat-btn:hover { color: var(--pf-danger); transform: scale(1.1); }
+        .active-chat .delete-chat-btn { color: #888; }
+        .active-chat .delete-chat-btn:hover { color: #ff5f5f; }
 
         .avatar-circle { width: 40px; height: 40px; border-radius: 50%; background: var(--pf-gray-border); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 700; color: var(--pf-black); flex-shrink: 0; }
         .chat-info { flex: 1; overflow: hidden; display: flex; flex-direction: column; gap: 2px; }
@@ -116,7 +118,7 @@
         .action-menu button:hover { background: var(--pf-gray-light); }
         .action-menu button.danger { color: var(--pf-danger); }
 
-        /* Auth Screen */
+        /* Modals */
         .auth-screen { position: fixed; inset: 0; background: var(--pf-white); z-index: 1000; display: flex; align-items: center; justify-content: center; }
         .auth-card { width: 100%; max-width: 400px; padding: 40px; text-align: center; }
         .auth-input { width: 100%; padding: 16px; margin-bottom: 16px; border: 1px solid var(--pf-gray-border); border-radius: 12px; font-size: 1rem; outline: none; background: var(--pf-gray-light); }
@@ -248,7 +250,7 @@
             if (error) {
                 const { error: upErr } = await _client.auth.signUp({ email, password });
                 if (upErr) document.getElementById('authErr').innerText = upErr.message;
-                else document.getElementById('authErr').innerText = "Akun dibuat! Masuk kembali.";
+                else document.getElementById('authErr').innerText = "Akun dibuat! Klik masuk lagi.";
             } else { _userEmail = data.user.email; enterDashboard(); }
         }
 
@@ -298,21 +300,20 @@
                 else if(preview.startsWith('|RPLY|')) preview = preview.split('|').pop();
 
                 item.innerHTML = `
-                    <div class="avatar-circle" style="background:${getColorForUser(email)}; color:white;">${email[0].toUpperCase()}</div>
+                    <div class="avatar-circle" style="background:${isActive ? 'white' : getColorForUser(email)}; color:${isActive ? 'black' : 'white'};">${email[0].toUpperCase()}</div>
                     <div class="chat-info">
                         <span class="chat-name">${email.split('@')[0]}</span>
                         <span class="chat-preview">${preview}</span>
                     </div>
-                    <button class="delete-chat-btn" onclick="event.stopPropagation(); deleteFullConversation('${email}')">Hapus</button>
+                    <button class="delete-chat-btn" onclick="event.stopPropagation(); deleteFullConversation('${email}')">✕</button>
                 `;
                 list.appendChild(item);
             });
         }
 
-        // FUNGSI BARU: Hapus Seluruh Riwayat Chat Pribadi (Klik Kiri Tombol Hapus)
         async function deleteFullConversation(targetEmail) {
-            if(!confirm(`Hapus semua chat dengan ${targetEmail}?`)) return;
-            // Menghapus baris di mana saya pengirim & target penerima, ATAU sebaliknya
+            if(!confirm(`Hapus seluruh riwayat chat dengan ${targetEmail}?`)) return;
+            // Menghapus semua baris antara kita dan target
             const { error } = await _client.from('private_chat').delete()
                 .or(`and(sender.eq.${_userEmail},receiver.eq.${targetEmail}),and(sender.eq.${targetEmail},receiver.eq.${_userEmail})`);
             
@@ -321,7 +322,7 @@
                 if(currentTargetEmail === targetEmail) switchChat('global');
                 renderSidebar();
             } else {
-                alert("Gagal menghapus riwayat chat.");
+                alert("Gagal menghapus riwayat: " + error.message);
             }
         }
 
@@ -379,11 +380,9 @@
 
         function actionReply() { replyingTo = selectedMsg; document.getElementById('replyBar').style.display = 'flex'; document.getElementById('replyTxt').innerText = selectedMsg.text; document.getElementById('msgIn').focus(); }
 
-        // FUNGSI PERBAIKAN: Hapus Pesan Tunggal
         async function actionDelete() { 
             if(!confirm("Hapus pesan ini?")) return;
             const table = currentChatType === 'global' ? 'global_chat' : 'private_chat'; 
-            // Pastikan ID dikirim dengan benar ke kueri filter
             const { error } = await _client.from(table).delete().eq('id', selectedMsg.id); 
             if (error) {
                 alert("Gagal menghapus pesan: " + error.message);
@@ -432,6 +431,8 @@
                     const tableKey = payload.table === 'global_chat' ? 'global' : 'private';
                     const el = document.getElementById(`msg-${tableKey}-${payload.old.id}`);
                     if(el) el.remove();
+                    // Jika data tabel dihapus massal, muat ulang sidebar
+                    if(payload.table === 'private_chat') loadSidebarList();
                 }
             }).subscribe();
         }
