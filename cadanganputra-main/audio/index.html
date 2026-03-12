@@ -19,6 +19,7 @@
             flex-direction: column;
             height: 100vh;
             overflow: hidden;
+            user-select: none;
         }
 
         .app-container { 
@@ -86,15 +87,25 @@
             background: #fff; padding: 12px 20px; border-radius: 8px; 
             border: 1px solid transparent; transition: all 0.2s ease; 
             cursor: pointer; display: flex; align-items: center; gap: 20px;
+            position: relative;
         }
         
         .music-card:hover { background: #f9f9f9; border-color: #f0f0f0; }
+        .music-card.playing { background: #f0f0f0; border-color: #e0e0e0; }
 
         .cover-art { 
             width: 48px; height: 48px; flex-shrink: 0; background: #eee; 
             border-radius: 4px; display: flex; align-items: center; justify-content: center;
+            position: relative;
         }
         
+        .loop-indicator {
+            position: absolute; top: -5px; right: -5px; background: #000; 
+            color: #fff; border-radius: 50%; width: 18px; height: 18px; 
+            display: none; align-items: center; justify-content: center; font-size: 10px;
+        }
+        .looping .loop-indicator { display: flex; }
+
         .play-hover-btn { 
             width: 24px; height: 24px; background: rgba(0,0,0,0.7); 
             border-radius: 50%; display: flex; align-items: center; 
@@ -127,13 +138,15 @@
         }
 
         .now-playing { display: flex; align-items: center; gap: 15px; width: 30%; }
-        .np-cover { width: 56px; height: 56px; background: #e6e6e6; border-radius: 6px; }
+        .np-cover { width: 56px; height: 56px; background: #e6e6e6; border-radius: 6px; flex-shrink: 0; position: relative; }
+        .np-info { overflow: hidden; }
         .np-info h4 { font-size: 0.95rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .np-info p { font-size: 0.75rem; color: #888; }
+        .np-info p { font-size: 0.75rem; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
         
         .player-controls { display: flex; flex-direction: column; align-items: center; width: 40%; }
         .control-buttons { display: flex; align-items: center; gap: 20px; margin-bottom: 8px; }
-        .btn-control { background: none; border: none; color: #666; font-size: 1.2rem; cursor: pointer; }
+        .btn-control { background: none; border: none; color: #666; font-size: 1.2rem; cursor: pointer; transition: color 0.2s; }
+        .btn-control:hover { color: #000; }
         
         .btn-play-main { 
             width: 40px; height: 40px; background: #000; border-radius: 50%; 
@@ -156,11 +169,29 @@
         .volume-controls { width: 30%; display: flex; justify-content: flex-end; align-items: center; }
         .vol-bar { width: 80px; height: 4px; background: #eee; border-radius: 2px; margin-left: 10px; cursor: pointer; position: relative; }
         .vol-bar .fill { position: absolute; height: 100%; width: 100%; background: #000; border-radius: 2px; }
+
+        /* Tooltip */
+        .tooltip {
+            position: fixed; background: rgba(0,0,0,0.8); color: #fff; padding: 5px 10px;
+            border-radius: 4px; font-size: 11px; pointer-events: none; z-index: 2000;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .main-view { padding: 20px; padding-bottom: 140px; }
+            .player-bar { position: relative; flex-direction: column; padding: 15px 20px; height: auto; align-items: flex-start; gap: 12px; }
+            .volume-controls { display: none; }
+            .now-playing { width: calc(100% - 110px); gap: 12px; }
+            .control-buttons { position: absolute; top: 20px; right: 20px; margin-bottom: 0; }
+            .player-controls { width: 100%; align-items: stretch; }
+            .playback-bar { max-width: 100%; }
+        }
     </style>
 </head>
 <body>
 
     <audio id="mainAudio"></audio>
+    <div id="tooltip" class="tooltip">Klik Kanan: Ulangi Lagu</div>
 
     <div class="app-container">
         <main class="main-view">
@@ -172,7 +203,7 @@
             <h1 class="greeting">Temukan Lagumu.</h1>
             
             <div class="search-container">
-                <input type="text" id="searchInput" class="search-bar" placeholder="Cari judul lagu atau ketik password...">
+                <input type="text" id="searchInput" class="search-bar" placeholder="Cari judul lagu yang menarik.">
             </div>
 
             <div class="section-title-container">
@@ -189,7 +220,9 @@
     <div class="player-bar-container">
         <footer class="player-bar">
             <div class="now-playing">
-                <div class="np-cover" id="npCover"></div>
+                <div class="np-cover" id="npCover">
+                    <div class="loop-indicator" id="mainLoopIndicator">🔁</div>
+                </div>
                 <div class="np-info">
                     <h4 id="npTitle">Pilih Lagu...</h4>
                     <p id="npArtist">Pufutara Audio</p>
@@ -197,9 +230,9 @@
             </div>
             <div class="player-controls">
                 <div class="control-buttons">
-                    <button class="btn-control">⏮</button>
+                    <button class="btn-control" id="prevBtn">⏮</button>
                     <div class="btn-play-main" id="playBtn"></div>
-                    <button class="btn-control">⏭</button>
+                    <button class="btn-control" id="nextBtn">⏭</button>
                 </div>
                 <div class="playback-bar">
                     <span id="currentTimeText">0:00</span>
@@ -215,126 +248,134 @@
     </div>
 
     <script>
-        /**
-         * CARA MENGISI LAGU:
-         * Ganti bagian src: "" di bawah ini dengan link lagu MP3 kamu.
-         * Contoh: src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
-         * Jika kamu punya file di komputer, tulis nama filenya: src: "lagu.mp3" (harus satu folder).
-         */
         const mainSongs = [
-            { title: "Alhijrotu Rihlah tu habina", genre: "Lofi", color: "#e0e0e0", src: "../lagu/alhijrotu.mp3" },
-            { title: "Al-Itiraf", genre: "Chillwave", color: "#ebebeb", src: "../lagu/alitiraf.mp3" },
-            { title: "Lataqul li wahdi", genre: "Acoustic", color: "#f5f5f5", src: "../lagu/Lataqul.mp3" },
-            { title: "Assadayah", genre: "Upbeat", color: "#dcdcdc", src: "../lagu/assadayah.mp3" },
-            { title: "Qolbi Fil Madinah", genre: "Ambient", color: "#eaeaea", src: "../lagu/qolbi.mp3" },
-            { title: "Rahmatun lil alamen", genre: "Electronic", color: "#f0f0f0", src: "../lagu/rahmatun.mp3" },
-            { title: "Server Down Blues", genre: "Jazz", color: "#e8e8e8", src: "" },
-            { title: "Terminal Echoes", genre: "Cyberpunk", color: "#dfdfdf", src: "" },
-            { title: "Infinite Loop", genre: "Trance", color: "#f7f7f7", src: "" },
-            { title: "API Request Timeout", genre: "Slow", color: "#e2e2e2", src: "" },
-            { title: "Koding Sampai Pagi", genre: "Lofi Beats", color: "#ececec", src: "" },
-            { title: "404 Not Found", genre: "Chill", color: "#f2f2f2", src: "" },
-            { title: "Git Commit Push", genre: "Pop Rock", color: "#e6e6e6", src: "" },
-            { title: "Merge Conflict Stress", genre: "Metal", color: "#dadada", src: "" },
-            { title: "Refactoring Dreams", genre: "Dream Pop", color: "#eeeeee", src: "" }
+            { id: 1, title: "Alhijrotu Rihlah tu habina", genre: "Lofi", color: "#e0e0e0", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+            { id: 2, title: "Al-Itiraf", genre: "Chillwave", color: "#ebebeb", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+            { id: 3, title: "Lataqul li wahdi", genre: "Acoustic", color: "#f5f5f5", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
+            { id: 4, title: "Assadayah", genre: "Upbeat", color: "#dcdcdc", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
+            { id: 5, title: "Qolbi Fil Madinah", genre: "Ambient", color: "#eaeaea", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" },
+            { id: 6, title: "Rahmatun lil alamen", genre: "Electronic", color: "#f0f0f0", src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3" },
+            { id: 7, title: "Server Down Blues", genre: "Jazz", color: "#e8e8e8", src: "" },
+            { id: 8, title: "Terminal Echoes", genre: "Cyberpunk", color: "#dfdfdf", src: "" },
+            { id: 9, title: "Infinite Loop", genre: "Trance", color: "#f7f7f7", src: "" },
+            { id: 10, title: "API Request Timeout", genre: "Slow", color: "#e2e2e2", src: "" },
+            { id: 11, title: "Koding Sampai Pagi", genre: "Lofi Beats", color: "#ececec", src: "" },
+            { id: 12, title: "404 Not Found", genre: "Chill", color: "#f2f2f2", src: "" },
+            { id: 13, title: "Git Commit Push", genre: "Pop Rock", color: "#e6e6e6", src: "" },
+            { id: 14, title: "Merge Conflict Stress", genre: "Metal", color: "#dadada", src: "" },
+            { id: 15, title: "Refactoring Dreams", genre: "Dream Pop", color: "#eeeeee", src: "" }
         ];
 
         const secretSongs = [
-            { title: "Senja di Braga", genre: "Jazz", color: "#e0e0e0", src: "" },
-            { title: "Macet Pasteur", genre: "Punk Rock", color: "#ebebeb", src: "" },
-            { title: "Bubur Ayam Meta", genre: "Funny Pop", color: "#f5f5f5", src: "" },
-            { title: "Cuaca Dingin Lembang", genre: "Folk", color: "#dcdcdc", src: "" },
-            { title: "Dago Malam Hari", genre: "Synthwave", color: "#eaeaea", src: "" },
-            { title: "Angkot Antapani", genre: "Disco", color: "#f0f0f0", src: "" },
-            { title: "Cilok Digital", genre: "Electronic", color: "#e8e8e8", src: "" },
-            { title: "Gerimis di Gasibu", genre: "Ballad", color: "#dfdfdf", src: "" },
-            { title: "Taman Lansia Vibes", genre: "Reggae", color: "#f7f7f7", src: "" },
-            { title: "Seblak Pedas Level 10", genre: "Hardcore", color: "#e2e2e2", src: "" },
-            { title: "Surapati Sunset", genre: "Lo-fi", color: "#ececec", src: "" },
-            { title: "Kos-kosan Error", genre: "Garage Rock", color: "#f2f2f2", src: "" },
-            { title: "ITB vs Unpad Derby", genre: "Orchestra", color: "#e6e6e6", src: "" },
-            { title: "Suara Cipaganti", genre: "Nature", color: "#dadada", src: "" },
-            { title: "Bandung Tetap Sama", genre: "Sentimental", color: "#eeeeee", src: "" }
+            { id: 101, title: "Senja di Braga", genre: "Jazz", color: "#e0e0e0", src: "" },
+            { id: 102, title: "Macet Pasteur", genre: "Punk Rock", color: "#ebebeb", src: "" },
+            { id: 103, title: "Bubur Ayam Meta", genre: "Funny Pop", color: "#f5f5f5", src: "" },
+            { id: 104, title: "Cuaca Dingin Lembang", genre: "Folk", color: "#dcdcdc", src: "" },
+            { id: 105, title: "Dago Malam Hari", genre: "Synthwave", color: "#eaeaea", src: "" }
         ];
 
         let currentList = [...mainSongs];
         let isEasterEgg = false;
+        let currentSongIndex = -1;
+        let isLooping = false; // Status untuk loop satu lagu
 
         const musicListContainer = document.getElementById('musicList');
         const searchInput = document.getElementById('searchInput');
         const listTitle = document.getElementById('listTitle');
-        const localFileInput = document.getElementById('localFileInput');
         const audio = document.getElementById('mainAudio');
         const playBtn = document.getElementById('playBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
         const npTitle = document.getElementById('npTitle');
         const npArtist = document.getElementById('npArtist');
         const npCover = document.getElementById('npCover');
         const progressFill = document.getElementById('progressFill');
+        const progressBar = document.getElementById('progressBar');
+        const volumeFill = document.getElementById('volumeFill');
+        const volumeBar = document.getElementById('volumeBar');
         const currentTimeText = document.getElementById('currentTimeText');
         const durationTimeText = document.getElementById('durationTimeText');
+        const mainLoopIndicator = document.getElementById('mainLoopIndicator');
+        const tooltip = document.getElementById('tooltip');
 
         function renderMusic(songs) {
             musicListContainer.innerHTML = '';
-            songs.forEach(song => {
+            songs.forEach((song, index) => {
                 const card = document.createElement('div');
-                card.className = 'music-card';
+                card.className = `music-card ${currentSongIndex === index ? 'playing' : ''} ${isLooping && currentSongIndex === index ? 'looping' : ''}`;
+                card.dataset.id = song.id;
                 card.innerHTML = `
-                    <div class="cover-art" style="background: ${song.color};"><div class="play-hover-btn"></div></div>
+                    <div class="cover-art" style="background: ${song.color};">
+                        <div class="loop-indicator">🔁</div>
+                        <div class="play-hover-btn"></div>
+                    </div>
                     <div class="song-details">
                         <h3>${song.title}</h3>
                         <p>${song.genre}</p>
                     </div>
                 `;
-                card.onclick = () => playSong(song);
+                
+                // Klik kiri: Putar lagu
+                card.addEventListener('click', () => playSong(song));
+                
+                // Klik kanan: Toggle Loop lagu ini
+                card.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    if (currentSongIndex === index) {
+                        isLooping = !isLooping;
+                        audio.loop = isLooping;
+                        mainLoopIndicator.style.display = isLooping ? 'flex' : 'none';
+                        renderMusic(currentList); // Update UI indikator di list
+                    } else {
+                        // Putar dulu baru loop
+                        playSong(song);
+                        isLooping = true;
+                        audio.loop = true;
+                        mainLoopIndicator.style.display = 'flex';
+                        renderMusic(currentList);
+                    }
+                });
+
                 musicListContainer.appendChild(card);
             });
             listTitle.textContent = isEasterEgg ? `Lagu Tersembunyi (${songs.length})` : `Semua Koleksi (${songs.length})`;
         }
 
-        localFileInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const fileURL = URL.createObjectURL(file);
-            const newSong = {
-                title: file.name.replace(/\.[^/.]+$/, ""),
-                genre: "Lagu Lokal",
-                color: "#" + Math.floor(Math.random()*16777215).toString(16),
-                src: fileURL
-            };
-            currentList.unshift(newSong);
-            renderMusic(currentList);
-        });
-
-        searchInput.addEventListener('input', (e) => {
-            const val = e.target.value.toLowerCase().trim();
-            if (val === "putrasigma" && !isEasterEgg) {
-                isEasterEgg = true;
-                currentList = [...secretSongs];
-                renderMusic(currentList);
-                searchInput.value = ""; 
-                return;
-            }
-            const filtered = currentList.filter(s => 
-                s.title.toLowerCase().includes(val) || s.genre.toLowerCase().includes(val)
-            );
-            renderMusic(filtered);
-            document.getElementById('noResults').style.display = filtered.length === 0 ? 'block' : 'none';
-        });
-
         function playSong(song) {
+            const index = currentList.findIndex(s => s.id === song.id);
+            if (index === -1) return;
+            
+            currentSongIndex = index;
             npTitle.textContent = song.title;
             npArtist.textContent = song.genre === "Lagu Lokal" ? "Unggahan Kamu" : (isEasterEgg ? "Pufutara Secret Tracks" : "Pufutara Audio");
             npCover.style.background = song.color;
             
             if (song.src && song.src !== "") {
                 audio.src = song.src;
-                audio.play().catch(e => console.error("Gagal memutar lagu:", e));
+                audio.loop = isLooping;
+                audio.play().catch(e => console.error("Gagal memutar:", e));
                 playBtn.classList.add('playing');
             } else {
                 audio.src = "";
                 playBtn.classList.remove('playing');
-                alert("Maaf, link lagu '" + song.title + "' belum diisi di kode.");
+                alert(`Link lagu "${song.title}" belum tersedia.`);
             }
+            renderMusic(currentList);
+        }
+
+        // Navigasi
+        function playNext() {
+            if (currentSongIndex === -1) return;
+            let nextIndex = currentSongIndex + 1;
+            if (nextIndex >= currentList.length) nextIndex = 0;
+            playSong(currentList[nextIndex]);
+        }
+
+        function playPrev() {
+            if (currentSongIndex === -1) return;
+            let prevIndex = currentSongIndex - 1;
+            if (prevIndex < 0) prevIndex = currentList.length - 1;
+            playSong(currentList[prevIndex]);
         }
 
         playBtn.addEventListener('click', () => {
@@ -348,6 +389,25 @@
             }
         });
 
+        nextBtn.addEventListener('click', playNext);
+        prevBtn.addEventListener('click', playPrev);
+
+        // OTOMATIS LANJUT KE BAWAH
+        audio.addEventListener('ended', () => {
+            if (!isLooping) {
+                playNext();
+            }
+        });
+
+        // Seek Bar (Maju Mundur)
+        progressBar.addEventListener('click', (e) => {
+            if (!audio.duration) return;
+            const rect = progressBar.getBoundingClientRect();
+            const pct = (e.clientX - rect.left) / rect.width;
+            audio.currentTime = pct * audio.duration;
+        });
+
+        // Time Update UI
         audio.addEventListener('timeupdate', () => {
             if (audio.duration) {
                 const pct = (audio.currentTime / audio.duration) * 100;
@@ -357,11 +417,63 @@
             }
         });
 
-        function formatTime(seconds) {
-            const min = Math.floor(seconds / 60);
-            const sec = Math.floor(seconds % 60);
-            return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+        function formatTime(sec) {
+            const m = Math.floor(sec / 60);
+            const s = Math.floor(sec % 60);
+            return `${m}:${s < 10 ? '0' : ''}${s}`;
         }
+
+        // Volume
+        volumeBar.addEventListener('click', (e) => {
+            const rect = volumeBar.getBoundingClientRect();
+            let pct = (e.clientX - rect.left) / rect.width;
+            pct = Math.max(0, Math.min(1, pct));
+            audio.volume = pct;
+            volumeFill.style.width = (pct * 100) + "%";
+        });
+
+        // Search & Easter Egg
+        searchInput.addEventListener('input', (e) => {
+            const val = e.target.value.toLowerCase().trim();
+            if (val === "putrasigma") {
+                isEasterEgg = !isEasterEgg;
+                currentList = isEasterEgg ? [...secretSongs] : [...mainSongs];
+                currentSongIndex = -1;
+                isLooping = false;
+                audio.src = "";
+                renderMusic(currentList);
+                searchInput.value = "";
+                return;
+            }
+            const filtered = currentList.filter(s => 
+                s.title.toLowerCase().includes(val) || s.genre.toLowerCase().includes(val)
+            );
+            renderMusic(filtered);
+            document.getElementById('noResults').style.display = filtered.length === 0 ? 'block' : 'none';
+        });
+
+        // Local Upload
+        document.getElementById('localFileInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const url = URL.createObjectURL(file);
+            currentList.unshift({
+                id: Date.now(),
+                title: file.name.replace(/\.[^/.]+$/, ""),
+                genre: "Lagu Lokal",
+                color: "#" + Math.floor(Math.random()*16777215).toString(16),
+                src: url
+            });
+            renderMusic(currentList);
+        });
+
+        // Info Tooltip on startup
+        setTimeout(() => {
+            tooltip.style.display = "block";
+            tooltip.style.left = "20px";
+            tooltip.style.top = "80px";
+            setTimeout(() => tooltip.style.display = "none", 4000);
+        }, 1000);
 
         renderMusic(mainSongs);
     </script>
