@@ -2,354 +2,395 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pufutara Gallery | Online Version</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pufutara Gallery</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0" />
+    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        :root {
+            --bg-color: #ffffff;
+            --surface: #ffffff;
+            --surface-container: #f9f9f9;
+            --primary: #000000;
+            --on-primary: #ffffff;
+            --primary-container: #f0f0f0;
+            --on-primary-container: #000000;
+            --text-main: #000000;
+            --text-muted: #666666;
+            --border: #eaeaea;
+            --hover-bg: #f5f5f5;
         }
 
-        body {
-            background-color: #fcfcfc;
-            color: #111;
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        /* --- Sidebar (Kiri) --- */
-        .sidebar {
-            width: 260px;
-            background-color: #fff;
-            border-right: 1px solid #eaeaea;
-            display: flex;
-            flex-direction: column;
-            padding: 30px 24px;
-            z-index: 10;
-            flex-shrink: 0;
-        }
-
-        .logo { font-size: 1.5rem; font-weight: 900; letter-spacing: -1px; margin-bottom: 40px; }
-        .logo span { color: #888; font-weight: 400; }
-        .section-title { font-size: 0.75rem; color: #999; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-bottom: 15px; }
-
-        .nav-menu { list-style: none; display: flex; flex-direction: column; gap: 10px; flex: 1; overflow-y: auto; }
-        .nav-btn {
-            background: none; border: none; text-align: left; width: 100%;
-            font-size: 0.95rem; font-weight: 600; color: #666; padding: 10px 15px;
-            border-radius: 8px; cursor: pointer; transition: all 0.2s;
-        }
-        .nav-btn:hover { background: #f5f5f5; color: #111; }
-        .nav-btn.active { background: #111; color: #fff; }
-
-        .add-folder-btn {
-            margin-top: 20px; padding: 12px; border: 1px dashed #ccc; background: transparent;
-            border-radius: 8px; font-weight: 600; color: #555; cursor: pointer; transition: 0.2s;
-            text-align: center; width: 100%;
-        }
-        .add-folder-btn:hover { border-color: #111; color: #111; background: #f9f9f9; }
-
-        /* --- Main Content --- */
-        .main-content {
-            flex: 1; overflow-y: auto; padding: 40px 60px; position: relative;
-        }
-        .main-content::-webkit-scrollbar { width: 6px; }
-        .main-content::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
-
-        .top-bar { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px; }
-        .folder-title { font-size: 2.5rem; font-weight: 900; letter-spacing: -1px; }
-        .foto-count { color: #888; font-weight: 500; margin-top: 5px; font-size: 0.95rem; }
-
-        /* Tombol Upload Utama */
-        .upload-btn-wrapper { position: relative; overflow: hidden; display: inline-block; }
-        .btn-upload {
-            border: none; background-color: #111; color: white; padding: 12px 24px;
-            border-radius: 100px; font-size: 0.95rem; font-weight: 600; cursor: pointer;
-            transition: 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        .btn-upload:hover { background-color: #333; transform: translateY(-2px); }
-        .upload-btn-wrapper input[type=file] {
-            font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; height: 100%;
-        }
-
-        /* --- Masonry Grid (Gaya Pinterest) --- */
-        .gallery-grid { column-count: 3; column-gap: 20px; }
-        @media (max-width: 1000px) { .gallery-grid { column-count: 2; } }
-        @media (max-width: 600px) { .gallery-grid { column-count: 1; } }
-
-        .gallery-item {
-            break-inside: avoid; margin-bottom: 20px; position: relative; 
-            border-radius: 12px; overflow: hidden; cursor: pointer; background: #eee;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05); transition: transform 0.3s ease;
-        }
-        .gallery-item:hover { transform: scale(1.02); }
-        .gallery-item img { width: 100%; display: block; height: auto; transition: opacity 0.3s; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         
-        /* Tombol Hapus pada Gambar */
-        .delete-img-btn {
-            position: absolute; top: 10px; right: 10px; background: rgba(255,0,0,0.8);
-            color: white; border: none; width: 30px; height: 30px; border-radius: 50%;
-            cursor: pointer; opacity: 0; transition: 0.2s; font-weight: bold;
+        body { 
+            background-color: var(--bg-color); 
+            display: flex; 
+            height: 100vh; 
+            overflow: hidden; 
+            color: var(--text-main);
+            letter-spacing: -0.2px;
         }
-        .gallery-item:hover .delete-img-btn { opacity: 1; }
-        .delete-img-btn:hover { background: red; transform: scale(1.1); }
 
-        /* --- Lightbox (Mode Layar Penuh) --- */
+        /* --- GALLERY SCREEN --- */
+        #galleryScreen { width: 100%; height: 100%; display: flex; flex-direction: column; }
+
+        /* --- TOP HEADER --- */
+        .top-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 24px; min-height: 72px; background: var(--bg-color); border-bottom: 1px solid var(--border);
+            z-index: 50;
+        }
+        .logo-area { display: flex; align-items: center; width: 238px; font-size: 20px; font-weight: 900; color: var(--primary); letter-spacing: -1px; }
+        
+        .hamburger-btn {
+            display: none; background: transparent; border: none; font-size: 24px; cursor: pointer; color: var(--primary); 
+            margin-right: 12px; align-items: center; justify-content: center; padding: 4px; border-radius: 8px;
+        }
+
+        .search-container {
+            flex: 1; max-width: 600px; background: var(--surface-container); border-radius: 16px;
+            border: 1px solid var(--border); display: flex; align-items: center; padding: 0 16px; height: 48px;
+        }
+        .search-container input { flex: 1; border: none; background: transparent; outline: none; padding: 0 12px; font-size: 0.95rem; }
+
+        .profile-area { display: flex; align-items: center; gap: 16px; padding-left: 30px; position: relative; }
+        .avatar {
+            width: 36px; height: 36px; background: var(--primary); color: white; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px;
+        }
+
+        /* --- MAIN LAYOUT --- */
+        .drive-body { display: flex; flex: 1; overflow: hidden; position: relative; }
+
+        /* --- SIDEBAR --- */
+        .sidebar { 
+            width: 280px; padding: 24px 16px; display: flex; flex-direction: column; gap: 8px; 
+            background: var(--bg-color); border-right: 1px solid var(--border); z-index: 95; transition: transform 0.3s;
+        }
+        .sidebar-overlay {
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.4); z-index: 90; backdrop-filter: blur(2px);
+        }
+
+        .btn-new-folder {
+            background: var(--primary); color: var(--on-primary); border: none; padding: 14px 24px;
+            border-radius: 16px; display: inline-flex; align-items: center; gap: 12px; font-size: 0.95rem; 
+            font-weight: 600; cursor: pointer; transition: 0.3s; width: 100%; justify-content: center; margin-bottom: 12px;
+        }
+
+        .nav-menu { list-style: none; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; flex: 1;}
+        .section-label { font-size: 0.7rem; font-weight: 800; color: var(--text-muted); padding: 12px 16px 4px; text-transform: uppercase; }
+        .nav-item {
+            display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 12px;
+            cursor: pointer; color: var(--text-muted); font-size: 0.9rem; font-weight: 500; transition: 0.2s;
+        }
+        .nav-item:hover { background: var(--hover-bg); color: var(--text-main); }
+        .nav-item.active { background: var(--primary-container); color: var(--primary); font-weight: 600; }
+
+        /* --- MAIN CONTENT --- */
+        .main-content-wrapper { flex: 1; background: var(--surface); display: flex; flex-direction: column; overflow: hidden; }
+        .main-toolbar { padding: 24px 32px 16px; display: flex; justify-content: space-between; align-items: center; }
+        .main-toolbar h2 { font-size: 1.5rem; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; }
+
+        /* --- GALLERY GRID --- */
+        .file-grid {
+            flex: 1; padding: 16px 32px 32px; overflow-y: auto; display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; align-content: start;
+        }
+
+        .gallery-card {
+            background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden;
+            display: flex; flex-direction: column; transition: 0.3s; cursor: pointer; position: relative;
+        }
+        .gallery-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.06); border-color: #000; }
+        
+        .gallery-preview {
+            height: 200px; width: 100%; background: var(--surface-container); display: flex; 
+            align-items: center; justify-content: center; overflow: hidden; position: relative;
+        }
+        .gallery-preview img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* ACTIONS ON HOVER */
+        .card-actions {
+            position: absolute; top: 10px; right: 10px; opacity: 0; transition: 0.3s;
+            display: flex; gap: 8px; z-index: 5;
+        }
+        .gallery-card:hover .card-actions { opacity: 1; }
+        .action-btn {
+            background: rgba(255,255,255,0.95); border: none; width: 36px; height: 36px; 
+            border-radius: 10px; display: flex; align-items: center; justify-content: center; 
+            cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: 0.2s;
+        }
+        .action-btn:hover { background: #000; color: #fff; }
+        .action-btn.delete:hover { background: #d93025; color: #fff; }
+
+        /* --- LIGHTBOX --- */
         .lightbox {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 100; display: flex; 
-            justify-content: center; align-items: center; opacity: 0; 
-            visibility: hidden; transition: 0.3s; backdrop-filter: blur(5px);
+            background: rgba(255,255,255,0.98); z-index: 10000; display: none; 
+            justify-content: center; align-items: center; backdrop-filter: blur(10px);
         }
-        .lightbox.active { opacity: 1; visibility: visible; }
-        .lightbox img { max-width: 90%; max-height: 90vh; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
-        .close-lightbox { position: absolute; top: 30px; right: 40px; color: white; font-size: 2rem; cursor: pointer; font-weight: bold; transition: 0.2s; }
-        .close-lightbox:hover { color: #ccc; transform: scale(1.1); }
+        .lightbox img { max-width: 90%; max-height: 85vh; border-radius: 12px; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
+        .close-lightbox { position: absolute; top: 30px; right: 30px; cursor: pointer; font-size: 32px; }
 
-        .empty-state { text-align: center; padding: 100px 20px; color: #888; font-size: 1.1rem; width: 100%; display: none; }
-        
-        /* Loading Overlay */
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hamburger-btn { display: flex; }
+            .sidebar { position: absolute; left: -280px; height: 100%; top: 0; }
+            .sidebar.active { transform: translateX(280px); }
+            .sidebar-overlay.active { display: block; }
+            .search-container { display: none; }
+            .main-toolbar { padding: 16px; }
+            .file-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); padding: 16px; gap: 12px; }
+            .card-actions { opacity: 1; } /* Tampil terus di mobile agar mudah diklik */
+        }
+
+        /* Loading */
         .loading-overlay { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(255,255,255,0.8); z-index: 200; display: flex; 
-            justify-content: center; align-items: center; font-weight: bold; 
-            font-size: 1.2rem; display: none; backdrop-filter: blur(2px);
+            background: rgba(255,255,255,0.8); z-index: 10001; display: none; 
+            flex-direction: column; justify-content: center; align-items: center; font-weight: bold; 
         }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .spinner { animation: spin 1s linear infinite; font-size: 40px; margin-bottom: 15px; }
     </style>
 </head>
 <body>
 
-    <div class="loading-overlay" id="loadingOverlay">Mengunggah ke Supabase... Mohon tunggu 🚀</div>
+    <div id="loadingOverlay" class="loading-overlay">
+        <span class="material-symbols-outlined spinner">sync</span>
+        <p>Sedang memproses...</p>
+    </div>
 
-    <aside class="sidebar">
-        <div class="logo">PUFUTARA.<span>ONLINE</span></div>
-        <div class="section-title">Album & Folder</div>
-        <ul class="nav-menu" id="folderList"></ul>
-        <button class="add-folder-btn" id="addFolderBtn">+ Folder Baru</button>
-    </aside>
-
-    <main class="main-content">
-        <header class="top-bar">
-            <div>
-                <a href="index.html" style="text-decoration: none; color: #999; font-size: 0.9rem; font-weight: 600; display: block; margin-bottom: 15px;">← Kembali ke Archive</a>
-                <h1 class="folder-title" id="currentFolderTitle">Semua Foto</h1>
-                <p class="foto-count" id="fotoCount">Memuat data dari server...</p>
+    <div id="galleryScreen">
+        <header class="top-header">
+            <div class="logo-area">
+                <button class="hamburger-btn" onclick="toggleSidebar()"><span class="material-symbols-outlined">menu</span></button>
+                PUFUTARA GLOBAL GALLERY.
             </div>
-            <div class="upload-btn-wrapper">
-                <button class="btn-upload">+ Upload Foto</button>
-                <input type="file" id="fileInput" accept="image/*" multiple />
+            <div class="search-container">
+                <span class="material-symbols-outlined">search</span>
+                <input type="text" placeholder="Cari foto di album ini..." onkeyup="searchImages(this.value)">
+            </div>
+            <div class="profile-area">
+                <input type="file" id="fileInput" accept="image/*" multiple style="display:none" onchange="uploadImages()">
+                <button class="btn-black" onclick="document.getElementById('fileInput').click()" style="background: #000; color: #fff; border: none; padding: 10px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                    <span class="material-symbols-outlined" style="font-size: 18px;">upload</span> Upload
+                </button>
+                <div class="avatar" id="userAvatar">A</div>
             </div>
         </header>
 
-        <div class="gallery-grid" id="galleryGrid"></div>
-        <div class="empty-state" id="emptyState">Belum ada foto di folder ini. Mulai upload sekarang!</div>
-    </main>
+        <div class="drive-body">
+            <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+            
+            <aside class="sidebar" id="appSidebar">
+                <button class="btn-new-folder" onclick="addFolder()">
+                    <span class="material-symbols-outlined">create_new_folder</span> Album Baru
+                </button>
+                
+                <div class="section-label">Default</div>
+                <div class="nav-item active" id="nav-semua" onclick="switchFolder('semua')">
+                    <span class="material-symbols-outlined">grid_view</span> Semua Foto
+                </div>
 
-    <div class="lightbox" id="lightbox">
-        <span class="close-lightbox" id="closeLightbox">&times;</span>
-        <img id="lightboxImg" src="" alt="View Fullscreen">
+                <div class="section-label">Album Saya</div>
+                <ul class="nav-menu" id="folderList">
+                    </ul>
+
+                <div style="margin-top:auto; padding: 16px; font-size: 0.7rem; color: #ccc; line-height: 1.5;">
+                    Pufutara Gallery v3.0<br>
+                    No Login Required
+                </div>
+            </aside>
+
+            <main class="main-content-wrapper">
+                <div class="main-toolbar">
+                    <h2 id="currentFolderTitle">Semua Foto</h2>
+                    <p id="fotoCount" style="color: var(--text-muted); font-size: 0.9rem;">0 Foto</p>
+                </div>
+
+                <div id="galleryGrid" class="file-grid">
+                    </div>
+            </main>
+        </div>
+    </div>
+
+    <div class="lightbox" id="lightbox" onclick="this.style.display='none'">
+        <span class="material-symbols-outlined close-lightbox">close</span>
+        <img id="lightboxImg" src="">
     </div>
 
     <script>
         // ==========================================
-        // KONFIGURASI SUPABASE (Sesuai Kredensial Kamu)
+        // CONFIG & INITIALIZATION
         // ==========================================
         const SUPABASE_URL = 'https://yzxwlodobpdqukilmlly.supabase.co'; 
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6eHdsb2RvYnBkcXVraWxtbGx5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzMzE3NzIsImV4cCI6MjA4NzkwNzc3Mn0.ihwATIC0EdwdAXGL7RUKgigk-GsZ8O8xz5yJrh9PBts'; 
 
-        // Inisialisasi Supabase (Nama variabel diperbaiki agar tidak konflik)
-        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        const _client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         const BUCKET_NAME = 'pufutara-gallery'; 
 
-        // Data Folder disimpan di LocalStorage
-        let folders = JSON.parse(localStorage.getItem('pufutara_folders')) || [
-            { id: 'semua', name: 'Semua Foto Global' }
-        ];
+        let folders = JSON.parse(localStorage.getItem('pufutara_folders')) || [{ id: 'semua', name: 'Semua Foto Global' }];
         let activeFolderId = 'semua';
-        let currentImages = [];
+        let allImages = [];
 
-        // Elemen DOM
-        const folderListEl = document.getElementById('folderList');
-        const galleryGridEl = document.getElementById('galleryGrid');
-        const loadingOverlay = document.getElementById('loadingOverlay');
+        // --- APP START ---
+        window.addEventListener('DOMContentLoaded', () => {
+            renderFolders();
+            fetchImages();
+        });
 
-        // 1. Render Folders
-        const renderFolders = () => {
-            folderListEl.innerHTML = '';
-            folders.forEach(folder => {
-                const li = document.createElement('li');
-                const btn = document.createElement('button');
-                btn.className = `nav-btn ${folder.id === activeFolderId ? 'active' : ''}`;
-                btn.textContent = folder.name;
-                
-                btn.onclick = () => {
-                    activeFolderId = folder.id;
-                    renderFolders();
-                    fetchImagesFromSupabase(); // Ambil data baru saat pindah folder
-                };
-                li.appendChild(btn);
-                folderListEl.appendChild(li);
-            });
-            localStorage.setItem('pufutara_folders', JSON.stringify(folders));
-        };
-
-        // 2. AMBIL DATA DARI SUPABASE (READ)
-        async function fetchImagesFromSupabase() {
-            document.getElementById('fotoCount').textContent = "Memuat dari server...";
-            galleryGridEl.innerHTML = '';
-            
-            try {
-                let query = supabaseClient.from('gallery_images').select('*').order('created_at', { ascending: false });
-                
-                // Filter berdasarkan folder_id
-                if (activeFolderId !== 'semua') {
-                    query = query.eq('folder_id', activeFolderId);
-                }
-
-                const { data, error } = await query;
-                if (error) throw error;
-
-                currentImages = data;
-                renderGalleryUI();
-
-            } catch (error) {
-                console.error("Error fetching data:", error);
-                document.getElementById('fotoCount').textContent = "Gagal memuat data!";
-            }
+        // --- UI LOGIC ---
+        function toggleSidebar() {
+            document.getElementById('appSidebar').classList.toggle('active');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
         }
 
-        // 3. Render UI Gallery setelah data diambil
-        const renderGalleryUI = () => {
-            document.getElementById('currentFolderTitle').textContent = folders.find(f => f.id === activeFolderId)?.name || 'Folder';
-            document.getElementById('fotoCount').textContent = `${currentImages.length} Foto`;
+        function renderFolders() {
+            const list = document.getElementById('folderList');
+            list.innerHTML = '';
+            folders.forEach(f => {
+                if(f.id === 'semua') return;
+                const li = document.createElement('li');
+                li.className = `nav-item ${f.id === activeFolderId ? 'active' : ''}`;
+                li.innerHTML = `<span class="material-symbols-outlined">folder</span> ${f.name}`;
+                li.onclick = () => switchFolder(f.id);
+                list.appendChild(li);
+            });
+            localStorage.setItem('pufutara_folders', JSON.stringify(folders));
+        }
 
-            if (currentImages.length === 0) {
-                document.getElementById('emptyState').style.display = 'block';
-            } else {
-                document.getElementById('emptyState').style.display = 'none';
-                
-                currentImages.forEach(imgData => {
-                    const item = document.createElement('div');
-                    item.className = 'gallery-item';
-
-                    const img = document.createElement('img');
-                    img.src = imgData.image_url;
-                    
-                    img.onclick = () => {
-                        document.getElementById('lightboxImg').src = imgData.image_url;
-                        document.getElementById('lightbox').classList.add('active');
-                    };
-
-                    const delBtn = document.createElement('button');
-                    delBtn.className = 'delete-img-btn';
-                    delBtn.innerHTML = '&times;';
-                    delBtn.onclick = (e) => { e.stopPropagation(); deleteImage(imgData.id); };
-
-                    item.appendChild(img);
-                    item.appendChild(delBtn);
-                    galleryGridEl.appendChild(item);
-                });
+        function switchFolder(id) {
+            activeFolderId = id;
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            if(id === 'semua') document.getElementById('nav-semua').classList.add('active');
+            
+            document.getElementById('currentFolderTitle').innerText = folders.find(f => f.id === id).name;
+            if(window.innerWidth <= 768) {
+                document.getElementById('appSidebar').classList.remove('active');
+                document.getElementById('sidebarOverlay').classList.remove('active');
             }
-        };
+            renderFolders();
+            fetchImages();
+        }
 
-        // 4. UPLOAD GAMBAR KE SUPABASE (STORAGE + DATABASE)
-        document.getElementById('fileInput').addEventListener('change', async (e) => {
-            const files = e.target.files;
-            if (!files.length) return;
+        async function fetchImages() {
+            const grid = document.getElementById('galleryGrid');
+            grid.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:50px; color:#999;">Memuat gallery...</p>';
+            
+            let query = _client.from('gallery_images').select('*').order('created_at', { ascending: false });
+            if (activeFolderId !== 'semua') query = query.eq('folder_id', activeFolderId);
 
-            let targetFolder = activeFolderId;
-            if (targetFolder === 'semua') {
-                alert("Harap pilih atau buat album di sebelah kiri dulu sebelum mengunggah!");
+            const { data, error } = await query;
+            if (error) return console.error(error);
+
+            allImages = data || [];
+            renderGalleryUI(allImages);
+        }
+
+        function renderGalleryUI(data) {
+            const grid = document.getElementById('galleryGrid');
+            document.getElementById('fotoCount').innerText = `${data.length} Foto`;
+            grid.innerHTML = '';
+
+            if(data.length === 0) {
+                grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:100px; color:#ccc;"><span class="material-symbols-outlined" style="font-size:48px;">image_not_supported</span><p>Belum ada foto di sini</p></div>';
                 return;
             }
 
-            loadingOverlay.style.display = 'flex'; // Munculkan loading
+            data.forEach(img => {
+                const card = document.createElement('div');
+                card.className = 'gallery-card';
+                card.innerHTML = `
+                    <div class="gallery-preview">
+                        <img src="${img.image_url}" loading="lazy" onclick="openLightbox('${img.image_url}')">
+                    </div>
+                    <div class="card-actions">
+                        <button class="action-btn" onclick="downloadImage('${img.image_url}', event)" title="Download">
+                            <span class="material-symbols-outlined" style="font-size:20px;">download</span>
+                        </button>
+                        <button class="action-btn delete" onclick="deleteImage('${img.id}', event)" title="Hapus">
+                            <span class="material-symbols-outlined" style="font-size:20px;">delete</span>
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
 
-            for (let file of files) {
-                if (!file.type.match('image.*')) continue;
+        // --- ACTIONS ---
+        async function uploadImages() {
+            const files = document.getElementById('fileInput').files;
+            if(!files.length) return;
 
-                // Bikin nama file unik untuk ditaruh di Storage
-                const fileExt = file.name.split('.').pop();
-                const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
-                const filePath = `${targetFolder}/${fileName}`; 
+            // Folder ID untuk penyimpanan (jika 'semua', masukkan ke 'general')
+            const targetFolder = activeFolderId === 'semua' ? 'general' : activeFolderId;
 
-                try {
-                    // Upload ke Storage
-                    const { error: uploadError } = await supabaseClient.storage
-                        .from(BUCKET_NAME)
-                        .upload(filePath, file);
+            document.getElementById('loadingOverlay').style.display = 'flex';
 
-                    if (uploadError) throw uploadError;
-
-                    // Ambil Public URL
-                    const { data: publicUrlData } = supabaseClient.storage
-                        .from(BUCKET_NAME)
-                        .getPublicUrl(filePath);
-                    
-                    const publicUrl = publicUrlData.publicUrl;
-
-                    // Simpan URL ke Database
-                    const { error: dbError } = await supabaseClient.from('gallery_images').insert([
-                        { folder_id: targetFolder, image_url: publicUrl }
-                    ]);
-
-                    if (dbError) throw dbError;
-
-                } catch (error) {
-                    console.error("Error Upload:", error);
-                    alert("Gagal mengunggah foto. Pastikan Policy Storage & Database sudah diatur ke 'true'.");
+            for(let file of files) {
+                const path = `${targetFolder}/${Date.now()}_${file.name}`;
+                const { error: upErr } = await _client.storage.from(BUCKET_NAME).upload(path, file);
+                
+                if(!upErr) {
+                    const { data } = _client.storage.from(BUCKET_NAME).getPublicUrl(path);
+                    await _client.from('gallery_images').insert([{ folder_id: targetFolder, image_url: data.publicUrl }]);
                 }
             }
 
-            // Refresh galeri dan hilangkan loading
+            document.getElementById('loadingOverlay').style.display = 'none';
             document.getElementById('fileInput').value = '';
-            loadingOverlay.style.display = 'none';
-            fetchImagesFromSupabase();
-        });
+            fetchImages();
+        }
 
-        // 5. HAPUS GAMBAR DARI DATABASE
-        async function deleteImage(id) {
-            if(!confirm('Hapus foto ini dari galeri?')) return;
-            
+        // FUNGSI DOWNLOAD BARU
+        async function downloadImage(url, event) {
+            event.stopPropagation();
             try {
-                const { error: dbError } = await supabaseClient.from('gallery_images').delete().eq('id', id);
-                if (dbError) throw dbError;
-
-                fetchImagesFromSupabase(); // Refresh layar setelah dihapus
-            } catch (error) {
-                console.error("Error Delete:", error);
-                alert("Gagal menghapus foto. Pastikan Policy DELETE di Database sudah diatur.");
+                const response = await fetch(url);
+                const blob = await response.blob();
+                const blobUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = `pufutara_${Date.now()}.jpg`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(blobUrl);
+                a.remove();
+            } catch (e) {
+                alert("Gagal mendownload foto.");
             }
         }
 
-        // 6. Tambah Folder Baru
-        document.getElementById('addFolderBtn').addEventListener('click', () => {
-            const folderName = prompt('Masukkan nama folder baru:');
-            if (folderName && folderName.trim() !== '') {
-                const newFolder = { id: 'folder_' + Date.now(), name: folderName.trim() };
-                folders.push(newFolder);
-                activeFolderId = newFolder.id;
-                renderFolders();
-                fetchImagesFromSupabase();
+        async function deleteImage(id, event) {
+            event.stopPropagation();
+            if(!confirm("Hapus foto ini secara permanen?")) return;
+            await _client.from('gallery_images').delete().eq('id', id);
+            fetchImages();
+        }
+
+        function addFolder() {
+            const name = prompt("Nama Album Baru:");
+            if(name && name.trim() !== "") {
+                const newF = { id: 'f' + Date.now(), name: name.trim() };
+                folders.push(newF);
+                switchFolder(newF.id);
             }
-        });
+        }
 
-        // 7. Lightbox Close Event
-        document.getElementById('closeLightbox').addEventListener('click', () => document.getElementById('lightbox').classList.remove('active'));
-        document.getElementById('lightbox').addEventListener('click', (e) => {
-            if (e.target === document.getElementById('lightbox')) {
-                document.getElementById('lightbox').classList.remove('active');
-            }
-        });
+        function searchImages(val) {
+            const filtered = allImages.filter(img => img.image_url.toLowerCase().includes(val.toLowerCase()));
+            renderGalleryUI(filtered);
+        }
 
-        // --- MULAI APLIKASI ---
-        renderFolders();
-        fetchImagesFromSupabase();
-
+        function openLightbox(url) {
+            document.getElementById('lightboxImg').src = url;
+            document.getElementById('lightbox').style.display = 'flex';
+        }
     </script>
 </body>
 </html>
