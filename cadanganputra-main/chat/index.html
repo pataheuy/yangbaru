@@ -393,6 +393,9 @@
         let selectedMsg = null;
         let replyingTo = null;
 
+        // Akun otomatis yang akan muncul di sidebar setiap user
+        const OFFICIAL_ACCOUNTS = ['admin@g', 'pufutara@g'];
+
         // Pertahankan warna untuk bubble jika dibutuhkan, tapi desain minimalis ini lebih fokus ke bentuk.
         const userColors = ['#000000', '#333333', '#444444', '#555555', '#111111']; 
         
@@ -466,11 +469,28 @@
 
         async function loadSidebarList() {
             const { data } = await _client.from('private_chat').select('*').or(`sender.eq.${_userEmail},receiver.eq.${_userEmail}`).order('created_at', { ascending: false });
+            
             privateContacts = {};
-            if (data) data.forEach(msg => {
-                const partner = msg.sender === _userEmail ? msg.receiver : msg.sender;
-                if(!privateContacts[partner]) privateContacts[partner] = { lastMsg: msg.message, time: msg.created_at };
+
+            // Injeksi akun otomatis ke dalam daftar (Tampilan tetap sama seperti akun biasa)
+            OFFICIAL_ACCOUNTS.forEach(acc => {
+                if (acc !== _userEmail) { // Jangan tampilkan diri sendiri jika login sebagai akun tersebut
+                    privateContacts[acc] = { 
+                        lastMsg: "Pesan Dukungan", 
+                        time: new Date(0).toISOString() // Setting waktu lama agar ada di paling bawah jika belum pernah chat
+                    };
+                }
             });
+
+            if (data) {
+                data.forEach(msg => {
+                    const partner = msg.sender === _userEmail ? msg.receiver : msg.sender;
+                    // Hanya perbarui data jika itu adalah chat yang lebih baru
+                    if(!privateContacts[partner] || new Date(msg.created_at) > new Date(privateContacts[partner].time)) {
+                        privateContacts[partner] = { lastMsg: msg.message, time: msg.created_at };
+                    }
+                });
+            }
             renderSidebar();
         }
 
