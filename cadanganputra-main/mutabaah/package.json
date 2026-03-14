@@ -1,0 +1,8 @@
+{
+  "devDependencies": {
+    "electron": "^41.0.2"
+  },
+  "dependencies": {
+    "lucide-react": "^0.577.0"
+  }
+}
