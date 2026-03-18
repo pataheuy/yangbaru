@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pufutara News | Ultimate Portal</title>
+    <title>Pufutara News | Cloud Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -187,7 +187,8 @@
         }
         .form-group textarea { height: 150px; resize: none; }
 
-        .btn-submit { background: var(--accent); color: white; border: none; padding: 1rem; width: 100%; border-radius: 6px; font-weight: 700; cursor: pointer; margin-top: 1rem; }
+        .btn-submit { background: var(--accent); color: white; border: none; padding: 1rem; width: 100%; border-radius: 6px; font-weight: 700; cursor: pointer; margin-top: 1rem; transition: background 0.3s ease;}
+        .btn-submit:disabled { background: #999; cursor: not-allowed; }
         .btn-cancel { background: none; border: none; color: #888; padding: 1rem; width: 100%; cursor: pointer; font-size: 0.9rem; }
 
         /* --- Reader View --- */
@@ -242,7 +243,7 @@
 
     <main>
         <div class="section-header">
-            <span class="current-date" id="currentDate">Rabu, 18 Maret 2026</span>
+            <span class="current-date" id="currentDate">Memuat tanggal...</span>
             <h1 class="headline">Wawasan Tanpa Filter.</h1>
         </div>
 
@@ -280,7 +281,7 @@
                     <label>Konten Lengkap (Enter untuk paragraf baru)</label>
                     <textarea id="contentInput" placeholder="Min. 3 paragraf sangat disarankan..." required></textarea>
                 </div>
-                <button type="submit" class="btn-submit">PUBLIKASIKAN</button>
+                <button type="submit" class="btn-submit" id="submitBtn">PUBLIKASIKAN KE CLOUD</button>
                 <button type="button" class="btn-cancel" id="closeUpload">Batal</button>
             </form>
         </div>
@@ -301,7 +302,7 @@
         <div class="footer-grid">
             <div class="footer-brand">
                 <div class="logo">PUFUTARA<span>NEWS</span></div>
-                <p class="footer-desc">Platform jurnalisme independen yang fokus pada perkembangan teknologi dan gaya hidup digital modern.</p>
+                <p class="footer-desc">Platform jurnalisme independen yang didukung oleh Cloud Database Real-time.</p>
             </div>
             <div>
                 <h4 class="footer-title">Kategori</h4>
@@ -330,13 +331,31 @@
         </div>
         <div class="footer-bottom">
             <p>&copy; 2026 Pufutara News Network. Hak Cipta Dilindungi.</p>
-            <p>Dibuat untuk masa depan digital.</p>
+            <p>Sistem Cloud Terintegrasi Aktif.</p>
         </div>
     </footer>
 
-    <script>
-        // Koleksi 10 Artikel Lengkap
-        let articles = [
+    <!-- Gunakan type="module" karena kita mengimpor SDK Firebase -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // ==========================================
+        // 1. SETUP CLOUD DATABASE (FIREBASE)
+        // ==========================================
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+        let currentUser = null;
+
+        // ==========================================
+        // 2. DATA DEFAULT ARTIKEL
+        // ==========================================
+        const defaultArticles = [
             {
                 id: 1, title: "Arsitektur Keamanan Siber di Era Kuantum", category: "tech", tag: "Deep Tech", author: "Putra Perdana", time: "12 Menit", featured: true,
                 image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1200&q=80",
@@ -399,18 +418,24 @@
             }
         ];
 
+        let allArticles = [...defaultArticles];
+
+        // ==========================================
+        // 3. UI RENDER LOGIC
+        // ==========================================
         const grid = document.getElementById('articleGrid');
         const uploadModal = document.getElementById('uploadModal');
         const reader = document.getElementById('readerView');
+        const indicator = document.getElementById('navIndicator');
 
         function renderArticles(filter = 'all') {
             grid.innerHTML = '';
-            articles.forEach((art, index) => {
+            allArticles.forEach((art, index) => {
                 if(filter !== 'all' && art.category !== filter) return;
 
                 const card = document.createElement('article');
                 card.className = `article-card ${art.featured ? 'featured' : ''}`;
-                card.style.animationDelay = `${index * 0.05}s`;
+                card.style.animationDelay = `${(index % 10) * 0.05}s`;
                 card.innerHTML = `
                     <div class="article-image-box">
                         <img src="${art.image}" class="article-img" alt="${art.title}">
@@ -445,9 +470,8 @@
             document.body.style.overflow = '';
         };
 
+        // Kategori Navigasi
         const navLinks = document.querySelectorAll('.nav-link');
-        const indicator = document.getElementById('navIndicator');
-
         function moveIndicator(element) {
             indicator.style.width = element.offsetWidth + 'px';
             indicator.style.left = element.offsetLeft + 'px';
@@ -462,15 +486,28 @@
             });
         });
 
+        // ==========================================
+        // 4. UPLOAD KE CLOUD LOGIC
+        // ==========================================
         document.getElementById('openUpload').onclick = () => uploadModal.style.display = 'flex';
         document.getElementById('closeUpload').onclick = () => uploadModal.style.display = 'none';
 
-        document.getElementById('articleForm').onsubmit = (e) => {
+        document.getElementById('articleForm').onsubmit = async (e) => {
             e.preventDefault();
+            
+            if (!currentUser) {
+                console.error("Belum terautentikasi ke database.");
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.textContent = 'MENGUNGGAH...';
+            submitBtn.disabled = true;
+
             const file = document.getElementById('imageInput').files[0];
             const readerFile = new FileReader();
 
-            readerFile.onload = function(event) {
+            readerFile.onload = async function(event) {
                 const paragraphs = document.getElementById('contentInput').value
                     .split('\n')
                     .filter(p => p.trim() !== '')
@@ -478,32 +515,80 @@
                     .join('');
 
                 const newArt = {
-                    id: Date.now(),
                     title: document.getElementById('titleInput').value,
                     category: document.getElementById('categoryInput').value,
                     tag: "User Post",
                     excerpt: document.getElementById('excerptInput').value,
                     image: event.target.result,
-                    author: "Kamu (User)",
+                    author: "Pembaca Pufutara",
                     time: "1 Menit",
                     content: paragraphs,
-                    featured: false
+                    featured: false,
+                    timestamp: Date.now() // Timestap untuk penempatan di paling bawah
                 };
 
-                articles.push(newArt);
-                renderArticles(document.querySelector('.nav-link.active').dataset.filter);
-                uploadModal.style.display = 'none';
-                document.getElementById('articleForm').reset();
+                try {
+                    // Simpan data ke Cloud Firestore
+                    const articlesRef = collection(db, 'artifacts', appId, 'public', 'data', 'articles');
+                    await addDoc(articlesRef, newArt);
+                    
+                    uploadModal.style.display = 'none';
+                    document.getElementById('articleForm').reset();
+                } catch (error) {
+                    console.error("Error saat menyimpan artikel:", error);
+                } finally {
+                    submitBtn.textContent = 'PUBLIKASIKAN KE CLOUD';
+                    submitBtn.disabled = false;
+                }
             };
 
             if(file) readerFile.readAsDataURL(file);
         };
 
+        // ==========================================
+        // 5. INISIALISASI & SINKRONISASI REAL-TIME
+        // ==========================================
+        const initAuth = async () => {
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                await signInWithCustomToken(auth, __initial_auth_token);
+            } else {
+                await signInAnonymously(auth);
+            }
+        };
+
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            if (user) {
+                // Dengarkan perubahan data di Cloud secara Real-Time
+                const articlesRef = collection(db, 'artifacts', appId, 'public', 'data', 'articles');
+                onSnapshot(articlesRef, (snapshot) => {
+                    let cloudArticles = [];
+                    snapshot.forEach((doc) => {
+                        cloudArticles.push({ id: doc.id, ...doc.data() });
+                    });
+                    
+                    // Urutkan berdasarkan timestamp agar user post ada di paling bawah
+                    cloudArticles.sort((a, b) => a.timestamp - b.timestamp);
+                    
+                    // Gabungkan artikel default dan artikel dari cloud (cloud di-append di akhir)
+                    allArticles = [...defaultArticles, ...cloudArticles];
+                    
+                    // Render ulang layar saat data masuk
+                    const activeFilter = document.querySelector('.nav-link.active').dataset.filter;
+                    renderArticles(activeFilter);
+                }, (error) => {
+                    console.error("Gagal mendengarkan data dari cloud:", error);
+                });
+            }
+        });
+
+        // Jalankan saat pertama kali website dimuat
         window.onload = () => {
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             document.getElementById('currentDate').textContent = new Date().toLocaleDateString('id-ID', options);
             renderArticles();
             moveIndicator(document.querySelector('.nav-link.active'));
+            initAuth(); // Mulai proses koneksi cloud database
         };
     </script>
 </body>
