@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pufutara News | Modern Tech Portal</title>
-    <!-- Modern Sans-Serif Font: Inter -->
+    <title>Pufutara News | Ultimate Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -26,14 +25,8 @@
         }
 
         @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         body {
@@ -60,7 +53,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1rem 2rem; /* Diperkecil sedikit */
+            padding: 1rem 2rem;
         }
 
         .logo {
@@ -71,9 +64,12 @@
             cursor: pointer;
         }
 
-        .logo span {
-            color: #777;
-            font-weight: 300;
+        .logo span { color: #777; font-weight: 300; }
+
+        .nav-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
         }
 
         .category-nav {
@@ -93,14 +89,10 @@
             cursor: pointer;
             padding: 0.8rem 0;
             transition: color 0.3s ease;
-            position: relative;
         }
 
-        .nav-link.active {
-            color: var(--accent);
-        }
+        .nav-link.active { color: var(--accent); }
 
-        /* Nav Indicator Animation */
         .nav-indicator {
             position: absolute;
             bottom: 0;
@@ -109,290 +101,122 @@
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
+        .btn-add {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.3s ease, background 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .btn-add:hover {
+            transform: scale(1.1) rotate(90deg);
+            background: #333;
+        }
+
+        .btn-add svg { width: 20px; height: 20px; fill: currentColor; }
+
         /* --- Main Content --- */
         main {
             max-width: var(--container-width);
             margin: 0 auto;
-            padding: 2rem 2rem 4rem; /* Padding atas dikurangi dari 4rem ke 2rem */
+            padding: 2rem 2rem 4rem;
             animation: fadeInUp 1s ease-out forwards;
         }
 
-        .section-header {
-            margin-bottom: 2.5rem; /* Jarak dikurangi */
-        }
+        .section-header { margin-bottom: 2.5rem; }
+        .current-date { font-size: 0.9rem; font-weight: 500; color: var(--text-muted); margin-bottom: 0.2rem; display: block; }
+        .headline { font-size: 3.5rem; font-weight: 800; letter-spacing: -2px; line-height: 1; }
 
-        .current-date {
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: var(--text-muted);
-            margin-bottom: 0.2rem;
-            display: block;
-        }
+        .article-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 2.5rem; }
+        .article-card { grid-column: span 4; cursor: pointer; transition: var(--transition); opacity: 0; animation: fadeInUp 0.8s ease-out forwards; }
+        .article-card.featured { grid-column: span 12; display: grid; grid-template-columns: 1.5fr 1fr; gap: 3rem; margin-bottom: 2rem; align-items: center; }
 
-        .headline {
-            font-size: 3.5rem;
-            font-weight: 800;
-            letter-spacing: -2px;
-            line-height: 1;
-        }
+        .article-image-box { position: relative; aspect-ratio: 16 / 10; background: #eee; border-radius: 8px; overflow: hidden; margin-bottom: 1.5rem; }
+        .article-card.featured .article-image-box { margin-bottom: 0; aspect-ratio: 16 / 9; }
+        .article-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+        .article-card:hover .article-img { transform: scale(1.08); }
 
-        /* --- Article Grid --- */
-        .article-grid {
-            display: grid;
-            grid-template-columns: repeat(12, 1fr);
-            gap: 2.5rem;
-        }
+        .cat-tag { position: absolute; top: 1rem; left: 1rem; background: white; color: black; padding: 0.4rem 1rem; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .article-title { font-size: 1.4rem; font-weight: 700; line-height: 1.3; margin-bottom: 0.8rem; letter-spacing: -0.5px; }
+        .article-card.featured .article-title { font-size: 3rem; line-height: 1.1; }
+        .article-excerpt { color: var(--text-muted); font-size: 1rem; margin-bottom: 1.5rem; }
+        .article-meta { font-size: 0.8rem; font-weight: 600; color: #999; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 10px; }
+        .meta-divider { width: 3px; height: 3px; background: #ccc; border-radius: 50%; }
 
-        .article-card {
-            grid-column: span 4;
-            cursor: pointer;
-            transition: var(--transition);
-            opacity: 0; /* Untuk animasi staggered */
-            animation: fadeInUp 0.8s ease-out forwards;
-        }
-
-        /* Staggered Delay untuk kartu */
-        .article-card:nth-child(1) { animation-delay: 0.2s; }
-        .article-card:nth-child(2) { animation-delay: 0.3s; }
-        .article-card:nth-child(3) { animation-delay: 0.4s; }
-        .article-card:nth-child(4) { animation-delay: 0.5s; }
-
-        .article-card.featured {
-            grid-column: span 12;
-            display: grid;
-            grid-template-columns: 1.5fr 1fr;
-            gap: 3rem;
-            margin-bottom: 2rem;
-            align-items: center;
-        }
-
-        .article-image-box {
-            position: relative;
-            aspect-ratio: 16 / 10;
-            background: #eee;
-            border-radius: 8px;
-            overflow: hidden;
-            margin-bottom: 1.5rem;
-        }
-
-        .article-card.featured .article-image-box {
-            margin-bottom: 0;
-            aspect-ratio: 16 / 9;
-        }
-
-        .article-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .article-card:hover .article-img {
-            transform: scale(1.08);
-        }
-
-        .cat-tag {
-            position: absolute;
-            top: 1rem;
-            left: 1rem;
-            background: white;
-            color: black;
-            padding: 0.4rem 1rem;
-            font-size: 0.7rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        .article-title {
-            font-size: 1.4rem;
-            font-weight: 700;
-            line-height: 1.3;
-            margin-bottom: 0.8rem;
-            letter-spacing: -0.5px;
-            transition: color 0.3s ease;
-        }
-
-        .article-card:hover .article-title {
-            color: #555;
-        }
-
-        .article-card.featured .article-title {
-            font-size: 3rem;
-            line-height: 1.1;
-        }
-
-        .article-excerpt {
-            color: var(--text-muted);
-            font-size: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .article-meta {
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: #999;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .meta-divider {
-            width: 3px;
-            height: 3px;
-            background: #ccc;
-            border-radius: 50%;
-        }
-
-        /* --- Footer --- */
-        footer {
-            background: #fafafa;
-            border-top: 1px solid var(--border-color);
-            padding: 5rem 2rem;
-            margin-top: 4rem;
-        }
-
-        .footer-grid {
-            max-width: var(--container-width);
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 4rem;
-        }
-
-        .footer-brand .logo {
-            margin-bottom: 1.5rem;
-        }
-
-        .footer-desc {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            margin-bottom: 2rem;
-        }
-
-        .footer-title {
-            font-size: 0.8rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 1.5rem;
-            color: var(--text-main);
-        }
-
-        .footer-links {
-            list-style: none;
-        }
-
-        .footer-links li {
-            margin-bottom: 0.8rem;
-        }
-
-        .footer-links a {
-            text-decoration: none;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            transition: var(--transition);
-        }
-
-        .footer-links a:hover {
-            color: var(--accent);
-        }
-
-        .footer-bottom {
-            max-width: var(--container-width);
-            margin: 4rem auto 0;
-            padding-top: 2rem;
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.8rem;
-            color: #bbb;
-        }
-
-        /* --- Reader View --- */
-        .reader-view {
+        /* --- Modal Forms --- */
+        .modal-overlay {
             position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(8px);
+            z-index: 300;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
             background: white;
-            z-index: 200;
-            transform: translateY(100%);
-            transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            width: 100%;
+            max-width: 600px;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            animation: fadeInUp 0.5s ease;
+            max-height: 90vh;
             overflow-y: auto;
         }
 
+        .modal-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 1.5rem; letter-spacing: -1px; }
+        .form-group { margin-bottom: 1.2rem; }
+        .form-group label { display: block; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; margin-bottom: 0.5rem; color: #444; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: inherit;
+        }
+        .form-group textarea { height: 150px; resize: none; }
+
+        .btn-submit { background: var(--accent); color: white; border: none; padding: 1rem; width: 100%; border-radius: 6px; font-weight: 700; cursor: pointer; margin-top: 1rem; }
+        .btn-cancel { background: none; border: none; color: #888; padding: 1rem; width: 100%; cursor: pointer; font-size: 0.9rem; }
+
+        /* --- Reader View --- */
+        .reader-view { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 400; transform: translateY(100%); transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1); overflow-y: auto; }
         .reader-view.open { transform: translateY(0); }
-
-        .reader-header {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 6rem 2rem 2rem;
-            text-align: center;
-        }
-
-        .reader-close {
-            position: fixed;
-            top: 2rem;
-            right: 2rem;
-            background: black;
-            color: white;
-            border: none;
-            padding: 0.8rem 1.5rem;
-            font-weight: 700;
-            border-radius: 4px;
-            cursor: pointer;
-            z-index: 210;
-            transition: transform 0.3s ease;
-        }
-
-        .reader-close:hover { transform: scale(1.05); }
-
-        .read-cat {
-            color: var(--text-muted);
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-size: 0.8rem;
-            margin-bottom: 1.5rem;
-            display: block;
-        }
-
-        .read-title {
-            font-size: 3.5rem;
-            font-weight: 800;
-            line-height: 1.1;
-            letter-spacing: -2px;
-            margin-bottom: 2rem;
-        }
-
-        .read-content {
-            max-width: 700px;
-            margin: 0 auto;
-            padding: 2rem;
-            font-size: 1.25rem;
-            line-height: 1.8;
-            color: #333;
-        }
-
+        .reader-header { max-width: 800px; margin: 0 auto; padding: 6rem 2rem 2rem; text-align: center; }
+        .reader-close { position: fixed; top: 2rem; right: 2rem; background: black; color: white; border: none; padding: 0.8rem 1.5rem; font-weight: 700; border-radius: 4px; cursor: pointer; z-index: 410; }
+        .read-cat { color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem; margin-bottom: 1.5rem; display: block; }
+        .read-title { font-size: 3.5rem; font-weight: 800; line-height: 1.1; letter-spacing: -2px; margin-bottom: 2rem; }
+        .read-content { max-width: 700px; margin: 0 auto; padding: 2rem; font-size: 1.25rem; line-height: 1.8; color: #333; }
         .read-content p { margin-bottom: 2rem; }
-        .read-content h3 { font-size: 1.8rem; font-weight: 800; margin: 3rem 0 1rem; }
 
-        @media (max-width: 1024px) {
-            .article-card { grid-column: span 6; }
-            .article-card.featured { grid-template-columns: 1fr; }
-            .article-card.featured .article-title { font-size: 2.5rem; }
-            .footer-grid { grid-template-columns: 1fr 1fr; }
-        }
+        /* --- Footer --- */
+        footer { background: #fafafa; border-top: 1px solid var(--border-color); padding: 5rem 2rem; margin-top: 4rem; }
+        .footer-grid { max-width: var(--container-width); margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 4rem; }
+        .footer-brand .logo { margin-bottom: 1.5rem; }
+        .footer-desc { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 2rem; }
+        .footer-title { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 1.5rem; color: var(--text-main); }
+        .footer-links { list-style: none; }
+        .footer-links li { margin-bottom: 0.8rem; }
+        .footer-links a { text-decoration: none; color: var(--text-muted); font-size: 0.9rem; transition: var(--transition); }
+        .footer-links a:hover { color: var(--accent); }
+        .footer-bottom { max-width: var(--container-width); margin: 4rem auto 0; padding-top: 2rem; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; font-size: 0.8rem; color: #bbb; }
 
         @media (max-width: 768px) {
             .headline { font-size: 2.5rem; }
             .article-card { grid-column: span 12; }
-            .nav-container { padding: 1rem; }
+            .article-card.featured { grid-template-columns: 1fr; }
             .footer-grid { grid-template-columns: 1fr; gap: 2rem; }
-            .read-title { font-size: 2.5rem; }
         }
     </style>
 </head>
@@ -401,12 +225,17 @@
     <nav>
         <div class="nav-container">
             <div class="logo" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">PUFUTARA<span>NEWS</span></div>
-            <div class="category-nav" id="catNav">
-                <button class="nav-link active" data-filter="all">Semua</button>
-                <button class="nav-link" data-filter="coding">Software</button>
-                <button class="nav-link" data-filter="tech">Teknologi</button>
-                <button class="nav-link" data-filter="lifestyle">Lifestyle</button>
-                <div class="nav-indicator" id="navIndicator"></div>
+            <div class="nav-wrapper">
+                <div class="category-nav" id="catNav">
+                    <button class="nav-link active" data-filter="all">Semua</button>
+                    <button class="nav-link" data-filter="coding">Software</button>
+                    <button class="nav-link" data-filter="tech">Teknologi</button>
+                    <button class="nav-link" data-filter="lifestyle">Lifestyle</button>
+                    <div class="nav-indicator" id="navIndicator"></div>
+                </div>
+                <button class="btn-add" id="openUpload" title="Tambah Artikel">
+                    <svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                </button>
             </div>
         </div>
     </nav>
@@ -418,98 +247,61 @@
         </div>
 
         <div class="article-grid" id="articleGrid">
-            
-            <!-- Featured -->
-            <article class="article-card featured" data-category="tech">
-                <div class="article-image-box">
-                    <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1200&q=80" class="article-img" alt="Cybersecurity">
-                    <span class="cat-tag">Deep Tech</span>
-                </div>
-                <div class="article-info">
-                    <h2 class="article-title">Arsitektur Keamanan Siber di Era Kuantum</h2>
-                    <p class="article-excerpt">Menghadapi ancaman yang belum pernah ada sebelumnya, para insinyur dunia kini berlomba menciptakan enkripsi yang mustahil ditembus.</p>
-                    <div class="article-meta">
-                        <span>Putra Perdana</span>
-                        <div class="meta-divider"></div>
-                        <span>12 Menit Baca</span>
-                    </div>
-                </div>
-                <div class="hidden-content" style="display:none;">
-                    <p>Dunia digital sedang berada di ambang revolusi besar. Komputasi kuantum bukan lagi sekadar teori, melainkan ancaman nyata bagi protokol enkripsi standar saat ini.</p>
-                    <h3>Mengapa Ini Penting?</h3>
-                    <p>Semua data yang kita anggap aman hari ini—mulai dari transaksi perbankan hingga rahasia negara—bisa dibuka dengan mudah oleh komputer kuantum dalam hitungan detik.</p>
-                    <p>Inilah alasan mengapa "Post-Quantum Cryptography" menjadi topik paling krusial bagi setiap developer dan arsitek sistem di tahun 2026.</p>
-                </div>
-            </article>
-
-            <!-- Standard -->
-            <article class="article-card" data-category="coding">
-                <div class="article-image-box">
-                    <img src="https://images.unsplash.com/photo-1587620962725-abab7fe55159?auto=format&fit=crop&w=600&q=80" class="article-img" alt="Coding">
-                    <span class="cat-tag">Dev</span>
-                </div>
-                <div class="article-info">
-                    <h2 class="article-title">Clean Code: Bukan Sekadar Estetika</h2>
-                    <p class="article-excerpt">Mengapa menjaga kualitas kode adalah investasi terbaik bagi jangka panjang perusahaan Anda.</p>
-                    <div class="article-meta">
-                        <span>Editor</span>
-                        <div class="meta-divider"></div>
-                        <span>5 Menit</span>
-                    </div>
-                </div>
-                <div class="hidden-content" style="display:none;">
-                    <p>Banyak developer pemula mengira bahwa selama aplikasi berjalan, maka tugas selesai. Ini adalah kesalahan fatal yang sering memicu hutang teknis (technical debt).</p>
-                    <h3>Human-Centric Code</h3>
-                    <p>Kode ditulis untuk dibaca oleh manusia, dan hanya secara kebetulan dieksekusi oleh mesin. Clean code memudahkan proses debugging dan onboarding anggota tim baru.</p>
-                </div>
-            </article>
-
-            <article class="article-card" data-category="lifestyle">
-                <div class="article-image-box">
-                    <img src="https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=600&q=80" class="article-img" alt="Work">
-                    <span class="cat-tag">Mindset</span>
-                </div>
-                <div class="article-info">
-                    <h2 class="article-title">Deep Work di Dunia yang Bising</h2>
-                    <p class="article-excerpt">Strategi praktis untuk mempertahankan fokus tajam di tengah gempuran notifikasi digital.</p>
-                    <div class="article-meta">
-                        <span>Putra</span>
-                        <div class="meta-divider"></div>
-                        <span>8 Menit</span>
-                    </div>
-                </div>
-                <div class="hidden-content" style="display:none;">
-                    <p>Fokus adalah mata uang baru. Di era informasi, kemampuan untuk berkonsentrasi pada satu hal yang kompleks tanpa distraksi adalah keunggulan kompetitif yang langka.</p>
-                </div>
-            </article>
-
-            <article class="article-card" data-category="tech">
-                <div class="article-image-box">
-                    <img src="https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=600&q=80" class="article-img" alt="AI">
-                    <span class="cat-tag">AI</span>
-                </div>
-                <div class="article-info">
-                    <h2 class="article-title">Generative AI: Babak Baru Kreativitas</h2>
-                    <p class="article-excerpt">Melihat bagaimana seniman dan desainer berkolaborasi dengan mesin untuk menciptakan karya baru.</p>
-                    <div class="article-meta">
-                        <span>Staff</span>
-                        <div class="meta-divider"></div>
-                        <span>6 Menit</span>
-                    </div>
-                </div>
-                <div class="hidden-content" style="display:none;">
-                    <p>AI tidak akan menggantikan seniman, tetapi seniman yang menggunakan AI akan menggantikan mereka yang tidak menggunakannya.</p>
-                </div>
-            </article>
-
+            <!-- Render by JS -->
         </div>
     </main>
+
+    <!-- Modal Upload -->
+    <div class="modal-overlay" id="uploadModal">
+        <div class="modal-content">
+            <h2 class="modal-title">Terbitkan Artikel Baru</h2>
+            <form id="articleForm">
+                <div class="form-group">
+                    <label>Pilih Gambar</label>
+                    <input type="file" id="imageInput" accept="image/*" required>
+                </div>
+                <div class="form-group">
+                    <label>Judul Artikel</label>
+                    <input type="text" id="titleInput" placeholder="Masukkan judul..." required>
+                </div>
+                <div class="form-group">
+                    <label>Kategori</label>
+                    <select id="categoryInput">
+                        <option value="tech">Teknologi</option>
+                        <option value="coding">Software</option>
+                        <option value="lifestyle">Lifestyle</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Ringkasan</label>
+                    <input type="text" id="excerptInput" placeholder="Deskripsi singkat..." required>
+                </div>
+                <div class="form-group">
+                    <label>Konten Lengkap (Enter untuk paragraf baru)</label>
+                    <textarea id="contentInput" placeholder="Min. 3 paragraf sangat disarankan..." required></textarea>
+                </div>
+                <button type="submit" class="btn-submit">PUBLIKASIKAN</button>
+                <button type="button" class="btn-cancel" id="closeUpload">Batal</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Reader View -->
+    <div class="reader-view" id="readerView">
+        <button class="reader-close" id="closeReader">TUTUP</button>
+        <div class="reader-header">
+            <span class="read-cat" id="readCat">CATEGORY</span>
+            <h1 class="read-title" id="readTitle">Judul</h1>
+            <div class="article-meta" style="justify-content: center;" id="readMeta"></div>
+        </div>
+        <div class="read-content" id="readContent"></div>
+    </div>
 
     <footer>
         <div class="footer-grid">
             <div class="footer-brand">
                 <div class="logo">PUFUTARA<span>NEWS</span></div>
-                <p class="footer-desc">Platform jurnalisme independen yang fokus pada perkembangan teknologi, perangkat lunak, dan gaya hidup digital modern.</p>
+                <p class="footer-desc">Platform jurnalisme independen yang fokus pada perkembangan teknologi dan gaya hidup digital modern.</p>
             </div>
             <div>
                 <h4 class="footer-title">Kategori</h4>
@@ -517,7 +309,6 @@
                     <li><a href="#">Software Engineering</a></li>
                     <li><a href="#">Artificial Intelligence</a></li>
                     <li><a href="#">Digital Wellness</a></li>
-                    <li><a href="#">Tech Gadgets</a></li>
                 </ul>
             </div>
             <div>
@@ -525,7 +316,6 @@
                 <ul class="footer-links">
                     <li><a href="#">Tentang Kami</a></li>
                     <li><a href="#">Redaksi</a></li>
-                    <li><a href="#">Karir</a></li>
                     <li><a href="#">Kontak</a></li>
                 </ul>
             </div>
@@ -534,119 +324,187 @@
                 <ul class="footer-links">
                     <li><a href="#">Twitter / X</a></li>
                     <li><a href="#">Instagram</a></li>
-                    <li><a href="#">LinkedIn</a></li>
                     <li><a href="#">Newsletter</a></li>
                 </ul>
             </div>
         </div>
         <div class="footer-bottom">
             <p>&copy; 2026 Pufutara News Network. Hak Cipta Dilindungi.</p>
-            <p>Dibuat dengan semangat untuk masa depan.</p>
+            <p>Dibuat untuk masa depan digital.</p>
         </div>
     </footer>
 
-    <!-- Reader Mode -->
-    <div class="reader-view" id="readerView">
-        <button class="reader-close" id="closeReader">TUTUP</button>
-        <div class="reader-header">
-            <span class="read-cat" id="readCat">CATEGORY</span>
-            <h1 class="read-title" id="readTitle">Judul Berita</h1>
-            <div class="article-meta" style="justify-content: center;" id="readMeta">PENULIS • DURASI</div>
-        </div>
-        <div class="read-content" id="readContent">
-            <!-- Content -->
-        </div>
-    </div>
-
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Update Date
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            document.getElementById('currentDate').textContent = new Date().toLocaleDateString('id-ID', options);
-
-            // Navbar Indicator Logic
-            const navLinks = document.querySelectorAll('.nav-link');
-            const indicator = document.getElementById('navIndicator');
-
-            function moveIndicator(element) {
-                indicator.style.width = element.offsetWidth + 'px';
-                indicator.style.left = element.offsetLeft + 'px';
+        // Koleksi 10 Artikel Lengkap
+        let articles = [
+            {
+                id: 1, title: "Arsitektur Keamanan Siber di Era Kuantum", category: "tech", tag: "Deep Tech", author: "Putra Perdana", time: "12 Menit", featured: true,
+                image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1200&q=80",
+                excerpt: "Menghadapi ancaman yang belum pernah ada sebelumnya, para insinyur dunia kini berlomba menciptakan enkripsi yang mustahil ditembus.",
+                content: `<p>Dunia digital sedang berada di ambang revolusi besar. Komputasi kuantum bukan lagi sekadar teori, melainkan ancaman nyata bagi protokol enkripsi standar saat ini yang kita gunakan setiap hari untuk mengamankan data pribadi.</p><p>Semua data yang kita anggap aman hari ini—mulai dari transaksi perbankan hingga rahasia negara—bisa dibuka dengan mudah oleh komputer kuantum dalam hitungan detik. Kekuatan pemrosesan yang luar biasa ini memaksa komunitas keamanan global untuk merancang ulang fondasi keamanan internet secara menyeluruh.</p><p>Inilah alasan mengapa "Post-Quantum Cryptography" menjadi topik paling krusial bagi setiap developer di tahun 2026. Kita perlu beralih ke algoritma yang didasarkan pada masalah matematika yang sulit dipecahkan bahkan oleh komputer kuantum.</p>`
+            },
+            {
+                id: 2, title: "Clean Code: Bukan Sekadar Estetika", category: "coding", tag: "Dev", author: "Editor", time: "5 Menit", featured: false,
+                image: "https://images.unsplash.com/photo-1587620962725-abab7fe55159?auto=format&fit=crop&w=600&q=80",
+                excerpt: "Mengapa menjaga kualitas kode adalah investasi terbaik bagi jangka panjang perusahaan Anda.",
+                content: `<p>Banyak developer pemula mengira bahwa selama aplikasi berjalan sesuai fungsinya, maka tugas selesai. Namun, kode yang "sekadar jalan" seringkali menjadi bom waktu yang siap meledak di masa depan dalam bentuk kesulitan perawatan.</p><p>Kode ditulis untuk dibaca oleh manusia, dan hanya secara kebetulan dieksekusi oleh mesin. Clean code bukan hanya tentang keindahan tampilan baris program, melainkan tentang komunikasi yang efektif antar pengembang.</p><p>Menerapkan prinsip clean code memudahkan proses debugging dan onboarding anggota tim baru. Investasi waktu untuk menulis kode yang berkualitas di awal akan menghemat biaya operasional yang sangat besar di masa depan.</p>`
+            },
+            {
+                id: 3, title: "Deep Work di Dunia yang Bising", category: "lifestyle", tag: "Mindset", author: "Putra", time: "8 Menit", featured: false,
+                image: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=600&q=80",
+                excerpt: "Strategi praktis untuk mempertahankan fokus tajam di tengah gempuran notifikasi digital.",
+                content: `<p>Fokus adalah mata uang baru di ekonomi modern. Di era informasi yang serba cepat ini, kemampuan untuk berkonsentrasi pada satu hal yang kompleks tanpa distraksi adalah keunggulan kompetitif yang semakin langka.</p><p>Gangguan konstan dari notifikasi smartphone telah merusak kemampuan kognitif kita untuk berpikir mendalam. Deep work menuntut kita untuk menciptakan lingkungan yang bebas dari gangguan, memungkinkan otak mencapai kondisi flow.</p><p>Mulai sekarang, cobalah untuk menjadwalkan blok waktu khusus tanpa koneksi internet. Dengan melatih otot fokus kita setiap hari, kita tidak hanya menjadi lebih produktif secara profesional, tetapi juga mendapatkan kembali kedamaian mental.</p>`
+            },
+            {
+                id: 4, title: "Generative AI: Babak Baru Kreativitas", category: "tech", tag: "AI", author: "Staff", time: "6 Menit", featured: false,
+                image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=600&q=80",
+                excerpt: "Melihat bagaimana seniman dan desainer berkolaborasi dengan mesin untuk menciptakan karya baru.",
+                content: `<p>Perdebatan mengenai apakah AI akan menggantikan peran manusia di industri kreatif kini mulai bergeser. Fokus utama saat ini adalah bagaimana manusia dapat menggunakan AI sebagai asisten yang cerdas untuk memperluas batas imajinasi.</p><p>AI tidak akan menggantikan seniman, tetapi seniman yang menggunakan AI akan memiliki keunggulan dibanding mereka yang menolak beradaptasi. Dengan kemampuan mesin untuk menghasilkan iterasi cepat, seorang desainer dapat mengeksplorasi ribuan konsep dalam hitungan menit.</p><p>Masa depan kreativitas terletak pada kolaborasi harmonis antara intuisi manusia dan kecepatan komputasi. Kita sedang memasuki era di mana alat-alat baru ini memungkinkan siapapun untuk memvisualisasikan ide-ide kompleks dengan kualitas tinggi.</p>`
+            },
+            {
+                id: 5, title: "Masa Depan Framework JavaScript", category: "coding", tag: "Web", author: "Dev Team", time: "7 Menit", featured: false,
+                image: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=600&q=80",
+                excerpt: "Mengapa tren sedang bergeser kembali ke Server-Side Rendering (SSR) dan apa dampaknya bagi dev.",
+                content: `<p>Setelah bertahun-tahun didominasi oleh aplikasi Client-Side (SPA), industri web kini melihat kebangkitan kembali Server-Side Rendering (SSR). Hal ini dipicu oleh kebutuhan akan performa awal yang lebih cepat dan optimasi mesin pencari.</p><p>Framework seperti Next.js dan Remix telah membuktikan bahwa kita bisa mendapatkan yang terbaik dari kedua dunia. Pendekatan ini secara signifikan meningkatkan user experience, terutama bagi pengguna dengan perangkat berspesifikasi rendah.</p><p>Sebagai pengembang, memahami pergeseran ini sangat penting untuk tetap relevan. Kita tidak lagi hanya membangun komponen UI, tetapi juga harus memikirkan strategi pengambilan data dan hidrasi yang efisien.</p>`
+            },
+            {
+                id: 6, title: "Inovasi Teknologi Hijau 2026", category: "tech", tag: "Green", author: "Lestari News", time: "9 Menit", featured: false,
+                image: "https://images.unsplash.com/photo-1592478411213-6153e4ebc07d?auto=format&fit=crop&w=600&q=80",
+                excerpt: "Bagaimana startup teknologi kini fokus pada solusi penyimpanan energi terbarukan yang efisien.",
+                content: `<p>Krisis iklim global menuntut solusi teknologi yang lebih radikal daripada sekadar pengurangan emisi karbon. Fokus utama tahun 2026 adalah pada pengembangan baterai generasi berikutnya yang tidak lagi bergantung pada lithium.</p><p>Penyimpanan energi skala besar menjadi kunci agar energi matahari dan angin dapat digunakan secara stabil sepanjang waktu. Tanpa teknologi penyimpanan yang mumpuni, transisi menuju energi bersih akan terus terhambat oleh fluktuasi alam.</p><p>Inovasi di sektor "Green Tech" bukan hanya tentang menyelamatkan planet, tetapi juga tentang menciptakan kemandirian energi bagi banyak negara. Investasi besar-besaran di bidang ini mulai menunjukkan hasil nyata.</p>`
+            },
+            {
+                id: 7, title: "Kesehatan Mental di Era Remote Work", category: "lifestyle", tag: "Wellness", author: "Dr. Anisa", time: "6 Menit", featured: false,
+                image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=600&q=80",
+                excerpt: "Mengenali gejala Zoom Fatigue dan cara menjaga keseimbangan antara kerja dan kehidupan.",
+                content: `<p>Bekerja dari mana saja memberikan fleksibilitas, tetapi juga mengaburkan batas antara ruang pribadi dan profesional. Banyak pekerja remote merasa sulit untuk "mematikan" mode kerja saat jam operasional selesai.</p><p>Fenomena Zoom Fatigue bukan sekadar kelelahan fisik, melainkan beban kognitif yang berlebihan akibat interaksi video yang intens. Penting bagi perusahaan untuk menerapkan aturan yang lebih sehat, seperti membatasi durasi rapat.</p><p>Keseimbangan hidup bukan sesuatu yang datang dengan sendirinya; itu harus dirancang dengan sengaja. Dengan menetapkan batasan yang jelas, kita dapat menikmati manfaat dari kebebasan bekerja jarak jauh.</p>`
+            },
+            {
+                id: 8, title: "Transisi ke Arsitektur Microservices", category: "coding", tag: "Backend", author: "Budi S.", time: "10 Menit", featured: false,
+                image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=600&q=80",
+                excerpt: "Kapan saat yang tepat bagi startup untuk meninggalkan monolit demi skalabilitas sistem.",
+                content: `<p>Arsitektur monolit seringkali menjadi pilihan terbaik di awal perjalanan startup karena kecepatan pengembangannya. Namun, seiring bertambahnya jumlah pengguna, monolit yang besar bisa menjadi sulit untuk dikelola.</p><p>Pindah ke microservices menawarkan skalabilitas yang luar biasa, namun dengan biaya kompleksitas infrastruktur yang jauh lebih tinggi. Tim harus siap menangani tantangan baru seperti orkestrasi kontainer dan monitoring layanan.</p><p>Keputusan untuk bermigrasi tidak boleh dilakukan hanya karena tren teknologi semata. Analisis yang mendalam terhadap beban kerja sistem dan kemampuan operasional tim adalah kunci keberhasilan transformasi arsitektur.</p>`
+            },
+            {
+                id: 9, title: "Internet Satelit: Menjangkau Pelosok", category: "tech", tag: "Space", author: "Aero Post", time: "7 Menit", featured: false,
+                image: "https://images.unsplash.com/photo-1614728263952-84ea256f9679?auto=format&fit=crop&w=600&q=80",
+                excerpt: "Bagaimana konstelasi satelit orbit rendah mengubah lanskap konektivitas di daerah terpencil.",
+                content: `<p>Selama puluhan tahun, daerah terpencil tertinggal dalam revolusi digital karena sulitnya membangun kabel fisik. Kini, konstelasi satelit orbit rendah (LEO) mulai memberikan akses internet berkecepatan tinggi bagi siapa saja.</p><p>Teknologi ini memiliki dampak sosial yang besar, mulai dari pendidikan jarak jauh hingga layanan kesehatan telemidis di pedalaman. Konektivitas bukan lagi sekadar kemewahan, melainkan kebutuhan dasar untuk pertumbuhan ekonomi.</p><p>Meskipun tantangan regulasi dan masalah sampah luar angkasa masih membayangi, potensi internet satelit untuk menyatukan penduduk dunia ke dalam satu jaringan global adalah impian yang mendekati kenyataan.</p>`
+            },
+            {
+                id: 10, title: "Minimalisme Digital: Seni Melepaskan", category: "lifestyle", tag: "Life", author: "Sari", time: "5 Menit", featured: false,
+                image: "https://images.unsplash.com/photo-1512486130939-2c4f79935e4f?auto=format&fit=crop&w=600&q=80",
+                excerpt: "Cara menyederhanakan kehidupan online Anda untuk fokus pada hal-hal yang benar-benar penting.",
+                content: `<p>Kita sering merasa terbebani oleh banyaknya aplikasi dan aliran informasi yang masuk setiap detik. Minimalisme digital bukan berarti meninggalkan teknologi, melainkan menggunakannya secara sadar.</p><p>Langkah pertama dimulai dengan membersihkan kekacauan digital: hapus aplikasi yang jarang digunakan dan matikan notifikasi yang tidak mendesak. Dengan mengurangi kebisingan, kita memberikan ruang bagi pikiran untuk bernapas.</p><p>Hasil dari gaya hidup ini adalah peningkatan kualitas perhatian. Saat kita berhenti mencari validasi melalui layar, kita mulai menemukan kebahagiaan yang lebih otentik melalui aktivitas fisik dan hobi kreatif.</p>`
             }
+        ];
 
-            // Initial position
-            moveIndicator(document.querySelector('.nav-link.active'));
+        const grid = document.getElementById('articleGrid');
+        const uploadModal = document.getElementById('uploadModal');
+        const reader = document.getElementById('readerView');
 
-            // Filtering with Nav Animation
-            const cards = document.querySelectorAll('.article-card');
+        function renderArticles(filter = 'all') {
+            grid.innerHTML = '';
+            articles.forEach((art, index) => {
+                if(filter !== 'all' && art.category !== filter) return;
 
-            navLinks.forEach(link => {
-                link.addEventListener('click', () => {
-                    navLinks.forEach(l => l.classList.remove('active'));
-                    link.classList.add('active');
-                    moveIndicator(link);
-
-                    const filter = link.getAttribute('data-filter');
-                    
-                    cards.forEach(card => {
-                        card.style.opacity = '0';
-                        card.style.transform = 'translateY(20px)';
-                        
-                        setTimeout(() => {
-                            const cat = card.getAttribute('data-category');
-                            if (filter === 'all' || filter === cat) {
-                                card.style.display = card.classList.contains('featured') ? 'grid' : 'block';
-                                // Trigger re-animation
-                                setTimeout(() => {
-                                    card.style.opacity = '1';
-                                    card.style.transform = 'translateY(0)';
-                                }, 50);
-                            } else {
-                                card.style.display = 'none';
-                            }
-                        }, 300);
-                    });
-                });
+                const card = document.createElement('article');
+                card.className = `article-card ${art.featured ? 'featured' : ''}`;
+                card.style.animationDelay = `${index * 0.05}s`;
+                card.innerHTML = `
+                    <div class="article-image-box">
+                        <img src="${art.image}" class="article-img" alt="${art.title}">
+                        <span class="cat-tag">${art.tag || art.category}</span>
+                    </div>
+                    <div class="article-info">
+                        <h2 class="article-title">${art.title}</h2>
+                        <p class="article-excerpt">${art.excerpt}</p>
+                        <div class="article-meta">
+                            <span>${art.author}</span>
+                            <div class="meta-divider"></div>
+                            <span>${art.time}</span>
+                        </div>
+                    </div>
+                `;
+                card.onclick = () => openReader(art);
+                grid.appendChild(card);
             });
+        }
 
-            // Re-calculate indicator on window resize
-            window.addEventListener('resize', () => {
-                moveIndicator(document.querySelector('.nav-link.active'));
-            });
+        function openReader(art) {
+            document.getElementById('readTitle').textContent = art.title;
+            document.getElementById('readCat').textContent = art.tag || art.category;
+            document.getElementById('readMeta').innerHTML = `<span>${art.author}</span> <div class="meta-divider"></div> <span>${art.time}</span>`;
+            document.getElementById('readContent').innerHTML = art.content;
+            reader.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
 
-            // Reader Mode
-            const reader = document.getElementById('readerView');
-            const close = document.getElementById('closeReader');
+        document.getElementById('closeReader').onclick = () => {
+            reader.classList.remove('open');
+            document.body.style.overflow = '';
+        };
 
-            cards.forEach(card => {
-                card.addEventListener('click', () => {
-                    const title = card.querySelector('.article-title').textContent;
-                    const cat = card.querySelector('.cat-tag').textContent;
-                    const meta = card.querySelector('.article-meta').innerHTML;
-                    const content = card.querySelector('.hidden-content').innerHTML;
+        const navLinks = document.querySelectorAll('.nav-link');
+        const indicator = document.getElementById('navIndicator');
 
-                    document.getElementById('readTitle').textContent = title;
-                    document.getElementById('readCat').textContent = cat;
-                    document.getElementById('readMeta').innerHTML = meta;
-                    document.getElementById('readContent').innerHTML = content;
+        function moveIndicator(element) {
+            indicator.style.width = element.offsetWidth + 'px';
+            indicator.style.left = element.offsetLeft + 'px';
+        }
 
-                    reader.classList.add('open');
-                    document.body.style.overflow = 'hidden';
-                });
-            });
-
-            close.addEventListener('click', () => {
-                reader.classList.remove('open');
-                document.body.style.overflow = '';
-            });
-
-            // ESC key to close
-            document.addEventListener('keydown', (e) => {
-                if(e.key === 'Escape') {
-                    reader.classList.remove('open');
-                    document.body.style.overflow = '';
-                }
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+                moveIndicator(link);
+                renderArticles(link.dataset.filter);
             });
         });
+
+        document.getElementById('openUpload').onclick = () => uploadModal.style.display = 'flex';
+        document.getElementById('closeUpload').onclick = () => uploadModal.style.display = 'none';
+
+        document.getElementById('articleForm').onsubmit = (e) => {
+            e.preventDefault();
+            const file = document.getElementById('imageInput').files[0];
+            const readerFile = new FileReader();
+
+            readerFile.onload = function(event) {
+                const paragraphs = document.getElementById('contentInput').value
+                    .split('\n')
+                    .filter(p => p.trim() !== '')
+                    .map(p => `<p>${p}</p>`)
+                    .join('');
+
+                const newArt = {
+                    id: Date.now(),
+                    title: document.getElementById('titleInput').value,
+                    category: document.getElementById('categoryInput').value,
+                    tag: "User Post",
+                    excerpt: document.getElementById('excerptInput').value,
+                    image: event.target.result,
+                    author: "Kamu (User)",
+                    time: "1 Menit",
+                    content: paragraphs,
+                    featured: false
+                };
+
+                articles.unshift(newArt);
+                renderArticles(document.querySelector('.nav-link.active').dataset.filter);
+                uploadModal.style.display = 'none';
+                document.getElementById('articleForm').reset();
+            };
+
+            if(file) readerFile.readAsDataURL(file);
+        };
+
+        window.onload = () => {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = new Date().toLocaleDateString('id-ID', options);
+            renderArticles();
+            moveIndicator(document.querySelector('.nav-link.active'));
+        };
     </script>
 </body>
-</html>s
+</html>
