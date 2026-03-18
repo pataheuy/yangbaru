@@ -490,7 +490,7 @@
                     featured: false
                 };
 
-                articles.unshift(newArt);
+                articles.push(newArt);
                 renderArticles(document.querySelector('.nav-link.active').dataset.filter);
                 uploadModal.style.display = 'none';
                 document.getElementById('articleForm').reset();
