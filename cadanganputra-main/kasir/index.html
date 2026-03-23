@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pufutara Cashier - Keyboard Optimized POS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f8f8;
+            overflow: hidden;
+        }
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #000; border-radius: 10px; }
+        
+        .tab-active { background-color: white; color: black; border-radius: 12px; }
+        
+        /* Highlight untuk navigasi keyboard */
+        .keyboard-focus:focus {
+            outline: 3px solid #000;
+            outline-offset: 2px;
+        }
+
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+        }
+        .print-only { display: none; }
+
+        .shortcut-badge {
+            font-size: 9px;
+            background: #e4e4e7;
+            padding: 2px 5px;
+            border-radius: 4px;
+            color: #71717a;
+            font-weight: bold;
+            margin-left: 5px;
+            border-bottom: 2px solid #a1a1aa;
+        }
+    </style>
+</head>
+<body class="text-black">
+
+    <div class="flex h-screen overflow-hidden no-print">
+        <!-- Sidebar -->
+        <aside class="w-24 bg-black text-white flex flex-col items-center py-8 space-y-8">
+            <div class="flex flex-col items-center mb-4 text-center">
+                <div class="p-2 bg-white text-black rounded-lg mb-2">
+                    <i data-lucide="store" class="w-6 h-6"></i>
+                </div>
+                <span class="text-[10px] font-bold uppercase tracking-widest leading-tight">Pufutara</span>
+            </div>
+            <nav class="flex flex-col space-y-6 w-full px-4 text-center">
+                <button onclick="switchTab('pos')" id="nav-pos" class="p-4 hover:bg-zinc-800 transition flex flex-col items-center space-y-1 tab-active">
+                    <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                    <span class="text-[10px]">POS <span class="block opacity-50">[F1]</span></span>
+                </button>
+                <button onclick="switchTab('inventory')" id="nav-inventory" class="p-4 hover:bg-zinc-800 transition flex flex-col items-center space-y-1 rounded-xl text-zinc-500">
+                    <i data-lucide="package" class="w-5 h-5"></i>
+                    <span class="text-[10px]">Stok <span class="block opacity-50">[F2]</span></span>
+                </button>
+                <button onclick="switchTab('reports')" id="nav-reports" class="p-4 hover:bg-zinc-800 transition flex flex-col items-center space-y-1 rounded-xl text-zinc-500">
+                    <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
+                    <span class="text-[10px]">Laporan <span class="block opacity-50">[F3]</span></span>
+                </button>
+                <button onclick="switchTab('settings')" id="nav-settings" class="p-4 hover:bg-zinc-800 transition flex flex-col items-center space-y-1 rounded-xl text-zinc-500">
+                    <i data-lucide="settings" class="w-5 h-5"></i>
+                    <span class="text-[10px]">Setelan</span>
+                </button>
+            </nav>
+            <div class="mt-auto space-y-4 text-center">
+                <button class="p-3 hover:bg-zinc-800 rounded-xl transition text-zinc-500 hover:text-red-500"><i data-lucide="log-out"></i></button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 flex overflow-hidden">
+            
+            <!-- Tab POS -->
+            <section id="tab-pos" class="flex-1 flex flex-col md:flex-row p-6 space-y-6 md:space-y-0 md:space-x-6 overflow-hidden">
+                <div class="flex-1 flex flex-col space-y-4 overflow-hidden">
+                    <header class="flex justify-between items-center">
+                        <div>
+                            <h1 class="text-2xl font-bold uppercase tracking-tighter">Penjualan</h1>
+                            <p class="text-xs text-zinc-500" id="current-date"></p>
+                        </div>
+                        <div class="relative w-72">
+                            <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-zinc-400"></i>
+                            <input type="text" id="search-input" placeholder="Cari... [/]" class="w-full pl-10 pr-4 py-2 border border-zinc-200 rounded-lg focus:outline-none focus:border-black transition text-sm shadow-sm">
+                        </div>
+                    </header>
+
+                    <div id="category-filters" class="flex space-x-2 overflow-x-auto pb-2 custom-scroll text-xs">
+                        <!-- Rendered by JS -->
+                    </div>
+
+                    <div id="product-grid" class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 overflow-y-auto pr-2 custom-scroll">
+                        <!-- Rendered by JS -->
+                    </div>
+                </div>
+
+                <!-- Cart Section -->
+                <div class="w-full md:w-96 bg-white rounded-2xl shadow-sm border border-zinc-100 flex flex-col overflow-hidden">
+                    <div class="p-5 border-b border-zinc-100 flex justify-between items-center">
+                        <h2 class="font-bold flex items-center"><i data-lucide="shopping-bag" class="mr-2 w-5 h-5"></i> Keranjang</h2>
+                        <button onclick="clearCart()" id="btn-clear-cart" class="text-xs text-zinc-400 hover:text-red-500 font-medium">Kosongkan [DEL]</button>
+                    </div>
+                    
+                    <div id="cart-items" class="flex-1 overflow-y-auto p-5 space-y-4 custom-scroll">
+                        <!-- Rendered by JS -->
+                    </div>
+
+                    <div class="p-5 bg-zinc-50 border-t border-zinc-100 space-y-3">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-zinc-500">Subtotal</span>
+                            <span id="cart-subtotal" class="font-medium">Rp 0</span>
+                        </div>
+                        <div class="flex justify-between font-bold text-xl border-t border-zinc-200 pt-3 mt-2">
+                            <span>Total</span>
+                            <span id="cart-total">Rp 0</span>
+                        </div>
+                        <button id="btn-pay" onclick="openCheckoutModal()" class="w-full bg-black text-white py-4 rounded-xl font-bold hover:bg-zinc-800 transition mt-2 shadow-lg flex items-center justify-center space-x-2">
+                            <span>PROSES BAYAR [SPACE]</span>
+                            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab Inventory -->
+            <section id="tab-inventory" class="hidden flex-1 p-8 overflow-y-auto bg-white">
+                <div class="max-w-5xl mx-auto">
+                    <div class="flex justify-between items-end mb-8 border-b border-zinc-100 pb-6">
+                        <div>
+                            <h1 class="text-3xl font-black uppercase tracking-tighter">Stok Barang</h1>
+                            <p class="text-zinc-500" id="text-add-hint">Tekan [N] untuk tambah produk.</p>
+                        </div>
+                        <button onclick="openAddProductModal()" id="btn-add-product" class="bg-black text-white px-6 py-3 rounded-xl font-bold text-sm flex items-center hover:bg-zinc-800 transition">
+                            <i data-lucide="plus" class="w-4 h-4 mr-2"></i> TAMBAH [N]
+                        </button>
+                    </div>
+                    <div class="bg-white rounded-2xl border border-zinc-200 overflow-hidden shadow-sm">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-zinc-50 border-b border-zinc-200">
+                                <tr>
+                                    <th class="px-6 py-4 font-bold text-zinc-400 uppercase text-[10px]">Barcode</th>
+                                    <th class="px-6 py-4 font-bold text-zinc-400 uppercase text-[10px]">Nama</th>
+                                    <th class="px-6 py-4 font-bold text-zinc-400 uppercase text-[10px]">Kategori</th>
+                                    <th class="px-6 py-4 font-bold text-zinc-400 uppercase text-[10px] text-right">Harga</th>
+                                    <th class="px-6 py-4 font-bold text-zinc-400 uppercase text-[10px] text-center">Stok</th>
+                                    <th class="px-6 py-4 font-bold text-zinc-400 uppercase text-[10px] text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="inventory-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab Reports -->
+            <section id="tab-reports" class="hidden flex-1 p-8 overflow-y-auto">
+                <div class="max-w-5xl mx-auto">
+                    <h1 class="text-3xl font-black uppercase tracking-tighter mb-8">Statistik</h1>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-white p-8 rounded-2xl border border-zinc-100 shadow-sm">
+                            <p class="text-zinc-500 text-sm font-semibold mb-2">Omzet Hari Ini</p>
+                            <p class="text-3xl font-black" id="today-revenue">Rp 0</p>
+                        </div>
+                        <div class="bg-white p-8 rounded-2xl border border-zinc-100 shadow-sm">
+                            <p class="text-zinc-500 text-sm font-semibold mb-2">Transaksi</p>
+                            <p class="text-3xl font-black" id="today-tx-count">0</p>
+                        </div>
+                        <div class="bg-white p-8 rounded-2xl border border-zinc-100 shadow-sm">
+                            <p class="text-zinc-500 text-sm font-semibold mb-2">Item Terjual</p>
+                            <p class="text-3xl font-black" id="today-items-count">0</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-white rounded-2xl border border-zinc-100 p-8 shadow-sm">
+                            <h2 class="font-bold mb-4 flex items-center"><i data-lucide="package" class="w-5 h-5 mr-2 text-zinc-400"></i> Penjualan per Barang</h2>
+                            <div id="item-sales-list" class="space-y-3">
+                                <!-- Rendered by JS -->
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-2xl border border-zinc-100 p-8 shadow-sm">
+                            <h2 class="font-bold mb-4 flex items-center"><i data-lucide="history" class="w-5 h-5 mr-2 text-zinc-400"></i> Riwayat Terakhir</h2>
+                            <div id="history-list" class="space-y-3">
+                                <!-- Rendered by JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tab Settings -->
+            <section id="tab-settings" class="hidden flex-1 p-8 overflow-y-auto bg-white">
+                <div class="max-w-3xl mx-auto">
+                    <div class="mb-8 border-b border-zinc-100 pb-6">
+                        <h1 class="text-3xl font-black uppercase tracking-tighter">Setelan Shortcut</h1>
+                        <p class="text-zinc-500 mt-1">Klik tombol di sebelah kanan lalu tekan tombol baru di keyboard untuk mengubah shortcut.</p>
+                    </div>
+                    
+                    <div class="bg-white rounded-2xl border border-zinc-200 overflow-hidden shadow-sm">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-zinc-50 border-b border-zinc-200">
+                                <tr>
+                                    <th class="px-6 py-4 font-bold text-zinc-400 uppercase text-[10px]">Aksi / Perintah</th>
+                                    <th class="px-6 py-4 font-bold text-zinc-400 uppercase text-[10px] w-48 text-right">Tombol Keyboard</th>
+                                </tr>
+                            </thead>
+                            <tbody id="settings-shortcuts-body">
+                                <!-- Rendered by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <button onclick="resetShortcuts()" class="mt-6 px-6 py-3 text-sm text-red-500 bg-red-50 rounded-xl font-bold hover:bg-red-100 transition">Reset ke Default</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Help Modal (Shortcuts) -->
+    <div id="help-modal" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center p-4 z-[100] backdrop-blur-sm">
+        <div class="bg-white w-full max-w-md rounded-3xl p-8 overflow-hidden shadow-2xl">
+            <h2 class="text-2xl font-black uppercase tracking-tighter mb-6 flex items-center">
+                <i data-lucide="keyboard" class="mr-2"></i> Keyboard Shortcuts
+            </h2>
+            <div id="help-modal-content" class="space-y-3 text-sm">
+                <!-- Rendered by JS -->
+            </div>
+            <button onclick="toggleHelp()" class="w-full bg-black text-white py-4 rounded-xl font-bold mt-6">MENGERTI</button>
+        </div>
+    </div>
+
+    <!-- Modals (Add Product, Checkout) -->
+    <div id="product-modal" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center p-4 z-[60]">
+        <div class="bg-white w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl">
+            <div class="p-8 border-b border-zinc-100 bg-zinc-50 flex justify-between">
+                <h3 class="font-black text-xl uppercase tracking-tighter">Item Baru</h3>
+                <button onclick="closeProductModal()">[ESC]</button>
+            </div>
+            <form id="add-product-form" class="p-8 space-y-4">
+                <input type="text" id="p-name" placeholder="Nama Produk" required class="w-full px-4 py-3 border border-zinc-200 rounded-xl outline-none focus:border-black">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="flex space-x-2">
+                        <select id="p-category" class="w-full px-4 py-3 border border-zinc-200 rounded-xl outline-none bg-white">
+                            <!-- Rendered by JS -->
+                        </select>
+                        <input type="text" id="p-category-new" placeholder="Nama Kategori" class="hidden w-full px-4 py-3 border border-zinc-200 rounded-xl outline-none">
+                        <button type="button" onclick="toggleNewCategory()" id="btn-toggle-category" class="px-3 py-3 bg-zinc-100 rounded-xl font-bold text-xs hover:bg-zinc-200 transition shrink-0">+ BARU</button>
+                    </div>
+                    <input type="text" inputmode="numeric" oninput="formatInputNumber(event)" id="p-price" placeholder="Harga" required class="w-full px-4 py-3 border border-zinc-200 rounded-xl outline-none">
+                </div>
+                <input type="text" inputmode="numeric" oninput="formatInputNumber(event)" id="p-stock" placeholder="Stok Awal" required class="w-full px-4 py-3 border border-zinc-200 rounded-xl outline-none">
+                <button type="submit" class="w-full bg-black text-white py-4 rounded-xl font-bold uppercase">Simpan [ENTER]</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="checkout-modal" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center p-4 z-[60]">
+        <div class="bg-white w-full max-w-md rounded-2xl p-8 overflow-hidden">
+            <!-- Langkah 1: Pilih Metode -->
+            <div id="checkout-step-1">
+                <h3 class="font-black text-xl mb-4">PILIH PEMBAYARAN</h3>
+                <div id="modal-total" class="text-3xl font-black mb-6"></div>
+                <div class="space-y-4">
+                    <button onclick="showCashInput()" id="btn-pay-cash" class="w-full p-5 border-2 rounded-xl text-left font-bold flex justify-between items-center hover:border-black transition">
+                        <span>1. TUNAI</span> <i data-lucide="banknote"></i>
+                    </button>
+                    <button onclick="processPayment('QRIS')" id="btn-pay-qris" class="w-full p-5 border-2 rounded-xl text-left font-bold flex justify-between items-center hover:border-black transition">
+                        <span>2. QRIS</span> <i data-lucide="qr-code"></i>
+                    </button>
+                </div>
+                <p id="text-cancel-hint" class="text-center mt-6 text-xs text-zinc-400">Tekan [ESC] untuk batal</p>
+            </div>
+            
+            <!-- Langkah 2: Input Tunai -->
+            <div id="checkout-step-2-cash" class="hidden">
+                <button onclick="backToPaymentSelection()" class="text-sm font-bold text-zinc-500 mb-4 hover:text-black flex items-center transition">
+                    <i data-lucide="arrow-left" class="w-4 h-4 mr-1"></i> Kembali
+                </button>
+                <h3 class="font-black text-xl mb-2">PEMBAYARAN TUNAI</h3>
+                <div id="modal-total-cash" class="text-2xl font-bold mb-6 text-zinc-500">Tagihan: Rp 0</div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-zinc-500 mb-2">Uang Diterima dari Pelanggan:</label>
+                        <input type="text" inputmode="numeric" id="cash-received" placeholder="Contoh: 50.000" class="w-full px-5 py-4 border-2 border-zinc-200 rounded-xl text-xl font-black focus:outline-none focus:border-black transition">
+                    </div>
+                    <div class="p-5 bg-zinc-50 rounded-xl border border-zinc-100 flex justify-between items-center">
+                        <span class="font-bold text-zinc-500">Kembalian</span>
+                        <span id="cash-change" class="text-2xl font-black text-black">Rp 0</span>
+                    </div>
+                    <button onclick="confirmCashPayment()" id="btn-confirm-cash" class="w-full bg-black text-white py-4 rounded-xl font-bold uppercase transition hover:bg-zinc-800 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                        SELESAIKAN [ENTER]
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let products = [
+            { id: 1, barcode: '89901', name: 'Espresso Single', price: 15000, category: 'Kopi', stock: 50 },
+            { id: 2, barcode: '89902', name: 'Latte Art Macchiato', price: 28000, category: 'Kopi', stock: 30 },
+            { id: 3, barcode: '89903', name: 'Croissant Butter', price: 22000, category: 'Makanan', stock: 15 },
+            { id: 4, barcode: '89904', name: 'Avo Toast Special', price: 35000, category: 'Makanan', stock: 10 },
+            { id: 5, barcode: '89905', name: 'Mineral Water 600ml', price: 5000, category: 'Minuman', stock: 100 }
+        ];
+
+        let cart = [];
+        let salesHistory = [];
+        let currentFilter = 'Semua';
+        let currentActiveTab = 'pos';
+        let gridIndex = -1;
+        let currentCartTotal = 0; // State untuk simpan total tagihan saat ini
+
+        // HELPER FORMATTING
+        function formatInputNumber(e) {
+            let val = e.target.value.replace(/\D/g, ''); // Hapus semua selain angka
+            e.target.value = val ? parseInt(val, 10).toLocaleString('id-ID') : '';
+        }
+
+        function parseInputNumber(val) {
+            return parseInt(val.replace(/\D/g, ''), 10) || 0;
+        }
+
+        // SHORTCUT CONFIGURATION
+        const defaultShortcuts = {
+            tabPos: 'F1', tabInventory: 'F2', tabReports: 'F3',
+            search: '/', checkout: ' ', payCash: '1', payQris: '2',
+            clearCart: 'Delete', addProduct: 'n', close: 'Escape'
+        };
+        let shortcuts = JSON.parse(localStorage.getItem('pufutara_shortcuts')) || {...defaultShortcuts};
+        let listeningFor = null;
+
+        window.onload = () => {
+            initApp();
+            setupGlobalShortcuts();
+        };
+
+        function initApp() {
+            lucide.createIcons();
+            document.getElementById('current-date').innerText = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+            renderProducts();
+            renderCategoryFilters();
+            updateCategorySelect();
+            renderInventory();
+            setupFormListener();
+            updateUIKeys();
+        }
+
+        // KEYBOARD ENGINE
+        function setupGlobalShortcuts() {
+            window.addEventListener('keydown', (e) => {
+                // Proses Setelan Shortcut (Listen Mode)
+                if (listeningFor) {
+                    e.preventDefault();
+                    if(e.key !== 'Escape') {
+                        shortcuts[listeningFor] = e.key;
+                        localStorage.setItem('pufutara_shortcuts', JSON.stringify(shortcuts));
+                        showToast('Shortcut berhasil diperbarui!', 'black');
+                    }
+                    listeningFor = null;
+                    updateUIKeys();
+                    if (currentActiveTab === 'settings') renderSettings();
+                    return;
+                }
+
+                const isInputActive = document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'SELECT';
+
+                const key = e.key.toLowerCase();
+                const s = {}; // Lowercase version of active shortcuts for easy comparison
+                for (let k in shortcuts) s[k] = shortcuts[k].toLowerCase();
+
+                // Tab Switchers
+                if (key === s.tabPos) { e.preventDefault(); switchTab('pos'); }
+                if (key === s.tabInventory) { e.preventDefault(); switchTab('inventory'); }
+                if (key === s.tabReports) { e.preventDefault(); switchTab('reports'); }
+
+                // Universal
+                if (key === 'h' && !isInputActive) { toggleHelp(); }
+                if (key === s.close) { closeAllModals(); }
+
+                // POS Specific
+                if (currentActiveTab === 'pos') {
+                    if ((key === s.search || (e.ctrlKey && key === 'f')) && !isInputActive) {
+                        e.preventDefault();
+                        document.getElementById('search-input').focus();
+                    }
+                    if (key === s.clearCart && !isInputActive) { clearCart(); }
+                    if (key === s.checkout && !isInputActive) { e.preventDefault(); openCheckoutModal(); }
+                    
+                    // Grid Navigation
+                    if (!isInputActive) {
+                        handleGridNavigation(e);
+                    }
+                }
+
+                // Inventory Specific
+                if (currentActiveTab === 'inventory') {
+                    if (key === s.addProduct && !isInputActive) { openAddProductModal(); }
+                }
+
+                // Modal Specific (Checkout)
+                if (!document.getElementById('checkout-modal').classList.contains('hidden')) {
+                    const step1Visible = !document.getElementById('checkout-step-1').classList.contains('hidden');
+                    
+                    if (step1Visible) {
+                        if (key === s.payCash) { e.preventDefault(); showCashInput(); }
+                        if (key === s.payQris) { e.preventDefault(); processPayment('QRIS'); }
+                    }
+                }
+            });
+        }
+
+        function handleGridNavigation(e) {
+            const items = document.querySelectorAll('#product-grid > div');
+            if (items.length === 0) return;
+
+            if (e.key === 'ArrowRight') gridIndex = (gridIndex + 1) % items.length;
+            if (e.key === 'ArrowLeft') gridIndex = (gridIndex - 1 + items.length) % items.length;
+            if (e.key === 'ArrowDown') gridIndex = (gridIndex + 4) % items.length; // Estimasi 4 kolom
+            if (e.key === 'ArrowUp') gridIndex = (gridIndex - 4 + items.length) % items.length;
+
+            if (['ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
+                e.preventDefault();
+                items.forEach(el => el.style.borderColor = '#f4f4f5');
+                if (items[gridIndex]) {
+                    items[gridIndex].style.borderColor = 'black';
+                    items[gridIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+
+            if (e.key === 'Enter' && gridIndex !== -1) {
+                items[gridIndex].click();
+                // Visual feedback
+                items[gridIndex].style.transform = 'scale(0.95)';
+                setTimeout(() => items[gridIndex].style.transform = 'scale(1)', 100);
+            }
+        }
+
+        function toggleHelp() {
+            document.getElementById('help-modal').classList.toggle('hidden');
+        }
+
+        function closeAllModals() {
+            document.getElementById('help-modal').classList.add('hidden');
+            closeProductModal();
+            document.getElementById('checkout-modal').classList.add('hidden');
+            
+            // Reset state modal pembayaran
+            document.getElementById('checkout-step-1').classList.remove('hidden');
+            document.getElementById('checkout-step-2-cash').classList.add('hidden');
+            
+            gridIndex = -1;
+            renderProducts();
+        }
+
+        // TAB LOGIC
+        function switchTab(tab) {
+            currentActiveTab = tab;
+            const tabs = ['pos', 'inventory', 'reports', 'settings'];
+            tabs.forEach(t => {
+                document.getElementById('tab-' + t).classList.add('hidden');
+                if(document.getElementById('nav-' + t)) {
+                    document.getElementById('nav-' + t).classList.remove('tab-active', 'text-black');
+                    document.getElementById('nav-' + t).classList.add('text-zinc-500');
+                }
+            });
+            document.getElementById('tab-' + tab).classList.remove('hidden');
+            if(document.getElementById('nav-' + tab)) {
+                document.getElementById('nav-' + tab).classList.remove('text-zinc-500');
+                document.getElementById('nav-' + tab).classList.add('tab-active', 'text-black');
+            }
+            if(tab === 'reports') renderReports();
+            if(tab === 'settings') renderSettings();
+        }
+
+        // SETTINGS & SHORTCUTS LOGIC
+        const actionLabels = {
+            tabPos: 'Buka Tab POS', tabInventory: 'Buka Tab Stok', tabReports: 'Buka Tab Laporan',
+            search: 'Fokus Kolom Cari', checkout: 'Proses Bayar (Checkout)', payCash: 'Pilih Bayar Tunai (di Modal)', 
+            payQris: 'Pilih Bayar QRIS (di Modal)', clearCart: 'Kosongkan Keranjang', addProduct: 'Tambah Produk Baru (di Tab Stok)',
+            close: 'Tutup Modal / Batal'
+        };
+
+        function formatKeyName(key) {
+            if(key === ' ') return 'SPACE';
+            if(key === 'Escape') return 'ESC';
+            if(key === 'Delete') return 'DEL';
+            if(key.length === 1) return key.toUpperCase();
+            return key;
+        }
+
+        function renderSettings() {
+            const body = document.getElementById('settings-shortcuts-body');
+            body.innerHTML = Object.keys(actionLabels).map(key => `
+                <tr class="border-b border-zinc-100 hover:bg-zinc-50 transition">
+                    <td class="px-6 py-4 font-medium text-zinc-700">${actionLabels[key]}</td>
+                    <td class="px-6 py-4 text-right">
+                        <button onclick="listenShortcut('${key}')" id="btn-sc-${key}" class="px-4 py-2 bg-white border border-zinc-200 shadow-sm hover:border-black hover:bg-zinc-50 text-black rounded-lg font-mono text-xs font-bold transition w-32 text-center">
+                            ${formatKeyName(shortcuts[key])}
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function listenShortcut(key) {
+            listeningFor = key;
+            renderSettings(); // Reset tombol lain secara visual
+            const btn = document.getElementById(`btn-sc-${key}`);
+            btn.innerText = "Tekan Key...";
+            btn.classList.replace('bg-white', 'bg-black');
+            btn.classList.replace('text-black', 'text-white');
+            btn.classList.replace('border-zinc-200', 'border-black');
+        }
+
+        function resetShortcuts() {
+            shortcuts = {...defaultShortcuts};
+            localStorage.setItem('pufutara_shortcuts', JSON.stringify(shortcuts));
+            updateUIKeys();
+            if(currentActiveTab === 'settings') renderSettings();
+            showToast('Semua shortcut direset ke default!', 'black');
+        }
+
+        function updateUIKeys() {
+            // 1. Update Help Modal List Dynamically
+            const helpContent = document.getElementById('help-modal-content');
+            if(helpContent) {
+                helpContent.innerHTML = Object.keys(actionLabels).map(key => `
+                    <div class="flex justify-between border-b border-zinc-100 pb-2">
+                        <span class="text-zinc-600">${actionLabels[key]}</span>
+                        <span class="font-bold bg-zinc-100 px-2 py-0.5 rounded text-[10px] font-mono border border-zinc-200 text-black">${formatKeyName(shortcuts[key])}</span>
+                    </div>
+                `).join('');
+            }
+            
+            // 2. Update UI Teks/Hint Dynamically
+            document.getElementById('nav-pos').innerHTML = `<i data-lucide="shopping-cart" class="w-5 h-5"></i><span class="text-[10px]">POS <span class="block opacity-50">[${formatKeyName(shortcuts.tabPos)}]</span></span>`;
+            document.getElementById('nav-inventory').innerHTML = `<i data-lucide="package" class="w-5 h-5"></i><span class="text-[10px]">Stok <span class="block opacity-50">[${formatKeyName(shortcuts.tabInventory)}]</span></span>`;
+            document.getElementById('nav-reports').innerHTML = `<i data-lucide="bar-chart-3" class="w-5 h-5"></i><span class="text-[10px]">Laporan <span class="block opacity-50">[${formatKeyName(shortcuts.tabReports)}]</span></span>`;
+            
+            document.getElementById('search-input').placeholder = `Cari... [${formatKeyName(shortcuts.search)}]`;
+            document.getElementById('btn-pay').innerHTML = `<span>PROSES BAYAR [${formatKeyName(shortcuts.checkout)}]</span><i data-lucide="arrow-right" class="w-4 h-4"></i>`;
+            
+            const clearBtn = document.getElementById('btn-clear-cart');
+            if(clearBtn) clearBtn.innerText = `Kosongkan [${formatKeyName(shortcuts.clearCart)}]`;
+
+            const addProductBtn = document.getElementById('btn-add-product');
+            if(addProductBtn) addProductBtn.innerHTML = `<i data-lucide="plus" class="w-4 h-4 mr-2"></i> TAMBAH [${formatKeyName(shortcuts.addProduct)}]`;
+
+            const addHint = document.getElementById('text-add-hint');
+            if(addHint) addHint.innerText = `Tekan [${formatKeyName(shortcuts.addProduct)}] untuk tambah produk.`;
+
+            const cashBtn = document.getElementById('btn-pay-cash');
+            if(cashBtn) cashBtn.innerHTML = `<span>${formatKeyName(shortcuts.payCash)}. TUNAI</span> <i data-lucide="banknote"></i>`;
+
+            const qrisBtn = document.getElementById('btn-pay-qris');
+            if(qrisBtn) qrisBtn.innerHTML = `<span>${formatKeyName(shortcuts.payQris)}. QRIS</span> <i data-lucide="qr-code"></i>`;
+            
+            const cancelHint = document.getElementById('text-cancel-hint');
+            if(cancelHint) cancelHint.innerText = `Tekan [${formatKeyName(shortcuts.close)}] untuk batal`;
+
+            // Reload ulang icons yang terganti innerHTML-nya
+            lucide.createIcons();
+        }
+
+        // PRODUCT RENDERING
+        function renderProducts() {
+            const grid = document.getElementById('product-grid');
+            const search = document.getElementById('search-input').value.toLowerCase();
+            let filtered = products.filter(p => (currentFilter === 'Semua' || p.category === currentFilter) && (p.name.toLowerCase().includes(search) || p.barcode.includes(search)));
+
+            grid.innerHTML = filtered.map((p, idx) => `
+                <div onclick="addToCart(${p.id})" class="bg-white p-5 rounded-2xl border-2 border-zinc-100 hover:border-black transition-all cursor-pointer flex flex-col items-center text-center relative group">
+                    <span class="absolute top-2 right-2 text-[8px] font-bold text-zinc-300">ID: ${idx + 1}</span>
+                    <div class="w-12 h-12 bg-zinc-50 rounded-full mb-2 flex items-center justify-center">
+                        <i data-lucide="package" class="text-zinc-300 w-5 h-5"></i>
+                    </div>
+                    <h3 class="font-bold text-xs mb-1">${p.name}</h3>
+                    <p class="font-black text-sm">Rp ${p.price.toLocaleString()}</p>
+                    <p class="text-[10px] text-zinc-400">Stok: ${p.stock}</p>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function renderCategoryFilters() {
+            const container = document.getElementById('category-filters');
+            const cats = ['Semua', ...new Set(products.map(p => p.category))];
+            container.innerHTML = cats.map(cat => `
+                <button onclick="filterCategory('${cat}')" class="px-4 py-2 rounded-full border ${currentFilter === cat ? 'bg-black text-white' : 'bg-white font-medium'}">${cat}</button>
+            `).join('');
+        }
+
+        function filterCategory(cat) { currentFilter = cat; renderCategoryFilters(); renderProducts(); }
+
+        document.getElementById('search-input').addEventListener('input', () => { gridIndex = -1; renderProducts(); });
+
+        // POS & CART
+        function addToCart(pid) {
+            const p = products.find(i => i.id === pid);
+            if (p.stock <= 0) return showToast("Stok Habis", "red");
+            const item = cart.find(i => i.id === pid);
+            if (item) { if(item.qty < p.stock) item.qty++; } 
+            else { cart.push({...p, qty: 1}); }
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const container = document.getElementById('cart-items');
+            container.innerHTML = cart.length === 0 ? '<p class="text-center py-10 text-zinc-300 text-sm">Kosong</p>' : 
+                cart.map(i => `<div class="flex justify-between text-xs border-b pb-2"><span>${i.name} x${i.qty}</span><span class="font-bold">Rp ${(i.price * i.qty).toLocaleString()}</span></div>`).join('');
+            
+            const total = cart.reduce((a, b) => a + (b.price * b.qty), 0);
+            document.getElementById('cart-subtotal').innerText = `Rp ${total.toLocaleString()}`;
+            document.getElementById('cart-total').innerText = `Rp ${Math.floor(total * 1.1).toLocaleString()}`;
+        }
+
+        function clearCart() { cart = []; updateCartUI(); }
+
+        function openCheckoutModal() {
+            if (cart.length === 0) return;
+            currentCartTotal = Math.floor(cart.reduce((a, b) => a + (b.price * b.qty), 0) * 1.1);
+            document.getElementById('modal-total').innerText = `Rp ${currentCartTotal.toLocaleString()}`;
+            document.getElementById('modal-total-cash').innerText = `Tagihan: Rp ${currentCartTotal.toLocaleString()}`;
+            
+            document.getElementById('checkout-step-1').classList.remove('hidden');
+            document.getElementById('checkout-step-2-cash').classList.add('hidden');
+            
+            document.getElementById('checkout-modal').classList.remove('hidden');
+        }
+
+        // LOGIKA PEMBAYARAN TUNAI DETAIL
+        function showCashInput() {
+            document.getElementById('checkout-step-1').classList.add('hidden');
+            document.getElementById('checkout-step-2-cash').classList.remove('hidden');
+            
+            const inputCash = document.getElementById('cash-received');
+            inputCash.value = '';
+            inputCash.focus();
+            
+            document.getElementById('cash-change').innerText = 'Rp 0';
+            document.getElementById('cash-change').classList.remove('text-red-500');
+            document.getElementById('btn-confirm-cash').disabled = true;
+        }
+
+        function backToPaymentSelection() {
+            document.getElementById('checkout-step-1').classList.remove('hidden');
+            document.getElementById('checkout-step-2-cash').classList.add('hidden');
+        }
+
+        document.getElementById('cash-received').addEventListener('input', (e) => {
+            formatInputNumber(e);
+            const received = parseInputNumber(e.target.value);
+            const change = received - currentCartTotal;
+            const changeEl = document.getElementById('cash-change');
+            const btnConfirm = document.getElementById('btn-confirm-cash');
+
+            if (received >= currentCartTotal) {
+                changeEl.innerText = `Rp ${change.toLocaleString()}`;
+                changeEl.classList.remove('text-red-500');
+                btnConfirm.disabled = false;
+            } else {
+                changeEl.innerText = `Kurang Rp ${Math.abs(change).toLocaleString()}`;
+                changeEl.classList.add('text-red-500');
+                btnConfirm.disabled = true;
+            }
+        });
+
+        document.getElementById('cash-received').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                if(!document.getElementById('btn-confirm-cash').disabled) {
+                    confirmCashPayment();
+                }
+            }
+        });
+
+        function confirmCashPayment() {
+            const received = parseInputNumber(document.getElementById('cash-received').value);
+            const change = received - currentCartTotal;
+            processPayment('Tunai', received, change);
+        }
+
+        function processPayment(method, received = null, change = 0) {
+            cart.forEach(item => { products.find(p => p.id === item.id).stock -= item.qty; });
+            const total = currentCartTotal;
+            const cartCopy = JSON.parse(JSON.stringify(cart));
+            
+            salesHistory.unshift({ 
+                id: 'TX-'+Date.now(), 
+                total, 
+                items: cart.length, 
+                cartDetails: cartCopy, 
+                method, 
+                received: received !== null ? received : total,
+                change: change,
+                date: new Date().toLocaleTimeString() 
+            });
+            
+            clearCart();
+            renderProducts();
+            renderInventory();
+            renderReports(); // Update grafik/laporan
+            closeAllModals();
+            showToast(`Pembayaran ${method} Berhasil!`, "green");
+        }
+
+        // INVENTORY
+        function renderInventory() {
+            const body = document.getElementById('inventory-table-body');
+            body.innerHTML = products.map(p => `
+                <tr class="border-b text-xs">
+                    <td class="px-6 py-4 font-mono text-zinc-400">${p.barcode}</td>
+                    <td class="px-6 py-4 font-bold">${p.name}</td>
+                    <td class="px-6 py-4">${p.category}</td>
+                    <td class="px-6 py-4 text-right">Rp ${p.price.toLocaleString()}</td>
+                    <td class="px-6 py-4 text-center font-bold">${p.stock}</td>
+                    <td class="px-6 py-4 text-center"><button onclick="deleteProduct(${p.id})" class="text-red-500 hover:scale-110 transition">Hapus</button></td>
+                </tr>
+            `).join('');
+        }
+
+        function openAddProductModal() { document.getElementById('product-modal').classList.remove('hidden'); document.getElementById('p-name').focus(); }
+        
+        function closeProductModal() { 
+            document.getElementById('product-modal').classList.add('hidden'); 
+            
+            // Reset tampilan select kategori jika sedang mode 'kategori baru'
+            const inputNew = document.getElementById('p-category-new');
+            if(!inputNew.classList.contains('hidden')) {
+                toggleNewCategory(); 
+            }
+        }
+
+        function updateCategorySelect() {
+            const select = document.getElementById('p-category');
+            if(!select) return;
+            const cats = [...new Set(products.map(p => p.category))];
+            select.innerHTML = cats.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+        }
+
+        function toggleNewCategory() {
+            const select = document.getElementById('p-category');
+            const input = document.getElementById('p-category-new');
+            const btn = document.getElementById('btn-toggle-category');
+            
+            if (input.classList.contains('hidden')) {
+                select.classList.add('hidden');
+                input.classList.remove('hidden');
+                input.focus();
+                btn.innerText = 'BATAL';
+                btn.classList.add('bg-red-50', 'text-red-500');
+                btn.classList.remove('bg-zinc-100');
+            } else {
+                select.classList.remove('hidden');
+                input.classList.add('hidden');
+                input.value = '';
+                btn.innerText = '+ BARU';
+                btn.classList.remove('bg-red-50', 'text-red-500');
+                btn.classList.add('bg-zinc-100');
+            }
+        }
+
+        function setupFormListener() {
+            document.getElementById('add-product-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const selectCat = document.getElementById('p-category');
+                const inputCat = document.getElementById('p-category-new');
+                let finalCategory = inputCat.classList.contains('hidden') ? selectCat.value : inputCat.value.trim();
+                
+                if(!finalCategory) {
+                    showToast("Kategori tidak boleh kosong!", "red");
+                    return;
+                }
+
+                products.push({
+                    id: Date.now(),
+                    barcode: '899'+Math.floor(Math.random()*1000),
+                    name: document.getElementById('p-name').value,
+                    category: finalCategory,
+                    price: parseInputNumber(document.getElementById('p-price').value),
+                    stock: parseInputNumber(document.getElementById('p-stock').value)
+                });
+                
+                // Reset Form
+                document.getElementById('add-product-form').reset();
+                
+                updateCategorySelect();
+                renderInventory();
+                renderProducts();
+                renderCategoryFilters();
+                closeProductModal();
+                showToast("Produk Ditambah", "black");
+            });
+        }
+
+        function deleteProduct(id) { 
+            products = products.filter(p => p.id !== id); 
+            updateCategorySelect();
+            renderCategoryFilters();
+            renderInventory(); 
+            renderProducts(); 
+        }
+
+        function renderReports() {
+            const rev = salesHistory.reduce((a, b) => a + b.total, 0);
+            document.getElementById('today-revenue').innerText = `Rp ${rev.toLocaleString()}`;
+            document.getElementById('today-tx-count').innerText = salesHistory.length;
+            
+            // Hitung statistik item terjual dari cartDetails
+            let totalItemsSold = 0;
+            let itemStats = {};
+            
+            salesHistory.forEach(tx => {
+                if(tx.cartDetails) {
+                    tx.cartDetails.forEach(item => {
+                        totalItemsSold += item.qty;
+                        if(!itemStats[item.id]) {
+                            itemStats[item.id] = { name: item.name, qty: 0, revenue: 0 };
+                        }
+                        itemStats[item.id].qty += item.qty;
+                        itemStats[item.id].revenue += (item.price * item.qty);
+                    });
+                }
+            });
+            
+            document.getElementById('today-items-count').innerText = totalItemsSold;
+
+            // Render List Penjualan Per Barang
+            let sortedItems = Object.values(itemStats).sort((a, b) => b.qty - a.qty);
+            const itemSalesContainer = document.getElementById('item-sales-list');
+            if (sortedItems.length === 0) {
+                itemSalesContainer.innerHTML = '<p class="text-sm text-zinc-400 py-4 italic">Belum ada barang terjual hari ini.</p>';
+            } else {
+                itemSalesContainer.innerHTML = sortedItems.map(item => `
+                    <div class="p-4 border border-zinc-100 rounded-xl flex justify-between items-center text-sm hover:border-black transition">
+                        <div>
+                            <p class="font-bold">${item.name}</p>
+                            <p class="text-xs text-zinc-500">${item.qty}x terjual</p>
+                        </div>
+                        <p class="font-black text-right">Rp ${item.revenue.toLocaleString()}</p>
+                    </div>
+                `).join('');
+            }
+
+            // Render Riwayat Terakhir
+            const historyContainer = document.getElementById('history-list');
+            if (salesHistory.length === 0) {
+                historyContainer.innerHTML = '<p class="text-sm text-zinc-400 py-4 italic">Belum ada riwayat transaksi.</p>';
+            } else {
+                historyContainer.innerHTML = salesHistory.map(tx => `
+                    <div class="p-4 bg-zinc-50 rounded-xl flex justify-between items-center text-sm border border-transparent hover:border-zinc-200 transition">
+                        <div>
+                            <p class="font-bold">${tx.id}</p>
+                            <p class="text-xs text-zinc-400">${tx.date} via ${tx.method}</p>
+                        </div>
+                        <p class="font-black text-right">Rp ${tx.total.toLocaleString()}</p>
+                    </div>
+                `).join('');
+            }
+            
+            lucide.createIcons();
+        }
+
+        function showToast(msg, color) {
+            const t = document.createElement('div');
+            t.className = `fixed bottom-10 left-1/2 -translate-x-1/2 px-6 py-3 rounded-xl bg-black text-white text-sm font-bold z-[200] animate-bounce`;
+            if(color === 'red') t.style.backgroundColor = '#ef4444';
+            if(color === 'green') t.style.backgroundColor = '#10b981';
+            t.innerText = msg;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 2000);
+        }
+    </script>
+</body>
+</html>
