@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>pufutaracalc</title>
+    <!-- TailwindCSS + Font Awesome -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* efek sentuhan tombol */
+        button {
+            transition: transform 0.1s ease, background-color 0.15s ease;
+        }
+        button:active {
+            transform: scale(0.94);
+        }
+        /* scrollbar riwayat */
+        .history-scroll::-webkit-scrollbar {
+            width: 4px;
+        }
+        .history-scroll::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 8px;
+        }
+        .history-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 8px;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* pembatas layar */
+        #current-operand {
+            word-break: break-word;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen flex flex-col md:flex-row font-sans selection:bg-black selection:text-white">
+
+    <!-- SIDEBAR KIRI (tanpa garis dan teks tambahan) -->
+    <aside class="w-full md:w-72 bg-white/90 backdrop-blur-sm border-b md:border-r border-gray-200/80 p-5 flex flex-col shadow-md z-10 h-auto md:h-screen shrink-0">
+        <div class="mb-5 shrink-0">
+            <h1 class="text-2xl font-black tracking-tight text-black">PUFUTARA CALC</h1>
+            <!-- garis dan deskripsi dihilangkan -->
+        </div>
+        
+        <!-- Pilihan Mode (urutan: Saintis, Normal, Simpel, Konversi) -->
+        <div class="shrink-0 mb-5">
+            <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-1"><i class="fas fa-bolt text-[10px]"></i> mode</h2>
+            <nav class="flex flex-row md:flex-col gap-2 overflow-x-auto no-scrollbar pb-2 md:pb-0">
+                <button id="btn-saintis" onclick="setMode('saintis')" class="text-left px-4 py-2.5 rounded-xl font-medium text-black hover:bg-gray-200 transition-all w-full min-w-[100px] flex items-center gap-2"><i class="fas fa-chart-line text-sm"></i> Saintis</button>
+                <button id="btn-normal" onclick="setMode('normal')" class="text-left px-4 py-2.5 rounded-xl font-medium text-black hover:bg-gray-200 transition-all w-full min-w-[100px] flex items-center gap-2"><i class="fas fa-plus-circle text-sm"></i> Normal</button>
+                <button id="btn-simpel" onclick="setMode('simpel')" class="text-left px-4 py-2.5 rounded-xl font-medium text-black hover:bg-gray-200 transition-all w-full min-w-[100px] flex items-center gap-2"><i class="fas fa-th text-sm"></i> Simpel</button>
+                <button id="btn-konversi" onclick="setMode('konversi')" class="text-left px-4 py-2.5 rounded-xl font-medium text-black hover:bg-gray-200 transition-all w-full min-w-[100px] flex items-center gap-2"><i class="fas fa-exchange-alt text-sm"></i> Konversi</button>
+            </nav>
+        </div>
+
+        <!-- FITUR RIWAYAT (desktop) -->
+        <div class="flex-1 flex flex-col overflow-hidden hidden md:flex">
+            <div class="flex justify-between items-center mb-3">
+                <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1"><i class="far fa-clock"></i> Riwayat</h2>
+                <button onclick="clearHistory()" class="text-xs font-semibold text-red-500 hover:text-red-700 bg-red-50 px-2.5 py-1 rounded-full transition"><i class="fas fa-trash-alt mr-1 text-[10px]"></i> Bersih</button>
+            </div>
+            <ul id="history-list" class="flex-1 overflow-y-auto history-scroll space-y-2 pr-1 flex flex-col">
+                <li class="text-gray-400 text-xs italic mt-2 text-center" id="empty-history-msg">✨ belum ada riwayat</li>
+            </ul>
+        </div>
+    </aside>
+
+    <!-- AREA KALKULATOR UTAMA (diperkecil 25%) -->
+    <main class="flex-1 flex items-center justify-center p-3 md:p-5 overflow-y-auto">
+        <div id="calculator-container" class="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl border border-gray-200/70 transition-all duration-300 mode-transition" style="padding: 0.75rem; max-width: 290px; width: 100%;">
+            <!-- LAYAR KALKULATOR (diperkecil) -->
+            <div class="bg-gradient-to-br from-gray-900 to-black text-white p-4 rounded-2xl mb-4 shadow-xl flex flex-col justify-end items-end min-h-[110px] overflow-hidden">
+                <div id="previous-operand" class="text-gray-400 text-sm min-h-[1.5rem] break-all font-mono"></div>
+                <div id="current-operand" class="text-3xl md:text-4xl font-light tracking-tight overflow-x-auto no-scrollbar w-full text-right break-all">0</div>
+            </div>
+
+            <!-- TEMPAT TOMBOL DINAMIS (ukuran tombol sudah diperkecil) -->
+            <div id="calculator-buttons"></div>
+        </div>
+    </main>
+
+    <script>
+        // ------------------- STATE KALKULATOR -------------------
+        let currentMode = 'normal';
+        let currentOperand = '0';
+        let previousOperand = '';
+        let operation = undefined;
+        let historyData = [];
+
+        const currentOperandElement = document.getElementById('current-operand');
+        const previousOperandElement = document.getElementById('previous-operand');
+        const historyListElement = document.getElementById('history-list');
+        const emptyHistoryMsg = document.getElementById('empty-history-msg');
+
+        // ---------- DATA KONVERSI (panjang, berat, suhu, VOLUME) ----------
+        const convData = {
+            panjang: {
+                m: { name: 'Meter (m)', rate: 1 },
+                km: { name: 'Kilometer (km)', rate: 1000 },
+                cm: { name: 'Centimeter (cm)', rate: 0.01 },
+                mm: { name: 'Milimeter (mm)', rate: 0.001 },
+                mil: { name: 'Mil (mi)', rate: 1609.34 },
+                yard: { name: 'Yard (yd)', rate: 0.9144 },
+                ft: { name: 'Kaki (ft)', rate: 0.3048 },
+                in: { name: 'Inci (in)', rate: 0.0254 }
+            },
+            berat: {
+                kg: { name: 'Kilogram (kg)', rate: 1 },
+                g: { name: 'Gram (g)', rate: 0.001 },
+                mg: { name: 'Miligram (mg)', rate: 0.000001 },
+                ton: { name: 'Ton (t)', rate: 1000 },
+                lb: { name: 'Pound (lb)', rate: 0.453592 },
+                oz: { name: 'Ounce (oz)', rate: 0.0283495 }
+            },
+            suhu: {
+                c: { name: 'Celsius (°C)' },
+                f: { name: 'Fahrenheit (°F)' },
+                k: { name: 'Kelvin (K)' }
+            },
+            volume: {
+                L: { name: 'Liter (L)', rate: 1 },
+                mL: { name: 'Mililiter (mL)', rate: 0.001 },
+                m3: { name: 'Meter kubik (m³)', rate: 1000 },
+                cm3: { name: 'Sentimeter kubik (cm³)', rate: 0.001 },
+                gal: { name: 'Galon AS (gal)', rate: 3.78541 }
+            }
+        };
+
+        // ========== FUNGSI UMUM ==========
+        function formatNumber(numStr) {
+            if (!numStr || numStr === '-') return numStr;
+            let str = numStr.toString();
+            let parts = str.split('.');
+            let intPart = parts[0];
+            let isNegative = intPart.startsWith('-');
+            if (isNegative) intPart = intPart.substring(1);
+            intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            let formatted = (isNegative ? '-' : '') + intPart;
+            if (parts.length > 1) {
+                formatted += ',' + parts[1];
+            }
+            return formatted;
+        }
+
+        function updateDisplay() {
+            currentOperandElement.innerText = formatNumber(currentOperand);
+            if (operation != null) {
+                let opSimbol = operation === '^' ? 'xⁿ' : operation;
+                previousOperandElement.innerText = `${formatNumber(previousOperand)} ${opSimbol}`;
+            } else {
+                previousOperandElement.innerText = '';
+            }
+            currentOperandElement.scrollLeft = currentOperandElement.scrollWidth;
+            if (currentMode === 'konversi') {
+                calculateConversion();
+            }
+        }
+
+        function addToHistory(expression, result) {
+            historyData.unshift({ expression, result });
+            if (historyData.length > 22) historyData.pop();
+            renderHistory();
+        }
+
+        function renderHistory() {
+            if (!historyListElement) return;
+            if (historyData.length === 0) {
+                historyListElement.innerHTML = '<li class="text-gray-400 text-xs italic mt-2 text-center" id="empty-history-msg">📋 belum ada riwayat</li>';
+                return;
+            }
+            historyListElement.innerHTML = '';
+            historyData.forEach(item => {
+                const li = document.createElement('li');
+                li.className = "bg-gray-50 p-2 rounded-xl border border-gray-100 flex flex-col items-end gap-0.5 hover:bg-gray-100 transition";
+                li.innerHTML = `
+                    <span class="text-gray-500 text-[10px] font-mono">${item.expression}</span>
+                    <span class="text-black font-bold text-sm">= ${item.result}</span>
+                `;
+                historyListElement.appendChild(li);
+            });
+        }
+
+        function clearHistory() { historyData = []; renderHistory(); }
+
+        function clearDisplay() {
+            currentOperand = '0';
+            previousOperand = '';
+            operation = undefined;
+            updateDisplay();
+        }
+
+        function deleteNumber() {
+            if (currentOperand === '0') return;
+            if (currentOperand.length === 1 || (currentOperand.length === 2 && currentOperand.startsWith('-'))) {
+                currentOperand = '0';
+            } else {
+                currentOperand = currentOperand.toString().slice(0, -1);
+                if (currentOperand === '' || currentOperand === '-') currentOperand = '0';
+            }
+            updateDisplay();
+        }
+
+        function appendNumber(number) {
+            if (number === '.' && currentOperand.includes('.')) return;
+            if (currentOperand === '0' && number !== '.') {
+                currentOperand = number.toString();
+            } else {
+                currentOperand = currentOperand.toString() + number.toString();
+            }
+            updateDisplay();
+        }
+
+        function toggleSign() {
+            if (currentOperand === '' || currentOperand === '0') return;
+            if (currentOperand.startsWith('-')) {
+                currentOperand = currentOperand.substring(1);
+            } else {
+                currentOperand = '-' + currentOperand;
+            }
+            updateDisplay();
+        }
+
+        function chooseOperation(op) {
+            if (currentOperand === '0' && op === '-') {
+                currentOperand = '-';
+                updateDisplay();
+                return;
+            }
+            if (currentOperand === '' || currentOperand === '-') return;
+            if (previousOperand !== '') compute();
+            operation = op;
+            previousOperand = currentOperand;
+            currentOperand = '';
+            updateDisplay();
+        }
+
+        function factorial(n) {
+            if (n < 0 || !Number.isInteger(n)) return NaN;
+            if (n === 0 || n === 1) return 1;
+            let res = 1;
+            for (let i = 2; i <= n; i++) res *= i;
+            return res;
+        }
+
+        function computeSingle(func) {
+            if (currentOperand === '' || currentOperand === '-') return;
+            let current = parseFloat(currentOperand);
+            if (isNaN(current)) return;
+            let result;
+            let displayName = func;
+            switch(func) {
+                case 'sin': result = Math.sin(current * Math.PI/180); displayName = 'sin'; break;
+                case 'cos': result = Math.cos(current * Math.PI/180); displayName = 'cos'; break;
+                case 'tan': result = Math.tan(current * Math.PI/180); displayName = 'tan'; break;
+                case 'asin': result = Math.asin(current) * (180/Math.PI); displayName = 'sin⁻¹'; break;
+                case 'acos': result = Math.acos(current) * (180/Math.PI); displayName = 'cos⁻¹'; break;
+                case 'atan': result = Math.atan(current) * (180/Math.PI); displayName = 'tan⁻¹'; break;
+                case 'log': result = Math.log10(current); displayName = 'log'; break;
+                case 'ln': result = Math.log(current); displayName = 'ln'; break;
+                case 'sqrt': result = Math.sqrt(current); displayName = '√'; break;
+                case 'cbrt': result = Math.cbrt(current); displayName = '∛'; break;
+                case 'x2': result = Math.pow(current,2); displayName = 'x²'; break;
+                case 'x3': result = Math.pow(current,3); displayName = 'x³'; break;
+                case '1/x': result = 1/current; displayName = '1/x'; break;
+                case 'abs': result = Math.abs(current); displayName = '|x|'; break;
+                case 'n!': result = factorial(current); displayName = 'n!'; break;
+                case '10x': result = Math.pow(10,current); displayName = '10^x'; break;
+                case 'ex': result = Math.exp(current); displayName = 'e^x'; break;
+                default: return;
+            }
+            result = Math.round(result * 100000000) / 100000000;
+            addToHistory(`${displayName}(${formatNumber(currentOperand)})`, formatNumber(result.toString()));
+            currentOperand = result.toString();
+            updateDisplay();
+        }
+
+        function compute() {
+            const prev = parseFloat(previousOperand);
+            const current = parseFloat(currentOperand);
+            if (isNaN(prev) || isNaN(current)) return;
+            let computation;
+            let opSym = operation;
+            switch(operation) {
+                case '+': computation = prev + current; break;
+                case '-': computation = prev - current; break;
+                case '×': computation = prev * current; break;
+                case '÷': 
+                    if(current === 0) { alert("Tidak bisa membagi nol"); clearDisplay(); return; }
+                    computation = prev / current; break;
+                case '^': computation = Math.pow(prev, current); opSym = '^'; break;
+                case '%': computation = prev % current; break;
+                default: return;
+            }
+            computation = Math.round(computation * 100000000) / 100000000;
+            const expr = `${formatNumber(previousOperand)} ${opSym} ${formatNumber(currentOperand)}`;
+            addToHistory(expr, formatNumber(computation.toString()));
+            currentOperand = computation.toString();
+            operation = undefined;
+            previousOperand = '';
+            updateDisplay();
+        }
+
+        function appendConstant(val) {
+            let num = (val === 'pi') ? Math.PI : Math.E;
+            let numStr = (Math.round(num * 100000000) / 100000000).toString();
+            if (currentOperand === '0' || currentOperand === '') currentOperand = numStr;
+            else currentOperand = currentOperand.toString() + numStr;
+            updateDisplay();
+        }
+
+        // ---------- KONVERSI (volume terintegrasi) ----------
+        function updateConvOptions() {
+            if (currentMode !== 'konversi') return;
+            const cat = document.getElementById('conv-category').value;
+            const fromSel = document.getElementById('conv-from');
+            const toSel = document.getElementById('conv-to');
+            if (!fromSel || !toSel) return;
+            fromSel.innerHTML = '';
+            toSel.innerHTML = '';
+            for (const [key, val] of Object.entries(convData[cat])) {
+                fromSel.innerHTML += `<option value="${key}">${val.name}</option>`;
+                toSel.innerHTML += `<option value="${key}">${val.name}</option>`;
+            }
+            if (toSel.options.length > 1) toSel.selectedIndex = 1;
+            calculateConversion();
+        }
+
+        function calculateConversion() {
+            if (currentMode !== 'konversi') return;
+            const cat = document.getElementById('conv-category').value;
+            const from = document.getElementById('conv-from').value;
+            const to = document.getElementById('conv-to').value;
+            let val = parseFloat(currentOperand);
+            if (isNaN(val)) val = 0;
+            let result = 0;
+
+            if (cat === 'suhu') {
+                let celsius = 0;
+                if (from === 'c') celsius = val;
+                else if (from === 'f') celsius = (val - 32) * 5/9;
+                else if (from === 'k') celsius = val - 273.15;
+                
+                if (to === 'c') result = celsius;
+                else if (to === 'f') result = (celsius * 9/5) + 32;
+                else if (to === 'k') result = celsius + 273.15;
+            } 
+            else {
+                const fromRate = convData[cat][from].rate;
+                const toRate = convData[cat][to].rate;
+                result = val * (fromRate / toRate);
+            }
+            let finalRes = Math.round(result * 100000000) / 100000000;
+            const resultDiv = document.getElementById('conv-result');
+            if (resultDiv) resultDiv.innerText = formatNumber(finalRes.toString());
+        }
+
+        function swapUnits() {
+            if (currentMode !== 'konversi') return;
+            const fromSel = document.getElementById('conv-from');
+            const toSel = document.getElementById('conv-to');
+            if (!fromSel || !toSel) return;
+            const temp = fromSel.value;
+            fromSel.value = toSel.value;
+            toSel.value = temp;
+            calculateConversion();
+        }
+
+        // ========== MODE UI DENGAN UKURAN TOMBOL LEBIH KECIL ==========
+        const grids = {
+            konversi: `
+                <div class="flex flex-col gap-3">
+                    <div class="bg-gray-50/80 p-3 rounded-2xl border border-gray-200">
+                        <select id="conv-category" onchange="updateConvOptions()" class="w-full p-2 mb-3 rounded-xl bg-white border border-gray-300 text-black font-semibold text-sm focus:ring-2 focus:ring-black outline-none">
+                            <option value="panjang">📏 Panjang</option>
+                            <option value="berat">⚖️ Berat</option>
+                            <option value="suhu">🌡️ Suhu</option>
+                            <option value="volume">🧴 Volume</option>
+                        </select>
+                        <div class="flex flex-col sm:flex-row gap-2 items-end">
+                            <div class="flex-1 w-full">
+                                <label class="text-[10px] text-gray-500 font-bold uppercase ml-1">Dari</label>
+                                <select id="conv-from" onchange="calculateConversion()" class="w-full p-1.5 text-sm mt-1 rounded-xl bg-white border border-gray-300 focus:ring-2 focus:ring-black"></select>
+                            </div>
+                            <button onclick="swapUnits()" class="p-2 bg-black text-white rounded-xl hover:bg-gray-800 transition-all w-8 h-8 flex items-center justify-center shadow"><i class="fas fa-arrows-alt-h text-xs"></i></button>
+                            <div class="flex-1 w-full">
+                                <label class="text-[10px] text-gray-500 font-bold uppercase ml-1">Ke</label>
+                                <select id="conv-to" onchange="calculateConversion()" class="w-full p-1.5 text-sm mt-1 rounded-xl bg-white border border-gray-300 focus:ring-2 focus:ring-black"></select>
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-2 border-t border-gray-200 text-right">
+                            <div class="text-[9px] text-gray-500 font-bold uppercase tracking-wider">Hasil konversi</div>
+                            <div id="conv-result" class="text-2xl font-light text-black break-all mt-1 font-mono">0</div>
+                        </div>
+                    </div>
+                    <!-- NUMERIC PAD (ukuran kecil) -->
+                    <div class="grid grid-cols-4 gap-1.5 mt-1">
+                        <button onclick="appendNumber('7')" class="bg-white text-black font-medium text-lg py-2 rounded-xl hover:bg-gray-100 border border-gray-200 shadow-sm">7</button>
+                        <button onclick="appendNumber('8')" class="bg-white text-black font-medium text-lg py-2 rounded-xl hover:bg-gray-100 border border-gray-200 shadow-sm">8</button>
+                        <button onclick="appendNumber('9')" class="bg-white text-black font-medium text-lg py-2 rounded-xl hover:bg-gray-100 border border-gray-200 shadow-sm">9</button>
+                        <button onclick="deleteNumber()" class="bg-gray-100 text-black font-semibold text-lg py-2 rounded-xl hover:bg-gray-200">⌫</button>
+
+                        <button onclick="appendNumber('4')" class="bg-white text-black font-medium text-lg py-2 rounded-xl hover:bg-gray-100 border border-gray-200 shadow-sm">4</button>
+                        <button onclick="appendNumber('5')" class="bg-white text-black font-medium text-lg py-2 rounded-xl hover:bg-gray-100 border border-gray-200 shadow-sm">5</button>
+                        <button onclick="appendNumber('6')" class="bg-white text-black font-medium text-lg py-2 rounded-xl hover:bg-gray-100 border border-gray-200 shadow-sm">6</button>
+                        <button onclick="clearDisplay()" class="bg-gray-100 text-black font-semibold text-lg py-2 rounded-xl hover:bg-gray-200">AC</button>
+
+                        <button onclick="appendNumber('1')" class="bg-white text-black font-medium text-lg py-2 rounded-xl hover:bg-gray-100 border border-gray-200 shadow-sm">1</button>
+                        <button onclick="appendNumber('2')" class="bg-white text-black font-medium text-lg py-2 rounded-xl hover:bg-gray-100 border border-gray-200 shadow-sm">2</button>
+                        <button onclick="appendNumber('3')" class="bg-white text-black font-medium text-lg py-2 rounded-xl hover:bg-gray-100 border border-gray-200 shadow-sm">3</button>
+                        <button onclick="toggleSign()" class="bg-gray-100 text-black font-medium text-lg py-2 rounded-xl hover:bg-gray-200">+/-</button>
+
+                        <button onclick="appendNumber('0')" class="col-span-2 bg-white text-black font-medium text-lg py-2 rounded-xl hover:bg-gray-100 border border-gray-200 shadow-sm">0</button>
+                        <button onclick="appendNumber('.')" class="bg-white text-black font-bold text-lg py-2 rounded-xl hover:bg-gray-100 border border-gray-200 shadow-sm">,</button>
+                        <button class="bg-black text-white font-bold text-base py-2 rounded-xl shadow-md" onclick="calculateConversion()"><i class="fas fa-sync-alt"></i></button>
+                    </div>
+                </div>
+            `,
+            normal: `
+                <div class="grid grid-cols-4 gap-2">
+                    <button onclick="clearDisplay()" class="col-span-2 bg-gray-100 text-black font-bold text-lg py-2.5 rounded-2xl hover:bg-gray-200">AC</button>
+                    <button onclick="deleteNumber()" class="bg-gray-100 text-black font-bold text-lg py-2.5 rounded-2xl hover:bg-gray-200">DEL</button>
+                    <button onclick="chooseOperation('÷')" class="bg-black text-white text-xl py-2.5 rounded-2xl hover:bg-gray-800 shadow">÷</button>
+                    <button onclick="appendNumber('7')" class="bg-white text-black text-xl py-2.5 rounded-2xl border border-gray-200 shadow-sm">7</button>
+                    <button onclick="appendNumber('8')" class="bg-white text-black text-xl py-2.5 rounded-2xl border border-gray-200 shadow-sm">8</button>
+                    <button onclick="appendNumber('9')" class="bg-white text-black text-xl py-2.5 rounded-2xl border border-gray-200 shadow-sm">9</button>
+                    <button onclick="chooseOperation('×')" class="bg-black text-white text-xl py-2.5 rounded-2xl hover:bg-gray-800">×</button>
+                    <button onclick="appendNumber('4')" class="bg-white text-black text-xl py-2.5 rounded-2xl border border-gray-200 shadow-sm">4</button>
+                    <button onclick="appendNumber('5')" class="bg-white text-black text-xl py-2.5 rounded-2xl border border-gray-200 shadow-sm">5</button>
+                    <button onclick="appendNumber('6')" class="bg-white text-black text-xl py-2.5 rounded-2xl border border-gray-200 shadow-sm">6</button>
+                    <button onclick="chooseOperation('-')" class="bg-black text-white text-xl py-2.5 rounded-2xl hover:bg-gray-800">−</button>
+                    <button onclick="appendNumber('1')" class="bg-white text-black text-xl py-2.5 rounded-2xl border border-gray-200 shadow-sm">1</button>
+                    <button onclick="appendNumber('2')" class="bg-white text-black text-xl py-2.5 rounded-2xl border border-gray-200 shadow-sm">2</button>
+                    <button onclick="appendNumber('3')" class="bg-white text-black text-xl py-2.5 rounded-2xl border border-gray-200 shadow-sm">3</button>
+                    <button onclick="chooseOperation('+')" class="bg-black text-white text-xl py-2.5 rounded-2xl hover:bg-gray-800">+</button>
+                    <button onclick="appendNumber('0')" class="col-span-2 bg-white text-black text-xl py-2.5 rounded-2xl border border-gray-200">0</button>
+                    <button onclick="appendNumber('.')" class="bg-white text-black text-xl py-2.5 rounded-2xl border border-gray-200">,</button>
+                    <button onclick="compute()" class="bg-black text-white text-xl py-2.5 rounded-2xl hover:bg-gray-800">=</button>
+                </div>
+            `,
+            simpel: `
+                <div class="flex flex-col gap-3">
+                    <div class="grid grid-cols-5 gap-1.5">
+                        <button onclick="chooseOperation('+')" class="bg-black text-white text-lg py-2 rounded-2xl hover:bg-gray-800">+</button>
+                        <button onclick="chooseOperation('-')" class="bg-black text-white text-lg py-2 rounded-2xl hover:bg-gray-800">−</button>
+                        <button onclick="chooseOperation('×')" class="bg-black text-white text-lg py-2 rounded-2xl hover:bg-gray-800">×</button>
+                        <button onclick="chooseOperation('÷')" class="bg-black text-white text-lg py-2 rounded-2xl hover:bg-gray-800">÷</button>
+                        <button onclick="compute()" class="bg-black text-white text-lg py-2 rounded-2xl hover:bg-gray-800">=</button>
+                    </div>
+                    <div class="grid grid-cols-4 gap-1.5 mt-1">
+                        <button onclick="appendNumber('7')" class="bg-white text-black text-xl py-2 rounded-xl border">7</button><button onclick="appendNumber('8')" class="bg-white text-black text-xl py-2 rounded-xl border">8</button><button onclick="appendNumber('9')" class="bg-white text-black text-xl py-2 rounded-xl border">9</button><button onclick="deleteNumber()" class="bg-gray-100 text-black text-lg py-2 rounded-xl">⌫</button>
+                        <button onclick="appendNumber('4')" class="bg-white text-black text-xl py-2 rounded-xl border">4</button><button onclick="appendNumber('5')" class="bg-white text-black text-xl py-2 rounded-xl border">5</button><button onclick="appendNumber('6')" class="bg-white text-black text-xl py-2 rounded-xl border">6</button><button onclick="clearDisplay()" class="bg-gray-100 text-black text-lg py-2 rounded-xl">AC</button>
+                        <button onclick="appendNumber('1')" class="bg-white text-black text-xl py-2 rounded-xl border">1</button><button onclick="appendNumber('2')" class="bg-white text-black text-xl py-2 rounded-xl border">2</button><button onclick="appendNumber('3')" class="bg-white text-black text-xl py-2 rounded-xl border">3</button><button onclick="toggleSign()" class="bg-gray-100 text-black text-lg py-2 rounded-xl">+/-</button>
+                        <button onclick="appendNumber('0')" class="col-span-2 bg-white text-black text-xl py-2 rounded-xl border">0</button><button onclick="appendNumber('.')" class="bg-white text-black text-xl py-2 rounded-xl border">,</button>
+                    </div>
+                </div>
+            `,
+            saintis: `
+                <div class="grid grid-cols-5 gap-1">
+                    <button onclick="computeSingle('x2')" class="bg-gray-100 text-[11px] py-1.5 rounded-xl">x²</button><button onclick="computeSingle('x3')" class="bg-gray-100 text-[11px] py-1.5 rounded-xl">x³</button><button onclick="chooseOperation('^')" class="bg-gray-100 text-[11px] py-1.5 rounded-xl">xⁿ</button><button onclick="computeSingle('ex')" class="bg-gray-100 text-[11px] py-1.5 rounded-xl">eˣ</button><button onclick="computeSingle('10x')" class="bg-gray-100 text-[11px] py-1.5 rounded-xl">10ˣ</button>
+                    <button onclick="computeSingle('sqrt')" class="bg-gray-100 text-[11px] py-1.5 rounded-xl">√</button><button onclick="computeSingle('cbrt')" class="bg-gray-100 text-[11px] py-1.5 rounded-xl">∛</button><button onclick="computeSingle('1/x')" class="bg-gray-100 text-[11px] py-1.5 rounded-xl">1/x</button><button onclick="computeSingle('abs')" class="bg-gray-100 text-[11px] py-1.5 rounded-xl">|x|</button><button onclick="computeSingle('n!')" class="bg-gray-100 text-[11px] py-1.5 rounded-xl">n!</button>
+                    <button onclick="computeSingle('sin')" class="bg-gray-100 text-[11px] py-1.5 rounded-xl">sin</button><button onclick="computeSingle('cos')" class="bg-gray-100 text-[11px] py-1.5 rounded-xl">cos</button><button onclick="computeSingle('tan')" class="bg-gray-100 text-[11px] py-1.5 rounded-xl">tan</button><button onclick="computeSingle('log')" class="bg-gray-100 text-[11px] py-1.5 rounded-xl">log</button><button onclick="computeSingle('ln')" class="bg-gray-100 text-[11px] py-1.5 rounded-xl">ln</button>
+                    <button onclick="computeSingle('asin')" class="bg-gray-100 text-[11px] py-1.5 rounded-xl">sin⁻¹</button><button onclick="computeSingle('acos')" class="bg-gray-100 text-[11px] py-1.5 rounded-xl">cos⁻¹</button><button onclick="computeSingle('atan')" class="bg-gray-100 text-[11px] py-1.5 rounded-xl">tan⁻¹</button><button onclick="appendConstant('pi')" class="bg-gray-100 text-[11px] py-1.5 rounded-xl">π</button><button onclick="appendConstant('e')" class="bg-gray-100 text-[11px] py-1.5 rounded-xl">e</button>
+                    <button onclick="appendNumber('7')" class="bg-white text-base py-2 rounded-xl border">7</button><button onclick="appendNumber('8')" class="bg-white text-base py-2 rounded-xl border">8</button><button onclick="appendNumber('9')" class="bg-white text-base py-2 rounded-xl border">9</button><button onclick="deleteNumber()" class="bg-gray-200 text-sm py-2 rounded-xl">DEL</button><button onclick="clearDisplay()" class="bg-gray-200 text-sm py-2 rounded-xl">AC</button>
+                    <button onclick="appendNumber('4')" class="bg-white text-base py-2 rounded-xl border">4</button><button onclick="appendNumber('5')" class="bg-white text-base py-2 rounded-xl border">5</button><button onclick="appendNumber('6')" class="bg-white text-base py-2 rounded-xl border">6</button><button onclick="chooseOperation('×')" class="bg-black text-white text-base py-2 rounded-xl">×</button><button onclick="chooseOperation('÷')" class="bg-black text-white text-base py-2 rounded-xl">÷</button>
+                    <button onclick="appendNumber('1')" class="bg-white text-base py-2 rounded-xl border">1</button><button onclick="appendNumber('2')" class="bg-white text-base py-2 rounded-xl border">2</button><button onclick="appendNumber('3')" class="bg-white text-base py-2 rounded-xl border">3</button><button onclick="chooseOperation('+')" class="bg-black text-white text-base py-2 rounded-xl">+</button><button onclick="chooseOperation('-')" class="bg-black text-white text-base py-2 rounded-xl">−</button>
+                    <button onclick="toggleSign()" class="bg-gray-100 text-base py-2 rounded-xl">+/-</button><button onclick="appendNumber('0')" class="bg-white text-base py-2 rounded-xl border">0</button><button onclick="appendNumber('.')" class="bg-white text-base py-2 rounded-xl border">,</button><button onclick="chooseOperation('%')" class="bg-gray-100 text-base py-2 rounded-xl">%</button><button onclick="compute()" class="bg-black text-white text-base py-2 rounded-xl">=</button>
+                </div>
+            `
+        };
+
+        function setMode(mode) {
+            currentMode = mode;
+            ['saintis', 'normal', 'simpel', 'konversi'].forEach(m => {
+                const btn = document.getElementById(`btn-${m}`);
+                if (btn) {
+                    if (m === mode) btn.className = "text-left px-4 py-2.5 rounded-xl font-medium bg-black text-white shadow-md transition-all w-full min-w-[100px] flex items-center gap-2";
+                    else btn.className = "text-left px-4 py-2.5 rounded-xl font-medium text-black hover:bg-gray-200 transition-all w-full min-w-[100px] flex items-center gap-2";
+                }
+            });
+            document.getElementById('calculator-buttons').innerHTML = grids[mode];
+            if (mode === 'konversi') setTimeout(() => { updateConvOptions(); }, 10);
+            const container = document.getElementById('calculator-container');
+            // atur ulang lebar sesuai mode (lebih kecil 25%)
+            if (mode === 'saintis') {
+                container.style.maxWidth = '340px';
+            } else {
+                container.style.maxWidth = '290px';
+            }
+        }
+
+        // inisialisasi
+        setMode('normal');
+
+        // Keyboard support
+        document.addEventListener('keydown', (e) => {
+            if (e.key >= '0' && e.key <= '9') appendNumber(e.key);
+            if (e.key === '.' || e.key === ',') appendNumber('.');
+            if (e.key === '=' || e.key === 'Enter') { e.preventDefault(); compute(); }
+            if (e.key === 'Backspace') deleteNumber();
+            if (e.key === 'Escape') clearDisplay();
+            if (e.key === '+' || e.key === '-') chooseOperation(e.key);
+            if (e.key === '*') chooseOperation('×');
+            if (e.key === '/') { e.preventDefault(); chooseOperation('÷'); }
+            if (e.key === '%') chooseOperation('%');
+        });
+    </script>
+</body>
+</html>
