@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="google-site-verification" content="_YxoQgBNuxNzKYKEiaHoLDI66XCcw60J59f13hMVXyw" />
     <meta name="keywords" content="Pufutara, Pufuta, Pufutaraweb, pufuta, pufutara, pufutaraweb">
-    <meta name="description" content="Pufutara adalah platform dan tempat untuk menaruh serta mengakses seluruh proyek untuk Seorang pelajar yang sedang membuat proyek web yang bermanfaat dan menarik!">
+    <meta name="description" content="Pufutara adalah platform pusat proyek web dengan desain modern, rounded, dan minimalis.">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="foto/kucingjempol.png" type="iconweb">
-    <title>Pufutara Archive</title>
+    <link rel="icon" href="foto/kucingjempol.png" type="image/png">
+    <title>Pufutara Archive | Soft Modern Edition</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
 
         :root {
             --bg: #ffffff;
@@ -17,8 +17,7 @@
             --gray-subtle: #f9f9fb;
             --gray-border: #eeeeee;
             --gray-text: #666666;
-            --radius-lg: 32px;
-            --radius-md: 24px;
+            --radius-lg: 28px;
             --shadow-soft: 0 10px 40px -10px rgba(0,0,0,0.06);
             --shadow-hover: 0 25px 50px -12px rgba(0,0,0,0.12);
             --transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
@@ -43,7 +42,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 0 24px;
         }
@@ -60,7 +59,6 @@
         .nav-wrapper {
             background: rgba(255, 255, 255, 0.75);
             backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(0,0,0,0.05);
             border-radius: 100px;
             padding: 14px 32px;
@@ -82,22 +80,23 @@
             gap: 24px;
         }
 
-        nav ul li a {
+        nav ul li a, .nav-link {
             text-decoration: none;
             color: var(--gray-text);
             font-size: 0.9rem;
             font-weight: 600;
             transition: var(--transition);
+            cursor: pointer;
         }
 
-        nav ul li a:hover {
+        nav ul li a:hover, .nav-link:hover {
             color: var(--fg);
         }
 
         /* Hero Section */
         .hero {
             padding-top: 160px;
-            padding-bottom: 60px; /* dikurangi agar card lebih dekat */
+            padding-bottom: 60px;
             text-align: center;
             min-height: 80vh;
             display: flex;
@@ -107,7 +106,7 @@
 
         .hero h1 {
             font-size: clamp(2.8rem, 8vw, 4.8rem);
-            font-weight: 800;
+            font-weight: 900;
             line-height: 1.05;
             letter-spacing: -0.05em;
             margin-bottom: 24px;
@@ -138,22 +137,22 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.15);
         }
 
-        /* Project Grid - tanpa header */
+        /* Grid 4 kolom, semua baris sama tinggi */
         .project-section {
             padding-bottom: 120px;
-            margin-top: 0; /* tidak ada jarak tambahan */
         }
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-            gap: 32px;
+            grid-template-columns: repeat(4, 1fr);
+            grid-auto-rows: 1fr;
+            gap: 24px;
         }
 
         .card-link {
             text-decoration: none;
             color: inherit;
-            display: block;
+            display: flex;
             opacity: 0;
             transform: translateY(40px);
             transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
@@ -168,8 +167,8 @@
             background: var(--bg);
             border: 1px solid var(--gray-border);
             border-radius: var(--radius-lg);
-            padding: 48px;
-            height: 100%;
+            padding: 32px 28px;
+            width: 100%;
             transition: var(--transition);
             display: flex;
             flex-direction: column;
@@ -185,56 +184,91 @@
         }
 
         .card .tag {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             font-weight: 800;
             color: var(--gray-text);
             text-transform: uppercase;
             letter-spacing: 0.12em;
-            margin-bottom: 28px;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .card .tag::before {
             content: '';
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             background: var(--fg);
             border-radius: 50%;
         }
 
         .card h3 {
-            font-size: 1.6rem;
-            font-weight: 700;
-            margin-bottom: 16px;
+            font-size: 1.3rem;
+            font-weight: 800;
+            margin-bottom: 12px;
             letter-spacing: -0.02em;
         }
 
         .card p {
             color: var(--gray-text);
-            font-size: 1rem;
-            line-height: 1.7;
-            margin-bottom: 32px;
+            font-size: 0.85rem;
+            line-height: 1.6;
+            margin-bottom: 24px;
+            flex-grow: 1;
         }
 
         .card-arrow {
             margin-top: auto;
             display: flex;
             align-items: center;
-            font-weight: 800;
-            font-size: 0.85rem;
-            gap: 10px;
+            justify-content: flex-end;
+            gap: 8px;
             color: var(--fg);
             opacity: 0.4;
             transition: var(--transition);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
         }
 
         .card-link:hover .card-arrow {
             opacity: 1;
             transform: translateX(8px);
+        }
+
+        /* Placeholder untuk kartu kosong */
+        .card-placeholder {
+            background: #fafafa;
+            border: 1px dashed #ddd;
+            border-radius: var(--radius-lg);
+            padding: 32px 28px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            min-height: 280px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            color: inherit;
+        }
+        .card-placeholder .icon {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        .card-placeholder h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #aaa;
+            margin-bottom: 10px;
+        }
+        .card-placeholder p {
+            color: #bbb;
+            font-size: 0.85rem;
+        }
+        .card-placeholder:hover {
+            transform: translateY(-4px);
+            border-color: #ccc;
         }
 
         /* Footer */
@@ -278,16 +312,18 @@
 
         .footer-col ul li {
             margin-bottom: 14px;
+            transition: var(--transition);
+            display: inline-block;
         }
 
-        .footer-col ul li a {
-            text-decoration: none;
+        .footer-col ul li span {
             color: var(--gray-text);
             font-weight: 500;
             transition: var(--transition);
+            cursor: default;
         }
 
-        .footer-col ul li a:hover {
+        .footer-col ul li:hover span {
             color: var(--fg);
             padding-left: 4px;
         }
@@ -302,8 +338,41 @@
             font-size: 0.9rem;
         }
 
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(12px);
+            color: white;
+            padding: 16px 32px;
+            border-radius: 60px;
+            font-size: 1rem;
+            font-weight: 500;
+            z-index: 2000;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
+            white-space: nowrap;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        /* Responsif */
+        @media (max-width: 1200px) {
+            .grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
         @media (max-width: 992px) {
-            .footer-grid { grid-template-columns: 1fr 1fr; }
+            .grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+            }
         }
 
         @media (max-width: 768px) {
@@ -312,10 +381,14 @@
             .nav-wrapper ul { display: none; }
             .hero h1 { font-size: 3.2rem; }
             .hero { padding-top: 140px; min-height: 70vh; }
-            .grid { grid-template-columns: 1fr; gap: 24px; }
+            .grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+            .card { padding: 28px 24px; }
             .footer-grid { grid-template-columns: 1fr; gap: 40px; }
             .footer-bottom { flex-direction: column; gap: 24px; text-align: center; }
-            .card { padding: 40px 32px; }
+            .toast { font-size: 0.9rem; white-space: normal; text-align: center; max-width: 80%; padding: 12px 24px; }
         }
     </style>
 </head>
@@ -328,9 +401,9 @@
                 <nav>
                     <ul>
                         <li><a href="#proyek">Proyek</a></li>
-                        <li><a href="#">Arsip</a></li>
-                        <li><a href="#">Layanan</a></li>
-                        <li><a href="#">Kontak</a></li>
+                        <li><span class="nav-link" id="arsipBtn">Arsip</span></li>
+                        <li><span class="nav-link" id="layananBtn">Layanan</span></li>
+                        <li><a href="kontak.html">Kontak</a></li>
                     </ul>
                 </nav>
             </div>
@@ -350,206 +423,222 @@
         </section>
 
         <section class="project-section container" id="proyek">
-            <div class="grid" id="projectGrid">
-                <!-- 01. PufutaraOS -->
+            <div class="grid">
+                <!-- 20 proyek yang sudah ada, tanpa teks "Buka Proyek", hanya ikon panah -->
+                <!-- 01 -->
                 <a href="os/index.html" class="card-link" target="_blank">
                     <div class="card">
                         <span class="tag">01 / Operating System</span>
                         <h3>PufutaraOS</h3>
                         <p>Sistem operasi modern berbasis web. Cita-cita Putra waktu kecil akhirnya terwujud di PC Labkom!</p>
-                        <div class="card-arrow">Buka Proyek <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
+                        <div class="card-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
                     </div>
                 </a>
-
-                <!-- 02. PufutaraTube -->
+                <!-- 02 -->
                 <a href="tube/index.html" class="card-link" target="_blank">
                     <div class="card">
                         <span class="tag">02 / Video Platform</span>
                         <h3>PufutaraTube</h3>
                         <p>Tempat nonton video favorit tanpa iklan yang mengganggu fokus koding kamu.</p>
-                        <div class="card-arrow">Buka Proyek <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
+                        <div class="card-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
                     </div>
                 </a>
-
-                <!-- 03. PufutaraChat -->
+                <!-- 03 -->
                 <a href="chat/index.html" class="card-link" target="_blank">
                     <div class="card">
                         <span class="tag">03 / Communication</span>
                         <h3>PufutaraChat</h3>
                         <p>Obrolan Simple, tambah akun, login, langsung chat ke semua orang secara real-time.</p>
-                        <div class="card-arrow">Buka Proyek <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
+                        <div class="card-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
                     </div>
                 </a>
-
-                <!-- 04. PufutaraDrive -->
+                <!-- 04 -->
                 <a href="drive/index.html" class="card-link" target="_blank">
                     <div class="card">
                         <span class="tag">04 / Cloud Storage</span>
                         <h3>PufutaraDrive</h3>
                         <p>Simpan file-file penting proyek kodingan kamu dengan aman dan mudah diakses di mana saja.</p>
-                        <div class="card-arrow">Buka Proyek <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
+                        <div class="card-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
                     </div>
                 </a>
-
-                <!-- 05. PufutaraGallery -->
+                <!-- 05 -->
                 <a href="gallery/index.html" class="card-link" target="_blank">
                     <div class="card">
                         <span class="tag">05 / Full Stack</span>
                         <h3>PufutaraGallery</h3>
                         <p>Proyek Full Stack pertama Putra! Upload foto otomatis tersimpan ke server untuk dilihat semua orang.</p>
-                        <div class="card-arrow">Buka Proyek <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
+                        <div class="card-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
                     </div>
                 </a>
-
-                <!-- 06. PufutaraAudioLibrary -->
+                <!-- 06 -->
                 <a href="audio/index.html" class="card-link" target="_blank">
                     <div class="card">
                         <span class="tag">06 / Audio Flow</span>
                         <h3>PufutaraAudioLibrary</h3>
                         <p>Dengerin lo-fi beat dan ambience alam biar koding makin chill dan nggak spaneng.</p>
-                        <div class="card-arrow">Buka Proyek <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
+                        <div class="card-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
                     </div>
                 </a>
-
-                <!-- 07. PufutaraMiniGames -->
+                <!-- 07 -->
                 <a href="game/index.html" class="card-link" target="_blank">
                     <div class="card">
                         <span class="tag">07 / Fun Zone</span>
                         <h3>PufutaraMiniGames</h3>
                         <p>Kumpulan game ringan buat refreshing otak setelah pusing ngurusin bug di HTML.</p>
-                        <div class="card-arrow">Buka Proyek <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
+                        <div class="card-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
                     </div>
                 </a>
-
-                <!-- 08. PufutaraProPaint -->
+                <!-- 08 -->
                 <a href="paint/index.html" class="card-link" target="_blank">
                     <div class="card">
                         <span class="tag">08 / Draw & Paint</span>
                         <h3>PufutaraProPaint</h3>
                         <p>Gambar dan sketsa apa saja dengan mudah. Aplikasi simpel, tapi tools-nya profesional.</p>
-                        <div class="card-arrow">Buka Proyek <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
+                        <div class="card-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
                     </div>
                 </a>
-
-                <!-- 09. PufutaraWriter -->
+                <!-- 09 -->
                 <a href="write/index.html" class="card-link" target="_blank">
                     <div class="card">
                         <span class="tag">09 / Writing</span>
                         <h3>PufutaraWriter</h3>
                         <p>Pengolahan kata yang cepat dan ringan. Cocok buat nulis ide proyek yang tiba-tiba muncul.</p>
-                        <div class="card-arrow">Buka Proyek <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
+                        <div class="card-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
                     </div>
                 </a>
-
-                <!-- 10. PufutaraDigLib -->
+                <!-- 10 -->
                 <a href="library/index.html" class="card-link" target="_blank">
                     <div class="card">
                         <span class="tag">10 / Digital Library</span>
                         <h3>PufutaraDigLib</h3>
                         <p>Perpustakaan digital dan info cuaca Jalancagak biar tau kapan harus bawa payung ke Labkom.</p>
-                        <div class="card-arrow">Buka Proyek <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
+                        <div class="card-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
                     </div>
                 </a>
-
-                <!-- 11. PufutaraSpinWheel -->
+                <!-- 11 -->
                 <a href="spin/index.html" class="card-link" target="_blank">
                     <div class="card">
                         <span class="tag">11 / Education</span>
                         <h3>PufutaraSpinWheel</h3>
                         <p>Putuskan kelompok belajar atau pilihan sulit lainnya dengan roda tak terduga ini.</p>
-                        <div class="card-arrow">Buka Proyek <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
+                        <div class="card-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
                     </div>
                 </a>
-
-                <!-- 12. PufutaraWorkspace -->
+                <!-- 12 -->
                 <a href="work/index.html" class="card-link" target="_blank">
                     <div class="card">
                         <span class="tag">12 / Productivity</span>
                         <h3>PufutaraWorkspace</h3>
                         <p>Hub pusat aplikasi produktivitas Pufutara, gabungan dari berbagai proyek jadi satu.</p>
-                        <div class="card-arrow">Buka Proyek <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
+                        <div class="card-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
                     </div>
                 </a>
-
-                <!-- 13. PufutaraToDo -->
+                <!-- 13 -->
                 <a href="todo/index.html" class="card-link" target="_blank">
                     <div class="card">
                         <span class="tag">13 / Focus List</span>
                         <h3>PufutaraToDo</h3>
                         <p>List tugas simpel dan modern untuk Putra yang pelupa biar jadwal tetap teratur.</p>
-                        <div class="card-arrow">Buka Proyek <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
+                        <div class="card-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
                     </div>
                 </a>
-
-                <!-- 14. PufutaraHabitTracker -->
+                <!-- 14 -->
                 <a href="habit/index.html" class="card-link" target="_blank">
                     <div class="card">
                         <span class="tag">14 / Habit Tracker</span>
                         <h3>PufutaraHabitTracker</h3>
                         <p>Pantau proses membangun kebiasaan baik dan hilangkan kebiasaan buruk setiap hari.</p>
-                        <div class="card-arrow">Buka Proyek <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
+                        <div class="card-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
                     </div>
                 </a>
-
-                <!-- 15. PufutaraNews -->
+                <!-- 15 -->
                 <a href="news/landing.html" class="card-link" target="_blank">
                     <div class="card">
                         <span class="tag">15 / News Update</span>
                         <h3>PufutaraNews</h3>
                         <p>Baca berita terbaru atau pakai kalkulator sains akurat buat bantu tugas Labkom kamu.</p>
-                        <div class="card-arrow">Buka Proyek <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
+                        <div class="card-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
                     </div>
                 </a>
-
-                <!-- 16. PufutaraWeb V2 -->
+                <!-- 16 -->
                 <a href="https://pufuta.vercel.app" class="card-link" target="_blank">
                     <div class="card">
                         <span class="tag">16 / Official Web</span>
                         <h3>PufutaraWeb V2</h3>
                         <p>Website utama Putra versi terbaru. Modern, cepat, dan pastinya pwnya tetap 'putraganteng'.</p>
-                        <div class="card-arrow">Buka Proyek <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
+                        <div class="card-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
                     </div>
                 </a>
-
-                <!-- 17. PufutaraWeb V1 -->
+                <!-- 17 -->
                 <a href="https://kanay.vercel.app" class="card-link" target="_blank">
                     <div class="card">
                         <span class="tag">17 / BEM Nostalgia</span>
                         <h3>PufutaraWeb V1</h3>
                         <p>Saksi bisu perjalanan di BEM. Tanya anak BEM se-Sikma kalau mau tau sejarah web ini!</p>
-                        <div class="card-arrow">Buka Proyek <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
+                        <div class="card-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
                     </div>
                 </a>
-
-                <!-- 18. PufutaraArchive (halaman ini sendiri) -->
+                <!-- 18 -->
                 <a href="index.html" class="card-link" target="_blank">
                     <div class="card">
                         <span class="tag">18 / The Center</span>
                         <h3>PufutaraArchive</h3>
                         <p>Platform pusat yang sedang kamu lihat ini. Wadah abadi untuk semua karya koding Putra.</p>
-                        <div class="card-arrow">Buka Proyek <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
+                        <div class="card-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
                     </div>
                 </a>
-
-                <!-- 19. Mutabaah OS -->
+                <!-- 19 -->
                 <a href="https://mutabaahos.vercel.app" class="card-link" target="_blank">
                     <div class="card">
                         <span class="tag">19 / The New Era</span>
                         <h3>Mutabaah OS</h3>
                         <p>Landing page proyek full stack dan full keren baru. InsyaAllah jadi startup baru di Indo.</p>
-                        <div class="card-arrow">Buka Proyek <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
+                        <div class="card-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
                     </div>
                 </a>
-
-                <!-- 20. Pufutara AI -->
+                <!-- 20 -->
                 <a href="https://pufutaraai.vercel.app" class="card-link" target="_blank">
                     <div class="card">
                         <span class="tag">20 / Intelligence</span>
                         <h3>Pufutara AI</h3>
                         <p>AI chatbot menggunakan Gemini API key sebagai dasar AI nya.</p>
-                        <div class="card-arrow">Buka Proyek <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
+                        <div class="card-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
                     </div>
                 </a>
+
+                <!-- 21. Pufutara Calc -->
+                <a href="calc/index.html" class="card-link" target="_blank">
+                    <div class="card">
+                        <span class="tag">21 / Utility</span>
+                        <h3>Pufutara Calc</h3>
+                        <p>Kalkulator modern dengan fungsi sains, persentase, dan riwayat perhitungan. Cocok untuk tugas Labkom.</p>
+                        <div class="card-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
+                    </div>
+                </a>
+
+                <!-- 22. Pufutara Vote -->
+                <a href="vote/index.html" class="card-link" target="_blank">
+                    <div class="card">
+                        <span class="tag">22 / Community</span>
+                        <h3>Pufutara Vote</h3>
+                        <p>Sistem voting sederhana untuk menentukan pilihan kelas atau keputusan bersama. Hasil real-time.</p>
+                        <div class="card-arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
+                    </div>
+                </a>
+
+                <!-- 23. Placeholder 1: Proyek Ide (arahkan ke kontak.html) -->
+                <a href="kontak.html" class="card-placeholder">
+                    <div class="icon">✨</div>
+                    <h3>Proyek Ide</h3>
+                    <p>Ada ide keren? Sampaikan saranmu untuk proyek selanjutnya.</p>
+                </a>
+
+                <!-- 24. Placeholder 2: Coming Soon (tidak diarahkan ke mana pun) -->
+                <div class="card-placeholder">
+                    <div class="icon">🚀</div>
+                    <h3>Coming Soon</h3>
+                    <p>Proyek baru sedang dalam pengembangan. Nantikan inovasi berikutnya!</p>
+                </div>
             </div>
         </section>
     </main>
@@ -564,23 +653,23 @@
                 <div class="footer-col">
                     <h4>Keahlian</h4>
                     <ul>
-                        <li><a href="#">Minimalist UI</a></li>
-                        <li><a href="#">Interaction Design</a></li>
-                        <li><a href="#">Soft Aesthetics</a></li>
+                        <li><span>Minimalist UI</span></li>
+                        <li><span>Interaction Design</span></li>
+                        <li><span>Soft Aesthetics</span></li>
                     </ul>
                 </div>
                 <div class="footer-col">
                     <h4>Internal</h4>
                     <ul>
-                        <li><a href="#">Arsip Lengkap</a></li>
-                        <li><a href="#">Status Server</a></li>
+                        <li><span>Arsip Lengkap</span></li>
+                        <li><span>Status Server</span></li>
                     </ul>
                 </div>
                 <div class="footer-col">
                     <h4>Kontak</h4>
                     <ul>
-                        <li><a href="#">Putra Ajam</a></li>
-                        <li><a href="#">pufutara@gmail.com</a></li>
+                        <li><span>Putra Ajam</span></li>
+                        <li><span>pufutara@gmail.com</span></li>
                     </ul>
                 </div>
             </div>
@@ -591,13 +680,32 @@
         </div>
     </footer>
 
+    <div id="toast" class="toast"></div>
+
     <script>
-        // Reveal animation on scroll with stagger effect
+        // Toast notification function
+        function showToast(message, duration = 3000) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.opacity = '1';
+            setTimeout(() => {
+                toast.style.opacity = '0';
+            }, duration);
+        }
+
+        // Navbar "Arsip" and "Layanan" with toast
+        document.getElementById('arsipBtn').addEventListener('click', () => {
+            showToast('📦 Ya ini arsipnyaa, silahkan dilihat lihat yaa..');
+        });
+        document.getElementById('layananBtn').addEventListener('click', () => {
+            showToast('🔧 Tidak bisa melayani, anda bisa melayani diri anda sendiri dengan mengeksplorasi Pufutara Archive sendiri.');
+        });
+
+        // Reveal animation on scroll
         const observerOptions = {
             threshold: 0.1,
             rootMargin: "0px 0px -50px 0px"
         };
-
         const observer = new IntersectionObserver((entries) => {
             entries.forEach((entry) => {
                 if (entry.isIntersecting) {
@@ -605,9 +713,8 @@
                 }
             });
         }, observerOptions);
-
         document.querySelectorAll('.card-link').forEach((card, index) => {
-            card.style.transitionDelay = `${(index % 3) * 0.1}s`;
+            card.style.transitionDelay = `${(index % 4) * 0.05}s`;
             observer.observe(card);
         });
 
