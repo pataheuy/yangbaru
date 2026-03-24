@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PufutaraVote - Realtime Polling</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb; /* Soft gray background */
+            color: #111827;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Modern UI Elements */
+        .card-modern {
+            background-color: #ffffff;
+            border: 1px solid #f3f4f6;
+            border-radius: 24px;
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card-modern:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.08);
+            border-color: #e5e7eb;
+        }
+
+        .input-modern {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+        
+        .input-modern:focus {
+            background-color: #ffffff;
+            border-color: #111827;
+            box-shadow: 0 0 0 4px rgba(17, 24, 39, 0.05);
+        }
+
+        .option-card {
+            background-color: #ffffff;
+            border: 1px solid #e5e7eb;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .option-card:hover { 
+            border-color: #111827; 
+            background-color: #f9fafb;
+        }
+        
+        .option-card.selected {
+            background-color: #111827;
+            color: #ffffff;
+            border-color: #111827;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+            transform: scale(1.01);
+        }
+
+        /* Custom Check Circle for Options */
+        .check-circle {
+            position: relative;
+        }
+        .option-card.selected .check-circle {
+            border-color: #ffffff;
+        }
+        .option-card.selected .check-circle::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 10px;
+            height: 10px;
+            background-color: #ffffff;
+            border-radius: 50%;
+            animation: popIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes popIn {
+            0% { transform: translate(-50%, -50%) scale(0); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        /* Progress Bar Animation */
+        .progress-bg {
+            background-color: #f3f4f6;
+            height: 10px;
+            border-radius: 999px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        .progress-bar {
+            background-color: #111827;
+            height: 100%;
+            width: 0%;
+            border-radius: 999px;
+            transition: width 1s cubic-bezier(0.65, 0, 0.35, 1);
+        }
+
+        /* Toast */
+        #toast {
+            position: fixed;
+            bottom: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #111827;
+            color: #ffffff;
+            padding: 14px 28px;
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+            transition: bottom 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 100;
+        }
+        #toast.show { bottom: 40px; }
+
+        .hidden-view { display: none !important; }
+        
+        /* Modern Loader */
+        .loader {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #111827;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Smooth Fade In */
+        .animate-fade-up {
+            animation: fadeUp 0.4s ease-out forwards;
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <div id="toast">Notifikasi</div>
+
+    <!-- MAIN APP WRAPPER -->
+    <div id="app-wrapper" class="flex-1 flex flex-col hidden-view">
+        <nav class="border-b border-gray-100 bg-white/80 backdrop-blur-md sticky top-0 z-50 transition-all">
+            <div class="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
+                <h1 class="text-2xl font-bold tracking-tight cursor-pointer text-gray-900" onclick="navigate('home')">PufutaraVote</h1>
+                <div class="flex gap-4">
+                    <button onclick="navigate('create')" class="text-sm font-semibold bg-gray-900 text-white px-5 py-2.5 rounded-full hover:bg-black hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
+                        + Buat Voting
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <main class="w-full max-w-2xl mx-auto p-6 mt-6 flex-1">
+            
+            <!-- HOME VIEW -->
+            <section id="view-home" class="hidden-view animate-fade-up">
+                <div class="flex justify-between items-end mb-6">
+                    <h2 class="text-3xl font-bold tracking-tight text-gray-900">Daftar Voting</h2>
+                    <button onclick="loadPolls()" class="text-sm font-medium text-gray-500 hover:text-black transition">Segarkan</button>
+                </div>
+                
+                <!-- FITUR GABUNG KODE PRIVAT -->
+                <div class="mb-8 p-6 bg-white border border-gray-100 shadow-sm rounded-3xl flex flex-col md:flex-row gap-4 items-center transition-all hover:shadow-md">
+                    <div class="flex-1 text-center md:text-left">
+                        <h3 class="font-semibold text-gray-900 mb-1">Punya Kode Privat?</h3>
+                        <p class="text-sm text-gray-500">Masukkan 5 digit PIN untuk bergabung.</p>
+                    </div>
+                    <div class="flex gap-3 w-full md:w-auto justify-center">
+                        <input type="text" id="join-code" maxlength="5" placeholder="12345" class="input-modern w-32 p-3 rounded-2xl text-center font-mono font-bold tracking-[0.2em] text-lg" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                        <button onclick="joinByCode()" class="px-6 py-3 rounded-2xl font-semibold text-sm bg-gray-900 text-white hover:bg-black transition-all">Gabung</button>
+                    </div>
+                </div>
+                
+                <div id="polls-loader" class="py-20 hidden-view"><div class="loader"></div></div>
+                <div id="polls-list" class="grid gap-4"></div>
+                <div id="polls-empty" class="hidden-view text-center py-16 bg-white border border-dashed border-gray-200 rounded-3xl">
+                    <p class="text-gray-500 font-medium">Belum ada voting di database.</p>
+                </div>
+            </section>
+
+            <!-- CREATE VIEW -->
+            <section id="view-create" class="hidden-view animate-fade-up">
+                <div class="bg-white border border-gray-100 shadow-sm p-8 rounded-[2rem]">
+                    <h2 class="text-2xl font-bold tracking-tight mb-8 text-gray-900">Buat Voting Baru</h2>
+                    
+                    <div class="space-y-6">
+                        <!-- Judul Polling -->
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Topik / Judul</label>
+                            <input type="text" id="create-title" placeholder="Contoh: Destinasi Liburan Akhir Tahun" class="input-modern w-full p-4 rounded-2xl text-lg font-semibold">
+                        </div>
+
+                        <!-- Pengaturan Privasi -->
+                        <div class="p-5 bg-gray-50 rounded-2xl border border-gray-100 flex flex-col gap-4">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <div>
+                                    <label class="block text-sm font-semibold text-gray-900">Akses Voting</label>
+                                    <p class="text-xs text-gray-500 mt-0.5">Siapa saja yang bisa melihat dan mengisi form ini?</p>
+                                </div>
+                                <select id="create-privacy" onchange="togglePinInput()" class="input-modern p-2.5 rounded-xl text-sm font-medium bg-white w-full sm:w-auto cursor-pointer">
+                                    <option value="public">🌍 Publik (Semua Orang)</option>
+                                    <option value="private">🔒 Privat (Gunakan PIN)</option>
+                                </select>
+                            </div>
+                            <div id="pin-container" class="hidden-view pt-3 border-t border-gray-200 mt-1">
+                                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Buat PIN Akses (5 Digit)</label>
+                                <input type="text" id="create-pin" maxlength="5" placeholder="12345" class="input-modern w-full max-w-[200px] p-3 rounded-xl text-lg font-mono tracking-[0.2em] text-center" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                            </div>
+                        </div>
+
+                        <!-- Daftar Pertanyaan -->
+                        <div id="questions-container" class="space-y-6 pt-2">
+                            <!-- Pertanyaan akan di-render di sini oleh JS -->
+                        </div>
+
+                        <div class="flex justify-center pt-2">
+                            <button onclick="addQuestionBlock()" class="text-sm font-medium text-gray-600 bg-gray-50 hover:bg-gray-100 border border-gray-200 px-5 py-2.5 rounded-full transition-all flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                                Tambah Pertanyaan Lain
+                            </button>
+                        </div>
+
+                        <div class="pt-8 flex gap-4 border-t border-gray-100">
+                            <button onclick="navigate('home')" class="flex-1 py-3.5 rounded-2xl font-semibold text-gray-600 bg-white border border-gray-200 hover:bg-gray-50 hover:text-gray-900 transition-all">Batal</button>
+                            <button id="btn-publish" onclick="publishPoll()" class="flex-[2] py-3.5 rounded-2xl font-semibold bg-gray-900 text-white hover:bg-black transition-all shadow-md">Publikasikan Voting</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- POLL DETAIL VIEW -->
+            <section id="view-poll" class="hidden-view animate-fade-up">
+                <div class="bg-white border border-gray-100 shadow-sm p-6 sm:p-10 rounded-[2rem] relative overflow-hidden">
+                    <div id="poll-detail-loader" class="absolute inset-0 bg-white/90 backdrop-blur-sm z-10 flex items-center justify-center hidden-view">
+                        <div class="loader"></div>
+                    </div>
+
+                    <div class="flex justify-between items-center mb-8">
+                        <button onclick="navigate('home')" class="text-sm font-medium text-gray-500 hover:text-gray-900 flex items-center gap-1 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                            Kembali
+                        </button>
+                        <button onclick="shareLink()" class="text-xs font-semibold bg-gray-50 text-gray-700 border border-gray-200 px-4 py-2 rounded-full hover:bg-gray-100 hover:border-gray-300 transition-all flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                            Bagikan Tautan
+                        </button>
+                    </div>
+
+                    <!-- Header -->
+                    <div class="mb-10 text-center sm:text-left">
+                        <span id="detail-badge" class="inline-block mb-3 text-[11px] font-semibold px-3 py-1 rounded-full bg-gray-100 text-gray-600 tracking-wide"></span>
+                        <h2 id="detail-title" class="text-3xl font-bold tracking-tight text-gray-900 leading-tight"></h2>
+                    </div>
+
+                    <!-- Private PIN View (Jika belum masuk) -->
+                    <div id="private-pin-area" class="hidden-view py-12 text-center max-w-sm mx-auto">
+                        <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6 border border-gray-100">
+                            <span class="text-2xl">🔒</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Voting Tertutup</h3>
+                        <p class="text-sm text-gray-500 mb-8">Silakan masukkan PIN 5 digit untuk dapat berpartisipasi atau melihat hasil dari voting ini.</p>
+                        <div class="flex flex-col gap-4">
+                            <input type="password" id="input-pin" maxlength="5" placeholder="• • • • •" class="input-modern w-full p-4 rounded-2xl text-2xl tracking-[0.5em] text-center font-mono">
+                            <button onclick="checkPin()" class="w-full py-4 rounded-2xl font-semibold text-white bg-gray-900 hover:bg-black transition-all shadow-md">Buka Akses</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Voting Area -->
+                    <div id="voting-area" class="hidden-view">
+                        <div id="questions-list" class="space-y-8 mb-10"></div>
+                        <button id="btn-submit-vote" onclick="submitVote()" class="w-full py-4 rounded-2xl font-semibold text-white bg-gray-900 hover:bg-black hover:shadow-lg hover:-translate-y-0.5 transition-all">
+                            Kirim Jawaban
+                        </button>
+                    </div>
+
+                    <!-- Results Area (Realtime) -->
+                    <div id="results-area" class="hidden-view">
+                        <div class="flex justify-between items-center mb-8 bg-gray-50/50 p-4 rounded-2xl border border-gray-100">
+                            <div class="flex items-center gap-2">
+                                <span class="relative flex h-3 w-3">
+                                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                  <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                                </span>
+                                <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider">Live Results</h3>
+                            </div>
+                            <span id="total-votes-text" class="text-sm font-medium text-gray-500 bg-white px-3 py-1 rounded-full shadow-sm border border-gray-100"></span>
+                        </div>
+                        <div id="detail-results" class="space-y-10"></div>
+                    </div>
+
+                    <!-- Delete Button (Hidden & Small) -->
+                    <div class="mt-16 pt-8 border-t border-gray-50 flex justify-center">
+                        <button onclick="deleteCurrentPoll()" class="text-xs text-gray-300 hover:text-red-500 hover:bg-red-50 px-3 py-1.5 rounded-lg opacity-30 hover:opacity-100 transition-all font-mono">
+                            Hapus Permanen Voting
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // --- GLOBAL VARIABLES ---
+        const SUPABASE_URL = 'https://puywjdopumlzvmzbcudr.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1eXdqZG9wdW1senZtemJjdWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDE3MTksImV4cCI6MjA4NzkxNzcxOX0.vvThyjtK2SlA9oA9Mr_XOmt1R_tNZk-ib3PO9XpiiSc';
+        
+        let supabaseClient = null;
+        let currentPoll = null; 
+        let selectedVotes = {}; 
+        let realtimeSubscription = null;
+
+        let createQuestionsData = [
+            { id: Date.now(), text: "", options: ["", ""] }
+        ];
+
+        // --- INIT & CONFIG LOGIC ---
+        window.onload = () => {
+            initSupabase(SUPABASE_URL, SUPABASE_KEY);
+        };
+
+        function initSupabase(url, key) {
+            try {
+                supabaseClient = window.supabase.createClient(url, key);
+                document.getElementById('app-wrapper').classList.remove('hidden-view');
+                
+                const urlParams = new URLSearchParams(window.location.search);
+                const sharedPollId = urlParams.get('p');
+                
+                if (sharedPollId) {
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                    viewPoll(sharedPollId);
+                } else {
+                    navigate('home');
+                }
+            } catch (error) {
+                showToast("Gagal menghubungkan ke server.");
+                console.error(error);
+            }
+        }
+
+        function navigate(view) {
+            ['home', 'create', 'poll'].forEach(v => {
+                document.getElementById(`view-${v}`).classList.add('hidden-view');
+            });
+            document.getElementById(`view-${view}`).classList.remove('hidden-view');
+
+            if (view === 'home') loadPolls();
+            if (view === 'create') resetCreateForm();
+            
+            if (view !== 'poll' && realtimeSubscription) {
+                supabaseClient.removeChannel(realtimeSubscription);
+                realtimeSubscription = null;
+            }
+        }
+
+        // --- HOME LOGIC ---
+        async function loadPolls() {
+            document.getElementById('polls-loader').classList.remove('hidden-view');
+            document.getElementById('polls-list').innerHTML = '';
+            document.getElementById('polls-empty').classList.add('hidden-view');
+
+            const { data, error } = await supabaseClient
+                .from('polls')
+                .select(`id, title, is_private, created_at`)
+                .order('created_at', { ascending: false });
+
+            document.getElementById('polls-loader').classList.add('hidden-view');
+
+            if (error) return showToast("Gagal mengambil data: " + error.message);
+
+            if (!data || data.length === 0) {
+                document.getElementById('polls-empty').classList.remove('hidden-view');
+                return;
+            }
+
+            const list = document.getElementById('polls-list');
+            data.forEach(poll => {
+                const date = new Date(poll.created_at).toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' });
+                const iconHTML = poll.is_private 
+                    ? `<span class="bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full text-[10px] font-semibold flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> Privat</span>` 
+                    : `<span class="bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full text-[10px] font-semibold flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg> Publik</span>`;
+                
+                const card = document.createElement('div');
+                card.className = "card-modern p-5 cursor-pointer flex justify-between items-center group";
+                card.onclick = () => viewPoll(poll.id);
+                card.innerHTML = `
+                    <div class="pr-4">
+                        <h3 class="font-semibold text-lg mb-2 text-gray-900 line-clamp-1">${poll.title}</h3>
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs text-gray-400 font-medium">${date}</span>
+                            ${iconHTML}
+                        </div>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-gray-900 group-hover:text-white transition-colors flex-shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        async function joinByCode() {
+            const code = document.getElementById('join-code').value.trim();
+            if (code.length !== 5) return showToast("Kode harus 5 digit angka!");
+
+            document.getElementById('polls-loader').classList.remove('hidden-view');
+
+            const { data, error } = await supabaseClient
+                .from('polls')
+                .select('id, access_code')
+                .eq('access_code', code)
+                .limit(1);
+
+            document.getElementById('polls-loader').classList.add('hidden-view');
+
+            if (error || !data || data.length === 0) {
+                return showToast("Voting dengan kode tersebut tidak ditemukan.");
+            }
+
+            localStorage.setItem(`unlocked_${data[0].id}`, code);
+            document.getElementById('join-code').value = '';
+            
+            viewPoll(data[0].id);
+        }
+
+        // --- CREATE POLL LOGIC ---
+        function togglePinInput() {
+            const val = document.getElementById('create-privacy').value;
+            const container = document.getElementById('pin-container');
+            if(val === 'private') {
+                container.classList.remove('hidden-view');
+                container.classList.add('animate-fade-up');
+            } else {
+                container.classList.add('hidden-view');
+                container.classList.remove('animate-fade-up');
+            }
+        }
+
+        function resetCreateForm() {
+            document.getElementById('create-title').value = "";
+            document.getElementById('create-privacy').value = "public";
+            document.getElementById('create-pin').value = "";
+            togglePinInput();
+            createQuestionsData = [{ id: Date.now(), text: "", options: ["", ""] }];
+            renderCreateQuestions();
+        }
+
+        function renderCreateQuestions() {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = "";
+
+            createQuestionsData.forEach((q, qIndex) => {
+                const block = document.createElement('div');
+                block.className = "p-6 bg-gray-50 border border-gray-100 rounded-[1.5rem] relative";
+                
+                let optionsHTML = q.options.map((opt, oIndex) => `
+                    <div class="flex items-center gap-2 mb-3">
+                        <div class="w-6 h-6 rounded-full border border-gray-300 bg-white flex items-center justify-center flex-shrink-0 text-[10px] text-gray-400 font-semibold">${String.fromCharCode(65 + oIndex)}</div>
+                        <input type="text" placeholder="Opsi ${oIndex + 1}" value="${opt}" 
+                            oninput="updateOptionText(${q.id}, ${oIndex}, this.value)" 
+                            class="input-modern w-full p-3 rounded-xl text-sm">
+                    </div>
+                `).join('');
+
+                block.innerHTML = `
+                    ${createQuestionsData.length > 1 ? `<button onclick="removeQuestionBlock(${q.id})" class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center bg-white text-gray-400 hover:text-red-500 rounded-full shadow-sm border border-gray-100 transition-colors" title="Hapus Pertanyaan"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>` : ''}
+                    
+                    <div class="mb-5 pr-10">
+                        <label class="block text-[11px] font-semibold uppercase tracking-wider mb-2 text-gray-500">Pertanyaan ${qIndex + 1}</label>
+                        <input type="text" placeholder="Tulis pertanyaanmu di sini..." value="${q.text}" 
+                            oninput="updateQuestionText(${q.id}, this.value)"
+                            class="input-modern w-full p-3.5 rounded-xl text-base font-semibold">
+                    </div>
+                    
+                    <div class="pt-2">
+                        ${optionsHTML}
+                        <button onclick="addOptionToBlock(${q.id})" class="ml-8 mt-1 text-xs font-semibold text-gray-500 hover:text-gray-900 flex items-center gap-1 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                            Tambah Opsi Lainnya
+                        </button>
+                    </div>
+                `;
+                container.appendChild(block);
+            });
+        }
+
+        function updateQuestionText(id, val) {
+            const q = createQuestionsData.find(x => x.id === id);
+            if(q) q.text = val;
+        }
+
+        function updateOptionText(qId, optIdx, val) {
+            const q = createQuestionsData.find(x => x.id === qId);
+            if(q) q.options[optIdx] = val;
+        }
+
+        function addQuestionBlock() {
+            createQuestionsData.push({ id: Date.now(), text: "", options: ["", ""] });
+            renderCreateQuestions();
+        }
+
+        function removeQuestionBlock(id) {
+            createQuestionsData = createQuestionsData.filter(x => x.id !== id);
+            renderCreateQuestions();
+        }
+
+        function addOptionToBlock(id) {
+            const q = createQuestionsData.find(x => x.id === id);
+            if(q) q.options.push("");
+            renderCreateQuestions();
+        }
+
+        async function publishPoll() {
+            const title = document.getElementById('create-title').value.trim();
+            const isPrivate = document.getElementById('create-privacy').value === 'private';
+            const accessCode = document.getElementById('create-pin').value.trim();
+
+            if (!title) return showToast("Judul voting tidak boleh kosong!");
+            if (isPrivate && accessCode.length !== 5) return showToast("PIN Privat harus 5 digit angka!");
+
+            let isValid = true;
+            createQuestionsData.forEach(q => {
+                if(!q.text.trim()) isValid = false;
+                const validOpts = q.options.filter(o => o.trim() !== "");
+                if(validOpts.length < 2) isValid = false;
+            });
+
+            if (!isValid) return showToast("Tiap pertanyaan harus diisi dan punya min. 2 pilihan opsi!");
+
+            const btn = document.getElementById('btn-publish');
+            btn.innerText = "Menyimpan..."; btn.disabled = true;
+
+            try {
+                const { data: poll, error: pErr } = await supabaseClient
+                    .from('polls')
+                    .insert([{ title, is_private: isPrivate, access_code: isPrivate ? accessCode : null }])
+                    .select().single();
+                if (pErr) throw pErr;
+
+                for (let qData of createQuestionsData) {
+                    const { data: qInserted, error: qErr } = await supabaseClient
+                        .from('questions')
+                        .insert([{ poll_id: poll.id, text: qData.text.trim() }])
+                        .select().single();
+                    if (qErr) throw qErr;
+
+                    const validOpts = qData.options.filter(o => o.trim() !== "").map(o => ({
+                        question_id: qInserted.id,
+                        text: o.trim(),
+                        votes_count: 0
+                    }));
+
+                    const { error: oErr } = await supabaseClient.from('options').insert(validOpts);
+                    if (oErr) throw oErr;
+                }
+
+                showToast("Voting berhasil dipublikasikan!");
+                viewPoll(poll.id);
+
+            } catch (error) {
+                console.error(error);
+                showToast("Terjadi kesalahan saat menyimpan data.");
+            } finally {
+                btn.innerText = "Publikasikan Voting"; btn.disabled = false;
+            }
+        }
+
+        // --- VIEW & VOTE LOGIC ---
+        async function viewPoll(id) {
+            navigate('poll');
+            selectedVotes = {};
+            document.getElementById('input-pin').value = '';
+            
+            document.getElementById('poll-detail-loader').classList.remove('hidden-view');
+            document.getElementById('private-pin-area').classList.add('hidden-view');
+            document.getElementById('voting-area').classList.add('hidden-view');
+            document.getElementById('results-area').classList.add('hidden-view');
+            document.getElementById('btn-submit-vote').disabled = false;
+            document.getElementById('btn-submit-vote').innerText = "Kirim Jawaban";
+
+            const { data: poll, error } = await supabaseClient
+                .from('polls')
+                .select(`
+                    id, title, is_private, access_code,
+                    questions (
+                        id, text,
+                        options (id, text, votes_count)
+                    )
+                `)
+                .eq('id', id)
+                .single();
+
+            document.getElementById('poll-detail-loader').classList.add('hidden-view');
+
+            if (error || !poll) return showToast("Voting tidak ditemukan.");
+            currentPoll = poll;
+
+            document.getElementById('detail-title').innerText = poll.title;
+            document.getElementById('detail-badge').innerHTML = poll.is_private 
+                ? '<span class="flex items-center gap-1.5"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg> Akses Privat</span>' 
+                : '<span class="flex items-center gap-1.5"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg> Publik</span>';
+
+            const hasVoted = localStorage.getItem(`voted_multi_${poll.id}`);
+
+            if (poll.is_private) {
+                const hasUnlocked = localStorage.getItem(`unlocked_${poll.id}`) === poll.access_code;
+                if (!hasUnlocked && !hasVoted) {
+                    document.getElementById('private-pin-area').classList.remove('hidden-view');
+                    document.getElementById('private-pin-area').classList.add('animate-fade-up');
+                    return; 
+                }
+            }
+
+            proceedToPollView(hasVoted);
+        }
+
+        function checkPin() {
+            const input = document.getElementById('input-pin').value;
+            if (input === currentPoll.access_code) {
+                localStorage.setItem(`unlocked_${currentPoll.id}`, input);
+                document.getElementById('private-pin-area').classList.add('hidden-view');
+                const hasVoted = localStorage.getItem(`voted_multi_${currentPoll.id}`);
+                proceedToPollView(hasVoted);
+            } else {
+                showToast("PIN yang dimasukkan salah!");
+            }
+        }
+
+        function proceedToPollView(hasVoted) {
+            if (hasVoted) {
+                setupRealtimeResults();
+                renderResultsUI();
+            } else {
+                renderVotingUI();
+            }
+        }
+
+        function renderVotingUI() {
+            document.getElementById('voting-area').classList.remove('hidden-view');
+            document.getElementById('voting-area').classList.add('animate-fade-up');
+            const container = document.getElementById('questions-list');
+            container.innerHTML = "";
+
+            currentPoll.questions.forEach((q, idx) => {
+                const qBlock = document.createElement('div');
+                qBlock.className = "bg-white border border-gray-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] p-6 rounded-[1.5rem]";
+                
+                let optsHTML = q.options.map(opt => `
+                    <div id="opt-card-${opt.id}" class="option-card p-4 rounded-2xl text-base font-medium flex justify-between items-center mt-3" onclick="selectOption('${q.id}', '${opt.id}')">
+                        <span class="pr-4 leading-relaxed">${opt.text}</span>
+                        <div class="w-6 h-6 rounded-full border-2 border-gray-300 check-circle transition-all flex-shrink-0"></div>
+                    </div>
+                `).join('');
+
+                qBlock.innerHTML = `
+                    <div class="flex gap-3 mb-5">
+                        <span class="flex-shrink-0 w-8 h-8 bg-gray-100 text-gray-700 rounded-full flex items-center justify-center font-bold text-sm">${idx+1}</span>
+                        <h3 class="font-semibold text-lg text-gray-900 leading-snug pt-1">${q.text}</h3>
+                    </div>
+                    <div id="opts-for-${q.id}">${optsHTML}</div>
+                `;
+                container.appendChild(qBlock);
+            });
+        }
+
+        function selectOption(questionId, optionId) {
+            selectedVotes[questionId] = optionId;
+            
+            const qContainer = document.getElementById(`opts-for-${questionId}`);
+            qContainer.querySelectorAll('.option-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            const selected = document.getElementById(`opt-card-${optionId}`);
+            selected.classList.add('selected');
+        }
+
+        async function submitVote() {
+            const totalQuestions = currentPoll.questions.length;
+            const answered = Object.keys(selectedVotes).length;
+            
+            if (answered < totalQuestions) {
+                return showToast(`Harap jawab semua pertanyaan terlebih dahulu! (${answered}/${totalQuestions})`);
+            }
+
+            const btn = document.getElementById('btn-submit-vote');
+            btn.innerText = "Memproses..."; btn.disabled = true;
+
+            try {
+                for (const qId in selectedVotes) {
+                    const oId = selectedVotes[qId];
+                    const qObj = currentPoll.questions.find(q => q.id === qId);
+                    const optObj = qObj.options.find(o => o.id === oId);
+                    const newCount = (optObj.votes_count || 0) + 1;
+
+                    const { error } = await supabaseClient
+                        .from('options')
+                        .update({ votes_count: newCount })
+                        .eq('id', oId);
+                    
+                    if (error) throw error;
+                }
+
+                localStorage.setItem(`voted_multi_${currentPoll.id}`, 'true');
+                showToast("Terima kasih, suara berhasil direkam!");
+                
+                document.getElementById('voting-area').classList.add('hidden-view');
+                
+                const { data: freshPoll } = await supabaseClient
+                    .from('polls')
+                    .select('questions(id, options(id, votes_count))')
+                    .eq('id', currentPoll.id)
+                    .single();
+                
+                if (freshPoll) {
+                    freshPoll.questions.forEach(fq => {
+                        const localQ = currentPoll.questions.find(lq => lq.id === fq.id);
+                        if(localQ) {
+                            fq.options.forEach(fo => {
+                                const localO = localQ.options.find(lo => lo.id === fo.id);
+                                if(localO) localO.votes_count = fo.votes_count;
+                            });
+                        }
+                    });
+                }
+
+                setupRealtimeResults();
+                renderResultsUI();
+
+            } catch (error) {
+                console.error(error);
+                btn.innerText = "Kirim Jawaban"; btn.disabled = false;
+                showToast("Gagal mengirim suara. Periksa koneksi Anda.");
+            }
+        }
+
+        // --- REALTIME RESULTS LOGIC ---
+        function setupRealtimeResults() {
+            if (realtimeSubscription) supabaseClient.removeChannel(realtimeSubscription);
+            
+            realtimeSubscription = supabaseClient.channel(`poll-updates`)
+                .on(
+                    'postgres_changes',
+                    { event: 'UPDATE', schema: 'public', table: 'options' },
+                    (payload) => {
+                        const updatedOpt = payload.new;
+                        let found = false;
+                        for (let q of currentPoll.questions) {
+                            const optIndex = q.options.findIndex(o => o.id === updatedOpt.id);
+                            if (optIndex !== -1) {
+                                q.options[optIndex].votes_count = updatedOpt.votes_count;
+                                found = true;
+                                break;
+                            }
+                        }
+                        if(found) renderResultsUI();
+                    }
+                )
+                .subscribe();
+        }
+
+        function renderResultsUI() {
+            document.getElementById('results-area').classList.remove('hidden-view');
+            document.getElementById('results-area').classList.add('animate-fade-up');
+            const container = document.getElementById('detail-results');
+            container.innerHTML = "";
+
+            currentPoll.questions.forEach((q, idx) => {
+                const totalVotesForQ = q.options.reduce((sum, opt) => sum + (opt.votes_count || 0), 0);
+                
+                if(idx === 0) {
+                    document.getElementById('total-votes-text').innerText = `${totalVotesForQ} Suara Masuk`;
+                }
+
+                const qBlock = document.createElement('div');
+                qBlock.className = "mb-10 bg-white border border-gray-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] p-6 rounded-[1.5rem]";
+                
+                const sortedOptions = [...q.options].sort((a,b) => b.votes_count - a.votes_count);
+                
+                let barsHTML = sortedOptions.map(opt => {
+                    const percentage = totalVotesForQ === 0 ? 0 : Math.round((opt.votes_count / totalVotesForQ) * 100);
+                    const isWinner = totalVotesForQ > 0 && opt.votes_count === sortedOptions[0].votes_count;
+
+                    return `
+                        <div class="mt-5">
+                            <div class="flex justify-between items-end mb-2 px-1">
+                                <span class="font-medium text-sm ${isWinner ? 'text-gray-900' : 'text-gray-500'}">${opt.text}</span>
+                                <span class="font-bold text-sm ${isWinner ? 'text-gray-900' : 'text-gray-400'}">${percentage}% <span class="text-xs font-normal text-gray-400 ml-1">(${opt.votes_count})</span></span>
+                            </div>
+                            <div class="progress-bg">
+                                <div class="progress-bar ${isWinner ? 'bg-gray-900' : 'bg-gray-300'}" style="width: ${percentage}%"></div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                qBlock.innerHTML = `
+                    <div class="flex gap-3 mb-2 border-b border-gray-100 pb-5">
+                        <span class="flex-shrink-0 w-8 h-8 bg-gray-100 text-gray-700 rounded-full flex items-center justify-center font-bold text-sm">${idx+1}</span>
+                        <h4 class="font-semibold text-lg text-gray-900 pt-1">${q.text}</h4>
+                    </div>
+                    ${barsHTML}
+                `;
+                container.appendChild(qBlock);
+            });
+        }
+
+        // --- DELETE LOGIC ---
+        async function deleteCurrentPoll() {
+            if(!currentPoll) return;
+            const confirmDelete = confirm("Yakin ingin menghapus seluruh voting ini selamanya? (Aksi ini tidak bisa dibatalkan)");
+            if (!confirmDelete) return;
+
+            const { error } = await supabaseClient.from('polls').delete().eq('id', currentPoll.id);
+            
+            if (error) {
+                showToast("Gagal menghapus voting.");
+            } else {
+                showToast("Voting berhasil dihapus secara permanen.");
+                navigate('home');
+            }
+        }
+
+        // --- UTILS ---
+        function shareLink() {
+            const url = window.location.origin + window.location.pathname + "?p=" + currentPoll.id;
+            const dummy = document.createElement('input');
+            document.body.appendChild(dummy);
+            dummy.value = url;
+            dummy.select();
+            document.execCommand('copy');
+            document.body.removeChild(dummy);
+            showToast("Tautan berhasil disalin ke clipboard!");
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+    </script>
+</body>
+</html>
