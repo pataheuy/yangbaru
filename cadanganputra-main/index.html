@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="google-site-verification" content="_YxoQgBNuxNzKYKEiaHoLDI66XCcw60J59f13hMVXyw">
-    <meta name="keywords" content="Pufutara, Pufuta, Pufutaraweb, pufuta, pufutara, pufutaraweb">
-    <meta name="description" content="Pufutara adalah platform pusat proyek web dengan desain modern, rounded, dan minimalis.">
+    <meta name="keywords" content="Pufutara, Pufuta, Pufutaraweb, pufuta, pufutara, pufutaraweb, PufutaraCahier, PufutaraShop, PufutaraQuiz, PufutaraVote">
+    <meta name="description" content="Pufutara adalah platform pusat proyek web dengan desain modern, rounded, dan minimalis. Semua proyek digital dalam satu tempat.">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="foto/kucingjempol.png" type="image/png">
-    <title>Pufutara — Modern Archive</title>
+    <title>Pufutara — Modern Archive + 4 Proyek Baru</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap');
 
@@ -62,7 +62,6 @@
             transition: opacity 0.7s cubic-bezier(0.2, 0.9, 0.4, 1.1), transform 0.7s cubic-bezier(0.2, 0.9, 0.4, 1.1);
         }
 
-        /* staggered reveals will be applied via JS delays */
         .hero h1.revealed,
         .hero p.revealed,
         .hero .btn.revealed,
@@ -537,12 +536,18 @@
             <a href="https://pufutaraai.vercel.app" class="card-link" target="_blank"><div class="card"><span class="tag">20 / Intelligence</span><h3>Pufutara AI</h3><p>AI chatbot menggunakan Gemini API key sebagai dasar AI nya.</p></div></a>
             <!-- 21. Pufutara Calc (compact) -->
             <a href="calc/index.html" class="card-link" target="_blank"><div class="card compact-card"><span class="tag">21 / Utility</span><h3>Pufutara Calc</h3><p>Kalkulator modern dengan fungsi sains, persentase, dan riwayat perhitungan. Cocok untuk tugas Labkom.</p></div></a>
-            <!-- 22. Pufutara Vote (compact) -->
+            <!-- 22. Pufutara Vote (existing) -->
             <a href="vote/index.html" class="card-link" target="_blank"><div class="card compact-card"><span class="tag">22 / Community</span><h3>Pufutara Vote</h3><p>Sistem voting sederhana untuk menentukan pilihan kelas atau keputusan bersama. Hasil real-time.</p></div></a>
-            <!-- 23. Placeholder: Proyek Ide (compact) -->
-            <a href="kontak.html" class="card-placeholder compact-card-placeholder"><div class="icon">✨</div><h3>Proyek Ide</h3><p>Ada ide keren? Sampaikan saranmu untuk proyek selanjutnya.</p></a>
-            <!-- 24. Placeholder: Coming Soon (compact) -->
-            <div class="card-placeholder compact-card-placeholder"><div class="icon">🚀</div><h3>Coming Soon</h3><p>Proyek baru sedang dalam pengembangan. Nantikan inovasi berikutnya!</p></div>
+            
+            <!-- ========= 4 PROYEK BARU (posisi placeholder diganti & dua tambahan) ========= -->
+            <!-- 23. PufutaraQuiz - menggantikan card "Proyek Ide" -->
+            <a href="quiz/index.html" class="card-link" target="_blank"><div class="card"><span class="tag">23 / Trivia</span><h3>PufutaraQuiz</h3><p>Uji pengetahuanmu lewat kuis interaktif. Pilihan gacor, leaderboard, dan fitur tantangan seru.</p></div></a>
+            <!-- 24. PufutaraVote (new) - menggantikan card "Coming Soon" -->
+            <a href="evote/index.html" class="card-link" target="_blank"><div class="card"><span class="tag">24 / Secure Vote</span><h3>PufutaraVote</h3><p>Sistem pemungutan suara modern dengan hasil real-time, cocok untuk pemilihan ketua OSIS atau survey kelas.</p></div></a>
+            <!-- 25. PufutaraCahier - proyek baru tambahan -->
+            <a href="cahier/index.html" class="card-link" target="_blank"><div class="card"><span class="tag">25 / Notebook</span><h3>PufutaraCahier</h3><p>Jurnal digital minimalis. Catat ide, daily gratitude, atau tugas sekolah dengan antarmuka yang menenangkan.</p></div></a>
+            <!-- 26. PufutaraShop - proyek baru tambahan -->
+            <a href="shop/index.html" class="card-link" target="_blank"><div class="card"><span class="tag">26 / Official Store</span><h3>PufutaraShop</h3><p>Toko merchandise resmi Pufutara. Dari kaos, stiker, hingga aksesoris koding — dukung terus karya lokal.</p></div></a>
         </div>
     </section>
 </main>
@@ -575,9 +580,8 @@
             document.querySelector('.hero .btn')
         ].filter(el => el !== null);
         
-        const gridItems = document.querySelectorAll('.grid > *'); // .card-link & .card-placeholder
+        const gridItems = document.querySelectorAll('.grid > *');
         
-        // Apply staggered delays for hero
         heroElements.forEach((el, idx) => {
             if (el) {
                 el.style.transitionDelay = `${idx * 0.08}s`;
@@ -585,9 +589,7 @@
             }
         });
         
-        // Apply staggered delays for grid items (modern cascade)
         gridItems.forEach((item, index) => {
-            // delay between 0s to 0.6s based on index (max delay 0.6)
             const delay = Math.min(index * 0.04, 0.6);
             item.style.transitionDelay = `${delay}s`;
             item.classList.add('revealed');
@@ -602,7 +604,7 @@
         setTimeout(() => { toast.style.opacity = '0'; }, duration);
     }
     
-    // Smooth scroll with enhanced offset (more scroll effect)
+    // Smooth scroll with enhanced offset
     function smoothScrollToElement(element, offsetFactor = 0.18) {
         if (!element) return;
         const rect = element.getBoundingClientRect();
@@ -628,19 +630,19 @@
     
     // Event listeners for header buttons
     document.getElementById('arsipBtn')?.addEventListener('click', () => {
-        showToast('📦 Arsip proyek lengkap — semua karya tersimpan rapi.');
+        showToast('📦 Arsip proyek lengkap — 26 karya siap dijelajahi. PufutaraQuiz, Vote, Cahier & Shop hadir!');
     });
     document.getElementById('layananBtn')?.addEventListener('click', () => {
-        showToast('🔧 Layanan mandiri: jelajahi sendiri, setiap proyek punya cerita.');
+        showToast('🔧 Layanan mandiri: jelajahi setiap proyek. Dari kuis seru hingga toko merchandise!');
     });
     
-    // Enhanced scroll button "Jelajahi karya" with better smooth scroll (lebih scroll)
+    // Enhanced scroll button "Jelajahi karya"
     const exploreBtn = document.getElementById('exploreBtn');
     const targetSection = document.getElementById('proyek');
     if (exploreBtn && targetSection) {
         exploreBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            smoothScrollToElement(targetSection, 0.2); // lebih banyak offset -> lebih lega scrollnya
+            smoothScrollToElement(targetSection, 0.2);
         });
     }
     
@@ -663,9 +665,6 @@
     document.addEventListener('DOMContentLoaded', () => {
         startEntranceAnimation();
     });
-    
-    // Additional small improvement: make card-placeholder click (proyek ide) already works via href
-    // All good.
 </script>
 </body>
 </html>
