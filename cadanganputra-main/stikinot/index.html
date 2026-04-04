@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stikinot - Karya Kreatif Pelajar SMP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
+        .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); }
+        .gradient-text {
+            background: linear-gradient(90deg, #007bff, #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .note-preview {
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .note-preview:hover { transform: translateY(-10px) rotate(0deg); z-index: 50; }
+        .feature-card { transition: all 0.3s ease; border: 1px solid #f1f5f9; }
+        .feature-card:hover { background: #ffffff; border-color: #007bff; transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        .tech-badge { background: #f1f5f9; color: #475569; padding: 4px 12px; border-radius: 99px; font-size: 0.75rem; font-weight: 600; }
+        
+        /* Desktop Mockup Styles */
+        .windows-desktop {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            position: relative;
+            overflow: hidden;
+            border: 8px solid #ffffff;
+        }
+        .taskbar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 40px;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 glass border-b border-slate-200">
+        <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-yellow-300 rounded-lg shadow-sm flex items-center justify-center font-bold text-slate-800">S</div>
+                <span class="font-bold text-xl tracking-tight text-slate-800">Stikinot</span>
+            </div>
+            <div class="hidden md:flex gap-8 text-sm font-medium text-slate-600">
+                <a href="#fitur" class="hover:text-blue-600 transition">Fitur Unggulan</a>
+                <a href="#cerita" class="hover:text-blue-600 transition">Cerita Kami</a>
+                <a href="#download" class="hover:text-blue-600 transition">Unduh</a>
+            </div>
+            <a href="https://drive.google.com/drive/folders/1OKLQ1OQSTx9fagjWCVbIiLRkI48LX_rQ?usp=sharing" class="bg-blue-600 text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-blue-700 transition shadow-lg shadow-blue-200">
+                Pasang Sekarang
+            </a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-32 pb-20 px-6">
+        <div class="max-w-6xl mx-auto text-center">
+            <div class="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 rounded-full mb-6">
+                <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                </span>
+                <span class="text-xs font-bold text-blue-700 uppercase tracking-wider">Karya Pelajar SMP untuk Dunia</span>
+            </div>
+            <h1 class="text-5xl md:text-7xl font-bold mb-6 tracking-tight">
+                Ide Besar Dimulai Dari <br><span class="gradient-text">Catatan Kecil.</span>
+            </h1>
+            <p class="text-slate-500 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
+                Stikinot adalah aplikasi desktop super ringan yang dibangun dengan semangat belajar. Solusi mencatat paling simpel untuk Windows.
+            </p>
+            <div class="flex flex-col md:flex-row gap-4 justify-center mb-16">
+                <button class="bg-slate-900 text-white px-8 py-4 rounded-2xl font-bold flex items-center justify-center gap-3 hover:bg-slate-800 transition shadow-xl">
+                    <span>Unduh Stikinot (.exe)</span>
+                </button>
+                <div class="flex items-center gap-3 px-6 py-4">
+                    <div class="flex -space-x-2">
+                        <div class="w-8 h-8 rounded-full bg-blue-200 border-2 border-white flex items-center justify-center text-[10px] font-bold">JS</div>
+                        <div class="w-8 h-8 rounded-full bg-orange-200 border-2 border-white flex items-center justify-center text-[10px] font-bold">HT</div>
+                        <div class="w-8 h-8 rounded-full bg-slate-200 border-2 border-white flex items-center justify-center text-[10px] font-bold">EL</div>
+                    </div>
+                    <span class="text-xs text-slate-400 font-medium italic">Dibangun dengan JS & Electron</span>
+                </div>
+            </div>
+
+            <!-- App Preview (Windows Desktop Mockup) -->
+            <div class="relative max-w-5xl mx-auto">
+                <div class="windows-desktop w-full aspect-video rounded-[2.5rem] shadow-2xl relative">
+                    
+                    <!-- Sticky Note 1 (Yellow) -->
+                    <div class="note-preview bg-[#fff782] w-48 md:w-56 h-60 rounded-xl p-4 text-left absolute left-[5%] top-[15%] rotate-[-3deg] z-10 border border-black/5">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-[10px] font-bold text-black/30">STIKINOT #1</span>
+                            <span class="text-black/40">×</span>
+                        </div>
+                        <h3 class="font-bold text-slate-800 mb-2 text-sm underline">Tugas Sekolah 🏫</h3>
+                        <ul class="text-slate-700 text-[11px] md:text-xs space-y-2">
+                            <li>1. Kerjakan MTK hal 45</li>
+                            <li>2. Cari materi sejarah</li>
+                            <li>3. Bawa baju olahraga</li>
+                        </ul>
+                    </div>
+
+                    <!-- Sticky Note 2 (Pink) -->
+                    <div class="note-preview bg-[#ff9ff3] w-40 md:w-48 h-44 rounded-xl p-4 text-left absolute right-[10%] bottom-[20%] rotate-[4deg] z-20 border border-black/5">
+                        <div class="flex justify-between items-center mb-2 text-[10px] font-bold text-black/30">
+                            <span>STIKINOT #2</span>
+                            <span>×</span>
+                        </div>
+                        <p class="italic text-slate-800 font-medium text-[11px] md:text-xs">"Jangan lupa push rank kalo tugas udah beres! 🎮"</p>
+                    </div>
+
+                    <!-- Pomodoro Timer Window -->
+                    <div class="note-preview bg-white w-44 md:w-52 h-56 rounded-2xl p-4 absolute left-[40%] top-[25%] rotate-[1deg] z-30 shadow-2xl flex flex-col items-center justify-center">
+                        <div class="text-[10px] font-bold text-slate-300 absolute top-3">POMODORO TIMER</div>
+                        <div class="relative flex items-center justify-center mb-2">
+                            <svg class="w-24 md:w-32 h-24 md:h-32 -rotate-90">
+                                <circle cx="50%" cy="50%" r="40%" stroke="#f1f5f9" stroke-width="6" fill="none"/>
+                                <circle cx="50%" cy="50%" r="40%" stroke="#3b82f6" stroke-width="6" fill="none" stroke-dasharray="100" stroke-dashoffset="30" stroke-linecap="round"/>
+                            </svg>
+                            <div class="absolute text-xl md:text-2xl font-bold text-slate-800">15:00</div>
+                        </div>
+                        <span class="px-3 py-1 bg-green-100 text-green-700 text-[9px] font-bold rounded-full">REST MODE</span>
+                    </div>
+
+                    <!-- Desktop Icons (Decorative) -->
+                    <div class="absolute left-6 top-6 flex flex-col gap-6 opacity-40">
+                        <div class="w-8 h-8 bg-white/20 rounded"></div>
+                        <div class="w-8 h-8 bg-white/20 rounded"></div>
+                        <div class="w-8 h-8 bg-white/20 rounded"></div>
+                    </div>
+
+                    <!-- Taskbar -->
+                    <div class="taskbar">
+                        <div class="w-5 h-5 bg-blue-400 rounded-sm"></div> <!-- Start -->
+                        <div class="w-5 h-5 bg-white/30 rounded-sm"></div> <!-- Search -->
+                        <div class="flex-1"></div>
+                        <div class="w-3 h-3 bg-white/40 rounded-full"></div>
+                        <div class="text-[10px] text-white/70 font-medium">12:00 PM</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cerita Pembuat -->
+    <section id="cerita" class="py-24 bg-white border-y border-slate-100">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <h2 class="text-3xl font-bold mb-8 italic">"Berawal dari butuh tempat nyatet tugas pas lagi nge-game..."</h2>
+            <p class="text-slate-600 text-lg leading-relaxed mb-8">
+                Halo! Saya pembuat Stikinot, seorang pelajar SMP yang suka ngulik komputer. Saya bikin aplikasi ini karena pengen punya catatan yang nggak ribet, bisa nempel terus di layar, dan punya timer buat belajar ala Pomodoro. Semuanya saya kerjain pakai <strong>HTML, CSS, dan JavaScript</strong> lewat framework <strong>Electron</strong>.
+            </p>
+            <div class="flex justify-center gap-4">
+                <span class="tech-badge">#HTML5</span>
+                <span class="tech-badge">#TailwindCSS</span>
+                <span class="tech-badge">#JavaScript</span>
+                <span class="tech-badge">#ElectronJS</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Grid -->
+    <section id="fitur" class="py-24">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="text-center mb-20">
+                <h2 class="text-4xl font-bold mb-4 tracking-tight text-slate-800">Fitur yang Bikin Kamu Makin Jago</h2>
+                <p class="text-slate-500">Didesain simpel, berfungsi maksimal untuk kebutuhan harianmu.</p>
+            </div>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Card 1 -->
+                <div class="feature-card p-8 rounded-[2rem] bg-white">
+                    <div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-3xl mb-8">📌</div>
+                    <h3 class="font-bold text-xl mb-4 text-slate-800">Pin Layar (Always on Top)</h3>
+                    <p class="text-slate-500 leading-relaxed italic text-sm">"Jangan biarkan catatanmu hilang tertutup jendela lain."</p>
+                    <p class="text-slate-600 mt-4 text-sm">Gunakan fitur toggle Pin agar catatan tetap terlihat saat kamu ngetik di Word atau browsing.</p>
+                </div>
+                <!-- Card 2 -->
+                <div class="feature-card p-8 rounded-[2rem] bg-white">
+                    <div class="w-14 h-14 bg-yellow-50 text-yellow-600 rounded-2xl flex items-center justify-center text-3xl mb-8">✏️</div>
+                    <h3 class="font-bold text-xl mb-4 text-slate-800">Gaya Teks Lengkap</h3>
+                    <p class="text-slate-500 leading-relaxed italic text-sm">"Bikin catatan jadi lebih estetik dan gampang dibaca."</p>
+                    <p class="text-slate-600 mt-4 text-sm">Mendukung Bold, Italic, Underline, hingga penomoran otomatis untuk tugas sekolah.</p>
+                </div>
+                <!-- Card 3 -->
+                <div class="feature-card p-8 rounded-[2rem] bg-white">
+                    <div class="w-14 h-14 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center text-3xl mb-8">🔄</div>
+                    <h3 class="font-bold text-xl mb-4 text-slate-800">Auto-Save Instan</h3>
+                    <p class="text-slate-500 leading-relaxed italic text-sm">"Tiba-tiba mati lampu? Gak perlu panik lagi."</p>
+                    <p class="text-slate-600 mt-4 text-sm">Setiap huruf yang kamu ketik otomatis tersimpan ke memori lokal tanpa perlu klik tombol simpan.</p>
+                </div>
+                <!-- Card 4 -->
+                <div class="feature-card p-8 rounded-[2rem] bg-white">
+                    <div class="w-14 h-14 bg-red-50 text-red-600 rounded-2xl flex items-center justify-center text-3xl mb-8">⏳</div>
+                    <h3 class="font-bold text-xl mb-4 text-slate-800">Pomodoro Spesial</h3>
+                    <p class="text-slate-500 leading-relaxed italic text-sm">"Belajar 25 menit, istirahat 5 menit. Fokus makin oke!"</p>
+                    <p class="text-slate-600 mt-4 text-sm">Dilengkapi alarm (alarm.mp3) dan grafik visual biru yang keren buat nemenin kamu belajar.</p>
+                </div>
+                <!-- Card 5 -->
+                <div class="feature-card p-8 rounded-[2rem] bg-white">
+                    <div class="w-14 h-14 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center text-3xl mb-8">🎨</div>
+                    <h3 class="font-bold text-xl mb-4 text-slate-800">Multi Warna Ceria</h3>
+                    <p class="text-slate-500 leading-relaxed italic text-sm">"Warna catatan sesuai dengan mood belajarmu hari ini."</p>
+                    <p class="text-slate-600 mt-4 text-sm">Pilih 4 varian warna latar belakang yang soft dan nyaman di mata (Kuning, Pink, Hijau, Biru).</p>
+                </div>
+                <!-- Card 6 -->
+                <div class="feature-card p-8 rounded-[2rem] bg-white">
+                    <div class="w-14 h-14 bg-slate-50 text-slate-600 rounded-2xl flex items-center justify-center text-3xl mb-8">💻</div>
+                    <h3 class="font-bold text-xl mb-4 text-slate-800">Native Windows App</h3>
+                    <p class="text-slate-500 leading-relaxed italic text-sm">"Langsung jalan dari startup, nggak perlu buka browser."</p>
+                    <p class="text-slate-600 mt-4 text-sm">Berjalan di System Tray (dekat jam) dan bisa otomatis terbuka saat komputer dinyalakan.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pomodoro Highlight -->
+    <section class="py-24 bg-slate-900 text-white overflow-hidden">
+        <div class="max-w-6xl mx-auto px-6 grid md:grid-cols-2 items-center gap-16">
+            <div>
+                <h2 class="text-4xl font-bold mb-6 tracking-tight">Teknologi yang Digunakan</h2>
+                <p class="text-slate-400 text-lg mb-10 leading-relaxed">
+                    Meskipun saya masih SMP, saya belajar kalau teknologi web itu luas banget. Saya menggabungkan kekuatan HTML untuk struktur dan CSS untuk tampilan yang bersih.
+                </p>
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="p-6 bg-slate-800 rounded-2xl border border-slate-700">
+                        <div class="text-blue-400 font-bold mb-2">JavaScript</div>
+                        <p class="text-slate-400 text-xs leading-relaxed">Otak utama aplikasi untuk hitungan timer dan logika simpan data otomatis.</p>
+                    </div>
+                    <div class="p-6 bg-slate-800 rounded-2xl border border-slate-700">
+                        <div class="text-orange-400 font-bold mb-2">Electron</div>
+                        <p class="text-slate-400 text-xs leading-relaxed">Menyulap web buatan saya jadi aplikasi asli Windows (.exe) yang bisa nempel.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="relative flex justify-center">
+                <div class="w-72 h-72 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-full blur-[100px] opacity-20 absolute"></div>
+                <div class="bg-white/5 backdrop-blur-xl border border-white/10 p-10 rounded-[3rem] text-center">
+                    <div class="text-8xl mb-4">🚀</div>
+                    <div class="text-2xl font-bold">Ringan & Cepat</div>
+                    <p class="text-slate-400 mt-2">Hanya memakan sedikit RAM.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Download Section -->
+    <section id="download" class="py-24 bg-blue-600">
+        <div class="max-w-4xl mx-auto px-6 text-center text-white">
+            <h2 class="text-4xl font-bold mb-6 tracking-tight">Dukung Karya Anak Bangsa! 🇮🇩</h2>
+            <p class="text-blue-100 text-xl mb-10">Stikinot 100% Gratis dan akan terus dikembangkan dengan fitur-fitur baru lainnya.</p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="https://drive.google.com/drive/folders/1OKLQ1OQSTx9fagjWCVbIiLRkI48LX_rQ?usp=sharing" class="bg-white text-blue-600 px-10 py-5 rounded-2xl font-bold text-lg hover:bg-slate-50 transition shadow-2xl flex items-center justify-center gap-3">
+                    Unduh untuk Windows (.exe)
+                </a>
+            </div>
+            <p class="mt-8 text-blue-200 text-xs uppercase tracking-widest font-bold">Built with ❤️ in My Bedroom</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 border-t border-slate-200 bg-white">
+        <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8">
+            <div class="flex items-center gap-2">
+                <div class="w-6 h-6 bg-yellow-300 rounded shadow-sm flex items-center justify-center font-bold text-xs">S</div>
+                <span class="font-bold text-slate-800 tracking-tight">Stikinot</span>
+            </div>
+            <div class="text-slate-400 text-sm">
+                &copy; 2024 Stikinot Desktop. Pelajar SMP Juga Bisa Coding!
+            </div>
+            <div class="flex gap-6">
+                <a href="#" class="text-slate-400 hover:text-blue-600 transition text-sm">GitHub Repo</a>
+                <a href="#" class="text-slate-400 hover:text-blue-600 transition text-sm">Dokumentasi</a>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
