@@ -57,7 +57,7 @@
 </head>
 <body class="flex items-center justify-center min-h-screen">
 
-    <!-- Layar Setup (Langkah demi Langkah) -->
+    <!-- Layar Setup -->
     <div id="setup-overlay">
         <div class="w-full max-w-xs text-center">
             <div class="mb-8">
@@ -67,17 +67,17 @@
             </div>
             
             <h1 class="text-2xl font-bold mb-2">Konfigurasi Audio</h1>
-            <p id="setup-instruction" class="text-zinc-500 text-sm mb-8">Klik tombol di bawah untuk meminta akses mikrofon dan mengaktifkan suara.</p>
+            <p id="setup-instruction" class="text-zinc-500 text-sm mb-8">Klik tombol di bawah untuk mengaktifkan speaker dan sistem audio global.</p>
             
             <button id="permission-btn" onclick="startSetupSequence()" class="w-full bg-white text-black py-4 rounded-2xl font-bold hover:bg-zinc-200 transition-colors mb-4">
-                Izinkan Mikrofon & Suara
+                Aktifkan Suara Sekarang
             </button>
             
             <p id="error-log" class="text-red-400 text-[10px] mt-4 uppercase tracking-widest hidden"></p>
         </div>
     </div>
 
-    <!-- Elemen Suara -->
+    <!-- Elemen Suara (Audio Ringtone) -->
     <audio id="call-sound" src="https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3" preload="auto"></audio>
 
     <!-- UI Utama -->
@@ -141,46 +141,51 @@
             const log = document.getElementById('error-log');
             
             btn.disabled = true;
-            btn.innerText = "Meminta Izin...";
+            btn.innerText = "Menginisialisasi...";
 
             try {
-                // 1. Minta Izin Mic secara eksplisit (Pasti memicu pop-up jika HTTPS)
-                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    stream.getTracks().forEach(t => t.stop()); // Matikan mic setelah dapat izin
-                } else {
-                    throw new Error("Browser tidak mendukung Mikrofon");
+                // 1. Inisialisasi Audio Context & Aktifkan Speaker
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioContext.state === 'suspended') {
+                    await audioContext.resume();
                 }
 
-                // 2. Aktifkan Audio Context
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                if (audioContext.state === 'suspended') await audioContext.resume();
+                // Buat osilator senyap sebentar untuk memicu audio engine browser
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                gainNode.gain.value = 0; // Tidak bersuara
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                oscillator.start(0);
+                oscillator.stop(0.1);
 
-                // 3. Tes Putar Audio (Unmute Browser)
+                // 2. Minta Izin Mic (Jika belum)
+                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    stream.getTracks().forEach(t => t.stop());
+                }
+
+                // 3. Persiapkan Audio Element
                 const sound = document.getElementById('call-sound');
+                sound.volume = 1.0;
+                
+                // Coba putar dan langsung stop (Unlock Autoplay)
                 await sound.play();
                 sound.pause();
                 sound.currentTime = 0;
 
-                // 4. Masuk ke UI
+                // 4. Masuk ke UI Utama
                 document.getElementById('setup-overlay').style.display = 'none';
                 document.getElementById('app-ui').style.opacity = '1';
                 initApp();
-            } catch (err) {
-                console.error(err);
-                log.innerText = err.message || "Izin Ditolak";
-                log.classList.remove('hidden');
-                btn.disabled = false;
-                btn.innerText = "Coba Lagi";
                 
-                // Fallback masuk tanpa mic jika dipaksa
-                setTimeout(() => {
-                    if (confirm("Izin mic gagal. Masuk hanya dengan fitur Speaker?")) {
-                        document.getElementById('setup-overlay').style.display = 'none';
-                        document.getElementById('app-ui').style.opacity = '1';
-                        initApp();
-                    }
-                }, 1000);
+            } catch (err) {
+                console.error("Audio Setup Error:", err);
+                // Tetap biarkan masuk meski mic gagal, agar speaker bisa bunyi
+                document.getElementById('setup-overlay').style.display = 'none';
+                document.getElementById('app-ui').style.opacity = '1';
+                initApp();
+                showToast("Speaker Aktif (Mic Off)");
             }
         }
 
@@ -189,11 +194,12 @@
             document.getElementById('caller-id').innerText = myId;
             document.getElementById('network-text').innerText = "Online";
             
+            // Simpan ID terakhir saat ini agar tidak bunyi di awal muat halaman
             const { data } = await _supabase.from('panggilan').select('id').order('created_at', { ascending: false }).limit(1);
             if (data && data.length > 0) lastId = data[0].id;
 
             setInterval(checkCalls, 3000);
-            showToast("Sistem Terkoneksi");
+            showToast("Sistem Siap");
         }
 
         async function checkCalls() {
@@ -203,28 +209,39 @@
             if (!error && data && data.length > 0) {
                 if (data[0].id !== lastId) {
                     lastId = data[0].id;
-                    document.getElementById('call-status').innerText = "Incoming Call...";
+                    document.getElementById('call-status').innerText = "Panggilan Masuk...";
+                    
                     const s = document.getElementById('call-sound');
                     s.currentTime = 0;
-                    s.play().catch(() => showToast("Klik layar untuk audio"));
+                    
+                    // Gunakan promise untuk menangani error putar otomatis
+                    const playPromise = s.play();
+                    if (playPromise !== undefined) {
+                        playPromise.catch(error => {
+                            console.warn("Autoplay dicegah browser, perlu klik manual.");
+                            showToast("Klik Layar untuk Suara");
+                        });
+                    }
                 }
             }
         }
 
         async function registerCall() {
             if (!_supabase) return;
-            showToast("Mengirim Sinyal...");
+            showToast("Memanggil...");
             await _supabase.from('panggilan').insert([{ pengirim: myId, status: 'calling' }]);
         }
 
         function resetCall() {
             document.getElementById('call-status').innerText = "Siap menerima sinyal";
-            showToast("Panggilan Selesai");
+            showToast("Terputus");
+            const s = document.getElementById('call-sound');
+            s.pause();
+            s.currentTime = 0;
         }
 
         function toggleMute() {
             isMuted = !isMuted;
-            const icon = document.getElementById('mic-icon');
             const label = document.getElementById('mute-label');
             label.innerText = isMuted ? "Mic Off" : "Mic On";
             label.className = isMuted ? "text-xs uppercase text-red-500" : "text-xs uppercase text-zinc-400";
