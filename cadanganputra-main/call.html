@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pufutara Global Call</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000;
+            color: #fff;
+            overflow: hidden;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 0.5; }
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #4ade80;
+            display: inline-block;
+            margin-right: 6px;
+        }
+
+        #audio-permission-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.95);
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.3s ease;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+
+    <!-- Overlay Izin Suara & Mikrofon -->
+    <div id="audio-permission-overlay">
+        <div class="max-w-xs text-center px-6">
+            <div class="mb-6 flex justify-center">
+                <div class="bg-white/10 p-4 rounded-full">
+                    <svg class="w-12 h-12 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+                </div>
+            </div>
+            <h1 class="text-xl font-bold mb-2">Aktifkan Perizinan</h1>
+            <p class="text-zinc-400 text-sm mb-8">Klik tombol di bawah untuk mengaktifkan audio engine dan memberikan izin mikrofon.</p>
+            
+            <button onclick="requestPermissions()" class="w-full bg-white text-black px-8 py-4 rounded-full font-bold shadow-xl hover:scale-105 active:scale-95 transition-all mb-4">
+                Buka Akses Sekarang
+            </button>
+
+            <div id="status-debug" class="text-[10px] text-zinc-500 uppercase tracking-widest">Menunggu Input Pengguna</div>
+
+            <div id="help-hint" class="mt-8 p-4 bg-white/5 rounded-xl border border-white/10 text-[11px] text-zinc-400 text-left">
+                <p class="font-semibold text-white mb-1">Catatan Keamanan:</p>
+                Jika pop-up tidak muncul, browser memblokir permintaan otomatis dari file lokal. Klik ikon <b>Gembok/Setting</b> di kiri atas (dekat tulisan index.html) lalu cari "Microphone" dan set ke <b>Allow</b>.
+            </div>
+        </div>
+    </div>
+
+    <!-- Elemen Suara -->
+    <audio id="call-sound" src="https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3" preload="auto"></audio>
+
+    <!-- UI Panggilan Utama -->
+    <div id="app-ui" class="w-full max-w-sm px-6 text-center">
+        <!-- Info Header -->
+        <div class="mb-12">
+            <div class="flex items-center justify-center text-xs text-zinc-500 tracking-widest uppercase mb-4">
+                <span class="status-dot"></span> Pufutara Network
+            </div>
+            <div class="relative inline-block">
+                <div class="w-32 h-32 rounded-full bg-zinc-800 flex items-center justify-center mb-6 mx-auto overflow-hidden border-2 border-zinc-700">
+                    <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                </div>
+                <div class="absolute -inset-1 border border-white/20 rounded-full pulse-animation"></div>
+            </div>
+            <h2 class="text-3xl font-light mb-1" id="caller-id">...</h2>
+            <p id="call-status" class="text-zinc-500 font-light italic text-sm">Menghubungkan ke server...</p>
+        </div>
+
+        <!-- Kontrol Panggilan -->
+        <div class="grid grid-cols-2 gap-4 mb-8">
+            <button id="mute-btn" onclick="toggleMute()" class="flex flex-col items-center justify-center glass-panel aspect-square rounded-3xl transition-all hover:bg-white/10 group">
+                <div id="mute-icon-container" class="mb-2">
+                    <svg id="mic-on" class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+                    <svg id="mic-off" class="w-8 h-8 hidden text-red-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"></line><path d="M9 9v3a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"></path><path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+                </div>
+                <span id="mute-text" class="text-xs uppercase tracking-tighter text-zinc-400">Mute</span>
+            </button>
+
+            <button id="call-btn" onclick="registerCall()" class="flex flex-col items-center justify-center glass-panel aspect-square rounded-3xl transition-all hover:bg-white hover:text-black group">
+                <div class="mb-2">
+                    <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                </div>
+                <span class="text-xs uppercase tracking-tighter text-zinc-400 group-hover:text-black">Panggil</span>
+            </button>
+        </div>
+
+        <button onclick="resetStatus()" class="w-20 h-20 mx-auto rounded-full bg-red-600 flex items-center justify-center shadow-lg shadow-red-600/20 hover:bg-red-500 transition-all">
+            <svg class="w-10 h-10 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91"></path><line x1="23" y1="1" x2="1" y2="23"></line></svg>
+        </button>
+
+        <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-white text-black px-6 py-3 rounded-full text-sm font-medium opacity-0 pointer-events-none transition-all">
+            Pesan masuk...
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = "https://puywjdopumlzvmzbcudr.supabase.co"; 
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1eXdqZG9wdW1senZtemJjdWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDE3MTksImV4cCI6MjA4NzkxNzcxOX0.vvThyjtK2SlA9oA9Mr_XOmt1R_tNZk-ib3PO9XpiiSc";
+
+        let _supabase;
+        let isMuted = false;
+        let lastCheckedId = null;
+        let audioEnabled = false;
+        let audioContext = null;
+        const myUserId = "Pufutara-" + Math.floor(Math.random() * 9000 + 1000);
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.innerText = message;
+            toast.style.opacity = '1';
+            toast.style.bottom = '40px';
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.bottom = '10px';
+            }, 3000);
+        }
+
+        // Fungsi baru dengan AudioContext untuk memastikan speaker aktif
+        async function requestPermissions() {
+            const debugText = document.getElementById('status-debug');
+            debugText.innerText = "Meminta Akses...";
+            
+            try {
+                // Aktifkan Audio Context (cara modern buka blokir suara)
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioContext.state === 'suspended') {
+                    await audioContext.resume();
+                }
+
+                // Coba akses mic
+                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    stream.getTracks().forEach(track => track.stop()); // Hanya tes izin
+                    debugText.innerText = "Mic & Audio Terverifikasi";
+                } else {
+                    debugText.innerText = "Mic tidak didukung file local";
+                }
+
+                // Unblock HTML Audio Element
+                const sound = document.getElementById('call-sound');
+                sound.muted = true; // Play muted dulu agar browser senang
+                await sound.play();
+                sound.pause();
+                sound.muted = false;
+                sound.currentTime = 0;
+
+                audioEnabled = true;
+                document.getElementById('audio-permission-overlay').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('audio-permission-overlay').style.display = 'none';
+                }, 300);
+                
+                showToast("Sistem Suara Siap!");
+            } catch (err) {
+                console.warn("Izin ditolak atau diblokir:", err);
+                // Force Entry walau tanpa izin mic (agar setidaknya speaker bisa bunyi)
+                audioEnabled = true; 
+                document.getElementById('audio-permission-overlay').style.display = 'none';
+                showToast("Berhasil masuk (Tanpa izin mic)");
+            }
+        }
+
+        async function init() {
+            try {
+                _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                
+                const { data } = await _supabase
+                    .from('panggilan')
+                    .select('id')
+                    .order('created_at', { ascending: false })
+                    .limit(1);
+                
+                if (data && data.length > 0) {
+                    lastCheckedId = data[0].id;
+                }
+
+                document.getElementById('caller-id').innerText = myUserId;
+                document.getElementById('call-status').innerText = "Standby...";
+
+                setInterval(checkNewCalls, 3000);
+
+            } catch (err) {
+                document.getElementById('call-status').innerText = "Gagal terhubung";
+            }
+        }
+
+        async function checkNewCalls() {
+            if (!_supabase) return;
+
+            const { data, error } = await _supabase
+                .from('panggilan')
+                .select('*')
+                .neq('pengirim', myUserId)
+                .order('created_at', { ascending: false })
+                .limit(1);
+
+            if (!error && data && data.length > 0) {
+                const latestCall = data[0];
+                
+                if (latestCall.id !== lastCheckedId) {
+                    lastCheckedId = latestCall.id;
+                    
+                    showToast(`Panggilan dari: ${latestCall.pengirim}`);
+                    document.getElementById('call-status').innerText = "Sedang Berdering...";
+                    
+                    if (audioEnabled) {
+                        const sound = document.getElementById('call-sound');
+                        sound.currentTime = 0;
+                        const playPromise = sound.play();
+                        
+                        if (playPromise !== undefined) {
+                            playPromise.catch(error => {
+                                console.log("Gagal putar otomatis:", error);
+                                showToast("Klik layar untuk dengar suara");
+                            });
+                        }
+                    }
+                }
+            }
+        }
+
+        async function registerCall() {
+            if (!_supabase) return;
+            document.getElementById('call-status').innerText = "Menghubungi...";
+            const { error } = await _supabase
+                .from('panggilan')
+                .insert([{ pengirim: myUserId, status: 'memanggil' }]);
+
+            if (error) showToast("Gagal memanggil");
+            else showToast("Sinyal terkirim");
+        }
+
+        function resetStatus() {
+            document.getElementById('call-status').innerText = "Standby...";
+            showToast("Panggilan terputus");
+        }
+
+        function toggleMute() {
+            isMuted = !isMuted;
+            document.getElementById('mic-on').classList.toggle('hidden');
+            document.getElementById('mic-off').classList.toggle('hidden');
+            document.getElementById('mute-text').innerText = isMuted ? "Unmute" : "Mute";
+            showToast(isMuted ? "Mikrofon Senyap" : "Mikrofon Aktif");
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
