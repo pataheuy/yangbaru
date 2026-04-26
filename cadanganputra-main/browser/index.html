@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pufutara Browser - Simpel, Cepat, Modern</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <!-- AOS Library for Scroll Animations -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+            overflow-x: hidden;
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .hero-gradient {
+            background: radial-gradient(circle at center, #ffffff 0%, #f9fafb 100%);
+        }
+        .btn-primary {
+            background-color: #000000;
+            color: #ffffff;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-primary:hover {
+            background-color: #374151;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .feature-card {
+            border: 1px solid #f3f4f6;
+            transition: all 0.4s ease;
+        }
+        .feature-card:hover {
+            border-color: #000;
+            background-color: #ffffff;
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+        }
+        .stat-card {
+            border-left: 2px solid #e5e7eb;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #999;
+        }
+    </style>
+</head>
+<body class="bg-white text-black">
+
+    <!-- Navbar -->
+    <nav class="fixed w-full z-50 glass-effect">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="text-2xl font-extrabold tracking-tighter" data-aos="fade-right">PUFUTARA</div>
+            <div class="hidden md:flex space-x-8 text-sm font-medium text-gray-600" data-aos="fade-down">
+                <a href="#fitur" class="hover:text-black transition">Fitur</a>
+                <a href="#performa" class="hover:text-black transition">Performa</a>
+                <a href="#tentang" class="hover:text-black transition">Tentang</a>
+                <a href="#unduh" class="hover:text-black transition font-bold text-black underline decoration-2 underline-offset-4">Unduh</a>
+            </div>
+            <button class="md:hidden">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                </svg>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="pt-32 pb-20 px-6 hero-gradient min-h-screen flex flex-col justify-center items-center text-center">
+        <div class="max-w-3xl">
+            <span class="inline-block px-4 py-1.5 mb-6 text-xs font-semibold tracking-widest uppercase bg-gray-100 rounded-full" data-aos="fade-up" data-aos-delay="100">
+                Browser Masa Depan
+            </span>
+            <h1 class="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight" data-aos="fade-up" data-aos-delay="200">
+                Navigasi Tanpa Batas, <br><span class="text-gray-400">Lebih Cepat Dari Cahaya.</span>
+            </h1>
+            <p class="text-lg md:text-xl text-gray-600 mb-10 leading-relaxed" data-aos="fade-up" data-aos-delay="300">
+                Pufutara Browser menghadirkan pengalaman menjelajah web yang bersih, minimalis, dan sangat responsif. Didesain untuk efisiensi maksimal bagi para pelajar dan profesional.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4" data-aos="fade-up" data-aos-delay="400">
+                <a href="#unduh" class="btn-primary px-8 py-4 rounded-xl font-bold text-lg shadow-xl">
+                    Unduh Pufutara Sekarang
+                </a>
+                <a href="#fitur" class="px-8 py-4 rounded-xl border border-gray-200 font-bold text-lg hover:bg-gray-50 transition">
+                    Pelajari Lebih Lanjut
+                </a>
+            </div>
+            
+            <!-- Browser Mockup with Animation -->
+            <div class="mt-16 relative" data-aos="zoom-in-up" data-aos-delay="500" data-aos-duration="1000">
+                <div class="absolute -inset-1 bg-gradient-to-r from-gray-100 to-gray-200 blur opacity-30"></div>
+                <div class="relative bg-white border border-gray-200 rounded-2xl p-2 shadow-2xl overflow-hidden">
+                   <div class="bg-gray-50 rounded-t-lg p-2 border-b border-gray-200 flex items-center space-x-2">
+                       <div class="flex space-x-1">
+                           <div class="w-3 h-3 rounded-full bg-gray-300"></div>
+                           <div class="w-3 h-3 rounded-full bg-gray-300"></div>
+                           <div class="w-3 h-3 rounded-full bg-gray-300"></div>
+                       </div>
+                       <div class="bg-white border border-gray-200 rounded px-4 py-1 text-[10px] text-gray-400 w-full max-w-md mx-auto flex items-center justify-center gap-2">
+                           <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                           </svg>
+                           pufutara.id/home
+                       </div>
+                   </div>
+                   <div class="h-64 md:h-96 flex flex-col items-center justify-center bg-white text-gray-800 p-8">
+                       <div class="text-4xl font-bold mb-4 opacity-20">Pufutara Browser</div>
+                       <div class="w-full max-w-lg h-1 bg-gray-100 rounded-full mb-8"></div>
+                       <div class="grid grid-cols-4 gap-4 w-full max-w-md">
+                           <div class="h-20 bg-gray-50 border border-gray-100 rounded-xl"></div>
+                           <div class="h-20 bg-gray-50 border border-gray-100 rounded-xl"></div>
+                           <div class="h-20 bg-gray-50 border border-gray-100 rounded-xl"></div>
+                           <div class="h-20 bg-gray-50 border border-gray-100 rounded-xl"></div>
+                       </div>
+                   </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section Performa (Stats) -->
+    <section id="performa" class="py-20 bg-gray-50 border-y border-gray-100">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-12">
+                <div class="stat-card pl-6" data-aos="fade-up" data-aos-delay="100">
+                    <div class="text-4xl font-extrabold mb-2">2.4x</div>
+                    <div class="text-gray-500 text-sm uppercase tracking-widest font-semibold">Lebih Cepat</div>
+                </div>
+                <div class="stat-card pl-6" data-aos="fade-up" data-aos-delay="200">
+                    <div class="text-4xl font-extrabold mb-2">35%</div>
+                    <div class="text-gray-500 text-sm uppercase tracking-widest font-semibold">Hemat RAM</div>
+                </div>
+                <div class="stat-card pl-6" data-aos="fade-up" data-aos-delay="300">
+                    <div class="text-4xl font-extrabold mb-2">0</div>
+                    <div class="text-gray-500 text-sm uppercase tracking-widest font-semibold">Iklan Terlacak</div>
+                </div>
+                <div class="stat-card pl-6" data-aos="fade-up" data-aos-delay="400">
+                    <div class="text-4xl font-extrabold mb-2">100%</div>
+                    <div class="text-gray-500 text-sm uppercase tracking-widest font-semibold">Fokus Belajar</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Fitur Section -->
+    <section id="fitur" class="py-24 px-6 bg-white">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-20" data-aos="fade-up">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4">Fitur Utama Pufutara</h2>
+                <p class="text-gray-500">Dirancang khusus untuk pengalaman browsing yang tak tertandingi.</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="feature-card p-10 rounded-3xl" data-aos="fade-up" data-aos-delay="100">
+                    <div class="w-12 h-12 bg-black text-white flex items-center justify-center rounded-2xl mb-6 shadow-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Kecepatan Instan</h3>
+                    <p class="text-gray-600">Mesin rendering terbaru yang dioptimalkan untuk memuat halaman dalam sekejap mata.</p>
+                </div>
+                <div class="feature-card p-10 rounded-3xl" data-aos="fade-up" data-aos-delay="200">
+                    <div class="w-12 h-12 bg-black text-white flex items-center justify-center rounded-2xl mb-6 shadow-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Keamanan Santri</h3>
+                    <p class="text-gray-600">Sistem filter konten otomatis untuk mendukung lingkungan digital yang lebih bersih dan positif.</p>
+                </div>
+                <div class="feature-card p-10 rounded-3xl" data-aos="fade-up" data-aos-delay="300">
+                    <div class="w-12 h-12 bg-black text-white flex items-center justify-center rounded-2xl mb-6 shadow-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Antarmuka Modern</h3>
+                    <p class="text-gray-600">Desain tanpa distraksi. Fokus sepenuhnya pada konten yang Anda baca dan kerjakan.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section Keamanan Tambahan -->
+    <section class="py-24 px-6 bg-black text-white overflow-hidden">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-16">
+            <div class="md:w-1/2" data-aos="fade-right">
+                <h2 class="text-4xl md:text-5xl font-bold mb-8 leading-tight">Kami Menjaga <br><span class="text-gray-500 italic">Privasi Digital Anda.</span></h2>
+                <div class="space-y-6">
+                    <div class="flex items-start gap-4">
+                        <div class="p-2 bg-gray-800 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-lg">Anti-Pelacakan</h4>
+                            <p class="text-gray-400">Pufutara secara otomatis menghapus cookie pihak ketiga setiap kali Anda menutup sesi.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4">
+                        <div class="p-2 bg-gray-800 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-lg">Mode Hemat Data</h4>
+                            <p class="text-gray-400">Teknologi kompresi yang memungkinkan Anda browsing lebih lama dengan kuota lebih sedikit.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="md:w-1/2 flex justify-center" data-aos="zoom-in">
+                <div class="w-80 h-80 border border-gray-800 rounded-full flex items-center justify-center relative">
+                    <div class="w-60 h-60 border border-gray-700 rounded-full flex items-center justify-center animate-spin-slow">
+                        <div class="w-4 h-4 bg-white rounded-full absolute top-0"></div>
+                    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-32 w-32 absolute text-gray-500 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section Testimoni (Mock) -->
+    <section class="py-24 px-6 bg-white">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-center text-3xl font-bold mb-16 italic text-gray-400" data-aos="fade-up">"Apa Kata Mereka?"</h2>
+            <div class="grid md:grid-cols-2 gap-12">
+                <div class="p-8 border-b md:border-b-0 md:border-r border-gray-100" data-aos="fade-right">
+                    <p class="text-2xl font-light italic mb-6">"Pufutara sangat membantu saya fokus saat mengerjakan tugas sekolah. Interface-nya sangat bersih."</p>
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 bg-gray-200 rounded-full"></div>
+                        <div>
+                            <div class="font-bold">Ahmad Fatih</div>
+                            <div class="text-xs text-gray-400">Santri, Kelas 9</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-8" data-aos="fade-left">
+                    <p class="text-2xl font-light italic mb-6">"Ringan dan cepat. Browser ini membuktikan bahwa karya anak bangsa bisa bersaing secara global."</p>
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 bg-gray-200 rounded-full"></div>
+                        <div>
+                            <div class="font-bold">Ibu Siti Nurhaliza</div>
+                            <div class="text-xs text-gray-400">Guru IT</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tentang Developer Section -->
+    <section id="tentang" class="py-24 px-6 bg-gray-50">
+        <div class="max-w-5xl mx-auto flex flex-col md:flex-row items-center gap-12">
+            <div class="md:w-1/2" data-aos="fade-right">
+                <div class="relative inline-block">
+                    <div class="w-64 h-64 bg-gray-200 rounded-3xl grayscale overflow-hidden border-4 border-white shadow-2xl">
+                        <div class="w-full h-full flex items-center justify-center text-gray-400 text-sm italic">
+                            Foto Putra Azzam
+                        </div>
+                    </div>
+                    <div class="absolute -bottom-4 -right-4 bg-black text-white p-4 rounded-2xl shadow-lg">
+                        <span class="block text-sm font-bold uppercase tracking-widest">Visi 2024</span>
+                    </div>
+                </div>
+            </div>
+            <div class="md:w-1/2" data-aos="fade-left">
+                <span class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4 block">Siapa di Balik Pufutara?</span>
+                <h2 class="text-3xl font-bold mb-6 tracking-tight">Putra Azzam Elfathin</h2>
+                <p class="text-gray-600 mb-4 text-lg">
+                    Seorang santri berdedikasi dari <strong>SMPIT Assyifa Boarding School</strong> yang memiliki passion dalam pengembangan perangkat lunak. 
+                </p>
+                <p class="text-gray-500 mb-8 leading-relaxed">
+                    Melalui Pufutara, ia ingin membuktikan bahwa keterbatasan bukan penghalang untuk berinovasi. Browser ini adalah langkah awal menuju ekosistem internet yang lebih ramah bagi generasi muda.
+                </p>
+                <div class="flex items-center space-x-4">
+                    <div class="h-[1px] w-12 bg-gray-300"></div>
+                    <span class="font-bold text-xs tracking-widest uppercase text-gray-400">Assyifa Innovation Lab</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA / Unduh Section -->
+    <section id="unduh" class="py-32 px-6 bg-white text-center">
+        <div class="max-w-4xl mx-auto bg-black text-white p-12 md:p-20 rounded-[3rem] shadow-2xl relative overflow-hidden" data-aos="zoom-in">
+            <div class="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+                <div class="absolute top-10 left-10 w-20 h-20 border border-white rounded-full"></div>
+                <div class="absolute bottom-10 right-10 w-40 h-40 border border-white rounded-full"></div>
+            </div>
+            
+            <h2 class="text-4xl md:text-6xl font-extrabold mb-8 tracking-tighter">Mulai Browsing Modern Sekarang.</h2>
+            <p class="text-gray-400 mb-12 text-lg max-w-xl mx-auto">Gabung dengan komunitas pengguna Pufutara dan rasakan kenyamanan menjelajah yang sebenarnya.</p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <button class="bg-white text-black px-10 py-5 rounded-2xl font-bold text-xl hover:bg-gray-200 transition-transform active:scale-95">
+                    Unduh Installer (.exe)
+                </button>
+                <button class="bg-gray-900 border border-gray-800 text-white px-10 py-5 rounded-2xl font-bold text-xl hover:bg-gray-800 transition-transform active:scale-95">
+                    Versi macOS
+                </button>
+            </div>
+            <p class="mt-8 text-xs text-gray-600 font-medium tracking-widest uppercase italic">Build: 1.0.2-ALPHA | Size: 45MB</p>
+        </div>
+    </section>
+
+    <!-- Footer Profesional -->
+    <footer class="bg-white pt-24 pb-12 border-t border-gray-100">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12 mb-16">
+                <div class="col-span-2 lg:col-span-2" data-aos="fade-up">
+                    <div class="text-2xl font-black tracking-tighter mb-6">PUFUTARA</div>
+                    <p class="text-gray-500 max-w-xs mb-8">
+                        Browser tercepat dan paling efisien yang dibangun dengan standar modern untuk menunjang produktivitas dan privasi.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center hover:bg-black hover:text-white transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center hover:bg-black hover:text-white transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                        </a>
+                    </div>
+                </div>
+                <div data-aos="fade-up" data-aos-delay="100">
+                    <h5 class="font-bold mb-6 uppercase text-xs tracking-widest">Produk</h5>
+                    <ul class="space-y-4 text-sm text-gray-500 font-medium">
+                        <li><a href="#" class="hover:text-black transition">Download</a></li>
+                        <li><a href="#" class="hover:text-black transition">Fitur Utama</a></li>
+                        <li><a href="#" class="hover:text-black transition">Keamanan</a></li>
+                        <li><a href="#" class="hover:text-black transition">Pembaruan</a></li>
+                    </ul>
+                </div>
+                <div data-aos="fade-up" data-aos-delay="200">
+                    <h5 class="font-bold mb-6 uppercase text-xs tracking-widest">Pengembang</h5>
+                    <ul class="space-y-4 text-sm text-gray-500 font-medium">
+                        <li><a href="#" class="hover:text-black transition">Tentang Putra</a></li>
+                        <li><a href="#" class="hover:text-black transition">Assyifa Lab</a></li>
+                        <li><a href="#" class="hover:text-black transition">Kontribusi</a></li>
+                        <li><a href="#" class="hover:text-black transition">Kontak</a></li>
+                    </ul>
+                </div>
+                <div data-aos="fade-up" data-aos-delay="300">
+                    <h5 class="font-bold mb-6 uppercase text-xs tracking-widest">Legal</h5>
+                    <ul class="space-y-4 text-sm text-gray-500 font-medium">
+                        <li><a href="#" class="hover:text-black transition">Privasi</a></li>
+                        <li><a href="#" class="hover:text-black transition">Ketentuan</a></li>
+                        <li><a href="#" class="hover:text-black transition">Cookie</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="pt-12 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-6">
+                <div class="text-xs font-bold text-gray-400 tracking-widest uppercase">
+                    &copy; 2024 Pufutara Browser. Dibuat di Subang, Indonesia.
+                </div>
+                <div class="text-xs text-gray-400">
+                    Membangun Masa Depan Digital Santri.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true,
+            mirror: false
+        });
+    </script>
+
+    <style>
+        @keyframes spin-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin-slow {
+            animation: spin-slow 12s linear infinite;
+        }
+    </style>
+
+</body>
+</html>
