@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dapoer Mang Pey - Raos Pisan, Kuliner Sunda Asli</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --dark-brown: #3e2723;
+            --cream: #f5f5f5;
+            --accent: #8d6e63;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #fff;
+            color: var(--dark-brown);
+        }
+        h1, h2, h3, .sunda-font {
+            font-family: 'Playfair+Display', serif;
+        }
+        .hero-bg {
+            background: linear-gradient(rgba(62, 39, 35, 0.7), rgba(62, 39, 35, 0.7)), 
+                        url('https://images.unsplash.com/photo-1541518763669-27fef04b14ea?auto=format&fit=crop&q=80&w=2000');
+            background-size: cover;
+            background-position: center;
+        }
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background-color: var(--accent);
+            transition: width 0.3s ease;
+        }
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        .nav-link:hover {
+            color: var(--accent);
+        }
+        .btn-primary {
+            background-color: var(--dark-brown);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: #5d4037;
+            transform: translateY(-2px);
+        }
+        .card {
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .gallery-item img {
+            transition: transform 0.5s ease;
+        }
+        .gallery-item:hover img {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigasi -->
+    <nav class="fixed w-full z-50 bg-white/95 shadow-sm px-6 py-4 flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+            <div class="w-10 h-10 bg-[#3e2723] rounded-full flex items-center justify-center text-white">
+                <span class="font-bold text-xl">D</span>
+            </div>
+            <span class="text-2xl font-bold tracking-wider uppercase">Dapoer Mang Pey</span>
+        </div>
+        <div class="hidden md:flex space-x-8 font-medium">
+            <a href="#home" class="nav-link">Beranda</a>
+            <a href="#about" class="nav-link">Tentang Kami</a>
+            <a href="#menu" class="nav-link">Menu Kami</a>
+            <a href="#gallery" class="nav-link">Galeri</a>
+            <a href="#contact" class="nav-link">Hubungi Kami</a>
+        </div>
+        <a href="https://wa.me/6285871183509" target="_blank" class="btn-primary px-6 py-2 rounded-full text-sm font-semibold uppercase tracking-widest text-center">
+            Order Sekarang
+        </a>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-bg h-screen flex items-center justify-center text-center text-white px-4">
+        <div class="max-w-4xl">
+            <h2 class="text-xl md:text-2xl mb-4 italic">"Sampurasun! Wilujeng Sumping"</h2>
+            <h1 class="text-5xl md:text-7xl font-bold mb-6">Raosna Kuliner Sunda Asli Ti Bandung Barat</h1>
+            <p class="text-lg md:text-xl mb-8 opacity-90">Menghadirkan kehangatan tradisi Sunda ke meja makan Anda. Dari Nasi Liwet hingga Tumpeng Hias, kami siap melayani pesanan besar dan kecil.</p>
+            <div class="flex flex-col md:flex-row gap-4 justify-center">
+                <a href="#menu" class="bg-white text-[#3e2723] px-8 py-3 rounded-md font-bold hover:bg-gray-200 transition">Lihat Menu</a>
+                <a href="#contact" class="border-2 border-white px-8 py-3 rounded-md font-bold hover:bg-white hover:text-[#3e2723] transition">Konsultasi Acara</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tentang Kami Section -->
+    <section id="about" class="py-24 px-6 bg-white">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12">
+            <div class="md:w-1/2">
+                <div class="relative">
+                    <img src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?q=80&w=800" alt="Dapur Kami" class="rounded-lg shadow-2xl">
+                    <div class="absolute -bottom-6 -right-6 bg-[#3e2723] p-8 text-white rounded-lg hidden md:block">
+                        <p class="text-3xl font-bold">10+</p>
+                        <p class="text-xs uppercase tracking-widest">Tahun Pengalaman</p>
+                    </div>
+                </div>
+            </div>
+            <div class="md:w-1/2">
+                <h4 class="text-[#8d6e63] font-bold uppercase tracking-widest mb-2">Tradisi & Kualitas</h4>
+                <h2 class="text-4xl font-bold mb-6">Dapoer Mang Pey: Cita Rasa yang Tak Terlupakan</h2>
+                <p class="text-gray-600 mb-6 leading-relaxed">
+                    Berawal dari kecintaan terhadap warisan kuliner tanah Pasundan, Dapoer Mang Pey hadir untuk melestarikan resep-resep autentik Sunda di tengah modernitas Bandung Barat. Kami percaya bahwa makanan bukan sekadar pengisi perut, melainkan jembatan silaturahmi.
+                </p>
+                <ul class="space-y-4 mb-8">
+                    <li class="flex items-center space-x-3 text-gray-700">
+                        <i class="fas fa-check-circle text-[#8d6e63]"></i>
+                        <span>Bahan Baku Segar dari Petani Lokal</span>
+                    </li>
+                    <li class="flex items-center space-x-3 text-gray-700">
+                        <i class="fas fa-check-circle text-[#8d6e63]"></i>
+                        <span>Higienitas Terjamin dalam Pengolahan</span>
+                    </li>
+                    <li class="flex items-center space-x-3 text-gray-700">
+                        <i class="fas fa-check-circle text-[#8d6e63]"></i>
+                        <span>Tim Profesional yang Berpengalaman</span>
+                    </li>
+                </ul>
+                <a href="#gallery" class="btn-primary px-8 py-3 rounded-md font-bold uppercase text-sm tracking-widest inline-block">Kenali Kami Lebih Jauh</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Summary -->
+    <section class="py-16 bg-[#f5f5f5] px-6">
+        <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+            <div class="p-8 bg-white rounded-lg shadow-sm border-t-4 border-[#3e2723]">
+                <i class="fas fa-truck text-4xl mb-4 text-[#8d6e63]"></i>
+                <h3 class="text-xl font-bold mb-2 uppercase">Pengiriman Cepat</h3>
+                <p class="text-sm text-gray-600">Melayani area Bandung Barat, Purwakarta, hingga Cikalong dengan armada khusus.</p>
+            </div>
+            <div class="p-8 bg-white rounded-lg shadow-sm border-t-4 border-[#3e2723]">
+                <i class="fas fa-utensils text-4xl mb-4 text-[#8d6e63]"></i>
+                <h3 class="text-xl font-bold mb-2 uppercase">Kapasitas Besar</h3>
+                <p class="text-sm text-gray-600">Siap melayani hingga 3.400 pax dalam satu hari. Profesional & Tepat Waktu.</p>
+            </div>
+            <div class="p-8 bg-white rounded-lg shadow-sm border-t-4 border-[#3e2723]">
+                <i class="fas fa-certificate text-4xl mb-4 text-[#8d6e63]"></i>
+                <h3 class="text-xl font-bold mb-2 uppercase">Kualitas Terjamin</h3>
+                <p class="text-sm text-gray-600">Bahan segar pilihan dengan resep bumbu Sunda turun-temurun yang autentik.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Menu Showcase -->
+    <section id="menu" class="py-20 px-6">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-2">Pilihan Paket Kami</h2>
+                <div class="h-1 w-20 bg-[#3e2723] mx-auto mb-4"></div>
+                <p class="text-gray-600">Pilih paket yang sesuai dengan kebutuhan acara Anda</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                <!-- Menu 1 -->
+                <div class="card bg-white rounded-xl overflow-hidden">
+                    <div class="h-64 overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1541518763669-27fef04b14ea?q=80&w=600" alt="Nasi Liwet" class="w-full h-full object-cover">
+                        <div class="absolute top-4 left-4 bg-[#3e2723] text-white px-3 py-1 text-xs font-bold uppercase">Terlaris</div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold mb-2">Paket Nasi Liwet Panci</h3>
+                        <p class="text-gray-600 text-sm mb-4">Penyajian tradisional di dalam panci liwet lengkap dengan ayam goreng, asin, sambal dadak, dan lalapan segar.</p>
+                        <div class="flex justify-between items-center mt-6">
+                            <span class="text-[#3e2723] font-bold text-xs lg:text-sm">Mulai Rp 35.000/pax</span>
+                            <button class="text-sm font-semibold border-b-2 border-[#3e2723]">Detail</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Menu 2 -->
+                <div class="card bg-white rounded-xl overflow-hidden">
+                    <div class="h-64 overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1610450516131-773df7819077?q=80&w=600" alt="Tumpeng" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold mb-2">Tumpeng Hias Eksklusif</h3>
+                        <p class="text-gray-600 text-sm mb-4">Hiasan cantik untuk syukuran, peresmian, atau ulang tahun. Tersedia porsi 10 hingga 50 orang.</p>
+                        <div class="flex justify-between items-center mt-6">
+                            <span class="text-[#3e2723] font-bold text-xs lg:text-sm">Mulai Rp 350.000/set</span>
+                            <button class="text-sm font-semibold border-b-2 border-[#3e2723]">Detail</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Menu 3 -->
+                <div class="card bg-white rounded-xl overflow-hidden">
+                    <div class="h-64 overflow-hidden relative">
+                        <img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?q=80&w=600" alt="Prasmanan" class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold mb-2">Paket Prasmanan & Wedding</h3>
+                        <p class="text-gray-600 text-sm mb-4">Layanan lengkap termasuk peralatan, dekorasi meja, dan pramusaji profesional untuk momen istimewa Anda.</p>
+                        <div class="flex justify-between items-center mt-6">
+                            <span class="text-[#3e2723] font-bold text-xs lg:text-sm">Hubungi Kami</span>
+                            <button class="text-sm font-semibold border-b-2 border-[#3e2723]">Custom</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Galeri Section -->
+    <section id="gallery" class="py-20 bg-[#f9f9f9] px-6">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold mb-2">Galeri Kegiatan</h2>
+                <div class="h-1 w-20 bg-[#3e2723] mx-auto mb-4"></div>
+                <p class="text-gray-600">Dokumentasi pesanan dan event Dapoer Mang Pey</p>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="gallery-item overflow-hidden rounded-lg h-64">
+                    <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=400" alt="Galeri 1" class="w-full h-full object-cover">
+                </div>
+                <div class="gallery-item overflow-hidden rounded-lg h-64">
+                    <img src="https://images.unsplash.com/photo-1606787366850-de6330128bfc?q=80&w=400" alt="Galeri 2" class="w-full h-full object-cover">
+                </div>
+                <div class="gallery-item overflow-hidden rounded-lg h-64">
+                    <img src="https://images.unsplash.com/photo-1543353071-10c8ba85a904?q=80&w=400" alt="Galeri 3" class="w-full h-full object-cover">
+                </div>
+                <div class="gallery-item overflow-hidden rounded-lg h-64">
+                    <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=400" alt="Galeri 4" class="w-full h-full object-cover">
+                </div>
+                <div class="gallery-item overflow-hidden rounded-lg h-64">
+                    <img src="https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?q=80&w=400" alt="Galeri 5" class="w-full h-full object-cover">
+                </div>
+                <div class="gallery-item overflow-hidden rounded-lg h-64">
+                    <img src="https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?q=80&w=400" alt="Galeri 6" class="w-full h-full object-cover">
+                </div>
+                <div class="gallery-item overflow-hidden rounded-lg h-64">
+                    <img src="https://images.unsplash.com/photo-1541518763669-27fef04b14ea?q=80&w=400" alt="Galeri 7" class="w-full h-full object-cover">
+                </div>
+                <div class="gallery-item overflow-hidden rounded-lg h-64">
+                    <img src="https://images.unsplash.com/photo-1610450516131-773df7819077?q=80&w=400" alt="Galeri 8" class="w-full h-full object-cover">
+                </div>
+            </div>
+            <div class="text-center mt-12">
+                <a href="#" class="inline-block border-2 border-[#3e2723] px-8 py-2 rounded-full font-bold text-[#3e2723] hover:bg-[#3e2723] hover:text-white transition">Lihat Lebih Banyak di Instagram</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonial Section -->
+    <section class="py-20 bg-[#3e2723] text-white">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <i class="fas fa-quote-left text-5xl mb-8 opacity-20"></i>
+            <h2 class="text-3xl md:text-4xl italic mb-6">"Alhamdulillah orderan sebanyak ini dilancarkan. Dalam waktu singkat persiapan sehari untuk 3400 pax..."</h2>
+            <p class="font-bold uppercase tracking-widest text-[#8d6e63]">Food Diary - Dapoer Mang Pey</p>
+            <div class="mt-12 flex justify-center space-x-12 opacity-50 text-sm uppercase font-bold tracking-tighter flex-wrap gap-y-4">
+                <span class="mx-4">Dinas KBB</span>
+                <span class="mx-4">RPH Purwakarta</span>
+                <span class="mx-4">Villa Harmonis</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer & Kontak Section -->
+    <footer id="contact" class="pt-20 pb-10 px-6 bg-[#1a1a1a] text-white border-t border-gray-800">
+        <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+            <div class="col-span-1 md:col-span-2">
+                <h3 class="text-2xl font-bold mb-6 tracking-widest">DAPOER MANG PEY</h3>
+                <p class="text-gray-400 mb-6 max-w-sm">Jasa katering profesional spesialis masakan Sunda di Cisarua, Bandung Barat. Mengutamakan cita rasa, kebersihan, dan ketepatan waktu.</p>
+                <div class="flex space-x-4 mb-8">
+                    <a href="#" class="w-10 h-10 rounded-full border border-gray-700 flex items-center justify-center hover:bg-white hover:text-black transition"><i class="fab fa-instagram"></i></a>
+                    <a href="https://wa.me/6285871183509" class="w-10 h-10 rounded-full border border-gray-700 flex items-center justify-center hover:bg-white hover:text-black transition"><i class="fab fa-whatsapp"></i></a>
+                    <a href="#" class="w-10 h-10 rounded-full border border-gray-700 flex items-center justify-center hover:bg-white hover:text-black transition"><i class="fab fa-facebook"></i></a>
+                </div>
+            </div>
+            
+            <div>
+                <h4 class="font-bold mb-6 uppercase text-sm tracking-widest text-[#8d6e63]">Alamat Kami</h4>
+                <p class="text-gray-400 text-sm leading-relaxed mb-4">
+                    Jl. Kolonel Masturi No. Jambudipa<br>
+                    Cisarua, Bandung Barat<br>
+                    Jawa Barat, Indonesia
+                </p>
+                <a href="https://maps.google.com" target="_blank" class="text-xs text-white border-b border-white pb-1 hover:text-[#8d6e63] hover:border-[#8d6e63] transition uppercase font-bold tracking-widest">Lihat di Maps</a>
+            </div>
+
+            <div>
+                <h4 class="font-bold mb-6 uppercase text-sm tracking-widest text-[#8d6e63]">Hubungi</h4>
+                <div class="space-y-4">
+                    <div class="flex items-start space-x-3">
+                        <i class="fas fa-phone mt-1 text-[#8d6e63]"></i>
+                        <span class="text-gray-400 text-sm">0858-7118-3509</span>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <i class="fas fa-envelope mt-1 text-[#8d6e63]"></i>
+                        <span class="text-gray-400 text-sm">info@dapoermangpey.com</span>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <i class="fas fa-clock mt-1 text-[#8d6e63]"></i>
+                        <span class="text-gray-400 text-sm">Setiap Hari<br>07.00 - 20.00 WIB</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="max-w-6xl mx-auto border-t border-gray-800 pt-8 text-center text-gray-500 text-xs">
+            <p>&copy; 2024 Dapoer Mang Pey. All Rights Reserved. Raos Pisan!</p>
+        </div>
+    </footer>
+
+    <!-- WhatsApp Floating Button -->
+    <a href="https://wa.me/6285871183509" target="_blank" class="fixed bottom-6 right-6 bg-green-500 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:bg-green-600 transition-all z-[100] group">
+        <i class="fab fa-whatsapp text-3xl"></i>
+        <span class="absolute right-16 bg-white text-gray-800 px-4 py-2 rounded shadow-lg text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Chat Sekarang!</span>
+    </a>
+
+</body>
+</html>
