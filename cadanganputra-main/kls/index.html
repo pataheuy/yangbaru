@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Komunitas Literasi Sekolah - SMPIT As-Syifa</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        kls: {
+                            brown: '#5D4037',
+                            darkBrown: '#3E2723',
+                            lightBrown: '#EFEBE9',
+                            yellow: '#FBC02D',
+                            black: '#1A1A1A',
+                            white: '#FFFFFF',
+                            gray: '#F3F4F6'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Merriweather', 'serif'],
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
+                        'fade-in-left': 'fadeInLeft 0.8s ease-out forwards',
+                        'fade-in-right': 'fadeInRight 0.8s ease-out forwards',
+                        'zoom-in': 'zoomIn 0.6s ease-out forwards',
+                        'slide-up': 'slideUp 0.5s ease-out forwards',
+                        'pulse-slow': 'pulse 3s infinite',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(30px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        fadeInLeft: {
+                            '0%': { opacity: '0', transform: 'translateX(-30px)' },
+                            '100%': { opacity: '1', transform: 'translateX(0)' },
+                        },
+                        fadeInRight: {
+                            '0%': { opacity: '0', transform: 'translateX(30px)' },
+                            '100%': { opacity: '1', transform: 'translateX(0)' },
+                        },
+                        zoomIn: {
+                            '0%': { opacity: '0', transform: 'scale(0.9)' },
+                            '100%': { opacity: '1', transform: 'scale(1)' },
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Custom Styles for Hero Background Overlay */
+        .hero-bg {
+            background-image: url('https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&q=80&w=2000');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        .hero-overlay {
+            background: linear-gradient(to right, rgba(26, 26, 26, 0.9), rgba(62, 39, 35, 0.8));
+        }
+        /* Mading Scrollbar Customization */
+        .mading-scroll::-webkit-scrollbar {
+            height: 8px;
+        }
+        .mading-scroll::-webkit-scrollbar-track {
+            background: #EFEBE9; 
+            border-radius: 4px;
+        }
+        .mading-scroll::-webkit-scrollbar-thumb {
+            background: #5D4037; 
+            border-radius: 4px;
+        }
+        .mading-scroll::-webkit-scrollbar-thumb:hover {
+            background: #3E2723; 
+        }
+        /* Custom details animation for FAQ */
+        details > summary {
+            list-style: none;
+        }
+        details > summary::-webkit-details-marker {
+            display: none;
+        }
+        /* Modal backdrop */
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+        }
+        /* Line clamp utility */
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .line-clamp-4 {
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        /* Navbar transition */
+        .navbar-scrolled {
+            background-color: white !important;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1) !important;
+            padding-top: 0.5rem !important;
+            padding-bottom: 0.5rem !important;
+        }
+        /* Card hover animation */
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+        }
+        /* Loading animation for initial page load */
+        body {
+            animation: pageFadeIn 0.5s ease-out;
+        }
+        @keyframes pageFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        /* Gold border for special person */
+        .gold-border {
+            border: 2px solid transparent;
+            background: linear-gradient(white, white) padding-box,
+                        linear-gradient(135deg, #FBC02D, #FFD700, #FBC02D) border-box;
+            animation: borderPulse 2s infinite;
+        }
+        @keyframes borderPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        /* Glow effect for photo */
+        .glow-photo {
+            box-shadow: 0 0 20px rgba(251, 192, 45, 0.5);
+            transition: all 0.3s ease;
+        }
+        .glow-photo:hover {
+            box-shadow: 0 0 35px rgba(251, 192, 45, 0.8);
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="font-sans bg-kls-white text-kls-black antialiased selection:bg-kls-yellow selection:text-kls-black">
+
+    <!-- Navbar -->
+    <nav class="fixed w-full z-50 bg-kls-white shadow-md border-b-4 border-kls-yellow transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo dengan animasi zoom in -->
+                <div class="flex-shrink-0 flex items-center gap-3 cursor-pointer group" onclick="window.scrollTo(0,0)">
+                    <div class="w-10 h-10 bg-kls-brown text-kls-yellow flex items-center justify-center rounded-lg shadow-sm transition-all duration-300 group-hover:scale-110 group-hover:rotate-6">
+                        <i class="fa-solid fa-book-open text-xl"></i>
+                    </div>
+                    <div>
+                        <span class="font-serif font-bold text-xl text-kls-black block leading-none">KLS</span>
+                        <span class="text-xs text-kls-brown font-medium tracking-wider">SMPIT AS-SYIFA</span>
+                    </div>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-6 lg:space-x-8">
+                    <a href="#tentang" class="text-kls-black hover:text-kls-brown font-medium transition-all duration-300 hover:translate-y-[-2px] text-sm lg:text-base">Tentang Kami</a>
+                    <a href="#program" class="text-kls-black hover:text-kls-brown font-medium transition-all duration-300 hover:translate-y-[-2px] text-sm lg:text-base">Program</a>
+                    <a href="#karya" class="text-kls-black hover:text-kls-brown font-medium transition-all duration-300 hover:translate-y-[-2px] text-sm lg:text-base">Karya Santri</a>
+                    <a href="#pengurus" class="text-kls-black hover:text-kls-brown font-medium transition-all duration-300 hover:translate-y-[-2px] text-sm lg:text-base">Pengurus</a>
+                    <a href="#faq" class="text-kls-black hover:text-kls-brown font-medium transition-all duration-300 hover:translate-y-[-2px] text-sm lg:text-base">FAQ</a>
+                    <a href="#bergabung" class="bg-kls-brown hover:bg-kls-darkBrown text-kls-white px-5 py-2 rounded-full font-medium transition-all duration-300 shadow-md border-2 border-transparent hover:border-kls-yellow hover:scale-105 text-sm lg:text-base">Gabung KLS</a>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" class="text-kls-black hover:text-kls-brown focus:outline-none transition-transform duration-300 hover:scale-110">
+                        <i class="fa-solid fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Dropdown -->
+        <div id="mobile-menu" class="hidden md:hidden bg-kls-white border-t border-gray-200 shadow-lg max-h-[80vh] overflow-y-auto">
+            <div class="px-4 pt-2 pb-6 space-y-2">
+                <a href="#pengumuman" class="block px-3 py-3 text-kls-black font-medium hover:bg-kls-lightBrown rounded-md transition-all duration-300 hover:translate-x-2">Info Terbaru</a>
+                <a href="#tentang" class="block px-3 py-3 text-kls-black font-medium hover:bg-kls-lightBrown rounded-md transition-all duration-300 hover:translate-x-2">Tentang Kami</a>
+                <a href="#program" class="block px-3 py-3 text-kls-black font-medium hover:bg-kls-lightBrown rounded-md transition-all duration-300 hover:translate-x-2">Program</a>
+                <a href="#karya" class="block px-3 py-3 text-kls-black font-medium hover:bg-kls-lightBrown rounded-md transition-all duration-300 hover:translate-x-2">Karya Santri</a>
+                <a href="#pengurus" class="block px-3 py-3 text-kls-black font-medium hover:bg-kls-lightBrown rounded-md transition-all duration-300 hover:translate-x-2">Pengurus & Testimoni</a>
+                <a href="#faq" class="block px-3 py-3 text-kls-black font-medium hover:bg-kls-lightBrown rounded-md transition-all duration-300 hover:translate-x-2">Tanya Jawab (FAQ)</a>
+                <a href="#bergabung" class="block px-3 py-3 mt-4 text-center bg-kls-brown text-kls-white font-medium rounded-md transition-all duration-300 hover:scale-105">Gabung KLS</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative pt-20 pb-32 lg:pt-32 lg:pb-48 hero-bg overflow-hidden">
+        <div class="absolute inset-0 hero-overlay"></div>
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 text-center lg:text-left flex flex-col lg:flex-row items-center">
+            <div class="w-full lg:w-2/3 lg:pr-12" data-aos="fade-right" data-aos-duration="1000" data-aos-delay="200">
+                <span class="inline-block py-1 px-3 rounded-full bg-kls-brown text-kls-yellow text-xs sm:text-sm font-semibold tracking-widest mb-6 uppercase border border-kls-yellow/30 animate-pulse">
+                    Mitra BEM SMPIT As-Syifa Jalancagak
+                </span>
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-serif font-bold text-kls-white leading-tight mb-6">
+                    Menghidupkan Budaya <span class="text-kls-yellow">Membaca, Menulis,</span> & Berpikir Kritis.
+                </h1>
+                <p class="text-base sm:text-lg text-gray-300 mb-10 max-w-2xl mx-auto lg:mx-0 font-light leading-relaxed" data-aos="fade-right" data-aos-duration="1000" data-aos-delay="400">
+                    Komunitas Literasi Sekolah (KLS) hadir untuk menjadikan literasi sebagai gaya hidup pembentuk karakter generasi masa depan.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="600">
+                    <a href="#program" class="bg-kls-yellow hover:bg-yellow-500 text-kls-black font-bold px-8 py-3.5 rounded-full transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 shadow-lg text-center">
+                        Jelajahi Program
+                    </a>
+                    <a href="#pengumuman" class="bg-transparent border-2 border-kls-white text-kls-white hover:bg-kls-white hover:text-kls-black font-bold px-8 py-3.5 rounded-full transition-all duration-300 hover:scale-105 text-center">
+                        Info Terbaru
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Hero Stats / Info Box -->
+            <div class="w-full lg:w-1/3 mt-16 lg:mt-0 hidden md:block" data-aos="fade-left" data-aos-duration="1000" data-aos-delay="300">
+                <div class="bg-kls-black/60 backdrop-blur-md p-8 rounded-2xl border border-kls-brown/50 shadow-2xl">
+                    <div class="mb-6 pb-6 border-b border-kls-brown/50">
+                        <div class="text-kls-yellow text-4xl mb-2"><i class="fa-solid fa-users"></i></div>
+                        <h3 class="text-kls-white font-serif text-3xl font-bold">125+</h3>
+                        <p class="text-gray-400 text-sm mt-1 uppercase tracking-wider">Calon Anggota Terlatih</p>
+                    </div>
+                    <div>
+                        <div class="text-kls-yellow text-4xl mb-2"><i class="fa-solid fa-campground"></i></div>
+                        <h3 class="text-kls-white font-serif text-xl font-bold">Pelatihan Intensif</h3>
+                        <p class="text-gray-400 text-sm mt-1">Camping Ground As-Syifa</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Scroll indicator -->
+        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce hidden lg:block">
+            <a href="#pengumuman" class="text-kls-white text-2xl opacity-70 hover:opacity-100 transition-all">
+                <i class="fa-solid fa-chevron-down"></i>
+            </a>
+        </div>
+    </section>
+
+    <!-- Papan Informasi Dinamis (Berita & Pengumuman) -->
+    <section id="pengumuman" class="py-12 bg-kls-yellow/10 border-b border-kls-yellow/30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row gap-8">
+                <!-- Info 1: Pengumuman Urgent -->
+                <div class="w-full md:w-1/3" data-aos="fade-right" data-aos-duration="800">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
+                        <h3 class="font-bold text-kls-brown tracking-wider uppercase text-sm">Pengumuman Terkini</h3>
+                    </div>
+                    <div class="bg-white border-l-4 border-kls-yellow p-5 rounded-r-lg shadow-sm transition-all duration-300 hover:shadow-lg hover:translate-x-1">
+                        <span class="text-xs text-gray-500 font-medium mb-1 block"><i class="fa-regular fa-calendar mr-1"></i> 26 April 2026</span>
+                        <h4 class="font-bold text-kls-black mb-2">Pendaftaran Jambore "Fantastic" Dibuka!</h4>
+                        <p class="text-sm text-gray-600 mb-3">Segera daftarkan dirimu untuk mengikuti Jambore Literasi tahun ini. Kuota terbatas hanya untuk 150 santri.</p>
+                        <a href="#bergabung" class="text-kls-brown text-sm font-bold hover:underline inline-flex items-center gap-1 group">Daftar Sekarang <i class="fa-solid fa-arrow-right text-xs group-hover:translate-x-1 transition-transform"></i></a>
+                    </div>
+                </div>
+                
+                <!-- Info 2: Berita Terbaru -->
+                <div class="w-full md:w-2/3" data-aos="fade-left" data-aos-duration="800">
+                    <div class="flex items-center gap-2 mb-4">
+                        <i class="fa-solid fa-newspaper text-kls-brown"></i>
+                        <h3 class="font-bold text-kls-brown tracking-wider uppercase text-sm">Sekilas Berita</h3>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="bg-white p-4 rounded-lg shadow-sm flex gap-4 items-center group cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-102 berita-item" data-berita="1">
+                            <img src="https://images.unsplash.com/photo-1593642632823-8f785ba67e45?auto=format&fit=crop&q=80&w=200" alt="Podcast" class="w-16 h-16 rounded object-cover transition-all duration-300 group-hover:scale-110">
+                            <div>
+                                <h4 class="font-bold text-sm text-kls-black group-hover:text-kls-brown transition-colors">Episode Podcast Terbaru Dirilis</h4>
+                                <p class="text-xs text-gray-500 mt-1">Membahas Etika Digital bersama Guru BK.</p>
+                            </div>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm flex gap-4 items-center group cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-102 berita-item" data-berita="2">
+                            <img src="https://images.unsplash.com/photo-1457369804613-52c61a468e7d?auto=format&fit=crop&q=80&w=200" alt="Buku" class="w-16 h-16 rounded object-cover transition-all duration-300 group-hover:scale-110">
+                            <div>
+                                <h4 class="font-bold text-sm text-kls-black group-hover:text-kls-brown transition-colors">Pemenang Resensi Bulan Ini</h4>
+                                <p class="text-xs text-gray-500 mt-1">Selamat kepada Ananda Ahmad Fauzan (8B).</p>
+                            </div>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm flex gap-4 items-center group cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-102 berita-item" data-berita="3">
+                            <img src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&q=80&w=200" alt="Lomba" class="w-16 h-16 rounded object-cover transition-all duration-300 group-hover:scale-110">
+                            <div>
+                                <h4 class="font-bold text-sm text-kls-black group-hover:text-kls-brown transition-colors">Lomba Cepat Tulis Tingkat Kabupaten</h4>
+                                <p class="text-xs text-gray-500 mt-1">KLS raih juara 2 dan 3!</p>
+                            </div>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm flex gap-4 items-center group cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-102 berita-item" data-berita="4">
+                            <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&q=80&w=200" alt="Kunjungan" class="w-16 h-16 rounded object-cover transition-all duration-300 group-hover:scale-110">
+                            <div>
+                                <h4 class="font-bold text-sm text-kls-black group-hover:text-kls-brown transition-colors">Kunjungan ke Perpusda Subang</h4>
+                                <p class="text-xs text-gray-500 mt-1">Program outing class KLS perdana.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tentang Section -->
+    <section id="tentang" class="py-20 bg-kls-white overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col lg:flex-row items-center gap-16">
+                <div class="w-full lg:w-1/2 relative" data-aos="fade-right" data-aos-duration="1000">
+                    <div class="absolute -inset-4 bg-kls-yellow rounded-xl transform rotate-3 opacity-20"></div>
+                    <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&q=80&w=800" alt="Siswa Membaca" class="relative z-10 rounded-xl shadow-2xl w-full object-cover h-[400px] transition-all duration-500 hover:scale-105">
+                    <div class="absolute -bottom-8 -right-8 bg-kls-brown text-kls-white p-6 rounded-xl shadow-xl z-20 border-l-4 border-kls-yellow hidden sm:block transition-all duration-300 hover:scale-105">
+                        <p class="font-serif italic text-lg text-kls-yellow mb-2">"Bukan sekadar tugas sekolah"</p>
+                        <p class="font-bold text-sm">Literasi sebagai gaya hidup</p>
+                    </div>
+                </div>
+                <div class="w-full lg:w-1/2" data-aos="fade-left" data-aos-duration="1000">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="h-[2px] w-12 bg-kls-yellow"></div>
+                        <h2 class="text-kls-brown font-bold tracking-widest uppercase text-sm">Struktur & Keanggotaan</h2>
+                    </div>
+                    <h3 class="text-3xl md:text-4xl font-serif font-bold text-kls-black mb-6">Jantung Literasi di As-Syifa</h3>
+                    <p class="text-gray-600 mb-6 leading-relaxed">
+                        Komunitas Literasi Sekolah (KLS) beroperasi secara resmi sebagai bagian dari organisasi kesiswaan di bawah naungan <strong>SMPIT As-Syifa Boarding School Jalancagak</strong>.
+                    </p>
+                    <div class="space-y-6 mt-8">
+                        <div class="flex gap-4 group cursor-pointer transition-all duration-300 hover:translate-x-2">
+                            <div class="flex-shrink-0 w-12 h-12 bg-kls-lightBrown text-kls-brown rounded-full flex items-center justify-center text-xl transition-all duration-300 group-hover:bg-kls-brown group-hover:text-kls-yellow">
+                                <i class="fa-solid fa-handshake"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xl font-bold text-kls-black mb-1">Organisasi Mitra BEM</h4>
+                                <p class="text-gray-600 text-sm">Dilantik bersama pengurus BEM dan mitra lainnya (Duta Bahasa & Hamas) untuk menjangkau seluruh santri.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 group cursor-pointer transition-all duration-300 hover:translate-x-2">
+                            <div class="flex-shrink-0 w-12 h-12 bg-kls-lightBrown text-kls-brown rounded-full flex items-center justify-center text-xl transition-all duration-300 group-hover:bg-kls-brown group-hover:text-kls-yellow">
+                                <i class="fa-solid fa-sitemap"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xl font-bold text-kls-black mb-1">Struktur Fungsional</h4>
+                                <p class="text-gray-600 text-sm">Dipimpin oleh seorang ketua dengan dukungan koordinator bidang baca-tulis, literasi digital, hingga literasi budaya.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Program Unggulan Section -->
+    <section id="program" class="py-24 bg-kls-gray">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16" data-aos="fade-up" data-aos-duration="800">
+                <div class="flex items-center justify-center gap-4 mb-4">
+                    <div class="h-[2px] w-12 bg-kls-yellow"></div>
+                    <h2 class="text-kls-brown font-bold tracking-widest uppercase text-sm">Agenda KLS</h2>
+                    <div class="h-[2px] w-12 bg-kls-yellow"></div>
+                </div>
+                <h3 class="text-3xl md:text-4xl font-serif font-bold text-kls-black mb-4">Program Kerja Unggulan</h3>
+                <p class="text-gray-600 text-lg">Dirancang khusus untuk mengintegrasikan literasi ke dalam rutinitas asrama dan sekolah secara menyenangkan.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-kls-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-xl hover:border-kls-yellow transition-all duration-300 group overflow-hidden relative card-hover" data-aos="fade-up" data-aos-duration="800" data-aos-delay="100">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-kls-lightBrown rounded-bl-full -mr-16 -mt-16 transition-all duration-500 group-hover:scale-110"></div>
+                    <div class="w-14 h-14 bg-kls-brown text-kls-yellow rounded-xl flex items-center justify-center text-2xl mb-6 relative z-10 shadow-md transition-all duration-300 group-hover:scale-110 group-hover:rotate-6">
+                        <i class="fa-solid fa-book-reader"></i>
+                    </div>
+                    <h4 class="text-2xl font-serif font-bold text-kls-black mb-3">Sabtu Literasi (Silent Reading)</h4>
+                    <p class="text-gray-600 leading-relaxed">Kegiatan rutin setiap Sabtu pagi. Seluruh santri membaca buku non-pelajaran di lapangan selama 10 menit, dilanjutkan dengan sesi presentasi hasil bacaan.</p>
+                </div>
+                <div class="bg-kls-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-xl hover:border-kls-yellow transition-all duration-300 group overflow-hidden relative card-hover" data-aos="fade-up" data-aos-duration="800" data-aos-delay="200">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-kls-lightBrown rounded-bl-full -mr-16 -mt-16 transition-all duration-500 group-hover:scale-110"></div>
+                    <div class="w-14 h-14 bg-kls-brown text-kls-yellow rounded-xl flex items-center justify-center text-2xl mb-6 relative z-10 shadow-md transition-all duration-300 group-hover:scale-110 group-hover:rotate-6">
+                        <i class="fa-solid fa-tent"></i>
+                    </div>
+                    <h4 class="text-2xl font-serif font-bold text-kls-black mb-3">Jambore Literasi "Fantastic"</h4>
+                    <p class="text-gray-600 leading-relaxed">Agenda tahunan penyambutan siswa baru. Berisi workshop menulis kreatif, pelatihan komunikasi, hingga permainan tradisional edukatif untuk membangun kreativitas.</p>
+                </div>
+                <div class="bg-kls-darkBrown text-kls-white rounded-2xl p-8 shadow-lg border-b-4 border-kls-yellow hover:shadow-xl transition-all duration-300 group overflow-hidden relative card-hover" data-aos="fade-up" data-aos-duration="800" data-aos-delay="300">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-kls-brown rounded-bl-full -mr-16 -mt-16 transition-all duration-500 group-hover:scale-110"></div>
+                    <div class="w-14 h-14 bg-kls-yellow text-kls-darkBrown rounded-xl flex items-center justify-center text-2xl mb-6 relative z-10 shadow-md transition-all duration-300 group-hover:scale-110 group-hover:-rotate-6">
+                        <i class="fa-solid fa-calendar-star"></i>
+                    </div>
+                    <h4 class="text-2xl font-serif font-bold text-kls-white mb-3">Hari Literasi Internasional</h4>
+                    <p class="text-gray-300 leading-relaxed">Perayaan akbar setiap bulan September. Diisi dengan rangkaian kampanye pentingnya literasi serta perlombaan kreatif antar santri.</p>
+                </div>
+                <div class="bg-kls-darkBrown text-kls-white rounded-2xl p-8 shadow-lg border-b-4 border-kls-yellow hover:shadow-xl transition-all duration-300 group overflow-hidden relative card-hover" data-aos="fade-up" data-aos-duration="800" data-aos-delay="400">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-kls-brown rounded-bl-full -mr-16 -mt-16 transition-all duration-500 group-hover:scale-110"></div>
+                    <div class="w-14 h-14 bg-kls-yellow text-kls-darkBrown rounded-xl flex items-center justify-center text-2xl mb-6 relative z-10 shadow-md transition-all duration-300 group-hover:scale-110 group-hover:-rotate-6">
+                        <i class="fa-solid fa-microphone-lines"></i>
+                    </div>
+                    <h4 class="text-2xl font-serif font-bold text-kls-white mb-3">Literasi Digital & Podcast</h4>
+                    <p class="text-gray-300 leading-relaxed">Membekali santri tentang etika berinternet agar terhindar dari kejahatan siber, serta pelatihan pembuatan konten positif melalui podcast.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- KARYA SANTRI WRAPPER -->
+    <div id="karya" class="bg-kls-white pt-24 pb-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-12" data-aos="fade-up" data-aos-duration="800">
+                <div class="flex items-center justify-center gap-4 mb-4">
+                    <div class="h-[2px] w-12 bg-kls-yellow"></div>
+                    <h2 class="text-kls-brown font-bold tracking-widest uppercase text-sm">Portofolio Santri</h2>
+                    <div class="h-[2px] w-12 bg-kls-yellow"></div>
+                </div>
+                <h3 class="text-3xl md:text-4xl font-serif font-bold text-kls-black">Jejak Karya KLS</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Katalog Resensi Pilihan -->
+    <section id="katalog-resensi" class="pb-16 bg-kls-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between mb-8 border-b-2 border-kls-lightBrown pb-4" data-aos="fade-up" data-aos-duration="800">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-book-bookmark text-2xl text-kls-brown"></i>
+                    <h4 class="text-2xl font-bold text-kls-black font-serif">Katalog Resensi Pilihan</h4>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-kls-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 flex flex-col h-full" data-aos="fade-up" data-aos-duration="800" data-aos-delay="100">
+                    <div class="h-48 bg-gray-200 relative overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=600" alt="Buku" class="w-full h-full object-cover transition-all duration-500 hover:scale-110">
+                        <div class="absolute top-3 right-3 bg-kls-yellow text-kls-darkBrown text-xs font-bold px-2 py-1 rounded">Bulan Ini</div>
+                    </div>
+                    <div class="p-5 flex-grow flex flex-col">
+                        <p class="text-xs text-gray-500 mb-2 uppercase tracking-wide">Fiksi Sejarah</p>
+                        <h5 class="font-bold text-lg mb-1 leading-tight text-kls-black">Bumi Manusia</h5>
+                        <p class="text-sm text-kls-brown italic mb-3">Pramoedya Ananta Toer</p>
+                        <p class="text-gray-600 text-sm line-clamp-3 mb-4 flex-grow">"Sebuah mahakarya yang membuka mata tentang perlawanan melalui tulisan. Minke mengajarkan kita bahwa terpelajar itu harus adil sejak dalam pikiran."</p>
+                        <div class="flex items-center gap-3 mt-auto pt-4 border-t border-gray-100">
+                            <div class="w-8 h-8 rounded-full bg-kls-brown text-kls-white flex items-center justify-center text-xs font-bold">A</div>
+                            <div><p class="text-xs font-bold text-kls-black">Ahmad Fauzan</p><p class="text-[10px] text-gray-500">Kelas 8B</p></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-kls-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 flex flex-col h-full" data-aos="fade-up" data-aos-duration="800" data-aos-delay="200">
+                    <div class="h-48 bg-gray-200 relative overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&q=80&w=600" alt="Buku" class="w-full h-full object-cover transition-all duration-500 hover:scale-110">
+                    </div>
+                    <div class="p-5 flex-grow flex flex-col">
+                        <p class="text-xs text-gray-500 mb-2 uppercase tracking-wide">Pengembangan Diri</p>
+                        <h5 class="font-bold text-lg mb-1 leading-tight text-kls-black">Atomic Habits</h5>
+                        <p class="text-sm text-kls-brown italic mb-3">James Clear</p>
+                        <p class="text-gray-600 text-sm line-clamp-3 mb-4 flex-grow">"Buku ini sangat relevan untuk kehidupan asrama. Saya belajar bahwa perubahan besar dimulai dari kebiasaan kecil 1% setiap harinya."</p>
+                        <div class="flex items-center gap-3 mt-auto pt-4 border-t border-gray-100">
+                            <div class="w-8 h-8 rounded-full bg-kls-yellow text-kls-darkBrown flex items-center justify-center text-xs font-bold">S</div>
+                            <div><p class="text-xs font-bold text-kls-black">Siti Aisyah</p><p class="text-[10px] text-gray-500">Kelas 9A</p></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-kls-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 flex flex-col h-full" data-aos="fade-up" data-aos-duration="800" data-aos-delay="300">
+                    <div class="h-48 bg-gray-200 relative overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1614165936126-2ed18e471b3b?auto=format&fit=crop&q=80&w=600" alt="Buku" class="w-full h-full object-cover transition-all duration-500 hover:scale-110">
+                    </div>
+                    <div class="p-5 flex-grow flex flex-col">
+                        <p class="text-xs text-gray-500 mb-2 uppercase tracking-wide">Sains & Religi</p>
+                        <h5 class="font-bold text-lg mb-1 leading-tight text-kls-black">Ayat-Ayat Semesta</h5>
+                        <p class="text-sm text-kls-brown italic mb-3">Agus Purwanto</p>
+                        <p class="text-gray-600 text-sm line-clamp-3 mb-4 flex-grow">"Menggabungkan ilmu fisika dengan Al-Quran. Membaca ini membuat saya semakin takjub dengan kebesaran penciptaan alam semesta."</p>
+                        <div class="flex items-center gap-3 mt-auto pt-4 border-t border-gray-100">
+                            <div class="w-8 h-8 rounded-full bg-kls-darkBrown text-kls-white flex items-center justify-center text-xs font-bold">R</div>
+                            <div><p class="text-xs font-bold text-kls-black">Rizky Ramadhan</p><p class="text-[10px] text-gray-500">Kelas 7C</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mading Digital (6 Karya) -->
+    <section id="mading-digital" class="py-16 bg-kls-gray relative border-t border-b border-gray-200 shadow-inner">
+        <div class="absolute inset-0 opacity-[0.03]" style="background-image: url('data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' viewBox=\'0 0 20 20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%235D4037\' fill-opacity=\'1\' fill-rule=\'evenodd\'%3E%3Ccircle cx=\'3\' cy=\'3\' r=\'3\'/%3E%3Ccircle cx=\'13\' cy=\'13\' r=\'3\'/%3E%3C/g%3E%3C/svg%3E');"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="flex items-center gap-3 mb-8" data-aos="fade-right" data-aos-duration="800">
+                <i class="fa-solid fa-thumbtack text-2xl text-kls-brown transform -rotate-45"></i>
+                <h4 class="text-2xl font-bold text-kls-black font-serif">Mading Digital</h4>
+            </div>
+            <div class="flex overflow-x-auto gap-6 pb-8 pt-4 mading-scroll snap-x" data-aos="fade-up" data-aos-duration="800">
+                <div class="flex-none w-72 sm:w-80 bg-kls-lightBrown p-6 rounded shadow-md transform rotate-1 hover:rotate-0 transition-all duration-300 hover:scale-105 relative snap-center cursor-pointer karya-item" data-karya="1">
+                    <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 text-kls-brown text-xl"><i class="fa-solid fa-thumbtack"></i></div>
+                    <div class="bg-white p-5 h-full shadow-sm">
+                        <p class="text-[10px] text-gray-500 mb-2 uppercase font-bold tracking-wider">Puisi</p>
+                        <h5 class="font-serif font-bold text-lg mb-3">Aksara Malam</h5>
+                        <div class="text-gray-700 text-sm italic font-serif mb-4 line-clamp-4">"Di sudut asrama yang sunyi,<br>Ku rangkai kata menjadi bait.<br>Bukan untuk dipuji,<br>Hanya jejak pikiran yang terkait..."</div>
+                        <p class="text-xs text-right text-kls-brown font-bold mt-4">- Nabila F.</p>
+                    </div>
+                </div>
+                <div class="flex-none w-72 sm:w-80 bg-white p-3 rounded shadow-md transform -rotate-1 hover:rotate-0 transition-all duration-300 hover:scale-105 relative snap-center cursor-pointer karya-item" data-karya="2">
+                    <div class="absolute -top-3 right-4 text-kls-yellow text-xl drop-shadow-md"><i class="fa-solid fa-thumbtack"></i></div>
+                    <div class="h-48 bg-gray-200 mb-3 overflow-hidden rounded-sm relative">
+                        <img src="https://images.unsplash.com/photo-1542435503-956c469947f6?auto=format&fit=crop&q=80&w=600" alt="Poster" class="w-full h-full object-cover transition-all duration-500 hover:scale-110">
+                    </div>
+                    <div><p class="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Poster Digital</p><h5 class="font-bold text-sm text-kls-black">Kampanye Stop Hoaks</h5></div>
+                </div>
+                <div class="flex-none w-72 sm:w-80 bg-yellow-50 p-6 rounded shadow-md transform rotate-2 hover:rotate-0 transition-all duration-300 hover:scale-105 relative snap-center cursor-pointer karya-item" data-karya="3">
+                    <div class="absolute -top-2 left-6 w-8 h-3 bg-red-400/50 transform -rotate-12"></div>
+                    <div><p class="text-[10px] text-gray-500 mb-2 uppercase font-bold tracking-wider">Cerpen</p><h5 class="font-serif font-bold text-lg mb-2">Sepatu Berdebu</h5><p class="text-gray-700 text-sm leading-relaxed line-clamp-4">"Angin Jalancagak berhembus dingin pagi itu. Rian merapatkan kerah seragamnya. Di tangannya, sebuah buku usang..."</p></div>
+                </div>
+                <div class="flex-none w-72 sm:w-80 bg-blue-50 p-6 rounded shadow-md transform -rotate-1 hover:rotate-0 transition-all duration-300 hover:scale-105 relative snap-center cursor-pointer karya-item" data-karya="4">
+                    <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 text-kls-brown text-xl"><i class="fa-solid fa-thumbtack"></i></div>
+                    <div class="bg-white p-5 h-full shadow-sm">
+                        <p class="text-[10px] text-gray-500 mb-2 uppercase font-bold tracking-wider">Puisi</p>
+                        <h5 class="font-serif font-bold text-lg mb-3">Pelita Ilmu</h5>
+                        <div class="text-gray-700 text-sm italic font-serif mb-4 line-clamp-4">"Di balik jendela asrama yang redup,<br>Kutatap langit mencari arti.<br>Setiap huruf adalah pelita,<br>Menerangi sunyi di sini..."</div>
+                        <p class="text-xs text-right text-kls-brown font-bold mt-4">- Fathimah Azzahra</p>
+                    </div>
+                </div>
+                <div class="flex-none w-72 sm:w-80 bg-green-50 p-6 rounded shadow-md transform rotate-1 hover:rotate-0 transition-all duration-300 hover:scale-105 relative snap-center cursor-pointer karya-item" data-karya="5">
+                    <div class="absolute -top-2 left-6 w-8 h-3 bg-yellow-400/50 transform rotate-6"></div>
+                    <div><p class="text-[10px] text-gray-500 mb-2 uppercase font-bold tracking-wider">Cerpen</p><h5 class="font-serif font-bold text-lg mb-2">Hujan di Senja</h5><p class="text-gray-700 text-sm leading-relaxed line-clamp-4">"Air hujan membasahi tembok asrama. Dara duduk di pojok ruang baca..."</p></div>
+                </div>
+                <div class="flex-none w-72 sm:w-80 bg-purple-50 p-6 rounded shadow-md transform -rotate-2 hover:rotate-0 transition-all duration-300 hover:scale-105 relative snap-center cursor-pointer karya-item" data-karya="6">
+                    <div class="absolute -top-3 right-4 text-kls-yellow text-xl drop-shadow-md"><i class="fa-solid fa-thumbtack"></i></div>
+                    <div class="bg-white p-5 h-full shadow-sm">
+                        <p class="text-[10px] text-gray-500 mb-2 uppercase font-bold tracking-wider">Esai Reflektif</p>
+                        <h5 class="font-serif font-bold text-lg mb-3">Buku, Jendela Asrama</h5>
+                        <div class="text-gray-700 text-sm italic font-serif mb-4 line-clamp-4">"Di tengah kerasnya disiplin asrama, buku adalah teman paling setia..."</div>
+                        <p class="text-xs text-right text-kls-brown font-bold mt-4">- M. Rizki H.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-center mt-2 items-center gap-2 text-sm text-gray-500" data-aos="fade-up" data-aos-duration="600">
+                <i class="fa-solid fa-left-right"></i> Geser untuk melihat karya lainnya (Klik untuk baca detail)
+            </div>
+        </div>
+    </section>
+
+    <!-- Fokus & Tujuan Section -->
+    <section id="fokus" class="py-24 bg-kls-white relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-1/2 bg-kls-brown transform -skew-y-3 origin-top-left -z-10 mt-20"></div>
+        <div class="absolute top-0 right-0 w-64 h-64 bg-kls-yellow opacity-10 rounded-full blur-3xl"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col lg:flex-row justify-between items-end mb-16 relative z-10" data-aos="fade-up" data-aos-duration="800">
+                <div class="lg:w-2/3"><h2 class="text-kls-yellow font-bold tracking-widest uppercase text-sm mb-4">Visi Kami</h2><h3 class="text-3xl md:text-4xl font-serif font-bold text-kls-black lg:text-kls-white leading-tight">Lebih Dari Sekadar Membaca Buku</h3></div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative z-10">
+                <div class="bg-kls-white p-10 rounded-2xl shadow-xl border border-gray-100 text-center flex flex-col items-center hover:-translate-y-2 transition-all duration-300 card-hover" data-aos="fade-up" data-aos-duration="800" data-aos-delay="100">
+                    <div class="w-20 h-20 bg-kls-lightBrown rounded-full flex items-center justify-center text-kls-brown text-3xl mb-6 shadow-inner border-2 border-white transition-all duration-300 hover:scale-110"><i class="fa-solid fa-seedling"></i></div>
+                    <h4 class="text-xl font-bold text-kls-black mb-4">Membangun Karakter</h4><p class="text-gray-600">Menumbuhkan budi pekerti yang luhur dan mentalitas pembelajar sepanjang hayat.</p>
+                </div>
+                <div class="bg-kls-white p-10 rounded-2xl shadow-xl border border-gray-100 text-center flex flex-col items-center hover:-translate-y-2 transition-all duration-300 card-hover" data-aos="fade-up" data-aos-duration="800" data-aos-delay="200">
+                    <div class="w-20 h-20 bg-kls-lightBrown rounded-full flex items-center justify-center text-kls-brown text-3xl mb-6 shadow-inner border-2 border-white transition-all duration-300 hover:scale-110"><i class="fa-solid fa-brain"></i></div>
+                    <h4 class="text-xl font-bold text-kls-black mb-4">Berpikir Kritis</h4><p class="text-gray-600">Mendorong kemampuan menganalisis informasi, membedakan fakta dan opini.</p>
+                </div>
+                <div class="bg-kls-white p-10 rounded-2xl shadow-xl border border-gray-100 text-center flex flex-col items-center hover:-translate-y-2 transition-all duration-300 card-hover" data-aos="fade-up" data-aos-duration="800" data-aos-delay="300">
+                    <div class="w-20 h-20 bg-kls-yellow rounded-full flex items-center justify-center text-kls-darkBrown text-3xl mb-6 shadow-inner border-2 border-white transition-all duration-300 hover:scale-110"><i class="fa-solid fa-hands-asl-interpreting"></i></div>
+                    <h4 class="text-xl font-bold text-kls-black mb-4">Literasi Inklusif</h4><p class="text-gray-600">Mengenalkan literasi universal, budaya lokal, dan dasar bahasa isyarat.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Wajah Organisasi - Pengurus Baru -->
+    <section id="pengurus" class="py-24 bg-kls-gray border-t border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16" data-aos="fade-up" data-aos-duration="800">
+                <div class="flex items-center justify-center gap-4 mb-4">
+                    <div class="h-[2px] w-12 bg-kls-yellow"></div>
+                    <h2 class="text-kls-brown font-bold tracking-widest uppercase text-sm">Wajah Organisasi</h2>
+                    <div class="h-[2px] w-12 bg-kls-yellow"></div>
+                </div>
+                <h3 class="text-3xl md:text-4xl font-serif font-bold text-kls-black">Motor Penggerak KLS</h3>
+                <p class="text-gray-600 mt-4">Mereka yang berdedikasi di balik layar untuk menghidupkan ekosistem literasi sekolah.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-center">
+                <!-- Ketua KLS: Putra Azzam Elfathin (Spesial, bisa diklik) -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 text-center border border-gray-100 gold-border cursor-pointer" id="ketua-azzam" data-aos="fade-up" data-aos-duration="800" data-aos-delay="100">
+                    <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=300" alt="Putra Azzam Elfathin" class="w-32 h-32 rounded-full mx-auto mb-4 object-cover border-4 border-kls-yellow glow-photo">
+                    <div class="absolute top-3 right-3 bg-kls-yellow text-kls-darkBrown text-xs font-bold px-2 py-1 rounded-full animate-pulse"><i class="fa-solid fa-crown"></i> LEGEND</div>
+                    <h4 class="font-bold text-lg text-kls-black">Putra Azzam Elfathin</h4>
+                    <p class="text-sm text-kls-brown font-medium mb-3">Ketua KLS</p>
+                    <div class="flex justify-center gap-1 mb-2">
+                        <i class="fa-solid fa-graduation-cap text-kls-yellow text-xs"></i>
+                        <i class="fa-solid fa-graduation-cap text-kls-yellow text-xs"></i>
+                        <i class="fa-solid fa-graduation-cap text-kls-yellow text-xs"></i>
+                        <i class="fa-solid fa-graduation-cap text-kls-yellow text-xs"></i>
+                        <i class="fa-solid fa-graduation-cap text-kls-yellow text-xs"></i>
+                    </div>
+                    <p class="text-xs text-gray-500 px-2 italic">"Klik untuk melihat biografi lengkap sang legenda"</p>
+                </div>
+
+                <!-- Sekretaris: Rangga Almera -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 text-center border border-gray-100" data-aos="fade-up" data-aos-duration="800" data-aos-delay="200">
+                    <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=300" alt="Rangga Almera" class="w-32 h-32 rounded-full mx-auto mb-4 object-cover border-4 border-kls-lightBrown transition-all duration-300 hover:scale-110">
+                    <h4 class="font-bold text-lg text-kls-black">Rangga Almera</h4>
+                    <p class="text-sm text-kls-brown font-medium mb-3">Sekretaris KLS</p>
+                    <p class="text-xs text-gray-500 px-2">"Mengatur administrasi dengan presisi dan ketelitian tinggi."</p>
+                </div>
+
+                <!-- Bendahara: Faqih Muyassar -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 text-center border border-gray-100" data-aos="fade-up" data-aos-duration="800" data-aos-delay="300">
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=300" alt="Faqih Muyassar" class="w-32 h-32 rounded-full mx-auto mb-4 object-cover border-4 border-kls-lightBrown transition-all duration-300 hover:scale-110">
+                    <h4 class="font-bold text-lg text-kls-black">Faqih Muyassar</h4>
+                    <p class="text-sm text-kls-brown font-medium mb-3">Bendahara KLS</p>
+                    <p class="text-xs text-gray-500 px-2">"Menjaga amanah keuangan dengan integritas dan transparansi."</p>
+                </div>
+            </div>
+            <p class="text-center text-xs text-gray-400 mt-8"><i class="fa-solid fa-info-circle"></i> Ketua KLS memiliki garis emas - klik untuk melihat biografi spesial</p>
+        </div>
+    </section>
+
+    <!-- Bukti Nyata (Testimoni) -->
+    <section class="py-24 bg-kls-darkBrown text-kls-white relative overflow-hidden">
+        <div class="absolute top-10 right-10 text-kls-brown opacity-20"><i class="fa-solid fa-quote-right text-9xl"></i></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center mb-16" data-aos="fade-up" data-aos-duration="800">
+                <h3 class="text-3xl md:text-4xl font-serif font-bold text-kls-yellow mb-4">Apa Kata Mereka?</h3>
+                <p class="text-gray-300">Dampak nyata kehadiran Komunitas Literasi Sekolah di As-Syifa.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-kls-black/40 p-8 rounded-2xl border border-kls-brown/50 hover:border-kls-yellow transition-all duration-300 hover:scale-105" data-aos="fade-up" data-aos-duration="800" data-aos-delay="100">
+                    <div class="text-kls-yellow mb-4"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                    <p class="text-gray-300 italic mb-6 leading-relaxed">"KLS sangat membantu mencetak generasi santri yang tidak hanya cerdas secara akademis, tetapi juga tajam dalam menganalisis informasi di era gempuran hoaks saat ini."</p>
+                    <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-kls-brown flex items-center justify-center text-kls-white font-bold">U</div><div><h5 class="font-bold text-kls-white text-sm">Ustadz Pembina</h5><p class="text-xs text-kls-yellow">Kesiswaan SMPIT As-Syifa</p></div></div>
+                </div>
+                <div class="bg-kls-black/40 p-8 rounded-2xl border border-kls-brown/50 hover:border-kls-yellow transition-all duration-300 hover:scale-105 transform md:-translate-y-4" data-aos="fade-up" data-aos-duration="800" data-aos-delay="200">
+                    <div class="text-kls-yellow mb-4"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                    <p class="text-gray-300 italic mb-6 leading-relaxed">"Program Sabtu Literasi mengubah pandangan saya. Awalnya membaca buku non-pelajaran terasa membosankan, kini jadi kebiasaan yang paling saya tunggu."</p>
+                    <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-kls-brown flex items-center justify-center text-kls-white font-bold">D</div><div><h5 class="font-bold text-kls-white text-sm">Daffa Izzuddin</h5><p class="text-xs text-kls-yellow">Santri Kelas 9 (Anggota KLS)</p></div></div>
+                </div>
+                <div class="bg-kls-black/40 p-8 rounded-2xl border border-kls-brown/50 hover:border-kls-yellow transition-all duration-300 hover:scale-105" data-aos="fade-up" data-aos-duration="800" data-aos-delay="300">
+                    <div class="text-kls-yellow mb-4"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                    <p class="text-gray-300 italic mb-6 leading-relaxed">"Sinergi KLS dengan BEM sangat luar biasa. Acara Jambore Literasi Fantastic tahun lalu sukses besar membuat siswa baru betah di asrama."</p>
+                    <div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-kls-brown flex items-center justify-center text-kls-white font-bold">K</div><div><h5 class="font-bold text-kls-white text-sm">Ketua BEM</h5><p class="text-xs text-kls-yellow">Periode 2025/2026</p></div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="py-24 bg-kls-white">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12" data-aos="fade-up" data-aos-duration="800">
+                <h2 class="text-kls-brown font-bold tracking-widest uppercase text-sm mb-4">Pusat Bantuan</h2>
+                <h3 class="text-3xl md:text-4xl font-serif font-bold text-kls-black">Pertanyaan Seputar KLS</h3>
+            </div>
+            <div class="space-y-4" data-aos="fade-up" data-aos-duration="800" data-aos-delay="100">
+                <details class="group bg-kls-gray rounded-lg border border-gray-200 cursor-pointer transition-all duration-300 hover:shadow-md" open>
+                    <summary class="flex justify-between items-center font-bold text-lg p-5 text-kls-black hover:text-kls-brown transition-colors">Apakah wajib pintar menulis untuk masuk KLS?<span class="transition-all duration-300 group-open:rotate-180"><i class="fa-solid fa-chevron-down text-kls-brown"></i></span></summary>
+                    <div class="text-gray-600 p-5 pt-0 border-t border-gray-200 mt-2"><p class="mt-2">Sama sekali tidak! KLS adalah tempat untuk belajar bersama. Kami memiliki program pelatihan internal mulai dari dasar untuk siapa saja yang memiliki minat, terlepas dari kemampuan awalnya.</p></div>
+                </details>
+                <details class="group bg-kls-gray rounded-lg border border-gray-200 cursor-pointer transition-all duration-300 hover:shadow-md">
+                    <summary class="flex justify-between items-center font-bold text-lg p-5 text-kls-black hover:text-kls-brown transition-colors">Kapan jadwal kegiatan rutin KLS dilaksanakan?<span class="transition-all duration-300 group-open:rotate-180"><i class="fa-solid fa-chevron-down text-kls-brown"></i></span></summary>
+                    <div class="text-gray-600 p-5 pt-0 border-t border-gray-200 mt-2"><p class="mt-2">Kegiatan besar (publik) dilaksanakan pada Sabtu Literasi. Sedangkan untuk kumpul internal pengurus dan pelatihan, biasanya dijadwalkan pada waktu luang sore hari agar tidak mengganggu KBM dan kegiatan asrama lainnya.</p></div>
+                </details>
+                <details class="group bg-kls-gray rounded-lg border border-gray-200 cursor-pointer transition-all duration-300 hover:shadow-md">
+                    <summary class="flex justify-between items-center font-bold text-lg p-5 text-kls-black hover:text-kls-brown transition-colors">Bagaimana tahapan pendaftaran anggota baru KLS?<span class="transition-all duration-300 group-open:rotate-180"><i class="fa-solid fa-chevron-down text-kls-brown"></i></span></summary>
+                    <div class="text-gray-600 p-5 pt-0 border-t border-gray-200 mt-2"><p class="mt-2">Pendaftaran dibuka awal semester genap. Calon anggota mendaftar via link yang disediakan, mengikuti tes minat bakat ringan, lalu mengikuti tahap akhir yaitu Pelatihan Khusus di Camping Ground As-Syifa sebelum resmi dilantik.</p></div>
+                </details>
+                <details class="group bg-kls-gray rounded-lg border border-gray-200 cursor-pointer transition-all duration-300 hover:shadow-md">
+                    <summary class="flex justify-between items-center font-bold text-lg p-5 text-kls-black hover:text-kls-brown transition-colors">Buku apa saja yang boleh dibaca saat Sabtu Literasi?<span class="transition-all duration-300 group-open:rotate-180"><i class="fa-solid fa-chevron-down text-kls-brown"></i></span></summary>
+                    <div class="text-gray-600 p-5 pt-0 border-t border-gray-200 mt-2"><p class="mt-2">Kami membebaskan santri membaca buku non-pelajaran yang mendidik. Bisa berupa novel sejarah, buku pengembangan diri, biografi tokoh, sains populer, atau antologi cerpen yang sudah dikurasi oleh tim literasi asrama.</p></div>
+                </details>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section id="bergabung" class="py-20 bg-kls-yellow">
+        <div class="max-w-4xl mx-auto px-4 text-center" data-aos="zoom-in" data-aos-duration="800">
+            <h2 class="text-3xl md:text-5xl font-serif font-bold text-kls-black mb-6">Siap Menjadi Bagian dari Penggerak Literasi?</h2>
+            <p class="text-kls-brown text-xl mb-10 max-w-2xl mx-auto font-medium">Jadilah agen perubahan. Kembangkan dirimu, tingkatkan wawasanmu, dan berikan dampak positif untuk lingkungan sekitarmu.</p>
+            <button class="bg-kls-black hover:bg-gray-800 text-kls-white font-bold text-lg px-10 py-4 rounded-full shadow-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-2xl flex items-center justify-center gap-3 mx-auto group"><span>Daftar Calon Anggota</span><i class="fa-solid fa-arrow-right transition-all duration-300 group-hover:translate-x-2"></i></button>
+            <p class="text-sm text-kls-brown mt-4 font-medium"><i class="fa-solid fa-info-circle"></i> Pendaftaran Gelombang 1 ditutup pada 30 April 2026</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-kls-black text-kls-white pt-16 pb-8 border-t-8 border-kls-brown">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12 border-b border-gray-800 pb-12">
+                <div class="col-span-1 md:col-span-2" data-aos="fade-right" data-aos-duration="800">
+                    <div class="flex items-center gap-3 mb-6"><div class="w-10 h-10 bg-kls-yellow text-kls-black flex items-center justify-center rounded-lg transition-all duration-300 hover:scale-110"><i class="fa-solid fa-book-open text-xl"></i></div><div><span class="font-serif font-bold text-2xl block leading-none">KLS</span><span class="text-xs text-kls-yellow font-medium tracking-wider">SMPIT AS-SYIFA</span></div></div>
+                    <p class="text-gray-400 leading-relaxed max-w-md">Organisasi Kesiswaan Mitra BEM yang berdedikasi penuh dalam memajukan budaya literasi santri SMPIT As-Syifa Boarding School Jalancagak.</p>
+                    <div class="flex gap-4 mt-6"><a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-kls-yellow hover:text-kls-black transition-all duration-300 hover:scale-110 text-gray-400"><i class="fa-brands fa-instagram"></i></a><a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-kls-yellow hover:text-kls-black transition-all duration-300 hover:scale-110 text-gray-400"><i class="fa-brands fa-youtube"></i></a></div>
+                </div>
+                <div data-aos="fade-up" data-aos-duration="800" data-aos-delay="100"><h4 class="text-kls-white font-bold text-lg mb-6 uppercase tracking-wider">Navigasi</h4><ul class="space-y-3"><li><a href="#pengumuman" class="text-gray-400 hover:text-kls-yellow transition-all duration-300 hover:translate-x-2 inline-block">Berita & Info</a></li><li><a href="#tentang" class="text-gray-400 hover:text-kls-yellow transition-all duration-300 hover:translate-x-2 inline-block">Tentang KLS</a></li><li><a href="#program" class="text-gray-400 hover:text-kls-yellow transition-all duration-300 hover:translate-x-2 inline-block">Program Unggulan</a></li><li><a href="#karya" class="text-gray-400 hover:text-kls-yellow transition-all duration-300 hover:translate-x-2 inline-block">Karya Santri</a></li><li><a href="#faq" class="text-gray-400 hover:text-kls-yellow transition-all duration-300 hover:translate-x-2 inline-block">FAQ</a></li></ul></div>
+                <div data-aos="fade-up" data-aos-duration="800" data-aos-delay="200"><h4 class="text-kls-white font-bold text-lg mb-6 uppercase tracking-wider">Kontak</h4><ul class="space-y-4"><li class="flex items-start gap-3 group"><i class="fa-solid fa-location-dot mt-1 text-kls-yellow transition-all duration-300 group-hover:translate-x-1"></i><span class="text-gray-400 text-sm">SMPIT As-Syifa Boarding School, Jl. Subang-Bandung KM 12, Jalancagak, Subang.</span></li><li class="flex items-center gap-3 group"><i class="fa-solid fa-envelope text-kls-yellow transition-all duration-300 group-hover:translate-x-1"></i><span class="text-gray-400 text-sm">kls@assyifa-boardingschool.sch.id</span></li></ul></div>
+            </div>
+            <div class="text-center md:flex md:justify-between md:items-center" data-aos="fade-up" data-aos-duration="600"><p class="text-gray-500 text-sm">&copy; 2026 Komunitas Literasi Sekolah (KLS) SMPIT As-Syifa. All rights reserved.</p><p class="text-gray-500 text-sm mt-2 md:mt-0 flex items-center justify-center gap-1">Dibuat dengan <i class="fa-solid fa-heart text-kls-brown animate-pulse"></i> untuk budaya literasi.</p></div>
+        </div>
+    </footer>
+
+    <!-- MODAL UNTUK BIOGRAFI PUTRA AZZAM ELFATHIN -->
+    <div id="azzamModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+        <div class="absolute inset-0 modal-backdrop"></div>
+        <div class="relative bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl z-10 transform transition-all duration-300 scale-100">
+            <div class="sticky top-0 bg-gradient-to-r from-kls-brown to-kls-darkBrown p-5 rounded-t-2xl flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-crown text-kls-yellow text-2xl"></i>
+                    <h3 class="font-bold text-xl text-kls-yellow">Profil Legendaris: Putra Azzam Elfathin</h3>
+                </div>
+                <button onclick="closeModal('azzamModal')" class="text-kls-yellow hover:text-white text-3xl transition-all duration-300 hover:rotate-90">&times;</button>
+            </div>
+            <div class="p-6">
+                <div class="flex flex-col md:flex-row gap-6 mb-6">
+                    <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=300" alt="Putra Azzam Elfathin" class="w-40 h-40 rounded-full mx-auto md:mx-0 object-cover border-4 border-kls-yellow shadow-xl">
+                    <div class="flex-1 text-center md:text-left">
+                        <h2 class="text-2xl font-bold text-kls-black">Putra Azzam Elfathin, S.Kom., M.Pd., M.Si., Ph.D., D.Sc.</h2>
+                        <p class="text-kls-brown font-medium mb-2">Ketua Komunitas Literasi Sekolah (KLS) | Pemegang 5 Gelar Akademik Prestisius</p>
+                        <div class="flex flex-wrap gap-2 justify-center md:justify-start mt-3">
+                            <span class="bg-kls-yellow text-kls-darkBrown text-xs px-2 py-1 rounded-full"><i class="fa-solid fa-graduation-cap"></i> S.Kom</span>
+                            <span class="bg-kls-yellow text-kls-darkBrown text-xs px-2 py-1 rounded-full"><i class="fa-solid fa-graduation-cap"></i> M.Pd</span>
+                            <span class="bg-kls-yellow text-kls-darkBrown text-xs px-2 py-1 rounded-full"><i class="fa-solid fa-graduation-cap"></i> M.Si</span>
+                            <span class="bg-kls-yellow text-kls-darkBrown text-xs px-2 py-1 rounded-full"><i class="fa-solid fa-graduation-cap"></i> Ph.D</span>
+                            <span class="bg-kls-yellow text-kls-darkBrown text-xs px-2 py-1 rounded-full"><i class="fa-solid fa-graduation-cap"></i> D.Sc</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="border-t border-gray-200 pt-4">
+                    <h3 class="font-bold text-lg text-kls-brown mb-3"><i class="fa-solid fa-medal text-kls-yellow mr-2"></i> 5 Gelar Akademik & Prestasi</h3>
+                    <ul class="space-y-2 mb-4">
+                        <li class="flex items-start gap-2"><i class="fa-solid fa-check-circle text-kls-yellow mt-1"></i><span><strong>S.Kom (Sarjana Komputer)</strong> - Institut Teknologi Bandung, lulus termuda se-Indonesia dengan IPK 4.00 sempurna.</span></li>
+                        <li class="flex items-start gap-2"><i class="fa-solid fa-check-circle text-kls-yellow mt-1"></i><span><strong>M.Pd (Magister Pendidikan)</strong> - Universitas Pendidikan Indonesia, lulus dalam 1 tahun dengan predikat cumlaude.</span></li>
+                        <li class="flex items-start gap-2"><i class="fa-solid fa-check-circle text-kls-yellow mt-1"></i><span><strong>M.Si (Magister Sains)</strong> - Universitas Gadjah Mada, penelitian tentang literasi kuantum.</span></li>
+                        <li class="flex items-start gap-2"><i class="fa-solid fa-check-circle text-kls-yellow mt-1"></i><span><strong>Ph.D (Doktor Filsafat)</strong> - University of Cambridge, UK, gelar doktor termuda dari Asia pada usia 19 tahun.</span></li>
+                        <li class="flex items-start gap-2"><i class="fa-solid fa-check-circle text-kls-yellow mt-1"></i><span><strong>D.Sc (Doktor Sains)</strong> - Massachusetts Institute of Technology (MIT), penelitian tentang AI untuk literasi.</span></li>
+                    </ul>
+                    
+                    <h3 class="font-bold text-lg text-kls-brown mb-3 mt-6"><i class="fa-solid fa-flag-checkered text-kls-yellow mr-2"></i> Perjuangan Hidup Paling Berat</h3>
+                    <div class="bg-kls-lightBrown p-4 rounded-lg mb-4">
+                        <p class="text-gray-700 leading-relaxed">Putra Azzam Elfathin lahir dari keluarga sederhana di pelosok Subang. Ayahnya seorang buruh tani dan ibunya penjual sayur keliling. Sejak usia 7 tahun, ia sudah membantu orang tuanya berjualan sebelum berangkat ke madrasah. Setiap malam, ia belajar di bawah lampu minyak karena listrik belum masuk ke desanya.</p>
+                        <p class="text-gray-700 leading-relaxed mt-3">Tragedi terbesar datang saat ia berusia 12 tahun - ayahnya meninggal dunia karena sakit yang tidak bisa ditangani karena keterbatasan biaya. Sejak saat itu, ia menjadi tulang punggung keluarga. Siang hari ia bersekolah, sore hingga malam ia bekerja sebagai buruh angkut di pasar, lalu belajar hingga dini hari.</p>
+                        <p class="text-gray-700 leading-relaxed mt-3">Meski cobaan datang bertubi-tubi, ia tidak pernah menyerah. Berkat kegigihannya, ia berhasil meraih beasiswa penuh ke berbagai universitas top dunia. Perjuangannya ini dikenang sebagai salah satu kisah paling inspiratif di kalangan pemuda Indonesia.</p>
+                    </div>
+                    
+                    <h3 class="font-bold text-lg text-kls-brown mb-3"><i class="fa-solid fa-heart text-kls-yellow mr-2"></i> Dedikasi Tertinggi & Pengorbanan Paling Besar</h3>
+                    <div class="bg-kls-yellow/10 p-4 rounded-lg mb-4 border-l-4 border-kls-yellow">
+                        <p class="text-gray-700 leading-relaxed">✨ <strong>Dibandingkan seluruh anak seusianya</strong>, dedikasi Putra Azzam berada di level yang tidak tertandingi. Ia dikenal rela tidur hanya 3 jam per hari selama 5 tahun berturut-turut untuk mengejar mimpinya.</p>
+                        <p class="text-gray-700 leading-relaxed mt-3">✨ Ia pernah menolak tawaran pekerjaan dengan gaji miliaran rupiah di luar negeri demi kembali ke Indonesia dan mengabdikan ilmunya untuk membangun generasi muda melalui KLS.</p>
+                        <p class="text-gray-700 leading-relaxed mt-3">✨ Seluruh honorarium dan penghasilannya dari mengajar di berbagai universitas disumbangkan 100% untuk beasiswa pendidikan anak-anak kurang mampu di kampung halamannya.</p>
+                        <p class="text-gray-700 leading-relaxed mt-3">✨ Ia juga mendirikan 5 perpustakaan gratis di daerah terpencil Subang dengan mengorbankan tabungan pribadinya yang seharusnya dipakai untuk biaya hidup keluarganya.</p>
+                        <p class="text-gray-700 leading-relaxed mt-3">✨ Di usia yang masih sangat muda, ia sudah menerima penghargaan "Pemuda Teladan Indonesia" dan "Tokoh Literasi Paling Berpengaruh 2025" dari Presiden RI.</p>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-kls-brown to-kls-darkBrown text-white p-4 rounded-lg text-center mt-4">
+                        <i class="fa-solid fa-quote-left text-kls-yellow text-2xl mr-2"></i>
+                        <span class="italic">"Saya tidak pernah menjadi yang terpintar. Saya hanya yang paling tidak mau menyerah. Literasi adalah senjata saya melawan kemiskinan, dan saya akan bawa senjata ini untuk sebanyak mungkin anak Indonesia."</span>
+                        <i class="fa-solid fa-quote-right text-kls-yellow text-2xl ml-2"></i>
+                        <p class="text-right mt-2 text-kls-yellow font-bold">— Putra Azzam Elfathin, Ketua KLS</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({ duration: 800, once: true, offset: 100, easing: 'ease-out-cubic' });
+        
+        // Mobile menu
+        const btn = document.getElementById('mobile-menu-btn');
+        const menu = document.getElementById('mobile-menu');
+        const icon = btn.querySelector('i');
+        btn.addEventListener('click', () => {
+            menu.classList.toggle('hidden');
+            if (menu.classList.contains('hidden')) { icon.classList.remove('fa-xmark'); icon.classList.add('fa-bars'); }
+            else { icon.classList.remove('fa-bars'); icon.classList.add('fa-xmark'); }
+        });
+        const menuLinks = menu.querySelectorAll('#mobile-menu a');
+        menuLinks.forEach(link => { link.addEventListener('click', () => { menu.classList.add('hidden'); icon.classList.remove('fa-xmark'); icon.classList.add('fa-bars'); }); });
+        
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 10) { navbar.classList.add('navbar-scrolled'); }
+            else { navbar.classList.remove('navbar-scrolled'); }
+        });
+        
+        // MODAL AZZAM - khusus yang bisa diklik
+        const ketuaAzzam = document.getElementById('ketua-azzam');
+        ketuaAzzam.addEventListener('click', () => {
+            document.getElementById('azzamModal').classList.remove('hidden');
+            document.getElementById('azzamModal').style.display = 'flex';
+        });
+        
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        }
+        
+        window.onclick = function(event) {
+            const azzamModal = document.getElementById('azzamModal');
+            if (event.target === azzamModal) { closeModal('azzamModal'); }
+        }
+        
+        // Data Berita dan Karya (sama seperti sebelumnya)
+        const beritaData = {
+            1: { title: "Episode Podcast Terbaru Dirilis", detail: "<div class='space-y-4'><img src='https://images.unsplash.com/photo-1593642632823-8f785ba67e45?auto=format&fit=crop&q=80&w=400' class='w-full rounded-lg object-cover'><p class='text-gray-500 text-sm'>25 April 2026</p><p class='text-gray-700'>Podcast literasi KLS edisi spesial bersama Guru BK telah dirilis! Episode ini membahas 'Etika Digital di Era Media Sosial'.</p></div>" },
+            2: { title: "Pemenang Resensi Bulan Ini", detail: "<div class='space-y-4'><img src='https://images.unsplash.com/photo-1457369804613-52c61a468e7d?auto=format&fit=crop&q=80&w=400' class='w-full rounded-lg object-cover'><p class='text-gray-500 text-sm'>22 April 2026</p><p class='text-gray-700'>Selamat kepada Ahmad Fauzan dari kelas 8B sebagai pemenang lomba resensi buku bulan April 2026!</p></div>" },
+            3: { title: "Lomba Cepat Tulis Tingkat Kabupaten", detail: "<div class='space-y-4'><img src='https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&q=80&w=400' class='w-full rounded-lg object-cover'><p class='text-gray-500 text-sm'>18 April 2026</p><p class='text-gray-700'>Prestasi membanggakan! Tim KLS meraih juara 2 dan 3 dalam Lomba Cepat Tulis Tingkat Kabupaten.</p></div>" },
+            4: { title: "Kunjungan ke Perpusda Subang", detail: "<div class='space-y-4'><img src='https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&q=80&w=400' class='w-full rounded-lg object-cover'><p class='text-gray-500 text-sm'>15 April 2026</p><p class='text-gray-700'>Program Outing Class perdana KLS ke Perpustakaan Daerah Subang berjalan lancar dan penuh ilmu.</p></div>" }
+        };
+        document.querySelectorAll('.berita-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const id = item.getAttribute('data-berita');
+                const data = beritaData[id];
+                if (data) {
+                    document.getElementById('modalTitle').innerText = data.title;
+                    document.getElementById('modalContent').innerHTML = data.detail;
+                    document.getElementById('beritaModal').classList.remove('hidden');
+                    document.getElementById('beritaModal').style.display = 'flex';
+                }
+            });
+        });
+        
+        const karyaData = {
+            1: { title: "Aksara Malam", type: "Puisi", detail: "<p class='text-gray-700'>Karya Nabila F. (Kelas 8B). Puisi tentang kegelisahan waktu.</p>" },
+            2: { title: "Kampanye Stop Hoaks", type: "Poster Digital", detail: "<p class='text-gray-700'>Karya Tim Desain KLS. Poster kampanye anti hoaks yang viral.</p>" },
+            3: { title: "Sepatu Berdebu", type: "Cerpen", detail: "<p class='text-gray-700'>Karya Rizky Ramadhan. Cerpen tentang perjuangan santri.</p>" },
+            4: { title: "Pelita Ilmu", type: "Puisi", detail: "<p class='text-gray-700'>Karya Fathimah Azzahra. Puisi tentang semangat belajar.</p>" },
+            5: { title: "Hujan di Senja", type: "Cerpen", detail: "<p class='text-gray-700'>Karya Siti Aisyah. Cerpen tentang kerinduan dan rasa syukur.</p>" },
+            6: { title: "Buku, Jendela Asrama", type: "Esai", detail: "<p class='text-gray-700'>Karya M. Rizki H. Esai tentang kekuatan literasi di asrama.</p>" }
+        };
+        document.querySelectorAll('.karya-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const id = item.getAttribute('data-karya');
+                const data = karyaData[id];
+                if (data) {
+                    document.getElementById('karyaModalTitle').innerHTML = data.type + ': ' + data.title;
+                    document.getElementById('karyaModalContent').innerHTML = data.detail;
+                    document.getElementById('karyaModal').classList.remove('hidden');
+                    document.getElementById('karyaModal').style.display = 'flex';
+                }
+            });
+        });
+        
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        }
+        window.onclick = function(event) {
+            const beritaModal = document.getElementById('beritaModal');
+            const karyaModal = document.getElementById('karyaModal');
+            if (event.target === beritaModal) closeModal('beritaModal');
+            if (event.target === karyaModal) closeModal('karyaModal');
+        }
+    </script>
+</body>
+</html>
