@@ -1,832 +1,651 @@
-<html lang="id"><head>
+<!DOCTYPE html>
+<html lang="id">
+<head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google-site-verification" content="_YxoQgBNuxNzKYKEiaHoLDI66XCcw60J59f13hMVXyw">
     <meta name="keywords" content="Pufutara, Pufuta, Pufutaraweb, pufuta, pufutara, pufutaraweb, PufutaraCahier, PufutaraShop, PufutaraQuiz, PufutaraVote">
-    <meta name="description" content="Pufutara adalah platform pusat proyek web dengan desain modern, rounded, dan minimalis. Semua proyek digital dalam satu tempat.">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="foto/kucingjempol.png" type="image/png">
-    <title>Pufutara Archive. +5 Proyek baru!</title>
+    <meta name="description" content="Pufutara adalah platform pusat proyek web dengan desain modern, rounded, dan minimalis.">
+    <link rel="icon" href="/foto/kucingjempol.png" type="image/png">
+    <title>Pufutara Archive. +32 Proyek Digital</title>
+    
+    <!-- Script Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        inter: ['Inter', 'sans-serif'],
+                    },
+                    borderRadius: {
+                        'xl': '32px',
+                    },
+                    colors: {
+                        'gray-muted': '#f5f5f7',
+                        'text-secondary': '#5b5f66',
+                        'border-light': '#eaeef2',
+                    }
+                }
+            }
+        }
+    </script>
+    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
-        :root {
-            --bg: #ffffff;
-            --surface: #ffffff;
-            --fg: #000000;
-            --gray-muted: #f5f5f7;
-            --border-light: #eaeef2;
-            --text-secondary: #5b5f66;
-            --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.03);
-            --shadow-md: 0 8px 28px -6px rgba(0, 0, 0, 0.05);
-            --shadow-hover: 0 20px 32px -12px rgba(0, 0, 0, 0.08);
-            --radius-xl: 32px;
-            --radius-2xl: 40px;
-            --radius-full: 999px;
-            --transition: all 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-        }
+        html { scroll-behavior: smooth; }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            background-color: var(--bg);
-            color: var(--fg);
-            font-family: 'Inter', sans-serif;
-            line-height: 1.5;
-            -webkit-font-smoothing: antialiased;
-            overflow-x: hidden;
-        }
-
-        .container {
-            max-width: 1024px;
-            margin: 0 auto;
-            padding: 0 22px;
-        }
-
-        /* ========= MODERN ENTRANCE (initial hidden state) ========= */
-        .hero h1,
-        .hero p,
-        .hero .btn,
-        .grid > * {
-            opacity: 0;
-            transform: translateY(42px);
-            filter: blur(10px);
-            transition: opacity 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1), transform 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1), filter 0.8s ease;
-            will-change: opacity, transform, filter;
-        }
-
-        body.anim-ready .hero h1.revealed,
-        body.anim-ready .hero p.revealed,
-        body.anim-ready .hero .btn.revealed,
-        body.anim-ready .grid > *.revealed {
-            opacity: 1;
-            transform: translateY(0);
-            filter: blur(0);
-        }
-
-        /* ========= HEADER (sticky + blur) ========= */
-        header {
-            position: fixed;
-            top: 20px;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            transition: var(--transition);
-        }
-
-        .nav-wrapper {
-            background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(0, 0, 0, 0.04);
-            border-radius: var(--radius-full);
-            padding: 8px 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: var(--shadow-sm);
-            transition: var(--transition);
-        }
-
-        .logo {
-            font-weight: 700;
-            font-size: 0.9rem;
-            letter-spacing: -0.3px;
-            color: var(--fg);
-        }
-
-        nav ul {
-            display: flex;
-            list-style: none;
-            gap: 28px;
-        }
-
-        nav ul li a, .nav-link {
-            text-decoration: none;
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-            font-weight: 500;
-            transition: var(--transition);
-            cursor: pointer;
-        }
-
-        nav ul li a:hover, .nav-link:hover {
-            color: var(--fg);
-        }
-
-        /* Hero section */
-        .hero {
-            padding-top: 140px;
-            padding-bottom: 60px;
-            text-align: center;
-            min-height: 75vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .hero h1 {
-            font-size: clamp(2.5rem, 7vw, 4rem);
-            font-weight: 700;
-            line-height: 1.1;
-            letter-spacing: -0.03em;
-            margin-bottom: 20px;
-            color: var(--fg);
-        }
-
-        .hero p {
-            font-size: 1rem;
-            color: var(--text-secondary);
-            max-width: 500px;
-            margin: 0 auto 40px;
-            font-weight: 400;
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            background: var(--fg);
-            color: var(--bg);
-            padding: 12px 28px;
-            border-radius: var(--radius-full);
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 0.9rem;
-            transition: var(--transition);
-            gap: 8px;
-            border: none;
-            cursor: pointer;
-        }
-
-        .btn:hover {
-            transform: translateY(-3px);
-            background: #1a1a1a;
-            box-shadow: 0 12px 28px -8px rgba(0,0,0,0.2);
-        }
-
-        .project-section {
-            padding-bottom: 100px;
-        }
-
-        /* Grid layout */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 24px;
-        }
-
-        /* Card styling */
-        .card-link {
-            text-decoration: none;
-            color: inherit;
-            display: flex;
-        }
-
-        .card {
-            background: var(--surface);
-            border: 1px solid var(--border-light);
-            border-radius: var(--radius-xl);
-            padding: 28px 24px;
-            width: 100%;
-            transition: var(--transition);
-            display: flex;
-            flex-direction: column;
-            box-shadow: var(--shadow-sm);
-            overflow: hidden;
-            transform: translateY(0);
-        }
-
-        .card::before {
+        .card-image-container::before {
             content: "";
             display: block;
             width: calc(100% + 12px);
             aspect-ratio: 16 / 9;
             border-radius: 16px;
             margin-left: -6px;
-            margin-right: -6px;
             margin-bottom: 18px;
-            background:
-                linear-gradient(180deg, rgba(12, 15, 18, 0.012), rgba(12, 15, 18, 0.12)),
-                var(--card-cover, linear-gradient(135deg, #eceff3, #dfe5eb));
+            background: linear-gradient(180deg, rgba(0,0,0,0.01), rgba(0,0,0,0.08)), var(--card-cover, #dfe5eb);
             background-size: cover;
             background-position: center;
-            background-repeat: no-repeat;
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
-            transition: transform 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1), filter 0.8s ease;
+            transition: transform 0.7s cubic-bezier(0.2, 1, 0.3, 1);
         }
 
-        body.anim-ready .grid > *.revealed .card {
-            animation: cardRise 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1) both;
-        }
-
-        body.anim-ready .grid > *.revealed .card::before {
-            transform: scale(1);
-            filter: saturate(1) contrast(1.02);
-        }
-
-        .grid > *:not(.revealed) .card::before {
+        .group:hover .card-image-container::before {
             transform: scale(1.04);
-            filter: saturate(0.92) contrast(0.98);
         }
 
-        .card-link:hover .card {
-            transform: translateY(-6px);
-            border-color: #d0d5dc;
-            box-shadow: var(--shadow-hover);
-            background-color: #ffffff;
-        }
-
-        .card-link:hover .card::before {
-            transform: scale(1.03);
-        }
-
-        .card .tag {
-            font-size: 0.65rem;
-            font-weight: 500;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            margin-bottom: 16px;
-        }
-
-        .card h3 {
-            font-size: 1.2rem;
-            font-weight: 650;
-            letter-spacing: -0.02em;
-            margin-bottom: 10px;
-            line-height: 1.3;
-        }
-
-        .card p {
-            color: var(--text-secondary);
-            font-size: 0.8rem;
-            line-height: 1.5;
-            margin-bottom: 0;
-            flex-grow: 1;
-        }
-
-        .card .tag,
-        .card h3,
-        .card p {
+        .reveal-item {
             opacity: 0;
-            transform: translateY(18px);
-            transition: opacity 0.65s ease, transform 0.65s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.2, 1, 0.3, 1);
         }
 
-        body.anim-ready .grid > *.revealed .card .tag,
-        body.anim-ready .grid > *.revealed .card h3,
-        body.anim-ready .grid > *.revealed .card p {
+        .reveal-item.revealed {
             opacity: 1;
             transform: translateY(0);
         }
 
-        body.anim-ready .grid > *.revealed .card .tag {
-            transition-delay: 0.08s;
+        #hero-content {
+            will-change: transform, opacity, filter;
         }
 
-        body.anim-ready .grid > *.revealed .card h3 {
-            transition-delay: 0.16s;
-        }
-
-        body.anim-ready .grid > *.revealed .card p {
-            transition-delay: 0.24s;
-        }
-
-        @keyframes cardRise {
-            from {
-                transform: translateY(16px);
-            }
-            to {
-                transform: translateY(0);
-            }
-        }
-
-        /* Compact card styles */
-        .compact-card {
-            min-height: auto;
-            padding: 20px 20px !important;
-        }
-        .compact-card .tag {
-            margin-bottom: 12px;
-        }
-        .compact-card h3 {
-            font-size: 1.05rem;
-            margin-bottom: 6px;
-        }
-        .compact-card p {
-            font-size: 0.75rem;
-            line-height: 1.4;
-        }
-        
-        .card-placeholder {
-            background: #fefefe;
-            border: 1px solid var(--border-light);
-            border-radius: var(--radius-xl);
-            padding: 28px 24px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            min-height: 260px;
-            cursor: pointer;
-            transition: var(--transition);
-            text-decoration: none;
-            color: inherit;
-            box-shadow: var(--shadow-sm);
-        }
-        .card-placeholder.compact-card-placeholder {
-            padding: 20px 20px !important;
-            min-height: auto;
-        }
-        .card-placeholder .icon {
-            font-size: 2.4rem;
-            margin-bottom: 16px;
-            opacity: 0.6;
-        }
-        .card-placeholder h3 {
-            font-size: 1.15rem;
-            font-weight: 600;
-            color: #2c2e31;
-            margin-bottom: 10px;
-        }
-        .card-placeholder p {
-            color: #888c94;
-            font-size: 0.8rem;
-        }
-        .card-placeholder:hover {
-            transform: translateY(-5px);
-            border-color: #cbd0d6;
-            box-shadow: var(--shadow-hover);
-        }
-
-        /* Footer */
-        footer {
-            background: var(--gray-muted);
-            border-radius: 44px 44px 0 0;
-            padding: 64px 0 40px;
-            margin-top: 20px;
-        }
-
-        .footer-grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr;
-            gap: 40px;
-            margin-bottom: 64px;
-        }
-
-        .footer-brand h3 {
-            font-size: 1.6rem;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            margin-bottom: 16px;
-        }
-
-        .footer-brand p {
-            color: var(--text-secondary);
-            max-width: 260px;
-            font-size: 0.85rem;
-        }
-
-        .footer-col h4 {
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            margin-bottom: 20px;
-            letter-spacing: 0.08em;
-            color: #3e3f44;
-        }
-
-        .footer-col ul {
-            list-style: none;
-        }
-
-        .footer-col ul li {
-            margin-bottom: 12px;
-        }
-
-        .footer-col ul li span {
-            color: var(--text-secondary);
-            font-weight: 450;
-            transition: var(--transition);
-            cursor: default;
-            font-size: 0.85rem;
-        }
-
-        .footer-col ul li:hover span {
-            color: var(--fg);
-        }
-
-        .footer-bottom {
-            padding-top: 32px;
-            border-top: 1px solid rgba(0, 0, 0, 0.06);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: var(--text-secondary);
-            font-size: 0.8rem;
-        }
-
-        /* Toast */
-        .toast {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.88);
-            backdrop-filter: blur(12px);
-            color: white;
-            padding: 10px 24px;
-            border-radius: 60px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            z-index: 2000;
-            opacity: 0;
-            transition: opacity 0.2s ease;
-            pointer-events: none;
-            white-space: nowrap;
-            box-shadow: 0 10px 24px rgba(0,0,0,0.15);
-            font-family: 'Inter', sans-serif;
-        }
-
-        /* ========= SCROLL TO TOP BUTTON (modern) ========= */
-        .scroll-top {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: #111;
-            color: white;
-            width: 52px;
-            height: 52px;
-            border-radius: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            backdrop-filter: blur(8px);
-            background: rgba(0, 0, 0, 0.75);
-            border: 1px solid rgba(255,255,255,0.2);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-            z-index: 1100;
-        }
-        .scroll-top.visible {
-            opacity: 1;
-            visibility: visible;
-            transform: scale(1);
-        }
-        .scroll-top:hover {
-            background: #000;
-            transform: translateY(-4px) scale(1.02);
-            box-shadow: 0 12px 28px rgba(0,0,0,0.2);
-        }
-        .scroll-top svg {
-            width: 22px;
-            height: 22px;
-            stroke: white;
-            stroke-width: 2.2;
-            fill: none;
-        }
-
-        @media (max-width: 1100px) {
-            .container {
-                max-width: 900px;
-            }
-            .grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-        }
-
-        @media (max-width: 900px) {
-            .grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .footer-grid {
-                grid-template-columns: 1fr 1fr;
-                gap: 32px;
-            }
-        }
-
-        @media (max-width: 680px) {
-            header { top: 14px; }
-            .nav-wrapper { padding: 6px 20px; }
-            .nav-wrapper ul { display: none; }
-            .hero { padding-top: 120px; min-height: 65vh; }
-            .hero h1 { font-size: 2.2rem; }
-            .grid {
-                grid-template-columns: 1fr;
-                gap: 18px;
-            }
-            .card { padding: 24px 20px; }
-            .footer-grid { grid-template-columns: 1fr; gap: 28px; }
-            .footer-bottom { flex-direction: column; gap: 16px; text-align: center; }
-            .toast { white-space: normal; text-align: center; max-width: 85%; font-size: 0.8rem; padding: 8px 18px; }
-            .scroll-top {
-                bottom: 20px;
-                right: 20px;
-                width: 44px;
-                height: 44px;
-            }
+        .hero-gradient {
+            background: linear-gradient(to top, rgba(230, 230, 230, 0.8) 0%, rgba(255, 255, 255, 0) 60%);
         }
     </style>
-<style id="hb-stylesheet">
-    img.hb-blur, video.hb-blur {
-      filter: blur(30px)  !important;
-      transition: filter 0.1s ease !important;
-      opacity: unset !important;
-    }
-  
-	.hb-blur-temp {
-		animation: hb-blur-temp 20000ms ease-in-out forwards !important;
-	}
-	.hb-hide-temp {
-		animation: hb-hide-temp 6000ms ease-in-out forwards !important;
-	}
+</head>
+<body class="bg-white text-black font-inter antialiased selection:bg-black selection:text-white overflow-x-hidden">
 
-	#hb-in-canvas {
-		display: none !important;
-		visibility: hidden !important;
-	}
-
-	@keyframes hb-hide-temp {
-        0% { visibility: hidden;}
-		95% { visibility: hidden; }
-		100% { visibility: visible;}
-	}
-
-	@keyframes hb-blur-temp {
-        0% { visibility: hidden;}
-		28% { visibility: hidden; }
-		30% { visibility: visible; filter: blur(30px) ; }
-        95% { filter: blur(30px) ; }
-        100% { visibility:visible; filter: unset}
-	}
-
-    .hb-wrapper {
-        position: absolute;
-        pointer-events: none;
-    }
-
-	.hb-rect {
-		will-change: width, height, top, left, right, bottom, transform, opacity;
-		transition: all 0.3s ease;
-		position: absolute;
-		border-radius: 5px;
-		background: rgba(255, 255, 255, 0.2);
-		box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-		backdrop-filter: blur(30px) ;
-        -webkit-backdrop-filter: blur(30px) ;
-        pointer-events: none;
-	}
-  </style></head>
-<body>
-
-<header style="transform: translateY(-2px);">
-    <div class="container">
-        <div class="nav-wrapper" style="background: rgba(255, 255, 255, 0.96); box-shadow: rgba(0, 0, 0, 0.05) 0px 8px 24px -8px;">
-            <div class="logo">PUFUTARA</div>
-            <nav>
-                <ul>
-                    <li><a href="#proyek">Proyek</a></li>
-                    <li><span class="nav-link" id="arsipBtn">Arsip</span></li>
-                    <li><span class="nav-link" id="layananBtn">Layanan</span></li>
-                    <li><a href="kontak.html">Kontak</a></li>
+<header id="main-header" class="fixed top-0 left-0 right-0 z-[100] transition-all duration-500">
+    <div class="max-w-[1100px] mx-auto px-6 pt-6">
+        <div id="nav-wrapper" class="bg-white/85 backdrop-blur-xl border border-black/5 rounded-full px-6 py-3 flex justify-between items-center shadow-sm">
+            <div class="font-extrabold text-[0.95rem] tracking-tighter">PUFUTARA</div>
+            <nav class="hidden md:block">
+                <ul class="flex gap-8 list-none">
+                    <li><a href="#proyek" class="text-[0.85rem] font-medium text-text-secondary hover:text-black transition-colors">Proyek</a></li>
+                    <li><button onclick="showToast('📦 Memuat arsip lengkap...')" class="text-[0.85rem] font-medium text-text-secondary hover:text-black transition-colors">Arsip</button></li>
+                    <li><button onclick="showToast('🔧 Layanan mandiri aktif')" class="text-[0.85rem] font-medium text-text-secondary hover:text-black transition-colors">Layanan</button></li>
+                    <li><a href="/kontak.html" class="text-[0.85rem] font-medium text-text-secondary hover:text-black transition-colors">Kontak</a></li>
                 </ul>
             </nav>
+            <div class="flex items-center gap-4">
+                <div class="hidden sm:block h-4 w-[1px] bg-black/10"></div>
+                <span class="text-[0.7rem] font-bold uppercase tracking-widest text-black/40">v2.0</span>
+            </div>
         </div>
     </div>
 </header>
 
-<main>
-    <section class="hero">
-        <div class="container">
-            <h1 class="revealed" style="transition-delay: 0s;">semua proyek,<br>di satu tempat.</h1>
-            <p class="revealed" style="transition-delay: 0.08s;">Koleksi lengkap proyek digital — dari OS eksperimental hingga alat produktivitas. Dibangun dengan kode dan imajinasi.</p>
-            <a href="#proyek" class="btn revealed" id="exploreBtn" style="transition-delay: 0.16s;">
-                Jelajahi karya
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-            </a>
+<main class="relative">
+    <section id="hero-section" class="sticky top-0 h-screen flex flex-col items-center justify-center text-center px-6 z-0 pointer-events-none">
+        <div class="hero-gradient absolute inset-0 -z-10"></div>
+        
+        <div id="hero-content" class="pointer-events-auto">
+            <h1 class="text-[clamp(3.5rem,11vw,5rem)] font-[850] leading-[1] tracking-[-0.04em] mb-6">
+                semua proyek,<br><span class="bg-clip-text text-transparent bg-gradient-to-r from-gray-500 to-gray-300">di satu tempat.</span>
+            </h1>
+            <p class="text-text-secondary text-[1rem] md:text-[1.1rem] max-w-[500px] mx-auto mb-8 leading-relaxed font-normal">
+                Koleksi lengkap proyek digital pufutara — dari OS eksperimental hingga alat produktivitas.
+            </p>
+            <div class="flex flex-col items-center gap-6">
+                <a href="#proyek" class="bg-black text-white px-5 py-2.5 sm:px-8 sm:py-4 rounded-full font-bold text-[0.7rem] sm:text-[0.9rem] flex items-center gap-1.5 sm:gap-2 hover:scale-105 active:scale-95 transition-all shadow-lg shadow-black/10">
+                    Jelajahi karya
+                    <svg class="w-4 h-4 sm:w-[18px] sm:h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </a>
+                <p class="text-[0.8rem] font-semibold text-text-secondary/60 flex items-center gap-2 animate-pulse">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 13l5 5 5-5M7 6l5 5 5-5"/></svg>
+                    scroll untuk melihat keajaiban
+                </p>
+            </div>
         </div>
+        
+        <div class="absolute -z-20 w-[400px] h-[400px] bg-gray-200/40 rounded-full blur-[100px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
     </section>
 
-    <section class="project-section container" id="proyek">
-        <div class="grid">
-            <!-- 1. PufutaraOS -->
-            <a href="os/index.html" class="card-link revealed" target="_blank" style="transition-delay: 0s;"><div class="card"><span class="tag">01 / Operating System</span><h3>PufutaraOS</h3><p>Sistem operasi modern berbasis web. Cita-cita Putra waktu kecil akhirnya terwujud di PC Labkom!</p></div></a>
-            <!-- 2. PufutaraTube -->
-            <a href="tube/index.html" class="card-link revealed" target="_blank" style="transition-delay: 0.04s;"><div class="card"><span class="tag">02 / Video Platform</span><h3>PufutaraTube</h3><p>Tempat nonton video favorit tanpa iklan yang mengganggu fokus koding kamu.</p></div></a>
-            <!-- 3. PufutaraChat -->
-            <a href="chat/index.html" class="card-link revealed" target="_blank" style="transition-delay: 0.08s;"><div class="card"><span class="tag">03 / Communication</span><h3>PufutaraChat</h3><p>Obrolan Simple, tambah akun, login, langsung chat ke semua orang secara real-time.</p></div></a>
-            <!-- 4. PufutaraDrive -->
-            <a href="drive/index.html" class="card-link revealed" target="_blank" style="transition-delay: 0.12s;"><div class="card"><span class="tag">04 / Cloud Storage</span><h3>PufutaraDrive</h3><p>Simpan file-file penting proyek kodingan kamu dengan aman dan mudah diakses di mana saja.</p></div></a>
-            <!-- 5. PufutaraGallery -->
-            <a href="gallery/index.html" class="card-link revealed" target="_blank" style="transition-delay: 0.16s;"><div class="card"><span class="tag">05 / Full Stack</span><h3>PufutaraGallery</h3><p>Proyek Full Stack pertama Putra! Upload foto otomatis tersimpan ke server untuk dilihat semua orang.</p></div></a>
-            <!-- 6. PufutaraAudioLibrary -->
-            <a href="audio/index.html" class="card-link revealed" target="_blank" style="transition-delay: 0.2s;"><div class="card"><span class="tag">06 / Audio Flow</span><h3>PufutaraAudioLibrary</h3><p>Dengerin lo-fi beat dan ambience alam biar koding makin chill dan nggak spaneng.</p></div></a>
-            <!-- 7. PufutaraMiniGames -->
-            <a href="game/index.html" class="card-link revealed" target="_blank" style="transition-delay: 0.24s;"><div class="card"><span class="tag">07 / Fun Zone</span><h3>PufutaraMiniGames</h3><p>Kumpulan game ringan buat refreshing otak setelah pusing ngurusin bug di HTML.</p></div></a>
-            <!-- 8. PufutaraProPaint -->
-            <a href="paint/index.html" class="card-link revealed" target="_blank" style="transition-delay: 0.28s;"><div class="card"><span class="tag">08 / Draw &amp; Paint</span><h3>PufutaraProPaint</h3><p>Gambar dan sketsa apa saja dengan mudah. Aplikasi simpel, tapi tools-nya profesional.</p></div></a>
-            <!-- 9. PufutaraWriter -->
-            <a href="write/index.html" class="card-link revealed" target="_blank" style="transition-delay: 0.32s;"><div class="card"><span class="tag">09 / Writing</span><h3>PufutaraWriter</h3><p>Pengolahan kata yang cepat dan ringan. Cocok buat nulis ide proyek yang tiba-tiba muncul.</p></div></a>
-            <!-- 10. PufutaraDigLib -->
-            <a href="library/index.html" class="card-link revealed" target="_blank" style="transition-delay: 0.36s;"><div class="card"><span class="tag">10 / Digital Library</span><h3>PufutaraDigLib</h3><p>Perpustakaan digital dan info cuaca Jalancagak biar tau kapan harus bawa payung ke Labkom.</p></div></a>
-            <!-- 11. PufutaraSpinWheel -->
-            <a href="spin/index.html" class="card-link revealed" target="_blank" style="transition-delay: 0.4s;"><div class="card"><span class="tag">11 / Education</span><h3>PufutaraSpinWheel</h3><p>Putuskan kelompok belajar atau pilihan sulit lainnya dengan roda tak terduga ini.</p></div></a>
-            <!-- 12. PufutaraWorkspace -->
-            <a href="work/index.html" class="card-link revealed" target="_blank" style="transition-delay: 0.44s;"><div class="card"><span class="tag">12 / Productivity</span><h3>PufutaraWorkspace</h3><p>Hub pusat aplikasi produktivitas Pufutara, gabungan dari berbagai proyek jadi satu.</p></div></a>
-            <!-- 13. PufutaraToDo -->
-            <a href="todo/index.html" class="card-link revealed" target="_blank" style="transition-delay: 0.48s;"><div class="card"><span class="tag">13 / Focus List</span><h3>PufutaraToDo</h3><p>List tugas simpel dan modern untuk Putra yang pelupa biar jadwal tetap teratur.</p></div></a>
-            <!-- 14. PufutaraHabitTracker -->
-            <a href="habit/index.html" class="card-link revealed" target="_blank" style="transition-delay: 0.52s;"><div class="card"><span class="tag">14 / Habit Tracker</span><h3>PufutaraHabitTracker</h3><p>Pantau proses membangun kebiasaan baik dan hilangkan kebiasaan buruk setiap hari.</p></div></a>
-            <!-- 15. PufutaraNews -->
-            <a href="news/landing.html" class="card-link revealed" target="_blank" style="transition-delay: 0.56s;"><div class="card"><span class="tag">15 / News Update</span><h3>PufutaraNews</h3><p>Baca berita terbaru atau pakai kalkulator sains akurat buat bantu tugas Labkom kamu.</p></div></a>
-            <!-- 16. PufutaraWeb V2 -->
-            <a href="https://pufuta.vercel.app" class="card-link revealed" target="_blank" style="transition-delay: 0.6s;"><div class="card"><span class="tag">16 / Official Web</span><h3>PufutaraWeb V2</h3><p>Website utama Putra versi terbaru. Modern, cepat, dan pastinya tetap 'putraganteng'.</p></div></a>
-            <!-- 17. PufutaraWeb V1 -->
-            <a href="https://kanay.vercel.app" class="card-link revealed" target="_blank" style="transition-delay: 0.6s;"><div class="card"><span class="tag">17 / BEM Nostalgia</span><h3>PufutaraWeb V1</h3><p>Saksi bisu perjalanan di BEM. Tanya anak BEM se-Sikma kalau mau tau sejarah web ini!</p></div></a>
-            <!-- 18. PufutaraArchive (current) -->
-            <a href="index.html" class="card-link revealed" target="_blank" style="transition-delay: 0.6s;"><div class="card"><span class="tag">18 / The Center</span><h3>PufutaraArchive</h3><p>Platform pusat yang sedang kamu lihat ini. Wadah abadi untuk semua karya koding Putra.</p></div></a>
-            <!-- 19. Mutabaah OS -->
-            <a href="https://mutabaahos.vercel.app" class="card-link revealed" target="_blank" style="transition-delay: 0.6s;"><div class="card"><span class="tag">19 / The New Era</span><h3>Mutabaah OS</h3><p>Landing page proyek full stack dan full keren baru. InsyaAllah jadi startup baru di Indo.</p></div></a>
-            <!-- 20. Pufutara AI -->
-            <a href="https://pufutaraai.vercel.app" class="card-link revealed" target="_blank" style="transition-delay: 0.6s;"><div class="card"><span class="tag">20 / Intelligence</span><h3>Pufutara AI</h3><p>AI chatbot menggunakan Gemini API key sebagai dasar AI nya.</p></div></a>
-		
-            <!-- 21. Pufutara Calc (compact) -->
-            <a href="calc/index.html" class="card-link revealed" target="_blank" style="transition-delay: 0.6s;"><div class="card compact-card"><span class="tag">21 / Utility</span><h3>Pufutara Calc</h3><p>Kalkulator modern dengan fungsi sains, persentase, dan riwayat perhitungan. Cocok untuk tugas Labkom.</p></div></a>
-            <!-- 22. Pufutara Vote (existing) -->
-            <a href="vote/index.html" class="card-link revealed" target="_blank" style="transition-delay: 0.6s;"><div class="card compact-card"><span class="tag">22 / Community</span><h3>Pufutara Vote</h3><p>Sistem voting sederhana untuk menentukan pilihan kelas atau keputusan bersama. Hasil real-time.</p></div></a>
+    <section id="proyek" class="relative z-10 bg-white shadow-[0_-40px_80px_rgba(0,0,0,0.06)] rounded-t-[48px] pb-32 border-t border-black/[0.02]">
+        <div class="max-w-[1250px] mx-auto px-6">
             
-            <!-- ========= PROYEK TAMBAHAN ========= -->
-            <!-- 23. PufutaraQuiz -->
-            <a href="quiz/index.html" class="card-link revealed" target="_blank" style="transition-delay: 0.6s;"><div class="card"><span class="tag">23 / Trivia</span><h3>PufutaraQuiz</h3><p>Uji pengetahuanmu lewat kuis interaktif. Pilihan gacor, leaderboard, dan fitur tantangan seru.</p></div></a>
-            <!-- 24. StikiNot -->
-            <a href="stikinot/index.html" class="card-link revealed" target="_blank" style="transition-delay: 0.6s;"><div class="card"><span class="tag">24 / Application</span><h3>StikiNot</h3><p>Aplikasi catatan ringan, cepat, dan simpel untuk mencatat ide kapan saja. Mendukung always on top, rich text, dan fitur praktis lainnya.</p></div></a>
-            <!-- 25. PufutaraCahier -->
-            <a href="kasir/index.html" class="card-link revealed" target="_blank" style="transition-delay: 0.6s;"><div class="card"><span class="tag">25 / Notebook</span><h3>PufutaraCahier</h3><p>Jurnal digital minimalis. Catat ide, daily gratitude, atau tugas sekolah dengan antarmuka yang menenangkan.</p></div></a>
-            <!-- 26. PufutaraShop -->
-            <a href="shop/index.html" class="card-link revealed" target="_blank" style="transition-delay: 0.6s;"><div class="card"><span class="tag">26 / Official Store</span><h3>PufutaraShop</h3><p>Toko merchandise resmi Pufutara. Dari kaos, stiker, hingga aksesoris koding — dukung terus karya lokal.</p></div></a>
-            <!-- 27. Ide Proyek Baru -->
-            
-			<a href="browser/index.html" class="card-link revealed" target="_blank" style="transition-delay: 0.6s;"><div class="card"><span class="tag">28 / PufuBrowser</span><h3>Pufutara Browser</h3><p>Browser cepat, ringan dan modern! dibuat  dari framework electron dan mendukung seluruh windows!.</p></div></a>
-			<a href="dapurmangpey/index.html" class="card-link revealed" target="_blank" style="transition-delay: 0.6s;"><div class="card"><span class="tag">29 / Web temen</span><h3>Dapoer mang pey</h3><p>web buat temen pertama putra. di buat saat gabut di hari minggu di ruang bem. apakah harus bayar ges?</p></div></a>
-			<a href="kls/index.html" class="card-link revealed" target="_blank" style="transition-delay: 0.6s;"><div class="card"><span class="tag">30 / Web pro</span><h3>KLS WEB</h3><p>Landing page website organisasi authot pufutara. gelo kece banget kek propesional gitu loh rek..</p></div></a>
-            <a href="https://pufutara-ai--putraazzam2110.replit.app/" class="card-link revealed" target="_blank" style="transition-delay: 0.6s;"><div class="card"><span class="tag">00 / Real Intelligence</span><h3>Pufutara AI 2.0</h3><p>AI chatbot generasi terbaru, lebih mantap dan berkualitas tinggi.</p></div></a>
-			<a href="kontak.html" class="card-link revealed" target="_blank" style="transition-delay: 0.6s;"><div class="card"><span class="tag">31 / New Idea</span><h3>Ide Proyek Baru</h3><p>Punya ide aplikasi baru buat Pufutara? Kirim gagasanmu lewat halaman kontak dan bantu lahirkan proyek berikutnya.</p></div></a>
-		</div>
+            <div class="py-20 text-center md:text-left flex justify-between items-end">
+                <div>
+                    <h2 class="text-2xl font-bold tracking-tight mb-2">Arsip Proyek</h2>
+                    <p class="text-text-secondary text-sm">32 proyek digital yang dikembangkan secara mandiri.</p>
+                </div>
+                <div class="hidden md:block bg-gray-muted px-4 py-1.5 rounded-full text-[0.7rem] font-bold text-black/50">LATEST ARCHIVE</div>
+            </div>
+
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+                <!-- 1. PufutaraOS -->
+                <a href="/os/index.html" target="_blank" class="group reveal-item block no-underline">
+                    <div class="bg-white border border-border-light rounded-[20px] sm:rounded-[28px] p-3.5 sm:p-5 h-full transition-all duration-500 group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] group-hover:border-black/5 group-hover:-translate-y-1">
+                        <div class="card-image-container relative" style="--card-cover: url('/foto/cover1.png');"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-text-secondary uppercase tracking-widest">01</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">OS</span>
+                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">PufutaraOS</h3>
+                        <p class="text-text-secondary text-[0.65rem] sm:text-[0.75rem] leading-relaxed line-clamp-2">Sistem operasi modern berbasis web. Cita-cita Putra waktu kecil akhirnya terwujud di PC Labkom!</p>
+                    </div>
+                </a>
+                <!-- 2. PufutaraTube -->
+                <a href="/tube/index.html" target="_blank" class="group reveal-item block no-underline">
+                    <div class="bg-white border border-border-light rounded-[20px] sm:rounded-[28px] p-3.5 sm:p-5 h-full transition-all duration-500 group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] group-hover:border-black/5 group-hover:-translate-y-1">
+                        <div class="card-image-container relative" style="--card-cover: url('/foto/cover2.png');"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-text-secondary uppercase tracking-widest">02</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Media</span>
+                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">PufutaraTube</h3>
+                        <p class="text-text-secondary text-[0.65rem] sm:text-[0.75rem] leading-relaxed line-clamp-2">Tempat nonton video favorit tanpa iklan yang mengganggu fokus koding kamu.</p>
+                    </div>
+                </a>
+                <!-- 3. PufutaraChat -->
+                <a href="/chat/index.html" target="_blank" class="group reveal-item block no-underline">
+                    <div class="bg-white border border-border-light rounded-[20px] sm:rounded-[28px] p-3.5 sm:p-5 h-full transition-all duration-500 group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] group-hover:border-black/5 group-hover:-translate-y-1">
+                        <div class="card-image-container relative" style="--card-cover: url('/foto/cover3.png');"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-text-secondary uppercase tracking-widest">03</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Comm</span>
+                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">PufutaraChat</h3>
+                        <p class="text-text-secondary text-[0.65rem] sm:text-[0.75rem] leading-relaxed line-clamp-2">Obrolan Simple, tambah akun, login, langsung chat ke semua orang secara real-time.</p>
+                    </div>
+                </a>
+                <!-- 4. PufutaraDrive -->
+                <a href="/drive/index.html" target="_blank" class="group reveal-item block no-underline">
+                    <div class="bg-white border border-border-light rounded-[20px] sm:rounded-[28px] p-3.5 sm:p-5 h-full transition-all duration-500 group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] group-hover:border-black/5 group-hover:-translate-y-1">
+                        <div class="card-image-container relative" style="--card-cover: url('/foto/cover4.png');"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-text-secondary uppercase tracking-widest">04</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Cloud</span>
+                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">PufutaraDrive</h3>
+                        <p class="text-text-secondary text-[0.65rem] sm:text-[0.75rem] leading-relaxed line-clamp-2">Simpan file-file penting proyek kodingan kamu dengan aman dan mudah diakses di mana saja.</p>
+                    </div>
+                </a>
+                <!-- 5. PufutaraGallery -->
+                <a href="/gallery/index.html" target="_blank" class="group reveal-item block no-underline">
+                    <div class="bg-white border border-border-light rounded-[20px] sm:rounded-[28px] p-3.5 sm:p-5 h-full transition-all duration-500 group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] group-hover:border-black/5 group-hover:-translate-y-1">
+                        <div class="card-image-container relative" style="--card-cover: url('/foto/cover5.png');"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-text-secondary uppercase tracking-widest">05</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Fullstack</span>
+                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">PufutaraGallery</h3>
+                        <p class="text-text-secondary text-[0.65rem] sm:text-[0.75rem] leading-relaxed line-clamp-2">Proyek Full Stack pertama Putra! Upload foto otomatis tersimpan ke server untuk dilihat semua orang.</p>
+                    </div>
+                </a>
+                <!-- 6. PufutaraAudio -->
+                <a href="/audio/index.html" target="_blank" class="group reveal-item block no-underline">
+                    <div class="bg-white border border-border-light rounded-[20px] sm:rounded-[28px] p-3.5 sm:p-5 h-full transition-all duration-500 group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] group-hover:border-black/5 group-hover:-translate-y-1">
+                        <div class="card-image-container relative" style="--card-cover: url('/foto/cover6.png');"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-text-secondary uppercase tracking-widest">06</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Audio</span>
+                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">PufutaraAudio</h3>
+                        <p class="text-text-secondary text-[0.65rem] sm:text-[0.75rem] leading-relaxed line-clamp-2">Dengerin lo-fi beat dan ambience alam biar koding makin chill dan nggak spaneng.</p>
+                    </div>
+                </a>
+                <!-- 7. MiniGames -->
+                <a href="/game/index.html" target="_blank" class="group reveal-item block no-underline">
+                    <div class="bg-white border border-border-light rounded-[20px] sm:rounded-[28px] p-3.5 sm:p-5 h-full transition-all duration-500 group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] group-hover:border-black/5 group-hover:-translate-y-1">
+                        <div class="card-image-container relative" style="--card-cover: url('/foto/cover7.png');"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-text-secondary uppercase tracking-widest">07</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Fun</span>
+                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">MiniGames</h3>
+                        <p class="text-text-secondary text-[0.65rem] sm:text-[0.75rem] leading-relaxed line-clamp-2">Kumpulan game ringan buat refreshing otak setelah pusing ngurusin bug di HTML.</p>
+                    </div>
+                </a>
+                <!-- 8. ProPaint -->
+                <a href="/paint/index.html" target="_blank" class="group reveal-item block no-underline">
+                    <div class="bg-white border border-border-light rounded-[20px] sm:rounded-[28px] p-3.5 sm:p-5 h-full transition-all duration-500 group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] group-hover:border-black/5 group-hover:-translate-y-1">
+                        <div class="card-image-container relative" style="--card-cover: url('/foto/cover8.png');"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-text-secondary uppercase tracking-widest">08</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Design</span>
+                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">ProPaint</h3>
+                        <p class="text-text-secondary text-[0.65rem] sm:text-[0.75rem] leading-relaxed line-clamp-2">Gambar dan sketsa apa saja dengan mudah. Aplikasi simpel, tapi tools-nya profesional.</p>
+                    </div>
+                </a>
+                <!-- 9. Writer -->
+                <a href="/write/index.html" target="_blank" class="group reveal-item block no-underline">
+                    <div class="bg-white border border-border-light rounded-[20px] sm:rounded-[28px] p-3.5 sm:p-5 h-full transition-all duration-500 group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] group-hover:border-black/5 group-hover:-translate-y-1">
+                        <div class="card-image-container relative" style="--card-cover: url('/foto/cover9.png');"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-text-secondary uppercase tracking-widest">09</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Writing</span>
+                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">Writer</h3>
+                        <p class="text-text-secondary text-[0.65rem] sm:text-[0.75rem] leading-relaxed line-clamp-2">Pengolahan kata yang cepat dan ringan. Cocok buat nulis ide proyek yang tiba-tiba muncul.</p>
+                    </div>
+                </a>
+                <!-- 10. DigLib -->
+                <a href="/library/index.html" target="_blank" class="group reveal-item block no-underline">
+                    <div class="bg-white border border-border-light rounded-[20px] sm:rounded-[28px] p-3.5 sm:p-5 h-full transition-all duration-500 group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] group-hover:border-black/5 group-hover:-translate-y-1">
+                        <div class="card-image-container relative" style="--card-cover: url('/foto/cover10.png');"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-text-secondary uppercase tracking-widest">10</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Library</span>
+                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">DigLib</h3>
+                        <p class="text-text-secondary text-[0.65rem] sm:text-[0.75rem] leading-relaxed line-clamp-2">Perpustakaan digital dan info cuaca Jalancagak biar tau kapan harus bawa payung ke Labkom.</p>
+                    </div>
+                </a>
+                <!-- 11. SpinWheel -->
+                <a href="/spin/index.html" target="_blank" class="group reveal-item block no-underline">
+                    <div class="bg-white border border-border-light rounded-[20px] sm:rounded-[28px] p-3.5 sm:p-5 h-full transition-all duration-500 group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] group-hover:border-black/5 group-hover:-translate-y-1">
+                        <div class="card-image-container relative" style="--card-cover: url('/foto/cover11.png');"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-text-secondary uppercase tracking-widest">11</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Tools</span>
+                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">SpinWheel</h3>
+                        <p class="text-text-secondary text-[0.65rem] sm:text-[0.75rem] leading-relaxed line-clamp-2">Putuskan kelompok belajar atau pilihan sulit lainnya dengan roda tak terduga ini.</p>
+                    </div>
+                </a>
+                <!-- 12. Workspace -->
+                <a href="/work/index.html" target="_blank" class="group reveal-item block no-underline">
+                    <div class="bg-white border border-border-light rounded-[20px] sm:rounded-[28px] p-3.5 sm:p-5 h-full transition-all duration-500 group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] group-hover:border-black/5 group-hover:-translate-y-1">
+                        <div class="card-image-container relative" style="--card-cover: url('/foto/cover12.png');"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-text-secondary uppercase tracking-widest">12</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Hub</span>
+                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">Workspace</h3>
+                        <p class="text-text-secondary text-[0.65rem] sm:text-[0.75rem] leading-relaxed line-clamp-2">Hub pusat aplikasi produktivitas Pufutara, gabungan dari berbagai proyek jadi satu.</p>
+                    </div>
+                </a>
+                <!-- 13. ToDo List -->
+                <a href="/todo/index.html" target="_blank" class="group reveal-item block no-underline">
+                    <div class="bg-white border border-border-light rounded-[20px] sm:rounded-[28px] p-3.5 sm:p-5 h-full transition-all duration-500 group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] group-hover:border-black/5 group-hover:-translate-y-1">
+                        <div class="card-image-container relative" style="--card-cover: url('/foto/cover13.png');"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-text-secondary uppercase tracking-widest">13</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Focus</span>
+                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">ToDo List</h3>
+                        <p class="text-text-secondary text-[0.65rem] sm:text-[0.75rem] leading-relaxed line-clamp-2">List tugas simpel dan modern untuk Putra yang pelupa biar jadwal tetap teratur.</p>
+                    </div>
+                </a>
+                <!-- 14. Habit Tracker -->
+                <a href="/habit/index.html" target="_blank" class="group reveal-item block no-underline">
+                    <div class="bg-white border border-border-light rounded-[20px] sm:rounded-[28px] p-3.5 sm:p-5 h-full transition-all duration-500 group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] group-hover:border-black/5 group-hover:-translate-y-1">
+                        <div class="card-image-container relative" style="--card-cover: url('/foto/cover14.png');"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-text-secondary uppercase tracking-widest">14</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Goals</span>
+                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">Habit Tracker</h3>
+                        <p class="text-text-secondary text-[0.65rem] sm:text-[0.75rem] leading-relaxed line-clamp-2">Pantau proses membangun kebiasaan baik dan hilangkan kebiasaan buruk setiap hari.</p>
+                    </div>
+                </a>
+                <!-- 15. News & Calc -->
+                <a href="/news/landing.html" target="_blank" class="group reveal-item block no-underline">
+                    <div class="bg-white border border-border-light rounded-[20px] sm:rounded-[28px] p-3.5 sm:p-5 h-full transition-all duration-500 group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] group-hover:border-black/5 group-hover:-translate-y-1">
+                        <div class="card-image-container relative" style="--card-cover: url('/foto/cover15.png');"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-text-secondary uppercase tracking-widest">15</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Utility</span>
+                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">News & Calc</h3>
+                        <p class="text-text-secondary text-[0.65rem] sm:text-[0.75rem] leading-relaxed line-clamp-2">Baca berita terbaru atau pakai kalkulator sains akurat buat bantu tugas Labkom kamu.</p>
+                    </div>
+                </a>
+                <!-- 16. Web V2 -->
+                <a href="https://pufuta.vercel.app" target="_blank" class="group reveal-item block no-underline">
+                    <div class="bg-white border border-border-light rounded-[20px] sm:rounded-[28px] p-3.5 sm:p-5 h-full transition-all duration-500 group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] group-hover:border-black/5 group-hover:-translate-y-1">
+                        <div class="card-image-container relative" style="--card-cover: url('/foto/cover16.png');"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-text-secondary uppercase tracking-widest">16</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Official</span>
+                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">Web V2</h3>
+                        <p class="text-text-secondary text-[0.65rem] sm:text-[0.75rem] leading-relaxed line-clamp-2">Website utama Putra versi terbaru. Modern, cepat, dan pastinya tetap 'putraganteng'.</p>
+                    </div>
+                </a>
+                <!-- 17. Web V1 -->
+                <a href="https://kanay.vercel.app" target="_blank" class="group reveal-item block no-underline">
+                    <div class="bg-white border border-border-light rounded-[20px] sm:rounded-[28px] p-3.5 sm:p-5 h-full transition-all duration-500 group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] group-hover:border-black/5 group-hover:-translate-y-1">
+                        <div class="card-image-container relative" style="--card-cover: url('/foto/cover17.png');"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-text-secondary uppercase tracking-widest">17</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">History</span>
+                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">Web V1</h3>
+                        <p class="text-text-secondary text-[0.65rem] sm:text-[0.75rem] leading-relaxed line-clamp-2">Saksi bisu perjalanan di BEM. Tanya anak BEM se-Sikma kalau mau tau sejarah web ini!</p>
+                    </div>
+                </a>
+                <!-- 18. Archive (current) -->
+                <a href="/index.html" target="_blank" class="group reveal-item block no-underline">
+                    <div class="bg-white border border-border-light rounded-[20px] sm:rounded-[28px] p-3.5 sm:p-5 h-full transition-all duration-500 group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] group-hover:border-black/5 group-hover:-translate-y-1">
+                        <div class="card-image-container relative" style="--card-cover: url('/foto/cover18.png');"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-text-secondary uppercase tracking-widest">18</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Platform</span>
+                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">Archive</h3>
+                        <p class="text-text-secondary text-[0.65rem] sm:text-[0.75rem] leading-relaxed line-clamp-2">Platform pusat yang sedang kamu lihat ini. Wadah abadi untuk semua karya koding Putra.</p>
+                    </div>
+                </a>
+                <!-- 19. Mutabaah OS -->
+                <a href="https://mutabaahos.vercel.app" target="_blank" class="group reveal-item block no-underline">
+                    <div class="bg-white border border-border-light rounded-[20px] sm:rounded-[28px] p-3.5 sm:p-5 h-full transition-all duration-500 group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] group-hover:border-black/5 group-hover:-translate-y-1">
+                        <div class="card-image-container relative" style="--card-cover: url('/foto/cover19.png');"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-text-secondary uppercase tracking-widest">19</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Startup</span>
+                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">Mutabaah OS</h3>
+                        <p class="text-text-secondary text-[0.65rem] sm:text-[0.75rem] leading-relaxed line-clamp-2">Landing page proyek full stack dan full keren baru. InsyaAllah jadi startup baru di Indo.</p>
+                    </div>
+                </a>
+                <!-- 20. Pufutara AI -->
+                <a href="https://pufutaraai.vercel.app" target="_blank" class="group reveal-item block no-underline">
+                    <div class="bg-white border border-border-light rounded-[20px] sm:rounded-[28px] p-3.5 sm:p-5 h-full transition-all duration-500 group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] group-hover:border-black/5 group-hover:-translate-y-1">
+                        <div class="card-image-container relative" style="--card-cover: url('/foto/cover20.png');"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-text-secondary uppercase tracking-widest">20</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">AI</span>
+                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">Pufutara AI</h3>
+                        <p class="text-text-secondary text-[0.65rem] sm:text-[0.75rem] leading-relaxed line-clamp-2">AI chatbot menggunakan Gemini API key sebagai dasar AI nya.</p>
+                    </div>
+                </a>
+                <!-- 21. Calc Pro -->
+                <a href="/calc/index.html" target="_blank" class="group reveal-item block no-underline">
+                    <div class="bg-white border border-border-light rounded-[20px] sm:rounded-[28px] p-3.5 sm:p-5 h-full transition-all duration-500 group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] group-hover:border-black/5 group-hover:-translate-y-1">
+                        <div class="card-image-container relative" style="--card-cover: url('/foto/cover21.png');"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-text-secondary uppercase tracking-widest">21</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Utility</span>
+                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">Calc Pro</h3>
+                        <p class="text-text-secondary text-[0.65rem] sm:text-[0.75rem] leading-relaxed line-clamp-2">Kalkulator modern dengan fungsi sains, persentase, dan riwayat perhitungan.</p>
+                    </div>
+                </a>
+                <!-- 22. Vote System -->
+                <a href="/vote/index.html" target="_blank" class="group reveal-item block no-underline">
+                    <div class="bg-white border border-border-light rounded-[20px] sm:rounded-[28px] p-3.5 sm:p-5 h-full transition-all duration-500 group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] group-hover:border-black/5 group-hover:-translate-y-1">
+                        <div class="card-image-container relative" style="--card-cover: url('/foto/cover22.png');"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-text-secondary uppercase tracking-widest">22</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Web</span>
+                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">Vote System</h3>
+                        <p class="text-text-secondary text-[0.65rem] sm:text-[0.75rem] leading-relaxed line-clamp-2">Sistem voting sederhana untuk menentukan pilihan kelas atau keputusan bersama.</p>
+                    </div>
+                </a>
+                <!-- 23. Quiz App -->
+                <a href="/quiz/index.html" target="_blank" class="group reveal-item block no-underline">
+                    <div class="bg-white border border-border-light rounded-[20px] sm:rounded-[28px] p-3.5 sm:p-5 h-full transition-all duration-500 group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] group-hover:border-black/5 group-hover:-translate-y-1">
+                        <div class="card-image-container relative" style="--card-cover: url('/foto/cover23.png');"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-text-secondary uppercase tracking-widest">23</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Edu</span>
+                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">Quiz App</h3>
+                        <p class="text-text-secondary text-[0.65rem] sm:text-[0.75rem] leading-relaxed line-clamp-2">Uji pengetahuanmu lewat kuis interaktif. Pilihan gacor dan leaderboard seru.</p>
+                    </div>
+                </a>
+                <!-- 24. StikiNot -->
+                <a href="/stikinot/index.html" target="_blank" class="group reveal-item block no-underline">
+                    <div class="bg-white border border-border-light rounded-[20px] sm:rounded-[28px] p-3.5 sm:p-5 h-full transition-all duration-500 group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] group-hover:border-black/5 group-hover:-translate-y-1">
+                        <div class="card-image-container relative" style="--card-cover: url('/foto/cover24.png');"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-text-secondary uppercase tracking-widest">24</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">App</span>
+                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">StikiNot</h3>
+                        <p class="text-text-secondary text-[0.65rem] sm:text-[0.75rem] leading-relaxed line-clamp-2">Aplikasi catatan ringan, mendukung rich text dan fitur praktis lainnya.</p>
+                    </div>
+                </a>
+                <!-- 25. Cahier -->
+                <a href="/kasir/index.html" target="_blank" class="group reveal-item block no-underline">
+                    <div class="bg-white border border-border-light rounded-[20px] sm:rounded-[28px] p-3.5 sm:p-5 h-full transition-all duration-500 group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] group-hover:border-black/5 group-hover:-translate-y-1">
+                        <div class="card-image-container relative" style="--card-cover: url('/foto/cover25.png');"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-text-secondary uppercase tracking-widest">25</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Note</span>
+                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">Cahier</h3>
+                        <p class="text-text-secondary text-[0.65rem] sm:text-[0.75rem] leading-relaxed line-clamp-2">Jurnal digital minimalis. Catat ide atau tugas sekolah dengan antarmuka menenangkan.</p>
+                    </div>
+                </a>
+                <!-- 26. Shop -->
+                <a href="/shop/index.html" target="_blank" class="group reveal-item block no-underline">
+                    <div class="bg-white border border-border-light rounded-[20px] sm:rounded-[28px] p-3.5 sm:p-5 h-full transition-all duration-500 group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] group-hover:border-black/5 group-hover:-translate-y-1">
+                        <div class="card-image-container relative" style="--card-cover: url('/foto/cover26.png');"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-text-secondary uppercase tracking-widest">26</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Store</span>
+                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">Shop</h3>
+                        <p class="text-text-secondary text-[0.65rem] sm:text-[0.75rem] leading-relaxed line-clamp-2">Toko merchandise resmi Pufutara. Dukung terus karya lokal.</p>
+                    </div>
+                </a>
+                <!-- 27. Browser -->
+                <a href="/browser/index.html" target="_blank" class="group reveal-item block no-underline">
+                    <div class="bg-white border border-border-light rounded-[20px] sm:rounded-[28px] p-3.5 sm:p-5 h-full transition-all duration-500 group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] group-hover:border-black/5 group-hover:-translate-y-1">
+                        <div class="card-image-container relative" style="--card-cover: url('/foto/cover27.png');"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-text-secondary uppercase tracking-widest">27</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Tools</span>
+                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">Browser</h3>
+                        <p class="text-text-secondary text-[0.65rem] sm:text-[0.75rem] leading-relaxed line-clamp-2">Browser cepat, ringan dan modern! dibuat dari framework electron.</p>
+                    </div>
+                </a>
+                <!-- 28. Mang Pey -->
+                <a href="/dapurmangpey/index.html" target="_blank" class="group reveal-item block no-underline">
+                    <div class="bg-white border border-border-light rounded-[20px] sm:rounded-[28px] p-3.5 sm:p-5 h-full transition-all duration-500 group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] group-hover:border-black/5 group-hover:-translate-y-1">
+                        <div class="card-image-container relative" style="--card-cover: url('/foto/cover28.png');"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-text-secondary uppercase tracking-widest">28</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Client</span>
+                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">Mang Pey</h3>
+                        <p class="text-text-secondary text-[0.65rem] sm:text-[0.75rem] leading-relaxed line-clamp-2">Web buat temen pertama putra. dibuat saat gabut di hari minggu di ruang BEM.</p>
+                    </div>
+                </a>
+                <!-- 29. KLS WEB -->
+                <a href="/kls/index.html" target="_blank" class="group reveal-item block no-underline">
+                    <div class="bg-white border border-border-light rounded-[20px] sm:rounded-[28px] p-3.5 sm:p-5 h-full transition-all duration-500 group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] group-hover:border-black/5 group-hover:-translate-y-1">
+                        <div class="card-image-container relative" style="--card-cover: url('/foto/cover29.png');"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-text-secondary uppercase tracking-widest">29</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Pro</span>
+                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">KLS WEB</h3>
+                        <p class="text-text-secondary text-[0.65rem] sm:text-[0.75rem] leading-relaxed line-clamp-2">Landing page website organisasi authot pufutara. Kece banget kek profesional.</p>
+                    </div>
+                </a>
+                <!-- 30. AI 2.0 -->
+                <a href="https://pufutara-ai--putraazzam2110.replit.app/" target="_blank" class="group reveal-item block no-underline">
+                    <div class="bg-white border border-border-light rounded-[20px] sm:rounded-[28px] p-3.5 sm:p-5 h-full transition-all duration-500 group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] group-hover:border-black/5 group-hover:-translate-y-1">
+                        <div class="card-image-container relative" style="--card-cover: url('/foto/cover30.png');"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-text-secondary uppercase tracking-widest">30</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">AI</span>
+                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">AI 2.0</h3>
+                        <p class="text-text-secondary text-[0.65rem] sm:text-[0.75rem] leading-relaxed line-clamp-2">AI chatbot generasi terbaru, lebih mantap dan berkualitas tinggi.</p>
+                    </div>
+                </a>
+                <!-- 31. New Idea -->
+                <a href="/kontak.html" target="_blank" class="group reveal-item block no-underline">
+                    <div class="bg-white border border-border-light rounded-[20px] sm:rounded-[28px] p-3.5 sm:p-5 h-full transition-all duration-500 group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] group-hover:border-black/5 group-hover:-translate-y-1">
+                        <div class="card-image-container relative" style="--card-cover: url('/foto/cover31.png');"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-text-secondary uppercase tracking-widest">31</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Concept</span>
+                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">New Idea</h3>
+                        <p class="text-text-secondary text-[0.65rem] sm:text-[0.75rem] leading-relaxed line-clamp-2">Punya ide aplikasi baru? Kirim gagasanmu lewat halaman kontak.</p>
+                    </div>
+                </a>
+                <!-- 32. Next Project -->
+                <a href="#" target="_blank" class="group reveal-item block no-underline">
+                    <div class="bg-white border border-border-light rounded-[20px] sm:rounded-[28px] p-3.5 sm:p-5 h-full transition-all duration-500 group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] group-hover:border-black/5 group-hover:-translate-y-1">
+                        <div class="card-image-container relative" style="--card-cover: url('/foto/cover32.png');"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-text-secondary uppercase tracking-widest">32</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Dev</span>
+                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">Next Project</h3>
+                        <p class="text-text-secondary text-[0.65rem] sm:text-[0.75rem] leading-relaxed line-clamp-2">Sedang dalam tahap pengembangan. Nantikan kejutan koding selanjutnya!</p>
+                    </div>
+                </a>
+            </div>
+        </div>
     </section>
 </main>
 
-<footer>
-    <div class="container">
-        <div class="footer-grid">
-            <div class="footer-brand"><h3>PUFUTARA</h3><p>Wadah abadi untuk seluruh karya web seorang pelajar yang haus akan inovasi dan desain yang bermakna.</p></div>
-            <div class="footer-col"><h4>Keahlian</h4><ul><li><span>Minimalist UI</span></li><li><span>Interaction Design</span></li><li><span>Soft Aesthetics</span></li></ul></div>
-            <div class="footer-col"><h4>Internal</h4><ul><li><span>Arsip Lengkap</span></li><li><span>Status Server</span></li></ul></div>
-            <div class="footer-col"><h4>Kontak</h4><ul><li><span>Putra Ajam</span></li><li><span>pufutara@gmail.com</span></li></ul></div>
+<footer class="bg-gray-muted rounded-t-[44px] pt-16 pb-10 px-6">
+    <div class="max-w-[1100px] mx-auto">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+            <div>
+                <h3 class="text-[1.5rem] font-black tracking-tighter mb-4">PUFUTARA</h3>
+                <p class="text-text-secondary max-w-[260px] text-[0.85rem] leading-relaxed">Wadah abadi untuk seluruh karya web seorang pelajar yang haus akan inovasi dan desain bermakna.</p>
+            </div>
+            <div>
+                <h4 class="text-[0.7rem] font-bold uppercase tracking-[0.2em] mb-6 text-black/30">Keahlian</h4>
+                <ul class="space-y-3">
+                    <li class="text-text-secondary font-medium text-[0.85rem] hover:text-black transition-colors cursor-default">Minimalist UI</li>
+                    <li class="text-text-secondary font-medium text-[0.85rem] hover:text-black transition-colors cursor-default">Interaction Design</li>
+                    <li class="text-text-secondary font-medium text-[0.85rem] hover:text-black transition-colors cursor-default">Soft Aesthetics</li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-[0.7rem] font-bold uppercase tracking-[0.2em] mb-6 text-black/30">Internal</h4>
+                <ul class="space-y-3">
+                    <li class="text-text-secondary font-medium text-[0.85rem] hover:text-black transition-colors cursor-default">Arsip Lengkap</li>
+                    <li class="text-text-secondary font-medium text-[0.85rem] hover:text-black transition-colors cursor-default">Status Server</li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-[0.7rem] font-bold uppercase tracking-[0.2em] mb-6 text-black/30">Kontak</h4>
+                <ul class="space-y-3">
+                    <li class="text-text-secondary font-medium text-[0.85rem] hover:text-black transition-colors cursor-default">Putra Azzam</li>
+                    <li class="text-text-secondary font-medium text-[0.85rem] hover:text-black transition-colors cursor-default">pufutara@gmail.com</li>
+                </ul>
+            </div>
         </div>
-        <div class="footer-bottom"><p>© 2026 Pufutara. Berawal dari Labkom 1, SMPIT Assyifa.</p><p>Designed with Precision &amp; Love.</p></div>
+        <div class="pt-8 border-t border-black/[0.04] flex flex-col md:flex-row justify-between items-center text-text-secondary text-[0.75rem] gap-4 opacity-60">
+            <p>© 2026 Pufutara. Berawal dari Labkom 1, SMPIT Assyifa.</p>
+            <p>Designed with Precision & Love by Putra Azzam.</p>
+        </div>
     </div>
 </footer>
 
-<div id="toast" class="toast"></div>
-
-<!-- SCROLL TO TOP BUTTON (modern) -->
-<div class="scroll-top visible" id="scrollTopBtn">
-    <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
-</div>
+<div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-black/90 backdrop-blur text-white px-6 py-2.5 rounded-full text-[0.8rem] font-bold opacity-0 transition-all duration-300 pointer-events-none z-[1000] shadow-xl"></div>
 
 <script>
-    // Modern entrance animation: staggered reveal for hero & grid items
-    function assignCardCovers() {
-        const cards = document.querySelectorAll('.grid .card');
-        cards.forEach((card, index) => {
-            const coverNumber = index + 1;
-            card.style.setProperty('--card-cover', `url('foto/cover${coverNumber}.png')`);
-        });
-    }
+    const heroContent = document.getElementById('hero-content');
+    const navWrapper = document.getElementById('nav-wrapper');
 
-    function startEntranceAnimation() {
-        const heroElements = [
-            document.querySelector('.hero h1'),
-            document.querySelector('.hero p'),
-            document.querySelector('.hero .btn')
-        ].filter(el => el !== null);
-        
-        const gridItems = document.querySelectorAll('.grid > *');
+    window.addEventListener('scroll', () => {
+        const scrolled = window.scrollY;
+        const viewportHeight = window.innerHeight;
+        let progress = Math.min(scrolled / (viewportHeight * 0.8), 1);
+        let scale = 1 - (progress * 0.15);
+        let opacity = 1 - (progress * 1.2);
+        let blur = progress * 15;
+        let yMove = progress * 60;
 
-        heroElements.forEach(el => el.classList.remove('revealed'));
-        gridItems.forEach(item => item.classList.remove('revealed'));
-        document.body.classList.add('anim-ready');
-        
-        heroElements.forEach((el, idx) => {
-            if (el) {
-                el.style.transitionDelay = `${idx * 0.08}s`;
-                el.classList.add('revealed');
+        if (heroContent) {
+            heroContent.style.transform = `scale(${scale}) translateY(${yMove}px)`;
+            heroContent.style.opacity = opacity;
+            heroContent.style.filter = `blur(${blur}px)`;
+        }
+
+        if (navWrapper) {
+            if (scrolled > 20) {
+                navWrapper.style.transform = "scale(0.98)";
+                navWrapper.classList.add('shadow-md');
+            } else {
+                navWrapper.style.transform = "scale(1)";
+                navWrapper.classList.remove('shadow-md');
+            }
+        }
+    });
+
+    const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('revealed');
             }
         });
+    }, { threshold: 0.1 });
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach((entry) => {
-                if (!entry.isIntersecting) return;
-                const item = entry.target;
-                const index = Number(item.dataset.index || 0);
-                const delay = (index % 4) * 0.06;
-                item.style.transitionDelay = `${delay}s`;
-                item.classList.add('revealed');
-                observer.unobserve(item);
-            });
-        }, {
-            threshold: 0.16,
-            rootMargin: '0px 0px -10% 0px'
-        });
+    document.querySelectorAll('.reveal-item').forEach(item => {
+        revealObserver.observe(item);
+    });
 
-        gridItems.forEach((item, index) => {
-            item.dataset.index = String(index);
-            observer.observe(item);
-        });
-    }
-    
-    // Toast utility
-    function showToast(message, duration = 2800) {
+    function showToast(msg) {
         const toast = document.getElementById('toast');
-        toast.textContent = message;
-        toast.style.opacity = '1';
-        setTimeout(() => { toast.style.opacity = '0'; }, duration);
-    }
-    
-    // Smooth scroll with enhanced offset
-    function smoothScrollToElement(element, offsetFactor = 0.18) {
-        if (!element) return;
-        const rect = element.getBoundingClientRect();
-        const absoluteTop = window.scrollY + rect.top;
-        const headerHeight = document.querySelector('header')?.offsetHeight || 70;
-        const extraOffset = window.innerHeight * offsetFactor;
-        const targetPosition = absoluteTop - headerHeight - extraOffset;
-        window.scrollTo({ top: Math.max(0, targetPosition), behavior: 'smooth' });
-    }
-    
-    // Scroll to top button logic
-    const scrollBtn = document.getElementById('scrollTopBtn');
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 400) {
-            scrollBtn.classList.add('visible');
-        } else {
-            scrollBtn.classList.remove('visible');
+        if (toast) {
+            toast.textContent = msg;
+            toast.classList.add('opacity-100', 'translate-y-[-10px]');
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-[-10px]');
+            }, 3000);
         }
-    });
-    scrollBtn.addEventListener('click', () => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-    
-    // Event listeners for header buttons
-    document.getElementById('arsipBtn')?.addEventListener('click', () => {
-        showToast('📦 Arsip proyek lengkap — 26 karya siap dijelajahi. PufutaraQuiz, Vote, Cahier & Shop hadir!');
-    });
-    document.getElementById('layananBtn')?.addEventListener('click', () => {
-        showToast('🔧 Layanan mandiri: jelajahi setiap proyek. Dari kuis seru hingga toko merchandise!');
-    });
-    
-    // Enhanced scroll button "Jelajahi karya"
-    const exploreBtn = document.getElementById('exploreBtn');
-    const targetSection = document.getElementById('proyek');
-    if (exploreBtn && targetSection) {
-        exploreBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            smoothScrollToElement(targetSection, 0.2);
-        });
     }
-    
-    // Sticky header effect
-    const header = document.querySelector('header');
-    const wrapper = document.querySelector('.nav-wrapper');
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 30) {
-            header.style.transform = "translateY(-2px)";
-            wrapper.style.background = "rgba(255, 255, 255, 0.96)";
-            wrapper.style.boxShadow = "0 8px 24px -8px rgba(0,0,0,0.05)";
-        } else {
-            header.style.transform = "translateY(0)";
-            wrapper.style.background = "rgba(255, 255, 255, 0.92)";
-            wrapper.style.boxShadow = "var(--shadow-sm)";
-        }
-    });
-    
-    // Launch entrance animation when DOM ready
-    document.addEventListener('DOMContentLoaded', () => {
-        assignCardCovers();
-        startEntranceAnimation();
-    });
 </script>
-
-
-</body></html>
+</body>
+</html>
