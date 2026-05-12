@@ -148,14 +148,12 @@
         const SB_URL = 'https://puywjdopumlzvmzbcudr.supabase.co';
         const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1eXdqZG9wdW1senZtemJjdWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDE3MTksImV4cCI6MjA4NzkxNzcxOX0.vvThyjtK2SlA9oA9Mr_XOmt1R_tNZk-ib3PO9XpiiSc';
         
-        // Menggunakan nama variabel yang unik agar tidak konflik dengan global 'supabase' dari SDK
         const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
 
         let achievements = [];
         let isAdmin = false;
         let adminClickCount = 0;
 
-        // Inisialisasi
         async function init() {
             await fetchData();
         }
@@ -184,6 +182,8 @@
             achievements.forEach(item => {
                 const row = document.createElement('tr');
                 row.className = 'hover:bg-gray-50 transition-all animate-fade';
+                // PENTING: Untuk lingkungan Canvas, pastikan file detail_prestasi.html sudah ada
+                // atau gunakan sistem SPA/Switch Content jika hanya menggunakan satu file.
                 row.innerHTML = `
                     <td class="px-6 py-4">
                         <a href="detail_prestasi.html?uuid=${item.id}" class="flex items-center group">
@@ -219,8 +219,6 @@
             document.getElementById('statTotal').innerText = achievements.length;
             if (isAdmin) document.querySelectorAll('.admin-col').forEach(el => el.classList.remove('hidden'));
         }
-
-        // --- CRUD OPERATIONS ---
 
         document.getElementById('prestasiForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -275,8 +273,6 @@
             document.getElementById('fReward').value = item.reward;
             openModal();
         }
-
-        // --- UI HELPERS ---
 
         function handleAdminAuth() {
             adminClickCount++;
