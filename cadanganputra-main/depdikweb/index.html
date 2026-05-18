@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Departemen Pendidikan | BEM As-Syifa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- AOS Library for scroll animations -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Playfair+Display:wght@700&display=swap');
+
+        :root {
+            --primary-blue: #003366;
+            --deep-black: #1a1a1a;
+            --soft-white: #f8fafc;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--soft-white);
+            color: var(--deep-black);
+            scroll-behavior: smooth;
+        }
+
+        .serif-title {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, #003366 0%, #001a33 100%);
+        }
+
+        .card-hover:hover {
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .nav-link {
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background-color: #3b82f6;
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .program-tag {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+
+        /* Back to Top Button */
+        #backToTop {
+            display: none;
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 99;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #backToTop:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+
+    <!-- Back to Top Button -->
+    <button id="backToTop" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="bg-blue-900 text-white w-12 h-12 rounded-full shadow-2xl flex items-center justify-center hover:bg-blue-700">
+        <i class="fas fa-chevron-up"></i>
+    </button>
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100 shadow-sm">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-blue-900 rounded-full flex items-center justify-center text-white font-bold">DP</div>
+                <span class="font-bold text-xl tracking-tight text-blue-900">PENDIDIKAN</span>
+            </div>
+            <div class="hidden md:flex space-x-8 font-medium text-sm">
+                <a href="#home" class="nav-link">Beranda</a>
+                <a href="#struktur" class="nav-link">Kepengurusan</a>
+                <a href="#program" class="nav-link">Program Kerja</a>
+                <a href="#kontak" class="bg-blue-900 text-white px-5 py-2 rounded-full hover:bg-blue-800 transition">Hubungi Kami</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero-gradient min-h-screen flex items-center pt-20 text-white overflow-hidden relative">
+        <div class="absolute top-20 right-[-10%] w-[500px] h-[500px] bg-blue-500/10 rounded-full blur-[100px]"></div>
+        <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center relative z-10">
+            <div>
+                <h2 data-aos="fade-up" data-aos-delay="100" class="text-blue-400 font-semibold tracking-[0.2em] mb-4 uppercase text-sm">BEM As-Syifa Boarding School</h2>
+                <h1 data-aos="fade-up" data-aos-delay="300" class="serif-title text-5xl md:text-7xl leading-tight mb-6 italic">Membangun Masa Depan Lewat <span class="text-blue-400">Pendidikan.</span></h1>
+                <p data-aos="fade-up" data-aos-delay="500" class="text-gray-300 text-lg mb-8 max-w-lg leading-relaxed">
+                    Departemen Pendidikan berfokus pada inovasi akademik, pengembangan karakter, dan penyediaan platform edukasi yang adaptif bagi seluruh santri.
+                </p>
+                <div data-aos="fade-up" data-aos-delay="700" class="flex space-x-4">
+                    <a href="#program" class="bg-white text-blue-900 px-8 py-4 rounded-lg font-bold hover:bg-blue-50 transition shadow-lg">Lihat Program</a>
+                    <a href="#struktur" class="border border-white/30 text-white px-8 py-4 rounded-lg font-bold hover:bg-white/10 transition">Tim Kami</a>
+                </div>
+            </div>
+            <div class="hidden md:block" data-aos="zoom-in" data-aos-delay="400">
+                <div class="relative">
+                    <div class="w-full h-[500px] rounded-2xl overflow-hidden shadow-2xl rotate-3 bg-gray-800 border border-white/10 flex items-center justify-center">
+                         <i class="fas fa-graduation-cap text-9xl text-white/10"></i>
+                    </div>
+                    <div class="absolute -bottom-6 -left-6 bg-white p-6 rounded-xl shadow-xl text-blue-900 animate-bounce">
+                        <p class="font-bold text-3xl">12</p>
+                        <p class="text-xs font-semibold uppercase tracking-widest opacity-70">Program Kerja</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section (Realizing Poin 2) -->
+    <section class="py-12 bg-white border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center" data-aos="fade-up">
+                <div>
+                    <p class="text-4xl font-bold text-blue-900">12</p>
+                    <p class="text-xs text-gray-500 uppercase tracking-widest mt-2">Program Kerja</p>
+                </div>
+                <div>
+                    <p class="text-4xl font-bold text-blue-900">500+</p>
+                    <p class="text-xs text-gray-500 uppercase tracking-widest mt-2">Santri Terbantu</p>
+                </div>
+                <div>
+                    <p class="text-4xl font-bold text-blue-900">100%</p>
+                    <p class="text-xs text-gray-500 uppercase tracking-widest mt-2">Target Terlaksana</p>
+                </div>
+                <div>
+                    <p class="text-4xl font-bold text-blue-900">24/7</p>
+                    <p class="text-xs text-gray-500 uppercase tracking-widest mt-2">Dukungan Edukasi</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Struktur Section -->
+    <section id="struktur" class="py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16" data-aos="fade-up">
+                <h3 class="text-blue-900 font-bold uppercase tracking-widest text-sm mb-2">Internal Team</h3>
+                <h2 class="serif-title text-4xl text-gray-900">Struktur Kepengurusan</h2>
+                <div class="w-20 h-1 bg-blue-600 mx-auto mt-4"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Menteri -->
+                <div class="card-hover bg-gray-50 p-8 rounded-2xl border border-gray-100 text-center" data-aos="fade-up" data-aos-delay="100">
+                    <div class="w-24 h-24 bg-blue-100 rounded-full mx-auto mb-6 flex items-center justify-center text-blue-900">
+                        <i class="fas fa-user-tie text-3xl"></i>
+                    </div>
+                    <h4 class="font-bold text-lg mb-1">Mahardika Latif</h4>
+                    <p class="text-blue-600 text-sm font-semibold uppercase tracking-tighter">Menteri Pendidikan</p>
+                    <div class="mt-4 flex justify-center space-x-3 text-gray-400">
+                        <i class="fab fa-linkedin hover:text-blue-900 cursor-pointer"></i>
+                        <a href="https://instagram.com/maharrajaal" target="_blank" class="hover:text-blue-900"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+
+                <!-- Sekretaris -->
+                <div class="card-hover bg-gray-50 p-8 rounded-2xl border border-gray-100 text-center" data-aos="fade-up" data-aos-delay="200">
+                    <div class="w-24 h-24 bg-blue-100 rounded-full mx-auto mb-6 flex items-center justify-center text-blue-900">
+                        <i class="fas fa-file-signature text-3xl"></i>
+                    </div>
+                    <h4 class="font-bold text-lg mb-1 text-nowrap">Pradipta Luthfi</h4>
+                    <p class="text-blue-600 text-sm font-semibold uppercase tracking-tighter text-nowrap">Sekretaris Departemen</p>
+                    <div class="mt-4 flex justify-center space-x-3 text-gray-400">
+                        <i class="fab fa-linkedin hover:text-blue-900 cursor-pointer"></i>
+                    </div>
+                </div>
+
+                <!-- Anggota 1 -->
+                <div class="card-hover bg-gray-50 p-8 rounded-2xl border border-gray-100 text-center" data-aos="fade-up" data-aos-delay="300">
+                    <div class="w-24 h-24 bg-blue-100 rounded-full mx-auto mb-6 flex items-center justify-center text-blue-900">
+                        <i class="fas fa-users text-3xl"></i>
+                    </div>
+                    <h4 class="font-bold text-lg mb-1">Putra Azzam</h4>
+                    <p class="text-blue-600 text-sm font-semibold uppercase tracking-tighter">Anggota</p>
+                    <div class="mt-4 flex justify-center space-x-3 text-gray-400">
+                        <a href="https://instagram.com/putlajam" target="_blank" class="hover:text-blue-900"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+
+                <!-- Anggota 2 -->
+                <div class="card-hover bg-gray-50 p-8 rounded-2xl border border-gray-100 text-center" data-aos="fade-up" data-aos-delay="400">
+                    <div class="w-24 h-24 bg-blue-100 rounded-full mx-auto mb-6 flex items-center justify-center text-blue-900">
+                        <i class="fas fa-users text-3xl"></i>
+                    </div>
+                    <h4 class="font-bold text-lg mb-1">Alfarizi Rayasya</h4>
+                    <p class="text-blue-600 text-sm font-semibold uppercase tracking-tighter">Anggota</p>
+                    <div class="mt-4 flex justify-center space-x-3 text-gray-400">
+                        <i class="fab fa-instagram hover:text-blue-900 cursor-pointer"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimoni Pembina Section -->
+    <section class="py-20 bg-white border-t border-b border-gray-100">
+        <div class="max-w-4xl mx-auto px-6 text-center" data-aos="fade-up">
+            <h3 class="text-blue-900 font-bold uppercase tracking-widest text-sm mb-2">Pesan Pembina</h3>
+            <h2 class="serif-title text-4xl text-gray-900 mb-8">Bimbingan & Arahan</h2>
+            <div class="bg-gray-50 p-10 rounded-3xl shadow-sm border border-gray-100 relative">
+                <span class="absolute top-6 left-8 text-6xl text-blue-200 font-serif">“</span>
+                <p class="text-gray-600 text-lg italic leading-relaxed relative z-10 mb-6">
+                    "Pendidikan bukan sekadar transfer ilmu, melainkan proses membentuk karakter, melatih kemandirian, serta menyalakan api rasa ingin tahu di dalam jiwa setiap santri. Saya sangat bangga dengan dedikasi serta inovasi yang ditunjukkan oleh jajaran pengurus Departemen Pendidikan BEM As-Syifa dalam menghadirkan program-program yang adaptif dan solutif."
+                </p>
+                <div class="w-12 h-1 bg-blue-600 mx-auto mb-6"></div>
+                <h5 class="font-bold text-lg text-gray-900">Ust. H. Teguh Wahyudi, M.Pd.</h5>
+                <p class="text-xs text-blue-600 uppercase tracking-widest font-semibold mt-1">Pembina BEM As-Syifa Boarding School</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Program Kerja Section -->
+    <section id="program" class="py-24 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-6" data-aos="fade-right">
+                <div>
+                    <h3 class="text-blue-900 font-bold uppercase tracking-widest text-sm mb-2 text-center md:text-left">Project Portfolio</h3>
+                    <h2 class="serif-title text-4xl text-gray-900 text-center md:text-left">Klasifikasi Program Kerja</h2>
+                </div>
+                <div class="flex space-x-2 bg-white p-1 rounded-lg shadow-sm">
+                    <button class="px-4 py-2 bg-blue-900 text-white rounded-md text-sm font-bold">Semua</button>
+                    <button class="px-4 py-2 hover:bg-gray-100 text-gray-600 rounded-md text-sm font-bold transition">Pionir</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Column 1: Adaptif -->
+                <div class="space-y-6" data-aos="fade-up" data-aos-delay="100">
+                    <div class="bg-blue-900 text-white p-4 rounded-xl flex items-center justify-between">
+                        <span class="font-bold">BERKELANJUTAN ADAPTIF</span>
+                        <i class="fas fa-sync-alt animate-spin-slow"></i>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-900 card-hover">
+                            <span class="program-tag text-blue-900 italic">Core Meeting</span>
+                            <h5 class="font-bold mt-2">Rapat Divisi & Gabungan</h5>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-900 card-hover">
+                            <span class="program-tag text-blue-900 italic">Insight</span>
+                            <h5 class="font-bold mt-2">Tau Gak Sih?</h5>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-900 card-hover">
+                            <span class="program-tag text-blue-900 italic">Game & Knowledge</span>
+                            <h5 class="font-bold mt-2">Quest</h5>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-900 card-hover">
+                            <span class="program-tag text-blue-900 italic">Event</span>
+                            <h5 class="font-bold mt-2">Hari Guru & Kemerdekaan</h5>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Column 2: Pengembangan -->
+                <div class="space-y-6" data-aos="fade-up" data-aos-delay="200">
+                    <div class="bg-blue-600 text-white p-4 rounded-xl flex items-center justify-between">
+                        <span class="font-bold">PENGEMBANGAN</span>
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-600 card-hover">
+                            <span class="program-tag text-blue-600 italic">Critical Thinking</span>
+                            <h5 class="font-bold mt-2">Mitos vs Fakta</h5>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-600 card-hover">
+                            <span class="program-tag text-blue-600 italic">Literasi</span>
+                            <h5 class="font-bold mt-2">Historical Day</h5>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-600 card-hover">
+                            <span class="program-tag text-blue-600 italic">Competition</span>
+                            <h5 class="font-bold mt-2">Olimpiade Sains As-Syifa</h5>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Column 3: Pionir -->
+                <div class="space-y-6" data-aos="fade-up" data-aos-delay="300">
+                    <div class="bg-black text-white p-4 rounded-xl flex items-center justify-between">
+                        <span class="font-bold text-nowrap">PIONIR (INOVASI)</span>
+                        <i class="fas fa-rocket text-yellow-400"></i>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-black card-hover">
+                            <div class="flex justify-between items-start">
+                                <span class="program-tag text-black italic">Culture & Education</span>
+                                <span class="bg-yellow-400 text-[10px] px-2 py-0.5 rounded-full font-bold">BARU</span>
+                            </div>
+                            <h5 class="font-bold mt-2 italic text-lg">Yatra Nusantara</h5>
+                            <p class="text-xs text-gray-500 mt-2">Program unggulan inovatif untuk pengenalan budaya nusantara.</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-black card-hover">
+                             <div class="flex justify-between items-start">
+                                <span class="program-tag text-black italic">Library</span>
+                                <span class="bg-yellow-400 text-[10px] px-2 py-0.5 rounded-full font-bold">BARU</span>
+                            </div>
+                            <h5 class="font-bold mt-2 italic text-lg">Glosarium As-Syifa</h5>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-black card-hover">
+                             <div class="flex justify-between items-start">
+                                <span class="program-tag text-black italic">Fasilitas</span>
+                                <span class="bg-yellow-400 text-[10px] px-2 py-0.5 rounded-full font-bold">BARU</span>
+                            </div>
+                            <h5 class="font-bold mt-2 italic text-lg text-nowrap">Open Labkom</h5>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Galeri Kegiatan Section -->
+    <section id="galeri" class="py-24 bg-white border-t border-gray-100">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16" data-aos="fade-up">
+                <h3 class="text-blue-900 font-bold uppercase tracking-widest text-sm mb-2">Dokumentasi</h3>
+                <h2 class="serif-title text-4xl text-gray-900">Galeri Kegiatan</h2>
+                <div class="w-20 h-1 bg-blue-600 mx-auto mt-4"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8" data-aos="fade-up" data-aos-delay="200">
+                <!-- Galeri Item 1 -->
+                <div class="group relative overflow-hidden rounded-2xl shadow-md bg-gray-950 aspect-[4/3] card-hover">
+                    <div class="absolute inset-0 bg-gradient-to-br from-blue-900 to-black opacity-80 flex items-center justify-center">
+                        <i class="fas fa-users text-5xl text-white/20 group-hover:scale-110 transition duration-300"></i>
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent flex flex-col justify-end p-6">
+                        <span class="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded-full w-max font-bold mb-2">DOKUMENTASI</span>
+                        <h4 class="text-white font-bold text-lg">Rapat Divisi & Koordinasi</h4>
+                        <p class="text-gray-300 text-xs mt-1">Sinergi internal dalam merancang program kerja unggulan.</p>
+                    </div>
+                </div>
+
+                <!-- Galeri Item 2 -->
+                <div class="group relative overflow-hidden rounded-2xl shadow-md bg-gray-950 aspect-[4/3] card-hover">
+                    <div class="absolute inset-0 bg-gradient-to-br from-blue-800 to-slate-900 opacity-80 flex items-center justify-center">
+                        <i class="fas fa-award text-5xl text-white/20 group-hover:scale-110 transition duration-300"></i>
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent flex flex-col justify-end p-6">
+                        <span class="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded-full w-max font-bold mb-2">EVENT BESAR</span>
+                        <h4 class="text-white font-bold text-lg">Olimpiade Sains As-Syifa</h4>
+                        <p class="text-gray-300 text-xs mt-1">Kompetisi bergengsi menguji kecerdasan sains santri.</p>
+                    </div>
+                </div>
+
+                <!-- Galeri Item 3 -->
+                <div class="group relative overflow-hidden rounded-2xl shadow-md bg-gray-950 aspect-[4/3] card-hover">
+                    <div class="absolute inset-0 bg-gradient-to-br from-blue-950 to-blue-900 opacity-80 flex items-center justify-center">
+                        <i class="fas fa-globe-asia text-5xl text-white/20 group-hover:scale-110 transition duration-300"></i>
+                    </div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent flex flex-col justify-end p-6">
+                        <span class="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded-full w-max font-bold mb-2">INOVASI</span>
+                        <h4 class="text-white font-bold text-lg">Yatra Nusantara</h4>
+                        <p class="text-gray-300 text-xs mt-1">Eksplorasi adat istiadat dan literasi kebudayaan nusantara.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action (Integrated Form) -->
+    <section id="kontak" class="py-20 bg-white">
+        <div class="max-w-4xl mx-auto px-6 text-center" data-aos="zoom-in">
+            <h2 class="serif-title text-4xl mb-6">Mari Berkolaborasi</h2>
+            <p class="text-gray-600 mb-10 text-lg">Kami terbuka untuk segala bentuk kerjasama demi meningkatkan mutu pendidikan di lingkungan As-Syifa.</p>
+            
+            <!-- Contact Form Integration -->
+            <form action="https://formsubmit.co/deptkominfotbz@gmail.com" method="POST" class="bg-gray-50 p-8 rounded-3xl border border-gray-100 shadow-sm text-left">
+                <!-- Honeypot for spam -->
+                <input type="text" name="_honey" style="display:none">
+                <!-- Disable Captcha -->
+                <input type="hidden" name="_captcha" value="false">
+                
+                <div class="grid md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-widest text-blue-900 mb-2">Nama Lengkap</label>
+                        <input type="text" name="name" required placeholder="Contoh: Ahmad" class="w-full bg-white border border-gray-200 px-4 py-3 rounded-xl focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-widest text-blue-900 mb-2">Alamat Email</label>
+                        <input type="email" name="email" required placeholder="Contoh: email@anda.com" class="w-full bg-white border border-gray-200 px-4 py-3 rounded-xl focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none transition">
+                    </div>
+                </div>
+                <div class="mb-8">
+                    <label class="block text-xs font-bold uppercase tracking-widest text-blue-900 mb-2">Pesan atau Kerjasama</label>
+                    <textarea name="message" required rows="4" placeholder="Tuliskan detail kerjasama di sini..." class="w-full bg-white border border-gray-200 px-4 py-3 rounded-xl focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none transition"></textarea>
+                </div>
+                <button type="submit" class="w-full bg-blue-900 text-white py-4 rounded-xl font-bold hover:bg-blue-800 transition shadow-lg flex items-center justify-center space-x-2">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Kirim Pesan ke Departemen</span>
+                </button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-12 border-b border-gray-800 pb-12">
+            <div>
+                <h4 class="font-bold text-xl mb-4">Departemen Pendidikan</h4>
+                <p class="text-gray-400 text-sm leading-relaxed italic">"Cerdas Spiritual, Unggul Intelektual."</p>
+            </div>
+            <div>
+                <h5 class="font-bold mb-4 uppercase text-xs tracking-widest text-blue-400">Tautan Cepat</h5>
+                <ul class="text-gray-400 text-sm space-y-2">
+                    <li><a href="#" class="hover:text-white">Program Kerja</a></li>
+                    <li><a href="#" class="hover:text-white">Dokumentasi Kegiatan</a></li>
+                    <li><a href="#" class="hover:text-white">Struktur Organisasi</a></li>
+                </ul>
+            </div>
+            <div>
+                <h5 class="font-bold mb-4 uppercase text-xs tracking-widest text-blue-400">Media Sosial</h5>
+                <div class="flex space-x-4">
+                    <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-blue-600 transition"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-blue-600 transition"><i class="fab fa-youtube"></i></a>
+                    <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-blue-600 transition"><i class="fab fa-tiktok"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-6 pt-8 text-center text-gray-500 text-xs uppercase tracking-widest">
+            &copy; 2024 Departemen Pendidikan BEM As-Syifa. All Rights Reserved.
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize AOS (Animate on Scroll)
+            AOS.init({
+                duration: 1000,
+                once: true,
+                offset: 100,
+                easing: 'ease-in-out'
+            });
+
+            // Back to Top Logic
+            const btt = document.getElementById('backToTop');
+            window.onscroll = function() {
+                if (document.body.scrollTop > 500 || document.documentElement.scrollTop > 500) {
+                    btt.style.display = "flex";
+                } else {
+                    btt.style.display = "none";
+                }
+            };
+            
+            console.log("Portofolio Departemen Pendidikan Siap dengan Fitur Korporat Lengkap");
+        });
+    </script>
+</body>
+</html>
