@@ -872,6 +872,28 @@ body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; overflow: hidden
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     position: relative;
 }
+.dock-icon::before {
+    content: attr(data-label);
+    position: absolute;
+    bottom: 62px;
+    left: 50%;
+    transform: translateX(-50%) translateY(6px);
+    background: rgba(17, 24, 39, 0.94);
+    color: white;
+    padding: 6px 9px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease 0.5s, transform 0.15s ease 0.5s;
+    z-index: 300;
+}
+.dock-icon:hover::before {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
 .dock-icon:hover { transform: translateY(-8px) scale(1.1); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
 .dock-icon.active::after {
     content: ""; position: absolute; bottom: -4px; left: 50%;
@@ -913,9 +935,155 @@ body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; overflow: hidden
 .context-item:hover { background: #f3f4f6; }
 .context-divider { height: 1px; background: #e5e7eb; margin: 4px 0; }
 
+.desktop-icons {
+    position: absolute;
+    inset: 48px 0 96px 0;
+    pointer-events: none;
+    z-index: 2;
+}
+.desktop-app-icon {
+    position: absolute;
+    width: 84px;
+    min-height: 82px;
+    padding: 8px 6px;
+    border-radius: 10px;
+    color: white;
+    text-align: center;
+    cursor: pointer;
+    pointer-events: auto;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.55);
+    user-select: none;
+}
+.desktop-app-icon:hover,
+.desktop-app-icon.dragging {
+    background: rgba(255,255,255,0.18);
+    backdrop-filter: blur(8px);
+}
+.desktop-app-emoji {
+    width: 46px;
+    height: 46px;
+    margin: 0 auto 6px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.92);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    text-shadow: none;
+}
+.desktop-app-label {
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+}
+
+.power-menu {
+    position: absolute;
+    right: 22px;
+    bottom: 86px;
+    width: 220px;
+    padding: 8px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.96);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(0,0,0,0.06);
+    box-shadow: 0 18px 45px rgba(0,0,0,0.18);
+    z-index: 400;
+    display: none;
+}
+.power-menu.show { display: block; }
+.power-menu-item {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    color: #111827;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    text-align: left;
+}
+.power-menu-item:hover { background: #f3f4f6; }
+.power-blackout {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 20000;
+    display: none;
+}
+.power-blackout.active { display: block; }
+
+.ui-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.42);
+    backdrop-filter: blur(8px);
+    z-index: 21000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+.ui-modal-backdrop.show { display: flex; }
+.ui-modal {
+    width: min(380px, calc(100vw - 32px));
+    background: white;
+    border-radius: 14px;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.26);
+    border: 1px solid rgba(0,0,0,0.06);
+    padding: 20px;
+}
+.ui-modal-title {
+    margin: 0 0 8px;
+    font-size: 18px;
+    font-weight: 700;
+}
+.ui-modal-message {
+    margin: 0 0 16px;
+    color: #4b5563;
+    font-size: 13px;
+    line-height: 1.5;
+}
+.ui-modal-input {
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font: inherit;
+    margin-bottom: 16px;
+}
+.ui-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+.ui-modal-btn {
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: white;
+    padding: 8px 14px;
+    cursor: pointer;
+    font: inherit;
+    font-size: 13px;
+}
+.ui-modal-btn.primary {
+    background: #111827;
+    border-color: #111827;
+    color: white;
+}
+.ui-modal-btn.danger {
+    background: #dc2626;
+    border-color: #dc2626;
+    color: white;
+}
+
 /* --- START MENU (tetap) --- */
 .start-menu {
-    position: absolute; bottom: 85px; left: 50%; transform: translateX(-50%) translateY(20px);
+    position: absolute; bottom: 105px; left: 50%; transform: translateX(-50%) translateY(20px);
     width: 650px; height: 580px;
     background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(25px);
     border-radius: 18px; border: 1px solid rgba(255,255,255,0.5);
@@ -1014,7 +1182,7 @@ body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; overflow: hidden
     border-bottom: 1px solid #e5e7eb;
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 8px;
     background: #fff;
 }
 .file-toolbar-btn {
@@ -1033,6 +1201,7 @@ body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; overflow: hidden
 .file-toolbar-btn i { font-size: 12px; color: #4b5563; }
 .file-toolbar-search {
     flex: 1;
+    min-width: 260px;
     position: relative;
 }
 .file-toolbar-search input {
@@ -1183,6 +1352,93 @@ body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; overflow: hidden
     white-space: pre-wrap;
     max-height: 300px;
     overflow-y: auto;
+}
+.file-preview-actions {
+    width: 100%;
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+.file-action-btn {
+    border: 1px solid #d1d5db;
+    background: white;
+    color: #374151;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.file-action-btn:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+}
+.file-viewer {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: #111827;
+}
+.file-viewer-toolbar {
+    height: 46px;
+    padding: 0 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+    color: #111827;
+}
+.file-viewer-title {
+    font-size: 13px;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.file-viewer-stage {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    color: white;
+}
+.file-viewer-stage img,
+.file-viewer-stage video {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 8px;
+    object-fit: contain;
+}
+.file-viewer-message {
+    max-width: 420px;
+    text-align: center;
+    line-height: 1.5;
+    color: #d1d5db;
+}
+.camera-status {
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    bottom: 74px;
+    background: rgba(17,24,39,0.78);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: 0.2s;
+    pointer-events: none;
+}
+.camera-status.show {
+    opacity: 1;
+    transform: translateY(0);
 }
 .recycle-bin {
     background: #fff;
@@ -1381,7 +1637,7 @@ body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; overflow: hidden
 </div>
 
 <!-- DESKTOP -->
-<div id="desktop" onclick="closeStartMenu(event); closeAllDropdowns(); closeWidgetTray();">
+<div id="desktop" onclick="closeStartMenu(event); closeAllDropdowns(); closeWidgetTray(); closePowerMenu();">
     <!-- Home Clock -->
     <div id="home-clock">
         <div class="home-time" id="home-time">--:--</div>
@@ -1483,12 +1739,21 @@ body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; overflow: hidden
     <!-- WIDGETS CONTAINER -->
     <div id="widgets-area"></div>
 
+    <!-- DESKTOP PINNED APPS -->
+    <div class="desktop-icons" id="desktopIcons"></div>
+
     <!-- CONTEXT MENU -->
     <div class="context-menu" id="contextMenu">
         <div class="context-item" id="context-open" onclick="contextOpenApp()"><i class="fas fa-play"></i>Buka</div>
         <div class="context-item" id="context-pin" onclick="contextPinApp()"><i class="fas fa-thumbtack"></i>Pin ke Dock</div>
         <div class="context-item" id="context-unpin" onclick="contextUnpinApp()"><i class="fas fa-thumbtack"></i>Lepas dari Dock</div>
-        <div class="context-divider"></div>
+        <div class="context-item" id="context-pin-desktop" onclick="contextPinDesktop()"><i class="fas fa-desktop"></i>Pin ke Desktop</div>
+        <div class="context-item" id="context-delete-desktop" onclick="contextDeleteDesktopPin()"><i class="fas fa-trash"></i>Delete</div>
+        <div class="context-item" id="context-settings" onclick="contextOpenSettings()"><i class="fas fa-gear"></i>Settings</div>
+        <div class="context-item" id="context-refresh" onclick="contextRefreshDesktop()"><i class="fas fa-rotate-right"></i>Refresh</div>
+        <div class="context-item" id="context-autohide" onclick="contextToggleTaskbarAutoHide()"><i class="fas fa-eye-slash"></i><span id="context-autohide-label">Matikan sembunyikan taskbar</span></div>
+        <div class="context-item" id="context-wallpaper" onclick="contextChangeWallpaper()"><i class="fas fa-image"></i>Ganti Wallpaper</div>
+        <div class="context-divider" id="context-divider"></div>
         <div class="context-item" onclick="closeContextMenu()"><i class="fas fa-times"></i>Tutup</div>
     </div>
 
@@ -1558,14 +1823,35 @@ body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; overflow: hidden
                 <div style="width:32px; height:32px; background:#111; border-radius:50%; color:#fff; display:flex; align-items:center; justify-content:center;">P</div>
                 <span>Pengguna Pufutara</span>
             </div>
-            <div class="power-btn" onclick="shutdown()">⏻</div>
+            <div class="power-btn" onclick="togglePowerMenu(event)">⏻</div>
         </div>
+    </div>
+
+    <div class="power-menu" id="powerMenu" onclick="event.stopPropagation()">
+        <button class="power-menu-item" onclick="requestPowerAction('shutdown')"><i class="fas fa-power-off"></i>Shutdown</button>
+        <button class="power-menu-item" onclick="requestPowerAction('hibernate')"><i class="fas fa-moon"></i>Hibernate</button>
+        <button class="power-menu-item" onclick="requestPowerAction('sleep')"><i class="fas fa-bed"></i>Sleep</button>
+        <button class="power-menu-item" onclick="requestPowerAction('lock')"><i class="fas fa-lock"></i>Lock</button>
     </div>
 
     <!-- DOCK -->
     <div class="dock-container" id="dockContainer">
         <div class="dock" id="dock">
             <!-- Dock items akan diisi secara dinamis -->
+        </div>
+    </div>
+</div>
+
+<div class="power-blackout" id="powerBlackout"></div>
+
+<div class="ui-modal-backdrop" id="uiModalBackdrop">
+    <div class="ui-modal">
+        <h3 class="ui-modal-title" id="uiModalTitle">Konfirmasi</h3>
+        <p class="ui-modal-message" id="uiModalMessage"></p>
+        <input class="ui-modal-input" id="uiModalInput" type="text">
+        <div class="ui-modal-actions">
+            <button class="ui-modal-btn" id="uiModalCancel">Batal</button>
+            <button class="ui-modal-btn primary" id="uiModalConfirm">OK</button>
         </div>
     </div>
 </div>
@@ -1585,6 +1871,10 @@ let widgets = [];
 let hideTimer = null;
 let mouseY = 0;
 let cameraStream = null;
+let taskbarAutoHide = true;
+let desktopPins = [];
+let desktopPinDrag = null;
+let modalResolver = null;
 
 // File Manager variables
 let currentFolder = 'home';
@@ -1630,7 +1920,7 @@ let fileSystem = {
 let fileDetails = {
     'tugas.docx': { type: 'document', size: '245 KB', modified: '2025-02-20', icon: '📄' },
     'data.xlsx': { type: 'spreadsheet', size: '180 KB', modified: '2025-02-19', icon: '📊' },
-    'notes.txt': { type: 'text', size: '2 KB', modified: '2025-02-21', icon: '📝' },
+    'notes.txt': { type: 'text', size: '2 KB', modified: '2025-02-21', icon: '📝', content: 'Catatan Pufutara OS\n\nIni contoh file teks yang bisa dibuka dari File Explorer.' },
     'proposal.pdf': { type: 'pdf', size: '1.2 MB', modified: '2025-02-18', icon: '📕' },
     'wallpaper.jpg': { type: 'image', size: '850 KB', modified: '2025-02-17', icon: '🖼️' },
     'foto1.png': { type: 'image', size: '2.1 MB', modified: '2025-02-16', icon: '🖼️' },
@@ -1646,13 +1936,14 @@ let fileDetails = {
     'setup.exe': { type: 'application', size: '5.2 MB', modified: '2025-02-07', icon: '💾' },
     'installer.dmg': { type: 'application', size: '4.5 MB', modified: '2025-02-06', icon: '💾' },
     'archive.zip': { type: 'archive', size: '2.8 MB', modified: '2025-02-05', icon: '🗜️' },
-    'index.html': { type: 'code', size: '3 KB', modified: '2025-02-21', icon: '🌐' },
-    'style.css': { type: 'code', size: '2 KB', modified: '2025-02-21', icon: '🎨' },
-    'script.js': { type: 'code', size: '5 KB', modified: '2025-02-21', icon: '⚙️' },
-    'readme.txt': { type: 'text', size: '1 KB', modified: '2025-02-21', icon: '📝' }
+    'index.html': { type: 'code', size: '3 KB', modified: '2025-02-21', icon: '🌐', content: '<!DOCTYPE html>\\n<html>\\n<head><title>Pufutara Project</title></head>\\n<body>\\n  <h1>Hello Pufutara</h1>\\n</body>\\n</html>' },
+    'style.css': { type: 'code', size: '2 KB', modified: '2025-02-21', icon: '🎨', content: 'body {\\n  font-family: Inter, sans-serif;\\n  background: #f9fafb;\\n}\\n\\nh1 {\\n  color: #3b82f6;\\n}' },
+    'script.js': { type: 'code', size: '5 KB', modified: '2025-02-21', icon: '⚙️', content: 'function greetPufutara() {\\n  console.log(\"Halo dari Pufutara OS\");\\n}\\n\\ngreetPufutara();' },
+    'readme.txt': { type: 'text', size: '1 KB', modified: '2025-02-21', icon: '📝', content: 'Pufutara Project\\n\\nFolder ini berisi contoh file project untuk demo File Explorer.' }
 };
 
 let recycleBin = [];
+let virtualFiles = {};
 
 // Music player variables
 let musicPlaylist = [];
@@ -1743,6 +2034,7 @@ function initSystem() {
     document.addEventListener('contextmenu', closeContextMenu);
     setupAutoHide();
     loadWidgets();
+    renderDesktopPins();
     
     document.querySelectorAll('.start-item').forEach(item => {
         item.addEventListener('contextmenu', function(e) {
@@ -1765,9 +2057,9 @@ function setupAutoHide() {
         topBar.classList.remove('hidden');
         dockContainer.classList.remove('hidden');
         clearTimeout(hideTimeout);
-        if (e.clientY > 50) {
+        if (taskbarAutoHide && e.clientY > 50) {
             hideTimeout = setTimeout(() => {
-                if (mouseY > 100) {
+                if (taskbarAutoHide && mouseY > 100) {
                     topBar.classList.add('hidden');
                     dockContainer.classList.add('hidden');
                 }
@@ -1784,12 +2076,20 @@ function setupAutoHide() {
         clearTimeout(hideTimeout);
         dockContainer.classList.remove('hidden');
     });
+
+    topBar.addEventListener('contextmenu', (e) => showContextMenu(e, null, 'taskbar'));
+    dockContainer.addEventListener('contextmenu', (e) => showContextMenu(e, null, 'taskbar'));
+    desktop.addEventListener('contextmenu', showWallpaperContextMenu);
+
+    applyTaskbarAutoHide();
 }
 
 // ========== LOAD/SAVE DATA ==========
 function loadSavedData() {
     const savedPinned = localStorage.getItem('pufutara_pinned_apps');
     if(savedPinned) pinnedApps = JSON.parse(savedPinned);
+    pinnedApps = sanitizePinnedApps(pinnedApps);
+    savePinnedApps();
     
     const savedWallpaper = localStorage.getItem('pufutara_wallpaper');
     if(savedWallpaper) {
@@ -1809,15 +2109,42 @@ function loadSavedData() {
         document.getElementById('brightness-value').textContent = brightnessLevel + '%';
         document.getElementById('brightness-slider').value = brightnessLevel;
     }
+
+    const savedTaskbarAutoHide = localStorage.getItem('pufutara_taskbar_autohide');
+    if(savedTaskbarAutoHide !== null) {
+        taskbarAutoHide = savedTaskbarAutoHide === 'true';
+    }
     
     const savedRecycleBin = localStorage.getItem('pufutara_recyclebin');
     if(savedRecycleBin) {
         recycleBin = JSON.parse(savedRecycleBin);
     }
+
+    const savedDesktopPins = localStorage.getItem('pufutara_desktop_pins');
+    if(savedDesktopPins) {
+        desktopPins = JSON.parse(savedDesktopPins).filter(pin => pin && pin.appId && pin.appId !== 'start');
+    }
+
+    loadVirtualFiles();
 }
 
 function savePinnedApps() {
+    pinnedApps = sanitizePinnedApps(pinnedApps);
     localStorage.setItem('pufutara_pinned_apps', JSON.stringify(pinnedApps));
+}
+
+function saveDesktopPins() {
+    localStorage.setItem('pufutara_desktop_pins', JSON.stringify(desktopPins));
+}
+
+function sanitizePinnedApps(appsList) {
+    const blocked = ['start', 'launcher', 'menu'];
+    const seen = new Set();
+    return (appsList || []).filter(appId => {
+        if (!appId || blocked.includes(appId) || seen.has(appId)) return false;
+        seen.add(appId);
+        return true;
+    });
 }
 
 function saveWallpaper(url) {
@@ -1828,6 +2155,7 @@ function saveWallpaper(url) {
 function saveSystemSettings() {
     localStorage.setItem('pufutara_sound', soundLevel);
     localStorage.setItem('pufutara_brightness', brightnessLevel);
+    localStorage.setItem('pufutara_taskbar_autohide', taskbarAutoHide);
 }
 
 function saveWidgets() {
@@ -1851,6 +2179,104 @@ function loadWidgets() {
 
 function saveRecycleBin() {
     localStorage.setItem('pufutara_recyclebin', JSON.stringify(recycleBin));
+}
+
+function saveVirtualFiles() {
+    localStorage.setItem('pufutara_virtual_files', JSON.stringify(virtualFiles));
+}
+
+function loadVirtualFiles() {
+    const savedFiles = localStorage.getItem('pufutara_virtual_files');
+    if (!savedFiles) return;
+
+    try {
+        virtualFiles = JSON.parse(savedFiles) || {};
+        Object.keys(virtualFiles).forEach(filename => {
+            const file = virtualFiles[filename];
+            fileDetails[filename] = file;
+            const folderId = file.folder || 'pictures';
+            if (fileSystem[folderId] && !fileSystem[folderId].items.includes(filename)) {
+                fileSystem[folderId].items.push(filename);
+            }
+        });
+    } catch (error) {
+        console.warn('Gagal memuat file virtual:', error);
+        virtualFiles = {};
+    }
+}
+
+function persistVirtualFile(filename, details, folderId = 'pictures') {
+    const fileRecord = { ...details, folder: folderId, virtual: true };
+    virtualFiles[filename] = fileRecord;
+    fileDetails[filename] = fileRecord;
+
+    if (fileSystem[folderId] && !fileSystem[folderId].items.includes(filename)) {
+        fileSystem[folderId].items.push(filename);
+    }
+
+    saveVirtualFiles();
+}
+
+function refreshOpenFileManager() {
+    const win = document.querySelector('.window[id^="win-files"]');
+    if (win) {
+        renderFileManager(win.querySelector('.win-content'));
+    }
+}
+
+function getFileDataUrl(filename) {
+    return fileDetails[filename]?.dataUrl || '';
+}
+
+function getImagePreviewSrc(filename) {
+    return getFileDataUrl(filename) || `https://via.placeholder.com/600x400?text=${encodeURIComponent(filename)}`;
+}
+
+function getDemoFileContent(filename) {
+    const details = fileDetails[filename] || {};
+    if (details.content) return details.content;
+    return `File: ${filename}\nType: ${details.type || 'unknown'}\nSize: ${details.size || '0 KB'}\n\nIni adalah contoh isi file di Pufutara OS.`;
+}
+
+function downloadVirtualFile(filename) {
+    const dataUrl = getFileDataUrl(filename);
+    if (!dataUrl) {
+        alert('File ini hanya contoh dan belum punya data untuk diunduh.');
+        return;
+    }
+
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = dataUrl;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+}
+
+function formatBytes(bytes) {
+    if (!bytes) return '0 KB';
+    const units = ['B', 'KB', 'MB', 'GB'];
+    let size = bytes;
+    let unitIndex = 0;
+    while (size >= 1024 && unitIndex < units.length - 1) {
+        size /= 1024;
+        unitIndex++;
+    }
+    return `${size.toFixed(size >= 10 || unitIndex === 0 ? 0 : 1)} ${units[unitIndex]}`;
+}
+
+function dataUrlSize(dataUrl) {
+    const base64 = dataUrl.split(',')[1] || '';
+    return Math.round((base64.length * 3) / 4);
+}
+
+function escapeHtml(value) {
+    return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
 }
 
 // ========== CLOCK ==========
@@ -2042,9 +2468,13 @@ function closeStartMenu(e) { const menu = document.getElementById('startMenu'); 
 // ========== DOCK LOGIC dengan Drag & Drop ==========
 function initDock() {
     const dock = document.getElementById('dock');
+    dock.innerHTML = '';
+    dockItems = [];
+    pinnedApps = sanitizePinnedApps(pinnedApps);
     // Tombol start
     const startBtn = document.createElement('div');
     startBtn.className = 'dock-icon no-drag'; // tambahkan kelas untuk membedakan
+    startBtn.dataset.label = 'Start';
     startBtn.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M4 4H10V10H4V4Z" fill="#111"/><path d="M14 4H20V10H14V4Z" fill="#111"/><path d="M4 14H10V20H4V14Z" fill="#111"/><path d="M14 14H20V20H14V14Z" fill="#111"/></svg>`;
     startBtn.addEventListener('click', toggleStart);
     dock.appendChild(startBtn);
@@ -2054,11 +2484,13 @@ function initDock() {
 }
 
 function addToDock(appId) {
+    if (['start', 'launcher', 'menu'].includes(appId)) return;
     const dock = document.getElementById('dock');
     if(dockItems.includes(appId)) return;
     const icon = document.createElement('div');
     icon.className = 'dock-icon';
     icon.dataset.appId = appId;
+    icon.dataset.label = getAppName(appId);
     icon.innerHTML = getAppEmoji(appId);
     icon.addEventListener('click', (e) => { if(e.button===0) openApp(appId); });
     icon.addEventListener('contextmenu', (e) => { e.preventDefault(); e.stopPropagation(); showContextMenu(e, appId, 'dock'); });
@@ -2195,22 +2627,150 @@ function enableDockDragDrop() {
 // ========== CONTEXT MENU ==========
 function showContextMenu(e, appId, source) {
     e.preventDefault(); e.stopPropagation();
-    contextMenuTarget = {appId, source};
+    const pinId = e.currentTarget?.dataset?.pinId || e.target?.closest?.('.desktop-app-icon')?.dataset?.pinId || null;
+    contextMenuTarget = {appId, source, pinId};
     const menu = document.getElementById('contextMenu');
     const isPinned = pinnedApps.includes(appId);
-    document.getElementById('context-pin').style.display = isPinned ? 'none' : 'flex';
-    document.getElementById('context-unpin').style.display = isPinned ? 'flex' : 'none';
-    document.getElementById('context-open').style.display = source === 'dock' ? 'none' : 'flex';
+    const isAppMenu = source === 'dock' || source === 'start';
+    const isTaskbarMenu = source === 'taskbar';
+    const isWallpaperMenu = source === 'wallpaper';
+    const isDesktopIconMenu = source === 'desktop-icon';
+
+    document.getElementById('context-open').style.display = (isAppMenu && source !== 'dock') || isDesktopIconMenu ? 'flex' : 'none';
+    document.getElementById('context-pin').style.display = isAppMenu && !isPinned ? 'flex' : 'none';
+    document.getElementById('context-unpin').style.display = isAppMenu && isPinned ? 'flex' : 'none';
+    document.getElementById('context-pin-desktop').style.display = isAppMenu ? 'flex' : 'none';
+    document.getElementById('context-delete-desktop').style.display = isDesktopIconMenu ? 'flex' : 'none';
+    document.getElementById('context-settings').style.display = isTaskbarMenu ? 'flex' : 'none';
+    document.getElementById('context-refresh').style.display = isTaskbarMenu || isWallpaperMenu ? 'flex' : 'none';
+    document.getElementById('context-autohide').style.display = isTaskbarMenu ? 'flex' : 'none';
+    document.getElementById('context-wallpaper').style.display = isWallpaperMenu ? 'flex' : 'none';
+    document.getElementById('context-autohide-label').textContent = taskbarAutoHide ? 'Matikan sembunyikan taskbar' : 'Nyalakan sembunyikan taskbar';
+
+    menu.classList.add('show');
     menu.style.left = e.clientX + 'px';
     menu.style.top = (e.clientY - menu.offsetHeight - 10) + 'px';
     const menuRect = menu.getBoundingClientRect();
-    if(menuRect.top < 0) menu.style.top = e.clientY + 10 + 'px';
-    menu.classList.add('show');
+    if(menuRect.top < 0 && !isDesktopIconMenu) menu.style.top = e.clientY + 10 + 'px';
+    if(isDesktopIconMenu && menuRect.top < 0) menu.style.top = '10px';
+    if(menuRect.right > window.innerWidth) menu.style.left = (window.innerWidth - menuRect.width - 10) + 'px';
 }
 function closeContextMenu() { document.getElementById('contextMenu').classList.remove('show'); }
 function contextOpenApp() { if(contextMenuTarget) { openApp(contextMenuTarget.appId); closeContextMenu(); } }
 function contextPinApp() { if(contextMenuTarget) { const {appId}=contextMenuTarget; if(!pinnedApps.includes(appId)) { pinnedApps.push(appId); savePinnedApps(); addToDock(appId); } closeContextMenu(); } }
 function contextUnpinApp() { if(contextMenuTarget) { const {appId}=contextMenuTarget; pinnedApps = pinnedApps.filter(id=>id!==appId); savePinnedApps(); removeFromDock(appId); closeContextMenu(); } }
+function contextOpenSettings() { openApp('settings'); closeContextMenu(); }
+function contextRefreshDesktop() { closeContextMenu(); }
+function contextToggleTaskbarAutoHide() {
+    taskbarAutoHide = !taskbarAutoHide;
+    saveSystemSettings();
+    applyTaskbarAutoHide();
+    closeContextMenu();
+}
+function contextChangeWallpaper() { openApp('wallpaper'); closeContextMenu(); }
+function contextPinDesktop() {
+    if (!contextMenuTarget?.appId) return;
+    pinAppToDesktop(contextMenuTarget.appId);
+    closeContextMenu();
+}
+function contextDeleteDesktopPin() {
+    if (!contextMenuTarget?.pinId) return;
+    desktopPins = desktopPins.filter(pin => pin.id !== contextMenuTarget.pinId);
+    saveDesktopPins();
+    renderDesktopPins();
+    closeContextMenu();
+}
+
+function showWallpaperContextMenu(e) {
+    const blocked = e.target.closest('.window, .dock-container, .top-bar, .start-menu, .context-menu, .widget, .widget-tray, .control-dropdown');
+    if (blocked) return;
+    showContextMenu(e, null, 'wallpaper');
+}
+
+function applyTaskbarAutoHide() {
+    const topBar = document.getElementById('topBar');
+    const dockContainer = document.getElementById('dockContainer');
+    if (!topBar || !dockContainer) return;
+
+    if (!taskbarAutoHide) {
+        topBar.classList.remove('hidden');
+        dockContainer.classList.remove('hidden');
+    }
+}
+
+function pinAppToDesktop(appId) {
+    if (desktopPins.some(pin => pin.appId === appId)) return;
+    const index = desktopPins.length;
+    desktopPins.push({
+        id: `desktop-${appId}-${Date.now()}`,
+        appId,
+        x: 24 + (index % 2) * 96,
+        y: 24 + Math.floor(index / 2) * 96
+    });
+    saveDesktopPins();
+    renderDesktopPins();
+}
+
+function renderDesktopPins() {
+    const container = document.getElementById('desktopIcons');
+    if (!container) return;
+    container.innerHTML = desktopPins.map(pin => `
+        <div class="desktop-app-icon" data-pin-id="${pin.id}" data-app-id="${pin.appId}" style="left:${pin.x}px; top:${pin.y}px;"
+             ondblclick="openApp('${pin.appId}')"
+             oncontextmenu="showContextMenu(event, '${pin.appId}', 'desktop-icon')">
+            <div class="desktop-app-emoji">${getAppEmoji(pin.appId)}</div>
+            <div class="desktop-app-label">${getAppName(pin.appId)}</div>
+        </div>
+    `).join('');
+
+    container.querySelectorAll('.desktop-app-icon').forEach(icon => {
+        icon.addEventListener('mousedown', startDesktopPinDrag);
+    });
+}
+
+function startDesktopPinDrag(e) {
+    if (e.button !== 0 || e.detail > 1) return;
+    const icon = e.currentTarget;
+    const pin = desktopPins.find(item => item.id === icon.dataset.pinId);
+    if (!pin) return;
+
+    e.preventDefault();
+    desktopPinDrag = {
+        pin,
+        icon,
+        startX: e.clientX,
+        startY: e.clientY,
+        originalX: pin.x,
+        originalY: pin.y,
+        moved: false
+    };
+    icon.classList.add('dragging');
+    document.addEventListener('mousemove', onDesktopPinDrag);
+    document.addEventListener('mouseup', stopDesktopPinDrag);
+}
+
+function onDesktopPinDrag(e) {
+    if (!desktopPinDrag) return;
+    const container = document.getElementById('desktopIcons');
+    const maxX = Math.max(0, container.clientWidth - 90);
+    const maxY = Math.max(0, container.clientHeight - 90);
+    const x = Math.min(maxX, Math.max(0, desktopPinDrag.originalX + e.clientX - desktopPinDrag.startX));
+    const y = Math.min(maxY, Math.max(0, desktopPinDrag.originalY + e.clientY - desktopPinDrag.startY));
+    desktopPinDrag.pin.x = x;
+    desktopPinDrag.pin.y = y;
+    desktopPinDrag.icon.style.left = x + 'px';
+    desktopPinDrag.icon.style.top = y + 'px';
+    desktopPinDrag.moved = true;
+}
+
+function stopDesktopPinDrag() {
+    if (!desktopPinDrag) return;
+    desktopPinDrag.icon.classList.remove('dragging');
+    if (desktopPinDrag.moved) saveDesktopPins();
+    desktopPinDrag = null;
+    document.removeEventListener('mousemove', onDesktopPinDrag);
+    document.removeEventListener('mouseup', stopDesktopPinDrag);
+}
 
 function getAppEmoji(appId) {
     const emojis = {
@@ -2222,6 +2782,35 @@ function getAppEmoji(appId) {
     return emojis[appId] || '📱';
 }
 
+function getAppName(appId) {
+    const names = {
+        files: 'File Explorer',
+        browser: 'Browser',
+        terminal: 'Terminal',
+        settings: 'Settings',
+        calculator: 'Kalkulator',
+        calendar: 'Kalender',
+        music: 'Music Player',
+        camera: 'Camera',
+        photos: 'Photos',
+        video: 'Video Player',
+        yt: 'YouTube',
+        notes: 'Catatan',
+        texteditor: 'Text Editor',
+        sites: 'Sites Builder',
+        wallpaper: 'Wallpaper',
+        wheel: 'Spin Wheel',
+        weather: 'Weather',
+        maps: 'Maps',
+        contacts: 'Contacts',
+        mail: 'Mail',
+        snake: 'Snake',
+        tictactoe: 'Tic Tac Toe',
+        memory: 'Memory'
+    };
+    return names[appId] || appId;
+}
+
 // ========== SYSTEM CONTROLS ==========
 function toggleControl(type) { closeAllDropdowns(); document.getElementById(`${type}-dropdown`).classList.toggle('show'); }
 function closeAllDropdowns() { document.querySelectorAll('.control-dropdown').forEach(d => d.classList.remove('show')); }
@@ -2230,21 +2819,159 @@ function setBrightness(level) { brightnessLevel=level; document.getElementById('
 function toggleWifi() { wifiOn=!wifiOn; document.getElementById('wifi-icon').textContent=wifiOn?'📶':'✖️'; document.getElementById('wifi-value').textContent=wifiOn?'Connected':'Disabled'; document.getElementById('wifi-status').textContent=wifiOn?'Matikan':'Nyala'; }
 function musicControl(action) { alert({ 'prev':'⏮ Musik sebelumnya','play':'▶️ Memutar musik','next':'⏭ Musik berikutnya' }[action]); }
 
-// ========== POWER MANAGEMENT ==========
-function shutdown() {
-    if(confirm('Apakah Anda yakin ingin mematikan sistem?')) {
-        if(cameraStream) { cameraStream.getTracks().forEach(t=>t.stop()); cameraStream=null; }
-        document.querySelectorAll('.window').forEach(win=>win.remove());
-        widgets.forEach(w=>{ const el=document.getElementById(w.id); if(el) el.remove(); });
-        widgets=[]; saveWidgets();
-        desktop.style.display='none';
-        lockscreen.style.display='flex';
-        lockscreen.style.opacity='1';
-        passwordInput.value='';
-        passwordInput.focus();
-        errorDiv.style.display='none';
-        passwordPanel.classList.remove('show');
+// ========== MODAL & POWER MANAGEMENT ==========
+function showUiConfirm({ title, message, confirmText = 'OK', danger = false }) {
+    return new Promise(resolve => {
+        const backdrop = document.getElementById('uiModalBackdrop');
+        const input = document.getElementById('uiModalInput');
+        const confirmBtn = document.getElementById('uiModalConfirm');
+        document.getElementById('uiModalTitle').textContent = title;
+        document.getElementById('uiModalMessage').textContent = message;
+        input.style.display = 'none';
+        input.value = '';
+        confirmBtn.textContent = confirmText;
+        confirmBtn.className = `ui-modal-btn ${danger ? 'danger' : 'primary'}`;
+        backdrop.classList.add('show');
+        modalResolver = resolve;
+    });
+}
+
+function showUiPrompt({ title, message, value = '', confirmText = 'OK' }) {
+    return new Promise(resolve => {
+        const backdrop = document.getElementById('uiModalBackdrop');
+        const input = document.getElementById('uiModalInput');
+        const confirmBtn = document.getElementById('uiModalConfirm');
+        document.getElementById('uiModalTitle').textContent = title;
+        document.getElementById('uiModalMessage').textContent = message;
+        input.style.display = 'block';
+        input.value = value;
+        confirmBtn.textContent = confirmText;
+        confirmBtn.className = 'ui-modal-btn primary';
+        backdrop.classList.add('show');
+        setTimeout(() => {
+            input.focus();
+            input.select();
+        }, 20);
+        modalResolver = result => resolve(result ? input.value : null);
+    });
+}
+
+function closeUiModal(result) {
+    const backdrop = document.getElementById('uiModalBackdrop');
+    backdrop.classList.remove('show');
+    if (modalResolver) {
+        const resolve = modalResolver;
+        modalResolver = null;
+        resolve(result);
     }
+}
+
+document.getElementById('uiModalCancel').addEventListener('click', () => closeUiModal(false));
+document.getElementById('uiModalConfirm').addEventListener('click', () => closeUiModal(true));
+document.getElementById('uiModalInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') closeUiModal(true);
+    if (e.key === 'Escape') closeUiModal(false);
+});
+
+function togglePowerMenu(e) {
+    if (e) e.stopPropagation();
+    document.getElementById('powerMenu').classList.toggle('show');
+}
+
+function closePowerMenu() {
+    document.getElementById('powerMenu')?.classList.remove('show');
+}
+
+async function requestPowerAction(action) {
+    closePowerMenu();
+    const labels = {
+        shutdown: 'mematikan Pufutara OS',
+        sleep: 'masuk Sleep',
+        hibernate: 'masuk Hibernate',
+        lock: 'mengunci layar'
+    };
+    const ok = await showUiConfirm({
+        title: action === 'shutdown' ? 'Shutdown Pufutara OS?' : 'Konfirmasi',
+        message: `Yakin ingin ${labels[action]}?`,
+        confirmText: action === 'shutdown' ? 'Shutdown' : 'Lanjut',
+        danger: action === 'shutdown'
+    });
+    if (!ok) return;
+
+    if (action === 'shutdown') performShutdown();
+    else if (action === 'lock') lockSystem();
+    else enterSleepState(action);
+}
+
+function preparePowerState() {
+    if (cameraStream) {
+        cameraStream.getTracks().forEach(t => t.stop());
+        cameraStream = null;
+    }
+    closeStartMenu();
+    closeContextMenu();
+    closePowerMenu();
+    closeAllDropdowns();
+    closeWidgetTray();
+    passwordInput.value = '';
+    errorDiv.style.display = 'none';
+    passwordPanel.classList.remove('show');
+}
+
+function lockSystem() {
+    preparePowerState();
+    desktop.classList.remove('loaded');
+    desktop.style.display = 'none';
+    lockscreen.style.display = 'flex';
+    lockscreen.style.opacity = '1';
+}
+
+function enterSleepState(mode) {
+    preparePowerState();
+    const blackout = document.getElementById('powerBlackout');
+    blackout.classList.add('active');
+    blackout.onclick = () => {
+        blackout.onclick = null;
+        blackout.classList.remove('active');
+        lockSystem();
+    };
+}
+
+function performShutdown() {
+    preparePowerState();
+    document.querySelectorAll('.window').forEach(win => win.remove());
+    const blackout = document.getElementById('powerBlackout');
+    const bootScreen = document.getElementById('boot-screen');
+    const bootBar = document.getElementById('boot-bar');
+
+    blackout.classList.add('active');
+    desktop.classList.remove('loaded');
+    setTimeout(() => {
+        blackout.classList.remove('active');
+        desktop.style.display = 'none';
+        bootBar.style.transition = 'none';
+        bootBar.style.width = '0%';
+        bootScreen.style.display = 'flex';
+        bootScreen.style.opacity = '1';
+        bootScreen.style.pointerEvents = 'auto';
+        setTimeout(() => {
+            bootBar.style.transition = 'width 2.5s cubic-bezier(0.22, 1, 0.36, 1)';
+            bootBar.style.width = '100%';
+        }, 50);
+        setTimeout(() => {
+            bootScreen.style.opacity = '0';
+            bootScreen.style.pointerEvents = 'none';
+            setTimeout(() => {
+                bootScreen.style.display = 'none';
+                lockscreen.style.display = 'flex';
+                lockscreen.style.opacity = '1';
+            }, 650);
+        }, 2700);
+    }, 2000);
+}
+
+function shutdown() {
+    requestPowerAction('shutdown');
 }
 
 document.getElementById('sound-slider').addEventListener('input', function(){ setSound(this.value); });
@@ -2307,6 +3034,7 @@ function renderFileManager(container) {
             <div class="file-toolbar">
                 <button class="file-toolbar-btn" onclick="navigateBack()"><i class="fas fa-arrow-left"></i> Back</button>
                 <button class="file-toolbar-btn" onclick="createNewFolder()"><i class="fas fa-folder-plus"></i> New Folder</button>
+                <button class="file-toolbar-btn" onclick="renameSelected()"><i class="fas fa-pen"></i> Rename</button>
                 <button class="file-toolbar-btn" onclick="compressSelected()"><i class="fas fa-file-archive"></i> Compress</button>
                 <button class="file-toolbar-btn" onclick="deleteSelected()"><i class="fas fa-trash"></i> Delete</button>
                 <div class="file-toolbar-search">
@@ -2511,6 +3239,86 @@ function openFile(filename) {
     }
 }
 
+function updatePreview(filename) {
+    const previewContent = document.getElementById('file-preview-content');
+    if (!previewContent) return;
+
+    const details = fileDetails[filename];
+    const isFolder = fileSystem[filename] !== undefined;
+
+    if (isFolder) {
+        previewContent.innerHTML = `
+            <div class="file-preview-icon">📁</div>
+            <div class="file-preview-info">
+                <div class="file-preview-info-row"><span class="file-preview-label">Name:</span><span class="file-preview-value">${escapeHtml(filename)}</span></div>
+                <div class="file-preview-info-row"><span class="file-preview-label">Type:</span><span class="file-preview-value">Folder</span></div>
+                <div class="file-preview-info-row"><span class="file-preview-label">Items:</span><span class="file-preview-value">${fileSystem[filename].items.length}</span></div>
+            </div>
+        `;
+        return;
+    }
+
+    if (!details) return;
+
+    const safeFilename = filename.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    const hasDownload = !!details.dataUrl;
+    let previewHtml = `
+        <div class="file-preview-icon">${details.icon || '📄'}</div>
+        <div class="file-preview-info">
+            <div class="file-preview-info-row"><span class="file-preview-label">Name:</span><span class="file-preview-value">${escapeHtml(filename)}</span></div>
+            <div class="file-preview-info-row"><span class="file-preview-label">Type:</span><span class="file-preview-value">${escapeHtml(details.type || 'unknown')}</span></div>
+            <div class="file-preview-info-row"><span class="file-preview-label">Size:</span><span class="file-preview-value">${escapeHtml(details.size || '0 KB')}</span></div>
+            <div class="file-preview-info-row"><span class="file-preview-label">Modified:</span><span class="file-preview-value">${escapeHtml(details.modified || '-')}</span></div>
+        </div>
+        <div class="file-preview-actions">
+            <button class="file-action-btn" onclick="openFile('${safeFilename}')"><i class="fas fa-up-right-from-square"></i> Open</button>
+            ${hasDownload ? `<button class="file-action-btn" onclick="downloadVirtualFile('${safeFilename}')"><i class="fas fa-download"></i> Download</button>` : ''}
+        </div>
+    `;
+
+    if (details.type === 'image') {
+        previewHtml = `
+            <img src="${getImagePreviewSrc(filename)}" class="file-preview-image" alt="Preview">
+            ${previewHtml}
+        `;
+    } else if (details.type === 'video') {
+        previewHtml = `
+            <div class="file-viewer-message" style="color:#6b7280;">Double click untuk membuka video player.</div>
+            ${previewHtml}
+        `;
+    } else if (details.type === 'text' || details.type === 'code' || details.type === 'document') {
+        previewHtml = `
+            <div class="file-preview-text">${escapeHtml(getDemoFileContent(filename))}</div>
+            ${previewHtml}
+        `;
+    }
+
+    previewContent.innerHTML = previewHtml;
+}
+
+function openFile(filename) {
+    const isFolder = fileSystem[filename] !== undefined;
+    if (isFolder) {
+        navigateToFolder(filename);
+        return;
+    }
+
+    const details = fileDetails[filename];
+    if (!details) return;
+
+    if (details.type === 'image') {
+        openImageViewer(filename);
+    } else if (details.type === 'audio') {
+        openAudioViewer(filename);
+    } else if (details.type === 'video') {
+        openVideoViewer(filename);
+    } else if (['document', 'text', 'code', 'spreadsheet', 'pdf'].includes(details.type)) {
+        openTextFile(filename);
+    } else {
+        openGenericFile(filename);
+    }
+}
+
 function searchFiles(query) {
     const win = document.querySelector('.window[id^="win-files"]');
     if (win) {
@@ -2540,13 +3348,100 @@ function createNewFolder() {
     }
 }
 
-function deleteSelected() {
+function splitFilename(filename) {
+    const lastDot = filename.lastIndexOf('.');
+    if (lastDot <= 0 || fileSystem[filename]) return { base: filename, ext: '' };
+    return { base: filename.slice(0, lastDot), ext: filename.slice(lastDot) };
+}
+
+function makeFolderId(name) {
+    return name.trim().toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '') || `folder_${Date.now()}`;
+}
+
+async function renameSelected() {
+    if (selectedFiles.length !== 1) {
+        await showUiConfirm({
+            title: 'Rename',
+            message: 'Pilih tepat satu file atau folder yang akan diganti namanya.',
+            confirmText: 'OK'
+        });
+        return;
+    }
+
+    const oldName = selectedFiles[0];
+    const isFolder = !!fileSystem[oldName];
+    const { base, ext } = splitFilename(oldName);
+    const input = await showUiPrompt({
+        title: 'Rename',
+        message: isFolder ? 'Masukkan nama folder baru.' : `Masukkan nama baru. Ekstensi ${ext || 'file'} akan tetap dipertahankan.`,
+        value: base,
+        confirmText: 'Rename'
+    });
+    if (!input || !input.trim()) return;
+
+    const cleanBase = input.trim();
+    const newName = isFolder ? makeFolderId(cleanBase) : `${cleanBase}${ext}`;
+    if (newName === oldName) return;
+
+    if ((isFolder && fileSystem[newName]) || (!isFolder && fileDetails[newName])) {
+        await showUiConfirm({
+            title: 'Nama sudah ada',
+            message: 'Pilih nama lain karena item dengan nama itu sudah ada.',
+            confirmText: 'OK'
+        });
+        return;
+    }
+
+    Object.values(fileSystem).forEach(folder => {
+        if (!folder.items) return;
+        folder.items = folder.items.map(item => item === oldName ? newName : item);
+    });
+
+    if (isFolder) {
+        fileSystem[newName] = {
+            ...fileSystem[oldName],
+            name: cleanBase
+        };
+        delete fileSystem[oldName];
+    } else {
+        fileDetails[newName] = {
+            ...fileDetails[oldName],
+            modified: new Date().toISOString().split('T')[0]
+        };
+        delete fileDetails[oldName];
+
+        if (virtualFiles[oldName]) {
+            virtualFiles[newName] = {
+                ...virtualFiles[oldName],
+                modified: fileDetails[newName].modified
+            };
+            delete virtualFiles[oldName];
+            saveVirtualFiles();
+        }
+    }
+
+    selectedFiles = [newName];
+    refreshOpenFileManager();
+}
+
+async function deleteSelected() {
     if (selectedFiles.length === 0) {
-        alert('Pilih file/folder yang akan dihapus');
+        await showUiConfirm({
+            title: 'Delete',
+            message: 'Pilih file/folder yang akan dihapus.',
+            confirmText: 'OK'
+        });
         return;
     }
     
-    if (confirm(`Yakin ingin menghapus ${selectedFiles.length} item ke Recycle Bin?`)) {
+    const confirmed = await showUiConfirm({
+        title: 'Pindahkan ke Recycle Bin?',
+        message: `Yakin ingin menghapus ${selectedFiles.length} item ke Recycle Bin?`,
+        confirmText: 'Delete',
+        danger: true
+    });
+
+    if (confirmed) {
         selectedFiles.forEach(filename => {
             const index = fileSystem[currentFolder].items.indexOf(filename);
             if (index !== -1) {
@@ -2560,6 +3455,11 @@ function deleteSelected() {
                     deletedAt: new Date().toISOString(),
                     details: details
                 });
+
+                if (details.virtual) {
+                    delete virtualFiles[filename];
+                    saveVirtualFiles();
+                }
             }
         });
         
@@ -2637,6 +3537,10 @@ function restoreFromRecycleBin(index) {
         if (fileSystem[item.originalPath]) {
             fileSystem[item.originalPath].items.push(item.name);
         }
+
+        if (item.details?.virtual) {
+            persistVirtualFile(item.name, item.details, item.originalPath);
+        }
         
         // Hapus dari recycle bin
         recycleBin.splice(index, 1);
@@ -2647,8 +3551,14 @@ function restoreFromRecycleBin(index) {
     }
 }
 
-function emptyRecycleBin() {
-    if (confirm('Yakin ingin mengosongkan Recycle Bin? Item akan dihapus permanen.')) {
+async function emptyRecycleBin() {
+    const confirmed = await showUiConfirm({
+        title: 'Kosongkan Recycle Bin?',
+        message: 'Item akan dihapus permanen.',
+        confirmText: 'Empty',
+        danger: true
+    });
+    if (confirmed) {
         recycleBin = [];
         saveRecycleBin();
         openRecycleBin();
@@ -2708,6 +3618,148 @@ function dropOnItem(e, targetFilename) {
 
 function dragOver(e) {
     e.preventDefault();
+}
+
+function createUtilityWindow(id, title, width, height, content) {
+    const existing = document.getElementById(id);
+    if (existing) {
+        bringToFront(existing);
+        return existing;
+    }
+
+    const win = document.createElement('div');
+    win.className = 'window';
+    win.id = id;
+    win.style.width = width + 'px';
+    win.style.height = height + 'px';
+    win.style.left = ((window.innerWidth / 2) - (width / 2)) + 'px';
+    win.style.top = ((window.innerHeight / 2) - (height / 2)) + 'px';
+    win.style.zIndex = ++zIndex;
+    win.innerHTML = `
+        <div class="win-header" onmousedown="startDrag(event, '${id}')">
+            <div style="width:40px"></div>
+            <div class="win-title">${escapeHtml(title)}</div>
+            <div class="win-controls">
+                <button class="win-btn btn-max" onclick="maximizeWindow('${id}')"></button>
+                <button class="win-btn btn-min" onclick="minimizeWindow('${id}')"></button>
+                <button class="win-btn btn-close" onclick="closeWindow('${id}')"></button>
+            </div>
+        </div>
+        <div class="win-content">${content}</div>
+        <div class="resize-handle" onmousedown="startResize(event, '${id}')"></div>
+    `;
+    win.addEventListener('mousedown', () => bringToFront(win));
+    document.getElementById('windows-area').appendChild(win);
+    setTimeout(() => win.classList.add('open'), 10);
+    return win;
+}
+
+function viewerWindowId(prefix, filename) {
+    return `win-${prefix}-${filename.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}`;
+}
+
+function openImageViewer(filename) {
+    const src = getImagePreviewSrc(filename);
+    const details = fileDetails[filename] || {};
+    const safeFilename = filename.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    createUtilityWindow(viewerWindowId('image', filename), filename, 720, 520, `
+        <div class="file-viewer">
+            <div class="file-viewer-toolbar">
+                <div class="file-viewer-title">${escapeHtml(filename)}</div>
+                ${details.dataUrl ? `<button class="file-action-btn" onclick="downloadVirtualFile('${safeFilename}')"><i class="fas fa-download"></i> Download</button>` : ''}
+            </div>
+            <div class="file-viewer-stage">
+                <img src="${src}" alt="${escapeHtml(filename)}">
+            </div>
+        </div>
+    `);
+}
+
+function openTextFile(filename) {
+    openApp('texteditor');
+    setTimeout(() => {
+        const win = document.querySelector('.window[id^="win-texteditor"]');
+        const textarea = win?.querySelector('textarea');
+        if (textarea) {
+            textarea.value = getDemoFileContent(filename);
+            win.querySelector('.win-title').textContent = filename;
+        }
+    }, 80);
+}
+
+function openAudioViewer(filename) {
+    const details = fileDetails[filename] || {};
+    if (details.dataUrl) {
+        createUtilityWindow(viewerWindowId('audio', filename), filename, 460, 220, `
+            <div class="file-viewer">
+                <div class="file-viewer-toolbar">
+                    <div class="file-viewer-title">${escapeHtml(filename)}</div>
+                    <button class="file-action-btn" onclick="downloadVirtualFile('${filename.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}')"><i class="fas fa-download"></i> Download</button>
+                </div>
+                <div class="file-viewer-stage">
+                    <audio src="${details.dataUrl}" controls autoplay style="width:100%;"></audio>
+                </div>
+            </div>
+        `);
+        return;
+    }
+
+    openApp('music');
+    setTimeout(() => {
+        const win = document.querySelector('.window[id^="win-music"]');
+        const playlist = win?.querySelector('#music-playlist');
+        if (playlist) {
+            playlist.innerHTML = `<div class="file-viewer-message" style="color:#6b7280; padding:20px;">${escapeHtml(filename)} adalah file demo. Pilih file audio asli lewat tombol Pilih file audio untuk memutarnya.</div>`;
+        }
+    }, 80);
+}
+
+function openVideoViewer(filename) {
+    const details = fileDetails[filename] || {};
+    if (details.dataUrl) {
+        createUtilityWindow(viewerWindowId('video', filename), filename, 720, 520, `
+            <div class="file-viewer">
+                <div class="file-viewer-toolbar">
+                    <div class="file-viewer-title">${escapeHtml(filename)}</div>
+                    <button class="file-action-btn" onclick="downloadVirtualFile('${filename.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}')"><i class="fas fa-download"></i> Download</button>
+                </div>
+                <div class="file-viewer-stage">
+                    <video src="${details.dataUrl}" controls autoplay></video>
+                </div>
+            </div>
+        `);
+        return;
+    }
+
+    openApp('video');
+    setTimeout(() => {
+        const win = document.querySelector('.window[id^="win-video"]');
+        const video = win?.querySelector('#video-player');
+        if (video) {
+            video.removeAttribute('src');
+            video.load();
+            video.insertAdjacentHTML('afterend', `<div class="file-viewer-message" style="color:#6b7280; padding:12px; text-align:center;">${escapeHtml(filename)} adalah file demo. Pilih file video asli untuk memutarnya.</div>`);
+        }
+    }, 80);
+}
+
+function openGenericFile(filename) {
+    const details = fileDetails[filename] || {};
+    createUtilityWindow(viewerWindowId('file', filename), filename, 460, 260, `
+        <div class="file-viewer">
+            <div class="file-viewer-toolbar">
+                <div class="file-viewer-title">${escapeHtml(filename)}</div>
+                ${details.dataUrl ? `<button class="file-action-btn" onclick="downloadVirtualFile('${filename.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}')"><i class="fas fa-download"></i> Download</button>` : ''}
+            </div>
+            <div class="file-viewer-stage">
+                <div class="file-viewer-message">
+                    <strong>${escapeHtml(filename)}</strong><br>
+                    Type: ${escapeHtml(details.type || 'unknown')}<br>
+                    ${details.dataUrl ? 'File ini bisa diunduh.' : 'File ini adalah contoh dan belum punya viewer khusus.'}
+                </div>
+            </div>
+        </div>
+    `);
 }
 
 // ========== BROWSER FUNCTIONS ==========
@@ -2939,6 +3991,92 @@ function handleVideoFile(file) {
     video.play();
 }
 
+let usingFrontCamera = true;
+
+function showCameraStatus(message) {
+    const status = document.getElementById('camera-status');
+    if (!status) return;
+    status.textContent = message;
+    status.classList.add('show');
+    clearTimeout(showCameraStatus.timer);
+    showCameraStatus.timer = setTimeout(() => status.classList.remove('show'), 2400);
+}
+
+function initCameraApp() {
+    const video = document.getElementById('camera-video');
+    if (!video) return;
+    startCamera(usingFrontCamera ? 'user' : 'environment');
+}
+
+function startCamera(facingMode = 'user') {
+    const video = document.getElementById('camera-video');
+    if (!video) return;
+
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        showCameraStatus('Browser tidak mendukung akses kamera.');
+        return;
+    }
+
+    if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+        cameraStream = null;
+    }
+
+    navigator.mediaDevices.getUserMedia({ video: { facingMode }, audio: false })
+        .then(stream => {
+            cameraStream = stream;
+            video.srcObject = stream;
+            video.play();
+            showCameraStatus('Kamera siap digunakan.');
+        })
+        .catch(() => {
+            showCameraStatus('Tidak dapat mengakses kamera. Pastikan izin kamera diberikan.');
+        });
+}
+
+function toggleCamera() {
+    usingFrontCamera = !usingFrontCamera;
+    startCamera(usingFrontCamera ? 'user' : 'environment');
+}
+
+function capturePhoto() {
+    const video = document.getElementById('camera-video');
+    if (!video || !cameraStream || !video.videoWidth || !video.videoHeight) {
+        showCameraStatus('Kamera belum siap. Tunggu sebentar lalu coba lagi.');
+        return;
+    }
+
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const context = canvas.getContext('2d');
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    const dataUrl = canvas.toDataURL('image/png');
+    const filename = `pufutara-photo-${Date.now()}.png`;
+    const modified = new Date().toISOString().split('T')[0];
+    const size = formatBytes(dataUrlSize(dataUrl));
+
+    persistVirtualFile(filename, {
+        type: 'image',
+        size,
+        modified,
+        icon: '🖼️',
+        dataUrl
+    }, 'pictures');
+
+    downloadVirtualFile(filename);
+    refreshOpenFileManager();
+
+    const flash = document.getElementById('camera-flash');
+    if (flash) {
+        flash.classList.add('active');
+        setTimeout(() => flash.classList.remove('active'), 120);
+    }
+
+    showCameraStatus(`${filename} disimpan ke Pictures dan diunduh.`);
+}
+
 // ========== WINDOW MANAGER ==========
 function openApp(id) {
     updateDockState(id,true);
@@ -2986,6 +4124,9 @@ function openApp(id) {
         setTimeout(() => {
             renderFileManager(win.querySelector('.win-content'));
         }, 100);
+    }
+    if(id==='camera') {
+        setTimeout(initCameraApp, 100);
     }
 }
 
@@ -3422,39 +4563,8 @@ const apps = {
                 <button class="camera-btn" onclick="toggleCamera()"><i class="fas fa-sync-alt"></i></button>
             </div>
             <div class="camera-flash" id="camera-flash"></div>
+            <div class="camera-status" id="camera-status">Menyiapkan kamera...</div>
         </div>
-        <script>
-            (function() {
-                let video = document.getElementById('camera-video');
-                let currentStream = null;
-                let usingFrontCamera = true;
-                
-                function startCamera(facingMode = 'user') {
-                    if(currentStream) currentStream.getTracks().forEach(track => track.stop());
-                    navigator.mediaDevices.getUserMedia({ video: { facingMode: facingMode }, audio: false })
-                    .then(function(stream) {
-                        video.srcObject = stream;
-                        currentStream = stream;
-                        window.cameraStream = stream;
-                    }).catch(function(err) { alert('Tidak dapat mengakses kamera. Pastikan izin diberikan.'); });
-                }
-                window.toggleCamera = function() { usingFrontCamera = !usingFrontCamera; startCamera(usingFrontCamera ? 'user' : 'environment'); };
-                window.capturePhoto = function() {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-                    canvas.getContext('2d').drawImage(video, 0, 0);
-                    const flash = document.getElementById('camera-flash');
-                    flash.classList.add('active');
-                    setTimeout(() => flash.classList.remove('active'), 100);
-                    const link = document.createElement('a');
-                    link.download = 'pufutara-photo-' + Date.now() + '.png';
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
-                };
-                startCamera('user');
-            })();
-        <\/script>
         `
     },
     'photos': {
