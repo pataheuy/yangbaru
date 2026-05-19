@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Putra Azzam Elfathin | Santri Developer Portfolio</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts (Plus Jakarta Sans) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        lightBg: '#ffffff',
+                        lightCard: '#f8fafc',
+                        primary: '#0f172a', // Hitam/Slate gelap
+                        secondary: '#475569', // Abu-abu gelap
+                        accentGray: '#94a3b8', // Abu-abu sedang
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar untuk tema terang */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #ffffff;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .glow-effect {
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+        }
+        .glow-text {
+            text-shadow: 0 0 1px rgba(15, 23, 42, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-lightBg text-primary font-sans min-h-screen antialiased overflow-x-hidden">
+
+    <!-- Header / Navbar -->
+    <header class="fixed top-0 left-0 w-full z-40 bg-white/80 backdrop-blur-md border-b border-slate-200">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <a href="#" class="flex items-center space-x-2 group">
+                <span class="text-2xl font-extrabold bg-gradient-to-r from-primary via-secondary to-accentGray bg-clip-text text-transparent group-hover:opacity-80 transition-opacity">
+                    AZZAM.DEV
+                </span>
+                <span class="bg-slate-100 text-slate-800 text-[10px] font-bold px-2 py-0.5 rounded-full border border-slate-300">
+                    SANTRI
+                </span>
+            </a>
+            
+            <!-- Desktop Nav -->
+            <nav class="hidden md:flex items-center space-x-8">
+                <a href="#tentang" class="text-sm font-semibold text-slate-600 hover:text-primary transition-colors">Tentang</a>
+                <a href="#keahlian" class="text-sm font-semibold text-slate-600 hover:text-primary transition-colors">Keahlian</a>
+                <a href="#proyek" class="text-sm font-semibold text-slate-600 hover:text-primary transition-colors">Proyek</a>
+                <a href="#pesantren" class="text-sm font-semibold text-slate-600 hover:text-primary transition-colors">Kisah Santri</a>
+                <a href="#galeri" class="text-sm font-semibold text-slate-600 hover:text-primary transition-colors">Galeri</a>
+                <a href="#kontak" class="px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-secondary text-white text-sm font-semibold hover:opacity-90 transition-opacity shadow-lg shadow-slate-300">
+                    Hubungi Saya
+                </a>
+            </nav>
+
+            <!-- Mobile Menu Button -->
+            <button id="menu-btn" class="md:hidden text-slate-700 hover:text-black focus:outline-none">
+                <i class="fa-solid fa-bars text-xl"></i>
+            </button>
+        </div>
+
+        <!-- Mobile Nav Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-slate-200 px-4 py-4 space-y-3">
+            <a href="#tentang" class="block text-slate-600 hover:text-primary font-medium py-2 transition-colors">Tentang</a>
+            <a href="#keahlian" class="block text-slate-600 hover:text-primary font-medium py-2 transition-colors">Keahlian</a>
+            <a href="#proyek" class="block text-slate-600 hover:text-primary font-medium py-2 transition-colors">Proyek</a>
+            <a href="#pesantren" class="block text-slate-600 hover:text-primary font-medium py-2 transition-colors">Kisah Santri</a>
+            <a href="#galeri" class="block text-slate-600 hover:text-primary font-medium py-2 transition-colors">Galeri</a>
+            <a href="#kontak" class="block px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-secondary text-white text-center text-sm font-semibold hover:opacity-90 transition-opacity">
+                Hubungi Saya
+            </a>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="hero" class="pt-32 pb-20 relative overflow-hidden bg-gradient-to-b from-slate-50 to-white">
+        <!-- Background Ornaments (Soft Grays) -->
+        <div class="absolute top-1/4 left-1/10 w-72 h-72 bg-slate-200/50 rounded-full blur-3xl -z-10"></div>
+        <div class="absolute bottom-1/4 right-1/10 w-96 h-96 bg-slate-100/60 rounded-full blur-3xl -z-10"></div>
+
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-12">
+            <!-- Left Content -->
+            <div class="flex-1 text-center md:text-left">
+                <div class="inline-flex items-center space-x-2 bg-slate-200/60 border border-slate-300/60 px-3 py-1 rounded-full mb-6">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span class="text-xs font-semibold text-slate-700">Tersedia Untuk Kolaborasi</span>
+                </div>
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight mb-4">
+                    Halo, Saya <br class="hidden sm:inline">
+                    <span class="bg-gradient-to-r from-primary via-secondary to-accentGray bg-clip-text text-transparent glow-text">
+                        Putra Azzam Elfathin
+                    </span>
+                </h1>
+                <p class="text-lg text-slate-600 mb-8 max-w-lg leading-relaxed">
+                    Seorang santri developer yang mendedikasikan waktu di sela-sela mengaji untuk merakit aplikasi desktop yang powerful menggunakan <strong class="text-primary">Electron</strong>, bereksperimen dengan <strong class="text-primary">Next.js</strong>, dan menguasai dasar web <strong class="text-primary">HTML/CSS/JS</strong>.
+                </p>
+                <div class="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4">
+                    <a href="#proyek" class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-gradient-to-r from-primary to-secondary text-white font-bold hover:opacity-90 transition-all text-center flex items-center justify-center space-x-2 glow-effect">
+                        <span>Lihat Karya Saya</span>
+                        <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </a>
+                    <a href="#kontak" class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-white border border-slate-300 hover:border-primary text-slate-700 hover:text-primary font-bold transition-all text-center">
+                        Hubungi Kontak
+                    </a>
+                </div>
+            </div>
+
+            <!-- Right Visual (Avatar/Graphic - Tetap Gelap sebagai Representasi Code Editor) -->
+            <div class="flex-1 flex justify-center items-center relative">
+                <!-- Outer Ring -->
+                <div class="relative w-72 h-72 sm:w-80 sm:h-80 lg:w-96 lg:h-96 rounded-full border border-dashed border-slate-300 flex items-center justify-center p-4 animate-[spin_60s_linear_infinite]">
+                    <div class="w-full h-full rounded-full border border-slate-200 flex items-center justify-center p-4"></div>
+                </div>
+                <!-- Core Card (Representasi Terminal Gelap yang Kontras) -->
+                <div class="absolute w-60 h-60 sm:w-72 sm:h-72 lg:w-80 lg:h-80 rounded-3xl bg-slate-900 border border-slate-800 p-6 flex flex-col justify-between overflow-hidden shadow-2xl shadow-slate-400/50 hover:border-slate-700 transition-all duration-500 group">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-slate-800/30 rounded-full blur-2xl -z-10 group-hover:bg-slate-800/50 transition-colors"></div>
+                    
+                    <div class="flex justify-between items-start">
+                        <!-- Simulated Code Editor Header -->
+                        <div class="flex space-x-1.5">
+                            <span class="w-3 h-3 rounded-full bg-red-500/80"></span>
+                            <span class="w-3 h-3 rounded-full bg-yellow-500/80"></span>
+                            <span class="w-3 h-3 rounded-full bg-green-500/80"></span>
+                        </div>
+                        <span class="text-[11px] font-semibold text-slate-300 bg-slate-800 px-2.5 py-1 rounded-md border border-slate-750">
+                            Azzam.js
+                        </span>
+                    </div>
+
+                    <div class="my-auto font-mono text-xs sm:text-sm text-left space-y-2 text-slate-350">
+                        <p class="text-slate-500">// Identitas Singkat</p>
+                        <p><span class="text-pink-400">const</span> <span class="text-blue-300">developer</span> = {</p>
+                        <p class="pl-4">nama: <span class="text-amber-200">'Azzam Elfathin'</span>,</p>
+                        <p class="pl-4">peran: <span class="text-amber-200">'Santri & Coder'</span>,</p>
+                        <p class="pl-4">fokus: [<span class="text-cyan-300">'Next.js'</span>, <span class="text-cyan-300">'Electron'</span>]</p>
+                        <p>};</p>
+                    </div>
+
+                    <!-- Tech Badge strip -->
+                    <div class="flex items-center justify-between border-t border-slate-800 pt-3">
+                        <div class="flex space-x-2 text-slate-400 text-lg">
+                            <i class="fa-brands fa-html5 hover:text-orange-500 transition-colors"></i>
+                            <i class="fa-brands fa-css3-alt hover:text-blue-500 transition-colors"></i>
+                            <i class="fa-brands fa-square-js hover:text-yellow-400 transition-colors"></i>
+                            <i class="fa-brands fa-react hover:text-sky-400 transition-colors"></i>
+                        </div>
+                        <span class="text-[10px] text-slate-550 font-bold tracking-widest">EST. 2024</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tech Stack / Keahlian -->
+    <section id="keahlian" class="py-20 bg-slate-50 border-y border-slate-200 relative">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-16">
+                <h2 class="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent inline-block">Teknologi & Keahlian</h2>
+                <p class="text-slate-500 mt-2">Daftar teknologi yang saya kuasai dan sedang saya pelajari dengan antusias tinggi.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Stack Dasar (HTML, CSS, JS) -->
+                <div class="bg-white border border-slate-200 p-8 rounded-2xl hover:border-slate-400 transition-all duration-300 group shadow-sm">
+                    <div class="w-12 h-12 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-800 text-2xl mb-6 group-hover:scale-110 transition-transform">
+                        <i class="fa-brands fa-html5"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3">Core Web Tech</h3>
+                    <p class="text-sm text-slate-500 mb-6 leading-relaxed">
+                        Sangat fasih menggunakan HTML modern, CSS (termasuk framework Tailwind & Bootstrap), dan JavaScript murni (ES6+) untuk membuat situs interaktif dari nol.
+                    </p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="text-xs bg-slate-50 text-slate-700 px-3 py-1 rounded-full border border-slate-200">HTML5</span>
+                        <span class="text-xs bg-slate-50 text-slate-700 px-3 py-1 rounded-full border border-slate-200">CSS3</span>
+                        <span class="text-xs bg-slate-50 text-slate-700 px-3 py-1 rounded-full border border-slate-200">JavaScript</span>
+                        <span class="text-xs bg-slate-50 text-slate-700 px-3 py-1 rounded-full border border-slate-200">Tailwind</span>
+                    </div>
+                </div>
+
+                <!-- Electron.js -->
+                <div class="bg-white border border-slate-200 p-8 rounded-2xl hover:border-slate-400 transition-all duration-300 group relative overflow-hidden shadow-sm">
+                    <div class="w-12 h-12 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-800 text-2xl mb-6 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-atom"></i>
+                    </div>
+                    <div class="flex items-center space-x-2 mb-3">
+                        <h3 class="text-xl font-bold">Electron.js</h3>
+                        <span class="text-[10px] bg-slate-100 text-slate-800 border border-slate-300 px-2 py-0.5 rounded font-bold">FAVORIT</span>
+                    </div>
+                    <p class="text-sm text-slate-500 mb-6 leading-relaxed">
+                        Mampu mengemas aplikasi web menjadi aplikasi desktop lintas platform (.exe / .dmg) secara efisien. Mengerti integrasi sistem operasi, IPC communication, dan menu kustom.
+                    </p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="text-xs bg-slate-50 text-slate-700 px-3 py-1 rounded-full border border-slate-200">Desktop Apps</span>
+                        <span class="text-xs bg-slate-50 text-slate-700 px-3 py-1 rounded-full border border-slate-200">IPC Main</span>
+                        <span class="text-xs bg-slate-50 text-slate-700 px-3 py-1 rounded-full border border-slate-200">Node.js</span>
+                    </div>
+                </div>
+
+                <!-- Next.js (Sedang Belajar) -->
+                <div class="bg-white border border-slate-200 p-8 rounded-2xl hover:border-slate-400 transition-all duration-300 group shadow-sm">
+                    <div class="w-12 h-12 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-800 text-2xl mb-6 group-hover:scale-110 transition-transform">
+                        <i class="fa-brands fa-react"></i>
+                    </div>
+                    <div class="flex items-center space-x-2 mb-3">
+                        <h3 class="text-xl font-bold">React & Next.js</h3>
+                        <span class="text-[10px] bg-slate-200 text-slate-800 border border-slate-300 px-2 py-0.5 rounded font-bold">BELAJAR</span>
+                    </div>
+                    <p class="text-sm text-slate-500 mb-6 leading-relaxed">
+                        Sedang mendalami Next.js untuk kebutuhan rendering sisi server (SSR) dan optimasi SEO. Mempelajari routing berbasis berkas (App Router) dan manajemen state modern.
+                    </p>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="text-xs bg-slate-50 text-slate-700 px-3 py-1 rounded-full border border-slate-200">NextJS 14</span>
+                        <span class="text-xs bg-slate-50 text-slate-700 px-3 py-1 rounded-full border border-slate-200">React Hooks</span>
+                        <span class="text-xs bg-slate-50 text-slate-700 px-3 py-1 rounded-full border border-slate-200">Server Components</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Galeri Proyek -->
+    <section id="proyek" class="py-20">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center justify-between mb-16 gap-6">
+                <div>
+                    <h2 class="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent inline-block">Proyek Yang Berhasil Saya Buat</h2>
+                    <p class="text-slate-500 mt-2">Kumpulan beberapa proyek aplikasi yang telah diselesaikan dengan sepenuh hati.</p>
+                </div>
+                
+                <!-- Filter Tabs -->
+                <div class="flex space-x-2 bg-slate-100 border border-slate-200 p-1.5 rounded-xl self-start md:self-center">
+                    <button class="filter-btn px-4 py-2 rounded-lg text-xs font-semibold bg-primary text-white" data-target="semua">Semua</button>
+                    <button class="filter-btn px-4 py-2 rounded-lg text-xs font-semibold text-slate-500 hover:text-primary" data-target="desktop">Desktop (Electron)</button>
+                    <button class="filter-btn px-4 py-2 rounded-lg text-xs font-semibold text-slate-500 hover:text-primary" data-target="web">Web App</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="projects-grid">
+                
+                <!-- Proyek 1: Desktop Quran & Sholat Companion -->
+                <div class="project-card bg-white border border-slate-200 rounded-2xl overflow-hidden hover:border-slate-450 hover:shadow-xl hover:shadow-slate-200 transition-all duration-300 flex flex-col" data-category="desktop">
+                    <div class="h-48 bg-slate-100 relative flex items-center justify-center overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-br from-slate-200 to-slate-300 flex flex-col items-center justify-center p-6 text-center">
+                            <i class="fa-solid fa-book-quran text-5xl text-slate-800 mb-2"></i>
+                            <span class="font-mono text-xs text-slate-600">UI APLIKASI DESKTOP</span>
+                        </div>
+                    </div>
+                    <div class="p-6 flex-1 flex flex-col justify-between">
+                        <div>
+                            <span class="text-[10px] uppercase tracking-wider font-extrabold text-slate-500 mb-2 block">Desktop (Electron)</span>
+                            <h3 class="text-xl font-bold mb-2">PufutaraOS</h3>
+                            <p class="text-sm text-slate-500 mb-4 line-clamp-3">Aplikasi Al-Qur'an dan pengingat waktu sholat berbasis desktop untuk membantu para santri dan pelajar tetap disiplin waktu di depan PC.</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2 pt-4 border-t border-slate-100">
+                            <span class="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200">Electron</span>
+                            <span class="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200">JS Vanilla</span>
+                            <span class="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200">API Al-Qur'an</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Proyek 2: Santri Task Manager -->
+                <div class="project-card bg-white border border-slate-200 rounded-2xl overflow-hidden hover:border-slate-450 hover:shadow-xl hover:shadow-slate-200 transition-all duration-300 flex flex-col" data-category="web">
+                    <div class="h-48 bg-slate-100 relative flex items-center justify-center overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-br from-slate-200 to-slate-300 flex flex-col items-center justify-center p-6 text-center">
+                            <i class="fa-solid fa-list-check text-5xl text-slate-800 mb-2"></i>
+                            <span class="font-mono text-xs text-slate-600">TAMPILAN INTERAKTIF</span>
+                        </div>
+                    </div>
+                    <div class="p-6 flex-1 flex flex-col justify-between">
+                        <div>
+                            <span class="text-[10px] uppercase tracking-wider font-extrabold text-slate-500 mb-2 block">Web Application</span>
+                            <h3 class="text-xl font-bold mb-2">PufutaraArchive</h3>
+                            <p class="text-sm text-slate-500 mb-4 line-clamp-3">Sistem manajemen tugas harian pesantren, mulai dari jadwal hafalan, tugas sekolah, hingga piket kebersihan masjid.</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2 pt-4 border-t border-slate-100">
+                            <span class="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200">HTML/CSS</span>
+                            <span class="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200">JS DOM</span>
+                            <span class="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200">Local Storage</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Proyek 3: Website Profile Pesantren Moderen -->
+                <div class="project-card bg-white border border-slate-200 rounded-2xl overflow-hidden hover:border-slate-450 hover:shadow-xl hover:shadow-slate-200 transition-all duration-300 flex flex-col" data-category="web">
+                    <div class="h-48 bg-slate-100 relative flex items-center justify-center overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-br from-slate-200 to-slate-300 flex flex-col items-center justify-center p-6 text-center">
+                            <i class="fa-solid fa-school text-5xl text-slate-800 mb-2"></i>
+                            <span class="font-mono text-xs text-slate-600">WEB PROFILE</span>
+                        </div>
+                    </div>
+                    <div class="p-6 flex-1 flex flex-col justify-between">
+                        <div>
+                            <span class="text-[10px] uppercase tracking-wider font-extrabold text-slate-500 mb-2 block">Landing Page</span>
+                            <h3 class="text-xl font-bold mb-2">MutabaahOS</h3>
+                            <p class="text-sm text-slate-500 mb-4 line-clamp-3">Website profil pesantren modern yang dilengkapi dengan galeri interaktif, peta lokasi, form pendaftaran santri baru yang mulus.</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2 pt-4 border-t border-slate-100">
+                            <span class="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200">HTML5</span>
+                            <span class="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200">Tailwind CSS</span>
+                            <span class="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded border border-slate-200">Animate.css</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Kisah Santri Pesantren Section -->
+    <section id="pesantren" class="py-20 bg-slate-50 relative overflow-hidden">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col lg:flex-row items-center gap-12">
+                <!-- Image / Visual -->
+                <div class="flex-1 w-full max-w-md mx-auto relative group">
+                    <div class="absolute inset-0 bg-gradient-to-r from-primary to-secondary rounded-2xl rotate-3 scale-102 opacity-10 group-hover:rotate-6 transition-all duration-300"></div>
+                    <div class="relative bg-white border border-slate-200 p-8 rounded-2xl flex flex-col items-center text-center shadow-md">
+                        <div class="w-24 h-24 rounded-full bg-slate-100 border-2 border-slate-300 flex items-center justify-center text-slate-800 text-3xl mb-6 shadow-xl">
+                            <i class="fa-solid fa-mosque"></i>
+                        </div>
+                        <h4 class="text-lg font-bold">Keseimbangan Dua Dunia</h4>
+                        <p class="text-xs text-secondary font-medium mt-1">Santri Modern - IPTEK & IMTAK</p>
+                        <p class="text-sm text-slate-500 mt-4 leading-relaxed italic">
+                            "Menghafal bait Alfiyah Ibnu Malik di pagi hari, lalu memilah baris kode JavaScript & Electron di sore hari. Pesantren bukan batas, melainkan pondasi kedisiplinan berkreasi."
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Story Text -->
+                <div class="flex-1">
+                    <span class="text-sm font-extrabold text-slate-550 tracking-widest uppercase">Belajar Dari Pesantren</span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold mt-2 mb-6">Membuktikan Batasan Adalah Peluang</h2>
+                    <p class="text-slate-600 mb-6 leading-relaxed">
+                        Meskipun tinggal di pondok pesantren dengan waktu akses komputer yang diatur ketat, Azzam berhasil menguasai dasar-dasar pengembangan web, memahami arsitektur <strong>Electron</strong> untuk software desktop, dan terus melangkah mempelajari <strong>Next.js</strong>.
+                    </p>
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-sm">
+                            <div class="text-2xl font-bold text-primary">02+</div>
+                            <div class="text-xs text-slate-550 mt-1">Sistem Desktop Dibuat</div>
+                        </div>
+                        <div class="p-4 rounded-xl bg-white border border-slate-200 shadow-sm">
+                            <div class="text-2xl font-bold text-secondary">05+</div>
+                            <div class="text-xs text-slate-550 mt-1">Proyek Web Selesai</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION: Galeri Foto & Video -->
+    <section id="galeri" class="py-20 bg-white">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-16">
+                <h2 class="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent inline-block">Galeri Aktivitas & Kreasi</h2>
+                <p class="text-slate-500 mt-2">Intip sekilas kegiatan harian koding, belajar bersama di pesantren, serta demo visual aplikasi saya.</p>
+                
+                <!-- Filter & Tambah Galeri Button -->
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
+                    <!-- Filter -->
+                    <div class="flex space-x-2 bg-slate-100 p-1.5 rounded-full border border-slate-200">
+                        <button class="gallery-filter-btn px-4 py-1.5 rounded-full text-xs font-semibold bg-primary text-white" data-target="semua">Semua</button>
+                        <button class="gallery-filter-btn px-4 py-1.5 rounded-full text-xs font-semibold text-slate-500 hover:text-primary" data-target="foto">Foto</button>
+                        <button class="gallery-filter-btn px-4 py-1.5 rounded-full text-xs font-semibold text-slate-500 hover:text-primary" data-target="video">Video Demo</button>
+                    </div>
+
+                    <!-- Tombol Tambah Konten Nyata -->
+                    <button onclick="openUploadModal()" class="px-5 py-2.5 rounded-full text-xs font-bold bg-gradient-to-r from-primary to-secondary text-white hover:opacity-90 transition-opacity flex items-center space-x-1.5 shadow-md shadow-slate-200">
+                        <i class="fa-solid fa-plus text-[10px]"></i>
+                        <span>Tambah Konten</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Grid Galeri Dinamis -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="gallery-grid">
+                <!-- Data akan dirender secara dinamis oleh JavaScript agar bisa menerima tambahan item baru secara instan -->
+            </div>
+        </div>
+    </section>
+
+    <!-- MODAL PENAMBAHAN KONTEN REAL -->
+    <div id="upload-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl relative animate-[fadeIn_0.3s_ease]">
+            <div class="p-5 bg-slate-100 border-b border-slate-200 flex justify-between items-center">
+                <h3 class="font-extrabold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-cloud-arrow-up text-primary"></i>
+                    <span>Tambah Konten Baru</span>
+                </h3>
+                <button onclick="closeUploadModal()" class="text-slate-400 hover:text-black focus:outline-none text-xl p-1">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <form id="upload-form" class="p-5 space-y-4" onsubmit="handleGalleryUpload(event)">
+                <!-- Pilih Berkas -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Pilih File (Foto / Video)</label>
+                    <div class="relative group">
+                        <input type="file" id="upload-file" accept="image/*, video/*" required onchange="detectFileType(this)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                        <div id="file-drag-area" class="border-2 border-dashed border-slate-200 group-hover:border-slate-400 p-6 rounded-xl text-center bg-slate-50 transition-colors">
+                            <i id="file-icon-preview" class="fa-solid fa-file-image text-3xl text-slate-400 mb-2"></i>
+                            <p id="file-name-preview" class="text-xs font-semibold text-slate-500">Pilih berkas dari perangkat Anda</p>
+                            <span class="text-[10px] text-slate-400 block mt-1">Mendukung format gambar & video</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tipe Konten -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Tipe Konten</label>
+                    <select id="upload-type" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-800 text-sm focus:outline-none focus:border-slate-400">
+                        <option value="foto">Foto (Gambar)</option>
+                        <option value="video">Video Demo</option>
+                    </select>
+                </div>
+
+                <!-- Judul Konten -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Judul Konten</label>
+                    <input type="text" id="upload-title" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:border-slate-400" placeholder="Contoh: Demo Aplikasi Saya">
+                </div>
+
+                <!-- Deskripsi Konten -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Deskripsi Singkat</label>
+                    <textarea id="upload-desc" required rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-900 placeholder-slate-400 text-sm focus:outline-none focus:border-slate-400 resize-none" placeholder="Ceritakan singkat tentang momen/fitur ini..."></textarea>
+                </div>
+
+                <!-- Tombol Submit -->
+                <button type="submit" class="w-full py-3 bg-gradient-to-r from-primary to-secondary text-white font-bold rounded-xl hover:opacity-90 transition-opacity flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-circle-check text-xs"></i>
+                    <span>Masukkan ke Galeri</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL PEMUTAR VIDEO REAL -->
+    <div id="video-modal" class="fixed inset-0 z-50 bg-black/85 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl relative animate-[fadeIn_0.3s_ease]">
+            <div class="p-4 bg-slate-100 border-b border-slate-200 flex justify-between items-center">
+                <h3 class="font-bold text-slate-900 truncate pr-4" id="modal-video-title">Memutar Video...</h3>
+                <button onclick="closeVideoModal()" class="text-slate-500 hover:text-black focus:outline-none text-xl p-1">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <!-- Video Player Real -->
+            <div class="aspect-video bg-black flex items-center justify-center relative">
+                <video id="real-video-player" class="w-full h-full object-contain" controls></video>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hubungi Kontak -->
+    <section id="kontak" class="py-20 bg-slate-50 border-t border-slate-200">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-3xl mx-auto text-center">
+                <h2 class="text-3xl font-extrabold mb-4">Ingin Berkolaborasi?</h2>
+                <p class="text-slate-550 mb-8 leading-relaxed">Saya selalu terbuka untuk berdiskusi tentang proyek website, aplikasi desktop dengan Electron, ataupun kolaborasi belajar Next.js. Silakan tinggalkan pesan!</p>
+                
+                <form id="contact-form" class="space-y-4 text-left bg-white border border-slate-200 p-8 rounded-2xl max-w-xl mx-auto shadow-sm" onsubmit="event.preventDefault(); showContactNotification();">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nama Lengkap</label>
+                        <input type="text" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-slate-400 text-sm transition-colors" placeholder="Masukkan nama Anda">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Alamat Email</label>
+                        <input type="email" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-slate-400 text-sm transition-colors" placeholder="nama@email.com">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Pesan Anda</label>
+                        <textarea required rows="4" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-slate-400 text-sm transition-colors resize-none" placeholder="Tulis rincian penawaran atau salam sapa..."></textarea>
+                    </div>
+                    <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-primary to-secondary text-white font-bold rounded-xl hover:opacity-90 transition-opacity flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-paper-plane text-xs"></i>
+                        <span>Kirim Pesan</span>
+                    </button>
+                </form>
+
+                <!-- Feedback Message -->
+                <div id="contact-notification" class="hidden max-w-xl mx-auto mt-4 p-4 bg-emerald-550/10 border border-emerald-500/20 text-emerald-700 rounded-xl text-sm">
+                    Pesan Anda berhasil terkirim secara simulasi! Terima kasih banyak atas tawarannya.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-12 text-center text-slate-500 text-sm">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
+            <p>© 2026 Putra Azzam Elfathin. Hak Cipta Dilindungi.</p>
+            <div class="flex justify-center space-x-4 text-slate-400 text-base">
+                <a href="#" class="hover:text-primary transition-colors"><i class="fa-brands fa-github"></i></a>
+                <a href="#" class="hover:text-primary transition-colors"><i class="fa-brands fa-linkedin"></i></a>
+                <a href="#" class="hover:text-primary transition-colors"><i class="fa-brands fa-instagram"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- POJOK LAGU PRAKTIS (Floating Audio Player - Tema Terang Moderen) -->
+    <div id="audio-widget" class="fixed bottom-6 right-6 z-50 max-w-xs w-72 bg-white/95 backdrop-blur-md border border-slate-200 rounded-2xl shadow-2xl overflow-hidden transition-all duration-350 translate-y-0 select-none">
+        
+        <!-- Header widget (Bisa ciut/perbesar) -->
+        <div class="bg-gradient-to-r from-slate-100 to-slate-200 border-b border-slate-200 px-4 py-3 flex items-center justify-between cursor-pointer" id="widget-header">
+            <div class="flex items-center space-x-2">
+                <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-slate-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-slate-500"></span>
+                </span>
+                <span class="text-xs font-extrabold text-slate-800 tracking-wider">POJOK LAGU SANTRI</span>
+            </div>
+            <button id="toggle-player-btn" class="text-slate-500 hover:text-black transition-colors">
+                <i id="toggle-icon" class="fa-solid fa-chevron-down text-xs"></i>
+            </button>
+        </div>
+
+        <!-- Bagian player utama -->
+        <div id="player-body" class="p-4 space-y-4 transition-all duration-300">
+            <!-- Info Lagu -->
+            <div class="flex items-center space-x-3.5">
+                <div class="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-primary text-xl relative overflow-hidden flex-shrink-0 border border-slate-200">
+                    <i class="fa-solid fa-music animate-pulse"></i>
+                </div>
+                <div class="overflow-hidden">
+                    <h5 id="song-title" class="text-sm font-bold text-slate-900 truncate">Rindu Rasul - Bimbo</h5>
+                    <p id="song-desc" class="text-[11px] text-slate-500 truncate">Sajian Nada Religi Penyejuk Hati</p>
+                </div>
+            </div>
+
+            <!-- Progres Audio -->
+            <div class="space-y-1">
+                <div class="relative w-full h-1.5 bg-slate-200 rounded-full cursor-pointer" id="progress-container">
+                    <div id="progress-bar" class="absolute top-0 left-0 h-full bg-gradient-to-r from-primary to-secondary rounded-full w-0"></div>
+                </div>
+                <div class="flex justify-between text-[10px] text-slate-400 font-mono">
+                    <span id="current-time">0:00</span>
+                    <span id="duration-time">2:15</span>
+                </div>
+            </div>
+
+            <!-- Tombol Kontrol Utama -->
+            <div class="flex items-center justify-between px-2">
+                <button id="prev-btn" class="text-slate-500 hover:text-primary transition-colors text-sm">
+                    <i class="fa-solid fa-backward-step"></i>
+                </button>
+                <button id="play-btn" class="w-10 h-10 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center text-white hover:scale-105 transition-all shadow-md">
+                    <i id="play-icon" class="fa-solid fa-play ml-0.5"></i>
+                </button>
+                <button id="next-btn" class="text-slate-500 hover:text-primary transition-colors text-sm">
+                    <i class="fa-solid fa-forward-step"></i>
+                </button>
+            </div>
+
+            <!-- List Pilihan Lagu Cepat -->
+            <div class="border-t border-slate-200 pt-3">
+                <label class="block text-[9px] font-bold text-slate-450 tracking-wider uppercase mb-2">Pilih Daftar Putar</label>
+                <div class="space-y-1 max-h-24 overflow-y-auto pr-1 text-xs">
+                    <button class="song-selector-btn w-full text-left px-2 py-1.5 rounded-lg hover:bg-slate-100 flex justify-between items-center text-slate-700 font-medium transition-colors" data-index="0">
+                        <span class="truncate pr-2">Kosong</span>
+                        <span class="text-[9px] text-slate-500 flex-shrink-0">Religi</span>
+                    </button>
+                    <button class="song-selector-btn w-full text-left px-2 py-1.5 rounded-lg hover:bg-slate-100 flex justify-between items-center text-slate-700 font-medium transition-colors" data-index="1">
+                        <span class="truncate pr-2">Kosong</span>
+                        <span class="text-[9px] text-slate-500 flex-shrink-0">Tenang</span>
+                    </button>
+                    <button class="song-selector-btn w-full text-left px-2 py-1.5 rounded-lg hover:bg-slate-100 flex justify-between items-center text-slate-700 font-medium transition-colors" data-index="2">
+                        <span class="truncate pr-2">Kosong</span>
+                        <span class="text-[9px] text-slate-500 flex-shrink-0">Instr</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Instruksi Ganti File Lagu Sendiri -->
+            <div class="bg-slate-50 p-2 rounded-lg text-[9px] text-slate-500 leading-normal border border-slate-200">
+                <i class="fa-solid fa-info-circle text-primary mr-1"></i>
+                <span>Ingin pakai lagu sendiri? Cukup ganti nilai URL <code>audioSrc</code> pada tag skrip halaman ini!</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Elemen Audio Tersembunyi -->
+    <audio id="real-audio-element" src=""></audio>
+
+
+    <!-- Script Logika Portofolio Interaktif, Galeri Berkas Dinamis & Pemutar Lagu -->
+    <script>
+        // Logika Navbar Mobile
+        const menuBtn = document.getElementById('menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        menuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        const mobileLinks = mobileMenu.querySelectorAll('a');
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+            });
+        });
+
+        // Notifikasi Simulasi Formulir Kontak
+        function showContactNotification() {
+            const notif = document.getElementById('contact-notification');
+            notif.classList.remove('hidden');
+            document.getElementById('contact-form').reset();
+            setTimeout(() => {
+                notif.classList.add('hidden');
+            }, 6000);
+        }
+
+        // Logika Filter Proyek
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const projectCards = document.querySelectorAll('.project-card');
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => {
+                    b.classList.remove('bg-primary', 'text-white');
+                    b.classList.add('text-slate-500', 'hover:text-primary');
+                });
+                btn.classList.add('bg-primary', 'text-white');
+                btn.classList.remove('text-slate-500', 'hover:text-primary');
+
+                const target = btn.getAttribute('data-target');
+
+                projectCards.forEach(card => {
+                    if (target === 'semua' || card.getAttribute('data-category') === target) {
+                        card.style.display = 'flex';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // ----------------------------------------------------
+        // SYSTEM GALERI DINAMIS & UNGGAH MANDIRI (REAL DATA)
+        // ----------------------------------------------------
+        
+        // Data awal galeri bawaan
+        let galleryData = [
+            {
+                id: 1,
+                type: 'foto',
+                title: 'Putra masuk google',
+                desc: 'apa saja yang penting selesai.',
+                icon: 'fa-laptop-code',
+                fileUrl: '1.jfif'
+            },
+            {
+                id: 2,
+                type: 'video',
+                title: 'Pak Ulil diwawancara',
+                desc: 'video sus yang daya temukan di google drive',
+                // Menggunakan video sampel gratis publik yang dapat diputar secara lancar
+                fileUrl: 'paulil.mp4' 
+            },
+            {
+                id: 3,
+                type: 'foto',
+                title: 'random',
+                desc: 'gatau ah serah nanti aja',
+                icon: 'fa-users',
+                fileUrl: '2.png'
+            }
+        ];
+
+        // Render Galeri
+        function renderGallery(filterType = 'semua') {
+            const grid = document.getElementById('gallery-grid');
+            grid.innerHTML = ''; // bersihkan kontainer
+
+            galleryData.forEach(item => {
+                // Saring item berdasarkan filter tab aktif
+                if (filterType !== 'semua' && item.type !== filterType) {
+                    return;
+                }
+
+                // Bangun elemen card galeri
+                const card = document.createElement('div');
+                card.className = "gallery-item bg-slate-50 border border-slate-200 rounded-2xl overflow-hidden shadow-sm group hover:border-slate-400 transition-all duration-300 animate-[fadeIn_0.3s_ease]";
+                card.setAttribute('data-type', item.type);
+
+                let mediaPreviewHtml = '';
+
+                if (item.type === 'foto') {
+                    if (item.fileUrl) {
+                        // Jika ada berkas foto yang diunggah pengguna
+                        mediaPreviewHtml = `
+                            <div class="h-56 bg-slate-100 relative overflow-hidden flex items-center justify-center">
+                                <img src="${item.fileUrl}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="${item.title}">
+                                <span class="absolute top-3 left-3 bg-white text-primary text-[9px] font-bold px-2 py-1 rounded-md border border-slate-200 shadow-sm">FOTO</span>
+                            </div>
+                        `;
+                    } else {
+                        // Default placeholder visual
+                        mediaPreviewHtml = `
+                            <div class="h-56 bg-gradient-to-tr from-slate-200 to-slate-300 relative flex items-center justify-center p-4">
+                                <i class="fa-solid ${item.icon || 'fa-image'} text-6xl text-slate-700 opacity-85 group-hover:scale-110 transition-transform duration-300"></i>
+                                <span class="absolute top-3 left-3 bg-white text-primary text-[9px] font-bold px-2 py-1 rounded-md border border-slate-200">FOTO</span>
+                            </div>
+                        `;
+                    }
+                } else if (item.type === 'video') {
+                    // Jika bertipe video, tambahkan tombol klik untuk memutar video
+                    mediaPreviewHtml = `
+                        <div class="h-56 bg-slate-800 relative flex items-center justify-center p-4 cursor-pointer" onclick="playRealVideo('${item.fileUrl}', '${item.title.replace(/'/g, "\\'")}')">
+                            <div class="absolute inset-0 bg-slate-900 opacity-50 group-hover:opacity-40 transition-opacity"></div>
+                            ${item.fileUrl && !item.fileUrl.startsWith('http') ? 
+                                `<video src="${item.fileUrl}" class="absolute inset-0 w-full h-full object-cover opacity-80"></video>` : ''
+                            }
+                            <i class="fa-solid fa-circle-play text-5xl text-white z-10 opacity-90 group-hover:scale-125 transition-transform duration-300 shadow-lg"></i>
+                            <span class="absolute top-3 left-3 bg-red-600 text-white text-[9px] font-bold px-2 py-1 rounded-md shadow-sm">VIDEO DEMO</span>
+                            <div class="absolute bottom-3 right-3 text-[10px] text-white/95 bg-black/60 px-2.5 py-0.5 rounded z-10 font-mono tracking-wider">PUTAR</div>
+                        </div>
+                    `;
+                }
+
+                card.innerHTML = `
+                    ${mediaPreviewHtml}
+                    <div class="p-5">
+                        <h4 class="font-bold text-base text-primary">${item.title}</h4>
+                        <p class="text-xs text-slate-550 mt-1 leading-relaxed">${item.desc}</p>
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        // Mengaktifkan filter tab galeri secara interaktif
+        const galleryFilterBtns = document.querySelectorAll('.gallery-filter-btn');
+        galleryFilterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                galleryFilterBtns.forEach(b => {
+                    b.classList.remove('bg-primary', 'text-white');
+                    b.classList.add('text-slate-500', 'hover:text-primary');
+                });
+                btn.classList.add('bg-primary', 'text-white');
+                btn.classList.remove('text-slate-500', 'hover:text-primary');
+
+                const target = btn.getAttribute('data-target');
+                renderGallery(target);
+            });
+        });
+
+        // Pengendali Modal Unggah File Galeri
+        const uploadModal = document.getElementById('upload-modal');
+        const uploadForm = document.getElementById('upload-form');
+        const uploadFile = document.getElementById('upload-file');
+        const fileDragArea = document.getElementById('file-drag-area');
+        const fileIconPreview = document.getElementById('file-icon-preview');
+        const fileNamePreview = document.getElementById('file-name-preview');
+
+        function openUploadModal() {
+            uploadModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeUploadModal() {
+            uploadModal.classList.add('hidden');
+            document.body.style.overflow = '';
+            uploadForm.reset();
+            resetDragArea();
+        }
+
+        function resetDragArea() {
+            fileIconPreview.className = "fa-solid fa-file-image text-3xl text-slate-400 mb-2";
+            fileNamePreview.textContent = "Pilih berkas dari perangkat Anda";
+            fileDragArea.classList.remove('border-primary/55', 'bg-slate-100');
+        }
+
+        // Mendeteksi jenis file yang diunggah guna memosisikan pilihan tipe otomatis
+        function detectFileType(input) {
+            const file = input.files[0];
+            if (!file) {
+                resetDragArea();
+                return;
+            }
+
+            fileNamePreview.textContent = file.name;
+            fileDragArea.classList.add('border-primary/55', 'bg-slate-100');
+
+            const uploadTypeSelect = document.getElementById('upload-type');
+
+            if (file.type.startsWith('image/')) {
+                uploadTypeSelect.value = 'foto';
+                fileIconPreview.className = "fa-solid fa-file-image text-3xl text-blue-500 mb-2";
+            } else if (file.type.startsWith('video/')) {
+                uploadTypeSelect.value = 'video';
+                fileIconPreview.className = "fa-solid fa-file-video text-3xl text-red-500 mb-2";
+            }
+        }
+
+        // Memproses penambahan foto / video baru secara lokal (FileReader & Object URL)
+        function handleGalleryUpload(event) {
+            event.preventDefault();
+
+            const title = document.getElementById('upload-title').value;
+            const desc = document.getElementById('upload-desc').value;
+            const type = document.getElementById('upload-type').value;
+            const fileInput = document.getElementById('upload-file');
+            
+            if (!fileInput.files || fileInput.files.length === 0) {
+                return;
+            }
+
+            const file = fileInput.files[0];
+            
+            // Mengubah berkas biner lokal menjadi URL Objek Browser agar performanya sangat cepat
+            const fileUrl = URL.createObjectURL(file);
+
+            // Membuat ID unik baru
+            const newId = galleryData.length > 0 ? Math.max(...galleryData.map(o => o.id)) + 1 : 1;
+
+            const newContent = {
+                id: newId,
+                type: type,
+                title: title,
+                desc: desc,
+                fileUrl: fileUrl
+            };
+
+            // Masukkan data baru ke list galeri paling atas
+            galleryData.unshift(newContent);
+
+            // Perbarui visualisasi galeri
+            renderGallery('semua');
+
+            // Reset tombol tab filter agar kembali ke "Semua"
+            galleryFilterBtns.forEach(btn => {
+                if (btn.getAttribute('data-target') === 'semua') {
+                    btn.classList.add('bg-primary', 'text-white');
+                } else {
+                    btn.classList.remove('bg-primary', 'text-white');
+                    btn.classList.add('text-slate-500', 'hover:text-primary');
+                }
+            });
+
+            // Tutup Modal
+            closeUploadModal();
+        }
+
+        // ----------------------------------------------------
+        // SYSTEM PEMUTAR VIDEO ASLI (REAL VIDEO PLAYER MODAL)
+        // ----------------------------------------------------
+        const videoModal = document.getElementById('video-modal');
+        const modalVideoTitle = document.getElementById('modal-video-title');
+        const realVideoPlayer = document.getElementById('real-video-player');
+
+        function playRealVideo(url, title) {
+            if (!url || url === 'null') {
+                // Gunakan video sampel jika URL kosong
+                url = 'https://www.w3schools.com/html/mov_bbb.mp4'; 
+            }
+            modalVideoTitle.textContent = title;
+            realVideoPlayer.src = url;
+            videoModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            
+            // Otomatis putar video
+            realVideoPlayer.play().catch(e => {
+                console.log("Auto-play diblokir oleh browser. Pengguna harus mengklik tombol play secara manual.");
+            });
+        }
+
+        function closeVideoModal() {
+            videoModal.classList.add('hidden');
+            document.body.style.overflow = '';
+            realVideoPlayer.pause();
+            realVideoPlayer.src = ''; // hentikan stream video
+        }
+
+        // Render galeri pertama kali ketika halaman termuat
+        renderGallery('semua');
+
+
+        // ----------------------------------------------------
+        // SYSTEM AUDIO PLAYER (POJOK LAGU)
+        // ----------------------------------------------------
+        const playlist = [
+            {
+                title: "Mejikuhibiniu",
+                desc: "waduh",
+                category: "Kaciw",
+                audioSrc: "mejikuhibiniu.mp3"
+            },
+            {
+                title: "kosong",
+                desc: "kosong",
+                category: "-",
+                audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"
+            },
+            {
+                title: "kosong",
+                desc: "kosong",
+                category: "-g",
+                audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3"
+            }
+        ];
+
+        let currentSongIndex = 0;
+        let isPlaying = false;
+
+        const audioElement = document.getElementById('real-audio-element');
+        const playBtn = document.getElementById('play-btn');
+        const playIcon = document.getElementById('play-icon');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const songTitle = document.getElementById('song-title');
+        const songDesc = document.getElementById('song-desc');
+        const progressBar = document.getElementById('progress-bar');
+        const progressContainer = document.getElementById('progress-container');
+        const currentTimeEl = document.getElementById('current-time');
+        const durationTimeEl = document.getElementById('duration-time');
+        const widgetHeader = document.getElementById('widget-header');
+        const playerBody = document.getElementById('player-body');
+        const toggleIcon = document.getElementById('toggle-icon');
+        const songSelectorBtns = document.querySelectorAll('.song-selector-btn');
+
+        function loadSong(index) {
+            currentSongIndex = index;
+            const song = playlist[index];
+            songTitle.textContent = song.title;
+            songDesc.textContent = song.desc;
+            audioElement.src = song.audioSrc;
+            
+            songSelectorBtns.forEach(btn => {
+                const btnIdx = parseInt(btn.getAttribute('data-index'));
+                if (btnIdx === index) {
+                    btn.classList.add('bg-slate-100', 'text-primary', 'font-bold');
+                    btn.classList.remove('text-slate-700');
+                } else {
+                    btn.classList.remove('bg-slate-100', 'text-primary', 'font-bold');
+                    btn.classList.add('text-slate-700');
+                }
+            });
+        }
+
+        function playAudio() {
+            isPlaying = true;
+            audioElement.play().catch(err => {
+                console.log("Audio dibatasi sebelum interaksi pertama.");
+            });
+            playIcon.className = "fa-solid fa-pause";
+        }
+
+        function pauseAudio() {
+            isPlaying = false;
+            audioElement.pause();
+            playIcon.className = "fa-solid fa-play ml-0.5";
+        }
+
+        playBtn.addEventListener('click', () => {
+            if (isPlaying) {
+                pauseAudio();
+            } else {
+                playAudio();
+            }
+        });
+
+        function nextSong() {
+            let nextIndex = currentSongIndex + 1;
+            if (nextIndex >= playlist.length) {
+                nextIndex = 0;
+            }
+            loadSong(nextIndex);
+            if (isPlaying) playAudio();
+        }
+
+        nextBtn.addEventListener('click', nextSong);
+
+        prevBtn.addEventListener('click', () => {
+            let prevIndex = currentSongIndex - 1;
+            if (prevIndex < 0) {
+                prevIndex = playlist.length - 1;
+            }
+            loadSong(prevIndex);
+            if (isPlaying) playAudio();
+        });
+
+        audioElement.addEventListener('timeupdate', () => {
+            const currentTime = audioElement.currentTime;
+            const duration = audioElement.duration || 0;
+            
+            const progressPercent = (currentTime / duration) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+
+            currentTimeEl.textContent = formatTime(currentTime);
+            durationTimeEl.textContent = formatTime(duration);
+        });
+
+        function formatTime(secs) {
+            if (isNaN(secs)) return "0:00";
+            const minutes = Math.floor(secs / 60);
+            const seconds = Math.floor(secs % 60);
+            return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }
+
+        progressContainer.addEventListener('click', (e) => {
+            const width = progressContainer.clientWidth;
+            const clickX = e.offsetX;
+            const duration = audioElement.duration || 0;
+            audioElement.currentTime = (clickX / width) * duration;
+        });
+
+        audioElement.addEventListener('ended', nextSong);
+
+        widgetHeader.addEventListener('click', () => {
+            playerBody.classList.toggle('hidden');
+            if (playerBody.classList.contains('hidden')) {
+                toggleIcon.className = "fa-solid fa-chevron-up text-xs";
+            } else {
+                toggleIcon.className = "fa-solid fa-chevron-down text-xs";
+            }
+        });
+
+        songSelectorBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation(); // Mencegah terpicunya click header widget
+                const idx = parseInt(btn.getAttribute('data-index'));
+                loadSong(idx);
+                playAudio();
+            });
+        });
+
+        // Load lagu pertama secara default
+        loadSong(0);
+
+    </script>
+</body>
+</html>
