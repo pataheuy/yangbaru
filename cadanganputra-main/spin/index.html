@@ -1,9 +1,7 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
+<html lang="id"><head>
 <meta charset="UTF-8">
 <title>Pufutara Spin Wheel </title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Poppins:wght@600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&amp;family=Poppins:wght@600&amp;display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 <style>
@@ -151,6 +149,19 @@ function draw(){
   });
 }
 
+// Fungsi bantu untuk mendapatkan indeks slice yang ditunjuk secara aman (antisipasi sudut negatif)
+function getSliceIndex(currentAngle) {
+  if (items.length === 0) return 0;
+  const slice = 2 * Math.PI / items.length;
+  let normalized = currentAngle % (2 * Math.PI);
+  if (normalized < 0) {
+    normalized += 2 * Math.PI;
+  }
+  let idx = Math.floor((2 * Math.PI - normalized) / slice) % items.length;
+  if (idx < 0) idx += items.length;
+  return idx;
+}
+
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -165,6 +176,7 @@ function manualReshuffle() {
   draw(); 
 }
 
+// SISTEM PUTAR DENGAN DISTRIBUSI PELUANG BARU
 function spin(){
   if(isSpinning || items.length === 0) return;
   if(audioCtx.state === 'suspended') audioCtx.resume();
@@ -172,6 +184,22 @@ function spin(){
   isSpinning = true; 
   sidebar.classList.add("hide"); 
 
+  const roll = Math.random();
+
+  if (roll < 0.28) {
+    // 28% peluang untuk "Fake-out Troll" (hampir berhenti lalu lanjut melesat lagi)
+    runFakeoutSpin();
+  } else if (roll < 0.43) {
+    // 15% peluang untuk "Troll Mundur 5" (berhenti lalu mundur 5 kotak dengan halus)
+    runRewindSpin();
+  } else {
+    // Sisa 57% peluang untuk putaran normal biasa
+    runNormalSpin();
+  }
+}
+
+// 1. ANIMASI PUTARAN NORMAL (57%)
+function runNormalSpin() {
   const duration = 6000; 
   const startAngle = angle;
   const extraSpins = Math.PI * 2 * (10 + Math.floor(Math.random() * 5)); 
@@ -190,8 +218,7 @@ function spin(){
     angle = startAngle + (easeOutQuint(progress) * totalRotation);
     draw();
 
-    const slice = 2 * Math.PI / items.length;
-    const currentSliceIdx = Math.floor((2 * Math.PI - (angle % (2 * Math.PI))) / slice) % items.length;
+    const currentSliceIdx = getSliceIndex(angle);
     if(lastSliceIdx !== currentSliceIdx){ 
       if (progress < 0.99) playTick(progress > 0.8); 
       lastSliceIdx = currentSliceIdx; 
@@ -200,38 +227,168 @@ function spin(){
     if (progress < 1) {
       requestAnimationFrame(animate);
     } else {
-      finalizeSpin();
+      finalizeSpin(angle);
     }
   }
   requestAnimationFrame(animate);
 }
 
-// LOGIK BARU: ASYNC DENGAN CHANCE 40% TROLL
-async function finalizeSpin() {
-  const slice = 2 * Math.PI / items.length;
-  selectedIndex = Math.floor((2 * Math.PI - (angle % (2 * Math.PI))) / slice) % items.length;
+// 2. ANIMASI FAKEOUT TROLL (28%)
+function runFakeoutSpin() {
+  // Putaran awal yang seolah-olah hampir berhenti lambat
+  const durationFase1 = 5000; 
+  const startAngle = angle;
+  const extraSpins1 = Math.PI * 2 * (7 + Math.floor(Math.random() * 3));
+  const totalRotation1 = extraSpins1 + (Math.random() * Math.PI * 2);
   
-  // Peluang 40% untuk ngereshuffle tiba-tiba (Fake-out)
-  const isTroll = Math.random() < 0.4;
+  let startTime = null;
+  let lastSliceIdx = -1;
 
-  if (isTroll) {
-    // Berhenti sejenak biar seolah-olah sudah selesai (efek suspense)
-    await new Promise(resolve => setTimeout(resolve, 800));
+  function easeOutQuint(x) { return 1 - Math.pow(1 - x, 5); }
+
+  function animateFase1(currentTime) {
+    if (!startTime) startTime = currentTime;
+    let elapsed = currentTime - startTime;
+    let progress = Math.min(elapsed / durationFase1, 1);
     
-    // Reshuffle 30 kali dengan cepat
-    for (let i = 0; i < 30; i++) {
-      shuffleArray(items);
-      inputArea.value = items.join("\n");
-      draw();
-      playTick(true); // Suara tick cepat
-      await new Promise(resolve => setTimeout(resolve, 60)); 
+    angle = startAngle + (easeOutQuint(progress) * totalRotation1);
+    draw();
+
+    const currentSliceIdx = getSliceIndex(angle);
+    if(lastSliceIdx !== currentSliceIdx){ 
+      if (progress < 0.99) playTick(progress > 0.8); 
+      lastSliceIdx = currentSliceIdx; 
     }
+
+    if (progress < 1) {
+      requestAnimationFrame(animateFase1);
+    } else {
+      // Jeda tipis mengejutkan (400ms) saat hampir berhenti, lalu melesat lagi
+      setTimeout(() => {
+        runFakeoutBoost(angle);
+      }, 400);
+    }
+  }
+  requestAnimationFrame(animateFase1);
+}
+
+function runFakeoutBoost(currentAngle) {
+  const durationFase2 = 2500; 
+  const startAngle = currentAngle;
+  // Putaran tambahan cepat sepanjang 1.5 sampai 2.5 putaran lingkaran
+  const totalRotation2 = Math.PI * 2 * (1.5 + Math.random() * 1);
+  let startTime = null;
+  let lastSliceIdx = -1;
+
+  function easeOutQuad(x) { return 1 - (1 - x) * (1 - x); }
+
+  function animateFase2(currentTime) {
+    if (!startTime) startTime = currentTime;
+    let elapsed = currentTime - startTime;
+    let progress = Math.min(elapsed / durationFase2, 1);
     
-    // Pilih pemenang baru secara acak setelah diacak-acak
-    selectedIndex = Math.floor(Math.random() * items.length);
+    angle = startAngle + (easeOutQuad(progress) * totalRotation2);
+    draw();
+
+    const currentSliceIdx = getSliceIndex(angle);
+    if(lastSliceIdx !== currentSliceIdx){ 
+      if (progress < 0.99) playTick(progress > 0.6); 
+      lastSliceIdx = currentSliceIdx; 
+    }
+
+    if (progress < 1) {
+      requestAnimationFrame(animateFase2);
+    } else {
+      finalizeSpin(angle);
+    }
+  }
+  requestAnimationFrame(animateFase2);
+}
+
+// 3. ANIMASI TROLL MUNDUR 5 (15%)
+function runRewindSpin() {
+  const durationFase1 = 5500; 
+  const startAngle = angle;
+  const extraSpins = Math.PI * 2 * (9 + Math.floor(Math.random() * 4)); 
+  const totalRotation = extraSpins + (Math.random() * Math.PI * 2);
+  
+  let startTime = null;
+  let lastSliceIdx = -1;
+
+  function easeOutQuint(x) { return 1 - Math.pow(1 - x, 5); }
+
+  function animateFase1(currentTime) {
+    if (!startTime) startTime = currentTime;
+    let elapsed = currentTime - startTime;
+    let progress = Math.min(elapsed / durationFase1, 1);
+    
+    angle = startAngle + (easeOutQuint(progress) * totalRotation);
+    draw();
+
+    const currentSliceIdx = getSliceIndex(angle);
+    if(lastSliceIdx !== currentSliceIdx){ 
+      if (progress < 0.99) playTick(progress > 0.8); 
+      lastSliceIdx = currentSliceIdx; 
+    }
+
+    if (progress < 1) {
+      requestAnimationFrame(animateFase1);
+    } else {
+      // Jeda dramatis (600ms) sebelum roda ditarik mundur
+      setTimeout(() => {
+        runRewindBack(angle);
+      }, 600);
+    }
+  }
+  requestAnimationFrame(animateFase1);
+}
+
+function runRewindBack(currentAngle) {
+  const durationFase2 = 2000; 
+  const startAngle = currentAngle;
+  
+  const slice = 2 * Math.PI / items.length;
+  // Mundur tepat 5 segmen (atau disesuaikan jika item lebih sedikit dari 5)
+  const stepsToRewind = Math.min(5, items.length);
+  const totalRewindAngle = slice * stepsToRewind; 
+  
+  let startTime = null;
+  let lastSliceIdx = -1;
+
+  // Kurva animasi EaseInOutCubic agar putaran balik terasa sangat elastis dan halus
+  function easeInOutCubic(x) {
+    return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
   }
 
+  function animateFase2(currentTime) {
+    if (!startTime) startTime = currentTime;
+    let elapsed = currentTime - startTime;
+    let progress = Math.min(elapsed / durationFase2, 1);
+    
+    // Kurangi sudut agar roda berputar mundur searah jarum jam balik
+    angle = startAngle - (easeInOutCubic(progress) * totalRewindAngle);
+    draw();
+
+    const currentSliceIdx = getSliceIndex(angle);
+    if(lastSliceIdx !== currentSliceIdx){ 
+      playTick(true); 
+      lastSliceIdx = currentSliceIdx; 
+    }
+
+    if (progress < 1) {
+      requestAnimationFrame(animateFase2);
+    } else {
+      finalizeSpin(angle);
+    }
+  }
+  requestAnimationFrame(animateFase2);
+}
+
+// FINALE: MENAMPILKAN POPUP PEMENANG ASLI
+function finalizeSpin(finalAngle) {
+  selectedIndex = getSliceIndex(finalAngle);
   isSpinning = false;
+  
   setTimeout(() => {
       playVictorySound();
       document.getElementById("popupCustomMsg").innerText = document.getElementById("msgInput").value.trim();
@@ -253,5 +410,6 @@ function removeItemWithSidebar() {
 function toggleSidebar(){ sidebar.classList.toggle("hide"); }
 updateItems();
 </script>
-</body>
-</html>
+
+
+</body></html>
