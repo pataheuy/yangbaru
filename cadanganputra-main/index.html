@@ -1,6 +1,4 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
+<html lang="id"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google-site-verification" content="_YxoQgBNuxNzKYKEiaHoLDI66XCcw60J59f13hMVXyw">
@@ -69,16 +67,90 @@
             will-change: transform, opacity, filter;
         }
 
+        .hero-enter {
+            animation: heroRise 1.05s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both;
+        }
+
+        .hero-stagger {
+            opacity: 0;
+            transform: translateY(28px);
+            filter: blur(14px);
+            animation: heroItemIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        .hero-title { animation-delay: 0.2s; }
+        .hero-copy { animation-delay: 0.38s; }
+        .hero-actions { animation-delay: 0.56s; }
+
+        .nav-enter {
+            opacity: 0;
+            transform: translateY(-18px) scale(0.98);
+            animation: navDrop 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.72s both;
+        }
+
         .hero-gradient {
             background: linear-gradient(to top, rgba(230, 230, 230, 0.8) 0%, rgba(255, 255, 255, 0) 60%);
+            opacity: 0;
+            animation: gradientIn 1.2s ease 0.15s both;
+        }
+
+        .hero-ambient {
+            opacity: 0;
+            transform-origin: center;
+            animation: ambientIn 1.3s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both, ambientFloat 8s ease-in-out 1.6s infinite;
+        }
+
+        @keyframes heroRise {
+            from { opacity: 0; transform: scale(0.96) translateY(36px); filter: blur(18px); }
+            to { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+        }
+
+        @keyframes heroItemIn {
+            to { opacity: 1; transform: translateY(0); filter: blur(0); }
+        }
+
+        @keyframes navDrop {
+            from { opacity: 0; transform: translateY(-18px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes gradientIn {
+            to { opacity: 1; }
+        }
+
+        @keyframes ambientIn {
+            from { opacity: 0; transform: translate(-50%, -44%) scale(0.82); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        @keyframes ambientFloat {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -54%) scale(1.08); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .hero-enter,
+            .hero-stagger,
+            .nav-enter,
+            .hero-gradient,
+            .hero-ambient {
+                opacity: 1;
+                transform: none;
+                filter: none;
+                animation: none;
+            }
+
+            .hero-ambient {
+                transform: translate(-50%, -50%);
+            }
         }
     </style>
-</head>
+<style>*, ::before, ::after{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgb(59 130 246 / 0.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/* ! tailwindcss v3.4.17 | MIT License | https://tailwindcss.com */*,::after,::before{box-sizing:border-box;border-width:0;border-style:solid;border-color:#e5e7eb}::after,::before{--tw-content:''}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;tab-size:4;font-family:ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0;padding:0}legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}.pointer-events-none{pointer-events:none}.pointer-events-auto{pointer-events:auto}.fixed{position:fixed}.absolute{position:absolute}.relative{position:relative}.sticky{position:sticky}.inset-0{inset:0px}.bottom-8{bottom:2rem}.left-0{left:0px}.left-1\/2{left:50%}.right-0{right:0px}.top-0{top:0px}.top-1\/2{top:50%}.-z-10{z-index:-10}.-z-20{z-index:-20}.z-0{z-index:0}.z-10{z-index:10}.z-\[1000\]{z-index:1000}.z-\[100\]{z-index:100}.mx-auto{margin-left:auto;margin-right:auto}.mb-1{margin-bottom:0.25rem}.mb-16{margin-bottom:4rem}.mb-2{margin-bottom:0.5rem}.mb-4{margin-bottom:1rem}.mb-6{margin-bottom:1.5rem}.mb-8{margin-bottom:2rem}.line-clamp-2{overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2}.block{display:block}.flex{display:flex}.grid{display:grid}.hidden{display:none}.h-4{height:1rem}.h-\[1px\]{height:1px}.h-\[400px\]{height:400px}.h-full{height:100%}.h-screen{height:100vh}.w-2{width:0.5rem}.w-4{width:1rem}.w-\[1px\]{width:1px}.w-\[400px\]{width:400px}.max-w-\[1100px\]{max-width:1100px}.max-w-\[1250px\]{max-width:1250px}.max-w-\[260px\]{max-width:260px}.max-w-\[500px\]{max-width:500px}.-translate-x-1\/2{--tw-translate-x:-50%;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.-translate-y-1\/2{--tw-translate-y:-50%;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}@keyframes pulse{50%{opacity:.5}}.animate-pulse{animation:pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite}.cursor-default{cursor:default}.list-none{list-style-type:none}.grid-cols-1{grid-template-columns:repeat(1, minmax(0, 1fr))}.grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.flex-col{flex-direction:column}.items-end{align-items:flex-end}.items-center{align-items:center}.justify-center{justify-content:center}.justify-between{justify-content:space-between}.gap-1\.5{gap:0.375rem}.gap-12{gap:3rem}.gap-2{gap:0.5rem}.gap-4{gap:1rem}.gap-6{gap:1.5rem}.gap-8{gap:2rem}.space-y-3 > :not([hidden]) ~ :not([hidden]){--tw-space-y-reverse:0;margin-top:calc(0.75rem * calc(1 - var(--tw-space-y-reverse)));margin-bottom:calc(0.75rem * var(--tw-space-y-reverse))}.overflow-x-hidden{overflow-x:hidden}.rounded-\[20px\]{border-radius:20px}.rounded-full{border-radius:9999px}.rounded-t-\[44px\]{border-top-left-radius:44px;border-top-right-radius:44px}.rounded-t-\[48px\]{border-top-left-radius:48px;border-top-right-radius:48px}.border{border-width:1px}.border-t{border-top-width:1px}.border-black\/5{border-color:rgb(0 0 0 / 0.05)}.border-black\/\[0\.02\]{border-color:rgb(0 0 0 / 0.02)}.border-black\/\[0\.04\]{border-color:rgb(0 0 0 / 0.04)}.border-border-light{--tw-border-opacity:1;border-color:rgb(234 238 242 / var(--tw-border-opacity, 1))}.bg-black{--tw-bg-opacity:1;background-color:rgb(0 0 0 / var(--tw-bg-opacity, 1))}.bg-black\/10{background-color:rgb(0 0 0 / 0.1)}.bg-black\/90{background-color:rgb(0 0 0 / 0.9)}.bg-gray-200\/40{background-color:rgb(229 231 235 / 0.4)}.bg-gray-muted{--tw-bg-opacity:1;background-color:rgb(245 245 247 / var(--tw-bg-opacity, 1))}.bg-white{--tw-bg-opacity:1;background-color:rgb(255 255 255 / var(--tw-bg-opacity, 1))}.bg-white\/85{background-color:rgb(255 255 255 / 0.85)}.bg-gradient-to-r{background-image:linear-gradient(to right, var(--tw-gradient-stops))}.from-gray-500{--tw-gradient-from:#6b7280 var(--tw-gradient-from-position);--tw-gradient-to:rgb(107 114 128 / 0) var(--tw-gradient-to-position);--tw-gradient-stops:var(--tw-gradient-from), var(--tw-gradient-to)}.to-gray-300{--tw-gradient-to:#d1d5db var(--tw-gradient-to-position)}.bg-clip-text{-webkit-background-clip:text;background-clip:text}.p-3\.5{padding:0.875rem}.px-4{padding-left:1rem;padding-right:1rem}.px-5{padding-left:1.25rem;padding-right:1.25rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}.py-2\.5{padding-top:0.625rem;padding-bottom:0.625rem}.py-20{padding-top:5rem;padding-bottom:5rem}.py-3{padding-top:0.75rem;padding-bottom:0.75rem}.pb-10{padding-bottom:2.5rem}.pb-32{padding-bottom:8rem}.pt-16{padding-top:4rem}.pt-6{padding-top:1.5rem}.pt-8{padding-top:2rem}.text-center{text-align:center}.font-inter{font-family:Inter, sans-serif}.text-2xl{font-size:1.5rem;line-height:2rem}.text-\[0\.5rem\]{font-size:0.5rem}.text-\[0\.65rem\]{font-size:0.65rem}.text-\[0\.75rem\]{font-size:0.75rem}.text-\[0\.7rem\]{font-size:0.7rem}.text-\[0\.85rem\]{font-size:0.85rem}.text-\[0\.8rem\]{font-size:0.8rem}.text-\[0\.95rem\]{font-size:0.95rem}.text-\[0\.9rem\]{font-size:0.9rem}.text-\[1\.5rem\]{font-size:1.5rem}.text-\[1rem\]{font-size:1rem}.text-\[clamp\(3\.5rem\2c 11vw\2c 5rem\)\]{font-size:clamp(3.5rem,11vw,5rem)}.text-sm{font-size:0.875rem;line-height:1.25rem}.font-\[850\]{font-weight:850}.font-black{font-weight:900}.font-bold{font-weight:700}.font-extrabold{font-weight:800}.font-medium{font-weight:500}.font-normal{font-weight:400}.font-semibold{font-weight:600}.uppercase{text-transform:uppercase}.leading-\[1\]{line-height:1}.leading-relaxed{line-height:1.625}.leading-tight{line-height:1.25}.tracking-\[-0\.04em\]{letter-spacing:-0.04em}.tracking-\[0\.2em\]{letter-spacing:0.2em}.tracking-tight{letter-spacing:-0.025em}.tracking-tighter{letter-spacing:-0.05em}.tracking-widest{letter-spacing:0.1em}.text-black{--tw-text-opacity:1;color:rgb(0 0 0 / var(--tw-text-opacity, 1))}.text-black\/30{color:rgb(0 0 0 / 0.3)}.text-black\/40{color:rgb(0 0 0 / 0.4)}.text-black\/50{color:rgb(0 0 0 / 0.5)}.text-text-secondary{--tw-text-opacity:1;color:rgb(91 95 102 / var(--tw-text-opacity, 1))}.text-text-secondary\/60{color:rgb(91 95 102 / 0.6)}.text-transparent{color:transparent}.text-white{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.no-underline{-webkit-text-decoration-line:none;text-decoration-line:none}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.opacity-0{opacity:0}.opacity-60{opacity:0.6}.shadow-\[0_-40px_80px_rgba\(0\2c 0\2c 0\2c 0\.06\)\]{--tw-shadow:0 -40px 80px rgba(0,0,0,0.06);--tw-shadow-colored:0 -40px 80px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-lg{--tw-shadow:0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-sm{--tw-shadow:0 1px 2px 0 rgb(0 0 0 / 0.05);--tw-shadow-colored:0 1px 2px 0 var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-xl{--tw-shadow:0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 20px 25px -5px var(--tw-shadow-color), 0 8px 10px -6px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-md{--tw-shadow:0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);--tw-shadow-colored:0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}.shadow-black\/10{--tw-shadow-color:rgb(0 0 0 / 0.1);--tw-shadow:var(--tw-shadow-colored)}.blur-\[100px\]{--tw-blur:blur(100px);filter:var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow)}.backdrop-blur{--tw-backdrop-blur:blur(8px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.backdrop-blur-xl{--tw-backdrop-blur:blur(24px);-webkit-backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);backdrop-filter:var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia)}.transition-all{transition-property:all;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.transition-colors{transition-property:color, background-color, border-color, fill, stroke, -webkit-text-decoration-color;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke;transition-property:color, background-color, border-color, text-decoration-color, fill, stroke, -webkit-text-decoration-color;transition-timing-function:cubic-bezier(0.4, 0, 0.2, 1);transition-duration:150ms}.duration-300{transition-duration:300ms}.duration-500{transition-duration:500ms}.selection\:bg-black *::selection{--tw-bg-opacity:1;background-color:rgb(0 0 0 / var(--tw-bg-opacity, 1))}.selection\:text-white *::selection{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.selection\:bg-black::selection{--tw-bg-opacity:1;background-color:rgb(0 0 0 / var(--tw-bg-opacity, 1))}.selection\:text-white::selection{--tw-text-opacity:1;color:rgb(255 255 255 / var(--tw-text-opacity, 1))}.hover\:scale-105:hover{--tw-scale-x:1.05;--tw-scale-y:1.05;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.hover\:text-black:hover{--tw-text-opacity:1;color:rgb(0 0 0 / var(--tw-text-opacity, 1))}.active\:scale-95:active{--tw-scale-x:.95;--tw-scale-y:.95;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.group:hover .group-hover\:-translate-y-1{--tw-translate-y:-0.25rem;transform:translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y))}.group:hover .group-hover\:border-black\/5{border-color:rgb(0 0 0 / 0.05)}.group:hover .group-hover\:shadow-\[0_24px_48px_-12px_rgba\(0\2c 0\2c 0\2c 0\.08\)\]{--tw-shadow:0 24px 48px -12px rgba(0,0,0,0.08);--tw-shadow-colored:0 24px 48px -12px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)}@media (min-width: 640px){.sm\:mb-1\.5{margin-bottom:0.375rem}.sm\:mb-3{margin-bottom:0.75rem}.sm\:block{display:block}.sm\:h-\[18px\]{height:18px}.sm\:w-4{width:1rem}.sm\:w-\[18px\]{width:18px}.sm\:grid-cols-2{grid-template-columns:repeat(2, minmax(0, 1fr))}.sm\:gap-2{gap:0.5rem}.sm\:gap-6{gap:1.5rem}.sm\:rounded-\[28px\]{border-radius:28px}.sm\:p-5{padding:1.25rem}.sm\:px-8{padding-left:2rem;padding-right:2rem}.sm\:py-4{padding-top:1rem;padding-bottom:1rem}.sm\:text-\[0\.6rem\]{font-size:0.6rem}.sm\:text-\[0\.75rem\]{font-size:0.75rem}.sm\:text-\[0\.9rem\]{font-size:0.9rem}.sm\:text-\[1\.05rem\]{font-size:1.05rem}.sm\:leading-normal{line-height:1.5}}@media (min-width: 768px){.md\:block{display:block}.md\:flex-row{flex-direction:row}.md\:text-left{text-align:left}.md\:text-\[1\.1rem\]{font-size:1.1rem}}@media (min-width: 1024px){.lg\:grid-cols-4{grid-template-columns:repeat(4, minmax(0, 1fr))}}</style></head>
 <body class="bg-white text-black font-inter antialiased selection:bg-black selection:text-white overflow-x-hidden">
 
 <header id="main-header" class="fixed top-0 left-0 right-0 z-[100] transition-all duration-500">
     <div class="max-w-[1100px] mx-auto px-6 pt-6">
-        <div id="nav-wrapper" class="bg-white/85 backdrop-blur-xl border border-black/5 rounded-full px-6 py-3 flex justify-between items-center shadow-sm">
+        <div id="nav-wrapper" class="nav-enter bg-white/85 backdrop-blur-xl border border-black/5 rounded-full px-6 py-3 flex justify-between items-center shadow-sm" style="transform: scale(1);">
             <div class="font-extrabold text-[0.95rem] tracking-tighter">PUFUTARA</div>
             <nav class="hidden md:block">
                 <ul class="flex gap-8 list-none">
@@ -100,26 +172,26 @@
     <section id="hero-section" class="sticky top-0 h-screen flex flex-col items-center justify-center text-center px-6 z-0 pointer-events-none">
         <div class="hero-gradient absolute inset-0 -z-10"></div>
         
-        <div id="hero-content" class="pointer-events-auto">
-            <h1 class="text-[clamp(3.5rem,11vw,5rem)] font-[850] leading-[1] tracking-[-0.04em] mb-6">
+        <div id="hero-content" class="hero-enter pointer-events-auto" style="transform: scale(1) translateY(0px); opacity: 1; filter: blur(0px);">
+            <h1 class="hero-stagger hero-title text-[clamp(3.5rem,11vw,5rem)] font-[850] leading-[1] tracking-[-0.04em] mb-6">
                 semua proyek,<br><span class="bg-clip-text text-transparent bg-gradient-to-r from-gray-500 to-gray-300">di satu tempat.</span>
             </h1>
-            <p class="text-text-secondary text-[1rem] md:text-[1.1rem] max-w-[500px] mx-auto mb-8 leading-relaxed font-normal">
+            <p class="hero-stagger hero-copy text-text-secondary text-[1rem] md:text-[1.1rem] max-w-[500px] mx-auto mb-8 leading-relaxed font-normal">
                 Koleksi lengkap proyek digital pufutara — dari OS eksperimental hingga alat produktivitas.
             </p>
-            <div class="flex flex-col items-center gap-6">
+            <div class="hero-stagger hero-actions flex flex-col items-center gap-6">
                 <a href="#proyek" class="bg-black text-white px-5 py-2.5 sm:px-8 sm:py-4 rounded-full font-bold text-[0.7rem] sm:text-[0.9rem] flex items-center gap-1.5 sm:gap-2 hover:scale-105 active:scale-95 transition-all shadow-lg shadow-black/10">
                     Jelajahi karya
                     <svg class="w-4 h-4 sm:w-[18px] sm:h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
                 </a>
                 <p class="text-[0.8rem] font-semibold text-text-secondary/60 flex items-center gap-2 animate-pulse">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 13l5 5 5-5M7 6l5 5 5-5"/></svg>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 13l5 5 5-5M7 6l5 5 5-5"></path></svg>
                     scroll untuk melihat keajaiban
                 </p>
             </div>
         </div>
         
-        <div class="absolute -z-20 w-[400px] h-[400px] bg-gray-200/40 rounded-full blur-[100px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+        <div class="hero-ambient absolute -z-20 w-[400px] h-[400px] bg-gray-200/40 rounded-full blur-[100px] top-1/2 left-1/2"></div>
     </section>
 
     <section id="proyek" class="relative z-10 bg-white shadow-[0_-40px_80px_rgba(0,0,0,0.06)] rounded-t-[48px] pb-32 border-t border-black/[0.02]">
@@ -135,7 +207,7 @@
 
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
                 <!-- 1. PufutaraOS -->
-                <a href="/os/index.html" target="_blank" class="group reveal-item block no-underline">
+                <a href="/os/index.html" target="_blank" class="group reveal-item block no-underline revealed">
                     <div class="bg-white border border-border-light rounded-[20px] sm:rounded-[28px] p-3.5 sm:p-5 h-full transition-all duration-500 group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] group-hover:border-black/5 group-hover:-translate-y-1">
                         <div class="card-image-container relative" style="--card-cover: url('/foto/cover1.png');"></div>
                         <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
@@ -148,7 +220,7 @@
                     </div>
                 </a>
                 <!-- 2. PufutaraTube -->
-                <a href="/tube/index.html" target="_blank" class="group reveal-item block no-underline">
+                <a href="/tube/index.html" target="_blank" class="group reveal-item block no-underline revealed">
                     <div class="bg-white border border-border-light rounded-[20px] sm:rounded-[28px] p-3.5 sm:p-5 h-full transition-all duration-500 group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] group-hover:border-black/5 group-hover:-translate-y-1">
                         <div class="card-image-container relative" style="--card-cover: url('/foto/cover2.png');"></div>
                         <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
@@ -161,7 +233,7 @@
                     </div>
                 </a>
                 <!-- 3. PufutaraChat -->
-                <a href="/chat/index.html" target="_blank" class="group reveal-item block no-underline">
+                <a href="/chat/index.html" target="_blank" class="group reveal-item block no-underline revealed">
                     <div class="bg-white border border-border-light rounded-[20px] sm:rounded-[28px] p-3.5 sm:p-5 h-full transition-all duration-500 group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] group-hover:border-black/5 group-hover:-translate-y-1">
                         <div class="card-image-container relative" style="--card-cover: url('/foto/cover3.png');"></div>
                         <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
@@ -174,7 +246,7 @@
                     </div>
                 </a>
                 <!-- 4. PufutaraDrive -->
-                <a href="/drive/index.html" target="_blank" class="group reveal-item block no-underline">
+                <a href="/drive/index.html" target="_blank" class="group reveal-item block no-underline revealed">
                     <div class="bg-white border border-border-light rounded-[20px] sm:rounded-[28px] p-3.5 sm:p-5 h-full transition-all duration-500 group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] group-hover:border-black/5 group-hover:-translate-y-1">
                         <div class="card-image-container relative" style="--card-cover: url('/foto/cover4.png');"></div>
                         <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
@@ -187,7 +259,7 @@
                     </div>
                 </a>
                 <!-- 5. PufutaraGallery -->
-                <a href="/gallery/index.html" target="_blank" class="group reveal-item block no-underline">
+                <a href="/gallery/index.html" target="_blank" class="group reveal-item block no-underline revealed">
                     <div class="bg-white border border-border-light rounded-[20px] sm:rounded-[28px] p-3.5 sm:p-5 h-full transition-all duration-500 group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] group-hover:border-black/5 group-hover:-translate-y-1">
                         <div class="card-image-container relative" style="--card-cover: url('/foto/cover5.png');"></div>
                         <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
@@ -200,7 +272,7 @@
                     </div>
                 </a>
                 <!-- 6. PufutaraAudio -->
-                <a href="/audio/index.html" target="_blank" class="group reveal-item block no-underline">
+                <a href="/audio/index.html" target="_blank" class="group reveal-item block no-underline revealed">
                     <div class="bg-white border border-border-light rounded-[20px] sm:rounded-[28px] p-3.5 sm:p-5 h-full transition-all duration-500 group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] group-hover:border-black/5 group-hover:-translate-y-1">
                         <div class="card-image-container relative" style="--card-cover: url('/foto/cover6.png');"></div>
                         <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
@@ -213,7 +285,7 @@
                     </div>
                 </a>
                 <!-- 7. MiniGames -->
-                <a href="/game/index.html" target="_blank" class="group reveal-item block no-underline">
+                <a href="/game/index.html" target="_blank" class="group reveal-item block no-underline revealed">
                     <div class="bg-white border border-border-light rounded-[20px] sm:rounded-[28px] p-3.5 sm:p-5 h-full transition-all duration-500 group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] group-hover:border-black/5 group-hover:-translate-y-1">
                         <div class="card-image-container relative" style="--card-cover: url('/foto/cover7.png');"></div>
                         <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
@@ -226,7 +298,7 @@
                     </div>
                 </a>
                 <!-- 8. ProPaint -->
-                <a href="/paint/index.html" target="_blank" class="group reveal-item block no-underline">
+                <a href="/paint/index.html" target="_blank" class="group reveal-item block no-underline revealed">
                     <div class="bg-white border border-border-light rounded-[20px] sm:rounded-[28px] p-3.5 sm:p-5 h-full transition-all duration-500 group-hover:shadow-[0_24px_48px_-12px_rgba(0,0,0,0.08)] group-hover:border-black/5 group-hover:-translate-y-1">
                         <div class="card-image-container relative" style="--card-cover: url('/foto/cover8.png');"></div>
                         <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
@@ -325,7 +397,7 @@
                             <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
                             <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Utility</span>
                         </div>
-                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">News & Calc</h3>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">News &amp; Calc</h3>
                         <p class="text-text-secondary text-[0.65rem] sm:text-[0.75rem] leading-relaxed line-clamp-2">Baca berita terbaru atau pakai kalkulator sains akurat buat bantu tugas Labkom kamu.</p>
                     </div>
                 </a>
@@ -587,7 +659,7 @@
         </div>
         <div class="pt-8 border-t border-black/[0.04] flex flex-col md:flex-row justify-between items-center text-text-secondary text-[0.75rem] gap-4 opacity-60">
             <p>© 2026 Pufutara. Berawal dari Labkom 1, SMPIT Assyifa.</p>
-            <p>Designed with Precision & Love by Putra Azzam.</p>
+            <p>Designed with Precision &amp; Love by Putra Azzam.</p>
         </div>
     </div>
 </footer>
@@ -647,5 +719,6 @@
         }
     }
 </script>
-</body>
-</html>
+
+
+</body></html>
