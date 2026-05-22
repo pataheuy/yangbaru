@@ -1,10 +1,8 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
+<html lang="id"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pufutara OS v5.5 - Ultimate Edition</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Poppins:wght@600;700&amp;display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
@@ -83,7 +81,7 @@ body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; overflow: hidden
     position: fixed;
     inset: 0;
     background: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.5)), 
-                url('../wallpapersemua.png') center/cover no-repeat;
+                url('../foto/wallpapersemua.png') center/cover no-repeat;
     z-index: 10000;
     display: none;
     flex-direction: column;
@@ -166,7 +164,7 @@ body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; overflow: hidden
 /* --- 4. DESKTOP ANIMATION --- */
 #desktop {
     width: 100vw; height: 100vh; position: relative;
-    background: url('wallpapersemua.png') center/cover no-repeat;
+    background: url('../foto/wallpapersemua.png') center/cover no-repeat;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -343,6 +341,8 @@ body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; overflow: hidden
     transform: scale(0.8); opacity: 0;
     transition: transform 0.4s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.3s ease;
     border: 1px solid var(--border);
+    min-width: 320px;
+    min-height: 260px;
 }
 .window.open { transform: scale(1); opacity: 1; }
 .window.dragging { transition: none; opacity: 0.95; box-shadow: 0 30px 60px rgba(0,0,0,0.15); }
@@ -500,6 +500,49 @@ body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; overflow: hidden
 .browser-home-btn:hover {
     border-color: #dadce0;
     box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+}
+.browser-pins {
+    width: min(620px, 88%);
+    margin-top: 22px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+    gap: 10px;
+}
+.browser-pin {
+    position: relative;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    border-radius: 8px;
+    padding: 12px 32px 12px 12px;
+    cursor: pointer;
+    text-align: left;
+    min-height: 58px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+.browser-pin:hover { border-color: #93c5fd; background: #f8fafc; }
+.browser-pin-title { font-weight: 700; font-size: 13px; color: #111827; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.browser-pin-url { font-size: 11px; color: #6b7280; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 4px; }
+.browser-pin-delete {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    width: 22px;
+    height: 22px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: #9ca3af;
+    cursor: pointer;
+}
+.browser-pin-delete:hover { background: #fee2e2; color: #dc2626; }
+.browser-add-pin {
+    border-style: dashed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: #2563eb;
+    font-weight: 700;
 }
 
 /* --- SETTINGS UI --- */
@@ -1375,6 +1418,158 @@ body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; overflow: hidden
     background: #f3f4f6;
     border-color: #9ca3af;
 }
+
+/* --- LOCAL APPS --- */
+.photos-app, .contacts-app, .mail-app {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    color: #111827;
+}
+.local-app-toolbar {
+    padding: 12px 14px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+.local-app-title { font-weight: 800; font-size: 15px; }
+.local-app-btn {
+    border: 1px solid #d1d5db;
+    background: #fff;
+    border-radius: 7px;
+    padding: 7px 10px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.local-app-btn.primary { background: #2563eb; border-color: #2563eb; color: #fff; }
+.local-app-btn.danger { background: #fee2e2; border-color: #fecaca; color: #b91c1c; }
+.local-app-empty {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #6b7280;
+    padding: 30px;
+}
+.photos-grid {
+    flex: 1;
+    overflow: auto;
+    padding: 14px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    align-content: start;
+    gap: 12px;
+}
+.photo-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+}
+.photo-card img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    display: block;
+    cursor: pointer;
+}
+.photo-card-meta {
+    padding: 8px;
+    display: flex;
+    justify-content: space-between;
+    gap: 6px;
+    align-items: center;
+    font-size: 11px;
+}
+.photo-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #374151; }
+.photo-preview {
+    position: absolute;
+    inset: 0;
+    background: rgba(17,24,39,0.88);
+    display: flex;
+    flex-direction: column;
+    z-index: 30;
+}
+.photo-preview-header {
+    padding: 10px 14px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.photo-preview-stage {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+}
+.photo-preview-stage img {
+    max-width: 96%;
+    max-height: 96%;
+    border-radius: 8px;
+    box-shadow: 0 18px 60px rgba(0,0,0,0.35);
+}
+.contacts-layout, .mail-layout {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 220px 1fr;
+}
+.contacts-list, .mail-list {
+    border-right: 1px solid #e5e7eb;
+    overflow: auto;
+    background: #f8fafc;
+}
+.contact-item, .mail-item {
+    padding: 12px;
+    border-bottom: 1px solid #e5e7eb;
+    cursor: pointer;
+}
+.contact-item:hover, .mail-item:hover { background: #eef2ff; }
+.contact-item.active, .mail-item.active { background: #dbeafe; }
+.contact-name, .mail-subject { font-weight: 800; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.contact-meta, .mail-meta { font-size: 11px; color: #6b7280; margin-top: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.contact-detail, .mail-detail {
+    min-width: 0;
+    overflow: auto;
+    padding: 16px;
+}
+.local-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.local-form input, .local-form textarea, .local-form select {
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 7px;
+    padding: 9px 10px;
+    font: inherit;
+    outline: none;
+}
+.local-form textarea {
+    min-height: 170px;
+    resize: vertical;
+}
+.local-form input:focus, .local-form textarea:focus, .local-form select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37,99,235,0.12);
+}
+.mail-actions, .contact-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+}
 .file-viewer {
     height: 100%;
     display: flex;
@@ -1610,23 +1805,23 @@ body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; overflow: hidden
 <body>
 
 <!-- WELCOME SCREEN -->
-<div id="welcome-screen">
+<div id="welcome-screen" style="opacity: 0; display: none;">
     <div class="welcome-logo">Pufutara OS</div>
     <div class="welcome-subtitle">v5.5 Ultimate Edition</div>
-    <div class="welcome-loader"><div class="welcome-progress" id="welcome-bar"></div></div>
+    <div class="welcome-loader"><div class="welcome-progress" id="welcome-bar" style="width: 100%;"></div></div>
     <div class="welcome-tip">"The ultimate web-based operating system experience"</div>
 </div>
 
 <!-- BOOT SCREEN -->
-<div id="boot-screen">
+<div id="boot-screen" style="opacity: 0; display: none;">
     <div class="boot-logo">Pufutara OS</div>
-    <div class="boot-loader"><div class="boot-progress" id="boot-bar"></div></div>
+    <div class="boot-loader"><div class="boot-progress" id="boot-bar" style="width: 100%;"></div></div>
 </div>
 
 <!-- LOCKSCREEN -->
-<div id="lockscreen" onclick="showPasswordPanel()">
-    <div class="lockscreen-time" id="lockscreen-time">--:--</div>
-    <div class="lockscreen-date" id="lockscreen-date">---, -- --- ----</div>
+<div id="lockscreen" onclick="showPasswordPanel()" style="display: flex;">
+    <div class="lockscreen-time" id="lockscreen-time">21.15</div>
+    <div class="lockscreen-date" id="lockscreen-date">Kamis, 21 Mei 2026</div>
     <!-- Panel Password -->
     <div class="lockscreen-panel" id="passwordPanel" onclick="event.stopPropagation()">
         <div class="panel-title">Masukkan kata sandi</div>
@@ -1697,7 +1892,7 @@ body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; overflow: hidden
                 <div class="control-dropdown" id="battery-dropdown">
                     <div class="slider-container">
                         <label>Battery Saver</label>
-                        <input type="range" min="0" max="100" value="92" class="slider" id="battery-slider" disabled>
+                        <input type="range" min="0" max="100" value="92" class="slider" id="battery-slider" disabled="">
                     </div>
                     <div class="control-option"><i class="fas fa-bolt"></i>Mode Hemat Daya: <span id="saver-status">Off</span></div>
                 </div>
@@ -1717,7 +1912,7 @@ body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; overflow: hidden
             <span class="widget-tray-close" onclick="closeWidgetTray()">×</span>
         </div>
         <div class="widget-tray-item" onclick="addWidget('clock')">
-            <i class="fas fa-clock"></i> Jam & Tanggal
+            <i class="fas fa-clock"></i> Jam &amp; Tanggal
         </div>
         <div class="widget-tray-item" onclick="addWidget('system')">
             <i class="fas fa-chart-bar"></i> Monitor Sistem
@@ -1763,7 +1958,7 @@ body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; overflow: hidden
     <!-- START MENU -->
     <div class="start-menu" id="startMenu" onclick="event.stopPropagation()">
         <input type="text" class="start-search" placeholder="Cari aplikasi...">
-        <div style="font-size:12px; color:#666; margin-bottom:10px; padding-left:5px;">System & Apps</div>
+        <div style="font-size:12px; color:#666; margin-bottom:10px; padding-left:5px;">System &amp; Apps</div>
         <div class="start-grid">
             <!-- System Apps -->
             <div class="start-item" onclick="openApp('files'); toggleStart()"><div class="start-icon">📁</div><div class="start-label">File Explorer</div></div>
@@ -1802,9 +1997,6 @@ body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; overflow: hidden
             </div>
             <div class="start-item" onclick="window.open('https://translate.google.com','_blank'); toggleStart()">
                 <div class="start-icon" style="color:#4285f4;">文</div><div class="start-label">Translate</div>
-            </div>
-            <div class="start-item" onclick="window.open('https://photos.google.com','_blank'); toggleStart()">
-                <div class="start-icon" style="color:#fbbc04;">📸</div><div class="start-label">Photos</div>
             </div>
             <div class="start-item" onclick="window.open('https://docs.google.com','_blank'); toggleStart()">
                 <div class="start-icon" style="color:#34a853;">📊</div><div class="start-label">Docs</div>
@@ -1875,6 +2067,20 @@ let taskbarAutoHide = true;
 let desktopPins = [];
 let desktopPinDrag = null;
 let modalResolver = null;
+const DEFAULT_WALLPAPER = '../foto/wallpapersemua.png';
+const STORAGE_KEYS = {
+    notes: 'pufutara_notes_content',
+    textEditor: 'pufutara_texteditor_content',
+    browserPins: 'pufutara_browser_pins',
+    contacts: 'pufutara_contacts',
+    letters: 'pufutara_mail_letters',
+    folders: 'pufutara_virtual_folders'
+};
+let browserPins = [];
+let contacts = [];
+let letters = [];
+let activeContactId = null;
+let activeLetterId = null;
 
 // File Manager variables
 let currentFolder = 'home';
@@ -1944,6 +2150,7 @@ let fileDetails = {
 
 let recycleBin = [];
 let virtualFiles = {};
+let virtualFolders = {};
 
 // Music player variables
 let musicPlaylist = [];
@@ -2091,10 +2298,8 @@ function loadSavedData() {
     pinnedApps = sanitizePinnedApps(pinnedApps);
     savePinnedApps();
     
-    const savedWallpaper = localStorage.getItem('pufutara_wallpaper');
-    if(savedWallpaper) {
-        document.getElementById('desktop').style.backgroundImage = `url(${savedWallpaper})`;
-    }
+    const savedWallpaper = localStorage.getItem('pufutara_wallpaper') || DEFAULT_WALLPAPER;
+    document.getElementById('desktop').style.backgroundImage = `url(${savedWallpaper})`;
     
     const savedSound = localStorage.getItem('pufutara_sound');
     if(savedSound) {
@@ -2124,8 +2329,13 @@ function loadSavedData() {
     if(savedDesktopPins) {
         desktopPins = JSON.parse(savedDesktopPins).filter(pin => pin && pin.appId && pin.appId !== 'start');
     }
+    ensureDefaultDesktopPins();
 
+    loadVirtualFolders();
     loadVirtualFiles();
+    loadBrowserPins();
+    loadContacts();
+    loadLetters();
 }
 
 function savePinnedApps() {
@@ -2185,6 +2395,29 @@ function saveVirtualFiles() {
     localStorage.setItem('pufutara_virtual_files', JSON.stringify(virtualFiles));
 }
 
+function saveVirtualFolders() {
+    localStorage.setItem(STORAGE_KEYS.folders, JSON.stringify(virtualFolders));
+}
+
+function loadVirtualFolders() {
+    virtualFolders = readJsonStorage(STORAGE_KEYS.folders, {});
+    if (!virtualFolders || typeof virtualFolders !== 'object' || Array.isArray(virtualFolders)) {
+        virtualFolders = {};
+    }
+
+    Object.entries(virtualFolders).forEach(([folderId, folder]) => {
+        fileSystem[folderId] = {
+            name: folder.name || folderId,
+            type: 'folder',
+            items: Array.isArray(folder.items) ? folder.items : []
+        };
+        const parentId = folder.parent || 'home';
+        if (fileSystem[parentId] && !fileSystem[parentId].items.includes(folderId)) {
+            fileSystem[parentId].items.push(folderId);
+        }
+    });
+}
+
 function loadVirtualFiles() {
     const savedFiles = localStorage.getItem('pufutara_virtual_files');
     if (!savedFiles) return;
@@ -2212,6 +2445,10 @@ function persistVirtualFile(filename, details, folderId = 'pictures') {
 
     if (fileSystem[folderId] && !fileSystem[folderId].items.includes(filename)) {
         fileSystem[folderId].items.push(filename);
+    }
+    if (virtualFolders[folderId] && !virtualFolders[folderId].items.includes(filename)) {
+        virtualFolders[folderId].items.push(filename);
+        saveVirtualFolders();
     }
 
     saveVirtualFiles();
@@ -2241,7 +2478,11 @@ function getDemoFileContent(filename) {
 function downloadVirtualFile(filename) {
     const dataUrl = getFileDataUrl(filename);
     if (!dataUrl) {
-        alert('File ini hanya contoh dan belum punya data untuk diunduh.');
+        showUiConfirm({
+            title: 'Download',
+            message: 'File ini hanya contoh dan belum punya data untuk diunduh.',
+            confirmText: 'OK'
+        });
         return;
     }
 
@@ -2277,6 +2518,57 @@ function escapeHtml(value) {
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;');
+}
+
+function loadBrowserPins() {
+    const encyclopediaPage = 'data:text/html;charset=utf-8,' + encodeURIComponent('<!doctype html><html><head><meta charset="utf-8"><title>Ensiklopedia Pufutara</title><style>body{font-family:Inter,Arial,sans-serif;margin:32px;line-height:1.6;color:#111827}h1{margin-top:0}a{color:#2563eb}</style></head><body><h1>Ensiklopedia Pufutara</h1><p>Halaman ensiklopedia ringan yang bisa dibuka langsung di iframe Pufutara Browser.</p><p>Tambahkan pinned web lain dari tombol Tambah di halaman utama browser.</p></body></html>');
+    const defaults = [
+        { id: 'pin-ensiklopedia', title: 'Ensiklopedia', url: encyclopediaPage },
+        { id: 'pin-pufutara', title: 'Pufutara', url: 'https://pufutara.vercel.app' },
+        { id: 'pin-example', title: 'Example', url: 'https://example.com' },
+        { id: 'pin-cern', title: 'CERN', url: 'https://info.cern.ch' }
+    ];
+    browserPins = readJsonStorage(STORAGE_KEYS.browserPins, defaults);
+    if (!Array.isArray(browserPins) || browserPins.length === 0) browserPins = defaults;
+    saveBrowserPins();
+}
+
+function saveBrowserPins() {
+    localStorage.setItem(STORAGE_KEYS.browserPins, JSON.stringify(browserPins));
+}
+
+function readJsonStorage(key, fallback) {
+    try {
+        const value = localStorage.getItem(key);
+        return value ? JSON.parse(value) : fallback;
+    } catch (error) {
+        console.warn(`Gagal membaca ${key}:`, error);
+        return fallback;
+    }
+}
+
+function normalizeUrl(url) {
+    const trimmed = String(url || '').trim();
+    if (!trimmed) return '';
+    if (/^(https?:|data:|about:)/i.test(trimmed)) return trimmed;
+    return `https://${trimmed}`;
+}
+
+function makeId(prefix) {
+    return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function uniqueName(baseName, exists) {
+    const dot = baseName.lastIndexOf('.');
+    const stem = dot > 0 ? baseName.slice(0, dot) : baseName;
+    const ext = dot > 0 ? baseName.slice(dot) : '';
+    let candidate = `${stem}${ext}`;
+    let index = 2;
+    while (exists(candidate)) {
+        candidate = `${stem} (${index})${ext}`;
+        index++;
+    }
+    return candidate;
 }
 
 // ========== CLOCK ==========
@@ -2709,6 +3001,20 @@ function pinAppToDesktop(appId) {
     });
     saveDesktopPins();
     renderDesktopPins();
+}
+
+function ensureDefaultDesktopPins() {
+    ['files', 'browser'].forEach(appId => {
+        if (desktopPins.some(pin => pin.appId === appId)) return;
+        const index = desktopPins.length;
+        desktopPins.push({
+            id: `desktop-${appId}-default`,
+            appId,
+            x: 24 + (index % 2) * 96,
+            y: 24 + Math.floor(index / 2) * 96
+        });
+    });
+    saveDesktopPins();
 }
 
 function renderDesktopPins() {
@@ -3159,89 +3465,6 @@ function selectFile(filename, event) {
 function updatePreview(filename) {
     const previewContent = document.getElementById('file-preview-content');
     if (!previewContent) return;
-    
-    const details = fileDetails[filename];
-    const isFolder = fileSystem[filename] !== undefined;
-    
-    if (isFolder) {
-        previewContent.innerHTML = `
-            <div class="file-preview-icon">📁</div>
-            <div class="file-preview-info">
-                <div class="file-preview-info-row"><span class="file-preview-label">Name:</span><span class="file-preview-value">${filename}</span></div>
-                <div class="file-preview-info-row"><span class="file-preview-label">Type:</span><span class="file-preview-value">Folder</span></div>
-                <div class="file-preview-info-row"><span class="file-preview-label">Items:</span><span class="file-preview-value">${fileSystem[filename].items.length}</span></div>
-            </div>
-        `;
-    } else if (details) {
-        let previewHtml = `
-            <div class="file-preview-icon">${details.icon || '📄'}</div>
-            <div class="file-preview-info">
-                <div class="file-preview-info-row"><span class="file-preview-label">Name:</span><span class="file-preview-value">${filename}</span></div>
-                <div class="file-preview-info-row"><span class="file-preview-label">Type:</span><span class="file-preview-value">${details.type}</span></div>
-                <div class="file-preview-info-row"><span class="file-preview-label">Size:</span><span class="file-preview-value">${details.size}</span></div>
-                <div class="file-preview-info-row"><span class="file-preview-label">Modified:</span><span class="file-preview-value">${details.modified}</span></div>
-            </div>
-        `;
-        
-        // Preview khusus untuk gambar
-        if (details.type === 'image') {
-            previewHtml = `
-                <img src="https://via.placeholder.com/200?text=${filename}" class="file-preview-image" alt="Preview">
-                ${previewHtml}
-            `;
-        }
-        // Preview untuk video
-        else if (details.type === 'video') {
-            previewHtml = `
-                <video class="file-preview-video" controls>
-                    <source src="#" type="video/mp4">
-                    Your browser does not support video.
-                </video>
-                ${previewHtml}
-            `;
-        }
-        // Preview untuk teks
-        else if (details.type === 'text' || details.type === 'code') {
-            previewHtml = `
-                <div class="file-preview-text">Ini adalah contoh isi file teks.\n\nFile: ${filename}\nUkuran: ${details.size}\n\nLorem ipsum dolor sit amet...</div>
-                ${previewHtml}
-            `;
-        }
-        
-        previewContent.innerHTML = previewHtml;
-    }
-}
-
-function openFile(filename) {
-    const isFolder = fileSystem[filename] !== undefined;
-    if (isFolder) {
-        navigateToFolder(filename);
-    } else {
-        const details = fileDetails[filename];
-        if (details) {
-            if (details.type === 'image') {
-                alert(`Membuka gambar: ${filename}`);
-            } else if (details.type === 'audio') {
-                alert(`Memutar musik: ${filename}`);
-                // Bisa integrasi dengan music player
-            } else if (details.type === 'video') {
-                alert(`Memutar video: ${filename}`);
-                // Buka video player
-                openApp('video');
-            } else if (details.type === 'document' || details.type === 'text' || details.type === 'code') {
-                alert(`Membuka dokumen: ${filename}`);
-                // Buka text editor
-                openApp('texteditor');
-            } else {
-                alert(`Membuka file: ${filename}`);
-            }
-        }
-    }
-}
-
-function updatePreview(filename) {
-    const previewContent = document.getElementById('file-preview-content');
-    if (!previewContent) return;
 
     const details = fileDetails[filename];
     const isFolder = fileSystem[filename] !== undefined;
@@ -3326,26 +3549,43 @@ function searchFiles(query) {
     }
 }
 
-function createNewFolder() {
-    const folderName = prompt('Masukkan nama folder baru:');
-    if (folderName && folderName.trim()) {
-        const newFolderId = folderName.toLowerCase().replace(/\s+/g, '_');
-        if (!fileSystem[newFolderId]) {
-            fileSystem[newFolderId] = {
-                name: folderName,
-                type: 'folder',
-                items: []
-            };
-            fileSystem[currentFolder].items.push(newFolderId);
-            
-            const win = document.querySelector('.window[id^="win-files"]');
-            if (win) {
-                renderFileManager(win.querySelector('.win-content'));
-            }
-        } else {
-            alert('Folder dengan nama tersebut sudah ada!');
-        }
+async function createNewFolder() {
+    const folderName = await showUiPrompt({
+        title: 'Folder Baru',
+        message: 'Masukkan nama folder baru.',
+        value: 'Folder Baru',
+        confirmText: 'Buat'
+    });
+    if (!folderName || !folderName.trim()) return;
+
+    const cleanName = folderName.trim();
+    const newFolderId = makeFolderId(cleanName);
+    if (fileSystem[newFolderId] || fileSystem[currentFolder].items.includes(newFolderId)) {
+        await showUiConfirm({
+            title: 'Nama sudah ada',
+            message: 'Folder dengan nama tersebut sudah ada. Pilih nama lain.',
+            confirmText: 'OK'
+        });
+        return;
     }
+
+    fileSystem[newFolderId] = {
+        name: cleanName,
+        type: 'folder',
+        items: []
+    };
+    virtualFolders[newFolderId] = {
+        name: cleanName,
+        parent: currentFolder,
+        items: []
+    };
+    fileSystem[currentFolder].items.push(newFolderId);
+    if (virtualFolders[currentFolder] && !virtualFolders[currentFolder].items.includes(newFolderId)) {
+        virtualFolders[currentFolder].items.push(newFolderId);
+    }
+    saveVirtualFolders();
+    selectedFiles = [newFolderId];
+    refreshOpenFileManager();
 }
 
 function splitFilename(filename) {
@@ -3396,6 +3636,11 @@ async function renameSelected() {
         if (!folder.items) return;
         folder.items = folder.items.map(item => item === oldName ? newName : item);
     });
+    Object.values(virtualFolders).forEach(folder => {
+        if (!folder.items) return;
+        folder.items = folder.items.map(item => item === oldName ? newName : item);
+    });
+    if (Object.keys(virtualFolders).length) saveVirtualFolders();
 
     if (isFolder) {
         fileSystem[newName] = {
@@ -3403,6 +3648,14 @@ async function renameSelected() {
             name: cleanBase
         };
         delete fileSystem[oldName];
+        if (virtualFolders[oldName]) {
+            virtualFolders[newName] = {
+                ...virtualFolders[oldName],
+                name: cleanBase
+            };
+            delete virtualFolders[oldName];
+            saveVirtualFolders();
+        }
     } else {
         fileDetails[newName] = {
             ...fileDetails[oldName],
@@ -3460,6 +3713,15 @@ async function deleteSelected() {
                     delete virtualFiles[filename];
                     saveVirtualFiles();
                 }
+                if (virtualFolders[filename]) {
+                    delete virtualFolders[filename];
+                    delete fileSystem[filename];
+                    saveVirtualFolders();
+                }
+                if (virtualFolders[currentFolder]) {
+                    virtualFolders[currentFolder].items = virtualFolders[currentFolder].items.filter(item => item !== filename);
+                    saveVirtualFolders();
+                }
             }
         });
         
@@ -3473,17 +3735,44 @@ async function deleteSelected() {
     }
 }
 
-function compressSelected() {
+async function compressSelected() {
     if (selectedFiles.length === 0) {
-        alert('Pilih file/folder yang akan dikompres');
+        await showUiConfirm({
+            title: 'Compress',
+            message: 'Pilih file/folder yang akan dikompres.',
+            confirmText: 'OK'
+        });
         return;
     }
-    
-    const zipName = prompt('Nama file archive:', 'archive.zip');
-    if (zipName) {
-        alert(`Membuat archive ${zipName} dengan ${selectedFiles.length} item (simulasi)`);
-        // Di sini bisa implementasi zip sungguhan dengan JSZIP
-    }
+
+    const input = await showUiPrompt({
+        title: 'Compress',
+        message: `Buat archive dari ${selectedFiles.length} item.`,
+        value: 'archive.zip',
+        confirmText: 'Compress'
+    });
+    if (!input || !input.trim()) return;
+
+    const requested = input.trim().toLowerCase().endsWith('.zip') ? input.trim() : `${input.trim()}.zip`;
+    const zipName = uniqueName(requested, name => fileDetails[name] || fileSystem[name] || fileSystem[currentFolder].items.includes(name));
+    const modified = new Date().toISOString().split('T')[0];
+    const simulatedSize = formatBytes(Math.max(1024, selectedFiles.length * 48 * 1024));
+
+    persistVirtualFile(zipName, {
+        type: 'archive',
+        size: simulatedSize,
+        modified,
+        icon: '🗜️',
+        content: `Pufutara archive\n\nIsi:\n${selectedFiles.map(item => `- ${item}`).join('\n')}`
+    }, currentFolder);
+
+    selectedFiles = [zipName];
+    refreshOpenFileManager();
+    await showUiConfirm({
+        title: 'Archive dibuat',
+        message: `${zipName} berhasil dibuat di folder ini.`,
+        confirmText: 'OK'
+    });
 }
 
 function openRecycleBin() {
@@ -3682,6 +3971,7 @@ function openTextFile(filename) {
         const textarea = win?.querySelector('textarea');
         if (textarea) {
             textarea.value = getDemoFileContent(filename);
+            saveTextEditorContent(textarea.value);
             win.querySelector('.win-title').textContent = filename;
         }
     }, 80);
@@ -3809,14 +4099,10 @@ function browserGo(btn) {
     if(!url.includes('.') || url.includes(' ')) {
         fullUrl = 'https://www.bing.com/search?q=' + encodeURIComponent(url);
     } else {
-        if(!url.startsWith('http')) fullUrl = 'https://' + url;
+        fullUrl = normalizeUrl(url);
     }
-    
-    const frame = win.querySelector('.browser-frame');
-    frame.src = fullUrl;
-    frame.style.display = 'block';
-    win.querySelector('.browser-home').style.display = 'none';
-    win.querySelector('.browser-url').value = fullUrl;
+
+    browserOpenUrl(win, fullUrl);
 }
 
 function browserHandleUrl(e, input) { 
@@ -3829,11 +4115,7 @@ function browserHomeSearch(e, input) {
         const query = input.value.trim();
         if(!query) return;
         const url = 'https://www.bing.com/search?q=' + encodeURIComponent(query);
-        const frame = win.querySelector('.browser-frame');
-        frame.src = url;
-        frame.style.display = 'block';
-        win.querySelector('.browser-home').style.display = 'none';
-        win.querySelector('.browser-url').value = url;
+        browserOpenUrl(win, url);
     }
 }
 
@@ -3843,11 +4125,72 @@ function browserSearch(btn) {
     const query = input.value.trim();
     if(!query) return;
     const url = 'https://www.bing.com/search?q=' + encodeURIComponent(query);
+    browserOpenUrl(win, url);
+}
+
+function browserOpenUrl(win, url) {
+    if (!win) return;
     const frame = win.querySelector('.browser-frame');
-    frame.src = url;
+    const fullUrl = normalizeUrl(url);
+    frame.src = fullUrl;
     frame.style.display = 'block';
     win.querySelector('.browser-home').style.display = 'none';
-    win.querySelector('.browser-url').value = url;
+    win.querySelector('.browser-url').value = fullUrl;
+}
+
+function renderBrowserPins(win = document.querySelector('#win-browser')) {
+    const container = win?.querySelector('.browser-pins');
+    if (!container) return;
+
+    const pinsHtml = browserPins.map(pin => `
+        <div class="browser-pin" onclick="browserOpenPin(this, '${escapeHtml(pin.id)}')" title="${escapeHtml(pin.url)}">
+            <button class="browser-pin-delete" onclick="removeBrowserPin(event, '${escapeHtml(pin.id)}')" title="Hapus"><i class="fas fa-times"></i></button>
+            <div class="browser-pin-title">${escapeHtml(pin.title)}</div>
+            <div class="browser-pin-url">${escapeHtml(pin.url.replace(/^https?:\/\//, ''))}</div>
+        </div>
+    `).join('');
+
+    container.innerHTML = `
+        ${pinsHtml}
+        <button class="browser-pin browser-add-pin" onclick="addBrowserPin(this)">
+            <i class="fas fa-plus"></i> Tambah
+        </button>
+    `;
+}
+
+async function addBrowserPin(btn) {
+    const title = await showUiPrompt({
+        title: 'Tambah Pinned Web',
+        message: 'Masukkan nama situs.',
+        value: 'Situs Baru',
+        confirmText: 'Lanjut'
+    });
+    if (!title || !title.trim()) return;
+
+    const url = await showUiPrompt({
+        title: 'Tambah Pinned Web',
+        message: 'Masukkan URL situs.',
+        value: 'https://example.com',
+        confirmText: 'Tambah'
+    });
+    const fullUrl = normalizeUrl(url);
+    if (!fullUrl) return;
+
+    browserPins.push({ id: makeId('pin'), title: title.trim(), url: fullUrl });
+    saveBrowserPins();
+    renderBrowserPins(btn.closest('.window'));
+}
+
+function removeBrowserPin(event, id) {
+    event.stopPropagation();
+    browserPins = browserPins.filter(pin => pin.id !== id);
+    saveBrowserPins();
+    renderBrowserPins(event.target.closest('.window'));
+}
+
+function browserOpenPin(el, id) {
+    const pin = browserPins.find(item => item.id === id);
+    if (pin) browserOpenUrl(el.closest('.window'), pin.url);
 }
 
 function setupBrowserFrame(frame) {
@@ -4065,8 +4408,8 @@ function capturePhoto() {
         dataUrl
     }, 'pictures');
 
-    downloadVirtualFile(filename);
     refreshOpenFileManager();
+    renderPhotosApp();
 
     const flash = document.getElementById('camera-flash');
     if (flash) {
@@ -4074,7 +4417,283 @@ function capturePhoto() {
         setTimeout(() => flash.classList.remove('active'), 120);
     }
 
-    showCameraStatus(`${filename} disimpan ke Pictures dan diunduh.`);
+    showCameraStatus(`${filename} disimpan ke Pictures dan Photos.`);
+}
+
+// ========== PHOTOS, CONTACTS, MAIL, EDITOR STORAGE ==========
+function getPufutaraPhotos() {
+    return Object.entries(fileDetails)
+        .filter(([filename, details]) => details?.type === 'image' && details?.dataUrl && filename.startsWith('pufutara-photo-'))
+        .sort((a, b) => String(b[1].modified || '').localeCompare(String(a[1].modified || '')));
+}
+
+function renderPhotosApp() {
+    const win = document.querySelector('#win-photos');
+    const root = win?.querySelector('#photos-root');
+    if (!root) return;
+
+    const photos = getPufutaraPhotos();
+    if (!photos.length) {
+        root.innerHTML = '<div class="local-app-empty">Belum ada foto Pufutara. Ambil foto dari Camera dulu.</div>';
+        return;
+    }
+
+    root.innerHTML = `
+        <div class="photos-grid">
+            ${photos.map(([filename, details]) => `
+                <div class="photo-card">
+                    <img src="${details.dataUrl}" alt="${escapeHtml(filename)}" onclick="previewPhoto('${escapeHtml(filename)}')">
+                    <div class="photo-card-meta">
+                        <span class="photo-name" title="${escapeHtml(filename)}">${escapeHtml(filename)}</span>
+                        <button class="local-app-btn danger" onclick="deletePhoto('${escapeHtml(filename)}')" title="Hapus"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+}
+
+function previewPhoto(filename) {
+    const win = document.querySelector('#win-photos');
+    const details = fileDetails[filename];
+    if (!win || !details?.dataUrl) return;
+    const overlay = document.createElement('div');
+    overlay.className = 'photo-preview';
+    overlay.innerHTML = `
+        <div class="photo-preview-header">
+            <strong>${escapeHtml(filename)}</strong>
+            <button class="local-app-btn" onclick="this.closest('.photo-preview').remove()"><i class="fas fa-times"></i> Tutup</button>
+        </div>
+        <div class="photo-preview-stage"><img src="${details.dataUrl}" alt="${escapeHtml(filename)}"></div>
+    `;
+    win.querySelector('.win-content').appendChild(overlay);
+}
+
+async function deletePhoto(filename) {
+    const confirmed = await showUiConfirm({
+        title: 'Hapus Foto?',
+        message: `${filename} akan dihapus dari Photos dan Pictures.`,
+        confirmText: 'Hapus',
+        danger: true
+    });
+    if (!confirmed) return;
+
+    Object.values(fileSystem).forEach(folder => {
+        if (folder.items) folder.items = folder.items.filter(item => item !== filename);
+    });
+    delete fileDetails[filename];
+    delete virtualFiles[filename];
+    saveVirtualFiles();
+    refreshOpenFileManager();
+    renderPhotosApp();
+}
+
+function saveNotesContent(value) {
+    localStorage.setItem(STORAGE_KEYS.notes, value);
+}
+
+function saveTextEditorContent(value) {
+    localStorage.setItem(STORAGE_KEYS.textEditor, value);
+}
+
+function initTextApps() {
+    const notes = document.getElementById('pufutara-notes');
+    if (notes) notes.value = localStorage.getItem(STORAGE_KEYS.notes) || '';
+    const editor = document.getElementById('pufutara-texteditor');
+    if (editor) editor.value = localStorage.getItem(STORAGE_KEYS.textEditor) || '';
+}
+
+function loadContacts() {
+    contacts = readJsonStorage(STORAGE_KEYS.contacts, [
+        { id: 'contact-andi', name: 'Andi', email: 'andi@pufutara.local', phone: '08123456789' },
+        { id: 'contact-budi', name: 'Budi', email: 'budi@pufutara.local', phone: '08987654321' }
+    ]);
+    if (!Array.isArray(contacts)) contacts = [];
+    saveContacts();
+}
+
+function saveContacts() {
+    localStorage.setItem(STORAGE_KEYS.contacts, JSON.stringify(contacts));
+}
+
+function loadLetters() {
+    letters = readJsonStorage(STORAGE_KEYS.letters, [
+        {
+            id: 'letter-welcome',
+            to: 'System Admin',
+            toEmail: 'system@pufutara.local',
+            subject: 'Selamat Datang di Pufutara OS',
+            body: 'Ini adalah kotak surat lokal Pufutara. Surat disimpan di browser ini.',
+            status: 'sent',
+            createdAt: new Date().toISOString()
+        }
+    ]);
+    if (!Array.isArray(letters)) letters = [];
+    saveLetters();
+}
+
+function saveLetters() {
+    localStorage.setItem(STORAGE_KEYS.letters, JSON.stringify(letters));
+}
+
+function renderContactsApp() {
+    const win = document.querySelector('#win-contacts');
+    const root = win?.querySelector('#contacts-root');
+    if (!root) return;
+    if (!activeContactId && contacts[0]) activeContactId = contacts[0].id;
+    const active = contacts.find(contact => contact.id === activeContactId);
+
+    root.innerHTML = `
+        <div class="contacts-layout">
+            <div class="contacts-list">
+                ${contacts.map(contact => `
+                    <div class="contact-item ${contact.id === activeContactId ? 'active' : ''}" onclick="selectContact('${contact.id}')">
+                        <div class="contact-name">${escapeHtml(contact.name)}</div>
+                        <div class="contact-meta">${escapeHtml(contact.email || contact.phone || '')}</div>
+                    </div>
+                `).join('') || '<div class="local-app-empty">Belum ada kontak.</div>'}
+            </div>
+            <div class="contact-detail">
+                ${active ? `
+                    <h3 style="margin-top:0;">${escapeHtml(active.name)}</h3>
+                    <p>Email: ${escapeHtml(active.email || '-')}</p>
+                    <p>Telepon: ${escapeHtml(active.phone || '-')}</p>
+                    <div class="contact-actions">
+                        <button class="local-app-btn primary" onclick="composeToContact('${active.id}')"><i class="fas fa-envelope"></i> Tulis Surat</button>
+                        <button class="local-app-btn danger" onclick="deleteContact('${active.id}')"><i class="fas fa-trash"></i> Hapus</button>
+                    </div>
+                ` : '<div class="local-app-empty">Pilih kontak atau tambah orang baru.</div>'}
+            </div>
+        </div>
+    `;
+}
+
+function selectContact(id) {
+    activeContactId = id;
+    renderContactsApp();
+}
+
+async function addContact() {
+    const name = await showUiPrompt({ title: 'Tambah Kontak', message: 'Nama orang.', value: '', confirmText: 'Lanjut' });
+    if (!name || !name.trim()) return;
+    const email = await showUiPrompt({ title: 'Tambah Kontak', message: 'Email.', value: `${name.trim().toLowerCase().replace(/\s+/g, '.')}@pufutara.local`, confirmText: 'Lanjut' });
+    const phone = await showUiPrompt({ title: 'Tambah Kontak', message: 'Nomor telepon.', value: '', confirmText: 'Tambah' });
+    const contact = { id: makeId('contact'), name: name.trim(), email: (email || '').trim(), phone: (phone || '').trim() };
+    contacts.push(contact);
+    activeContactId = contact.id;
+    saveContacts();
+    renderContactsApp();
+    renderMailApp();
+}
+
+async function deleteContact(id) {
+    const contact = contacts.find(item => item.id === id);
+    const confirmed = await showUiConfirm({ title: 'Hapus Kontak?', message: `${contact?.name || 'Kontak'} akan dihapus.`, confirmText: 'Hapus', danger: true });
+    if (!confirmed) return;
+    contacts = contacts.filter(item => item.id !== id);
+    activeContactId = contacts[0]?.id || null;
+    saveContacts();
+    renderContactsApp();
+    renderMailApp();
+}
+
+function composeToContact(id) {
+    const contact = contacts.find(item => item.id === id);
+    openApp('mail');
+    setTimeout(() => renderMailCompose(contact), 120);
+}
+
+function renderMailApp() {
+    const win = document.querySelector('#win-mail');
+    const root = win?.querySelector('#mail-root');
+    if (!root) return;
+    if (!activeLetterId && letters[0]) activeLetterId = letters[0].id;
+    const active = letters.find(letter => letter.id === activeLetterId);
+
+    root.innerHTML = `
+        <div class="mail-layout">
+            <div class="mail-list">
+                ${letters.map(letter => `
+                    <div class="mail-item ${letter.id === activeLetterId ? 'active' : ''}" onclick="selectLetter('${letter.id}')">
+                        <div class="mail-subject">${escapeHtml(letter.subject || '(Tanpa subject)')}</div>
+                        <div class="mail-meta">${escapeHtml(letter.status)} · ${escapeHtml(letter.to || letter.toEmail || '-')}</div>
+                    </div>
+                `).join('') || '<div class="local-app-empty">Belum ada surat.</div>'}
+            </div>
+            <div class="mail-detail">
+                ${active ? `
+                    <h3 style="margin-top:0;">${escapeHtml(active.subject || '(Tanpa subject)')}</h3>
+                    <p><strong>Kepada:</strong> ${escapeHtml(active.to || active.toEmail || '-')}</p>
+                    <p><strong>Status:</strong> ${escapeHtml(active.status)}</p>
+                    <p><strong>Waktu:</strong> ${new Date(active.createdAt).toLocaleString('id-ID')}</p>
+                    <div class="file-preview-text">${escapeHtml(active.body || '')}</div>
+                    <div class="mail-actions">
+                        <button class="local-app-btn danger" onclick="deleteLetter('${active.id}')"><i class="fas fa-trash"></i> Hapus</button>
+                    </div>
+                ` : '<div class="local-app-empty">Pilih surat atau tulis surat baru.</div>'}
+            </div>
+        </div>
+    `;
+}
+
+function selectLetter(id) {
+    activeLetterId = id;
+    renderMailApp();
+}
+
+function renderMailCompose(prefillContact = null) {
+    const win = document.querySelector('#win-mail');
+    const root = win?.querySelector('#mail-root');
+    if (!root) return;
+    const selectedId = prefillContact?.id || contacts[0]?.id || '';
+    root.innerHTML = `
+        <div class="mail-detail">
+            <form class="local-form" onsubmit="event.preventDefault(); saveComposedLetter('sent')">
+                <select id="mail-compose-to">
+                    ${contacts.map(contact => `<option value="${contact.id}" ${contact.id === selectedId ? 'selected' : ''}>${escapeHtml(contact.name)} (${escapeHtml(contact.email || contact.phone || '-')})</option>`).join('')}
+                </select>
+                <input id="mail-compose-subject" type="text" placeholder="Subject">
+                <textarea id="mail-compose-body" placeholder="Tulis surat..."></textarea>
+                <div class="mail-actions">
+                    <button class="local-app-btn primary" type="submit"><i class="fas fa-paper-plane"></i> Kirim Lokal</button>
+                    <button class="local-app-btn" type="button" onclick="saveComposedLetter('draft')"><i class="fas fa-save"></i> Simpan Draft</button>
+                    <button class="local-app-btn" type="button" onclick="renderMailApp()">Batal</button>
+                </div>
+            </form>
+        </div>
+    `;
+}
+
+async function saveComposedLetter(status) {
+    const select = document.getElementById('mail-compose-to');
+    if (!select || !select.value) {
+        await showUiConfirm({ title: 'Kontak belum ada', message: 'Tambahkan kontak terlebih dahulu sebelum menulis surat.', confirmText: 'OK' });
+        return;
+    }
+    const contact = contacts.find(item => item.id === select.value);
+    const subject = document.getElementById('mail-compose-subject').value.trim();
+    const body = document.getElementById('mail-compose-body').value.trim();
+    letters.unshift({
+        id: makeId('letter'),
+        to: contact?.name || '',
+        toEmail: contact?.email || contact?.phone || '',
+        subject,
+        body,
+        status,
+        createdAt: new Date().toISOString()
+    });
+    activeLetterId = letters[0].id;
+    saveLetters();
+    renderMailApp();
+}
+
+async function deleteLetter(id) {
+    const confirmed = await showUiConfirm({ title: 'Hapus Surat?', message: 'Surat ini akan dihapus dari Mail lokal.', confirmText: 'Hapus', danger: true });
+    if (!confirmed) return;
+    letters = letters.filter(letter => letter.id !== id);
+    activeLetterId = letters[0]?.id || null;
+    saveLetters();
+    renderMailApp();
 }
 
 // ========== WINDOW MANAGER ==========
@@ -4090,6 +4709,10 @@ function openApp(id) {
     }
     
     const win=document.createElement('div'); win.className='window'; win.id='win-'+id; win.style.width=app.w+'px'; win.style.height=app.h+'px';
+    if (id === 'files') {
+        win.style.minWidth = '640px';
+        win.style.minHeight = '420px';
+    }
     const centerX=(window.innerWidth/2)-(app.w/2); const centerY=(window.innerHeight/2)-(app.h/2);
     win.style.left=centerX+'px'; win.style.top=centerY+'px'; win.style.zIndex=++zIndex;
     
@@ -4118,6 +4741,7 @@ function openApp(id) {
         setTimeout(() => {
             const frame = win.querySelector('.browser-frame');
             if(frame) setupBrowserFrame(frame);
+            renderBrowserPins(win);
         }, 200);
     }
     if(id==='files') {
@@ -4127,6 +4751,18 @@ function openApp(id) {
     }
     if(id==='camera') {
         setTimeout(initCameraApp, 100);
+    }
+    if(id==='photos') {
+        setTimeout(renderPhotosApp, 100);
+    }
+    if(id==='contacts') {
+        setTimeout(renderContactsApp, 100);
+    }
+    if(id==='mail') {
+        setTimeout(renderMailApp, 100);
+    }
+    if(id==='notes' || id==='texteditor') {
+        setTimeout(initTextApps, 80);
     }
 }
 
@@ -4227,11 +4863,17 @@ function switchWallpaperTab(tabName){
     document.querySelectorAll('.wallpaper-tab-content').forEach(c=>c.classList.remove('active'));
     document.getElementById(`wallpaper-${tabName}`).classList.add('active');
 }
-function applyWallpaper(url){ saveWallpaper(url); alert('Wallpaper berhasil diubah!'); }
+function applyWallpaper(url){
+    saveWallpaper(url);
+    showUiConfirm({ title: 'Wallpaper', message: 'Wallpaper berhasil diubah.', confirmText: 'OK' });
+}
 function applyColorWallpaper(color){ document.getElementById('desktop').style.backgroundImage='none'; document.getElementById('desktop').style.backgroundColor=color; localStorage.setItem('pufutara_wallpaper',color); }
 function handleWallpaperUpload(event){
     const file=event.target.files[0]; if(!file) return;
-    if(!file.type.match('image.*')){ alert('Hanya file gambar yang diperbolehkan!'); return; }
+    if(!file.type.match('image.*')){
+        showUiConfirm({ title: 'Upload Wallpaper', message: 'Hanya file gambar yang diperbolehkan.', confirmText: 'OK' });
+        return;
+    }
     const reader=new FileReader(); reader.onload=function(e){ applyWallpaper(e.target.result); }; reader.readAsDataURL(file);
 }
 
@@ -4244,7 +4886,18 @@ document.addEventListener('mouseup',()=>{ if(currentWin) currentWin.classList.re
 // ========== RESIZE WINDOW ==========
 let isResizing=false, resizeWin=null;
 function startResize(e,id){ e.stopPropagation(); isResizing=true; resizeWin=document.getElementById(id); }
-document.addEventListener('mousemove',(e)=>{ if(!isResizing||!resizeWin) return; resizeWin.style.width=(e.clientX-resizeWin.getBoundingClientRect().left)+'px'; resizeWin.style.height=(e.clientY-resizeWin.getBoundingClientRect().top)+'px'; });
+document.addEventListener('mousemove',(e)=>{
+    if(!isResizing||!resizeWin) return;
+    const rect = resizeWin.getBoundingClientRect();
+    const minWidth = resizeWin.id === 'win-files' ? 640 : 320;
+    const minHeight = resizeWin.id === 'win-files' ? 420 : 260;
+    const maxWidth = Math.max(minWidth, window.innerWidth - rect.left);
+    const maxHeight = Math.max(minHeight, window.innerHeight - rect.top);
+    const nextWidth = Math.min(maxWidth, Math.max(minWidth, e.clientX - rect.left));
+    const nextHeight = Math.min(maxHeight, Math.max(minHeight, e.clientY - rect.top));
+    resizeWin.style.width=nextWidth+'px';
+    resizeWin.style.height=nextHeight+'px';
+});
 document.addEventListener('mouseup',()=>{ isResizing=false; resizeWin=null; });
 
 // ========== APP DATA ==========
@@ -4276,6 +4929,7 @@ const apps = {
                         <div class="browser-home-buttons">
                             <button class="browser-home-btn" onclick="browserSearch(this)">Cari</button>
                         </div>
+                        <div class="browser-pins"></div>
                     </div>
                 </div>
             </div>
@@ -4569,13 +5223,12 @@ const apps = {
     },
     'photos': {
         title: 'Photos', w: 600, h: 450,
-        content: `<div class="app-content">
-            <h3 style="margin-top:0;">Galeri Foto</h3>
-            <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px;">
-                <div style="aspect-ratio:1; background:#e5e7eb; border-radius:8px;"></div>
-                <div style="aspect-ratio:1; background:#d1d5db; border-radius:8px;"></div>
-                <div style="aspect-ratio:1; background:#9ca3af; border-radius:8px;"></div>
+        content: `<div class="photos-app">
+            <div class="local-app-toolbar">
+                <div class="local-app-title">Pufutara Photos</div>
+                <button class="local-app-btn" onclick="openApp('camera')"><i class="fas fa-camera"></i> Camera</button>
             </div>
+            <div id="photos-root" style="flex:1; min-height:0; display:flex;"></div>
         </div>`
     },
     'yt': {
@@ -4586,11 +5239,11 @@ const apps = {
     },
     'notes': {
         title: 'Catatan', w: 350, h: 400,
-        content: `<textarea style="width:100%; height:100%; border:none; padding:20px; resize:none; outline:none; font-family:Inter; font-size:15px; line-height:1.6;" placeholder="Ketik ide brilianmu..."></textarea>`
+        content: `<textarea id="pufutara-notes" oninput="saveNotesContent(this.value)" style="width:100%; height:100%; border:none; padding:20px; resize:none; outline:none; font-family:Inter; font-size:15px; line-height:1.6;" placeholder="Ketik ide brilianmu..."></textarea>`
     },
     'texteditor': {
         title: 'Text Editor', w: 500, h: 400,
-        content: `<textarea style="width:100%; height:100%; border:none; padding:20px; resize:none; outline:none; font-family:'Courier New', monospace; font-size:14px;" placeholder="Mulai menulis..."></textarea>`
+        content: `<textarea id="pufutara-texteditor" oninput="saveTextEditorContent(this.value)" style="width:100%; height:100%; border:none; padding:20px; resize:none; outline:none; font-family:'Courier New', monospace; font-size:14px;" placeholder="Mulai menulis..."></textarea>`
     },
     'sites': {
         title: 'Sites Builder', w: 850, h: 550,
@@ -4665,11 +5318,23 @@ const apps = {
     },
     'contacts': {
         title: 'Contacts', w: 400, h: 450,
-        content: `<div class="app-content"><h3 style="margin-top:0;">Kontak</h3><div style="display:flex; flex-direction:column; gap:10px;"><div style="display:flex; align-items:center; gap:10px; padding:10px; background:#f9fafb; border-radius:8px;"><div style="width:40px; height:40px; background:#3b82f6; border-radius:50%; color:white; display:flex; align-items:center; justify-content:center;">A</div><div><div style="font-weight:600;">Andi</div><div style="font-size:12px; color:#666;">08123456789</div></div></div><div style="display:flex; align-items:center; gap:10px; padding:10px; background:#f9fafb; border-radius:8px;"><div style="width:40px; height:40px; background:#10b981; border-radius:50%; color:white; display:flex; align-items:center; justify-content:center;">B</div><div><div style="font-weight:600;">Budi</div><div style="font-size:12px; color:#666;">08987654321</div></div></div></div></div>`
+        content: `<div class="contacts-app">
+            <div class="local-app-toolbar">
+                <div class="local-app-title">Contacts</div>
+                <button class="local-app-btn primary" onclick="addContact()"><i class="fas fa-user-plus"></i> Tambah</button>
+            </div>
+            <div id="contacts-root" style="flex:1; min-height:0;"></div>
+        </div>`
     },
     'mail': {
         title: 'Mail', w: 600, h: 500,
-        content: `<div class="app-content"><h3 style="margin-top:0;">Email</h3><div style="display:flex; flex-direction:column; gap:10px;"><div style="padding:15px; background:#f9fafb; border-radius:8px; cursor:pointer;"><div style="font-weight:600;">Selamat Datang di Pufutara OS</div><div style="font-size:12px; color:#666;">From: System Admin</div></div><div style="padding:15px; background:#f9fafb; border-radius:8px; cursor:pointer;"><div style="font-weight:600;">Update Sistem Tersedia</div><div style="font-size:12px; color:#666;">From: Update Center</div></div></div></div>`
+        content: `<div class="mail-app">
+            <div class="local-app-toolbar">
+                <div class="local-app-title">Mail Lokal</div>
+                <button class="local-app-btn primary" onclick="renderMailCompose()"><i class="fas fa-pen"></i> Tulis Surat</button>
+            </div>
+            <div id="mail-root" style="flex:1; min-height:0;"></div>
+        </div>`
     },
     'snake': {
         title: 'Snake', w: 500, h: 500,
@@ -4685,5 +5350,6 @@ const apps = {
     }
 };
 </script>
-</body>
-</html>
+
+
+</body></html>
