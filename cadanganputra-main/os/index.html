@@ -169,8 +169,8 @@ body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; overflow: hidden
     background-position: center;
     background-repeat: no-repeat;
     opacity: 0; 
-    transform: scale(1.15); 
-    transition: opacity 1s ease, transform 1.2s cubic-bezier(0.19, 1, 0.22, 1);
+    transform: scale(1.05); 
+    transition: opacity 0.45s ease, transform 0.55s cubic-bezier(0.19, 1, 0.22, 1);
     pointer-events: none;
     display: none;
 }
@@ -216,6 +216,24 @@ body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; overflow: hidden
 }
 .top-bar.hidden {
     transform: translateY(-100%);
+}
+.top-bar.chrome-hidden-by-maximize,
+.dock-container.chrome-hidden-by-maximize {
+    transform: translateY(-100%);
+    opacity: 0;
+    pointer-events: none;
+}
+.dock-container.chrome-hidden-by-maximize {
+    transform: translateX(-50%) translateY(120px);
+}
+.dock-container.chrome-peek,
+.top-bar.chrome-peek {
+    transform: none;
+    opacity: 1;
+    pointer-events: auto;
+}
+.dock-container.chrome-peek {
+    transform: translateX(-50%) translateY(0);
 }
 .top-center { 
     display: flex; align-items: center; gap: 15px; 
@@ -374,6 +392,119 @@ body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; overflow: hidden
 
 .win-content { flex: 1; position: relative; overflow: hidden; display: flex; flex-direction: column; background: #fff; }
 .resize-handle { position: absolute; bottom: 0; right: 0; width: 15px; height: 15px; cursor: nwse-resize; z-index: 20; }
+.window.maximized .resize-handle { cursor: default; opacity: 0.35; pointer-events: none; }
+.window.minimized { pointer-events: none; }
+
+.notification-container {
+    position: fixed; top: 48px; right: 20px; z-index: 10001;
+    display: flex; flex-direction: column; gap: 10px; max-width: 320px;
+    pointer-events: none;
+}
+.notification {
+    pointer-events: auto;
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 12px;
+    padding: 14px 16px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+    transform: translateX(120%);
+    opacity: 0;
+    transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.35s ease;
+}
+.notification.show { transform: translateX(0); opacity: 1; }
+.notification-title { font-weight: 600; font-size: 13px; margin-bottom: 4px; color: #111; }
+.notification-message { font-size: 12px; color: #4b5563; line-height: 1.45; }
+.notification-success { border-left: 4px solid #10b981; }
+.notification-info { border-left: 4px solid #3b82f6; }
+.notification-warning { border-left: 4px solid #f59e0b; }
+
+.notification-center {
+    position: fixed; top: 48px; right: 20px; width: 340px; max-height: 70vh;
+    background: rgba(255, 255, 255, 0.97); backdrop-filter: blur(20px);
+    border-radius: 14px; border: 1px solid rgba(0,0,0,0.08);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.15); z-index: 26000;
+    display: none; flex-direction: column; overflow: hidden;
+}
+.notification-center.show { display: flex; }
+.notification-center-header {
+    padding: 14px 16px; border-bottom: 1px solid #e5e7eb;
+    display: flex; justify-content: space-between; align-items: center;
+    font-weight: 600; font-size: 14px;
+}
+.notification-center-clear {
+    font-size: 12px; color: #3b82f6; cursor: pointer; font-weight: 500;
+}
+.notification-center-list {
+    overflow-y: auto; padding: 8px; flex: 1;
+}
+.notification-history-item {
+    padding: 10px 12px; border-radius: 8px; margin-bottom: 6px;
+    background: #f9fafb; border-left: 3px solid #3b82f6; cursor: default;
+}
+.notification-history-item.success { border-left-color: #10b981; }
+.notification-history-item.warning { border-left-color: #f59e0b; }
+.notification-history-meta { font-size: 10px; color: #9ca3af; margin-top: 4px; }
+.notification-bell-badge {
+    position: absolute; top: -4px; right: -4px; background: #ef4444;
+    color: white; font-size: 9px; min-width: 16px; height: 16px;
+    border-radius: 8px; display: none; align-items: center; justify-content: center;
+    padding: 0 4px; font-weight: 700;
+}
+.sticky-color-bar { display: flex; gap: 6px; margin-bottom: 8px; }
+.sticky-color-btn {
+    width: 18px; height: 18px; border-radius: 50%; border: 2px solid rgba(0,0,0,0.1);
+    cursor: pointer; padding: 0;
+}
+.sticky-color-btn.active { border-color: #111; transform: scale(1.1); }
+.wifi-network-item {
+    padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 12px;
+    display: flex; justify-content: space-between; align-items: center;
+}
+.wifi-network-item:hover { background: #f3f4f6; }
+.wifi-network-item.connected { background: #ecfdf5; color: #047857; font-weight: 600; }
+.voice-recorder-app { padding: 20px; height: 100%; display: flex; flex-direction: column; gap: 16px; }
+.voice-controls { display: flex; gap: 10px; flex-wrap: wrap; }
+.voice-btn {
+    padding: 10px 16px; border-radius: 8px; border: 1px solid #e5e7eb;
+    background: white; cursor: pointer; font-size: 13px;
+}
+.voice-btn.primary { background: #111; color: white; border-color: #111; }
+.voice-btn.danger { background: #fee2e2; color: #dc2626; border-color: #fecaca; }
+.voice-list { flex: 1; overflow-y: auto; border-top: 1px solid #e5e7eb; padding-top: 12px; }
+.voice-item {
+    padding: 10px; border-radius: 8px; margin-bottom: 8px;
+    background: #f9fafb; display: flex; justify-content: space-between; align-items: center;
+}
+
+body.battery-saver .window,
+body.battery-saver .widget,
+body.battery-saver .dock,
+body.battery-saver .start-menu,
+body.battery-saver .widget-tray {
+    backdrop-filter: none !important;
+}
+body.battery-saver .window.open {
+    transition-duration: 0.15s !important;
+}
+body.battery-saver *:not(.notification):not(.notification *) {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+}
+#desktop.battery-saver-active::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.14);
+    pointer-events: none;
+    z-index: 0;
+}
+.sticky-widget textarea {
+    width: 100%; height: 140px; border: 1px solid #fde68a;
+    border-radius: 8px; padding: 10px; font-size: 12px;
+    font-family: 'Inter'; resize: vertical; outline: none;
+    background: #fffbeb; color: #78350f;
+}
 
 /* --- BROWSER UI --- */
 .browser-window {
@@ -1061,6 +1192,99 @@ body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; overflow: hidden
 }
 .power-blackout.active { display: block; }
 
+.shutdown-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.92);
+    z-index: 19500;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    color: white;
+    text-align: center;
+}
+.shutdown-overlay.active { display: flex; }
+.shutdown-overlay-logo {
+    font-family: 'Poppins', sans-serif;
+    font-size: 42px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    letter-spacing: -1px;
+}
+.shutdown-overlay-text {
+    font-size: 15px;
+    opacity: 0.85;
+    margin-bottom: 24px;
+}
+.shutdown-spinner {
+    width: 48px;
+    height: 48px;
+    border: 3px solid rgba(255,255,255,0.2);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: shutdownSpin 0.9s linear infinite;
+}
+@keyframes shutdownSpin { to { transform: rotate(360deg); } }
+
+.store-app { display: flex; flex-direction: column; height: 100%; background: #f3f4f6; }
+.store-header { padding: 20px 24px 12px; background: #fff; border-bottom: 1px solid #e5e7eb; }
+.store-header h2 { margin: 0 0 12px; font-family: Poppins; font-size: 22px; }
+.store-search { width: 100%; padding: 10px 14px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px; }
+.store-grid-wrap { flex: 1; overflow-y: auto; padding: 20px 24px; }
+.store-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 14px; }
+.store-card {
+    background: #fff; border-radius: 12px; padding: 16px; text-align: center;
+    border: 1px solid #e5e7eb; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+}
+.store-card-icon { font-size: 36px; }
+.store-card-name { font-size: 13px; font-weight: 600; color: #111; }
+.store-card-cat { font-size: 10px; color: #9ca3af; text-transform: uppercase; }
+.store-card-btn {
+    margin-top: 6px; padding: 6px 14px; border-radius: 6px; border: none;
+    font-size: 11px; font-weight: 600; cursor: pointer; width: 100%;
+}
+.store-card-btn.ready { background: #111; color: #fff; }
+.store-card-btn.soon { background: #f3f4f6; color: #9ca3af; cursor: default; }
+
+.productivity-app { display: flex; flex-direction: column; height: 100%; }
+.productivity-toolbar {
+    display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 14px;
+    border-bottom: 1px solid #e5e7eb; background: #f9fafb;
+}
+.productivity-toolbar button {
+    padding: 7px 12px; border-radius: 6px; border: 1px solid #e5e7eb;
+    background: #fff; font-size: 12px; cursor: pointer;
+}
+.productivity-toolbar button.primary { background: #111; color: #fff; border-color: #111; }
+.productivity-body { flex: 1; min-height: 0; display: flex; overflow: hidden; }
+.ppt-sidebar { width: 160px; border-right: 1px solid #e5e7eb; overflow-y: auto; background: #f9fafb; }
+.ppt-slide-item { padding: 10px 12px; font-size: 12px; cursor: pointer; border-bottom: 1px solid #eee; }
+.ppt-slide-item.active { background: #dbeafe; font-weight: 600; }
+.ppt-editor { flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.ppt-editor input, .ppt-editor textarea { width: 100%; border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px; font-family: Inter; }
+.ppt-editor textarea { flex: 1; resize: none; }
+.paint-toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.paint-color { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px #ccc; cursor: pointer; }
+.paint-color.active { box-shadow: 0 0 0 2px #111; }
+.paint-canvas-wrap { flex: 1; padding: 12px; display: flex; justify-content: center; align-items: center; background: #e5e7eb; }
+#paintCanvas { background: #fff; border-radius: 4px; cursor: crosshair; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+
+.video-gallery-app { display: flex; flex-direction: column; height: 100%; background: #fff; }
+.video-gallery-toolbar { padding: 12px 16px; border-bottom: 1px solid #e5e7eb; display: flex; gap: 10px; align-items: center; }
+.video-gallery-grid {
+    flex: 1; overflow-y: auto; padding: 16px;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px;
+}
+.video-gallery-item {
+    background: #f9fafb; border-radius: 10px; padding: 14px; cursor: pointer;
+    border: 1px solid #e5e7eb; text-align: center; transition: 0.15s;
+}
+.video-gallery-item:hover { background: #eff6ff; border-color: #93c5fd; }
+.video-gallery-thumb { font-size: 40px; margin-bottom: 8px; }
+.video-gallery-name { font-size: 12px; font-weight: 500; word-break: break-all; }
+
 .ui-modal-backdrop {
     position: fixed;
     inset: 0;
@@ -1131,7 +1355,7 @@ body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; overflow: hidden
     background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(25px);
     border-radius: 18px; border: 1px solid rgba(255,255,255,0.5);
     box-shadow: var(--shadow-start);
-    z-index: 150; padding: 24px;
+    z-index: 25000; padding: 24px;
     opacity: 0; pointer-events: none;
     transition: 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
     display: flex; flex-direction: column;
@@ -1805,23 +2029,23 @@ body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; overflow: hidden
 <body>
 
 <!-- WELCOME SCREEN -->
-<div id="welcome-screen" style="opacity: 0; display: none;">
+<div id="welcome-screen">
     <div class="welcome-logo">Pufutara OS</div>
     <div class="welcome-subtitle">v5.5 Ultimate Edition</div>
-    <div class="welcome-loader"><div class="welcome-progress" id="welcome-bar" style="width: 100%;"></div></div>
+    <div class="welcome-loader"><div class="welcome-progress" id="welcome-bar"></div></div>
     <div class="welcome-tip">"The ultimate web-based operating system experience"</div>
 </div>
 
 <!-- BOOT SCREEN -->
-<div id="boot-screen" style="opacity: 0; display: none;">
+<div id="boot-screen">
     <div class="boot-logo">Pufutara OS</div>
-    <div class="boot-loader"><div class="boot-progress" id="boot-bar" style="width: 100%;"></div></div>
+    <div class="boot-loader"><div class="boot-progress" id="boot-bar"></div></div>
 </div>
 
 <!-- LOCKSCREEN -->
-<div id="lockscreen" onclick="showPasswordPanel()" style="display: flex;">
-    <div class="lockscreen-time" id="lockscreen-time">21.15</div>
-    <div class="lockscreen-date" id="lockscreen-date">Kamis, 21 Mei 2026</div>
+<div id="lockscreen" onclick="showPasswordPanel()">
+    <div class="lockscreen-time" id="lockscreen-time">--:--</div>
+    <div class="lockscreen-date" id="lockscreen-date">---, -- --- ----</div>
     <!-- Panel Password -->
     <div class="lockscreen-panel" id="passwordPanel" onclick="event.stopPropagation()">
         <div class="panel-title">Masukkan kata sandi</div>
@@ -1832,7 +2056,7 @@ body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; overflow: hidden
 </div>
 
 <!-- DESKTOP -->
-<div id="desktop" onclick="closeStartMenu(event); closeAllDropdowns(); closeWidgetTray(); closePowerMenu();">
+<div id="desktop" onclick="closeStartMenu(event); closeAllDropdowns(); closeWidgetTray(); closePowerMenu(); document.getElementById('notificationCenter')?.classList.remove('show');">
     <!-- Home Clock -->
     <div id="home-clock">
         <div class="home-time" id="home-time">--:--</div>
@@ -1874,9 +2098,10 @@ body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; overflow: hidden
             <div class="system-control" onclick="event.stopPropagation(); toggleControl('wifi')">
                 <span class="control-icon" id="wifi-icon">📶</span>
                 <span class="control-value" id="wifi-value">Connected</span>
-                <div class="control-dropdown" id="wifi-dropdown">
-                    <div class="control-option" onclick="toggleWifi()"><i class="fas fa-wifi"></i><span id="wifi-status">Nyala</span> WiFi</div>
-                    <div class="control-option" onclick="openApp('settings')"><i class="fas fa-cog"></i>Network Settings</div>
+                <div class="control-dropdown" id="wifi-dropdown" style="min-width:220px;">
+                    <div class="control-option" onclick="event.stopPropagation(); toggleWifiPower()"><i class="fas fa-power-off"></i>WiFi: <span id="wifi-status">Nyala</span></div>
+                    <div id="wifi-network-list"></div>
+                    <div class="control-option" onclick="event.stopPropagation(); openApp('settings')"><i class="fas fa-cog"></i>Network Settings</div>
                 </div>
             </div>
         </div>
@@ -1891,18 +2116,34 @@ body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; overflow: hidden
                 <span class="control-value" id="battery-value">92%</span>
                 <div class="control-dropdown" id="battery-dropdown">
                     <div class="slider-container">
-                        <label>Battery Saver</label>
+                        <label>Tingkat Baterai</label>
                         <input type="range" min="0" max="100" value="92" class="slider" id="battery-slider" disabled="">
                     </div>
-                    <div class="control-option"><i class="fas fa-bolt"></i>Mode Hemat Daya: <span id="saver-status">Off</span></div>
+                    <div class="control-option" id="battery-saver-toggle" onclick="event.stopPropagation(); toggleBatterySaver()">
+                        <i class="fas fa-leaf"></i>Battery Saver: <span id="saver-status">Off</span>
+                    </div>
                 </div>
             </div>
             
+            <div class="system-control" onclick="event.stopPropagation(); toggleNotificationCenter()" style="position:relative;">
+                <span class="control-icon">🔔</span>
+                <span class="control-value">Notifikasi</span>
+                <span class="notification-bell-badge" id="notificationBadge">0</span>
+            </div>
+
             <div class="system-control" onclick="toggleWidgetTray()">
                 <span class="control-icon">📊</span>
                 <span class="control-value">Widgets</span>
             </div>
         </div>
+    </div>
+
+    <div class="notification-center" id="notificationCenter" onclick="event.stopPropagation()">
+        <div class="notification-center-header">
+            <span>Pusat Notifikasi</span>
+            <span class="notification-center-clear" onclick="clearNotificationHistory()">Hapus semua</span>
+        </div>
+        <div class="notification-center-list" id="notificationHistoryList"></div>
     </div>
 
     <!-- WIDGET TRAY -->
@@ -1920,8 +2161,11 @@ body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; overflow: hidden
         <div class="widget-tray-item" onclick="addWidget('weather')">
             <i class="fas fa-sun"></i> Cuaca
         </div>
+        <div class="widget-tray-item" onclick="addWidget('sticky')">
+            <i class="fas fa-sticky-note"></i> Sticky Note
+        </div>
         <div class="widget-tray-item" onclick="addWidget('notes')">
-            <i class="fas fa-sticky-note"></i> Catatan Cepat
+            <i class="fas fa-note-sticky"></i> Catatan Cepat
         </div>
         <div class="widget-tray-item" onclick="addWidget('calendar')">
             <i class="fas fa-calendar"></i> Kalender Mini
@@ -1930,6 +2174,9 @@ body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; overflow: hidden
             <i class="fas fa-music"></i> Kontrol Musik
         </div>
     </div>
+
+    <!-- NOTIFICATIONS -->
+    <div class="notification-container" id="notificationContainer"></div>
 
     <!-- WIDGETS CONTAINER -->
     <div id="widgets-area"></div>
@@ -1943,6 +2190,7 @@ body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; overflow: hidden
         <div class="context-item" id="context-pin" onclick="contextPinApp()"><i class="fas fa-thumbtack"></i>Pin ke Dock</div>
         <div class="context-item" id="context-unpin" onclick="contextUnpinApp()"><i class="fas fa-thumbtack"></i>Lepas dari Dock</div>
         <div class="context-item" id="context-pin-desktop" onclick="contextPinDesktop()"><i class="fas fa-desktop"></i>Pin ke Desktop</div>
+        <div class="context-item" id="context-rename-desktop" onclick="contextRenameDesktopPin()"><i class="fas fa-pen"></i>Rename</div>
         <div class="context-item" id="context-delete-desktop" onclick="contextDeleteDesktopPin()"><i class="fas fa-trash"></i>Delete</div>
         <div class="context-item" id="context-settings" onclick="contextOpenSettings()"><i class="fas fa-gear"></i>Settings</div>
         <div class="context-item" id="context-refresh" onclick="contextRefreshDesktop()"><i class="fas fa-rotate-right"></i>Refresh</div>
@@ -1970,9 +2218,10 @@ body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; overflow: hidden
             
             <!-- Media Apps -->
             <div class="start-item" onclick="openApp('music'); toggleStart()"><div class="start-icon">🎵</div><div class="start-label">Music Player</div></div>
+            <div class="start-item" onclick="openApp('voicerecorder'); toggleStart()"><div class="start-icon">🎙️</div><div class="start-label">Voice Recorder</div></div>
             <div class="start-item" onclick="openApp('camera'); toggleStart()"><div class="start-icon">📷</div><div class="start-label">Camera</div></div>
             <div class="start-item" onclick="openApp('photos'); toggleStart()"><div class="start-icon">🖼️</div><div class="start-label">Photos</div></div>
-            <div class="start-item" onclick="openApp('video'); toggleStart()"><div class="start-icon">🎬</div><div class="start-label">Video Player</div></div>
+            <div class="start-item" onclick="openApp('video'); toggleStart()"><div class="start-icon">🎬</div><div class="start-label">Video Gallery</div></div>
             <div class="start-item" onclick="openApp('yt'); toggleStart()"><div class="start-icon">📺</div><div class="start-label">YouTube</div></div>
             
             <!-- Productivity -->
@@ -1982,7 +2231,6 @@ body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; overflow: hidden
             
             <!-- Utilities -->
             <div class="start-item" onclick="openApp('wallpaper'); toggleStart()"><div class="start-icon">🎨</div><div class="start-label">Wallpaper</div></div>
-            <div class="start-item" onclick="openApp('wheel'); toggleStart()"><div class="start-icon">🎡</div><div class="start-label">Spin Wheel</div></div>
             <div class="start-item" onclick="openApp('weather'); toggleStart()"><div class="start-icon">☀️</div><div class="start-label">Weather</div></div>
             <div class="start-item" onclick="openApp('maps'); toggleStart()"><div class="start-icon">🗺️</div><div class="start-label">Maps</div></div>
             <div class="start-item" onclick="openApp('contacts'); toggleStart()"><div class="start-icon">📇</div><div class="start-label">Contacts</div></div>
@@ -2005,10 +2253,6 @@ body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; overflow: hidden
                 <div class="start-icon" style="color:#00897b;">🎥</div><div class="start-label">Meet</div>
             </div>
 
-            <!-- GAME GAME KECIL (tetap ada di start menu) -->
-            <div class="start-item" onclick="openApp('snake'); toggleStart()"><div class="start-icon">🐍</div><div class="start-label">Snake</div></div>
-            <div class="start-item" onclick="openApp('tictactoe'); toggleStart()"><div class="start-icon">⭕❌</div><div class="start-label">Tic Tac Toe</div></div>
-            <div class="start-item" onclick="openApp('memory'); toggleStart()"><div class="start-icon">🧠</div><div class="start-label">Memory</div></div>
         </div>
         <div class="start-footer">
             <div class="user-profile">
@@ -2036,6 +2280,12 @@ body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; overflow: hidden
 
 <div class="power-blackout" id="powerBlackout"></div>
 
+<div class="shutdown-overlay" id="shutdownOverlay">
+    <div class="shutdown-overlay-logo">Pufutara OS</div>
+    <div class="shutdown-overlay-text">Mematikan sistem...</div>
+    <div class="shutdown-spinner"></div>
+</div>
+
 <div class="ui-modal-backdrop" id="uiModalBackdrop">
     <div class="ui-modal">
         <h3 class="ui-modal-title" id="uiModalTitle">Konfirmasi</h3>
@@ -2059,11 +2309,14 @@ let soundLevel = 75;
 let brightnessLevel = 80;
 let wifiOn = true;
 let batteryLevel = 92;
+let batterySaverOn = false;
 let widgets = [];
 let hideTimer = null;
 let mouseY = 0;
 let cameraStream = null;
-let taskbarAutoHide = true;
+let taskbarAutoHide = false;
+let taskbarAutoHideGraceUntil = 0;
+let systemInitialized = false;
 let desktopPins = [];
 let desktopPinDrag = null;
 let modalResolver = null;
@@ -2071,16 +2324,62 @@ const DEFAULT_WALLPAPER = '../foto/wallpapersemua.png';
 const STORAGE_KEYS = {
     notes: 'pufutara_notes_content',
     textEditor: 'pufutara_texteditor_content',
+    writer: 'pufutara_writer_doc',
+    ppt: 'pufutara_ppt_doc',
+    paint: 'pufutara_paint_doc',
     browserPins: 'pufutara_browser_pins',
     contacts: 'pufutara_contacts',
     letters: 'pufutara_mail_letters',
     folders: 'pufutara_virtual_folders'
 };
+
+const STORE_CATALOG = [
+    { id: 'snake', name: 'Snake', icon: '🐍', category: 'Game', status: 'ready', appId: 'snake' },
+    { id: 'tictactoe', name: 'Tic Tac Toe', icon: '⭕', category: 'Game', status: 'ready', appId: 'tictactoe' },
+    { id: 'memory', name: 'Memory', icon: '🧠', category: 'Game', status: 'ready', appId: 'memory' },
+    { id: 'writer', name: 'Pufutara Writer', icon: '📝', category: 'Productivity', status: 'ready', appId: 'writer' },
+    { id: 'ppt', name: 'Pufutara PPT', icon: '📊', category: 'Productivity', status: 'ready', appId: 'ppt' },
+    { id: 'paint', name: 'Pufutara Paint', icon: '🎨', category: 'Productivity', status: 'ready', appId: 'paint' },
+    { id: 'video', name: 'Video Gallery', icon: '🎬', category: 'Media', status: 'ready', appId: 'video' },
+    { id: 'voicerecorder', name: 'Voice Recorder', icon: '🎙️', category: 'Media', status: 'ready', appId: 'voicerecorder' },
+    { id: 'wheel', name: 'Spin Wheel', icon: '🎡', category: 'Fun', status: 'coming_soon', appId: 'wheel' },
+    { id: 'maps', name: 'Maps', icon: '🗺️', category: 'Travel', status: 'coming_soon', appId: 'maps' },
+    { id: 'sites', name: 'Sites Builder', icon: '🌐', category: 'Web', status: 'coming_soon', appId: 'sites' },
+    { id: 'yt', name: 'YouTube', icon: '📺', category: 'Media', status: 'coming_soon', appId: 'yt' },
+    { id: 'photos', name: 'Photos Pro', icon: '🖼️', category: 'Media', status: 'coming_soon', appId: 'photos' },
+    { id: 'fitness', name: 'Pufutara Fitness', icon: '💪', category: 'Health', status: 'coming_soon', appId: 'fitness' },
+    { id: 'finance', name: 'Pufutara Wallet', icon: '💰', category: 'Finance', status: 'coming_soon', appId: 'finance' },
+    { id: 'chat', name: 'Pufutara Chat', icon: '💬', category: 'Social', status: 'coming_soon', appId: 'chat' },
+    { id: 'cloud', name: 'Pufutara Cloud', icon: '☁️', category: 'Storage', status: 'coming_soon', appId: 'cloud' },
+    { id: 'code', name: 'Pufutara Code', icon: '👨‍💻', category: 'Dev', status: 'coming_soon', appId: 'code' },
+    { id: 'news', name: 'Pufutara News', icon: '📰', category: 'News', status: 'coming_soon', appId: 'news' }
+];
+
+let pptSlides = [{ title: 'Slide 1', body: 'Selamat datang di Pufutara PPT' }];
+let pptActiveIndex = 0;
+let paintDrawing = false;
+let paintColor = '#111827';
+let paintBrushSize = 4;
+let snakeGameState = null;
 let browserPins = [];
 let contacts = [];
 let letters = [];
 let activeContactId = null;
 let activeLetterId = null;
+let chromePeekTimer = null;
+let terminalCwd = 'home';
+const browserStacks = {};
+const WIFI_NETWORKS = [
+    { id: 'guest', ssid: 'Pufutara_Guest', password: 'tamu123' },
+    { id: 'office', ssid: 'Pufutara_Office', password: 'office2026' },
+    { id: 'putra', ssid: 'coba tanya putra', password: 'coba tanya putra' }
+];
+let connectedNetworkId = null;
+let notificationHistory = [];
+let voiceRecordings = [];
+let mediaRecorder = null;
+let recordChunks = [];
+let recordStartTime = null;
 
 // File Manager variables
 let currentFolder = 'home';
@@ -2089,7 +2388,7 @@ let fileSystem = {
     home: {
         name: 'Home',
         type: 'folder',
-        items: ['documents', 'downloads', 'pictures', 'music', 'videos', 'project', 'tugas.docx', 'wallpaper.jpg', 'lagu.mp3', 'video.mp4', 'setup.exe', 'data.xlsx']
+        items: ['documents', 'downloads', 'pictures', 'music', 'videos', 'recordings', 'project', 'tugas.docx', 'wallpaper.jpg', 'lagu.mp3', 'video.mp4', 'setup.exe', 'data.xlsx']
     },
     documents: {
         name: 'Documents',
@@ -2115,6 +2414,11 @@ let fileSystem = {
         name: 'Videos',
         type: 'folder',
         items: ['video.mp4', 'movie.mp4', 'clip.avi']
+    },
+    recordings: {
+        name: 'Recordings',
+        type: 'folder',
+        items: []
     },
     project: {
         name: 'Project',
@@ -2179,18 +2483,20 @@ window.showPasswordPanel = function() {
     passwordInput.focus();
 };
 
+function unlockDesktop() {
+    lockscreen.style.pointerEvents = 'none';
+    lockscreen.style.display = 'none';
+    lockscreen.style.opacity = '1';
+    desktop.style.display = 'block';
+    desktop.classList.add('loaded');
+    taskbarAutoHideGraceUntil = Date.now() + 10000;
+    requestAnimationFrame(() => initSystem());
+}
+
 passwordInput.addEventListener('keydown', function(e) {
     if(e.key === 'Enter') {
         if(this.value === CORRECT_PASSWORD) {
-            lockscreen.style.opacity = '0';
-            setTimeout(() => {
-                lockscreen.style.display = 'none';
-                desktop.style.display = 'block';
-                setTimeout(() => {
-                    desktop.classList.add('loaded');
-                    initSystem();
-                }, 50);
-            }, 500);
+            unlockDesktop();
         } else {
             errorDiv.style.display = 'block';
             this.value = '';
@@ -2200,55 +2506,90 @@ passwordInput.addEventListener('keydown', function(e) {
 });
 
 // ========== WELCOME & BOOT SEQUENCE ==========
-window.onload = () => {
-    setTimeout(() => { 
-        document.getElementById('welcome-bar').style.width = '100%'; 
-    }, 100);
-    
+function startBootSequence() {
+    const welcomeScreen = document.getElementById('welcome-screen');
+    const bootScreen = document.getElementById('boot-screen');
+    const welcomeBar = document.getElementById('welcome-bar');
+    const bootBar = document.getElementById('boot-bar');
+
+    lockscreen.style.display = 'none';
+    welcomeScreen.style.display = 'flex';
+    welcomeScreen.style.opacity = '1';
+    welcomeScreen.style.pointerEvents = 'auto';
+
+    setTimeout(() => { welcomeBar.style.width = '100%'; }, 100);
+
     setTimeout(() => {
-        const welcomeScreen = document.getElementById('welcome-screen');
-        const bootScreen = document.getElementById('boot-screen');
-        
         welcomeScreen.style.opacity = '0';
+        welcomeScreen.style.pointerEvents = 'none';
         setTimeout(() => {
             welcomeScreen.style.display = 'none';
+            bootScreen.style.display = 'flex';
             bootScreen.style.opacity = '1';
-            
-            setTimeout(() => { 
-                document.getElementById('boot-bar').style.width = '100%'; 
-            }, 500);
-            
+            bootScreen.style.pointerEvents = 'auto';
+
+            setTimeout(() => { bootBar.style.width = '100%'; }, 50);
+
             setTimeout(() => {
                 bootScreen.style.opacity = '0';
+                bootScreen.style.pointerEvents = 'none';
                 setTimeout(() => {
                     bootScreen.style.display = 'none';
                     lockscreen.style.display = 'flex';
-                }, 1000);
-            }, 3000);
+                    lockscreen.style.opacity = '1';
+                    lockscreen.style.pointerEvents = 'auto';
+                }, 800);
+            }, 2800);
         }, 800);
-    }, 3500);
-};
+    }, 3200);
+}
+
+if (document.readyState === 'complete') {
+    startBootSequence();
+} else {
+    window.addEventListener('load', startBootSequence);
+}
 
 // ========== FUNGSI INISIALISASI DESKTOP ==========
 function initSystem() {
+    if (systemInitialized) return;
+    systemInitialized = true;
+
     loadSavedData();
     updateClock();
     setInterval(updateClock, 1000);
     updateHomeClock();
     setInterval(updateHomeClock, 1000);
     initDock();
-    document.addEventListener('click', closeContextMenu);
-    document.addEventListener('contextmenu', closeContextMenu);
+    applyTaskbarAutoHide();
+
+    if (!document.body.dataset.pufutaraListeners) {
+        document.body.dataset.pufutaraListeners = '1';
+        document.addEventListener('click', closeContextMenu);
+        document.addEventListener('contextmenu', closeContextMenu);
+    }
     setupAutoHide();
-    loadWidgets();
-    renderDesktopPins();
-    
+
     document.querySelectorAll('.start-item').forEach(item => {
         item.addEventListener('contextmenu', function(e) {
             e.preventDefault();
             e.stopPropagation();
             const appId = this.getAttribute('onclick')?.match(/openApp\('(.+?)'\)/)?.[1];
             if(appId) showContextMenu(e, appId, 'start');
+        });
+    });
+
+    requestAnimationFrame(() => {
+        renderDesktopPins();
+        requestAnimationFrame(() => {
+            loadWidgets();
+            setTimeout(() => {
+                showNotification(
+                    'Selamat datang di Pufutara OS',
+                    'Desktop siap digunakan. Klik ikon di dock atau desktop untuk membuka aplikasi.',
+                    'success'
+                );
+            }, 500);
         });
     });
 }
@@ -2264,9 +2605,9 @@ function setupAutoHide() {
         topBar.classList.remove('hidden');
         dockContainer.classList.remove('hidden');
         clearTimeout(hideTimeout);
-        if (taskbarAutoHide && e.clientY > 50) {
+        if (taskbarAutoHide && Date.now() > taskbarAutoHideGraceUntil && e.clientY > 50) {
             hideTimeout = setTimeout(() => {
-                if (taskbarAutoHide && mouseY > 100) {
+                if (taskbarAutoHide && Date.now() > taskbarAutoHideGraceUntil && mouseY > 100) {
                     topBar.classList.add('hidden');
                     dockContainer.classList.add('hidden');
                 }
@@ -2319,6 +2660,28 @@ function loadSavedData() {
     if(savedTaskbarAutoHide !== null) {
         taskbarAutoHide = savedTaskbarAutoHide === 'true';
     }
+
+    const savedBatterySaver = localStorage.getItem('pufutara_battery_saver');
+    if (savedBatterySaver !== null) {
+        batterySaverOn = savedBatterySaver === 'true';
+    }
+    applyBatterySaver();
+
+    const savedWifiOn = localStorage.getItem('pufutara_wifi_on');
+    if (savedWifiOn !== null) wifiOn = savedWifiOn === 'true';
+    connectedNetworkId = localStorage.getItem('pufutara_wifi_network') || null;
+    if (!wifiOn) connectedNetworkId = null;
+    updateWifiUI();
+
+    const savedNotifications = localStorage.getItem('pufutara_notifications');
+    if (savedNotifications) {
+        try {
+            notificationHistory = JSON.parse(savedNotifications) || [];
+        } catch (e) {
+            notificationHistory = [];
+        }
+    }
+    renderNotificationHistory();
     
     const savedRecycleBin = localStorage.getItem('pufutara_recyclebin');
     if(savedRecycleBin) {
@@ -2366,15 +2729,193 @@ function saveSystemSettings() {
     localStorage.setItem('pufutara_sound', soundLevel);
     localStorage.setItem('pufutara_brightness', brightnessLevel);
     localStorage.setItem('pufutara_taskbar_autohide', taskbarAutoHide);
+    localStorage.setItem('pufutara_battery_saver', batterySaverOn);
 }
+
+function toggleBatterySaver() {
+    batterySaverOn = !batterySaverOn;
+    saveSystemSettings();
+    applyBatterySaver();
+    showNotification(
+        'Battery Saver',
+        batterySaverOn ? 'Mode hemat daya diaktifkan.' : 'Mode hemat daya dimatikan.',
+        'info'
+    );
+}
+
+function applyBatterySaver() {
+    document.body.classList.toggle('battery-saver', batterySaverOn);
+    const desktop = document.getElementById('desktop');
+    if (desktop) desktop.classList.toggle('battery-saver-active', batterySaverOn);
+    const status = document.getElementById('saver-status');
+    if (status) status.textContent = batterySaverOn ? 'On' : 'Off';
+    const icon = document.getElementById('battery-icon');
+    if (icon) icon.textContent = batterySaverOn ? '🪫' : '🔋';
+    const toggle = document.getElementById('battery-saver-toggle');
+    if (toggle) toggle.style.fontWeight = batterySaverOn ? '600' : '400';
+}
+
+function showNotification(title, message, type = 'info') {
+    const entry = {
+        id: makeId('notif'),
+        title,
+        message,
+        type,
+        time: new Date().toISOString()
+    };
+    notificationHistory.unshift(entry);
+    if (notificationHistory.length > 50) notificationHistory = notificationHistory.slice(0, 50);
+    localStorage.setItem('pufutara_notifications', JSON.stringify(notificationHistory));
+    renderNotificationHistory();
+
+    const container = document.getElementById('notificationContainer');
+    if (!container) return;
+    const note = document.createElement('div');
+    note.className = `notification notification-${type}`;
+    note.innerHTML = `
+        <div class="notification-title">${escapeHtml(title)}</div>
+        <div class="notification-message">${escapeHtml(message)}</div>
+    `;
+    container.appendChild(note);
+    requestAnimationFrame(() => note.classList.add('show'));
+    setTimeout(() => {
+        note.classList.remove('show');
+        setTimeout(() => note.remove(), 400);
+    }, 5200);
+}
+
+function renderNotificationHistory() {
+    const list = document.getElementById('notificationHistoryList');
+    const badge = document.getElementById('notificationBadge');
+    if (badge) {
+        badge.textContent = String(notificationHistory.length);
+        badge.style.display = notificationHistory.length ? 'flex' : 'none';
+    }
+    if (!list) return;
+    if (!notificationHistory.length) {
+        list.innerHTML = '<div style="padding:20px;text-align:center;color:#9ca3af;font-size:12px;">Belum ada notifikasi.</div>';
+        return;
+    }
+    list.innerHTML = notificationHistory.map(item => `
+        <div class="notification-history-item ${item.type}">
+            <div style="font-weight:600;font-size:12px;">${escapeHtml(item.title)}</div>
+            <div style="font-size:12px;color:#4b5563;margin-top:4px;">${escapeHtml(item.message)}</div>
+            <div class="notification-history-meta">${new Date(item.time).toLocaleString('id-ID')}</div>
+        </div>
+    `).join('');
+}
+
+function toggleNotificationCenter() {
+    closeAllDropdowns();
+    closeWidgetTray();
+    closeStartMenu();
+    document.getElementById('notificationCenter').classList.toggle('show');
+}
+
+function clearNotificationHistory() {
+    notificationHistory = [];
+    localStorage.setItem('pufutara_notifications', '[]');
+    renderNotificationHistory();
+}
+
+function renderWifiNetworkList() {
+    const list = document.getElementById('wifi-network-list');
+    if (!list) return;
+    if (!wifiOn) {
+        list.innerHTML = '<div style="padding:8px 12px;font-size:11px;color:#9ca3af;">WiFi dimatikan</div>';
+        return;
+    }
+    list.innerHTML = WIFI_NETWORKS.map(net => `
+        <div class="wifi-network-item ${connectedNetworkId === net.id ? 'connected' : ''}"
+             onclick="event.stopPropagation(); connectToWifi('${net.id}')">
+            <span><i class="fas fa-wifi"></i> ${escapeHtml(net.ssid)}</span>
+            <span>${connectedNetworkId === net.id ? 'Terhubung' : 'Kunci'}</span>
+        </div>
+    `).join('');
+}
+
+function updateWifiUI() {
+    const network = WIFI_NETWORKS.find(n => n.id === connectedNetworkId);
+    document.getElementById('wifi-icon').textContent = wifiOn && network ? '📶' : (wifiOn ? '📡' : '✖️');
+    document.getElementById('wifi-value').textContent = wifiOn
+        ? (network ? network.ssid : 'Tidak terhubung')
+        : 'Offline';
+    document.getElementById('wifi-status').textContent = wifiOn ? 'Matikan' : 'Nyalakan';
+    renderWifiNetworkList();
+    localStorage.setItem('pufutara_wifi_on', wifiOn);
+    localStorage.setItem('pufutara_wifi_network', connectedNetworkId || '');
+}
+
+async function connectToWifi(networkId) {
+    if (!wifiOn) {
+        showNotification('WiFi', 'Nyalakan WiFi terlebih dahulu.', 'warning');
+        return;
+    }
+    const network = WIFI_NETWORKS.find(n => n.id === networkId);
+    if (!network) return;
+    const password = await showUiPrompt({
+        title: `Hubungkan ke ${network.ssid}`,
+        message: 'Masukkan kata sandi jaringan.',
+        value: '',
+        confirmText: 'Hubungkan'
+    });
+    if (password === null || password === undefined) return;
+    if (password !== network.password) {
+        showNotification('WiFi', 'Kata sandi salah.', 'warning');
+        return;
+    }
+    connectedNetworkId = networkId;
+    updateWifiUI();
+    showNotification('WiFi', `Terhubung ke ${network.ssid}.`, 'success');
+}
+
+function toggleWifiPower() {
+    wifiOn = !wifiOn;
+    if (!wifiOn) connectedNetworkId = null;
+    updateWifiUI();
+    showNotification('WiFi', wifiOn ? 'WiFi dinyalakan.' : 'WiFi dimatikan.', 'info');
+}
+
+const STICKY_COLORS = {
+    yellow: { bg: '#fffbeb', border: '#fde68a', text: '#78350f' },
+    pink: { bg: '#fdf2f8', border: '#f9a8d4', text: '#831843' },
+    green: { bg: '#ecfdf5', border: '#6ee7b7', text: '#065f46' },
+    blue: { bg: '#eff6ff', border: '#93c5fd', text: '#1e3a8a' },
+    purple: { bg: '#f5f3ff', border: '#c4b5fd', text: '#4c1d95' }
+};
 
 function saveWidgets() {
     const widgetsData = widgets.map(w => ({
-        type: w.type,
+        id: w.id,
+        type: w.type === 'notes' ? 'sticky' : w.type,
         x: w.x,
-        y: w.y
+        y: w.y,
+        content: w.content || '',
+        color: w.color || 'yellow'
     }));
     localStorage.setItem('pufutara_widgets', JSON.stringify(widgetsData));
+}
+
+function setStickyWidgetColor(widgetId, colorKey) {
+    const widget = widgets.find(w => w.id === widgetId);
+    const el = document.getElementById(widgetId);
+    if (!widget || !el) return;
+    widget.color = colorKey;
+    applyStickyWidgetStyle(el, colorKey);
+    saveWidgets();
+}
+
+function applyStickyWidgetStyle(widgetEl, colorKey) {
+    const palette = STICKY_COLORS[colorKey] || STICKY_COLORS.yellow;
+    const textarea = widgetEl.querySelector('textarea');
+    if (textarea) {
+        textarea.style.background = palette.bg;
+        textarea.style.borderColor = palette.border;
+        textarea.style.color = palette.text;
+    }
+    widgetEl.querySelectorAll('.sticky-color-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.color === colorKey);
+    });
 }
 
 function loadWidgets() {
@@ -2382,9 +2923,18 @@ function loadWidgets() {
     if(savedWidgets) {
         const widgetsData = JSON.parse(savedWidgets);
         widgetsData.forEach(widgetData => {
-            createWidget(widgetData.type, widgetData.x, widgetData.y);
+            const type = widgetData.type === 'notes' ? 'sticky' : widgetData.type;
+            createWidget(type, widgetData.x, widgetData.y, widgetData);
         });
     }
+}
+
+function saveStickyWidgetContent(widgetId, value) {
+    const widget = widgets.find(w => w.id === widgetId);
+    if (!widget) return;
+    widget.content = value;
+    localStorage.setItem(`pufutara_widget_${widgetId}`, value);
+    saveWidgets();
 }
 
 function saveRecycleBin() {
@@ -2598,14 +3148,17 @@ function closeWidgetTray() {
 }
 
 function addWidget(type) {
+    if (type === 'notes') type = 'sticky';
     const x = Math.random() * (window.innerWidth - 200);
     const y = Math.random() * (window.innerHeight - 200) + 50;
     createWidget(type, x, y);
     closeWidgetTray();
 }
 
-function createWidget(type, x = 100, y = 100) {
-    const widgetId = 'widget-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+function createWidget(type, x = 100, y = 100, saved = {}) {
+    if (type === 'notes') type = 'sticky';
+    const widgetId = saved.id || ('widget-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9));
+    if (document.getElementById(widgetId)) return;
     const widget = document.createElement('div');
     widget.className = 'widget';
     widget.id = widgetId;
@@ -2644,10 +3197,20 @@ function createWidget(type, x = 100, y = 100) {
                     </div>
                 </div>`;
             break;
+        case 'sticky':
+            content = `
+                <div class="widget-header"><span>Sticky Note</span><span class="widget-close" onclick="removeWidget('${widgetId}')">×</span></div>
+                <div class="sticky-widget">
+                    <div class="sticky-color-bar">
+                        ${Object.keys(STICKY_COLORS).map(c => `<button type="button" class="sticky-color-btn" data-color="${c}" style="background:${STICKY_COLORS[c].bg};border-color:${STICKY_COLORS[c].border}" onclick="setStickyWidgetColor('${widgetId}','${c}')"></button>`).join('')}
+                    </div>
+                    <textarea id="${widgetId}-sticky" placeholder="Tulis catatan di sini..." oninput="saveStickyWidgetContent('${widgetId}', this.value)"></textarea>
+                </div>`;
+            break;
         case 'notes':
             content = `
                 <div class="widget-header"><span>Catatan Cepat</span><span class="widget-close" onclick="removeWidget('${widgetId}')">×</span></div>
-                <div class="notes-widget"><textarea id="${widgetId}-notes" placeholder="Tulis catatan di sini..."></textarea></div>`;
+                <div class="notes-widget"><textarea id="${widgetId}-notes" placeholder="Tulis catatan di sini..." oninput="saveStickyWidgetContent('${widgetId}', this.value)"></textarea></div>`;
             break;
         case 'calendar':
             const now = new Date();
@@ -2681,8 +3244,17 @@ function createWidget(type, x = 100, y = 100) {
     widget.innerHTML = content;
     document.getElementById('widgets-area').appendChild(widget);
     makeDraggable(widget);
-    widgets.push({ id: widgetId, type: type, x: x, y: y });
-    updateWidgetData(widgetId, type);
+
+    const storedContent = saved.content || localStorage.getItem(`pufutara_widget_${widgetId}`) || '';
+    const storedColor = saved.color || 'yellow';
+    const normalizedType = type === 'notes' ? 'sticky' : type;
+    widgets.push({ id: widgetId, type: normalizedType, x: x, y: y, content: storedContent, color: storedColor });
+
+    const stickyField = widget.querySelector(`#${widgetId}-sticky, #${widgetId}-notes`);
+    if (stickyField && storedContent) stickyField.value = storedContent;
+    if (normalizedType === 'sticky') applyStickyWidgetStyle(widget, storedColor);
+
+    updateWidgetData(widgetId, normalizedType);
     saveWidgets();
 }
 
@@ -2741,12 +3313,25 @@ function updateWidgetData(widgetId, type) {
                 widget.querySelector(`#${widgetId}-disk-bar`).style.width = disk+'%';
             }
             break;
+        case 'weather':
+            const temps = [28, 30, 32, 29, 31];
+            const icons = ['☀️', '⛅', '🌤️', '🌦️'];
+            const cities = ['Jakarta', 'Bandung', 'Surabaya', 'Yogyakarta'];
+            const pick = Math.floor(Math.random() * temps.length);
+            if (widget.querySelector(`#${widgetId}-temp`)) {
+                widget.querySelector(`#${widgetId}-temp`).innerText = temps[pick] + '°C';
+                widget.querySelector(`#${widgetId}-icon`).innerText = icons[pick % icons.length];
+                widget.querySelector(`#${widgetId}-desc`).innerText = `Cerah, ${cities[pick % cities.length]}`;
+            }
+            break;
     }
 }
 
 function removeWidget(widgetId) {
     const widget = document.getElementById(widgetId);
-    if(widget) { widget.remove(); widgets = widgets.filter(w => w.id !== widgetId); saveWidgets(); }
+    if(widget) { widget.remove(); widgets = widgets.filter(w => w.id !== widgetId); }
+    localStorage.removeItem(`pufutara_widget_${widgetId}`);
+    saveWidgets();
 }
 
 setInterval(() => {
@@ -2754,8 +3339,17 @@ setInterval(() => {
 }, 5000);
 
 // ========== START MENU ==========
-function toggleStart(e) { if(e) e.stopPropagation(); document.getElementById('startMenu').classList.toggle('show'); }
-function closeStartMenu(e) { const menu = document.getElementById('startMenu'); if (menu.classList.contains('show')) menu.classList.remove('show'); }
+function toggleStart(e) {
+    if (e) e.stopPropagation();
+    const menu = document.getElementById('startMenu');
+    menu.classList.toggle('show');
+    if (menu.classList.contains('show')) menu.style.zIndex = '25000';
+}
+function closeStartMenu(e) {
+    const menu = document.getElementById('startMenu');
+    if (menu.classList.contains('show')) menu.classList.remove('show');
+    document.getElementById('notificationCenter')?.classList.remove('show');
+}
 
 // ========== DOCK LOGIC dengan Drag & Drop ==========
 function initDock() {
@@ -2812,6 +3406,7 @@ function makeIconDraggable(icon) {
 let dockDragItem = null;
 let dockDragClone = null;
 let dockDragStartIndex = -1;
+let dockDragToDesktop = false;
 
 function startDockDrag(e) {
     if (e.button !== 0) return; // hanya left click
@@ -2820,6 +3415,7 @@ function startDockDrag(e) {
     if (icon.classList.contains('no-drag')) return;
     
     e.preventDefault();
+    dockDragToDesktop = false;
     
     dockDragItem = icon;
     const parent = icon.parentNode;
@@ -2849,6 +3445,13 @@ function onDockDrag(e) {
     // Pindahkan clone
     dockDragClone.style.left = e.clientX - dockDragClone.offsetWidth/2 + 'px';
     dockDragClone.style.top = e.clientY - dockDragClone.offsetHeight/2 + 'px';
+
+    const dockContainer = document.getElementById('dockContainer');
+    const dockRect = dockContainer.getBoundingClientRect();
+    const overDock = e.clientX >= dockRect.left - 48 && e.clientX <= dockRect.right + 48
+        && e.clientY >= dockRect.top - 24 && e.clientY <= dockRect.bottom + 24;
+    dockDragToDesktop = !overDock && e.clientY < window.innerHeight - 90;
+    if (dockDragToDesktop) return;
     
     // Hitung indeks target berdasarkan posisi mouse di dalam dock
     const dock = document.getElementById('dock');
@@ -2887,18 +3490,29 @@ function stopDockDrag(e) {
     }
     
     dockDragItem.classList.remove('dragging');
+
+    if (dockDragToDesktop && dockDragItem.dataset.appId) {
+        const desktop = document.getElementById('desktop');
+        const rect = desktop.getBoundingClientRect();
+        pinAppToDesktop(
+            dockDragItem.dataset.appId,
+            Math.max(12, e.clientX - rect.left - 42),
+            Math.max(48, e.clientY - rect.top - 40)
+        );
+    } else {
+        // Perbarui pinnedApps sesuai urutan baru (abaikan start button di indeks 0)
+        const dock = document.getElementById('dock');
+        const icons = dock.querySelectorAll('.dock-icon:not(:first-child)');
+        const newPinned = [];
+        icons.forEach(icon => {
+            const appId = icon.dataset.appId;
+            if (appId) newPinned.push(appId);
+        });
+        pinnedApps = newPinned;
+        savePinnedApps();
+    }
     
-    // Perbarui pinnedApps sesuai urutan baru (abaikan start button di indeks 0)
-    const dock = document.getElementById('dock');
-    const icons = dock.querySelectorAll('.dock-icon:not(:first-child)');
-    const newPinned = [];
-    icons.forEach(icon => {
-        const appId = icon.dataset.appId;
-        if (appId) newPinned.push(appId);
-    });
-    pinnedApps = newPinned;
-    savePinnedApps();
-    
+    dockDragToDesktop = false;
     dockDragItem = null;
     dockDragStartIndex = -1;
     
@@ -2932,6 +3546,7 @@ function showContextMenu(e, appId, source) {
     document.getElementById('context-pin').style.display = isAppMenu && !isPinned ? 'flex' : 'none';
     document.getElementById('context-unpin').style.display = isAppMenu && isPinned ? 'flex' : 'none';
     document.getElementById('context-pin-desktop').style.display = isAppMenu ? 'flex' : 'none';
+    document.getElementById('context-rename-desktop').style.display = isDesktopIconMenu ? 'flex' : 'none';
     document.getElementById('context-delete-desktop').style.display = isDesktopIconMenu ? 'flex' : 'none';
     document.getElementById('context-settings').style.display = isTaskbarMenu ? 'flex' : 'none';
     document.getElementById('context-refresh').style.display = isTaskbarMenu || isWallpaperMenu ? 'flex' : 'none';
@@ -2973,6 +3588,24 @@ function contextDeleteDesktopPin() {
     closeContextMenu();
 }
 
+async function contextRenameDesktopPin() {
+    if (!contextMenuTarget?.pinId) return;
+    const pin = desktopPins.find(item => item.id === contextMenuTarget.pinId);
+    if (!pin) return;
+    const currentLabel = pin.label || getAppName(pin.appId);
+    const nextLabel = await showUiPrompt({
+        title: 'Rename Desktop Pin',
+        message: 'Masukkan nama baru untuk ikon desktop ini.',
+        value: currentLabel,
+        confirmText: 'Simpan'
+    });
+    closeContextMenu();
+    if (!nextLabel || !nextLabel.trim()) return;
+    pin.label = nextLabel.trim();
+    saveDesktopPins();
+    renderDesktopPins();
+}
+
 function showWallpaperContextMenu(e) {
     const blocked = e.target.closest('.window, .dock-container, .top-bar, .start-menu, .context-menu, .widget, .widget-tray, .control-dropdown');
     if (blocked) return;
@@ -2990,28 +3623,48 @@ function applyTaskbarAutoHide() {
     }
 }
 
-function pinAppToDesktop(appId) {
+const DESKTOP_PIN_DEFAULT_APPS = ['files', 'browser', 'store', 'settings'];
+const DESKTOP_PIN_X = 24;
+const DESKTOP_PIN_START_Y = 24;
+const DESKTOP_PIN_GAP_Y = 96;
+
+function nextDesktopPinY() {
+    const columnPins = desktopPins.filter(pin => pin.x === DESKTOP_PIN_X);
+    if (!columnPins.length) return DESKTOP_PIN_START_Y;
+    return Math.max(...columnPins.map(pin => pin.y)) + DESKTOP_PIN_GAP_Y;
+}
+
+function pinAppToDesktop(appId, x, y) {
     if (desktopPins.some(pin => pin.appId === appId)) return;
-    const index = desktopPins.length;
     desktopPins.push({
         id: `desktop-${appId}-${Date.now()}`,
         appId,
-        x: 24 + (index % 2) * 96,
-        y: 24 + Math.floor(index / 2) * 96
+        x: typeof x === 'number' ? x : DESKTOP_PIN_X,
+        y: typeof y === 'number' ? y : nextDesktopPinY()
     });
     saveDesktopPins();
     renderDesktopPins();
 }
 
 function ensureDefaultDesktopPins() {
-    ['files', 'browser'].forEach(appId => {
+    if (!localStorage.getItem('pufutara_desktop_pins')) {
+        desktopPins = DESKTOP_PIN_DEFAULT_APPS.map((appId, index) => ({
+            id: `desktop-${appId}-default`,
+            appId,
+            x: DESKTOP_PIN_X,
+            y: DESKTOP_PIN_START_Y + index * DESKTOP_PIN_GAP_Y
+        }));
+        saveDesktopPins();
+        return;
+    }
+
+    DESKTOP_PIN_DEFAULT_APPS.forEach(appId => {
         if (desktopPins.some(pin => pin.appId === appId)) return;
-        const index = desktopPins.length;
         desktopPins.push({
             id: `desktop-${appId}-default`,
             appId,
-            x: 24 + (index % 2) * 96,
-            y: 24 + Math.floor(index / 2) * 96
+            x: DESKTOP_PIN_X,
+            y: nextDesktopPinY()
         });
     });
     saveDesktopPins();
@@ -3025,7 +3678,7 @@ function renderDesktopPins() {
              ondblclick="openApp('${pin.appId}')"
              oncontextmenu="showContextMenu(event, '${pin.appId}', 'desktop-icon')">
             <div class="desktop-app-emoji">${getAppEmoji(pin.appId)}</div>
-            <div class="desktop-app-label">${getAppName(pin.appId)}</div>
+            <div class="desktop-app-label">${escapeHtml(pin.label || getAppName(pin.appId))}</div>
         </div>
     `).join('');
 
@@ -3069,10 +3722,37 @@ function onDesktopPinDrag(e) {
     desktopPinDrag.moved = true;
 }
 
-function stopDesktopPinDrag() {
+function isPointOverDock(x, y) {
+    const dockContainer = document.getElementById('dockContainer');
+    if (!dockContainer) return false;
+    const rect = dockContainer.getBoundingClientRect();
+    return x >= rect.left - 48 && x <= rect.right + 48
+        && y >= rect.top - 24 && y <= rect.bottom + 24;
+}
+
+function moveDesktopPinToDock(appId, pinId) {
+    desktopPins = desktopPins.filter(pin => pin.id !== pinId);
+    saveDesktopPins();
+    renderDesktopPins();
+    if (!pinnedApps.includes(appId)) {
+        pinnedApps.push(appId);
+        savePinnedApps();
+        addToDock(appId);
+    }
+    showNotification('Dock', `${getAppName(appId)} dipindah ke dock.`, 'info');
+}
+
+function stopDesktopPinDrag(e) {
     if (!desktopPinDrag) return;
+    const { pin, moved } = desktopPinDrag;
     desktopPinDrag.icon.classList.remove('dragging');
-    if (desktopPinDrag.moved) saveDesktopPins();
+
+    if (moved && e && isPointOverDock(e.clientX, e.clientY)) {
+        moveDesktopPinToDock(pin.appId, pin.id);
+    } else if (moved) {
+        saveDesktopPins();
+    }
+
     desktopPinDrag = null;
     document.removeEventListener('mousemove', onDesktopPinDrag);
     document.removeEventListener('mouseup', stopDesktopPinDrag);
@@ -3081,9 +3761,10 @@ function stopDesktopPinDrag() {
 function getAppEmoji(appId) {
     const emojis = {
         'files':'📁','browser':'🌍','terminal':'💻','settings':'⚙️','calculator':'🧮','calendar':'📅','music':'🎵',
-        'camera':'📷','photos':'🖼️','video':'🎬','yt':'📺','notes':'📝','texteditor':'📄','sites':'🌐',
+        'camera':'📷','photos':'🖼️','video':'🎬','voicerecorder':'🎙️','yt':'📺','notes':'📝','texteditor':'📄','sites':'🌐',
         'wallpaper':'🎨','wheel':'🎡','weather':'☀️','maps':'🗺️','contacts':'📇','mail':'✉️',
-        'snake':'🐍','tictactoe':'⭕❌','memory':'🧠'
+        'snake':'🐍','tictactoe':'⭕❌','memory':'🧠','store':'🛍️',
+        'writer':'📝','ppt':'📊','paint':'🖌️'
     };
     return emojis[appId] || '📱';
 }
@@ -3099,7 +3780,12 @@ function getAppName(appId) {
         music: 'Music Player',
         camera: 'Camera',
         photos: 'Photos',
-        video: 'Video Player',
+        voicerecorder: 'Voice Recorder',
+        video: 'Video Gallery',
+        store: 'Pufutara Store',
+        writer: 'Pufutara Writer',
+        ppt: 'Pufutara PPT',
+        paint: 'Pufutara Paint',
         yt: 'YouTube',
         notes: 'Catatan',
         texteditor: 'Text Editor',
@@ -3118,11 +3804,17 @@ function getAppName(appId) {
 }
 
 // ========== SYSTEM CONTROLS ==========
-function toggleControl(type) { closeAllDropdowns(); document.getElementById(`${type}-dropdown`).classList.toggle('show'); }
+function toggleControl(type) {
+    closeAllDropdowns();
+    document.getElementById('notificationCenter')?.classList.remove('show');
+    const dropdown = document.getElementById(`${type}-dropdown`);
+    dropdown.classList.toggle('show');
+    if (type === 'wifi' && dropdown.classList.contains('show')) renderWifiNetworkList();
+}
 function closeAllDropdowns() { document.querySelectorAll('.control-dropdown').forEach(d => d.classList.remove('show')); }
 function setSound(level) { soundLevel=level; document.getElementById('sound-value').textContent=level+'%'; document.getElementById('sound-slider').value=level; saveSystemSettings(); }
 function setBrightness(level) { brightnessLevel=level; document.getElementById('brightness-value').textContent=level+'%'; document.getElementById('brightness-slider').value=level; document.getElementById('desktop').style.filter=`brightness(${level/100})`; saveSystemSettings(); }
-function toggleWifi() { wifiOn=!wifiOn; document.getElementById('wifi-icon').textContent=wifiOn?'📶':'✖️'; document.getElementById('wifi-value').textContent=wifiOn?'Connected':'Disabled'; document.getElementById('wifi-status').textContent=wifiOn?'Matikan':'Nyala'; }
+function toggleWifi() { toggleWifiPower(); }
 function musicControl(action) { alert({ 'prev':'⏮ Musik sebelumnya','play':'▶️ Memutar musik','next':'⏭ Musik berikutnya' }[action]); }
 
 // ========== MODAL & POWER MANAGEMENT ==========
@@ -3219,6 +3911,7 @@ function preparePowerState() {
     closePowerMenu();
     closeAllDropdowns();
     closeWidgetTray();
+    document.getElementById('notificationCenter')?.classList.remove('show');
     passwordInput.value = '';
     errorDiv.style.display = 'none';
     passwordPanel.classList.remove('show');
@@ -3246,14 +3939,14 @@ function enterSleepState(mode) {
 function performShutdown() {
     preparePowerState();
     document.querySelectorAll('.window').forEach(win => win.remove());
-    const blackout = document.getElementById('powerBlackout');
+    const shutdownOverlay = document.getElementById('shutdownOverlay');
     const bootScreen = document.getElementById('boot-screen');
     const bootBar = document.getElementById('boot-bar');
 
-    blackout.classList.add('active');
+    shutdownOverlay.classList.add('active');
     desktop.classList.remove('loaded');
     setTimeout(() => {
-        blackout.classList.remove('active');
+        shutdownOverlay.classList.remove('active');
         desktop.style.display = 'none';
         bootBar.style.transition = 'none';
         bootBar.style.width = '0%';
@@ -3306,25 +3999,36 @@ function renderFileManager(container) {
         <div class="file-sidebar">
             <div class="file-sidebar-section">
                 <div class="file-sidebar-title">FOLDERS</div>
-                <div class="file-sidebar-item ${currentFolder === 'home' ? 'active' : ''}" onclick="navigateToFolder('home')">
+                <div class="file-sidebar-item ${currentFolder === 'home' ? 'active' : ''}" onclick="navigateToFolder('home')"
+                     ondragover="dragOver(event)" ondrop="dropOnSidebarFolder(event, 'home')">
                     <i class="fas fa-home"></i> Home
                 </div>
-                <div class="file-sidebar-item ${currentFolder === 'documents' ? 'active' : ''}" onclick="navigateToFolder('documents')">
+                <div class="file-sidebar-item ${currentFolder === 'documents' ? 'active' : ''}" onclick="navigateToFolder('documents')"
+                     ondragover="dragOver(event)" ondrop="dropOnSidebarFolder(event, 'documents')">
                     <i class="fas fa-file-alt"></i> Documents
                 </div>
-                <div class="file-sidebar-item ${currentFolder === 'downloads' ? 'active' : ''}" onclick="navigateToFolder('downloads')">
+                <div class="file-sidebar-item ${currentFolder === 'downloads' ? 'active' : ''}" onclick="navigateToFolder('downloads')"
+                     ondragover="dragOver(event)" ondrop="dropOnSidebarFolder(event, 'downloads')">
                     <i class="fas fa-download"></i> Downloads
                 </div>
-                <div class="file-sidebar-item ${currentFolder === 'pictures' ? 'active' : ''}" onclick="navigateToFolder('pictures')">
+                <div class="file-sidebar-item ${currentFolder === 'pictures' ? 'active' : ''}" onclick="navigateToFolder('pictures')"
+                     ondragover="dragOver(event)" ondrop="dropOnSidebarFolder(event, 'pictures')">
                     <i class="fas fa-image"></i> Pictures
                 </div>
-                <div class="file-sidebar-item ${currentFolder === 'music' ? 'active' : ''}" onclick="navigateToFolder('music')">
+                <div class="file-sidebar-item ${currentFolder === 'music' ? 'active' : ''}" onclick="navigateToFolder('music')"
+                     ondragover="dragOver(event)" ondrop="dropOnSidebarFolder(event, 'music')">
                     <i class="fas fa-music"></i> Music
                 </div>
-                <div class="file-sidebar-item ${currentFolder === 'videos' ? 'active' : ''}" onclick="navigateToFolder('videos')">
+                <div class="file-sidebar-item ${currentFolder === 'recordings' ? 'active' : ''}" onclick="navigateToFolder('recordings')"
+                     ondragover="dragOver(event)" ondrop="dropOnSidebarFolder(event, 'recordings')">
+                    <i class="fas fa-microphone"></i> Recordings
+                </div>
+                <div class="file-sidebar-item ${currentFolder === 'videos' ? 'active' : ''}" onclick="navigateToFolder('videos')"
+                     ondragover="dragOver(event)" ondrop="dropOnSidebarFolder(event, 'videos')">
                     <i class="fas fa-video"></i> Videos
                 </div>
-                <div class="file-sidebar-item ${currentFolder === 'project' ? 'active' : ''}" onclick="navigateToFolder('project')">
+                <div class="file-sidebar-item ${currentFolder === 'project' ? 'active' : ''}" onclick="navigateToFolder('project')"
+                     ondragover="dragOver(event)" ondrop="dropOnSidebarFolder(event, 'project')">
                     <i class="fas fa-code"></i> Project
                 </div>
             </div>
@@ -3890,18 +4594,67 @@ function dragEnd(e) {
     e.target.classList.remove('dragging');
 }
 
+function findFileParentFolder(fileName) {
+    if (fileDetails[fileName]?.folder) return fileDetails[fileName].folder;
+    for (const [folderId, folder] of Object.entries(fileSystem)) {
+        if (folder.items && folder.items.includes(fileName)) return folderId;
+    }
+    return currentFolder;
+}
+
+function moveFileToFolder(fileName, targetFolderId) {
+    if (!fileName || !targetFolderId || !fileSystem[targetFolderId]) {
+        return { ok: false, message: 'Folder tujuan tidak valid.' };
+    }
+    if (fileSystem[fileName]) {
+        return { ok: false, message: 'Tidak bisa memindahkan folder ke folder lain di demo ini.' };
+    }
+    const sourceFolderId = findFileParentFolder(fileName);
+    if (sourceFolderId === targetFolderId) {
+        return { ok: false, message: 'File sudah berada di folder ini.' };
+    }
+    const sourceFolder = fileSystem[sourceFolderId];
+    if (!sourceFolder || !sourceFolder.items.includes(fileName)) {
+        return { ok: false, message: 'File tidak ditemukan.' };
+    }
+    sourceFolder.items = sourceFolder.items.filter(item => item !== fileName);
+    if (!fileSystem[targetFolderId].items.includes(fileName)) {
+        fileSystem[targetFolderId].items.push(fileName);
+    }
+    if (fileDetails[fileName]) fileDetails[fileName].folder = targetFolderId;
+    if (virtualFiles[fileName]) {
+        virtualFiles[fileName].folder = targetFolderId;
+        saveVirtualFiles();
+    }
+    return { ok: true, message: `${fileName} dipindah ke ${fileSystem[targetFolderId].name || targetFolderId}.` };
+}
+
 function dropOnItem(e, targetFilename) {
     e.preventDefault();
     e.stopPropagation();
-    
     const draggedFile = e.dataTransfer.getData('text/plain');
-    if (draggedFile && draggedFile !== targetFilename) {
-        const isTargetFolder = fileSystem[targetFilename] !== undefined;
-        
-        if (isTargetFolder) {
-            // Pindahkan ke folder target
-            alert(`Memindahkan ${draggedFile} ke folder ${targetFilename} (simulasi)`);
-        }
+    if (!draggedFile || draggedFile === targetFilename) return;
+    if (fileSystem[targetFilename] === undefined) return;
+    const result = moveFileToFolder(draggedFile, targetFilename);
+    if (result.ok) {
+        showNotification('File Explorer', result.message, 'success');
+        refreshOpenFileManager();
+    } else {
+        showNotification('File Explorer', result.message, 'warning');
+    }
+}
+
+function dropOnSidebarFolder(e, folderId) {
+    e.preventDefault();
+    e.stopPropagation();
+    const draggedFile = e.dataTransfer.getData('text/plain');
+    if (!draggedFile) return;
+    const result = moveFileToFolder(draggedFile, folderId);
+    if (result.ok) {
+        showNotification('File Explorer', result.message, 'success');
+        refreshOpenFileManager();
+    } else {
+        showNotification('File Explorer', result.message, 'warning');
     }
 }
 
@@ -3912,13 +4665,15 @@ function dragOver(e) {
 function createUtilityWindow(id, title, width, height, content) {
     const existing = document.getElementById(id);
     if (existing) {
-        bringToFront(existing);
+        if (isWindowMinimized(existing)) restoreWindow(id);
+        else bringToFront(existing);
         return existing;
     }
 
     const win = document.createElement('div');
     win.className = 'window';
     win.id = id;
+    win.dataset.minimized = 'false';
     win.style.width = width + 'px';
     win.style.height = height + 'px';
     win.style.left = ((window.innerWidth / 2) - (width / 2)) + 'px';
@@ -4052,41 +4807,145 @@ function openGenericFile(filename) {
     `);
 }
 
+// ========== VOICE RECORDER ==========
+let voicePlaybackAudio = null;
+
+async function startVoiceRecording() {
+    const status = document.getElementById('voice-status');
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        recordChunks = [];
+        mediaRecorder = new MediaRecorder(stream);
+        recordStartTime = Date.now();
+        mediaRecorder.ondataavailable = (e) => { if (e.data.size) recordChunks.push(e.data); };
+        mediaRecorder.onstop = () => {
+            stream.getTracks().forEach(track => track.stop());
+            saveVoiceRecording();
+        };
+        mediaRecorder.start();
+        if (status) status.textContent = 'Merekam...';
+    } catch (error) {
+        if (status) status.textContent = 'Gagal mengakses mikrofon';
+        showNotification('Voice Recorder', 'Izinkan akses mikrofon di browser (HTTPS/localhost).', 'warning');
+    }
+}
+
+function stopVoiceRecording() {
+    const status = document.getElementById('voice-status');
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+        if (status) status.textContent = 'Menyimpan rekaman...';
+    }
+}
+
+function saveVoiceRecording() {
+    if (!recordChunks.length) return;
+    const blob = new Blob(recordChunks, { type: 'audio/webm' });
+    const reader = new FileReader();
+    reader.onload = () => {
+        const filename = `recording-${Date.now()}.webm`;
+        const durationSec = recordStartTime ? Math.max(1, Math.round((Date.now() - recordStartTime) / 1000)) : 0;
+        persistVirtualFile(filename, {
+            type: 'audio',
+            size: formatBytes(blob.size),
+            modified: new Date().toISOString().slice(0, 10),
+            icon: '🎙️',
+            dataUrl: reader.result,
+            durationSec
+        }, 'recordings');
+        if (fileSystem.recordings && !fileSystem.recordings.items.includes(filename)) {
+            fileSystem.recordings.items.push(filename);
+        }
+        if (fileSystem.music && !fileSystem.music.items.includes(filename)) {
+            fileSystem.music.items.push(filename);
+        }
+        const status = document.getElementById('voice-status');
+        if (status) status.textContent = 'Siap merekam';
+        renderVoiceRecorderList();
+        refreshOpenFileManager();
+        showNotification('Voice Recorder', `Rekaman disimpan: ${filename}`, 'success');
+    };
+    reader.readAsDataURL(blob);
+}
+
+function renderVoiceRecorderList() {
+    const list = document.getElementById('voice-recorder-list');
+    if (!list) return;
+    const files = (fileSystem.recordings?.items || []).filter(name => fileDetails[name]?.type === 'audio' || name.endsWith('.webm'));
+    if (!files.length) {
+        list.innerHTML = '<div style="color:#9ca3af;font-size:12px;">Belum ada rekaman. File tersimpan di folder Recordings.</div>';
+        return;
+    }
+    list.innerHTML = files.map(filename => {
+        const details = fileDetails[filename] || {};
+        const safe = filename.replace(/'/g, "\\'");
+        return `
+            <div class="voice-item">
+                <div>
+                    <div style="font-weight:600;font-size:12px;">${escapeHtml(filename)}</div>
+                    <div style="font-size:11px;color:#6b7280;">${details.durationSec ? details.durationSec + ' detik · ' : ''}${details.size || ''}</div>
+                </div>
+                <button type="button" class="voice-btn" onclick="playVoiceFile('${safe}')"><i class="fas fa-play"></i></button>
+            </div>
+        `;
+    }).join('');
+}
+
+function playVoiceFile(filename) {
+    const dataUrl = getFileDataUrl(filename);
+    if (!dataUrl) {
+        showNotification('Voice Recorder', 'File audio tidak ditemukan.', 'warning');
+        return;
+    }
+    if (voicePlaybackAudio) {
+        voicePlaybackAudio.pause();
+        voicePlaybackAudio = null;
+    }
+    voicePlaybackAudio = new Audio(dataUrl);
+    voicePlaybackAudio.play();
+}
+
 // ========== BROWSER FUNCTIONS ==========
-function browserGoBack(btn) { 
-    const win = btn.closest('.window'); 
-    const frame = win.querySelector('.browser-frame'); 
-    try { 
-        frame.contentWindow.history.back(); 
-        setTimeout(() => {
-            try {
-                win.querySelector('.browser-url').value = frame.contentWindow.location.href;
-            } catch(e) {}
-        }, 100);
-    } catch(e) { 
-        alert('Tidak dapat kembali'); 
-    } 
+function getBrowserStack(win) {
+    if (!win) return null;
+    if (!browserStacks[win.id]) {
+        browserStacks[win.id] = { stack: ['about:blank'], index: 0 };
+    }
+    return browserStacks[win.id];
 }
 
-function browserGoForward(btn) { 
-    const win = btn.closest('.window'); 
-    const frame = win.querySelector('.browser-frame'); 
-    try { 
-        frame.contentWindow.history.forward(); 
-        setTimeout(() => {
-            try {
-                win.querySelector('.browser-url').value = frame.contentWindow.location.href;
-            } catch(e) {}
-        }, 100);
-    } catch(e) { 
-        alert('Tidak dapat maju'); 
-    } 
+function browserGoBack(btn) {
+    const win = btn.closest('.window');
+    const history = getBrowserStack(win);
+    if (!history || history.index <= 0) return;
+    history.index--;
+    const url = history.stack[history.index];
+    const frame = win.querySelector('.browser-frame');
+    frame.src = url;
+    frame.style.display = 'block';
+    win.querySelector('.browser-home').style.display = 'none';
+    win.querySelector('.browser-url').value = url;
 }
 
-function browserRefresh(btn) { 
-    const win = btn.closest('.window'); 
-    const frame = win.querySelector('.browser-frame'); 
-    frame.src = frame.src; 
+function browserGoForward(btn) {
+    const win = btn.closest('.window');
+    const history = getBrowserStack(win);
+    if (!history || history.index >= history.stack.length - 1) return;
+    history.index++;
+    const url = history.stack[history.index];
+    const frame = win.querySelector('.browser-frame');
+    frame.src = url;
+    frame.style.display = 'block';
+    win.querySelector('.browser-home').style.display = 'none';
+    win.querySelector('.browser-url').value = url;
+}
+
+function browserRefresh(btn) {
+    const win = btn.closest('.window');
+    const history = getBrowserStack(win);
+    const frame = win.querySelector('.browser-frame');
+    const url = history.stack[history.index] || frame.src;
+    frame.src = url;
 }
 
 function browserGo(btn) {
@@ -4132,6 +4991,12 @@ function browserOpenUrl(win, url) {
     if (!win) return;
     const frame = win.querySelector('.browser-frame');
     const fullUrl = normalizeUrl(url);
+    const history = getBrowserStack(win);
+    if (history.stack[history.index] !== fullUrl) {
+        history.stack = history.stack.slice(0, history.index + 1);
+        history.stack.push(fullUrl);
+        history.index = history.stack.length - 1;
+    }
     frame.src = fullUrl;
     frame.style.display = 'block';
     win.querySelector('.browser-home').style.display = 'none';
@@ -4697,21 +5562,75 @@ async function deleteLetter(id) {
 }
 
 // ========== WINDOW MANAGER ==========
+const TOP_BAR_HEIGHT = 36;
+const WINDOW_MIN_DEFAULT = { w: 320, h: 260 };
+const WINDOW_MIN_LARGE = { w: 640, h: 420 };
+
+function getWindowAppId(win) {
+    return win.id.replace(/^win-/, '');
+}
+
+function isLargeAppWindow(win) {
+    const appId = getWindowAppId(win);
+    return appId === 'files' || appId === 'browser';
+}
+
+function getWindowMinSize(win) {
+    if (isLargeAppWindow(win)) return { ...WINDOW_MIN_LARGE };
+    if (win.id.startsWith('win-image-') || win.id.startsWith('win-text-') || win.id.startsWith('win-video-')) {
+        return { w: 480, h: 360 };
+    }
+    return { ...WINDOW_MIN_DEFAULT };
+}
+
+function readWindowBounds(win) {
+    return {
+        left: parseFloat(win.style.left) || win.offsetLeft,
+        top: parseFloat(win.style.top) || win.offsetTop,
+        width: parseFloat(win.style.width) || win.offsetWidth,
+        height: parseFloat(win.style.height) || win.offsetHeight
+    };
+}
+
+function isWindowMinimized(win) {
+    return win && (win.classList.contains('minimized') || win.dataset.minimized === 'true');
+}
+
+function restoreWindow(winId) {
+    const win = document.getElementById(winId);
+    if (!win) return;
+    win.classList.remove('minimized');
+    win.dataset.minimized = 'false';
+    win.style.display = 'flex';
+    win.style.transform = '';
+    win.style.opacity = '';
+    win.style.pointerEvents = 'auto';
+    if (!win.classList.contains('open')) win.classList.add('open');
+    bringToFront(win);
+}
+
 function openApp(id) {
-    updateDockState(id,true);
-    if(!dockItems.includes(id)&&!pinnedApps.includes(id)) { addToDock(id); }
-    if(document.getElementById('win-'+id)) { bringToFront(document.getElementById('win-'+id)); return; }
+    updateDockState(id, true);
+    if (!dockItems.includes(id) && !pinnedApps.includes(id)) addToDock(id);
+
+    const winId = 'win-' + id;
+    const existing = document.getElementById(winId);
+    if (existing) {
+        if (isWindowMinimized(existing)) restoreWindow(winId);
+        else bringToFront(existing);
+        return;
+    }
     
     let app = apps[id];
     if (!app) {
-        // Fallback untuk app yang belum didefinisikan
         app = { title: id, w: 500, h: 400, content: `<div class="app-content"><h3>${id} App</h3><p>Aplikasi sedang dalam pengembangan.</p></div>` };
     }
     
-    const win=document.createElement('div'); win.className='window'; win.id='win-'+id; win.style.width=app.w+'px'; win.style.height=app.h+'px';
-    if (id === 'files') {
-        win.style.minWidth = '640px';
-        win.style.minHeight = '420px';
+    const win=document.createElement('div'); win.className='window'; win.id=winId; win.dataset.minimized='false';
+    win.style.width=app.w+'px'; win.style.height=app.h+'px';
+    if (id === 'files' || id === 'browser') {
+        win.style.minWidth = WINDOW_MIN_LARGE.w + 'px';
+        win.style.minHeight = WINDOW_MIN_LARGE.h + 'px';
     }
     const centerX=(window.innerWidth/2)-(app.w/2); const centerY=(window.innerHeight/2)-(app.h/2);
     win.style.left=centerX+'px'; win.style.top=centerY+'px'; win.style.zIndex=++zIndex;
@@ -4742,11 +5661,13 @@ function openApp(id) {
             const frame = win.querySelector('.browser-frame');
             if(frame) setupBrowserFrame(frame);
             renderBrowserPins(win);
+            maximizeWindow(winId);
         }, 200);
     }
     if(id==='files') {
         setTimeout(() => {
             renderFileManager(win.querySelector('.win-content'));
+            maximizeWindow(winId);
         }, 100);
     }
     if(id==='camera') {
@@ -4764,6 +5685,17 @@ function openApp(id) {
     if(id==='notes' || id==='texteditor') {
         setTimeout(initTextApps, 80);
     }
+    if(id==='voicerecorder') {
+        setTimeout(renderVoiceRecorderList, 80);
+    }
+    if(id==='store') setTimeout(renderStoreApp, 80);
+    if(id==='writer') setTimeout(initWriterApp, 80);
+    if(id==='ppt') setTimeout(initPptApp, 80);
+    if(id==='paint') setTimeout(initPaintApp, 120);
+    if(id==='video') setTimeout(renderVideoGallery, 80);
+    if(id==='snake') setTimeout(initSnakeGame, 100);
+    if(id==='tictactoe') setTimeout(initTicTacToeGame, 80);
+    if(id==='memory') setTimeout(initMemoryGame, 80);
 }
 
 function closeWindow(winId) {
@@ -4773,24 +5705,102 @@ function closeWindow(winId) {
     const appId=winId.replace('win-','');
     updateDockState(appId,false);
     win.classList.remove('open');
-    setTimeout(()=>{ if(win.parentNode) win.remove(); if(!pinnedApps.includes(appId)) removeFromDock(appId); },300);
+    if (win.classList.contains('maximized')) syncMaximizedChrome();
+    setTimeout(()=>{ if(win.parentNode) win.remove(); if(!pinnedApps.includes(appId)) removeFromDock(appId); syncMaximizedChrome(); },300);
 }
 function minimizeWindow(winId) {
-    const win=document.getElementById(winId); const appId=winId.replace('win-','');
-    win.style.transform='scale(0.8) translateY(100px)'; win.style.opacity='0'; win.style.pointerEvents='none';
-    updateDockState(appId,false);
-    setTimeout(()=>{ win.style.display='none'; },300);
+    const win = document.getElementById(winId);
+    if (!win) return;
+    const appId = getWindowAppId(win);
+    win.classList.add('minimized');
+    win.dataset.minimized = 'true';
+    win.style.transform = '';
+    win.style.opacity = '';
+    win.style.pointerEvents = 'none';
+    win.style.display = 'none';
+    updateDockState(appId, true);
 }
+
+function hasMaximizedWindow() {
+    return !!document.querySelector('.window.maximized');
+}
+
+function syncMaximizedChrome() {
+    const topBar = document.getElementById('topBar');
+    const dockContainer = document.getElementById('dockContainer');
+    if (!topBar || !dockContainer) return;
+    const maximized = hasMaximizedWindow();
+    topBar.classList.toggle('chrome-hidden-by-maximize', maximized);
+    dockContainer.classList.toggle('chrome-hidden-by-maximize', maximized);
+    if (!maximized) {
+        topBar.classList.remove('chrome-peek');
+        dockContainer.classList.remove('chrome-peek');
+        applyTaskbarAutoHide();
+    }
+}
+
+function handleMaximizedChromePeek(e) {
+    if (!hasMaximizedWindow()) return;
+    const topBar = document.getElementById('topBar');
+    const dockContainer = document.getElementById('dockContainer');
+    const inTopZone = e.clientY <= 8;
+    const inBottomZone = e.clientY >= window.innerHeight - 72;
+    if (inTopZone || inBottomZone) {
+        topBar.classList.add('chrome-peek');
+        dockContainer.classList.add('chrome-peek');
+        clearTimeout(chromePeekTimer);
+        chromePeekTimer = setTimeout(() => {
+            if (!hasMaximizedWindow()) return;
+            topBar.classList.remove('chrome-peek');
+            dockContainer.classList.remove('chrome-peek');
+        }, 1500);
+    }
+}
+
+document.addEventListener('mousemove', handleMaximizedChromePeek);
+
+function savePreMaximizeBounds(win) {
+    win.dataset.preMax = JSON.stringify(readWindowBounds(win));
+}
+
+function restoreFromMaximize(win) {
+    win.classList.remove('maximized');
+    syncMaximizedChrome();
+    const saved = win.dataset.preMax ? JSON.parse(win.dataset.preMax) : null;
+    delete win.dataset.preMax;
+    if (saved) {
+        win.style.left = saved.left + 'px';
+        win.style.top = saved.top + 'px';
+        win.style.width = saved.width + 'px';
+        win.style.height = saved.height + 'px';
+        return;
+    }
+    const appId = getWindowAppId(win);
+    const app = apps[appId] || { w: 800, h: 500 };
+    win.style.width = app.w + 'px';
+    win.style.height = app.h + 'px';
+    win.style.left = ((window.innerWidth / 2) - (app.w / 2)) + 'px';
+    win.style.top = ((window.innerHeight / 2) - (app.h / 2)) + 'px';
+}
+
+function applyMaximize(win) {
+    savePreMaximizeBounds(win);
+    win.classList.add('maximized');
+    win.style.left = '0';
+    win.style.top = '0';
+    win.style.width = '100vw';
+    win.style.height = '100vh';
+    syncMaximizedChrome();
+}
+
 function maximizeWindow(winId) {
-    const win=document.getElementById(winId);
-    if(win.classList.contains('maximized')) {
-        const app=apps[winId.replace('win-','')]||{w:800,h:500};
-        win.style.width=app.w+'px'; win.style.height=app.h+'px';
-        win.style.top=((window.innerHeight/2)-(app.h/2))+'px'; win.style.left=((window.innerWidth/2)-(app.w/2))+'px';
-        win.classList.remove('maximized');
+    const win = document.getElementById(winId);
+    if (!win) return;
+    if (win.classList.contains('maximized')) {
+        restoreFromMaximize(win);
+        syncMaximizedChrome();
     } else {
-        win.style.width='100%'; win.style.height=(window.innerHeight-36)+'px'; win.style.top='36px'; win.style.left='0';
-        win.classList.add('maximized');
+        applyMaximize(win);
     }
     bringToFront(win);
 }
@@ -4798,28 +5808,95 @@ function bringToFront(el) { el.style.zIndex=++zIndex; const appId=el.id.replace(
 
 // ========== TERMINAL ==========
 function handleTerminalCommand(e) {
-    if(e.key==='Enter') {
-        const input=e.target; const cmd=input.value.toLowerCase(); input.value='';
-        const terminal=input.closest('.terminal');
-        const output=document.createElement('div'); output.className='terminal-line'; output.innerHTML=`<span class="terminal-prompt">$</span> ${cmd}`;
-        terminal.appendChild(output);
-        let response='';
-        switch(cmd) {
-            case 'help': response='Commands: help, clear, date, time, echo [text], ls, pwd'; break;
-            case 'clear': terminal.innerHTML='<div class="terminal-line"><span class="terminal-prompt">$</span> Terminal cleared</div><div class="terminal-line"><span class="terminal-prompt">$</span> <input type="text" class="terminal-input" onkeydown="handleTerminalCommand(event)"></div>'; return;
-            case 'date': response=new Date().toLocaleDateString(); break;
-            case 'time': response=new Date().toLocaleTimeString(); break;
-            case 'ls': response='Documents  Downloads  Pictures  Music  Videos  Project'; break;
-            case 'pwd': response='/home/user'; break;
-            default: if(cmd.startsWith('echo ')) response=cmd.substring(5); else response=`Command not found: ${cmd}`;
-        }
-        const result=document.createElement('div'); result.className='terminal-line'; result.textContent=response;
-        terminal.appendChild(result);
-        const newInput=document.createElement('div'); newInput.className='terminal-line'; newInput.innerHTML='<span class="terminal-prompt">$</span> <input type="text" class="terminal-input" onkeydown="handleTerminalCommand(event)">';
-        terminal.appendChild(newInput);
-        terminal.scrollTop=terminal.scrollHeight;
-        newInput.querySelector('input').focus();
+    if (e.key !== 'Enter') return;
+    const input = e.target;
+    const raw = input.value.trim();
+    const cmd = raw.toLowerCase();
+    input.value = '';
+    const terminal = input.closest('.terminal');
+    const output = document.createElement('div');
+    output.className = 'terminal-line';
+    output.innerHTML = `<span class="terminal-prompt">$</span> ${escapeHtml(raw)}`;
+    terminal.appendChild(output);
+
+    if (cmd === 'clear') {
+        terminal.innerHTML = '<div class="terminal-line"><span class="terminal-prompt">$</span> Terminal cleared</div><div class="terminal-line"><span class="terminal-prompt">$</span> <input type="text" class="terminal-input" onkeydown="handleTerminalCommand(event)"></div>';
+        terminal.querySelector('input')?.focus();
+        return;
     }
+
+    const parts = raw.split(/\s+/);
+    const base = parts[0]?.toLowerCase() || '';
+    let response = '';
+
+    switch (base) {
+        case 'help':
+            response = 'Perintah: help, clear, date, time, pwd, ls, whoami, hostname, ver, echo, wifi, battery, apps, open, cd, cat, ping, widgets, notify';
+            break;
+        case 'date': response = new Date().toLocaleDateString('id-ID'); break;
+        case 'time': response = new Date().toLocaleTimeString('id-ID'); break;
+        case 'pwd': response = `/home/user/${terminalCwd}`; break;
+        case 'ls': {
+            const folder = fileSystem[terminalCwd];
+            response = folder?.items?.join('  ') || '(kosong)';
+            break;
+        }
+        case 'whoami': response = 'pufutara-user'; break;
+        case 'hostname': response = 'pufutara-os'; break;
+        case 'ver': response = 'Pufutara OS v5.5 Ultimate Edition'; break;
+        case 'wifi': {
+            const net = WIFI_NETWORKS.find(n => n.id === connectedNetworkId);
+            response = wifiOn ? (net ? `WiFi ON - ${net.ssid}` : 'WiFi ON - tidak terhubung') : 'WiFi OFF';
+            break;
+        }
+        case 'battery':
+            response = `Baterai ${batteryLevel}% | Battery Saver: ${batterySaverOn ? 'On' : 'Off'}`;
+            break;
+        case 'apps':
+            response = Object.keys(apps).join(', ');
+            break;
+        case 'widgets':
+            response = `${widgets.length} widget aktif`;
+            break;
+        case 'echo':
+            response = parts.slice(1).join(' ') || '';
+            break;
+        case 'open':
+            if (parts[1] && apps[parts[1]]) { openApp(parts[1]); response = `Membuka ${parts[1]}...`; }
+            else response = 'App tidak ditemukan. Gunakan: apps';
+            break;
+        case 'cd':
+            if (!parts[1]) response = terminalCwd;
+            else if (fileSystem[parts[1]]) { terminalCwd = parts[1]; response = terminalCwd; }
+            else response = `Folder tidak ditemukan: ${parts[1]}`;
+            break;
+        case 'cat': {
+            const name = parts[1];
+            if (!name) response = 'Usage: cat [file]';
+            else response = getDemoFileContent(name).slice(0, 500);
+            break;
+        }
+        case 'ping':
+            response = parts[1] ? `PING ${parts[1]}: time=24ms` : 'Usage: ping [host]';
+            break;
+        case 'notify':
+            showNotification('Terminal', parts.slice(1).join(' ') || 'Halo dari terminal!', 'info');
+            response = 'Notifikasi dikirim.';
+            break;
+        default:
+            response = `Command not found: ${base}. Ketik help.`;
+    }
+
+    const result = document.createElement('div');
+    result.className = 'terminal-line';
+    result.textContent = response;
+    terminal.appendChild(result);
+    const newInput = document.createElement('div');
+    newInput.className = 'terminal-line';
+    newInput.innerHTML = '<span class="terminal-prompt">$</span> <input type="text" class="terminal-input" onkeydown="handleTerminalCommand(event)">';
+    terminal.appendChild(newInput);
+    terminal.scrollTop = terminal.scrollHeight;
+    newInput.querySelector('input').focus();
 }
 
 // ========== CALCULATOR ==========
@@ -4879,18 +5956,41 @@ function handleWallpaperUpload(event){
 
 // ========== DRAG WINDOW ==========
 let isDragging=false, currentWin=null, offset={x:0,y:0};
-function startDrag(e,id){ isDragging=true; currentWin=document.getElementById(id); const rect=currentWin.getBoundingClientRect(); offset.x=e.clientX-rect.left; offset.y=e.clientY-rect.top; currentWin.classList.add('dragging'); bringToFront(currentWin); }
+function startDrag(e,id){
+    const win = document.getElementById(id);
+    if (!win || isWindowMinimized(win)) return;
+    if (win.classList.contains('maximized')) {
+        const bounds = win.dataset.preMax ? JSON.parse(win.dataset.preMax) : readWindowBounds(win);
+        restoreFromMaximize(win);
+        win.style.left = Math.max(0, e.clientX - (bounds.width / 2)) + 'px';
+        win.style.top = Math.max(TOP_BAR_HEIGHT, e.clientY - 18) + 'px';
+    }
+    isDragging=true;
+    currentWin=win;
+    const rect=currentWin.getBoundingClientRect();
+    offset.x=e.clientX-rect.left;
+    offset.y=e.clientY-rect.top;
+    currentWin.classList.add('dragging');
+    bringToFront(currentWin);
+}
 document.addEventListener('mousemove',(e)=>{ if(!isDragging||!currentWin) return; e.preventDefault(); currentWin.style.left=(e.clientX-offset.x)+'px'; currentWin.style.top=(e.clientY-offset.y)+'px'; });
 document.addEventListener('mouseup',()=>{ if(currentWin) currentWin.classList.remove('dragging'); isDragging=false; currentWin=null; });
 
 // ========== RESIZE WINDOW ==========
 let isResizing=false, resizeWin=null;
-function startResize(e,id){ e.stopPropagation(); isResizing=true; resizeWin=document.getElementById(id); }
+function startResize(e,id){
+    e.stopPropagation();
+    const win = document.getElementById(id);
+    if (!win || win.classList.contains('maximized')) return;
+    isResizing=true;
+    resizeWin=win;
+}
 document.addEventListener('mousemove',(e)=>{
     if(!isResizing||!resizeWin) return;
     const rect = resizeWin.getBoundingClientRect();
-    const minWidth = resizeWin.id === 'win-files' ? 640 : 320;
-    const minHeight = resizeWin.id === 'win-files' ? 420 : 260;
+    const minSize = getWindowMinSize(resizeWin);
+    const minWidth = minSize.w;
+    const minHeight = minSize.h;
     const maxWidth = Math.max(minWidth, window.innerWidth - rect.left);
     const maxHeight = Math.max(minHeight, window.innerHeight - rect.top);
     const nextWidth = Math.min(maxWidth, Math.max(minWidth, e.clientX - rect.left));
@@ -4899,6 +5999,471 @@ document.addEventListener('mousemove',(e)=>{
     resizeWin.style.height=nextHeight+'px';
 });
 document.addEventListener('mouseup',()=>{ isResizing=false; resizeWin=null; });
+
+// ========== DOWNLOAD HELPER ==========
+function downloadBlob(content, filename, mime = 'text/plain') {
+    const blob = content instanceof Blob ? content : new Blob([content], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+}
+
+// ========== PUFUTARA STORE ==========
+function renderStoreApp() {
+    const grid = document.getElementById('store-grid');
+    if (!grid) return;
+    const query = (document.getElementById('store-search')?.value || '').toLowerCase();
+    const items = STORE_CATALOG.filter(item =>
+        item.name.toLowerCase().includes(query) || item.category.toLowerCase().includes(query)
+    );
+    grid.innerHTML = items.map(item => `
+        <div class="store-card">
+            <div class="store-card-icon">${item.icon}</div>
+            <div class="store-card-name">${escapeHtml(item.name)}</div>
+            <div class="store-card-cat">${escapeHtml(item.category)}</div>
+            <button type="button" class="store-card-btn ${item.status === 'ready' ? 'ready' : 'soon'}"
+                onclick="openFromStore('${item.appId}', '${item.status}')">
+                ${item.status === 'ready' ? 'Buka' : 'Dalam pengembangan'}
+            </button>
+        </div>
+    `).join('');
+}
+
+function filterStoreApps(value) {
+    const input = document.getElementById('store-search');
+    if (input) input.value = value ?? input.value;
+    renderStoreApp();
+}
+
+function openFromStore(appId, status) {
+    if (status !== 'ready') {
+        showNotification('Pufutara Store', 'Aplikasi masih dalam proses pembuatan.', 'info');
+        return;
+    }
+    openApp(appId);
+    const storeWin = document.getElementById('win-store');
+    if (storeWin) minimizeWindow('win-store');
+}
+
+// ========== WRITER / PPT / PAINT ==========
+function initWriterApp() {
+    const el = document.getElementById('pufutara-writer');
+    if (el) el.value = localStorage.getItem(STORAGE_KEYS.writer) || '';
+}
+
+function saveWriterDoc() {
+    const el = document.getElementById('pufutara-writer');
+    if (!el) return;
+    localStorage.setItem(STORAGE_KEYS.writer, el.value);
+    showNotification('Pufutara Writer', 'Dokumen disimpan.', 'success');
+}
+
+function downloadWriterDoc() {
+    const el = document.getElementById('pufutara-writer');
+    if (!el) return;
+    downloadBlob(el.value, 'dokumen-pufutara.txt', 'text/plain');
+}
+
+function newWriterDoc() {
+    const el = document.getElementById('pufutara-writer');
+    if (el) el.value = '';
+    localStorage.setItem(STORAGE_KEYS.writer, '');
+}
+
+function loadPptSlides() {
+    try {
+        const saved = localStorage.getItem(STORAGE_KEYS.ppt);
+        if (saved) pptSlides = JSON.parse(saved);
+    } catch (e) { pptSlides = [{ title: 'Slide 1', body: '' }]; }
+    if (!pptSlides.length) pptSlides = [{ title: 'Slide 1', body: '' }];
+    pptActiveIndex = 0;
+}
+
+function savePptDoc() {
+    localStorage.setItem(STORAGE_KEYS.ppt, JSON.stringify(pptSlides));
+    syncPptEditorFromSlide();
+    showNotification('Pufutara PPT', 'Presentasi disimpan.', 'success');
+}
+
+function syncPptEditorFromSlide() {
+    const slide = pptSlides[pptActiveIndex];
+    const title = document.getElementById('ppt-slide-title');
+    const body = document.getElementById('ppt-slide-body');
+    if (title) title.value = slide?.title || '';
+    if (body) body.value = slide?.body || '';
+}
+
+function syncSlideFromEditor() {
+    const slide = pptSlides[pptActiveIndex];
+    if (!slide) return;
+    slide.title = document.getElementById('ppt-slide-title')?.value || '';
+    slide.body = document.getElementById('ppt-slide-body')?.value || '';
+}
+
+function renderPptSidebar() {
+    const list = document.getElementById('ppt-slide-list');
+    if (!list) return;
+    list.innerHTML = pptSlides.map((s, i) => `
+        <div class="ppt-slide-item ${i === pptActiveIndex ? 'active' : ''}" onclick="selectPptSlide(${i})">
+            ${i + 1}. ${escapeHtml(s.title || 'Tanpa judul')}
+        </div>
+    `).join('');
+}
+
+function selectPptSlide(index) {
+    syncSlideFromEditor();
+    pptActiveIndex = index;
+    renderPptSidebar();
+    syncPptEditorFromSlide();
+}
+
+function addPptSlide() {
+    syncSlideFromEditor();
+    pptSlides.push({ title: `Slide ${pptSlides.length + 1}`, body: '' });
+    pptActiveIndex = pptSlides.length - 1;
+    renderPptSidebar();
+    syncPptEditorFromSlide();
+}
+
+function deletePptSlide() {
+    if (pptSlides.length <= 1) return;
+    pptSlides.splice(pptActiveIndex, 1);
+    pptActiveIndex = Math.max(0, pptActiveIndex - 1);
+    renderPptSidebar();
+    syncPptEditorFromSlide();
+}
+
+function initPptApp() {
+    loadPptSlides();
+    renderPptSidebar();
+    syncPptEditorFromSlide();
+}
+
+function downloadPptHtml() {
+    syncSlideFromEditor();
+    const slidesHtml = pptSlides.map(s => `
+        <section style="page-break-after:always;padding:40px;font-family:Inter,sans-serif;">
+            <h1>${escapeHtml(s.title)}</h1>
+            <p style="white-space:pre-wrap;">${escapeHtml(s.body)}</p>
+        </section>`).join('');
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Pufutara PPT</title></head><body>${slidesHtml}</body></html>`;
+    downloadBlob(html, 'presentasi-pufutara.html', 'text/html');
+}
+
+function downloadPptJson() {
+    syncSlideFromEditor();
+    downloadBlob(JSON.stringify(pptSlides, null, 2), 'presentasi-pufutara.json', 'application/json');
+}
+
+function initPaintApp() {
+    const canvas = document.getElementById('paintCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    canvas.width = 720;
+    canvas.height = 420;
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    const saved = localStorage.getItem(STORAGE_KEYS.paint);
+    if (saved) {
+        const img = new Image();
+        img.onload = () => ctx.drawImage(img, 0, 0);
+        img.src = saved;
+    }
+    setupPaintEvents(canvas, ctx);
+}
+
+function setupPaintEvents(canvas, ctx) {
+    const getPos = (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return { x: clientX - rect.left, y: clientY - rect.top };
+    };
+    const start = (e) => {
+        paintDrawing = true;
+        const p = getPos(e);
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        e.preventDefault();
+    };
+    const draw = (e) => {
+        if (!paintDrawing) return;
+        const p = getPos(e);
+        ctx.strokeStyle = paintColor;
+        ctx.lineWidth = paintBrushSize;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.lineTo(p.x, p.y);
+        ctx.stroke();
+        e.preventDefault();
+    };
+    const stop = () => { paintDrawing = false; };
+    canvas.onmousedown = start;
+    canvas.onmousemove = draw;
+    canvas.onmouseup = stop;
+    canvas.onmouseleave = stop;
+}
+
+function setPaintColor(color, el) {
+    paintColor = color;
+    document.querySelectorAll('.paint-color').forEach(btn => btn.classList.remove('active'));
+    if (el) el.classList.add('active');
+}
+
+function setPaintBrush(size) {
+    paintBrushSize = size;
+}
+
+function clearPaintCanvas() {
+    const canvas = document.getElementById('paintCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+function savePaintDoc() {
+    const canvas = document.getElementById('paintCanvas');
+    if (!canvas) return;
+    const data = canvas.toDataURL('image/png');
+    localStorage.setItem(STORAGE_KEYS.paint, data);
+    showNotification('Pufutara Paint', 'Gambar disimpan.', 'success');
+}
+
+function downloadPaintDoc() {
+    const canvas = document.getElementById('paintCanvas');
+    if (!canvas) return;
+    const link = document.createElement('a');
+    link.download = 'lukisan-pufutara.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+}
+
+// ========== VIDEO GALLERY ==========
+function getVideoGalleryFiles() {
+    const names = new Set(fileSystem.videos?.items || []);
+    Object.keys(fileDetails).forEach(name => {
+        const d = fileDetails[name];
+        if (d.type === 'video' || name.match(/\.(mp4|avi|webm|mov)$/i)) names.add(name);
+    });
+    return Array.from(names);
+}
+
+function renderVideoGallery() {
+    const grid = document.getElementById('video-gallery-grid');
+    if (!grid) return;
+    const files = getVideoGalleryFiles();
+    if (!files.length) {
+        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#9ca3af;padding:40px;">Belum ada video. Impor file video untuk menambah.</div>';
+        return;
+    }
+    grid.innerHTML = files.map(name => `
+        <div class="video-gallery-item" ondblclick="openVideoViewer('${name.replace(/'/g, "\\'")}')">
+            <div class="video-gallery-thumb">🎬</div>
+            <div class="video-gallery-name">${escapeHtml(name)}</div>
+        </div>
+    `).join('');
+}
+
+function importVideoToGallery(input) {
+    const file = input.files?.[0];
+    if (!file || !file.type.startsWith('video/')) {
+        showNotification('Video Gallery', 'Pilih file video yang valid.', 'warning');
+        return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+        const filename = uniqueName(file.name, n => fileDetails[n] || fileSystem.videos?.items.includes(n));
+        persistVirtualFile(filename, {
+            type: 'video',
+            size: formatBytes(file.size),
+            modified: new Date().toISOString().slice(0, 10),
+            icon: '🎬',
+            dataUrl: reader.result
+        }, 'videos');
+        renderVideoGallery();
+        showNotification('Video Gallery', `${filename} ditambahkan.`, 'success');
+    };
+    reader.readAsDataURL(file);
+    input.value = '';
+}
+
+// ========== GAMES ==========
+function initSnakeGame() {
+    const canvas = document.getElementById('snakeCanvas');
+    if (!canvas) return;
+    if (snakeGameState?.loopId) cancelAnimationFrame(snakeGameState.loopId);
+    const ctx = canvas.getContext('2d');
+    const tile = 20;
+    const cols = Math.floor(canvas.width / tile);
+    const rows = Math.floor(canvas.height / tile);
+    snakeGameState = {
+        canvas, ctx, tile, cols, rows,
+        snake: [{ x: 5, y: 5 }],
+        dir: { x: 1, y: 0 },
+        nextDir: { x: 1, y: 0 },
+        food: { x: 10, y: 8 },
+        score: 0,
+        alive: true,
+        last: 0
+    };
+    placeSnakeFood();
+    document.onkeydown = (e) => {
+        const win = document.getElementById('win-snake');
+        if (!win || snakeGameState?.alive === false) return;
+        const k = e.key;
+        const d = snakeGameState.nextDir;
+        if (k === 'ArrowUp' && d.y !== 1) snakeGameState.nextDir = { x: 0, y: -1 };
+        if (k === 'ArrowDown' && d.y !== -1) snakeGameState.nextDir = { x: 0, y: 1 };
+        if (k === 'ArrowLeft' && d.x !== 1) snakeGameState.nextDir = { x: -1, y: 0 };
+        if (k === 'ArrowRight' && d.x !== -1) snakeGameState.nextDir = { x: 1, y: 0 };
+    };
+    snakeLoop(0);
+}
+
+function placeSnakeFood() {
+    const { cols, rows, snake } = snakeGameState;
+    let spot;
+    do {
+        spot = { x: Math.floor(Math.random() * cols), y: Math.floor(Math.random() * rows) };
+    } while (snake.some(s => s.x === spot.x && s.y === spot.y));
+    snakeGameState.food = spot;
+}
+
+function snakeLoop(ts) {
+    if (!snakeGameState?.alive) return;
+    if (ts - snakeGameState.last > 120) {
+        snakeGameState.last = ts;
+        tickSnake();
+    }
+    drawSnake();
+    snakeGameState.loopId = requestAnimationFrame(snakeLoop);
+}
+
+function tickSnake() {
+    const st = snakeGameState;
+    st.dir = st.nextDir;
+    const head = { x: st.snake[0].x + st.dir.x, y: st.snake[0].y + st.dir.y };
+    if (head.x < 0 || head.y < 0 || head.x >= st.cols || head.y >= st.rows) {
+        st.alive = false;
+        document.getElementById('snake-score').textContent = `Game Over! Skor: ${st.score}`;
+        return;
+    }
+    if (st.snake.some(s => s.x === head.x && s.y === head.y)) {
+        st.alive = false;
+        document.getElementById('snake-score').textContent = `Game Over! Skor: ${st.score}`;
+        return;
+    }
+    st.snake.unshift(head);
+    if (head.x === st.food.x && head.y === st.food.y) {
+        st.score++;
+        document.getElementById('snake-score').textContent = `Skor: ${st.score}`;
+        placeSnakeFood();
+    } else {
+        st.snake.pop();
+    }
+}
+
+function drawSnake() {
+    const { ctx, canvas, tile, snake, food } = snakeGameState;
+    ctx.fillStyle = '#111';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#ef4444';
+    ctx.fillRect(food.x * tile, food.y * tile, tile - 1, tile - 1);
+    snake.forEach((s, i) => {
+        ctx.fillStyle = i === 0 ? '#22c55e' : '#4ade80';
+        ctx.fillRect(s.x * tile, s.y * tile, tile - 1, tile - 1);
+    });
+}
+
+function resetSnakeGame() { initSnakeGame(); }
+
+function initTicTacToeGame() {
+    const board = document.getElementById('ttt-board');
+    if (!board) return;
+    let cells = Array(9).fill('');
+    let turn = 'X';
+    let over = false;
+    const status = document.getElementById('ttt-status');
+    const render = () => {
+        board.innerHTML = cells.map((c, i) => `
+            <div class="ttt-cell" data-i="${i}">${c}</div>
+        `).join('');
+        board.querySelectorAll('.ttt-cell').forEach(cell => {
+            cell.onclick = () => {
+                const i = +cell.dataset.i;
+                if (over || cells[i]) return;
+                cells[i] = turn;
+                const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+                if (wins.some(w => w.every(idx => cells[idx] === turn))) {
+                    over = true;
+                    status.textContent = `${turn} menang!`;
+                    return;
+                }
+                if (cells.every(c => c)) { over = true; status.textContent = 'Seri!'; return; }
+                turn = turn === 'X' ? 'O' : 'X';
+                status.textContent = `Giliran: ${turn}`;
+                render();
+            };
+        });
+    };
+    status.textContent = 'Giliran: X';
+    render();
+    document.getElementById('ttt-reset').onclick = () => {
+        cells = Array(9).fill('');
+        turn = 'X';
+        over = false;
+        status.textContent = 'Giliran: X';
+        render();
+    };
+}
+
+function initMemoryGame() {
+    const board = document.getElementById('memory-board');
+    if (!board) return;
+    const emojis = ['🍎','🍌','🍇','🍒','🍋','🍉','🥝','🍑'];
+    let cards = [...emojis, ...emojis].sort(() => Math.random() - 0.5);
+    let flipped = [];
+    let matched = 0;
+    let moves = 0;
+    const movesEl = document.getElementById('memory-moves');
+    const render = () => {
+        board.innerHTML = cards.map((emoji, i) => {
+            const show = flipped.includes(i) || cards[i] === null;
+            return `<div class="memory-card ${show ? 'flipped' : ''} ${cards[i] === null ? 'matched' : ''}" data-i="${i}">${show ? emoji : ''}</div>`;
+        }).join('');
+        board.querySelectorAll('.memory-card').forEach(card => {
+            card.onclick = () => {
+                const i = +card.dataset.i;
+                if (cards[i] === null || flipped.includes(i) || flipped.length >= 2) return;
+                flipped.push(i);
+                moves++;
+                movesEl.textContent = `Gerakan: ${moves}`;
+                render();
+                if (flipped.length === 2) {
+                    const [a, b] = flipped;
+                    if (cards[a] === cards[b]) {
+                        cards[a] = cards[b] = null;
+                        matched += 2;
+                        flipped = [];
+                        if (matched === emojis.length * 2) movesEl.textContent = `Selesai! ${moves} gerakan`;
+                        render();
+                    } else {
+                        setTimeout(() => { flipped = []; render(); }, 600);
+                    }
+                }
+            };
+        });
+    };
+    movesEl.textContent = 'Gerakan: 0';
+    render();
+    document.getElementById('memory-reset').onclick = () => initMemoryGame();
+}
 
 // ========== APP DATA ==========
 const apps = {
@@ -5197,14 +6762,86 @@ const apps = {
             <div class="playlist" id="music-playlist"></div>
         </div>`
     },
-    'video': {
-        title: 'Video Player', w: 700, h: 500,
-        content: `<div class="video-player-enhanced">
-            <video id="video-player" controls style="width:100%; flex:1; background:#000;"></video>
-            <div class="video-controls">
-                <input type="file" id="video-file-input" accept="video/*" onchange="handleVideoFile(this.files[0])">
-                <span>Pilih file video</span>
+    'voicerecorder': {
+        title: 'Voice Recorder', w: 480, h: 520,
+        content: `<div class="voice-recorder-app">
+            <h3 style="margin:0 0 8px 0;">Voice Recorder</h3>
+            <p id="voice-status" style="font-size:12px;color:#6b7280;margin:0 0 12px 0;">Siap merekam</p>
+            <div class="voice-controls">
+                <button type="button" class="voice-btn primary" onclick="startVoiceRecording()"><i class="fas fa-circle"></i> Rekam</button>
+                <button type="button" class="voice-btn danger" onclick="stopVoiceRecording()"><i class="fas fa-stop"></i> Stop</button>
             </div>
+            <div class="voice-list" id="voice-recorder-list"></div>
+        </div>`
+    },
+    'store': {
+        title: 'Pufutara Store', w: 820, h: 580,
+        content: `<div class="store-app">
+            <div class="store-header">
+                <h2>Pufutara Store</h2>
+                <input type="text" class="store-search" id="store-search" placeholder="Cari aplikasi..." oninput="filterStoreApps()">
+            </div>
+            <div class="store-grid-wrap"><div class="store-grid" id="store-grid"></div></div>
+        </div>`
+    },
+    'writer': {
+        title: 'Pufutara Writer', w: 700, h: 520,
+        content: `<div class="productivity-app">
+            <div class="productivity-toolbar">
+                <button type="button" class="primary" onclick="saveWriterDoc()">Simpan</button>
+                <button type="button" onclick="downloadWriterDoc()">Unduh .txt</button>
+                <button type="button" onclick="newWriterDoc()">Baru</button>
+            </div>
+            <textarea id="pufutara-writer" style="flex:1;border:none;padding:20px;resize:none;outline:none;font-family:Inter;font-size:15px;line-height:1.6;" placeholder="Mulai menulis..."></textarea>
+        </div>`
+    },
+    'ppt': {
+        title: 'Pufutara PPT', w: 800, h: 520,
+        content: `<div class="productivity-app">
+            <div class="productivity-toolbar">
+                <button type="button" class="primary" onclick="savePptDoc()">Simpan</button>
+                <button type="button" onclick="downloadPptHtml()">Unduh HTML</button>
+                <button type="button" onclick="downloadPptJson()">Unduh JSON</button>
+                <button type="button" onclick="addPptSlide()">+ Slide</button>
+                <button type="button" onclick="deletePptSlide()">Hapus Slide</button>
+            </div>
+            <div class="productivity-body">
+                <div class="ppt-sidebar" id="ppt-slide-list"></div>
+                <div class="ppt-editor">
+                    <input type="text" id="ppt-slide-title" placeholder="Judul slide" oninput="syncSlideFromEditor()">
+                    <textarea id="ppt-slide-body" placeholder="Isi slide..." oninput="syncSlideFromEditor()"></textarea>
+                </div>
+            </div>
+        </div>`
+    },
+    'paint': {
+        title: 'Pufutara Paint', w: 780, h: 540,
+        content: `<div class="productivity-app">
+            <div class="productivity-toolbar paint-toolbar">
+                <button type="button" class="primary" onclick="savePaintDoc()">Simpan</button>
+                <button type="button" onclick="downloadPaintDoc()">Unduh PNG</button>
+                <button type="button" onclick="clearPaintCanvas()">Hapus</button>
+                <span class="paint-color active" style="background:#111827" onclick="setPaintColor('#111827',this)"></span>
+                <span class="paint-color" style="background:#ef4444" onclick="setPaintColor('#ef4444',this)"></span>
+                <span class="paint-color" style="background:#3b82f6" onclick="setPaintColor('#3b82f6',this)"></span>
+                <span class="paint-color" style="background:#22c55e" onclick="setPaintColor('#22c55e',this)"></span>
+                <span class="paint-color" style="background:#eab308" onclick="setPaintColor('#eab308',this)"></span>
+                <input type="range" min="1" max="20" value="4" oninput="setPaintBrush(this.value)" title="Ukuran kuas">
+            </div>
+            <div class="paint-canvas-wrap"><canvas id="paintCanvas" width="720" height="420"></canvas></div>
+        </div>`
+    },
+    'video': {
+        title: 'Video Gallery', w: 760, h: 520,
+        content: `<div class="video-gallery-app">
+            <div class="video-gallery-toolbar">
+                <strong>Video Gallery</strong>
+                <button type="button" onclick="renderVideoGallery()" style="padding:6px 12px;border-radius:6px;border:1px solid #e5e7eb;background:#fff;cursor:pointer;">Refresh</button>
+                <label style="padding:6px 12px;border-radius:6px;border:1px solid #e5e7eb;background:#fff;cursor:pointer;font-size:12px;">
+                    Impor video <input type="file" accept="video/*" hidden onchange="importVideoToGallery(this)">
+                </label>
+            </div>
+            <div class="video-gallery-grid" id="video-gallery-grid"></div>
         </div>`
     },
     'camera': {
@@ -5337,16 +6974,34 @@ const apps = {
         </div>`
     },
     'snake': {
-        title: 'Snake', w: 500, h: 500,
-        content: `<div class="game-container"><h3>Snake Game</h3><p>Coming soon...</p></div>`
+        title: 'Snake', w: 480, h: 520,
+        content: `<div class="game-container">
+            <h3 style="margin:0 0 8px;">Snake</h3>
+            <div class="game-score" id="snake-score">Skor: 0</div>
+            <canvas id="snakeCanvas" class="game-canvas" width="400" height="400"></canvas>
+            <div class="game-controls">
+                <button type="button" class="game-btn" onclick="resetSnakeGame()">Main Lagi</button>
+            </div>
+            <p style="font-size:11px;color:#666;margin-top:8px;">Gunakan tombol panah keyboard</p>
+        </div>`
     },
     'tictactoe': {
-        title: 'Tic Tac Toe', w: 400, h: 450,
-        content: `<div class="game-container"><h3>Tic Tac Toe</h3><p>Coming soon...</p></div>`
+        title: 'Tic Tac Toe', w: 400, h: 480,
+        content: `<div class="game-container">
+            <h3 style="margin:0 0 8px;">Tic Tac Toe</h3>
+            <div class="game-score" id="ttt-status">Giliran: X</div>
+            <div class="ttt-grid" id="ttt-board"></div>
+            <button type="button" class="game-btn" id="ttt-reset" style="margin-top:16px;">Reset</button>
+        </div>`
     },
     'memory': {
-        title: 'Memory Game', w: 450, h: 500,
-        content: `<div class="game-container"><h3>Memory Game</h3><p>Coming soon...</p></div>`
+        title: 'Memory Game', w: 420, h: 520,
+        content: `<div class="game-container">
+            <h3 style="margin:0 0 8px;">Memory</h3>
+            <div class="game-score" id="memory-moves">Gerakan: 0</div>
+            <div class="memory-grid" id="memory-board"></div>
+            <button type="button" class="game-btn" id="memory-reset" style="margin-top:16px;">Main Lagi</button>
+        </div>`
     }
 };
 </script>
