@@ -1152,19 +1152,26 @@ body.battery-saver *:not(.notification):not(.notification *) {
     overflow-wrap: anywhere;
 }
 
+.power-menu-backdrop {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+    z-index: 26000; display: none;
+}
+.power-menu-backdrop.show { display: block; }
+.power-menu-modal {
+    position: fixed; inset: 0; z-index: 26001;
+    display: none; align-items: center; justify-content: center;
+    pointer-events: none;
+}
+.power-menu-modal.show { display: flex; pointer-events: auto; }
 .power-menu {
-    position: absolute;
-    right: 22px;
-    bottom: 86px;
-    width: 220px;
-    padding: 8px;
-    border-radius: 12px;
-    background: rgba(255,255,255,0.96);
+    width: 260px;
+    padding: 10px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.98);
     backdrop-filter: blur(20px);
     border: 1px solid rgba(0,0,0,0.06);
-    box-shadow: 0 18px 45px rgba(0,0,0,0.18);
-    z-index: 400;
-    display: none;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.22);
+    pointer-events: auto;
 }
 .power-menu.show { display: block; }
 .power-menu-item {
@@ -1227,6 +1234,47 @@ body.battery-saver *:not(.notification):not(.notification *) {
 }
 @keyframes shutdownSpin { to { transform: rotate(360deg); } }
 
+.download-overlay .download-progress-wrap {
+    width: min(320px, 80vw); height: 6px; background: rgba(255,255,255,0.2);
+    border-radius: 999px; overflow: hidden; margin-top: 8px;
+}
+.download-overlay .download-progress-bar {
+    height: 100%; width: 0%; background: #fff; border-radius: 999px;
+    transition: width 0.15s linear;
+}
+
+.store-card-btn.download { background: #2563eb; color: #fff; }
+
+.browser-offline {
+    flex: 1; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 12px; padding: 40px; text-align: center;
+    background: #f9fafb; color: #374151;
+}
+.browser-offline-icon { font-size: 56px; opacity: 0.5; }
+.browser-offline h3 { margin: 0; font-family: Poppins; font-size: 20px; }
+.browser-offline p { margin: 0; font-size: 13px; color: #6b7280; max-width: 320px; }
+.browser-offline-btn {
+    margin-top: 8px; padding: 10px 18px; border-radius: 8px; border: none;
+    background: #111; color: #fff; font-size: 13px; font-weight: 600; cursor: pointer;
+}
+
+.window.minimizing { pointer-events: none; }
+
+body.dark-mode { --window-bg: #1f2937; --text: #f3f4f6; --border: #374151; }
+body.dark-mode .window { background: #1f2937; color: #f3f4f6; }
+body.dark-mode .win-header { background: #111827; border-color: #374151; }
+body.dark-mode .start-menu { background: rgba(31,41,55,0.95); }
+body.high-contrast .window { border: 2px solid #000; }
+body.reduce-motion .window { transition: none !important; }
+
+.writer-editor { flex: 1; padding: 20px; overflow: auto; outline: none; font-family: Inter; font-size: 15px; line-height: 1.6; min-height: 200px; }
+.writer-toolbar button { padding: 6px 10px; border: 1px solid #e5e7eb; border-radius: 6px; background: #fff; cursor: pointer; font-size: 12px; }
+.chat-bubble { padding: 8px 12px; border-radius: 12px; margin-bottom: 8px; max-width: 85%; font-size: 13px; }
+.chat-bubble.user { background: #dbeafe; margin-left: auto; }
+.chat-bubble.bot { background: #e5e7eb; }
+.ppt-present-overlay { position: fixed; inset: 0; z-index: 30000; background: #000; }
+.paint-tool-btn.active { outline: 2px solid #111; }
+
 .store-app { display: flex; flex-direction: column; height: 100%; background: #f3f4f6; }
 .store-header { padding: 20px 24px 12px; background: #fff; border-bottom: 1px solid #e5e7eb; }
 .store-header h2 { margin: 0 0 12px; font-family: Poppins; font-size: 22px; }
@@ -1246,6 +1294,7 @@ body.battery-saver *:not(.notification):not(.notification *) {
     font-size: 11px; font-weight: 600; cursor: pointer; width: 100%;
 }
 .store-card-btn.ready { background: #111; color: #fff; }
+.store-card-btn.download { background: #2563eb; color: #fff; }
 .store-card-btn.soon { background: #f3f4f6; color: #9ca3af; cursor: default; }
 
 .productivity-app { display: flex; flex-direction: column; height: 100%; }
@@ -1383,6 +1432,39 @@ body.battery-saver *:not(.notification):not(.notification *) {
 .start-item:hover { background: rgba(255,255,255,0.8); box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
 .start-icon { font-size: 24px; width: 44px; height: 44px; background: #fff; border-radius: 10px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 .start-label { font-size: 11px; font-weight: 500; color: #333; text-align: center; }
+
+.start-menu-toolbar {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 10px; padding: 0 2px;
+}
+.start-menu-toolbar button {
+    padding: 6px 12px; border-radius: 8px; border: 1px solid #e5e7eb;
+    background: #fff; font-size: 11px; font-weight: 600; cursor: pointer;
+}
+.start-menu-body { flex: 1; overflow-y: auto; padding-right: 4px; }
+.start-section { margin-bottom: 18px; }
+.start-section-title {
+    font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase;
+    letter-spacing: 0.06em; margin-bottom: 8px; padding-left: 4px;
+}
+.start-section-grid {
+    display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px;
+}
+.start-item.dragging { opacity: 0.45; }
+.start-item.drag-over { outline: 2px dashed #3b82f6; outline-offset: 2px; }
+.start-folder {
+    grid-column: span 2; background: rgba(255,255,255,0.65);
+    border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px;
+}
+.start-folder-header {
+    display: flex; align-items: center; gap: 8px; cursor: pointer;
+    font-size: 12px; font-weight: 600; margin-bottom: 8px;
+}
+.start-folder-items {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
+}
+.start-folder-items.collapsed { display: none; }
+.start-folder.drop-target { border-color: #3b82f6; background: #eff6ff; }
 
 .start-footer {
     margin-top: auto; padding-top: 15px; border-top: 1px solid rgba(0,0,0,0.05);
@@ -2162,7 +2244,7 @@ body.battery-saver *:not(.notification):not(.notification *) {
             <i class="fas fa-sun"></i> Cuaca
         </div>
         <div class="widget-tray-item" onclick="addWidget('sticky')">
-            <i class="fas fa-sticky-note"></i> Sticky Note
+            <i class="fas fa-sticky-note"></i> Sticky Note (baru)
         </div>
         <div class="widget-tray-item" onclick="addWidget('notes')">
             <i class="fas fa-note-sticky"></i> Catatan Cepat
@@ -2191,6 +2273,8 @@ body.battery-saver *:not(.notification):not(.notification *) {
         <div class="context-item" id="context-unpin" onclick="contextUnpinApp()"><i class="fas fa-thumbtack"></i>Lepas dari Dock</div>
         <div class="context-item" id="context-pin-desktop" onclick="contextPinDesktop()"><i class="fas fa-desktop"></i>Pin ke Desktop</div>
         <div class="context-item" id="context-rename-desktop" onclick="contextRenameDesktopPin()"><i class="fas fa-pen"></i>Rename</div>
+        <div class="context-item" id="context-rename-app" onclick="contextRenameApp()"><i class="fas fa-pen"></i>Rename</div>
+        <div class="context-item" id="context-uninstall" onclick="contextUninstallApp()"><i class="fas fa-trash-alt"></i>Uninstall</div>
         <div class="context-item" id="context-delete-desktop" onclick="contextDeleteDesktopPin()"><i class="fas fa-trash"></i>Delete</div>
         <div class="context-item" id="context-settings" onclick="contextOpenSettings()"><i class="fas fa-gear"></i>Settings</div>
         <div class="context-item" id="context-refresh" onclick="contextRefreshDesktop()"><i class="fas fa-rotate-right"></i>Refresh</div>
@@ -2200,60 +2284,26 @@ body.battery-saver *:not(.notification):not(.notification *) {
         <div class="context-item" onclick="closeContextMenu()"><i class="fas fa-times"></i>Tutup</div>
     </div>
 
+    <div class="context-menu" id="fileContextMenu">
+        <div class="context-item" id="file-ctx-open" onclick="fileContextOpen()"><i class="fas fa-folder-open"></i>Buka</div>
+        <div class="context-item" id="file-ctx-rename" onclick="fileContextRename()"><i class="fas fa-pen"></i>Ganti nama</div>
+        <div class="context-item" id="file-ctx-restore" onclick="fileContextRestore()"><i class="fas fa-undo"></i>Pulihkan</div>
+        <div class="context-item" id="file-ctx-compress" onclick="fileContextCompress()"><i class="fas fa-file-archive"></i>Compress</div>
+        <div class="context-item" id="file-ctx-delete" onclick="fileContextDelete()"><i class="fas fa-trash"></i>Hapus</div>
+        <div class="context-item" onclick="closeFileContextMenu()"><i class="fas fa-times"></i>Tutup</div>
+    </div>
+
     <!-- WINDOWS AREA -->
     <div id="windows-area"></div>
 
     <!-- START MENU -->
     <div class="start-menu" id="startMenu" onclick="event.stopPropagation()">
-        <input type="text" class="start-search" placeholder="Cari aplikasi...">
-        <div style="font-size:12px; color:#666; margin-bottom:10px; padding-left:5px;">System &amp; Apps</div>
-        <div class="start-grid">
-            <!-- System Apps -->
-            <div class="start-item" onclick="openApp('files'); toggleStart()"><div class="start-icon">📁</div><div class="start-label">File Explorer</div></div>
-            <div class="start-item" onclick="openApp('browser'); toggleStart()"><div class="start-icon">🌍</div><div class="start-label">Browser</div></div>
-            <div class="start-item" onclick="openApp('terminal'); toggleStart()"><div class="start-icon">💻</div><div class="start-label">Terminal</div></div>
-            <div class="start-item" onclick="openApp('settings'); toggleStart()"><div class="start-icon">⚙️</div><div class="start-label">Settings</div></div>
-            <div class="start-item" onclick="openApp('calculator'); toggleStart()"><div class="start-icon">🧮</div><div class="start-label">Calculator</div></div>
-            <div class="start-item" onclick="openApp('calendar'); toggleStart()"><div class="start-icon">📅</div><div class="start-label">Calendar</div></div>
-            
-            <!-- Media Apps -->
-            <div class="start-item" onclick="openApp('music'); toggleStart()"><div class="start-icon">🎵</div><div class="start-label">Music Player</div></div>
-            <div class="start-item" onclick="openApp('voicerecorder'); toggleStart()"><div class="start-icon">🎙️</div><div class="start-label">Voice Recorder</div></div>
-            <div class="start-item" onclick="openApp('camera'); toggleStart()"><div class="start-icon">📷</div><div class="start-label">Camera</div></div>
-            <div class="start-item" onclick="openApp('photos'); toggleStart()"><div class="start-icon">🖼️</div><div class="start-label">Photos</div></div>
-            <div class="start-item" onclick="openApp('video'); toggleStart()"><div class="start-icon">🎬</div><div class="start-label">Video Gallery</div></div>
-            <div class="start-item" onclick="openApp('yt'); toggleStart()"><div class="start-icon">📺</div><div class="start-label">YouTube</div></div>
-            
-            <!-- Productivity -->
-            <div class="start-item" onclick="openApp('notes'); toggleStart()"><div class="start-icon">📝</div><div class="start-label">Notes</div></div>
-            <div class="start-item" onclick="openApp('texteditor'); toggleStart()"><div class="start-icon">📄</div><div class="start-label">Text Editor</div></div>
-            <div class="start-item" onclick="openApp('sites'); toggleStart()"><div class="start-icon" style="color:#6366f1;">🌐</div><div class="start-label">Sites Builder</div></div>
-            
-            <!-- Utilities -->
-            <div class="start-item" onclick="openApp('wallpaper'); toggleStart()"><div class="start-icon">🎨</div><div class="start-label">Wallpaper</div></div>
-            <div class="start-item" onclick="openApp('weather'); toggleStart()"><div class="start-icon">☀️</div><div class="start-label">Weather</div></div>
-            <div class="start-item" onclick="openApp('maps'); toggleStart()"><div class="start-icon">🗺️</div><div class="start-label">Maps</div></div>
-            <div class="start-item" onclick="openApp('contacts'); toggleStart()"><div class="start-icon">📇</div><div class="start-label">Contacts</div></div>
-            <div class="start-item" onclick="openApp('mail'); toggleStart()"><div class="start-icon">✉️</div><div class="start-label">Mail</div></div>
-
-            <!-- Google Apps -->
-            <div class="start-item" onclick="window.open('https://mail.google.com','_blank'); toggleStart()">
-                <div class="start-icon" style="color:#ea4335;">📧</div><div class="start-label">Gmail</div>
-            </div>
-            <div class="start-item" onclick="window.open('https://drive.google.com','_blank'); toggleStart()">
-                <div class="start-icon" style="color:#1f1f1f;">💾</div><div class="start-label">Drive</div>
-            </div>
-            <div class="start-item" onclick="window.open('https://translate.google.com','_blank'); toggleStart()">
-                <div class="start-icon" style="color:#4285f4;">文</div><div class="start-label">Translate</div>
-            </div>
-            <div class="start-item" onclick="window.open('https://docs.google.com','_blank'); toggleStart()">
-                <div class="start-icon" style="color:#34a853;">📊</div><div class="start-label">Docs</div>
-            </div>
-            <div class="start-item" onclick="window.open('https://meet.google.com','_blank'); toggleStart()">
-                <div class="start-icon" style="color:#00897b;">🎥</div><div class="start-label">Meet</div>
-            </div>
-
+        <input type="text" class="start-search" id="startSearch" placeholder="Cari aplikasi..." oninput="filterStartMenu()">
+        <div class="start-menu-toolbar">
+            <span style="font-size:12px;color:#666;">Aplikasi</span>
+            <button type="button" onclick="createStartFolder()">+ Folder</button>
         </div>
+        <div class="start-menu-body" id="startMenuBody"></div>
         <div class="start-footer">
             <div class="user-profile">
                 <div style="width:32px; height:32px; background:#111; border-radius:50%; color:#fff; display:flex; align-items:center; justify-content:center;">P</div>
@@ -2263,11 +2313,14 @@ body.battery-saver *:not(.notification):not(.notification *) {
         </div>
     </div>
 
-    <div class="power-menu" id="powerMenu" onclick="event.stopPropagation()">
-        <button class="power-menu-item" onclick="requestPowerAction('shutdown')"><i class="fas fa-power-off"></i>Shutdown</button>
-        <button class="power-menu-item" onclick="requestPowerAction('hibernate')"><i class="fas fa-moon"></i>Hibernate</button>
-        <button class="power-menu-item" onclick="requestPowerAction('sleep')"><i class="fas fa-bed"></i>Sleep</button>
-        <button class="power-menu-item" onclick="requestPowerAction('lock')"><i class="fas fa-lock"></i>Lock</button>
+    <div class="power-menu-backdrop" id="powerMenuBackdrop" onclick="closePowerMenu()"></div>
+    <div class="power-menu-modal" id="powerMenuModal">
+        <div class="power-menu" id="powerMenu" onclick="event.stopPropagation()">
+            <button class="power-menu-item" onclick="requestPowerAction('shutdown')"><i class="fas fa-power-off"></i>Shutdown</button>
+            <button class="power-menu-item" onclick="requestPowerAction('hibernate')"><i class="fas fa-moon"></i>Hibernate</button>
+            <button class="power-menu-item" onclick="requestPowerAction('sleep')"><i class="fas fa-bed"></i>Sleep</button>
+            <button class="power-menu-item" onclick="requestPowerAction('lock')"><i class="fas fa-lock"></i>Lock</button>
+        </div>
     </div>
 
     <!-- DOCK -->
@@ -2284,6 +2337,12 @@ body.battery-saver *:not(.notification):not(.notification *) {
     <div class="shutdown-overlay-logo">Pufutara OS</div>
     <div class="shutdown-overlay-text">Mematikan sistem...</div>
     <div class="shutdown-spinner"></div>
+</div>
+
+<div class="shutdown-overlay download-overlay" id="downloadOverlay">
+    <div class="shutdown-overlay-logo" style="font-size:28px;" id="downloadOverlayTitle">Mengunduh...</div>
+    <div class="shutdown-overlay-text" id="downloadOverlayText">Mohon tunggu</div>
+    <div class="download-progress-wrap"><div class="download-progress-bar" id="downloadProgressBar"></div></div>
 </div>
 
 <div class="ui-modal-backdrop" id="uiModalBackdrop">
@@ -2342,18 +2401,324 @@ const STORE_CATALOG = [
     { id: 'paint', name: 'Pufutara Paint', icon: '🎨', category: 'Productivity', status: 'ready', appId: 'paint' },
     { id: 'video', name: 'Video Gallery', icon: '🎬', category: 'Media', status: 'ready', appId: 'video' },
     { id: 'voicerecorder', name: 'Voice Recorder', icon: '🎙️', category: 'Media', status: 'ready', appId: 'voicerecorder' },
-    { id: 'wheel', name: 'Spin Wheel', icon: '🎡', category: 'Fun', status: 'coming_soon', appId: 'wheel' },
-    { id: 'maps', name: 'Maps', icon: '🗺️', category: 'Travel', status: 'coming_soon', appId: 'maps' },
-    { id: 'sites', name: 'Sites Builder', icon: '🌐', category: 'Web', status: 'coming_soon', appId: 'sites' },
-    { id: 'yt', name: 'YouTube', icon: '📺', category: 'Media', status: 'coming_soon', appId: 'yt' },
-    { id: 'photos', name: 'Photos Pro', icon: '🖼️', category: 'Media', status: 'coming_soon', appId: 'photos' },
-    { id: 'fitness', name: 'Pufutara Fitness', icon: '💪', category: 'Health', status: 'coming_soon', appId: 'fitness' },
-    { id: 'finance', name: 'Pufutara Wallet', icon: '💰', category: 'Finance', status: 'coming_soon', appId: 'finance' },
-    { id: 'chat', name: 'Pufutara Chat', icon: '💬', category: 'Social', status: 'coming_soon', appId: 'chat' },
-    { id: 'cloud', name: 'Pufutara Cloud', icon: '☁️', category: 'Storage', status: 'coming_soon', appId: 'cloud' },
-    { id: 'code', name: 'Pufutara Code', icon: '👨‍💻', category: 'Dev', status: 'coming_soon', appId: 'code' },
-    { id: 'news', name: 'Pufutara News', icon: '📰', category: 'News', status: 'coming_soon', appId: 'news' }
+    { id: 'wheel', name: 'Spin Wheel', icon: '🎡', category: 'Fun', status: 'ready', appId: 'wheel' },
+    { id: 'maps', name: 'Maps', icon: '🗺️', category: 'Travel', status: 'ready', appId: 'maps' },
+    { id: 'sites', name: 'Sites Builder', icon: '🌐', category: 'Web', status: 'ready', appId: 'sites' },
+    { id: 'yt', name: 'YouTube', icon: '📺', category: 'Media', status: 'ready', appId: 'yt' },
+    { id: 'photos', name: 'Photos Pro', icon: '🖼️', category: 'Media', status: 'ready', appId: 'photos' },
+    { id: 'fitness', name: 'Pufutara Fitness', icon: '💪', category: 'Health', status: 'ready', appId: 'fitness' },
+    { id: 'finance', name: 'Pufutara Wallet', icon: '💰', category: 'Finance', status: 'ready', appId: 'finance' },
+    { id: 'chat', name: 'Pufutara Chat', icon: '💬', category: 'Social', status: 'ready', appId: 'chat' },
+    { id: 'cloud', name: 'Pufutara Cloud', icon: '☁️', category: 'Storage', status: 'ready', appId: 'cloud' },
+    { id: 'code', name: 'Pufutara Code', icon: '👨‍💻', category: 'Dev', status: 'ready', appId: 'code' },
+    { id: 'news', name: 'Pufutara News', icon: '📰', category: 'News', status: 'ready', appId: 'news' },
+    { id: 'timer', name: 'Pufutara Timer', icon: '⏱️', category: 'Tools', status: 'ready', appId: 'timer' }
 ];
+
+const SESSION_KEYS = {
+    installedGames: 'pufutara_session_installed_games',
+    uninstalledApps: 'pufutara_session_uninstalled',
+    appLabels: 'pufutara_session_app_labels',
+    startLayout: 'pufutara_session_start_layout'
+};
+
+const START_APPS_BUILTIN = [
+    { appId: 'files', category: 'System' },
+    { appId: 'recyclebin', category: 'System' },
+    { appId: 'browser', category: 'System' },
+    { appId: 'terminal', category: 'System' },
+    { appId: 'settings', category: 'System' },
+    { appId: 'store', category: 'System' },
+    { appId: 'calculator', category: 'System' },
+    { appId: 'calendar', category: 'System' },
+    { appId: 'music', category: 'Media' },
+    { appId: 'voicerecorder', category: 'Media' },
+    { appId: 'camera', category: 'Media' },
+    { appId: 'photos', category: 'Media' },
+    { appId: 'video', category: 'Media' },
+    { appId: 'yt', category: 'Media' },
+    { appId: 'writer', category: 'Productivity' },
+    { appId: 'ppt', category: 'Productivity' },
+    { appId: 'paint', category: 'Productivity' },
+    { appId: 'notes', category: 'Productivity' },
+    { appId: 'texteditor', category: 'Productivity' },
+    { appId: 'sites', category: 'Productivity' },
+    { appId: 'wallpaper', category: 'Tools' },
+    { appId: 'weather', category: 'Tools' },
+    { appId: 'maps', category: 'Tools' },
+    { appId: 'contacts', category: 'Tools' },
+    { appId: 'mail', category: 'Tools' },
+    { appId: 'timer', category: 'Tools' }
+];
+
+const START_GAME_APPS = [
+    { appId: 'snake', category: 'Game' },
+    { appId: 'tictactoe', category: 'Game' },
+    { appId: 'memory', category: 'Game' }
+];
+
+const START_GOOGLE_LINKS = [
+    { id: 'gmail', label: 'Gmail', icon: '📧', url: 'https://mail.google.com', category: 'Google' },
+    { id: 'drive', label: 'Drive', icon: '💾', url: 'https://drive.google.com', category: 'Google' },
+    { id: 'translate', label: 'Translate', icon: '文', url: 'https://translate.google.com', category: 'Google' },
+    { id: 'gdocs', label: 'Docs', icon: '📊', url: 'https://docs.google.com', category: 'Google' },
+    { id: 'meet', label: 'Meet', icon: '🎥', url: 'https://meet.google.com', category: 'Google' }
+];
+
+const START_CATEGORY_ORDER = ['System', 'Media', 'Productivity', 'Game', 'Tools', 'Google'];
+let stickyWidgetSpawn = 0;
+let startDragAppId = null;
+
+function readSessionJson(key, fallback) {
+    try {
+        const raw = sessionStorage.getItem(key);
+        if (!raw) return fallback;
+        return JSON.parse(raw);
+    } catch (e) {
+        return fallback;
+    }
+}
+
+function writeSessionJson(key, value) {
+    sessionStorage.setItem(key, JSON.stringify(value));
+}
+
+function getInstalledGames() {
+    return readSessionJson(SESSION_KEYS.installedGames, []);
+}
+
+function setInstalledGames(list) {
+    writeSessionJson(SESSION_KEYS.installedGames, list);
+}
+
+function isGameInstalled(appId) {
+    return getInstalledGames().includes(appId);
+}
+
+function isStoreGameItem(item) {
+    return item && item.category === 'Game' && item.status === 'ready';
+}
+
+function getUninstalledApps() {
+    return readSessionJson(SESSION_KEYS.uninstalledApps, []);
+}
+
+function setUninstalledApps(list) {
+    writeSessionJson(SESSION_KEYS.uninstalledApps, list);
+}
+
+function getAppLabels() {
+    return readSessionJson(SESSION_KEYS.appLabels, {});
+}
+
+function setAppLabel(appId, label) {
+    const labels = getAppLabels();
+    labels[appId] = label;
+    writeSessionJson(SESSION_KEYS.appLabels, labels);
+}
+
+function getAppDisplayName(appId) {
+    const labels = getAppLabels();
+    return labels[appId] || getAppName(appId);
+}
+
+function getStartLayout() {
+    const layout = readSessionJson(SESSION_KEYS.startLayout, { folders: {}, inFolder: [] });
+    if (!layout.folders) layout.folders = {};
+    if (!Array.isArray(layout.inFolder)) layout.inFolder = [];
+    return layout;
+}
+
+function saveStartLayout(layout) {
+    writeSessionJson(SESSION_KEYS.startLayout, layout);
+}
+
+function isAppUninstalled(appId) {
+    return getUninstalledApps().includes(appId);
+}
+
+function getVisibleStartApps() {
+    const uninstalled = getUninstalledApps();
+    const installedGames = getInstalledGames();
+    const gameApps = START_GAME_APPS.filter(g => installedGames.includes(g.appId));
+    return [...START_APPS_BUILTIN, ...gameApps].filter(a => !uninstalled.includes(a.appId));
+}
+
+function renderStartMenu() {
+    const body = document.getElementById('startMenuBody');
+    if (!body) return;
+    const query = (document.getElementById('startSearch')?.value || '').toLowerCase();
+    const layout = getStartLayout();
+    const apps = getVisibleStartApps();
+    const inFolderSet = new Set(layout.inFolder || []);
+
+    const folderHtml = Object.entries(layout.folders).map(([folderId, folder]) => {
+        const folderApps = (folder.apps || []).filter(appId => {
+            if (isAppUninstalled(appId)) return false;
+            const name = getAppDisplayName(appId).toLowerCase();
+            return !query || name.includes(query) || appId.includes(query);
+        });
+        if (!folderApps.length && query) return '';
+        const items = folderApps.map(appId => buildStartItemHtml(appId)).join('');
+        const collapsed = folder.collapsed ? ' collapsed' : '';
+        return `
+            <div class="start-folder drop-target" data-folder-id="${folderId}"
+                 ondragover="onStartFolderDragOver(event)" ondragleave="onStartFolderDragLeave(event)"
+                 ondrop="onStartFolderDrop(event, '${folderId}')">
+                <div class="start-folder-header" onclick="toggleStartFolder('${folderId}')">
+                    <span>📁</span><span>${escapeHtml(folder.name || 'Folder')}</span>
+                    <span style="margin-left:auto;font-size:10px;color:#9ca3af;">${folderApps.length}</span>
+                </div>
+                <div class="start-folder-items${collapsed}" data-folder-items="${folderId}">${items}</div>
+            </div>`;
+    }).join('');
+
+    const sections = START_CATEGORY_ORDER.map(category => {
+        const categoryApps = apps.filter(a => a.category === category && !inFolderSet.has(a.appId));
+        const filtered = categoryApps.filter(a => {
+            const name = getAppDisplayName(a.appId).toLowerCase();
+            return !query || name.includes(query) || a.appId.includes(query);
+        });
+        let googleHtml = '';
+        if (category === 'Google') {
+            const links = START_GOOGLE_LINKS.filter(l =>
+                !query || l.label.toLowerCase().includes(query)
+            );
+            googleHtml = links.map(l => `
+                <div class="start-item" data-link-id="${l.id}" onclick="window.open('${l.url}','_blank'); toggleStart()">
+                    <div class="start-icon">${l.icon}</div>
+                    <div class="start-label">${escapeHtml(l.label)}</div>
+                </div>`).join('');
+        }
+        if (!filtered.length && !googleHtml) return '';
+        const items = filtered.map(a => buildStartItemHtml(a.appId)).join('');
+        return `
+            <div class="start-section" data-category="${category}">
+                <div class="start-section-title">${category}</div>
+                <div class="start-section-grid">${items}${googleHtml}</div>
+            </div>`;
+    }).join('');
+
+    const foldersSection = folderHtml ? `
+        <div class="start-section">
+            <div class="start-section-title">Folder</div>
+            <div class="start-section-grid">${folderHtml}</div>
+        </div>` : '';
+
+    body.innerHTML = foldersSection + sections || '<div style="padding:24px;text-align:center;color:#9ca3af;">Tidak ada aplikasi</div>';
+    bindStartMenuInteractions();
+}
+
+function buildStartItemHtml(appId) {
+    const label = escapeHtml(getAppDisplayName(appId));
+    const emoji = getAppEmoji(appId);
+    return `
+        <div class="start-item" draggable="true" data-app-id="${appId}"
+             onclick="openApp('${appId}'); toggleStart()"
+             oncontextmenu="showStartItemContextMenu(event, '${appId}')">
+            <div class="start-icon">${emoji}</div>
+            <div class="start-label">${label}</div>
+        </div>`;
+}
+
+function bindStartMenuInteractions() {
+    document.querySelectorAll('#startMenuBody .start-item[data-app-id]').forEach(item => {
+        item.addEventListener('dragstart', onStartItemDragStart);
+        item.addEventListener('dragend', onStartItemDragEnd);
+    });
+}
+
+function showStartItemContextMenu(e, appId) {
+    e.preventDefault();
+    e.stopPropagation();
+    showContextMenu(e, appId, 'start');
+}
+
+function filterStartMenu() {
+    renderStartMenu();
+}
+
+async function createStartFolder() {
+    const name = await showUiPrompt({
+        title: 'Folder Start Menu',
+        message: 'Nama folder aplikasi:',
+        value: 'Folder Baru',
+        confirmText: 'Buat'
+    });
+    if (!name || !name.trim()) return;
+    const layout = getStartLayout();
+    const folderId = 'folder-' + Date.now();
+    layout.folders[folderId] = { name: name.trim(), apps: [], collapsed: false };
+    saveStartLayout(layout);
+    renderStartMenu();
+}
+
+function toggleStartFolder(folderId) {
+    const layout = getStartLayout();
+    const folder = layout.folders[folderId];
+    if (!folder) return;
+    folder.collapsed = !folder.collapsed;
+    saveStartLayout(layout);
+    renderStartMenu();
+}
+
+function onStartItemDragStart(e) {
+    startDragAppId = e.currentTarget.dataset.appId;
+    e.currentTarget.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', startDragAppId);
+}
+
+function onStartItemDragEnd(e) {
+    e.currentTarget.classList.remove('dragging');
+    document.querySelectorAll('.start-folder.drop-target').forEach(el => el.classList.remove('drag-over'));
+    startDragAppId = null;
+}
+
+function onStartFolderDragOver(e) {
+    e.preventDefault();
+    e.currentTarget.classList.add('drag-over');
+}
+
+function onStartFolderDragLeave(e) {
+    e.currentTarget.classList.remove('drag-over');
+}
+
+function onStartFolderDrop(e, folderId) {
+    e.preventDefault();
+    e.currentTarget.classList.remove('drag-over');
+    const appId = e.dataTransfer.getData('text/plain') || startDragAppId;
+    if (!appId) return;
+    const layout = getStartLayout();
+    const folder = layout.folders[folderId];
+    if (!folder) return;
+    Object.values(layout.folders).forEach(f => {
+        f.apps = (f.apps || []).filter(id => id !== appId);
+    });
+    if (!folder.apps.includes(appId)) folder.apps.push(appId);
+    if (!layout.inFolder.includes(appId)) layout.inFolder.push(appId);
+    saveStartLayout(layout);
+    renderStartMenu();
+}
+
+function addAppToStart(appId) {
+    if (START_GAME_APPS.some(g => g.appId === appId)) {
+        const list = getInstalledGames();
+        if (!list.includes(appId)) {
+            list.push(appId);
+            setInstalledGames(list);
+        }
+    }
+    const uninstalled = getUninstalledApps().filter(id => id !== appId);
+    setUninstalledApps(uninstalled);
+    renderStartMenu();
+}
+
+function refreshDockLabels() {
+    document.querySelectorAll('.dock-icon[data-app-id]').forEach(icon => {
+        icon.dataset.label = getAppDisplayName(icon.dataset.appId);
+    });
+}
 
 let pptSlides = [{ title: 'Slide 1', body: 'Selamat datang di Pufutara PPT' }];
 let pptActiveIndex = 0;
@@ -2453,6 +2818,23 @@ let fileDetails = {
 };
 
 let recycleBin = [];
+let recycleBinFs = { root: { name: 'Recycle Bin', type: 'folder', items: [] } };
+let recycleBinFolderMeta = {};
+let currentRecycleFolder = 'root';
+let selectedRecycleItems = [];
+let fileContextTarget = null;
+let cloudFiles = [];
+let systemSettings = {};
+let chatMessages = [];
+let financeLedger = { balance: 0, transactions: [] };
+let fitnessLog = { water: 0, steps: 0, waterGoal: 8, stepGoal: 8000 };
+let mapsPins = [];
+let codeProject = { html: '', css: '', js: '' };
+let paintUndoStack = [];
+let paintRedoStack = [];
+let paintTool = 'brush';
+let sitesHtml = '';
+const SYSTEM_SETTINGS_KEY = 'pufutara_system_settings';
 let virtualFiles = {};
 let virtualFolders = {};
 
@@ -2565,22 +2947,17 @@ function initSystem() {
 
     if (!document.body.dataset.pufutaraListeners) {
         document.body.dataset.pufutaraListeners = '1';
-        document.addEventListener('click', closeContextMenu);
+        document.addEventListener('click', () => { closeContextMenu(); closeFileContextMenu(); });
         document.addEventListener('contextmenu', closeContextMenu);
     }
     setupAutoHide();
 
-    document.querySelectorAll('.start-item').forEach(item => {
-        item.addEventListener('contextmenu', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            const appId = this.getAttribute('onclick')?.match(/openApp\('(.+?)'\)/)?.[1];
-            if(appId) showContextMenu(e, appId, 'start');
-        });
-    });
+    renderStartMenu();
+    snapDesktopPinsToColumn();
 
     requestAnimationFrame(() => {
         renderDesktopPins();
+        snapDesktopPinsToColumn();
         requestAnimationFrame(() => {
             loadWidgets();
             setTimeout(() => {
@@ -2684,9 +3061,17 @@ function loadSavedData() {
     renderNotificationHistory();
     
     const savedRecycleBin = localStorage.getItem('pufutara_recyclebin');
-    if(savedRecycleBin) {
-        recycleBin = JSON.parse(savedRecycleBin);
-    }
+    if(savedRecycleBin) recycleBin = JSON.parse(savedRecycleBin);
+    loadRecycleBinFs();
+    migrateRecycleBinToFs();
+
+    loadSystemSettings();
+    loadCloudFiles();
+    loadMapsPins();
+    loadFinanceLedger();
+    loadFitnessLog();
+    loadChatMessages();
+    loadCodeProject();
 
     const savedDesktopPins = localStorage.getItem('pufutara_desktop_pins');
     if(savedDesktopPins) {
@@ -2866,6 +3251,7 @@ async function connectToWifi(networkId) {
     }
     connectedNetworkId = networkId;
     updateWifiUI();
+    updateBrowserConnectivity();
     showNotification('WiFi', `Terhubung ke ${network.ssid}.`, 'success');
 }
 
@@ -2873,6 +3259,7 @@ function toggleWifiPower() {
     wifiOn = !wifiOn;
     if (!wifiOn) connectedNetworkId = null;
     updateWifiUI();
+    updateBrowserConnectivity();
     showNotification('WiFi', wifiOn ? 'WiFi dinyalakan.' : 'WiFi dimatikan.', 'info');
 }
 
@@ -3149,8 +3536,14 @@ function closeWidgetTray() {
 
 function addWidget(type) {
     if (type === 'notes') type = 'sticky';
-    const x = Math.random() * (window.innerWidth - 200);
-    const y = Math.random() * (window.innerHeight - 200) + 50;
+    let x = 80 + (stickyWidgetSpawn % 6) * 28;
+    let y = 100 + (stickyWidgetSpawn % 6) * 28;
+    if (type !== 'sticky') {
+        x = Math.random() * (window.innerWidth - 200);
+        y = Math.random() * (window.innerHeight - 200) + 50;
+    } else {
+        stickyWidgetSpawn++;
+    }
     createWidget(type, x, y);
     closeWidgetTray();
 }
@@ -3342,8 +3735,13 @@ setInterval(() => {
 function toggleStart(e) {
     if (e) e.stopPropagation();
     const menu = document.getElementById('startMenu');
+    const opening = !menu.classList.contains('show');
     menu.classList.toggle('show');
-    if (menu.classList.contains('show')) menu.style.zIndex = '25000';
+    if (menu.classList.contains('show')) {
+        menu.style.zIndex = '25000';
+        renderStartMenu();
+    }
+    if (!opening) closePowerMenu();
 }
 function closeStartMenu(e) {
     const menu = document.getElementById('startMenu');
@@ -3376,7 +3774,7 @@ function addToDock(appId) {
     const icon = document.createElement('div');
     icon.className = 'dock-icon';
     icon.dataset.appId = appId;
-    icon.dataset.label = getAppName(appId);
+    icon.dataset.label = getAppDisplayName(appId);
     icon.innerHTML = getAppEmoji(appId);
     icon.addEventListener('click', (e) => { if(e.button===0) openApp(appId); });
     icon.addEventListener('contextmenu', (e) => { e.preventDefault(); e.stopPropagation(); showContextMenu(e, appId, 'dock'); });
@@ -3542,11 +3940,14 @@ function showContextMenu(e, appId, source) {
     const isWallpaperMenu = source === 'wallpaper';
     const isDesktopIconMenu = source === 'desktop-icon';
 
-    document.getElementById('context-open').style.display = (isAppMenu && source !== 'dock') || isDesktopIconMenu ? 'flex' : 'none';
-    document.getElementById('context-pin').style.display = isAppMenu && !isPinned ? 'flex' : 'none';
-    document.getElementById('context-unpin').style.display = isAppMenu && isPinned ? 'flex' : 'none';
-    document.getElementById('context-pin-desktop').style.display = isAppMenu ? 'flex' : 'none';
+    const isStartMenu = source === 'start';
+    document.getElementById('context-open').style.display = (isAppMenu && source !== 'dock') || isDesktopIconMenu || isStartMenu ? 'flex' : 'none';
+    document.getElementById('context-pin').style.display = (isAppMenu || isStartMenu) && appId && !isPinned ? 'flex' : 'none';
+    document.getElementById('context-unpin').style.display = (isAppMenu || isStartMenu) && appId && isPinned ? 'flex' : 'none';
+    document.getElementById('context-pin-desktop').style.display = (isAppMenu || isStartMenu) && appId ? 'flex' : 'none';
     document.getElementById('context-rename-desktop').style.display = isDesktopIconMenu ? 'flex' : 'none';
+    document.getElementById('context-rename-app').style.display = (isAppMenu || isStartMenu) && appId ? 'flex' : 'none';
+    document.getElementById('context-uninstall').style.display = (isAppMenu || isStartMenu) && appId ? 'flex' : 'none';
     document.getElementById('context-delete-desktop').style.display = isDesktopIconMenu ? 'flex' : 'none';
     document.getElementById('context-settings').style.display = isTaskbarMenu ? 'flex' : 'none';
     document.getElementById('context-refresh').style.display = isTaskbarMenu || isWallpaperMenu ? 'flex' : 'none';
@@ -3563,7 +3964,12 @@ function showContextMenu(e, appId, source) {
     if(menuRect.right > window.innerWidth) menu.style.left = (window.innerWidth - menuRect.width - 10) + 'px';
 }
 function closeContextMenu() { document.getElementById('contextMenu').classList.remove('show'); }
-function contextOpenApp() { if(contextMenuTarget) { openApp(contextMenuTarget.appId); closeContextMenu(); } }
+function contextOpenApp() {
+    if (!contextMenuTarget) return;
+    openApp(contextMenuTarget.appId);
+    if (contextMenuTarget.source === 'start') toggleStart();
+    closeContextMenu();
+}
 function contextPinApp() { if(contextMenuTarget) { const {appId}=contextMenuTarget; if(!pinnedApps.includes(appId)) { pinnedApps.push(appId); savePinnedApps(); addToDock(appId); } closeContextMenu(); } }
 function contextUnpinApp() { if(contextMenuTarget) { const {appId}=contextMenuTarget; pinnedApps = pinnedApps.filter(id=>id!==appId); savePinnedApps(); removeFromDock(appId); closeContextMenu(); } }
 function contextOpenSettings() { openApp('settings'); closeContextMenu(); }
@@ -3592,7 +3998,7 @@ async function contextRenameDesktopPin() {
     if (!contextMenuTarget?.pinId) return;
     const pin = desktopPins.find(item => item.id === contextMenuTarget.pinId);
     if (!pin) return;
-    const currentLabel = pin.label || getAppName(pin.appId);
+    const currentLabel = pin.label || getAppDisplayName(pin.appId);
     const nextLabel = await showUiPrompt({
         title: 'Rename Desktop Pin',
         message: 'Masukkan nama baru untuk ikon desktop ini.',
@@ -3604,6 +4010,70 @@ async function contextRenameDesktopPin() {
     pin.label = nextLabel.trim();
     saveDesktopPins();
     renderDesktopPins();
+}
+
+async function contextRenameApp() {
+    if (!contextMenuTarget?.appId) return;
+    const appId = contextMenuTarget.appId;
+    const nextLabel = await showUiPrompt({
+        title: 'Rename Aplikasi',
+        message: 'Masukkan nama baru aplikasi:',
+        value: getAppDisplayName(appId),
+        confirmText: 'Simpan'
+    });
+    closeContextMenu();
+    if (!nextLabel || !nextLabel.trim()) return;
+    setAppLabel(appId, nextLabel.trim());
+    const pin = desktopPins.find(p => p.appId === appId);
+    if (pin) pin.label = nextLabel.trim();
+    saveDesktopPins();
+    renderStartMenu();
+    renderDesktopPins();
+    refreshDockLabels();
+}
+
+async function contextUninstallApp() {
+    if (!contextMenuTarget?.appId) return;
+    const appId = contextMenuTarget.appId;
+    const ok = await showUiConfirm({
+        title: 'Uninstall Aplikasi',
+        message: `Yakin uninstall ${getAppDisplayName(appId)}? Aplikasi akan hilang sampai halaman di-refresh.`,
+        confirmText: 'Uninstall',
+        danger: true
+    });
+    closeContextMenu();
+    if (!ok) return;
+    uninstallApp(appId);
+}
+
+function uninstallApp(appId) {
+    const uninstalled = getUninstalledApps();
+    if (!uninstalled.includes(appId)) uninstalled.push(appId);
+    setUninstalledApps(uninstalled);
+
+    if (START_GAME_APPS.some(g => g.appId === appId)) {
+        setInstalledGames(getInstalledGames().filter(id => id !== appId));
+        const layout = getStartLayout();
+        Object.values(layout.folders).forEach(f => {
+            f.apps = (f.apps || []).filter(id => id !== appId);
+        });
+        layout.inFolder = (layout.inFolder || []).filter(id => id !== appId);
+        saveStartLayout(layout);
+    }
+
+    pinnedApps = pinnedApps.filter(id => id !== appId);
+    savePinnedApps();
+    removeFromDock(appId);
+    desktopPins = desktopPins.filter(pin => pin.appId !== appId);
+    saveDesktopPins();
+
+    const win = document.getElementById('win-' + appId);
+    if (win) closeWindow('win-' + appId);
+
+    renderStartMenu();
+    renderDesktopPins();
+    renderStoreApp();
+    showNotification('Pufutara OS', `${getAppDisplayName(appId)} di-uninstall.`, 'info');
 }
 
 function showWallpaperContextMenu(e) {
@@ -3623,7 +4093,7 @@ function applyTaskbarAutoHide() {
     }
 }
 
-const DESKTOP_PIN_DEFAULT_APPS = ['files', 'browser', 'store', 'settings'];
+const DESKTOP_PIN_DEFAULT_APPS = ['files', 'settings', 'store', 'browser', 'terminal'];
 const DESKTOP_PIN_X = 24;
 const DESKTOP_PIN_START_Y = 24;
 const DESKTOP_PIN_GAP_Y = 96;
@@ -3643,6 +4113,7 @@ function pinAppToDesktop(appId, x, y) {
         y: typeof y === 'number' ? y : nextDesktopPinY()
     });
     saveDesktopPins();
+    snapDesktopPinsToColumn();
     renderDesktopPins();
 }
 
@@ -3654,6 +4125,7 @@ function ensureDefaultDesktopPins() {
             x: DESKTOP_PIN_X,
             y: DESKTOP_PIN_START_Y + index * DESKTOP_PIN_GAP_Y
         }));
+        snapDesktopPinsToColumn();
         saveDesktopPins();
         return;
     }
@@ -3668,6 +4140,22 @@ function ensureDefaultDesktopPins() {
         });
     });
     saveDesktopPins();
+    snapDesktopPinsToColumn();
+}
+
+function snapDesktopPinsToColumn() {
+    if (!desktopPins.length) return;
+    const orderMap = new Map(DESKTOP_PIN_DEFAULT_APPS.map((id, i) => [id, i]));
+    desktopPins.sort((a, b) => {
+        const ao = orderMap.has(a.appId) ? orderMap.get(a.appId) : 100 + desktopPins.indexOf(a);
+        const bo = orderMap.has(b.appId) ? orderMap.get(b.appId) : 100 + desktopPins.indexOf(b);
+        return ao - bo || a.y - b.y;
+    });
+    desktopPins.forEach((pin, index) => {
+        pin.x = DESKTOP_PIN_X;
+        pin.y = DESKTOP_PIN_START_Y + index * DESKTOP_PIN_GAP_Y;
+    });
+    saveDesktopPins();
 }
 
 function renderDesktopPins() {
@@ -3678,7 +4166,7 @@ function renderDesktopPins() {
              ondblclick="openApp('${pin.appId}')"
              oncontextmenu="showContextMenu(event, '${pin.appId}', 'desktop-icon')">
             <div class="desktop-app-emoji">${getAppEmoji(pin.appId)}</div>
-            <div class="desktop-app-label">${escapeHtml(pin.label || getAppName(pin.appId))}</div>
+            <div class="desktop-app-label">${escapeHtml(pin.label || getAppDisplayName(pin.appId))}</div>
         </div>
     `).join('');
 
@@ -3750,7 +4238,12 @@ function stopDesktopPinDrag(e) {
     if (moved && e && isPointOverDock(e.clientX, e.clientY)) {
         moveDesktopPinToDock(pin.appId, pin.id);
     } else if (moved) {
-        saveDesktopPins();
+        if (Math.abs(pin.x - DESKTOP_PIN_X) < 48) {
+            snapDesktopPinsToColumn();
+            renderDesktopPins();
+        } else {
+            saveDesktopPins();
+        }
     }
 
     desktopPinDrag = null;
@@ -3764,7 +4257,8 @@ function getAppEmoji(appId) {
         'camera':'📷','photos':'🖼️','video':'🎬','voicerecorder':'🎙️','yt':'📺','notes':'📝','texteditor':'📄','sites':'🌐',
         'wallpaper':'🎨','wheel':'🎡','weather':'☀️','maps':'🗺️','contacts':'📇','mail':'✉️',
         'snake':'🐍','tictactoe':'⭕❌','memory':'🧠','store':'🛍️',
-        'writer':'📝','ppt':'📊','paint':'🖌️'
+        'writer':'📝','ppt':'📊','paint':'🖌️','recyclebin':'🗑️',
+        'code':'👨‍💻','chat':'💬','finance':'💰','fitness':'💪','news':'📰','cloud':'☁️','timer':'⏱️'
     };
     return emojis[appId] || '📱';
 }
@@ -3798,7 +4292,15 @@ function getAppName(appId) {
         mail: 'Mail',
         snake: 'Snake',
         tictactoe: 'Tic Tac Toe',
-        memory: 'Memory'
+        memory: 'Memory',
+        recyclebin: 'Recycle Bin',
+        code: 'Pufutara Code',
+        chat: 'Pufutara Chat',
+        finance: 'Pufutara Wallet',
+        fitness: 'Pufutara Fitness',
+        news: 'Pufutara News',
+        cloud: 'Pufutara Cloud',
+        timer: 'Pufutara Timer'
     };
     return names[appId] || appId;
 }
@@ -3873,10 +4375,18 @@ document.getElementById('uiModalInput').addEventListener('keydown', e => {
 
 function togglePowerMenu(e) {
     if (e) e.stopPropagation();
-    document.getElementById('powerMenu').classList.toggle('show');
+    const backdrop = document.getElementById('powerMenuBackdrop');
+    const modal = document.getElementById('powerMenuModal');
+    const menu = document.getElementById('powerMenu');
+    const open = !modal.classList.contains('show');
+    backdrop.classList.toggle('show', open);
+    modal.classList.toggle('show', open);
+    menu.classList.toggle('show', open);
 }
 
 function closePowerMenu() {
+    document.getElementById('powerMenuBackdrop')?.classList.remove('show');
+    document.getElementById('powerMenuModal')?.classList.remove('show');
     document.getElementById('powerMenu')?.classList.remove('show');
 }
 
@@ -4108,7 +4618,8 @@ function renderFileGrid(items) {
              ondragstart="dragStart(event, '${item}')"
              ondragend="dragEnd(event)"
              ondrop="dropOnItem(event, '${item}')"
-             ondragover="dragOver(event)">
+             ondragover="dragOver(event)"
+             oncontextmenu="showFileContextMenu(event, '${item.replace(/'/g, "\\'")}', 'files')">
             <div class="file-grid-icon">${icon}</div>
             <div class="file-grid-name" title="${item}">${item}</div>
             <div class="file-grid-size">${isFolder ? 'Folder' : details.size}</div>
@@ -4412,6 +4923,7 @@ async function deleteSelected() {
                     deletedAt: new Date().toISOString(),
                     details: details
                 });
+                addItemToRecycleBinFs(filename);
 
                 if (details.virtual) {
                     delete virtualFiles[filename];
@@ -4431,6 +4943,7 @@ async function deleteSelected() {
         
         selectedFiles = [];
         saveRecycleBin();
+        saveRecycleBinFs();
         
         const win = document.querySelector('.window[id^="win-files"]');
         if (win) {
@@ -4479,90 +4992,334 @@ async function compressSelected() {
     });
 }
 
+function loadRecycleBinFs() {
+    recycleBinFs = readJsonStorage('pufutara_recyclebin_fs', { root: { name: 'Recycle Bin', type: 'folder', items: [] } });
+    recycleBinFolderMeta = readJsonStorage('pufutara_recyclebin_folder_meta', {});
+    if (!recycleBinFs.root) recycleBinFs.root = { name: 'Recycle Bin', type: 'folder', items: [] };
+}
+
+function saveRecycleBinFs() {
+    localStorage.setItem('pufutara_recyclebin_fs', JSON.stringify(recycleBinFs));
+    localStorage.setItem('pufutara_recyclebin_folder_meta', JSON.stringify(recycleBinFolderMeta));
+}
+
+function migrateRecycleBinToFs() {
+    if (!recycleBinFs.root.items) recycleBinFs.root.items = [];
+    const set = new Set(recycleBinFs.root.items);
+    recycleBin.forEach(item => {
+        if (!set.has(item.name)) recycleBinFs.root.items.push(item.name);
+    });
+    saveRecycleBinFs();
+}
+
+function addItemToRecycleBinFs(name, folderId = currentRecycleFolder) {
+    const folder = recycleBinFs[folderId] || recycleBinFs.root;
+    if (!folder.items.includes(name)) folder.items.push(name);
+}
+
+function removeItemFromRecycleBinFs(name) {
+    Object.values(recycleBinFs).forEach(f => {
+        if (f.items) f.items = f.items.filter(i => i !== name);
+    });
+}
+
+function getRecycleBinItemByName(name) {
+    return recycleBin.find(i => i.name === name);
+}
+
+function renderRecycleBinGridItems(items) {
+    if (!items.length) return '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#6b7280;">Folder kosong</div>';
+    return items.map(item => {
+        const isRbFolder = !!recycleBinFs[item];
+        const rbItem = getRecycleBinItemByName(item);
+        const icon = isRbFolder ? '📁' : (rbItem?.details?.icon || '📄');
+        const label = isRbFolder ? (recycleBinFs[item].name || item) : item;
+        const meta = isRbFolder ? 'Folder' : (rbItem ? new Date(rbItem.deletedAt).toLocaleString() : '');
+        const sel = selectedRecycleItems.includes(item) ? 'selected' : '';
+        return `<div class="file-grid-item ${sel}" data-filename="${item}"
+            ondblclick="${isRbFolder ? `navigateRecycleFolder('${item}')` : `previewRecycleItem('${item.replace(/'/g, "\\'")}')`}"
+            onclick="selectRecycleItem('${item.replace(/'/g, "\\'")}', event)"
+            oncontextmenu="showFileContextMenu(event, '${item.replace(/'/g, "\\'")}', 'recycle')">
+            <div class="file-grid-icon">${icon}</div>
+            <div class="file-grid-name">${escapeHtml(label)}</div>
+            <div class="file-grid-size">${escapeHtml(meta)}</div>
+        </div>`;
+    }).join('');
+}
+
+function renderRecycleBinManager(container) {
+    const folder = recycleBinFs[currentRecycleFolder] || recycleBinFs.root;
+    const items = folder.items || [];
+    const folderList = Object.keys(recycleBinFs).filter(k => k !== 'root' && k.startsWith('rb_'));
+    container.innerHTML = `
+    <div class="file-manager">
+        <div class="file-sidebar">
+            <div class="file-sidebar-section">
+                <div class="file-sidebar-title">RECYCLE BIN</div>
+                <div class="file-sidebar-item ${currentRecycleFolder === 'root' ? 'active' : ''}" onclick="navigateRecycleFolder('root')">
+                    <i class="fas fa-trash"></i> Semua Item (${recycleBin.length})
+                </div>
+                ${folderList.map(fid => `
+                <div class="file-sidebar-item ${currentRecycleFolder === fid ? 'active' : ''}" onclick="navigateRecycleFolder('${fid}')"
+                     oncontextmenu="showFileContextMenu(event, '${fid}', 'recycle')">
+                    <i class="fas fa-folder"></i> ${escapeHtml(recycleBinFs[fid]?.name || fid)}
+                </div>`).join('')}
+            </div>
+        </div>
+        <div class="file-main">
+            <div class="file-toolbar">
+                <button class="file-toolbar-btn" onclick="navigateRecycleFolder('root')"><i class="fas fa-arrow-left"></i> Root</button>
+                <button class="file-toolbar-btn" onclick="createRecycleBinFolder()"><i class="fas fa-folder-plus"></i> Folder Baru</button>
+                <button class="file-toolbar-btn" onclick="renameRecycleSelection()"><i class="fas fa-pen"></i> Rename</button>
+                <button class="file-toolbar-btn" onclick="restoreRecycleSelection()"><i class="fas fa-undo"></i> Pulihkan</button>
+                <button class="file-toolbar-btn" onclick="deleteRecyclePermanent()"><i class="fas fa-trash"></i> Hapus Permanen</button>
+                <button class="file-toolbar-btn" onclick="emptyRecycleBin()"><i class="fas fa-trash-alt"></i> Kosongkan</button>
+            </div>
+            <div class="file-path"><span class="file-path-item">${escapeHtml(folder.name || 'Recycle Bin')}</span></div>
+            <div class="file-grid-container"><div class="file-grid" id="rb-file-grid">${renderRecycleBinGridItems(items)}</div></div>
+        </div>
+        <div class="file-preview" id="rb-file-preview"><div class="file-preview-header">Preview</div>
+            <div class="file-preview-content" id="rb-preview-content"><div style="color:#6b7280;text-align:center;padding:20px;">Pilih item</div></div>
+        </div>
+    </div>`;
+}
+
+function navigateRecycleFolder(folderId) {
+    if (folderId === 'root' || recycleBinFs[folderId]) {
+        currentRecycleFolder = folderId;
+        selectedRecycleItems = [];
+        refreshRecycleBinViews();
+    }
+}
+
+function selectRecycleItem(name, event) {
+    if (event.ctrlKey) {
+        const i = selectedRecycleItems.indexOf(name);
+        if (i === -1) selectedRecycleItems.push(name);
+        else selectedRecycleItems.splice(i, 1);
+    } else selectedRecycleItems = [name];
+    refreshRecycleBinViews();
+}
+
+function previewRecycleItem(name) {
+    const item = getRecycleBinItemByName(name);
+    const el = document.getElementById('rb-preview-content');
+    if (!el) return;
+    if (!item) {
+        el.innerHTML = `<div style="padding:20px;"><strong>${escapeHtml(name)}</strong><p>Folder Recycle Bin</p></div>`;
+        return;
+    }
+    el.innerHTML = `<div style="padding:16px;"><div style="font-size:40px;">${item.details.icon || '📄'}</div>
+        <h3>${escapeHtml(item.name)}</h3><p>Dari: ${escapeHtml(item.originalPath)}</p>
+        <p>Dihapus: ${new Date(item.deletedAt).toLocaleString()}</p></div>`;
+}
+
+async function createRecycleBinFolder() {
+    const name = await showUiPrompt({ title: 'Folder Recycle Bin', message: 'Nama folder:', value: 'Folder Baru', confirmText: 'Buat' });
+    if (!name?.trim()) return;
+    const folderId = 'rb_' + Date.now();
+    recycleBinFs[folderId] = { name: name.trim(), type: 'folder', items: [] };
+    recycleBinFolderMeta[folderId] = { name: name.trim() };
+    (recycleBinFs[currentRecycleFolder] || recycleBinFs.root).items.push(folderId);
+    saveRecycleBinFs();
+    refreshRecycleBinViews();
+}
+
+async function renameRecycleSelection() {
+    if (selectedRecycleItems.length !== 1) {
+        showNotification('Recycle Bin', 'Pilih satu item.', 'warning');
+        return;
+    }
+    const oldId = selectedRecycleItems[0];
+    const isFolder = !!recycleBinFs[oldId];
+    const input = await showUiPrompt({
+        title: 'Rename',
+        message: 'Nama baru:',
+        value: isFolder ? recycleBinFs[oldId].name : oldId,
+        confirmText: 'Simpan'
+    });
+    if (!input?.trim()) return;
+    if (isFolder) {
+        recycleBinFs[oldId].name = input.trim();
+        recycleBinFolderMeta[oldId].name = input.trim();
+    } else {
+        const idx = recycleBin.findIndex(i => i.name === oldId);
+        if (idx >= 0) {
+            const newName = input.trim();
+            recycleBin[idx].name = newName;
+            Object.values(recycleBinFs).forEach(f => {
+                f.items = f.items.map(i => i === oldId ? newName : i);
+            });
+            saveRecycleBin();
+        }
+    }
+    saveRecycleBinFs();
+    selectedRecycleItems = [];
+    refreshRecycleBinViews();
+}
+
+function restoreRecycleSelection() {
+    const names = [...selectedRecycleItems];
+    names.forEach(name => {
+        if (recycleBinFs[name]) return;
+        const idx = recycleBin.findIndex(i => i.name === name);
+        if (idx >= 0) restoreFromRecycleBin(idx);
+    });
+    selectedRecycleItems = [];
+    syncRecycleBinFsFromArray();
+    refreshRecycleBinViews();
+}
+
+function syncRecycleBinFsFromArray() {
+    const names = new Set(recycleBin.map(i => i.name));
+    Object.keys(recycleBinFs).forEach(k => {
+        if (!recycleBinFs[k]?.items) return;
+        recycleBinFs[k].items = recycleBinFs[k].items.filter(i => recycleBinFs[i] || names.has(i));
+    });
+    saveRecycleBinFs();
+}
+
+async function deleteRecyclePermanent() {
+    if (!selectedRecycleItems.length) {
+        showNotification('Recycle Bin', 'Pilih item.', 'warning');
+        return;
+    }
+    const ok = await showUiConfirm({ title: 'Hapus permanen?', message: 'Item tidak bisa dipulihkan.', confirmText: 'Hapus', danger: true });
+    if (!ok) return;
+    selectedRecycleItems.forEach(name => {
+        if (recycleBinFs[name]) {
+            delete recycleBinFs[name];
+            delete recycleBinFolderMeta[name];
+            Object.values(recycleBinFs).forEach(f => { f.items = (f.items || []).filter(i => i !== name); });
+        } else {
+            const idx = recycleBin.findIndex(i => i.name === name);
+            if (idx >= 0) recycleBin.splice(idx, 1);
+            removeItemFromRecycleBinFs(name);
+        }
+    });
+    selectedRecycleItems = [];
+    saveRecycleBin();
+    saveRecycleBinFs();
+    refreshRecycleBinViews();
+}
+
 function openRecycleBin() {
     const win = document.querySelector('.window[id^="win-files"]');
     if (!win) return;
-    
-    let html = `
-    <div class="recycle-bin">
-        <div class="recycle-bin-header">
-            <span>Recycle Bin</span>
-            <div class="recycle-bin-actions">
-                <button class="recycle-bin-btn" onclick="emptyRecycleBin()"><i class="fas fa-trash-alt"></i> Empty</button>
-                <button class="recycle-bin-btn" onclick="closeRecycleBin()"><i class="fas fa-times"></i> Close</button>
-            </div>
-        </div>
-        <div class="recycle-bin-list" id="recycle-bin-list">
-            ${renderRecycleBin()}
-        </div>
-    </div>
-    `;
-    
-    win.querySelector('.win-content').innerHTML = html;
+    currentRecycleFolder = 'root';
+    renderRecycleBinManager(win.querySelector('.win-content'));
 }
 
-function renderRecycleBin() {
-    if (recycleBin.length === 0) {
-        return '<div style="text-align:center; padding:40px; color:#6b7280;">Recycle Bin kosong</div>';
-    }
-    
-    return recycleBin.map((item, index) => {
-        const date = new Date(item.deletedAt).toLocaleString();
-        return `
-        <div class="recycle-bin-item" data-index="${index}">
-            <div class="recycle-bin-icon">${item.details.icon || '📄'}</div>
-            <div class="recycle-bin-details">
-                <div class="recycle-bin-name">${item.name}</div>
-                <div class="recycle-bin-meta">${item.details.size} • Dihapus: ${date}</div>
-            </div>
-            <div class="recycle-bin-restore" onclick="restoreFromRecycleBin(${index})" title="Restore">
-                <i class="fas fa-undo-alt"></i>
-            </div>
-        </div>
-        `;
-    }).join('');
+function refreshRecycleBinApp() {
+    const win = document.getElementById('win-recyclebin');
+    if (win) renderRecycleBinManager(win.querySelector('.win-content'));
+}
+
+function refreshRecycleBinViews() {
+    refreshRecycleBinApp();
+    const win = document.querySelector('.window[id^="win-files"]');
+    if (win?.querySelector('#rb-file-grid')) renderRecycleBinManager(win.querySelector('.win-content'));
 }
 
 function restoreFromRecycleBin(index) {
     const item = recycleBin[index];
-    if (item) {
-        // Kembalikan ke folder asal
-        if (fileSystem[item.originalPath]) {
-            fileSystem[item.originalPath].items.push(item.name);
-        }
-
-        if (item.details?.virtual) {
-            persistVirtualFile(item.name, item.details, item.originalPath);
-        }
-        
-        // Hapus dari recycle bin
-        recycleBin.splice(index, 1);
-        saveRecycleBin();
-        
-        // Refresh tampilan
-        openRecycleBin();
-    }
+    if (!item) return;
+    if (fileSystem[item.originalPath]) fileSystem[item.originalPath].items.push(item.name);
+    if (item.details?.virtual) persistVirtualFile(item.name, item.details, item.originalPath);
+    recycleBin.splice(index, 1);
+    removeItemFromRecycleBinFs(item.name);
+    saveRecycleBin();
+    saveRecycleBinFs();
+    refreshRecycleBinViews();
+    showNotification('Recycle Bin', `${item.name} dipulihkan.`, 'success');
 }
 
 async function emptyRecycleBin() {
-    const confirmed = await showUiConfirm({
-        title: 'Kosongkan Recycle Bin?',
-        message: 'Item akan dihapus permanen.',
-        confirmText: 'Empty',
-        danger: true
-    });
-    if (confirmed) {
-        recycleBin = [];
-        saveRecycleBin();
-        openRecycleBin();
-    }
+    const confirmed = await showUiConfirm({ title: 'Kosongkan Recycle Bin?', message: 'Item akan dihapus permanen.', confirmText: 'Kosongkan', danger: true });
+    if (!confirmed) return;
+    recycleBin = [];
+    recycleBinFs = { root: { name: 'Recycle Bin', type: 'folder', items: [] } };
+    recycleBinFolderMeta = {};
+    currentRecycleFolder = 'root';
+    saveRecycleBin();
+    saveRecycleBinFs();
+    refreshRecycleBinViews();
 }
 
 function closeRecycleBin() {
     const win = document.querySelector('.window[id^="win-files"]');
-    if (win) {
-        renderFileManager(win.querySelector('.win-content'));
+    if (win) renderFileManager(win.querySelector('.win-content'));
+}
+
+function showFileContextMenu(e, filename, mode) {
+    e.preventDefault();
+    e.stopPropagation();
+    fileContextTarget = { filename, mode };
+    const menu = document.getElementById('fileContextMenu');
+    const isFolder = mode === 'files' ? !!fileSystem[filename] : !!recycleBinFs[filename];
+    document.getElementById('file-ctx-restore').style.display = mode === 'recycle' && !isFolder ? 'flex' : 'none';
+    document.getElementById('file-ctx-compress').style.display = mode === 'files' && !isFolder ? 'flex' : 'none';
+    document.getElementById('file-ctx-open').style.display = 'flex';
+    menu.classList.add('show');
+    menu.style.left = e.clientX + 'px';
+    menu.style.top = e.clientY + 'px';
+    closeContextMenu();
+}
+
+function closeFileContextMenu() {
+    document.getElementById('fileContextMenu')?.classList.remove('show');
+}
+
+function fileContextOpen() {
+    if (!fileContextTarget) return;
+    const { filename, mode } = fileContextTarget;
+    closeFileContextMenu();
+    if (mode === 'files') {
+        selectedFiles = [filename];
+        if (fileSystem[filename]) navigateToFolder(filename);
+        else openFile(filename);
+    } else if (recycleBinFs[filename]) navigateRecycleFolder(filename);
+    else previewRecycleItem(filename);
+}
+
+async function fileContextRename() {
+    if (!fileContextTarget) return;
+    const { filename, mode } = fileContextTarget;
+    closeFileContextMenu();
+    if (mode === 'files') {
+        selectedFiles = [filename];
+        await renameSelected();
+    } else {
+        selectedRecycleItems = [filename];
+        await renameRecycleSelection();
     }
+}
+
+function fileContextRestore() {
+    if (!fileContextTarget || fileContextTarget.mode !== 'recycle') return;
+    selectedRecycleItems = [fileContextTarget.filename];
+    closeFileContextMenu();
+    restoreRecycleSelection();
+}
+
+async function fileContextDelete() {
+    if (!fileContextTarget) return;
+    const { filename, mode } = fileContextTarget;
+    closeFileContextMenu();
+    if (mode === 'files') {
+        selectedFiles = [filename];
+        await deleteSelected();
+    } else {
+        selectedRecycleItems = [filename];
+        await deleteRecyclePermanent();
+    }
+}
+
+async function fileContextCompress() {
+    if (!fileContextTarget || fileContextTarget.mode !== 'files') return;
+    selectedFiles = [fileContextTarget.filename];
+    closeFileContextMenu();
+    await compressSelected();
 }
 
 // Drag and drop functions
@@ -4948,8 +5705,44 @@ function browserRefresh(btn) {
     frame.src = url;
 }
 
+function isNetworkOnline() {
+    return wifiOn && !!connectedNetworkId;
+}
+
+function updateBrowserConnectivity(win) {
+    if (!win) win = document.getElementById('win-browser');
+    if (!win) return;
+    const offline = win.querySelector('#browser-offline');
+    const frame = win.querySelector('.browser-frame');
+    const home = win.querySelector('.browser-home');
+    const toolbar = win.querySelector('.browser-toolbar');
+    if (!offline) return;
+    if (!isNetworkOnline()) {
+        offline.style.display = 'flex';
+        if (frame) frame.style.display = 'none';
+        if (home) home.style.display = 'none';
+        if (toolbar) toolbar.style.opacity = '0.45';
+        if (toolbar) toolbar.style.pointerEvents = 'none';
+    } else {
+        offline.style.display = 'none';
+        if (toolbar) toolbar.style.opacity = '';
+        if (toolbar) toolbar.style.pointerEvents = '';
+        if (frame && frame.src && frame.src !== 'about:blank') {
+            frame.style.display = 'block';
+            if (home) home.style.display = 'none';
+        } else if (home) {
+            home.style.display = 'flex';
+        }
+    }
+}
+
 function browserGo(btn) {
-    const win = btn.closest('.window'); 
+    const win = btn.closest('.window');
+    if (!isNetworkOnline()) {
+        showNotification('Browser', 'Tidak ada internet. Hubungkan WiFi dulu.', 'warning');
+        updateBrowserConnectivity(win);
+        return;
+    }
     const urlInput = win.querySelector('.browser-url'); 
     let url = urlInput.value.trim();
     if(!url) return;
@@ -4970,7 +5763,12 @@ function browserHandleUrl(e, input) {
 
 function browserHomeSearch(e, input) {
     if(e.key === 'Enter') {
-        const win = input.closest('.window'); 
+        const win = input.closest('.window');
+        if (!isNetworkOnline()) {
+            showNotification('Browser', 'Tidak ada internet. Hubungkan WiFi dulu.', 'warning');
+            updateBrowserConnectivity(win);
+            return;
+        }
         const query = input.value.trim();
         if(!query) return;
         const url = 'https://www.bing.com/search?q=' + encodeURIComponent(query);
@@ -4979,7 +5777,12 @@ function browserHomeSearch(e, input) {
 }
 
 function browserSearch(btn) {
-    const win = btn.closest('.window'); 
+    const win = btn.closest('.window');
+    if (!isNetworkOnline()) {
+        showNotification('Browser', 'Tidak ada internet. Hubungkan WiFi dulu.', 'warning');
+        updateBrowserConnectivity(win);
+        return;
+    }
     const input = win.querySelector('.search-box-home'); 
     const query = input.value.trim();
     if(!query) return;
@@ -4989,6 +5792,11 @@ function browserSearch(btn) {
 
 function browserOpenUrl(win, url) {
     if (!win) return;
+    if (!isNetworkOnline()) {
+        showNotification('Browser', 'Tidak ada internet. Hubungkan WiFi dulu.', 'warning');
+        updateBrowserConnectivity(win);
+        return;
+    }
     const frame = win.querySelector('.browser-frame');
     const fullUrl = normalizeUrl(url);
     const history = getBrowserStack(win);
@@ -5097,15 +5905,314 @@ function setupBrowserFrame(frame) {
     });
 }
 
+// ========== SYSTEM SETTINGS ==========
+const DEFAULT_SYSTEM_SETTINGS = {
+    darkMode: false, notifications: true, language: 'id', fontSize: 'medium',
+    soundEffects: true, location: false, camera: false, microphone: false,
+    taskbarAutoHide: false, accentColor: '#3b82f6', reduceMotion: false,
+    highContrast: false, clock24h: false, dockScale: 'medium'
+};
+
+function loadSystemSettings() {
+    systemSettings = { ...DEFAULT_SYSTEM_SETTINGS, ...readJsonStorage(SYSTEM_SETTINGS_KEY, {}) };
+    taskbarAutoHide = systemSettings.taskbarAutoHide ?? taskbarAutoHide;
+    applySystemSettings();
+}
+
+function saveSystemSettings() {
+    systemSettings.taskbarAutoHide = taskbarAutoHide;
+    localStorage.setItem(SYSTEM_SETTINGS_KEY, JSON.stringify(systemSettings));
+    applySystemSettings();
+}
+
+function applySystemSettings() {
+    document.body.classList.toggle('dark-mode', !!systemSettings.darkMode);
+    document.body.classList.toggle('reduce-motion', !!systemSettings.reduceMotion);
+    document.body.classList.toggle('high-contrast', !!systemSettings.highContrast);
+    const scale = systemSettings.fontSize === 'large' ? '17px' : systemSettings.fontSize === 'small' ? '13px' : '15px';
+    document.documentElement.style.fontSize = scale;
+    applyTaskbarAutoHide();
+    document.querySelectorAll('.settings-toggle[data-key]').forEach(el => {
+        const key = el.dataset.key;
+        el.classList.toggle('active', !!systemSettings[key]);
+    });
+}
+
+function toggleSetting(setting, toggleElement) {
+    systemSettings[setting] = !systemSettings[setting];
+    if (setting === 'taskbarAutoHide') {
+        taskbarAutoHide = systemSettings.taskbarAutoHide;
+    }
+    toggleElement.classList.toggle('active', systemSettings[setting]);
+    saveSystemSettings();
+    if (setting === 'darkMode' || setting === 'reduceMotion' || setting === 'highContrast') applySystemSettings();
+}
+
+function changeSetting(setting, value) {
+    systemSettings[setting] = value;
+    saveSystemSettings();
+    applySystemSettings();
+}
+
+async function resetAllSettings() {
+    const ok = await showUiConfirm({ title: 'Reset pengaturan?', message: 'Semua pengaturan kembali ke default.', confirmText: 'Reset', danger: true });
+    if (!ok) return;
+    systemSettings = { ...DEFAULT_SYSTEM_SETTINGS };
+    taskbarAutoHide = false;
+    saveSystemSettings();
+    saveSystemSettingsToUi();
+    showNotification('Settings', 'Pengaturan direset.', 'success');
+}
+
+function saveSystemSettingsToUi() {
+    const win = document.getElementById('win-settings');
+    if (!win) return;
+    openApp('settings');
+}
+
+// ========== STORE APP INITS & DATA ==========
+function loadCloudFiles() { cloudFiles = readJsonStorage('pufutara_cloud_files', []); }
+function saveCloudFiles() { localStorage.setItem('pufutara_cloud_files', JSON.stringify(cloudFiles)); }
+function loadMapsPins() { mapsPins = readJsonStorage('pufutara_maps_pins', []); }
+function saveMapsPins() { localStorage.setItem('pufutara_maps_pins', JSON.stringify(mapsPins)); }
+function loadFinanceLedger() { financeLedger = readJsonStorage('pufutara_finance', { balance: 0, transactions: [] }); }
+function saveFinanceLedger() { localStorage.setItem('pufutara_finance', JSON.stringify(financeLedger)); }
+function loadFitnessLog() { fitnessLog = readJsonStorage('pufutara_fitness', { water: 0, steps: 0, waterGoal: 8, stepGoal: 8000 }); }
+function saveFitnessLog() { localStorage.setItem('pufutara_fitness', JSON.stringify(fitnessLog)); }
+function loadChatMessages() { chatMessages = readJsonStorage('pufutara_chat', [{ role: 'bot', text: 'Halo! Saya asisten Pufutara.' }]); }
+function saveChatMessages() { localStorage.setItem('pufutara_chat', JSON.stringify(chatMessages)); }
+function loadCodeProject() { codeProject = readJsonStorage('pufutara_code_project', { html: '<h1>Hello</h1>', css: 'body{font-family:sans-serif}', js: '' }); }
+function saveCodeProject() { localStorage.setItem('pufutara_code_project', JSON.stringify(codeProject)); }
+
+function initMapsApp() {
+    const root = document.getElementById('maps-root');
+    if (!root) return;
+    root.innerHTML = `<div style="padding:16px;height:100%;display:flex;flex-direction:column;">
+        <div style="display:flex;gap:8px;margin-bottom:12px;">
+            <input id="maps-search" placeholder="Cari lokasi..." style="flex:1;padding:8px;border:1px solid #ddd;border-radius:8px;">
+            <button onclick="addMapsPin()" style="padding:8px 14px;background:#111;color:#fff;border:none;border-radius:8px;cursor:pointer;">Tambah Pin</button>
+        </div>
+        <div id="maps-canvas" style="flex:1;background:linear-gradient(#dbeafe,#93c5fd);border-radius:12px;position:relative;overflow:hidden;">
+            ${mapsPins.map((p,i)=>`<div style="position:absolute;left:${p.x}%;top:${p.y}%;transform:translate(-50%,-100%);font-size:24px;" title="${escapeHtml(p.name)}">📍</div>`).join('')}
+        </div>
+        <div id="maps-list" style="margin-top:10px;font-size:12px;">${mapsPins.map(p=>`<div>📍 ${escapeHtml(p.name)}</div>`).join('') || 'Belum ada pin'}</div>
+    </div>`;
+}
+
+async function addMapsPin() {
+    const name = document.getElementById('maps-search')?.value?.trim() || 'Lokasi';
+    mapsPins.push({ name, x: 20 + Math.random() * 60, y: 20 + Math.random() * 60 });
+    saveMapsPins();
+    initMapsApp();
+}
+
+function initCodeApp() {
+    const html = document.getElementById('code-html');
+    const css = document.getElementById('code-css');
+    const js = document.getElementById('code-js');
+    if (html) html.value = codeProject.html || '';
+    if (css) css.value = codeProject.css || '';
+    if (js) js.value = codeProject.js || '';
+    runCodePreview();
+}
+
+function runCodePreview() {
+    const html = document.getElementById('code-html')?.value || '';
+    const css = document.getElementById('code-css')?.value || '';
+    const js = document.getElementById('code-js')?.value || '';
+    codeProject = { html, css, js };
+    saveCodeProject();
+    const frame = document.getElementById('code-preview-frame');
+    if (!frame) return;
+    const doc = `<!DOCTYPE html><html><head><style>${css}</style></head><body>${html}<script>${js}<\/script></body></html>`;
+    frame.srcdoc = doc;
+}
+
+function initChatApp() {
+    const box = document.getElementById('chat-messages');
+    if (!box) return;
+    box.innerHTML = chatMessages.map(m => `<div class="chat-bubble ${m.role}">${escapeHtml(m.text)}</div>`).join('');
+    box.scrollTop = box.scrollHeight;
+}
+
+function sendChatMessage() {
+    const input = document.getElementById('chat-input');
+    const text = input?.value?.trim();
+    if (!text) return;
+    chatMessages.push({ role: 'user', text });
+    const replies = ['Menarik!', 'Saya mengerti.', 'Coba buka Pufutara Store.', 'Baik, catat!', 'Haha, lucu.'];
+    chatMessages.push({ role: 'bot', text: replies[Math.floor(Math.random() * replies.length)] });
+    input.value = '';
+    saveChatMessages();
+    initChatApp();
+}
+
+function initFinanceApp() {
+    const bal = document.getElementById('finance-balance');
+    const list = document.getElementById('finance-list');
+    if (bal) bal.textContent = 'Rp ' + financeLedger.balance.toLocaleString('id-ID');
+    if (list) list.innerHTML = financeLedger.transactions.slice().reverse().map(t =>
+        `<div style="padding:8px;border-bottom:1px solid #eee;"><strong>${t.type === 'in' ? '+' : '-'}Rp ${t.amount.toLocaleString('id-ID')}</strong> — ${escapeHtml(t.note)}</div>`
+    ).join('') || '<div style="color:#999;padding:12px;">Belum ada transaksi</div>';
+}
+
+function addFinanceTx(type) {
+    const amount = parseInt(document.getElementById('finance-amount')?.value, 10);
+    const note = document.getElementById('finance-note')?.value || '-';
+    if (!amount || amount <= 0) return;
+    financeLedger.balance += type === 'in' ? amount : -amount;
+    financeLedger.transactions.push({ type, amount, note, at: Date.now() });
+    saveFinanceLedger();
+    initFinanceApp();
+}
+
+function initFitnessApp() {
+    const w = document.getElementById('fitness-water');
+    const s = document.getElementById('fitness-steps');
+    if (w) w.textContent = `${fitnessLog.water} / ${fitnessLog.waterGoal} gelas`;
+    if (s) s.textContent = `${fitnessLog.steps} / ${fitnessLog.stepGoal} langkah`;
+}
+
+function fitnessAddWater() { fitnessLog.water++; saveFitnessLog(); initFitnessApp(); }
+function fitnessAddSteps() { fitnessLog.steps += 500; saveFitnessLog(); initFitnessApp(); }
+function fitnessResetDay() { fitnessLog.water = 0; fitnessLog.steps = 0; saveFitnessLog(); initFitnessApp(); }
+
+const NEWS_FEED = [
+    { cat: 'Tech', title: 'Pufutara OS 5.5 dirilis', body: 'Fitur Store dan Writer diperbarui.' },
+    { cat: 'Game', title: 'Snake klasik kembali', body: 'Unduh dari Pufutara Store.' },
+    { cat: 'Local', title: 'Cuaca cerah di Jakarta', body: 'Suhu 32°C.' }
+];
+let newsFilter = 'all';
+
+function initNewsApp() {
+    const grid = document.getElementById('news-grid');
+    if (!grid) return;
+    const items = newsFilter === 'all' ? NEWS_FEED : NEWS_FEED.filter(n => n.cat === newsFilter);
+    grid.innerHTML = items.map(n => `<div class="store-card" style="text-align:left;"><div class="store-card-cat">${n.cat}</div><div class="store-card-name">${escapeHtml(n.title)}</div><p style="font-size:12px;color:#666;">${escapeHtml(n.body)}</p></div>`).join('');
+}
+
+function initCloudApp() {
+    const list = document.getElementById('cloud-file-list');
+    if (!list) return;
+    list.innerHTML = cloudFiles.length ? cloudFiles.map((f, i) => `
+        <div style="display:flex;justify-content:space-between;padding:10px;border-bottom:1px solid #eee;">
+            <span>${escapeHtml(f.name)} (${f.size})</span>
+            <button onclick="deleteCloudFile(${i})" style="border:none;background:#fee2e2;padding:4px 8px;border-radius:4px;cursor:pointer;">Hapus</button>
+        </div>`).join('') : '<div style="padding:20px;color:#999;">Cloud kosong</div>';
+}
+
+function importCloudFile(input) {
+    const file = input.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+        cloudFiles.push({ name: file.name, size: formatBytes(file.size), dataUrl: reader.result, at: Date.now() });
+        saveCloudFiles();
+        initCloudApp();
+    };
+    reader.readAsDataURL(file);
+}
+
+function deleteCloudFile(i) {
+    cloudFiles.splice(i, 1);
+    saveCloudFiles();
+    initCloudApp();
+}
+
+let timerMode = 'stopwatch';
+let timerRunning = false;
+let timerStart = 0;
+let timerElapsed = 0;
+let timerInterval = null;
+let timerCountdownTarget = 0;
+
+function initTimerApp() {
+    updateTimerDisplay();
+}
+
+function updateTimerDisplay() {
+    const el = document.getElementById('timer-display');
+    if (!el) return;
+    let ms = timerMode === 'stopwatch' ? timerElapsed : Math.max(0, timerCountdownTarget - timerElapsed);
+    if (timerRunning) ms = timerMode === 'stopwatch' ? Date.now() - timerStart + timerElapsed : Math.max(0, timerCountdownTarget - (Date.now() - timerStart));
+    const s = Math.floor(ms / 1000);
+    const m = Math.floor(s / 60);
+    el.textContent = `${String(m).padStart(2,'0')}:${String(s % 60).padStart(2,'0')}`;
+}
+
+function timerStartClick() {
+    if (timerRunning) return;
+    timerRunning = true;
+    timerStart = Date.now();
+    timerInterval = setInterval(() => {
+        updateTimerDisplay();
+        if (timerMode === 'countdown') {
+            const left = timerCountdownTarget - (Date.now() - timerStart);
+            if (left <= 0) {
+                timerStopClick();
+                showNotification('Timer', 'Waktu habis!', 'info');
+            }
+        }
+    }, 200);
+}
+
+function timerStopClick() {
+    timerRunning = false;
+    clearInterval(timerInterval);
+    if (timerMode === 'stopwatch') timerElapsed += Date.now() - timerStart;
+    updateTimerDisplay();
+}
+
+function timerResetClick() {
+    timerStopClick();
+    timerElapsed = 0;
+    timerCountdownTarget = parseInt(document.getElementById('timer-minutes')?.value || '5', 10) * 60000;
+    updateTimerDisplay();
+}
+
+function setTimerMode(mode) {
+    timerMode = mode;
+    timerResetClick();
+}
+
+function initSitesApp() {
+    const ta = document.getElementById('sites-html-editor');
+    if (ta) ta.value = sitesHtml || localStorage.getItem('pufutara_sites_html') || '<h1>Situs Saya</h1><p>Edit HTML di kiri.</p>';
+    sitesPreview();
+}
+
+function sitesPreview() {
+    const html = document.getElementById('sites-html-editor')?.value || '';
+    sitesHtml = html;
+    localStorage.setItem('pufutara_sites_html', html);
+    const frame = document.getElementById('sites-preview-frame');
+    if (frame) frame.srcdoc = html;
+}
+
 // ========== SETTINGS FUNCTIONS ==========
 function switchSettingsSection(section, element) {
     document.querySelectorAll('.settings-menu-item').forEach(el=>el.classList.remove('active'));
     document.querySelectorAll('.settings-section').forEach(el=>el.classList.remove('active'));
     element.classList.add('active');
     document.getElementById(`settings-${section}`).classList.add('active');
+    if (section === 'storage') updateStorageInfo();
 }
-function toggleSetting(setting, toggleElement) { toggleElement.classList.toggle('active'); console.log(`${setting} toggled: ${toggleElement.classList.contains('active')}`); }
-function changeSetting(setting, value) { console.log(`${setting} changed to: ${value}`); }
+
+function updateStorageInfo() {
+    const el = document.getElementById('settings-storage-info');
+    if (!el) return;
+    el.textContent = `File virtual: ${Object.keys(virtualFiles).length} · Recycle Bin: ${recycleBin.length} item · Cloud: ${cloudFiles.length} file`;
+}
+
+function initSettingsApp() {
+    applySystemSettings();
+    updateStorageInfo();
+    const netInfo = document.querySelector('#settings-network .settings-info-box');
+    if (netInfo && typeof connectedNetworkId !== 'undefined') {
+        const net = WIFI_NETWORKS.find(n => n.id === connectedNetworkId);
+        netInfo.innerHTML = `<i class="fas fa-info-circle"></i> Status: ${wifiOn ? (net ? net.ssid : 'Tidak terhubung') : 'WiFi mati'}`;
+    }
+}
 
 // ========== CALENDAR FUNCTIONS ==========
 let currentCalendarDate = new Date();
@@ -5596,20 +6703,47 @@ function isWindowMinimized(win) {
     return win && (win.classList.contains('minimized') || win.dataset.minimized === 'true');
 }
 
+function centerWindow(win) {
+    const w = parseFloat(win.style.width) || win.offsetWidth;
+    const h = parseFloat(win.style.height) || win.offsetHeight;
+    win.style.left = ((window.innerWidth / 2) - (w / 2)) + 'px';
+    win.style.top = ((window.innerHeight / 2) - (h / 2)) + 'px';
+}
+
 function restoreWindow(winId) {
     const win = document.getElementById(winId);
     if (!win) return;
-    win.classList.remove('minimized');
+    win.classList.remove('minimized', 'minimizing');
     win.dataset.minimized = 'false';
     win.style.display = 'flex';
-    win.style.transform = '';
-    win.style.opacity = '';
     win.style.pointerEvents = 'auto';
+    if (win.classList.contains('maximized')) {
+        win.style.transform = '';
+        win.style.opacity = '1';
+    } else {
+        centerWindow(win);
+        win.style.transform = 'scale(0.85)';
+        win.style.opacity = '0';
+        requestAnimationFrame(() => {
+            win.style.transition = 'transform 0.35s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.3s ease';
+            win.style.transform = 'scale(1)';
+            win.style.opacity = '1';
+        });
+    }
     if (!win.classList.contains('open')) win.classList.add('open');
     bringToFront(win);
 }
 
 function openApp(id) {
+    if (isAppUninstalled(id)) {
+        showNotification('Pufutara OS', 'Aplikasi telah di-uninstall. Unduh ulang dari Pufutara Store jika tersedia.', 'warning');
+        return;
+    }
+    const gameItem = STORE_CATALOG.find(i => i.appId === id);
+    if (gameItem && isStoreGameItem(gameItem) && !isGameInstalled(id)) {
+        showNotification('Pufutara Store', 'Unduh game ini terlebih dahulu dari Pufutara Store.', 'info');
+        return;
+    }
     updateDockState(id, true);
     if (!dockItems.includes(id) && !pinnedApps.includes(id)) addToDock(id);
 
@@ -5661,9 +6795,15 @@ function openApp(id) {
             const frame = win.querySelector('.browser-frame');
             if(frame) setupBrowserFrame(frame);
             renderBrowserPins(win);
-            maximizeWindow(winId);
+            updateBrowserConnectivity(win);
+            if (isNetworkOnline()) maximizeWindow(winId);
         }, 200);
     }
+    if(id==='recyclebin') setTimeout(() => {
+        currentRecycleFolder = 'root';
+        const c = win.querySelector('.win-content');
+        if (c) renderRecycleBinManager(c);
+    }, 80);
     if(id==='files') {
         setTimeout(() => {
             renderFileManager(win.querySelector('.win-content'));
@@ -5696,6 +6836,16 @@ function openApp(id) {
     if(id==='snake') setTimeout(initSnakeGame, 100);
     if(id==='tictactoe') setTimeout(initTicTacToeGame, 80);
     if(id==='memory') setTimeout(initMemoryGame, 80);
+    if(id==='maps') setTimeout(initMapsApp, 80);
+    if(id==='code') setTimeout(initCodeApp, 80);
+    if(id==='chat') setTimeout(initChatApp, 80);
+    if(id==='finance') setTimeout(initFinanceApp, 80);
+    if(id==='fitness') setTimeout(initFitnessApp, 80);
+    if(id==='news') setTimeout(initNewsApp, 80);
+    if(id==='cloud') setTimeout(initCloudApp, 80);
+    if(id==='timer') setTimeout(initTimerApp, 80);
+    if(id==='sites') setTimeout(initSitesApp, 80);
+    if(id==='settings') setTimeout(initSettingsApp, 80);
 }
 
 function closeWindow(winId) {
@@ -5710,15 +6860,40 @@ function closeWindow(winId) {
 }
 function minimizeWindow(winId) {
     const win = document.getElementById(winId);
-    if (!win) return;
+    if (!win || win.dataset.minimized === 'true') return;
     const appId = getWindowAppId(win);
-    win.classList.add('minimized');
-    win.dataset.minimized = 'true';
-    win.style.transform = '';
-    win.style.opacity = '';
-    win.style.pointerEvents = 'none';
-    win.style.display = 'none';
-    updateDockState(appId, true);
+
+    if (win.classList.contains('maximized')) {
+        restoreFromMaximize(win);
+    }
+
+    const w = parseFloat(win.style.width) || win.offsetWidth;
+    const h = parseFloat(win.style.height) || win.offsetHeight;
+    const targetLeft = (window.innerWidth / 2) - (w / 2);
+    const targetTop = (window.innerHeight / 2) - (h / 2);
+
+    win.classList.add('minimizing');
+    win.style.transition = 'left 0.35s cubic-bezier(0.19, 1, 0.22, 1), top 0.35s cubic-bezier(0.19, 1, 0.22, 1), transform 0.35s ease, opacity 0.35s ease';
+    win.style.left = targetLeft + 'px';
+    win.style.top = targetTop + 'px';
+    win.style.transform = 'scale(0.08)';
+    win.style.opacity = '0';
+
+    const finish = () => {
+        win.removeEventListener('transitionend', onEnd);
+        win.classList.remove('minimizing');
+        win.classList.add('minimized');
+        win.dataset.minimized = 'true';
+        win.style.display = 'none';
+        win.style.pointerEvents = 'none';
+        updateDockState(appId, true);
+    };
+    const onEnd = (e) => {
+        if (e.propertyName !== 'opacity') return;
+        finish();
+    };
+    win.addEventListener('transitionend', onEnd);
+    setTimeout(finish, 400);
 }
 
 function hasMaximizedWindow() {
@@ -6021,17 +7196,30 @@ function renderStoreApp() {
     const items = STORE_CATALOG.filter(item =>
         item.name.toLowerCase().includes(query) || item.category.toLowerCase().includes(query)
     );
-    grid.innerHTML = items.map(item => `
+    grid.innerHTML = items.map(item => {
+        let btnClass = 'soon';
+        let btnLabel = 'Dalam pengembangan';
+        let btnAction = `openFromStore('${item.appId}', '${item.status}')`;
+        if (item.status === 'ready') {
+            if (isStoreGameItem(item) && !isGameInstalled(item.appId)) {
+                btnClass = 'download';
+                btnLabel = 'Unduh';
+                btnAction = `downloadStoreGame('${item.appId}')`;
+            } else {
+                btnClass = 'ready';
+                btnLabel = 'Buka';
+            }
+        }
+        return `
         <div class="store-card">
             <div class="store-card-icon">${item.icon}</div>
             <div class="store-card-name">${escapeHtml(item.name)}</div>
             <div class="store-card-cat">${escapeHtml(item.category)}</div>
-            <button type="button" class="store-card-btn ${item.status === 'ready' ? 'ready' : 'soon'}"
-                onclick="openFromStore('${item.appId}', '${item.status}')">
-                ${item.status === 'ready' ? 'Buka' : 'Dalam pengembangan'}
+            <button type="button" class="store-card-btn ${btnClass}" onclick="${btnAction}">
+                ${btnLabel}
             </button>
-        </div>
-    `).join('');
+        </div>`;
+    }).join('');
 }
 
 function filterStoreApps(value) {
@@ -6045,34 +7233,112 @@ function openFromStore(appId, status) {
         showNotification('Pufutara Store', 'Aplikasi masih dalam proses pembuatan.', 'info');
         return;
     }
+    const item = STORE_CATALOG.find(i => i.appId === appId);
+    if (item && isStoreGameItem(item) && !isGameInstalled(appId)) {
+        downloadStoreGame(appId);
+        return;
+    }
     openApp(appId);
     const storeWin = document.getElementById('win-store');
     if (storeWin) minimizeWindow('win-store');
 }
 
+function downloadStoreGame(appId) {
+    const item = STORE_CATALOG.find(i => i.appId === appId);
+    if (!item || !isStoreGameItem(item)) return;
+    const overlay = document.getElementById('downloadOverlay');
+    const bar = document.getElementById('downloadProgressBar');
+    const title = document.getElementById('downloadOverlayTitle');
+    const text = document.getElementById('downloadOverlayText');
+    if (!overlay || !bar) return;
+
+    title.textContent = `Mengunduh ${item.name}`;
+    text.textContent = 'Mohon tunggu...';
+    bar.style.width = '0%';
+    overlay.classList.add('active');
+
+    const duration = 2500 + Math.random() * 1500;
+    const start = performance.now();
+
+    function tick(now) {
+        const progress = Math.min(1, (now - start) / duration);
+        bar.style.width = (progress * 100) + '%';
+        if (progress < 1) {
+            requestAnimationFrame(tick);
+        } else {
+            overlay.classList.remove('active');
+            addAppToStart(appId);
+            if (!desktopPins.some(p => p.appId === appId)) {
+                pinAppToDesktop(appId);
+                snapDesktopPinsToColumn();
+                renderDesktopPins();
+            }
+            if (!pinnedApps.includes(appId)) {
+                pinnedApps.push(appId);
+                savePinnedApps();
+                addToDock(appId);
+            }
+            renderStoreApp();
+            showNotification('Pufutara Store', `${item.name} berhasil diunduh dan dipasang.`, 'success');
+        }
+    }
+    requestAnimationFrame(tick);
+}
+
 // ========== WRITER / PPT / PAINT ==========
 function initWriterApp() {
     const el = document.getElementById('pufutara-writer');
-    if (el) el.value = localStorage.getItem(STORAGE_KEYS.writer) || '';
+    if (!el) return;
+    el.innerHTML = localStorage.getItem(STORAGE_KEYS.writer) || '';
+    updateWriterStats();
+}
+
+function writerCmd(cmd, val) {
+    document.execCommand(cmd, false, val || null);
+    document.getElementById('pufutara-writer')?.focus();
+}
+
+function updateWriterStats() {
+    const el = document.getElementById('pufutara-writer');
+    const stats = document.getElementById('writer-stats');
+    if (!el || !stats) return;
+    const text = el.innerText || '';
+    const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+    stats.textContent = `${words} kata · ${text.length} karakter`;
+}
+
+async function writerFindReplace() {
+    const find = await showUiPrompt({ title: 'Cari', message: 'Teks yang dicari:', value: '', confirmText: 'Lanjut' });
+    if (!find) return;
+    const rep = await showUiPrompt({ title: 'Ganti', message: 'Ganti dengan:', value: '', confirmText: 'Ganti' });
+    const el = document.getElementById('pufutara-writer');
+    if (el && rep !== null) el.innerHTML = (el.innerHTML || '').split(find).join(rep);
 }
 
 function saveWriterDoc() {
     const el = document.getElementById('pufutara-writer');
     if (!el) return;
-    localStorage.setItem(STORAGE_KEYS.writer, el.value);
+    localStorage.setItem(STORAGE_KEYS.writer, el.innerHTML);
     showNotification('Pufutara Writer', 'Dokumen disimpan.', 'success');
 }
 
 function downloadWriterDoc() {
     const el = document.getElementById('pufutara-writer');
     if (!el) return;
-    downloadBlob(el.value, 'dokumen-pufutara.txt', 'text/plain');
+    downloadBlob(el.innerText, 'dokumen-pufutara.txt', 'text/plain');
+}
+
+function downloadWriterHtml() {
+    const el = document.getElementById('pufutara-writer');
+    if (!el) return;
+    downloadBlob(`<!DOCTYPE html><html><body>${el.innerHTML}</body></html>`, 'dokumen-pufutara.html', 'text/html');
 }
 
 function newWriterDoc() {
     const el = document.getElementById('pufutara-writer');
-    if (el) el.value = '';
+    if (el) el.innerHTML = '';
     localStorage.setItem(STORAGE_KEYS.writer, '');
+    updateWriterStats();
 }
 
 function loadPptSlides() {
@@ -6103,6 +7369,58 @@ function syncSlideFromEditor() {
     if (!slide) return;
     slide.title = document.getElementById('ppt-slide-title')?.value || '';
     slide.body = document.getElementById('ppt-slide-body')?.value || '';
+    if (!slide.theme) slide.theme = 'light';
+}
+
+function duplicatePptSlide() {
+    syncSlideFromEditor();
+    const copy = { ...pptSlides[pptActiveIndex], title: pptSlides[pptActiveIndex].title + ' (copy)' };
+    pptSlides.splice(pptActiveIndex + 1, 0, copy);
+    pptActiveIndex++;
+    renderPptSidebar();
+    syncPptEditorFromSlide();
+}
+
+function movePptSlide(dir) {
+    syncSlideFromEditor();
+    const n = pptActiveIndex + dir;
+    if (n < 0 || n >= pptSlides.length) return;
+    const t = pptSlides[pptActiveIndex];
+    pptSlides[pptActiveIndex] = pptSlides[n];
+    pptSlides[n] = t;
+    pptActiveIndex = n;
+    renderPptSidebar();
+    syncPptEditorFromSlide();
+}
+
+function applyPptTheme(theme) {
+    const slide = pptSlides[pptActiveIndex];
+    if (slide) slide.theme = theme;
+}
+
+function startPptPresent() {
+    syncSlideFromEditor();
+    let idx = pptActiveIndex;
+    const overlay = document.createElement('div');
+    overlay.className = 'ppt-present-overlay';
+    overlay.tabIndex = 0;
+    const render = () => {
+        const s = pptSlides[idx];
+        const bg = s.theme === 'dark' ? '#111' : s.theme === 'blue' ? '#1e3a8a' : '#fff';
+        const fg = s.theme === 'light' ? '#111' : '#fff';
+        overlay.innerHTML = `<div style="background:${bg};color:${fg};width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;text-align:center;">
+            <h1 style="font-size:42px;">${escapeHtml(s.title)}</h1>
+            <p style="font-size:22px;white-space:pre-wrap;max-width:800px;">${escapeHtml(s.body)}</p>
+            <p style="position:absolute;bottom:20px;opacity:0.6;">${idx + 1} / ${pptSlides.length} · ESC keluar</p></div>`;
+    };
+    render();
+    overlay.onkeydown = (e) => {
+        if (e.key === 'Escape') overlay.remove();
+        if (e.key === 'ArrowRight' && idx < pptSlides.length - 1) { idx++; render(); }
+        if (e.key === 'ArrowLeft' && idx > 0) { idx--; render(); }
+    };
+    document.body.appendChild(overlay);
+    overlay.focus();
 }
 
 function renderPptSidebar() {
@@ -6160,21 +7478,69 @@ function downloadPptJson() {
     downloadBlob(JSON.stringify(pptSlides, null, 2), 'presentasi-pufutara.json', 'application/json');
 }
 
+let paintShapeStart = null;
+
 function initPaintApp() {
     const canvas = document.getElementById('paintCanvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    canvas.width = 720;
-    canvas.height = 420;
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    const saved = localStorage.getItem(STORAGE_KEYS.paint);
-    if (saved) {
-        const img = new Image();
-        img.onload = () => ctx.drawImage(img, 0, 0);
-        img.src = saved;
+    if (!canvas.dataset.inited) {
+        canvas.width = 760;
+        canvas.height = 440;
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        canvas.dataset.inited = '1';
     }
+    const saved = localStorage.getItem(STORAGE_KEYS.paint);
+    if (saved && !paintUndoStack.length) {
+        const img = new Image();
+        img.onload = () => { ctx.drawImage(img, 0, 0); pushPaintUndo(); };
+        img.src = saved;
+    } else if (!paintUndoStack.length) pushPaintUndo();
     setupPaintEvents(canvas, ctx);
+}
+
+function pushPaintUndo() {
+    const canvas = document.getElementById('paintCanvas');
+    if (!canvas) return;
+    paintUndoStack.push(canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height));
+    if (paintUndoStack.length > 30) paintUndoStack.shift();
+    paintRedoStack = [];
+}
+
+function paintUndo() {
+    if (paintUndoStack.length < 2) return;
+    const canvas = document.getElementById('paintCanvas');
+    paintRedoStack.push(paintUndoStack.pop());
+    canvas.getContext('2d').putImageData(paintUndoStack[paintUndoStack.length - 1], 0, 0);
+}
+
+function paintRedo() {
+    if (!paintRedoStack.length) return;
+    const canvas = document.getElementById('paintCanvas');
+    const data = paintRedoStack.pop();
+    paintUndoStack.push(data);
+    canvas.getContext('2d').putImageData(data, 0, 0);
+}
+
+function setPaintTool(tool, btn) {
+    paintTool = tool;
+    document.querySelectorAll('.paint-tool-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+}
+
+function importPaintImage(input) {
+    const file = input.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+        const canvas = document.getElementById('paintCanvas');
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+        img.onload = () => { ctx.drawImage(img, 0, 0, canvas.width, canvas.height); pushPaintUndo(); };
+        img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
 }
 
 function setupPaintEvents(canvas, ctx) {
@@ -6182,31 +7548,49 @@ function setupPaintEvents(canvas, ctx) {
         const rect = canvas.getBoundingClientRect();
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        return { x: clientX - rect.left, y: clientY - rect.top };
+        return { x: (clientX - rect.left) * (canvas.width / rect.width), y: (clientY - rect.top) * (canvas.height / rect.height) };
     };
     const start = (e) => {
         paintDrawing = true;
-        const p = getPos(e);
-        ctx.beginPath();
-        ctx.moveTo(p.x, p.y);
+        paintShapeStart = getPos(e);
+        if (paintTool === 'brush' || paintTool === 'eraser') {
+            ctx.beginPath();
+            ctx.moveTo(paintShapeStart.x, paintShapeStart.y);
+        }
         e.preventDefault();
     };
     const draw = (e) => {
-        if (!paintDrawing) return;
+        if (!paintDrawing || paintTool === 'line' || paintTool === 'rect') return;
         const p = getPos(e);
-        ctx.strokeStyle = paintColor;
         ctx.lineWidth = paintBrushSize;
         ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
+        ctx.strokeStyle = paintTool === 'eraser' ? '#ffffff' : paintColor;
+        ctx.globalCompositeOperation = paintTool === 'eraser' ? 'destination-out' : 'source-over';
         ctx.lineTo(p.x, p.y);
         ctx.stroke();
+        ctx.globalCompositeOperation = 'source-over';
         e.preventDefault();
     };
-    const stop = () => { paintDrawing = false; };
+    const stop = (e) => {
+        if (!paintDrawing) return;
+        paintDrawing = false;
+        if (paintShapeStart && e && (paintTool === 'line' || paintTool === 'rect')) {
+            const p = getPos(e);
+            ctx.strokeStyle = paintColor;
+            ctx.lineWidth = paintBrushSize;
+            if (paintTool === 'line') {
+                ctx.beginPath();
+                ctx.moveTo(paintShapeStart.x, paintShapeStart.y);
+                ctx.lineTo(p.x, p.y);
+                ctx.stroke();
+            } else ctx.strokeRect(paintShapeStart.x, paintShapeStart.y, p.x - paintShapeStart.x, p.y - paintShapeStart.y);
+        }
+        pushPaintUndo();
+    };
     canvas.onmousedown = start;
     canvas.onmousemove = draw;
     canvas.onmouseup = stop;
-    canvas.onmouseleave = stop;
+    canvas.onmouseleave = () => { if (paintDrawing) { paintDrawing = false; pushPaintUndo(); } };
 }
 
 function setPaintColor(color, el) {
@@ -6467,6 +7851,10 @@ function initMemoryGame() {
 
 // ========== APP DATA ==========
 const apps = {
+    'recyclebin': {
+        title: 'Recycle Bin', w: 920, h: 560,
+        content: `<div class="file-manager-placeholder-rb"></div>`
+    },
     'files': {
         title: 'File Explorer', w: 900, h: 550,
         content: `<div class="file-manager-placeholder"></div>`
@@ -6487,6 +7875,12 @@ const apps = {
                     </div>
                 </div>
                 <div class="browser-content">
+                    <div class="browser-offline" id="browser-offline" style="display: none;">
+                        <div class="browser-offline-icon">📡</div>
+                        <h3>Tidak ada internet</h3>
+                        <p>Hubungkan WiFi terlebih dahulu untuk menjelajah web.</p>
+                        <button type="button" class="browser-offline-btn" onclick="openApp('settings')">Buka pengaturan WiFi</button>
+                    </div>
                     <iframe class="browser-frame" id="browser-frame" src="about:blank" sandbox="allow-same-origin allow-scripts allow-popups allow-forms" style="display: none;"></iframe>
                     <div class="browser-home" id="browser-home" style="display: flex;">
                         <div class="bing-logo">Bing</div>
@@ -6528,6 +7922,15 @@ const apps = {
                     <div class="settings-menu-item" data-section="privacy" onclick="switchSettingsSection('privacy', this)">
                         <i class="fas fa-lock"></i> Privasi
                     </div>
+                    <div class="settings-menu-item" data-section="taskbar" onclick="switchSettingsSection('taskbar', this)">
+                        <i class="fas fa-bars"></i> Taskbar
+                    </div>
+                    <div class="settings-menu-item" data-section="storage" onclick="switchSettingsSection('storage', this)">
+                        <i class="fas fa-database"></i> Penyimpanan
+                    </div>
+                    <div class="settings-menu-item" data-section="accessibility" onclick="switchSettingsSection('accessibility', this)">
+                        <i class="fas fa-universal-access"></i> Aksesibilitas
+                    </div>
                     <div class="settings-menu-item" data-section="about" onclick="switchSettingsSection('about', this)">
                         <i class="fas fa-info-circle"></i> Tentang
                     </div>
@@ -6544,7 +7947,7 @@ const apps = {
                                     <small>Gunakan mode gelap di seluruh sistem</small>
                                 </div>
                                 <div class="settings-control">
-                                    <div class="settings-toggle" onclick="toggleSetting('darkMode', this)"></div>
+                                    <div class="settings-toggle" data-key="darkMode" onclick="toggleSetting('darkMode', this)"></div>
                                 </div>
                             </div>
                             <div class="settings-item">
@@ -6553,7 +7956,7 @@ const apps = {
                                     <small>Tampilkan notifikasi dari aplikasi</small>
                                 </div>
                                 <div class="settings-control">
-                                    <div class="settings-toggle active" onclick="toggleSetting('notifications', this)"></div>
+                                    <div class="settings-toggle active" data-key="notifications" onclick="toggleSetting('notifications', this)"></div>
                                 </div>
                             </div>
                             <div class="settings-item">
@@ -6661,7 +8064,7 @@ const apps = {
                                     Jaringan Tersedia
                                 </div>
                                 <div class="settings-control">
-                                    <button style="padding:6px 12px; border-radius:6px; border:1px solid #d1d5db; background:white; cursor:pointer;" onclick="alert('Pencarian jaringan...')">Cari</button>
+                                    <button style="padding:6px 12px; border-radius:6px; border:1px solid #d1d5db; background:white; cursor:pointer;" onclick="renderWifiNetworkList();showNotification('Jaringan','Daftar jaringan diperbarui.','info')">Refresh</button>
                                 </div>
                             </div>
                         </div>
@@ -6670,6 +8073,33 @@ const apps = {
                         </div>
                     </div>
                     
+                    <div class="settings-section" id="settings-taskbar">
+                        <h2>Taskbar &amp; Dock</h2>
+                        <div class="settings-group">
+                            <div class="settings-item">
+                                <div class="settings-item-label">Sembunyikan taskbar otomatis</div>
+                                <div class="settings-control"><div class="settings-toggle" data-key="taskbarAutoHide" onclick="toggleSetting('taskbarAutoHide', this)"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="settings-section" id="settings-storage">
+                        <h2>Penyimpanan</h2>
+                        <div class="settings-info-box" id="settings-storage-info">Menghitung...</div>
+                        <button onclick="sessionStorage.clear();showNotification('Settings','Cache sesi dikosongkan.','success')" style="padding:8px 16px;border-radius:8px;border:1px solid #ddd;cursor:pointer;">Kosongkan cache sesi</button>
+                    </div>
+                    <div class="settings-section" id="settings-accessibility">
+                        <h2>Aksesibilitas</h2>
+                        <div class="settings-group">
+                            <div class="settings-item">
+                                <div class="settings-item-label">Kurangi animasi</div>
+                                <div class="settings-control"><div class="settings-toggle" data-key="reduceMotion" onclick="toggleSetting('reduceMotion', this)"></div></div>
+                            </div>
+                            <div class="settings-item">
+                                <div class="settings-item-label">Kontras tinggi</div>
+                                <div class="settings-control"><div class="settings-toggle" data-key="highContrast" onclick="toggleSetting('highContrast', this)"></div></div>
+                            </div>
+                        </div>
+                    </div>
                     <!-- Privacy Section -->
                     <div class="settings-section" id="settings-privacy">
                         <h2>Privasi</h2>
@@ -6715,6 +8145,7 @@ const apps = {
                             <p style="font-size:13px;">Sistem operasi web buatan Indonesia.<br>Dibangun dengan cinta untuk pengalaman desktop modern.</p>
                             <hr style="margin:20px 0; border:0; border-top:1px solid #e5e7eb;">
                             <p style="font-size:12px; color:#9ca3af;">© 2025 Pufutara. Semua hak dilindungi.</p>
+                            <button onclick="resetAllSettings()" style="margin-top:16px;padding:10px 20px;background:#ef4444;color:#fff;border:none;border-radius:8px;cursor:pointer;">Reset semua pengaturan</button>
                         </div>
                     </div>
                 </div>
@@ -6785,25 +8216,40 @@ const apps = {
         </div>`
     },
     'writer': {
-        title: 'Pufutara Writer', w: 700, h: 520,
-        content: `<div class="productivity-app">
-            <div class="productivity-toolbar">
+        title: 'Pufutara Writer', w: 760, h: 560,
+        content: `<div class="productivity-app writer-app">
+            <div class="productivity-toolbar writer-toolbar">
+                <button type="button" onclick="writerCmd('bold')"><b>B</b></button>
+                <button type="button" onclick="writerCmd('italic')"><i>I</i></button>
+                <button type="button" onclick="writerCmd('underline')"><u>U</u></button>
+                <button type="button" onclick="writerCmd('insertUnorderedList')">• List</button>
+                <select onchange="writerCmd('fontName', this.value)"><option value="Inter">Inter</option><option value="Georgia">Georgia</option><option value="Courier New">Mono</option></select>
+                <select onchange="writerCmd('fontSize', this.value)"><option value="3">Normal</option><option value="5">Besar</option><option value="7">Judul</option></select>
                 <button type="button" class="primary" onclick="saveWriterDoc()">Simpan</button>
-                <button type="button" onclick="downloadWriterDoc()">Unduh .txt</button>
+                <button type="button" onclick="downloadWriterDoc()">.txt</button>
+                <button type="button" onclick="downloadWriterHtml()">.html</button>
+                <button type="button" onclick="writerFindReplace()">Cari</button>
+                <button type="button" onclick="window.print()">Cetak</button>
                 <button type="button" onclick="newWriterDoc()">Baru</button>
+                <span id="writer-stats" style="margin-left:auto;font-size:11px;color:#666;"></span>
             </div>
-            <textarea id="pufutara-writer" style="flex:1;border:none;padding:20px;resize:none;outline:none;font-family:Inter;font-size:15px;line-height:1.6;" placeholder="Mulai menulis..."></textarea>
+            <div id="pufutara-writer" class="writer-editor" contenteditable="true" oninput="updateWriterStats()"></div>
         </div>`
     },
     'ppt': {
-        title: 'Pufutara PPT', w: 800, h: 520,
+        title: 'Pufutara PPT', w: 860, h: 540,
         content: `<div class="productivity-app">
             <div class="productivity-toolbar">
                 <button type="button" class="primary" onclick="savePptDoc()">Simpan</button>
-                <button type="button" onclick="downloadPptHtml()">Unduh HTML</button>
-                <button type="button" onclick="downloadPptJson()">Unduh JSON</button>
+                <button type="button" onclick="downloadPptHtml()">HTML</button>
+                <button type="button" onclick="downloadPptJson()">JSON</button>
                 <button type="button" onclick="addPptSlide()">+ Slide</button>
-                <button type="button" onclick="deletePptSlide()">Hapus Slide</button>
+                <button type="button" onclick="duplicatePptSlide()">Duplikat</button>
+                <button type="button" onclick="movePptSlide(-1)">↑</button>
+                <button type="button" onclick="movePptSlide(1)">↓</button>
+                <button type="button" onclick="deletePptSlide()">Hapus</button>
+                <select id="ppt-theme-select" onchange="applyPptTheme(this.value)"><option value="light">Tema Terang</option><option value="dark">Gelap</option><option value="blue">Biru</option></select>
+                <button type="button" onclick="startPptPresent()">Presentasi</button>
             </div>
             <div class="productivity-body">
                 <div class="ppt-sidebar" id="ppt-slide-list"></div>
@@ -6815,20 +8261,26 @@ const apps = {
         </div>`
     },
     'paint': {
-        title: 'Pufutara Paint', w: 780, h: 540,
+        title: 'Pufutara Paint', w: 820, h: 560,
         content: `<div class="productivity-app">
             <div class="productivity-toolbar paint-toolbar">
+                <button type="button" class="paint-tool-btn active" data-tool="brush" onclick="setPaintTool('brush',this)">Kuas</button>
+                <button type="button" class="paint-tool-btn" data-tool="eraser" onclick="setPaintTool('eraser',this)">Hapus</button>
+                <button type="button" class="paint-tool-btn" data-tool="line" onclick="setPaintTool('line',this)">Garis</button>
+                <button type="button" class="paint-tool-btn" data-tool="rect" onclick="setPaintTool('rect',this)">Kotak</button>
+                <button type="button" onclick="paintUndo()">Undo</button>
+                <button type="button" onclick="paintRedo()">Redo</button>
                 <button type="button" class="primary" onclick="savePaintDoc()">Simpan</button>
-                <button type="button" onclick="downloadPaintDoc()">Unduh PNG</button>
-                <button type="button" onclick="clearPaintCanvas()">Hapus</button>
+                <button type="button" onclick="downloadPaintDoc()">PNG</button>
+                <button type="button" onclick="clearPaintCanvas()">Clear</button>
+                <label style="font-size:11px;cursor:pointer;">Impor<input type="file" accept="image/*" hidden onchange="importPaintImage(this)"></label>
                 <span class="paint-color active" style="background:#111827" onclick="setPaintColor('#111827',this)"></span>
                 <span class="paint-color" style="background:#ef4444" onclick="setPaintColor('#ef4444',this)"></span>
                 <span class="paint-color" style="background:#3b82f6" onclick="setPaintColor('#3b82f6',this)"></span>
                 <span class="paint-color" style="background:#22c55e" onclick="setPaintColor('#22c55e',this)"></span>
-                <span class="paint-color" style="background:#eab308" onclick="setPaintColor('#eab308',this)"></span>
-                <input type="range" min="1" max="20" value="4" oninput="setPaintBrush(this.value)" title="Ukuran kuas">
+                <input type="range" min="1" max="30" value="4" oninput="setPaintBrush(this.value)">
             </div>
-            <div class="paint-canvas-wrap"><canvas id="paintCanvas" width="720" height="420"></canvas></div>
+            <div class="paint-canvas-wrap"><canvas id="paintCanvas" width="760" height="440"></canvas></div>
         </div>`
     },
     'video': {
@@ -6883,27 +8335,10 @@ const apps = {
         content: `<textarea id="pufutara-texteditor" oninput="saveTextEditorContent(this.value)" style="width:100%; height:100%; border:none; padding:20px; resize:none; outline:none; font-family:'Courier New', monospace; font-size:14px;" placeholder="Mulai menulis..."></textarea>`
     },
     'sites': {
-        title: 'Sites Builder', w: 850, h: 550,
-        content: `<div style="display:flex; flex-direction:column; height:100%;">
-            <div style="height:50px; border-bottom:1px solid #ddd; display:flex; align-items:center; padding:0 20px; justify-content:space-between;">
-                <div style="display:flex; align-items:center; gap:10px;"><div style="width:24px; height:24px; background:#6366f1; border-radius:4px;"></div><span style="font-weight:600; color:#444;">Situs Tanpa Judul</span></div>
-                <button onclick="alert('Berhasil dipublikasikan (Bohongan)!')" style="background:#6366f1; color:white; border:none; padding:8px 20px; border-radius:4px; cursor:pointer;">Publikasikan</button>
-            </div>
-            <div style="flex:1; display:flex; background:#f0f0f0;">
-                <div style="flex:1; margin:20px; background:white; box-shadow:0 2px 10px rgba(0,0,0,0.1); display:flex; flex-direction:column;">
-                    <div style="height:200px; background:#e0e7ff; display:flex; align-items:end; padding:20px; border-bottom:1px solid #eee;"><h1 style="margin:0; font-size:32px; color:#333;">Judul Halaman Anda</h1></div>
-                    <div style="padding:40px; color:#666;">Klik di sini untuk mengedit konten...</div>
-                </div>
-                <div style="width:200px; background:white; border-left:1px solid #ddd; padding:15px;">
-                    <h4 style="margin-top:0;">Sisipkan</h4>
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                        <button style="padding:10px; border:1px solid #ddd; background:white;">Kotak Teks</button>
-                        <button style="padding:10px; border:1px solid #ddd; background:white;">Gambar</button>
-                        <button style="padding:10px; border:1px solid #ddd; background:white;">Drive</button>
-                        <button style="padding:10px; border:1px solid #ddd; background:white;">Sematkan</button>
-                    </div>
-                </div>
-            </div>
+        title: 'Sites Builder', w: 900, h: 560,
+        content: `<div style="display:grid;grid-template-columns:1fr 1fr;height:100%;">
+            <textarea id="sites-html-editor" style="border:none;padding:12px;font-family:monospace;font-size:13px;" oninput="sitesPreview()"></textarea>
+            <iframe id="sites-preview-frame" style="border:none;background:#fff;"></iframe>
         </div>`
     },
     'wallpaper': {
@@ -6950,8 +8385,97 @@ const apps = {
         content: `<div class="app-content" style="text-align:center;"><div style="font-size:60px;">☀️</div><div style="font-size:40px; font-weight:700;">32°C</div><div style="color:#666;">Cerah, Jakarta</div><div style="margin-top:20px; font-size:14px; color:#555;">Kelembaban: 65%</div><div style="font-size:14px; color:#555;">Angin: 10 km/h</div></div>`
     },
     'maps': {
-        title: 'Maps', w: 600, h: 500,
-        content: `<div class="app-content"><h3 style="margin-top:0;">Peta</h3><div style="background:#e5e7eb; height:300px; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#666;">🗺️ Peta akan tampil di sini</div></div>`
+        title: 'Maps', w: 640, h: 520,
+        content: `<div id="maps-root" style="height:100%;"></div>`
+    },
+    'code': {
+        title: 'Pufutara Code', w: 900, h: 560,
+        content: `<div style="display:flex;flex-direction:column;height:100%;">
+            <div style="display:flex;gap:8px;padding:8px;border-bottom:1px solid #eee;">
+                <button onclick="runCodePreview()" style="padding:6px 12px;background:#111;color:#fff;border:none;border-radius:6px;cursor:pointer;">Jalankan</button>
+                <button onclick="saveCodeProject();showNotification('Code','Proyek disimpan.','success')" style="padding:6px 12px;border:1px solid #ddd;border-radius:6px;cursor:pointer;">Simpan</button>
+            </div>
+            <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;min-height:0;">
+                <div style="display:flex;flex-direction:column;border-right:1px solid #eee;">
+                    <textarea id="code-html" placeholder="HTML" style="flex:1;border:none;padding:8px;font-family:monospace;font-size:12px;" oninput="runCodePreview()"></textarea>
+                    <textarea id="code-css" placeholder="CSS" style="flex:1;border:none;padding:8px;font-family:monospace;font-size:12px;border-top:1px solid #eee;" oninput="runCodePreview()"></textarea>
+                    <textarea id="code-js" placeholder="JS" style="flex:1;border:none;padding:8px;font-family:monospace;font-size:12px;border-top:1px solid #eee;" oninput="runCodePreview()"></textarea>
+                </div>
+                <iframe id="code-preview-frame" style="width:100%;height:100%;border:none;background:#fff;"></iframe>
+            </div>
+        </div>`
+    },
+    'chat': {
+        title: 'Pufutara Chat', w: 420, h: 520,
+        content: `<div class="chat-app" style="display:flex;flex-direction:column;height:100%;">
+            <div id="chat-messages" style="flex:1;overflow-y:auto;padding:12px;background:#f9fafb;"></div>
+            <div style="display:flex;gap:8px;padding:10px;border-top:1px solid #eee;">
+                <input id="chat-input" style="flex:1;padding:8px;border:1px solid #ddd;border-radius:8px;" placeholder="Ketik pesan..." onkeydown="if(event.key==='Enter')sendChatMessage()">
+                <button onclick="sendChatMessage()" style="padding:8px 14px;background:#111;color:#fff;border:none;border-radius:8px;cursor:pointer;">Kirim</button>
+            </div>
+        </div>`
+    },
+    'finance': {
+        title: 'Pufutara Wallet', w: 480, h: 520,
+        content: `<div style="padding:16px;height:100%;overflow:auto;">
+            <h3 style="margin:0 0 8px;">Dompet</h3>
+            <div id="finance-balance" style="font-size:28px;font-weight:700;margin-bottom:16px;">Rp 0</div>
+            <input id="finance-amount" type="number" placeholder="Jumlah" style="width:100%;padding:8px;margin-bottom:8px;border:1px solid #ddd;border-radius:8px;">
+            <input id="finance-note" placeholder="Catatan" style="width:100%;padding:8px;margin-bottom:8px;border:1px solid #ddd;border-radius:8px;">
+            <div style="display:flex;gap:8px;margin-bottom:16px;">
+                <button onclick="addFinanceTx('in')" style="flex:1;padding:10px;background:#22c55e;color:#fff;border:none;border-radius:8px;cursor:pointer;">+ Masuk</button>
+                <button onclick="addFinanceTx('out')" style="flex:1;padding:10px;background:#ef4444;color:#fff;border:none;border-radius:8px;cursor:pointer;">- Keluar</button>
+            </div>
+            <div id="finance-list"></div>
+        </div>`
+    },
+    'fitness': {
+        title: 'Pufutara Fitness', w: 400, h: 480,
+        content: `<div style="padding:20px;text-align:center;">
+            <h3>Fitness</h3>
+            <p id="fitness-water" style="font-size:18px;">0 / 8 gelas</p>
+            <button onclick="fitnessAddWater()" style="margin:8px;padding:10px 20px;border:none;background:#3b82f6;color:#fff;border-radius:8px;cursor:pointer;">+ Air</button>
+            <p id="fitness-steps" style="font-size:18px;margin-top:20px;">0 langkah</p>
+            <button onclick="fitnessAddSteps()" style="margin:8px;padding:10px 20px;border:none;background:#111;color:#fff;border-radius:8px;cursor:pointer;">+ 500 langkah</button>
+            <br><button onclick="fitnessResetDay()" style="margin-top:16px;padding:8px 16px;border:1px solid #ddd;border-radius:8px;cursor:pointer;">Reset hari</button>
+        </div>`
+    },
+    'news': {
+        title: 'Pufutara News', w: 700, h: 520,
+        content: `<div style="padding:16px;height:100%;overflow:auto;">
+            <div style="display:flex;gap:8px;margin-bottom:12px;">
+                <button onclick="newsFilter='all';initNewsApp()">Semua</button>
+                <button onclick="newsFilter='Tech';initNewsApp()">Tech</button>
+                <button onclick="newsFilter='Game';initNewsApp()">Game</button>
+            </div>
+            <div id="news-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;"></div>
+        </div>`
+    },
+    'cloud': {
+        title: 'Pufutara Cloud', w: 520, h: 480,
+        content: `<div style="padding:16px;height:100%;">
+            <h3>Cloud Drive</h3>
+            <label style="display:inline-block;padding:8px 14px;background:#111;color:#fff;border-radius:8px;cursor:pointer;margin-bottom:12px;">
+                Upload <input type="file" hidden onchange="importCloudFile(this)">
+            </label>
+            <div id="cloud-file-list"></div>
+        </div>`
+    },
+    'timer': {
+        title: 'Pufutara Timer', w: 380, h: 420,
+        content: `<div style="padding:24px;text-align:center;height:100%;">
+            <div style="margin-bottom:16px;">
+                <button onclick="setTimerMode('stopwatch')">Stopwatch</button>
+                <button onclick="setTimerMode('countdown')">Countdown</button>
+            </div>
+            <div id="timer-display" style="font-size:56px;font-weight:700;font-variant-numeric:tabular-nums;">00:00</div>
+            <input id="timer-minutes" type="number" value="5" min="1" style="width:60px;margin:12px;" placeholder="menit">
+            <div style="display:flex;gap:10px;justify-content:center;margin-top:16px;">
+                <button onclick="timerStartClick()" style="padding:12px 24px;background:#22c55e;color:#fff;border:none;border-radius:8px;cursor:pointer;">Start</button>
+                <button onclick="timerStopClick()" style="padding:12px 24px;background:#ef4444;color:#fff;border:none;border-radius:8px;cursor:pointer;">Stop</button>
+                <button onclick="timerResetClick()" style="padding:12px 24px;border:1px solid #ddd;border-radius:8px;cursor:pointer;">Reset</button>
+            </div>
+        </div>`
     },
     'contacts': {
         title: 'Contacts', w: 400, h: 450,
