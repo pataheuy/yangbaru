@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BEMspotipai - Musik Untuk Mahasiswa</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Tambahkan library Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #121212; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #555; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #888; 
+        }
+        
+        /* Range slider styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 12px;
+            width: 12px;
+            border-radius: 50%;
+            background: #1DB954;
+            cursor: pointer;
+            margin-top: -4px;
+            box-shadow: 0 0 2px rgba(0,0,0,0.5);
+            display: none; /* Hide thumb by default like Spotify */
+        }
+        .group:hover input[type=range]::-webkit-slider-thumb {
+            display: block; /* Show on hover */
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #535353;
+            border-radius: 2px;
+        }
+        input[type=range]:focus {
+            outline: none;
+        }
+        
+        body {
+            background-color: #000000;
+            color: #FFFFFF;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden; /* Prevent body scroll, handle inside containers */
+        }
+        
+        .bg-spotify-base { background-color: #121212; }
+        .bg-spotify-elevated { background-color: #242424; }
+        .bg-spotify-highlight { background-color: #2a2a2a; }
+        .text-spotify-green { color: #1DB954; }
+        .bg-spotify-green { background-color: #1DB954; }
+        .hover-bg-spotify-green:hover { background-color: #1ed760; }
+        
+        /* Toast Animation */
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        .toast-enter { animation: slideIn 0.3s forwards; }
+        .toast-exit { animation: fadeOut 0.3s forwards; }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col selection:bg-green-500 selection:text-white">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
+
+    <!-- LOGIN VIEW -->
+    <div id="login-view" class="flex-1 flex items-center justify-center bg-gradient-to-b from-gray-900 to-black h-full absolute inset-0 z-40 transition-opacity duration-500">
+        <div class="bg-black p-8 rounded-xl shadow-2xl w-full max-w-md border border-gray-800">
+            <div class="flex items-center justify-center mb-8 gap-2">
+                <i class="ph-fill ph-spotify-logo text-5xl text-spotify-green"></i>
+                <h1 class="text-3xl font-bold tracking-tight">BEMspotipai</h1>
+            </div>
+            
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1">Nama Pengguna (Username)</label>
+                    <input type="text" id="username" class="w-full bg-spotify-elevated border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-spotify-green focus:ring-1 focus:ring-spotify-green transition-colors" placeholder="Masukkan username" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-1">Kata Sandi (Password)</label>
+                    <input type="password" id="password" class="w-full bg-spotify-elevated border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-spotify-green focus:ring-1 focus:ring-spotify-green transition-colors" placeholder="Masukkan password" required>
+                </div>
+                <div class="pt-4">
+                    <button type="submit" class="w-full bg-spotify-green hover-bg-spotify-green text-black font-bold py-3 rounded-full transition-transform active:scale-95">
+                        Masuk
+                    </button>
+                </div>
+                <div class="text-center mt-4 text-xs text-gray-500">
+                    <p>Hint: Gunakan akun bebas untuk pendengar.</p>
+                    <p>Khusus Admin BEM, gunakan kredensial resmi.</p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN APP VIEW -->
+    <div id="app-view" class="flex-1 flex flex-col h-full hidden opacity-0 transition-opacity duration-500">
+        
+        <!-- Top Navigation / Header -->
+        <header class="h-16 bg-black flex items-center justify-between px-6 z-10 sticky top-0">
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 lg:hidden">
+                    <i class="ph-fill ph-spotify-logo text-3xl text-spotify-green"></i>
+                    <span class="font-bold text-lg">BEMspotipai</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <span id="user-greeting" class="text-sm font-medium text-gray-300 hidden sm:block">Halo, Pengguna</span>
+                <div class="h-8 w-8 rounded-full bg-gray-800 flex items-center justify-center border border-gray-700 cursor-pointer hover:scale-105 transition-transform" onclick="logout()">
+                    <i class="ph ph-sign-out text-gray-400 hover:text-white"></i>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex flex-1 overflow-hidden">
+            <!-- Sidebar -->
+            <aside class="w-64 bg-black flex-col hidden lg:flex">
+                <div class="p-6">
+                    <div class="flex items-center gap-2 mb-8">
+                        <i class="ph-fill ph-spotify-logo text-4xl text-spotify-green"></i>
+                        <h1 class="text-2xl font-bold tracking-tight">BEMspotipai</h1>
+                    </div>
+                    <nav class="space-y-4">
+                        <a href="#" onclick="switchTab('home')" class="nav-item flex items-center gap-4 text-gray-400 hover:text-white transition-colors" data-tab="home">
+                            <i class="ph-fill ph-house text-2xl"></i>
+                            <span class="font-bold">Beranda</span>
+                        </a>
+                        <a href="#" onclick="switchTab('search')" class="nav-item flex items-center gap-4 text-gray-400 hover:text-white transition-colors" data-tab="search">
+                            <i class="ph ph-magnifying-glass text-2xl"></i>
+                            <span class="font-bold">Cari</span>
+                        </a>
+                    </nav>
+                </div>
+
+                <div class="mt-4 px-6">
+                    <div onclick="switchTab('collection')" class="flex items-center justify-between text-gray-400 hover:text-white transition-colors mb-4 cursor-pointer" data-tab="collection">
+                        <div class="flex items-center gap-2">
+                            <i class="ph ph-books text-2xl"></i>
+                            <span class="font-bold">Koleksi Kamu</span>
+                        </div>
+                        <i class="ph ph-plus text-xl"></i>
+                    </div>
+                </div>
+
+                <!-- Admin Menu (Hidden by default) -->
+                <div id="admin-menu" class="mt-auto p-6 hidden">
+                    <hr class="border-gray-800 mb-4">
+                    <p class="text-xs text-gray-500 font-bold mb-3 uppercase tracking-wider">Menu Admin</p>
+                    <a href="#" onclick="switchTab('admin')" class="nav-item flex items-center gap-4 text-spotify-green hover:text-green-400 transition-colors" data-tab="admin">
+                        <i class="ph-fill ph-plus-circle text-2xl"></i>
+                        <span class="font-bold">Tambah Lagu Baru</span>
+                    </a>
+                </div>
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="flex-1 bg-spotify-base rounded-tl-lg lg:rounded-l-lg overflow-y-auto relative bg-gradient-to-b from-[#2a2a2a] to-spotify-base">
+                
+                <!-- Home Tab -->
+                <div id="tab-home" class="p-6 pb-24 content-tab">
+                    <h2 class="text-2xl font-bold mb-6">Lagu Terbaru untuk Mahasiswa</h2>
+                    
+                    <div id="songs-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                        <!-- Song cards will be injected here by JS -->
+                    </div>
+                </div>
+
+                <!-- Search Tab -->
+                <div id="tab-search" class="p-6 pb-24 content-tab hidden">
+                    <h2 class="text-2xl font-bold mb-6">Cari Lagu</h2>
+                    <div class="relative max-w-md">
+                        <i class="ph ph-magnifying-glass absolute left-3 top-3 text-gray-400 text-xl"></i>
+                        <input type="text" id="search-input" placeholder="Apa yang ingin kamu dengarkan?" class="w-full bg-white text-black rounded-full py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-white font-medium">
+                    </div>
+                    <div id="search-results" class="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                        <!-- Search results -->
+                    </div>
+                </div>
+
+                <!-- Collection Tab (Playlist Love) -->
+                <div id="tab-collection" class="p-6 pb-24 content-tab hidden">
+                    <div class="flex flex-col md:flex-row items-end gap-6 mb-8 mt-4">
+                        <div class="bg-gradient-to-br from-indigo-600 to-blue-400 w-32 h-32 md:w-48 md:h-48 flex items-center justify-center shadow-2xl rounded">
+                            <i class="ph-fill ph-heart text-6xl text-white"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold uppercase tracking-wider text-gray-300">Playlist</p>
+                            <h2 class="text-4xl md:text-6xl font-bold mt-1 mb-4">Lagu yang Disukai</h2>
+                            <p class="text-gray-400 text-sm font-medium"><span id="liked-count">0</span> lagu tersimpan</p>
+                        </div>
+                    </div>
+                    <div id="collection-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                        <!-- Liked songs will be injected here -->
+                    </div>
+                </div>
+
+                <!-- Lyrics Tab -->
+                <div id="tab-lyrics" class="p-6 pb-24 content-tab hidden flex-col items-center justify-start text-center min-h-full bg-gradient-to-b from-blue-900/40 to-transparent">
+                    <h2 id="lyrics-title" class="text-3xl font-bold mb-2">Pilih lagu untuk melihat lirik</h2>
+                    <p id="lyrics-artist" class="text-gray-400 mb-8 font-medium">-</p>
+                    <div id="lyrics-content" class="text-xl md:text-3xl font-bold leading-relaxed max-w-3xl text-white whitespace-pre-wrap transition-all duration-500">
+                        Belum ada lagu yang diputar.
+                    </div>
+                </div>
+
+                <!-- Admin Tab -->
+                <div id="tab-admin" class="p-6 pb-24 content-tab hidden">
+                    <div class="max-w-2xl mx-auto bg-spotify-elevated p-8 rounded-xl border border-gray-800">
+                        <div class="flex items-center gap-3 mb-6 border-b border-gray-700 pb-4">
+                            <i class="ph-fill ph-music-notes-plus text-3xl text-spotify-green"></i>
+                            <h2 class="text-2xl font-bold">Tambah Lagu ke Database</h2>
+                        </div>
+                        
+                        <form id="add-song-form" class="space-y-5">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-1">Judul Lagu</label>
+                                <input type="text" id="add-title" class="w-full bg-black border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-spotify-green transition-colors" placeholder="Contoh: Darah Juang" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-1">Nama Penyanyi / Band</label>
+                                <input type="text" id="add-artist" class="w-full bg-black border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-spotify-green transition-colors" placeholder="Contoh: Mahasiswa Bersatu" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-1">Cover (Gambar)</label>
+                                <div class="flex gap-4 mb-2">
+                                    <label class="flex items-center gap-2 text-sm text-gray-400 cursor-pointer hover:text-white"><input type="radio" name="cover_type" value="url" checked class="accent-spotify-green"> Gunakan URL</label>
+                                    <label class="flex items-center gap-2 text-sm text-gray-400 cursor-pointer hover:text-white"><input type="radio" name="cover_type" value="file" class="accent-spotify-green"> Upload File</label>
+                                </div>
+                                <input type="url" id="add-cover-url" class="w-full bg-black border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-spotify-green transition-colors" placeholder="https://contoh.com/gambar.jpg">
+                                <input type="file" id="add-cover-file" accept="image/*" class="w-full bg-black border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-spotify-green transition-colors hidden">
+                                <p class="text-xs text-gray-500 mt-1">Pilih URL atau unggah file gambar langsung.</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-1">File Audio (MP3)</label>
+                                <div class="flex gap-4 mb-2">
+                                    <label class="flex items-center gap-2 text-sm text-gray-400 cursor-pointer hover:text-white"><input type="radio" name="audio_type" value="url" checked class="accent-spotify-green"> Gunakan URL</label>
+                                    <label class="flex items-center gap-2 text-sm text-gray-400 cursor-pointer hover:text-white"><input type="radio" name="audio_type" value="file" class="accent-spotify-green"> Upload File</label>
+                                </div>
+                                <input type="url" id="add-audio-url" class="w-full bg-black border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-spotify-green transition-colors" placeholder="https://contoh.com/lagu.mp3">
+                                <input type="file" id="add-audio-file" accept="audio/*" class="w-full bg-black border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-spotify-green transition-colors hidden">
+                                <p class="text-xs text-gray-500 mt-1">Pilih URL atau unggah file audio (Hati-hati: File besar bisa memenuhi memori peramban).</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-1">Lirik Lagu (Opsional)</label>
+                                <textarea id="add-lyrics" rows="5" class="w-full bg-black border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-spotify-green transition-colors" placeholder="Masukkan lirik lagu di sini..."></textarea>
+                            </div>
+                            <div class="pt-4 flex justify-end">
+                                <button type="submit" class="bg-spotify-green hover-bg-spotify-green text-black font-bold py-3 px-8 rounded-full transition-transform active:scale-95">
+                                    Simpan Lagu
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+
+        <!-- Mobile Navigation Bottom Bar (visible on small screens) -->
+        <nav class="lg:hidden bg-black border-t border-gray-800 flex justify-around p-3 z-20 sticky bottom-0">
+            <a href="#" onclick="switchTab('home')" class="flex flex-col items-center text-gray-400 hover:text-white">
+                <i class="ph-fill ph-house text-2xl"></i>
+                <span class="text-[10px] mt-1">Beranda</span>
+            </a>
+            <a href="#" onclick="switchTab('search')" class="flex flex-col items-center text-gray-400 hover:text-white">
+                <i class="ph ph-magnifying-glass text-2xl"></i>
+                <span class="text-[10px] mt-1">Cari</span>
+            </a>
+            <a href="#" onclick="switchTab('collection')" class="flex flex-col items-center text-gray-400 hover:text-white">
+                <i class="ph ph-books text-2xl"></i>
+                <span class="text-[10px] mt-1">Koleksi</span>
+            </a>
+            <a href="#" id="mobile-admin-btn" onclick="switchTab('admin')" class="hidden flex-col items-center text-spotify-green">
+                <i class="ph-fill ph-plus-circle text-2xl"></i>
+                <span class="text-[10px] mt-1">Admin</span>
+            </a>
+        </nav>
+
+        <!-- Player Bottom Bar -->
+        <div class="h-20 sm:h-24 bg-[#181818] border-t border-gray-800 flex items-center justify-between px-4 sm:px-6 z-30 absolute bottom-0 w-full lg:static lg:bottom-auto">
+            
+            <!-- Now Playing Info -->
+            <div class="flex items-center w-1/3 min-w-[120px]">
+                <img id="player-cover" src="https://images.unsplash.com/photo-1614613535308-eb51bd3d2c17?w=150&q=80" alt="Cover" class="h-12 w-12 sm:h-14 sm:w-14 rounded object-cover shadow-lg hidden sm:block">
+                <div class="ml-0 sm:ml-4 overflow-hidden">
+                    <div id="player-title" class="text-sm sm:text-base font-semibold text-white truncate cursor-pointer hover:underline">Belum ada lagu</div>
+                    <div id="player-artist" class="text-xs text-gray-400 truncate cursor-pointer hover:underline">Pilih lagu untuk memutar</div>
+                </div>
+                <button id="btn-like" onclick="toggleLike()" class="ml-4 text-gray-400 hover:text-white hidden md:block transition-colors">
+                    <i id="icon-like" class="ph ph-heart text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Player Controls -->
+            <div class="flex flex-col items-center w-1/3 max-w-[722px]">
+                <div class="flex items-center gap-4 sm:gap-6">
+                    <button class="text-gray-400 hover:text-white hidden sm:block">
+                        <i class="ph ph-shuffle text-xl"></i>
+                    </button>
+                    <button onclick="prevSong()" class="text-gray-400 hover:text-white transition-colors">
+                        <i class="ph-fill ph-skip-back text-2xl sm:text-3xl"></i>
+                    </button>
+                    <button onclick="togglePlay()" class="bg-white text-black rounded-full h-8 w-8 sm:h-10 sm:w-10 flex items-center justify-center hover:scale-105 transition-transform">
+                        <i id="play-pause-icon" class="ph-fill ph-play text-xl sm:text-xl"></i>
+                    </button>
+                    <button onclick="nextSong()" class="text-gray-400 hover:text-white transition-colors">
+                        <i class="ph-fill ph-skip-forward text-2xl sm:text-3xl"></i>
+                    </button>
+                    <button class="text-gray-400 hover:text-white hidden sm:block">
+                        <i class="ph ph-repeat text-xl"></i>
+                    </button>
+                </div>
+                
+                <!-- Progress Bar -->
+                <div class="w-full flex items-center gap-2 mt-1 sm:mt-2 group">
+                    <span id="time-current" class="text-xs text-gray-400 min-w-[35px] text-right">0:00</span>
+                    <div class="flex-1 relative flex items-center">
+                        <input type="range" id="progress-bar" min="0" max="100" value="0" class="w-full z-10" onchange="seekAudio(this.value)" oninput="updateProgressBarColor(this)">
+                        <!-- Custom track color fill -->
+                        <div id="progress-fill" class="absolute h-1 bg-white rounded-l-full pointer-events-none group-hover:bg-spotify-green" style="width: 0%;"></div>
+                    </div>
+                    <span id="time-total" class="text-xs text-gray-400 min-w-[35px]">0:00</span>
+                </div>
+            </div>
+
+            <!-- Volume Controls -->
+            <div class="flex items-center justify-end w-1/3 min-w-[120px] gap-2 hidden md:flex group">
+                <button onclick="switchTab('lyrics')" class="text-gray-400 hover:text-white transition-colors" title="Lihat Lirik">
+                    <i class="ph ph-microphone-stage text-lg"></i>
+                </button>
+                <button class="text-gray-400 hover:text-white">
+                    <i class="ph ph-queue text-lg"></i>
+                </button>
+                <button class="text-gray-400 hover:text-white">
+                    <i class="ph ph-speaker-high text-xl"></i>
+                </button>
+                <div class="w-24 relative flex items-center">
+                    <input type="range" id="volume-bar" min="0" max="1" step="0.01" value="0.15" class="w-full z-10" oninput="changeVolume(this.value); updateVolumeBarColor(this)">
+                     <div id="volume-fill" class="absolute h-1 bg-white rounded-l-full pointer-events-none group-hover:bg-spotify-green" style="width: 15%;"></div>
+                </div>
+            </div>
+            
+            <!-- Mobile compact controls -->
+            <div class="flex items-center justify-end w-1/3 md:hidden">
+                 <button class="text-gray-400 hover:text-white mr-2">
+                    <i class="ph ph-devices text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // KONFIGURASI SUPABASE (WAJIB DIISI)
+        // ==========================================
+        const SUPABASE_URL = 'https://puywjdopumlzvmzbcudr.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1eXdqZG9wdW1senZtemJjdWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDE3MTksImV4cCI6MjA4NzkxNzcxOX0.vvThyjtK2SlA9oA9Mr_XOmt1R_tNZk-ib3PO9XpiiSc';
+        
+        let supabaseClient = null;
+        if (SUPABASE_URL !== 'TARUH_URL_SUPABASE_KAMU_DISINI') {
+            supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
+
+        // --- Data & State ---
+        let songs = [];
+        let likedSongsIds = [];
+        
+        let currentUser = null; 
+        let currentSongIndex = -1;
+        let isPlaying = false;
+        const audio = new Audio();
+        
+        audio.volume = 0.15; // Default volume 15%
+
+        // --- DOM Elements ---
+        const loginView = document.getElementById('login-view');
+        const appView = document.getElementById('app-view');
+        const loginForm = document.getElementById('login-form');
+        const songsGrid = document.getElementById('songs-grid');
+        const collectionGrid = document.getElementById('collection-grid');
+        const searchResults = document.getElementById('search-results');
+        const searchInput = document.getElementById('search-input');
+        
+        const playerTitle = document.getElementById('player-title');
+        const playerArtist = document.getElementById('player-artist');
+        const playerCover = document.getElementById('player-cover');
+        const playPauseIcon = document.getElementById('play-pause-icon');
+        const progressBar = document.getElementById('progress-bar');
+        const progressFill = document.getElementById('progress-fill');
+        const timeCurrent = document.getElementById('time-current');
+        const timeTotal = document.getElementById('time-total');
+        const volumeBar = document.getElementById('volume-bar');
+        const volumeFill = document.getElementById('volume-fill');
+        const iconLike = document.getElementById('icon-like');
+        const btnLike = document.getElementById('btn-like');
+        
+        const lyricsTitle = document.getElementById('lyrics-title');
+        const lyricsArtist = document.getElementById('lyrics-artist');
+        const lyricsContent = document.getElementById('lyrics-content');
+
+        // --- Utility: Toast Message ---
+        function showMessage(text, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const bgColor = type === 'error' ? 'bg-red-500' : 'bg-blue-500';
+            const icon = type === 'error' ? 'ph-warning-circle' : 'ph-check-circle';
+            
+            toast.className = `flex items-center gap-2 px-4 py-3 rounded shadow-lg text-white font-medium text-sm toast-enter z-50 ${bgColor}`;
+            toast.innerHTML = `<i class="ph ${icon} text-lg"></i> <span>${text}</span>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.replace('toast-enter', 'toast-exit');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // --- Authentication ---
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const user = document.getElementById('username').value.trim();
+            const pass = document.getElementById('password').value.trim();
+
+            if (!user || !pass) {
+                showMessage('Username dan password harus diisi', 'error');
+                return;
+            }
+
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const origText = submitBtn.innerText;
+            submitBtn.innerText = "Memuat data...";
+            submitBtn.disabled = true;
+
+            // Load Data from Supabase
+            if (supabaseClient) {
+                try {
+                    // Fetch Songs
+                    const { data: sData, error: sErr } = await supabaseClient.from('songs').select('*').order('created_at', { ascending: false });
+                    if (!sErr && sData) {
+                        songs = sData.map(s => ({
+                            id: s.id, title: s.title, artist: s.artist, coverUrl: s.cover_url, audioUrl: s.audio_url, lyrics: s.lyrics
+                        }));
+                    }
+
+                    // Fetch Likes
+                    const { data: lData, error: lErr } = await supabaseClient.from('likes').select('song_id').eq('username', user);
+                    if (!lErr && lData) {
+                        likedSongsIds = lData.map(l => l.song_id);
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+            } else {
+                showMessage('Peringatan: URL Supabase belum diisi di kode', 'error');
+            }
+
+            // Check Admin
+            if (user === 'putrasigma' && pass === 'cobatanyaputra') {
+                currentUser = { username: user, role: 'admin' };
+                showMessage('Berhasil login sebagai Admin BEM');
+            } else {
+                currentUser = { username: user, role: 'user' };
+                showMessage(`Selamat datang, ${user}`);
+            }
+
+            document.getElementById('user-greeting').innerText = `Halo, ${user}`;
+            submitBtn.innerText = origText;
+            submitBtn.disabled = false;
+            
+            loginView.classList.add('opacity-0');
+            setTimeout(() => {
+                loginView.classList.add('hidden');
+                appView.classList.remove('hidden');
+                setTimeout(() => appView.classList.remove('opacity-0'), 50);
+                initApp();
+            }, 500);
+        });
+
+        function logout() {
+            audio.pause();
+            isPlaying = false;
+            updatePlayIcon();
+            
+            appView.classList.add('opacity-0');
+            setTimeout(() => {
+                appView.classList.add('hidden');
+                loginView.classList.remove('hidden');
+                setTimeout(() => loginView.classList.remove('opacity-0'), 50);
+                
+                document.getElementById('login-form').reset();
+                currentUser = null;
+                songs = [];
+                likedSongsIds = [];
+                switchTab('home');
+            }, 500);
+        }
+
+        // --- App Init ---
+        function initApp() {
+            if (currentUser && currentUser.role === 'admin') {
+                document.getElementById('admin-menu').classList.remove('hidden');
+                document.getElementById('mobile-admin-btn').classList.remove('hidden');
+                document.getElementById('mobile-admin-btn').classList.add('flex');
+            } else {
+                document.getElementById('admin-menu').classList.add('hidden');
+                document.getElementById('mobile-admin-btn').classList.add('hidden');
+                document.getElementById('mobile-admin-btn').classList.remove('flex');
+            }
+
+            renderSongs(songs, songsGrid);
+            
+            if (currentSongIndex === -1 && songs.length > 0) {
+                const song = songs[0];
+                playerTitle.innerText = song.title;
+                playerArtist.innerText = song.artist;
+                playerCover.src = song.coverUrl;
+                updateLikeIcon();
+            }
+        }
+
+        // --- Navigation ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.content-tab').forEach(tab => tab.classList.add('hidden'));
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+            document.querySelectorAll('aside .nav-item, aside [data-tab]').forEach(item => {
+                if(item.dataset && item.dataset.tab === tabId) {
+                    item.classList.remove('text-gray-400');
+                    item.classList.add('text-white');
+                } else {
+                    item.classList.remove('text-white');
+                    item.classList.add('text-gray-400');
+                }
+            });
+            
+            if(tabId === 'home') renderSongs(songs, songsGrid);
+            else if (tabId === 'collection') renderCollection();
+            else if (tabId === 'lyrics') updateLyricsView();
+        }
+
+        // --- Rendering UI ---
+        function createSongCard(song, index) {
+            const card = document.createElement('div');
+            card.className = 'bg-spotify-elevated p-4 rounded-md hover:bg-spotify-highlight transition-colors group cursor-pointer relative';
+            card.onclick = () => playSong(index);
+
+            const fallbackImg = 'https://images.unsplash.com/photo-1614613535308-eb51bd3d2c17?w=300&q=80';
+            const isLiked = likedSongsIds.includes(song.id);
+
+            card.innerHTML = `
+                <div class="relative mb-4 pb-[100%] shadow-lg rounded overflow-hidden">
+                    <img src="${song.coverUrl}" onerror="this.src='${fallbackImg}'" alt="Cover" class="absolute top-0 left-0 w-full h-full object-cover">
+                    <button class="absolute bottom-2 right-2 bg-spotify-green text-black rounded-full w-12 h-12 flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all shadow-xl hover:scale-105 hover:bg-green-400 z-10" onclick="event.stopPropagation(); playSong(${index})">
+                        <i class="ph-fill ph-play text-2xl"></i>
+                    </button>
+                    ${isLiked ? '<i class="ph-fill ph-heart absolute top-2 right-2 text-spotify-green text-xl shadow-sm drop-shadow-md"></i>' : ''}
+                </div>
+                <h3 class="font-bold text-white mb-1 truncate" title="${song.title}">${song.title}</h3>
+                <p class="text-sm text-gray-400 truncate" title="${song.artist}">${song.artist}</p>
+            `;
+            return card;
+        }
+
+        function renderSongs(songList, container) {
+            container.innerHTML = '';
+            if (songList.length === 0) {
+                container.innerHTML = '<p class="text-gray-400 col-span-full">Belum ada lagu yang tersedia. Silakan hubungi Admin.</p>';
+                return;
+            }
+            songList.forEach((song) => {
+                const actualIndex = songs.findIndex(s => s.id === song.id);
+                container.appendChild(createSongCard(song, actualIndex));
+            });
+        }
+        
+        function renderCollection() {
+            const collectionSongs = songs.filter(song => likedSongsIds.includes(song.id));
+            document.getElementById('liked-count').innerText = collectionSongs.length;
+            renderSongs(collectionSongs, collectionGrid);
+        }
+
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            if (query === '') return searchResults.innerHTML = '';
+            const filtered = songs.filter(song => song.title.toLowerCase().includes(query) || song.artist.toLowerCase().includes(query));
+            renderSongs(filtered, searchResults);
+        });
+
+        // --- Toggle URL/File Inputs ---
+        document.querySelectorAll('input[name="cover_type"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                if (e.target.value === 'url') {
+                    document.getElementById('add-cover-url').classList.remove('hidden');
+                    document.getElementById('add-cover-file').classList.add('hidden');
+                } else {
+                    document.getElementById('add-cover-url').classList.add('hidden');
+                    document.getElementById('add-cover-file').classList.remove('hidden');
+                }
+            });
+        });
+
+        document.querySelectorAll('input[name="audio_type"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                if (e.target.value === 'url') {
+                    document.getElementById('add-audio-url').classList.remove('hidden');
+                    document.getElementById('add-audio-file').classList.add('hidden');
+                } else {
+                    document.getElementById('add-audio-url').classList.add('hidden');
+                    document.getElementById('add-audio-file').classList.remove('hidden');
+                }
+            });
+        });
+
+        // --- Admin: Add Song ke Supabase ---
+        document.getElementById('add-song-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (!supabaseClient) {
+                showMessage("Supabase belum dikonfigurasi. Edit kode untuk memasukkan URL & Key.", "error");
+                return;
+            }
+
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerText;
+            submitBtn.innerText = "Mengunggah ke Database...";
+            submitBtn.disabled = true;
+            
+            try {
+                const title = document.getElementById('add-title').value.trim();
+                const artist = document.getElementById('add-artist').value.trim();
+                const lyrics = document.getElementById('add-lyrics').value.trim();
+
+                const coverType = document.querySelector('input[name="cover_type"]:checked').value;
+                const audioType = document.querySelector('input[name="audio_type"]:checked').value;
+
+                let coverUrl = '';
+                let audioUrl = '';
+
+                // Upload Cover
+                if (coverType === 'url') {
+                    coverUrl = document.getElementById('add-cover-url').value.trim();
+                } else {
+                    const file = document.getElementById('add-cover-file').files[0];
+                    if (file) {
+                        const path = `covers/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '')}`;
+                        const { error: upErr } = await supabaseClient.storage.from('media').upload(path, file);
+                        if(upErr) throw upErr;
+                        const { data: pubData } = supabaseClient.storage.from('media').getPublicUrl(path);
+                        coverUrl = pubData.publicUrl;
+                    }
+                }
+
+                // Upload Audio
+                if (audioType === 'url') {
+                    audioUrl = document.getElementById('add-audio-url').value.trim();
+                } else {
+                    const file = document.getElementById('add-audio-file').files[0];
+                    if (file) {
+                        const path = `audio/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '')}`;
+                        const { error: upErr } = await supabaseClient.storage.from('media').upload(path, file);
+                        if(upErr) throw upErr;
+                        const { data: pubData } = supabaseClient.storage.from('media').getPublicUrl(path);
+                        audioUrl = pubData.publicUrl;
+                    }
+                }
+
+                if (!title || !artist || !coverUrl || !audioUrl) {
+                    showMessage('Semua kolom utama harus diisi (URL atau File)', 'error');
+                    return;
+                }
+
+                const newSongData = {
+                    id: Date.now().toString(),
+                    title,
+                    artist,
+                    cover_url: coverUrl,
+                    audio_url: audioUrl,
+                    lyrics
+                };
+
+                // Insert to Database
+                const { error: dbError } = await supabaseClient.from('songs').insert([newSongData]);
+                if(dbError) throw dbError;
+
+                // Insert to local state
+                songs.unshift({
+                    id: newSongData.id, title, artist, coverUrl, audioUrl, lyrics
+                });
+                
+                showMessage(`Berhasil menambahkan lagu: ${title}`);
+                document.getElementById('add-song-form').reset();
+                
+                document.getElementById('add-cover-url').classList.remove('hidden');
+                document.getElementById('add-cover-file').classList.add('hidden');
+                document.getElementById('add-audio-url').classList.remove('hidden');
+                document.getElementById('add-audio-file').classList.add('hidden');
+
+                switchTab('home');
+
+            } catch (error) {
+                console.error("Error saving song:", error);
+                showMessage('Terjadi kesalahan saat mengunggah: ' + error.message, 'error');
+            } finally {
+                submitBtn.innerText = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+
+        // --- Like (Love) Logic ke Supabase ---
+        async function toggleLike() {
+            if (currentSongIndex === -1) return;
+            if (!supabaseClient) {
+                showMessage("Database belum dikonfigurasi.", "error");
+                return;
+            }
+            
+            const songId = songs[currentSongIndex].id;
+            const index = likedSongsIds.indexOf(songId);
+            
+            try {
+                if (index > -1) {
+                    // Remove Like
+                    likedSongsIds.splice(index, 1);
+                    await supabaseClient.from('likes').delete().match({ username: currentUser.username, song_id: songId });
+                    showMessage('Dihapus dari Koleksi Kamu', 'error');
+                } else {
+                    // Add Like
+                    likedSongsIds.push(songId);
+                    await supabaseClient.from('likes').insert([{ username: currentUser.username, song_id: songId }]);
+                    showMessage('Ditambahkan ke Koleksi Kamu');
+                }
+                
+                updateLikeIcon();
+                if (!document.getElementById('tab-collection').classList.contains('hidden')) renderCollection();
+                if (!document.getElementById('tab-home').classList.contains('hidden')) renderSongs(songs, songsGrid);
+            } catch(e) {
+                console.error("Like Error:", e);
+                showMessage('Gagal memperbarui Koleksi', 'error');
+            }
+        }
+        
+        function updateLikeIcon() {
+            if (currentSongIndex === -1) {
+                iconLike.className = "ph ph-heart text-xl";
+                btnLike.classList.remove('text-spotify-green');
+                btnLike.classList.add('text-gray-400');
+                return;
+            }
+            const songId = songs[currentSongIndex].id;
+            if (likedSongsIds.includes(songId)) {
+                iconLike.className = "ph-fill ph-heart text-xl";
+                btnLike.classList.add('text-spotify-green');
+                btnLike.classList.remove('text-gray-400');
+            } else {
+                iconLike.className = "ph ph-heart text-xl";
+                btnLike.classList.remove('text-spotify-green');
+                btnLike.classList.add('text-gray-400');
+            }
+        }
+        
+        // --- Lyrics Logic ---
+        function updateLyricsView() {
+            if (currentSongIndex === -1) {
+                lyricsTitle.innerText = "Pilih lagu untuk melihat lirik";
+                lyricsArtist.innerText = "-";
+                lyricsContent.innerText = "Belum ada lagu yang diputar.";
+                return;
+            }
+            const song = songs[currentSongIndex];
+            lyricsTitle.innerText = song.title;
+            lyricsArtist.innerText = song.artist;
+            if (song.lyrics && song.lyrics.trim() !== '') {
+                lyricsContent.innerText = song.lyrics;
+                lyricsContent.classList.remove('text-gray-500');
+                lyricsContent.classList.add('text-white');
+            } else {
+                lyricsContent.innerText = "( Lirik tidak tersedia untuk lagu ini )";
+                lyricsContent.classList.add('text-gray-500');
+                lyricsContent.classList.remove('text-white');
+            }
+        }
+
+        // --- Audio Player Logic ---
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return "0:00";
+            const min = Math.floor(seconds / 60);
+            const sec = Math.floor(seconds % 60);
+            return `${min}:${sec.toString().padStart(2, '0')}`;
+        }
+
+        function playSong(index) {
+            if (index < 0 || index >= songs.length) return;
+            currentSongIndex = index;
+            const song = songs[index];
+            
+            audio.src = song.audioUrl;
+            playerTitle.innerText = song.title;
+            playerArtist.innerText = song.artist;
+            playerCover.src = song.coverUrl;
+            
+            updateLikeIcon();
+            updateLyricsView();
+            
+            audio.play().then(() => {
+                isPlaying = true;
+                updatePlayIcon();
+            }).catch(e => {
+                console.error(e);
+                showMessage("Gagal memutar audio. Link mungkin tidak valid.", "error");
+                isPlaying = false;
+                updatePlayIcon();
+            });
+        }
+
+        function togglePlay() {
+            if (currentSongIndex === -1 && songs.length > 0) return playSong(0);
+            else if (currentSongIndex === -1) return showMessage("Belum ada lagu. Admin perlu menambahkan lagu terlebih dahulu.", "error");
+            
+            if (audio.paused) { audio.play(); isPlaying = true; }
+            else { audio.pause(); isPlaying = false; }
+            updatePlayIcon();
+        }
+
+        function updatePlayIcon() {
+            if (isPlaying) playPauseIcon.className = "ph-fill ph-pause text-xl sm:text-xl";
+            else playPauseIcon.className = "ph-fill ph-play text-xl sm:text-xl ml-1";
+        }
+
+        function nextSong() {
+            if (songs.length === 0) return;
+            let nextIndex = currentSongIndex + 1;
+            if (nextIndex >= songs.length) nextIndex = 0;
+            playSong(nextIndex);
+        }
+
+        function prevSong() {
+             if (songs.length === 0) return;
+             if (audio.currentTime > 3) { audio.currentTime = 0; return; }
+             let prevIndex = currentSongIndex - 1;
+             if (prevIndex < 0) prevIndex = songs.length - 1;
+             playSong(prevIndex);
+        }
+
+        function seekAudio(value) {
+            if (audio.duration) audio.currentTime = (value / 100) * audio.duration;
+        }
+
+        function changeVolume(value) { audio.volume = value; }
+
+        function updateProgressBarColor(input) { progressFill.style.width = input.value + '%'; }
+        function updateVolumeBarColor(input) { volumeFill.style.width = (input.value * 100) + '%'; }
+
+        audio.addEventListener('timeupdate', () => {
+            timeCurrent.innerText = formatTime(audio.currentTime);
+            if (audio.duration) {
+                progressBar.value = (audio.currentTime / audio.duration) * 100;
+                updateProgressBarColor(progressBar);
+            }
+        });
+
+        audio.addEventListener('loadedmetadata', () => timeTotal.innerText = formatTime(audio.duration));
+        audio.addEventListener('ended', () => nextSong());
+
+    </script>
+</body>
+</html>
