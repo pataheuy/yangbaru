@@ -3,63 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BEMspotipai - Musik Untuk Mahasiswa</title>
+    <title>BEMspotipai - Musik Untuk Anak BEM</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <!-- Tambahkan library Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #121212; 
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #555; 
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #888; 
-        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #121212; }
+        ::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #888; }
         
         /* Range slider styling */
-        input[type=range] {
-            -webkit-appearance: none;
-            width: 100%;
-            background: transparent;
-        }
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
         input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 12px;
-            width: 12px;
-            border-radius: 50%;
-            background: #1DB954;
-            cursor: pointer;
-            margin-top: -4px;
-            box-shadow: 0 0 2px rgba(0,0,0,0.5);
-            display: none; /* Hide thumb by default like Spotify */
+            -webkit-appearance: none; height: 12px; width: 12px; border-radius: 50%;
+            background: #1DB954; cursor: pointer; margin-top: -4px;
+            box-shadow: 0 0 2px rgba(0,0,0,0.5); display: none;
         }
-        .group:hover input[type=range]::-webkit-slider-thumb {
-            display: block; /* Show on hover */
-        }
+        .group:hover input[type=range]::-webkit-slider-thumb { display: block; }
         input[type=range]::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 4px;
-            cursor: pointer;
-            background: #535353;
-            border-radius: 2px;
+            width: 100%; height: 4px; cursor: pointer; background: #535353; border-radius: 2px;
         }
-        input[type=range]:focus {
-            outline: none;
-        }
+        input[type=range]:focus { outline: none; }
         
         body {
-            background-color: #000000;
-            color: #FFFFFF;
+            background-color: #000000; color: #FFFFFF;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            overflow: hidden; /* Prevent body scroll, handle inside containers */
+            overflow: hidden;
         }
         
         .bg-spotify-base { background-color: #121212; }
@@ -69,27 +41,26 @@
         .bg-spotify-green { background-color: #1DB954; }
         .hover-bg-spotify-green:hover { background-color: #1ed760; }
         
-        /* Toast Animation */
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        @keyframes fadeOut {
-            from { opacity: 1; }
-            to { opacity: 0; }
-        }
+        /* Modal & Toast Animations */
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .toast-enter { animation: slideIn 0.3s forwards; }
         .toast-exit { animation: fadeOut 0.3s forwards; }
+        .modal-enter { animation: fadeIn 0.3s forwards; }
     </style>
 </head>
 <body class="h-screen w-screen flex flex-col selection:bg-green-500 selection:text-white">
 
     <!-- Toast Notification Container -->
-    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2"></div>
+    <div id="toast-container" class="fixed top-4 right-4 z-[60] flex flex-col gap-2 pointer-events-none"></div>
 
-    <!-- LOGIN VIEW -->
-    <div id="login-view" class="flex-1 flex items-center justify-center bg-gradient-to-b from-gray-900 to-black h-full absolute inset-0 z-40 transition-opacity duration-500">
-        <div class="bg-black p-8 rounded-xl shadow-2xl w-full max-w-md border border-gray-800">
+    <!-- MODALS UI (Hidden by default) -->
+    
+    <!-- 1. Login Modal -->
+    <div id="login-modal" class="fixed inset-0 bg-black/80 z-50 hidden flex-col items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-spotify-elevated p-8 rounded-xl shadow-2xl w-full max-w-md border border-gray-800 relative">
+            <button onclick="closeModal('login-modal')" class="absolute top-4 right-4 text-gray-400 hover:text-white"><i class="ph ph-x text-2xl"></i></button>
             <div class="flex items-center justify-center mb-8 gap-2">
                 <i class="ph-fill ph-spotify-logo text-5xl text-spotify-green"></i>
                 <h1 class="text-3xl font-bold tracking-tight">BEMspotipai</h1>
@@ -97,12 +68,12 @@
             
             <form id="login-form" class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-1">Nama Pengguna (Username)</label>
-                    <input type="text" id="username" class="w-full bg-spotify-elevated border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-spotify-green focus:ring-1 focus:ring-spotify-green transition-colors" placeholder="Masukkan username" required>
+                    <label class="block text-sm font-medium text-gray-300 mb-1">Nama Pengguna</label>
+                    <input type="text" id="username" class="w-full bg-black border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-spotify-green" placeholder="Masukkan username" required>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-1">Kata Sandi (Password)</label>
-                    <input type="password" id="password" class="w-full bg-spotify-elevated border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-spotify-green focus:ring-1 focus:ring-spotify-green transition-colors" placeholder="Masukkan password" required>
+                    <label class="block text-sm font-medium text-gray-300 mb-1">Kata Sandi</label>
+                    <input type="password" id="password" class="w-full bg-black border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-spotify-green" placeholder="Masukkan password" required>
                 </div>
                 <div class="pt-4">
                     <button type="submit" class="w-full bg-spotify-green hover-bg-spotify-green text-black font-bold py-3 rounded-full transition-transform active:scale-95">
@@ -110,15 +81,46 @@
                     </button>
                 </div>
                 <div class="text-center mt-4 text-xs text-gray-500">
-                    <p>Hint: Gunakan akun bebas untuk pendengar.</p>
                     <p>Khusus Admin BEM, gunakan kredensial resmi.</p>
                 </div>
             </form>
         </div>
     </div>
 
+    <!-- 2. Create Playlist Modal -->
+    <div id="create-playlist-modal" class="fixed inset-0 bg-black/80 z-50 hidden flex-col items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-spotify-elevated p-8 rounded-xl shadow-2xl w-full max-w-md border border-gray-800 relative">
+            <button onclick="closeModal('create-playlist-modal')" class="absolute top-4 right-4 text-gray-400 hover:text-white"><i class="ph ph-x text-2xl"></i></button>
+            <h2 class="text-2xl font-bold mb-6">Buat Playlist Baru</h2>
+            <form id="create-playlist-form" class="space-y-4">
+                <div>
+                    <input type="text" id="playlist-name-input" class="w-full bg-black border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-spotify-green" placeholder="Nama Playlist (misal: Lagu Perjuangan)" required>
+                </div>
+                <div class="pt-2 flex justify-end gap-3">
+                    <button type="button" onclick="closeModal('create-playlist-modal')" class="px-6 py-2 text-white font-bold rounded-full hover:bg-gray-800">Batal</button>
+                    <button type="submit" class="bg-spotify-green hover-bg-spotify-green text-black px-6 py-2 font-bold rounded-full transition-transform active:scale-95">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 3. Add to Playlist Modal -->
+    <div id="add-to-playlist-modal" class="fixed inset-0 bg-black/80 z-50 hidden flex-col items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-spotify-elevated p-8 rounded-xl shadow-2xl w-full max-w-sm border border-gray-800 relative">
+            <button onclick="closeModal('add-to-playlist-modal')" class="absolute top-4 right-4 text-gray-400 hover:text-white"><i class="ph ph-x text-2xl"></i></button>
+            <h2 class="text-xl font-bold mb-4">Tambahkan ke Playlist</h2>
+            <div id="playlist-options" class="space-y-2 max-h-60 overflow-y-auto">
+                <!-- List playlist injected here -->
+            </div>
+            <button onclick="closeModal('add-to-playlist-modal'); showModal('create-playlist-modal')" class="mt-4 w-full py-2 border border-gray-600 rounded-full text-sm font-bold text-gray-300 hover:text-white hover:border-white transition-colors">
+                + Buat Playlist Baru
+            </button>
+        </div>
+    </div>
+
+
     <!-- MAIN APP VIEW -->
-    <div id="app-view" class="flex-1 flex flex-col h-full hidden opacity-0 transition-opacity duration-500">
+    <div id="app-view" class="flex-1 flex flex-col h-full transition-opacity duration-500">
         
         <!-- Top Navigation / Header -->
         <header class="h-16 bg-black flex items-center justify-between px-6 z-10 sticky top-0">
@@ -129,9 +131,16 @@
                 </div>
             </div>
             <div class="flex items-center gap-3">
-                <span id="user-greeting" class="text-sm font-medium text-gray-300 hidden sm:block">Halo, Pengguna</span>
-                <div class="h-8 w-8 rounded-full bg-gray-800 flex items-center justify-center border border-gray-700 cursor-pointer hover:scale-105 transition-transform" onclick="logout()">
-                    <i class="ph ph-sign-out text-gray-400 hover:text-white"></i>
+                <!-- Logged Out View -->
+                <div id="auth-login-btn">
+                    <button onclick="showModal('login-modal')" class="bg-white text-black font-bold px-6 py-2 rounded-full hover:scale-105 transition-transform text-sm">Masuk</button>
+                </div>
+                <!-- Logged In View -->
+                <div id="auth-user-info" class="hidden items-center gap-3">
+                    <span id="user-greeting" class="text-sm font-medium text-gray-300 hidden sm:block">Halo, Pengguna</span>
+                    <div class="h-8 w-8 rounded-full bg-gray-800 flex items-center justify-center border border-gray-700 cursor-pointer hover:scale-105 transition-transform" onclick="logout()" title="Keluar">
+                        <i class="ph ph-sign-out text-gray-400 hover:text-white"></i>
+                    </div>
                 </div>
             </div>
         </header>
@@ -145,7 +154,7 @@
                         <h1 class="text-2xl font-bold tracking-tight">BEMspotipai</h1>
                     </div>
                     <nav class="space-y-4">
-                        <a href="#" onclick="switchTab('home')" class="nav-item flex items-center gap-4 text-gray-400 hover:text-white transition-colors" data-tab="home">
+                        <a href="#" onclick="switchTab('home')" class="nav-item flex items-center gap-4 text-white transition-colors" data-tab="home">
                             <i class="ph-fill ph-house text-2xl"></i>
                             <span class="font-bold">Beranda</span>
                         </a>
@@ -153,16 +162,19 @@
                             <i class="ph ph-magnifying-glass text-2xl"></i>
                             <span class="font-bold">Cari</span>
                         </a>
+                        <a href="#" onclick="switchTab('library')" class="nav-item flex items-center gap-4 text-gray-400 hover:text-white transition-colors" data-tab="library">
+                            <i class="ph ph-books text-2xl"></i>
+                            <span class="font-bold">Perpustakaan</span>
+                        </a>
                     </nav>
                 </div>
 
                 <div class="mt-4 px-6">
-                    <div onclick="switchTab('collection')" class="flex items-center justify-between text-gray-400 hover:text-white transition-colors mb-4 cursor-pointer" data-tab="collection">
+                    <div onclick="switchTab('collection')" class="flex items-center justify-between text-gray-400 hover:text-white transition-colors mb-4 cursor-pointer nav-item" data-tab="collection">
                         <div class="flex items-center gap-2">
-                            <i class="ph ph-books text-2xl"></i>
+                            <i class="ph ph-playlist text-2xl"></i>
                             <span class="font-bold">Koleksi Kamu</span>
                         </div>
-                        <i class="ph ph-plus text-xl"></i>
                     </div>
                 </div>
 
@@ -182,9 +194,9 @@
                 
                 <!-- Home Tab -->
                 <div id="tab-home" class="p-6 pb-24 content-tab">
-                    <h2 class="text-2xl font-bold mb-6">Lagu Terbaru untuk Mahasiswa</h2>
+                    <h2 class="text-2xl font-bold mb-6">Lagu Terbaru untuk Anak BEM</h2>
                     
-                    <div id="songs-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                    <div id="songs-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
                         <!-- Song cards will be injected here by JS -->
                     </div>
                 </div>
@@ -196,14 +208,36 @@
                         <i class="ph ph-magnifying-glass absolute left-3 top-3 text-gray-400 text-xl"></i>
                         <input type="text" id="search-input" placeholder="Apa yang ingin kamu dengarkan?" class="w-full bg-white text-black rounded-full py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-white font-medium">
                     </div>
-                    <div id="search-results" class="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                    <div id="search-results" class="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
                         <!-- Search results -->
                     </div>
                 </div>
 
-                <!-- Collection Tab (Playlist Love) -->
+                <!-- Library Tab (Perpustakaan) -->
+                <div id="tab-library" class="p-6 pb-24 content-tab hidden">
+                    <h2 class="text-2xl font-bold mb-6">Perpustakaan Lagu Anak BEM</h2>
+                    <p class="text-gray-400 mb-6">Semua arsip pergerakan dan musik tertata rapi di sini.</p>
+                    <div class="bg-black/40 rounded-xl border border-gray-800 overflow-hidden">
+                        <table class="w-full text-left text-sm text-gray-400">
+                            <thead class="text-xs uppercase bg-black/60 text-gray-500 border-b border-gray-800">
+                                <tr>
+                                    <th scope="col" class="px-6 py-4 font-medium">#</th>
+                                    <th scope="col" class="px-6 py-4 font-medium">Judul Lagu</th>
+                                    <th scope="col" class="px-6 py-4 font-medium">Penyanyi</th>
+                                    <th scope="col" class="px-6 py-4 font-medium text-right">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="library-list">
+                                <!-- List populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Collection Tab (Playlist Love & Custom Playlists) -->
                 <div id="tab-collection" class="p-6 pb-24 content-tab hidden">
-                    <div class="flex flex-col md:flex-row items-end gap-6 mb-8 mt-4">
+                    <!-- Liked Songs Banner -->
+                    <div class="flex flex-col md:flex-row items-end gap-6 mb-8 mt-4 cursor-pointer hover:opacity-90" onclick="showPlaylistDetails('liked')">
                         <div class="bg-gradient-to-br from-indigo-600 to-blue-400 w-32 h-32 md:w-48 md:h-48 flex items-center justify-center shadow-2xl rounded">
                             <i class="ph-fill ph-heart text-6xl text-white"></i>
                         </div>
@@ -213,9 +247,32 @@
                             <p class="text-gray-400 text-sm font-medium"><span id="liked-count">0</span> lagu tersimpan</p>
                         </div>
                     </div>
-                    <div id="collection-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-                        <!-- Liked songs will be injected here -->
+                    
+                    <hr class="border-gray-800 my-8">
+
+                    <!-- Custom Playlists Section -->
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl font-bold">Playlist Kustom Kamu</h2>
+                        <button onclick="showModal('create-playlist-modal')" class="text-sm font-bold text-spotify-green hover:text-white border border-spotify-green hover:border-white px-4 py-1.5 rounded-full transition-colors">
+                            + Buat Playlist
+                        </button>
                     </div>
+                    
+                    <div id="custom-playlists-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+                        <!-- Custom playlists injected here -->
+                    </div>
+
+                    <!-- Inner View for a selected Playlist (Hidden by default) -->
+                    <div id="playlist-detail-view" class="hidden mt-12">
+                        <div class="flex items-center gap-4 mb-6">
+                            <button onclick="closePlaylistDetails()" class="bg-black/50 p-2 rounded-full hover:bg-black text-gray-400 hover:text-white"><i class="ph-fill ph-arrow-left text-xl"></i></button>
+                            <h2 id="detail-playlist-title" class="text-3xl font-bold">Nama Playlist</h2>
+                        </div>
+                        <div id="detail-playlist-songs" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+                            <!-- Songs of selected playlist -->
+                        </div>
+                    </div>
+
                 </div>
 
                 <!-- Lyrics Tab -->
@@ -242,7 +299,7 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-300 mb-1">Nama Penyanyi / Band</label>
-                                <input type="text" id="add-artist" class="w-full bg-black border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-spotify-green transition-colors" placeholder="Contoh: Mahasiswa Bersatu" required>
+                                <input type="text" id="add-artist" class="w-full bg-black border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-spotify-green transition-colors" placeholder="Contoh: Anak BEM Bersatu" required>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-300 mb-1">Cover (Gambar)</label>
@@ -252,7 +309,6 @@
                                 </div>
                                 <input type="url" id="add-cover-url" class="w-full bg-black border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-spotify-green transition-colors" placeholder="https://contoh.com/gambar.jpg">
                                 <input type="file" id="add-cover-file" accept="image/*" class="w-full bg-black border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-spotify-green transition-colors hidden">
-                                <p class="text-xs text-gray-500 mt-1">Pilih URL atau unggah file gambar langsung.</p>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-300 mb-1">File Audio (MP3)</label>
@@ -262,10 +318,14 @@
                                 </div>
                                 <input type="url" id="add-audio-url" class="w-full bg-black border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-spotify-green transition-colors" placeholder="https://contoh.com/lagu.mp3">
                                 <input type="file" id="add-audio-file" accept="audio/*" class="w-full bg-black border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-spotify-green transition-colors hidden">
-                                <p class="text-xs text-gray-500 mt-1">Pilih URL atau unggah file audio (Hati-hati: File besar bisa memenuhi memori peramban).</p>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-300 mb-1">Lirik Lagu (Opsional)</label>
+                                <div class="flex justify-between items-end mb-1">
+                                    <label class="block text-sm font-medium text-gray-300">Lirik Lagu (Opsional)</label>
+                                    <button type="button" onclick="generateAutoLyrics()" class="text-xs bg-gray-800 hover:bg-gray-700 px-3 py-1 rounded text-spotify-green transition-colors flex items-center gap-1">
+                                        <i class="ph-fill ph-magic-wand"></i> Buat Lirik Otomatis
+                                    </button>
+                                </div>
                                 <textarea id="add-lyrics" rows="5" class="w-full bg-black border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-spotify-green transition-colors" placeholder="Masukkan lirik lagu di sini..."></textarea>
                             </div>
                             <div class="pt-4 flex justify-end">
@@ -280,21 +340,25 @@
             </main>
         </div>
 
-        <!-- Mobile Navigation Bottom Bar (visible on small screens) -->
+        <!-- Mobile Navigation Bottom Bar -->
         <nav class="lg:hidden bg-black border-t border-gray-800 flex justify-around p-3 z-20 sticky bottom-0">
-            <a href="#" onclick="switchTab('home')" class="flex flex-col items-center text-gray-400 hover:text-white">
+            <a href="#" onclick="switchTab('home')" class="flex flex-col items-center text-gray-400 hover:text-white nav-item" data-tab="home">
                 <i class="ph-fill ph-house text-2xl"></i>
                 <span class="text-[10px] mt-1">Beranda</span>
             </a>
-            <a href="#" onclick="switchTab('search')" class="flex flex-col items-center text-gray-400 hover:text-white">
+            <a href="#" onclick="switchTab('search')" class="flex flex-col items-center text-gray-400 hover:text-white nav-item" data-tab="search">
                 <i class="ph ph-magnifying-glass text-2xl"></i>
                 <span class="text-[10px] mt-1">Cari</span>
             </a>
-            <a href="#" onclick="switchTab('collection')" class="flex flex-col items-center text-gray-400 hover:text-white">
+            <a href="#" onclick="switchTab('library')" class="flex flex-col items-center text-gray-400 hover:text-white nav-item" data-tab="library">
                 <i class="ph ph-books text-2xl"></i>
+                <span class="text-[10px] mt-1">Perpus</span>
+            </a>
+            <a href="#" onclick="switchTab('collection')" class="flex flex-col items-center text-gray-400 hover:text-white nav-item" data-tab="collection">
+                <i class="ph ph-playlist text-2xl"></i>
                 <span class="text-[10px] mt-1">Koleksi</span>
             </a>
-            <a href="#" id="mobile-admin-btn" onclick="switchTab('admin')" class="hidden flex-col items-center text-spotify-green">
+            <a href="#" id="mobile-admin-btn" onclick="switchTab('admin')" class="hidden flex-col items-center text-spotify-green nav-item" data-tab="admin">
                 <i class="ph-fill ph-plus-circle text-2xl"></i>
                 <span class="text-[10px] mt-1">Admin</span>
             </a>
@@ -340,7 +404,6 @@
                     <span id="time-current" class="text-xs text-gray-400 min-w-[35px] text-right">0:00</span>
                     <div class="flex-1 relative flex items-center">
                         <input type="range" id="progress-bar" min="0" max="100" value="0" class="w-full z-10" onchange="seekAudio(this.value)" oninput="updateProgressBarColor(this)">
-                        <!-- Custom track color fill -->
                         <div id="progress-fill" class="absolute h-1 bg-white rounded-l-full pointer-events-none group-hover:bg-spotify-green" style="width: 0%;"></div>
                     </div>
                     <span id="time-total" class="text-xs text-gray-400 min-w-[35px]">0:00</span>
@@ -388,48 +451,23 @@
         // --- Data & State ---
         let songs = [];
         let likedSongsIds = [];
+        let customPlaylists = JSON.parse(localStorage.getItem('bemspotipai_playlists')) || [];
+        let tempSongIdToAdd = null; // Menyimpan ID lagu yang akan ditambah ke playlist
         
         let currentUser = null; 
         let currentSongIndex = -1;
         let isPlaying = false;
         const audio = new Audio();
-        
-        audio.volume = 0.15; // Default volume 15%
+        audio.volume = 0.15;
 
-        // --- DOM Elements ---
-        const loginView = document.getElementById('login-view');
-        const appView = document.getElementById('app-view');
-        const loginForm = document.getElementById('login-form');
-        const songsGrid = document.getElementById('songs-grid');
-        const collectionGrid = document.getElementById('collection-grid');
-        const searchResults = document.getElementById('search-results');
-        const searchInput = document.getElementById('search-input');
-        
-        const playerTitle = document.getElementById('player-title');
-        const playerArtist = document.getElementById('player-artist');
-        const playerCover = document.getElementById('player-cover');
-        const playPauseIcon = document.getElementById('play-pause-icon');
-        const progressBar = document.getElementById('progress-bar');
-        const progressFill = document.getElementById('progress-fill');
-        const timeCurrent = document.getElementById('time-current');
-        const timeTotal = document.getElementById('time-total');
-        const volumeBar = document.getElementById('volume-bar');
-        const volumeFill = document.getElementById('volume-fill');
-        const iconLike = document.getElementById('icon-like');
-        const btnLike = document.getElementById('btn-like');
-        
-        const lyricsTitle = document.getElementById('lyrics-title');
-        const lyricsArtist = document.getElementById('lyrics-artist');
-        const lyricsContent = document.getElementById('lyrics-content');
-
-        // --- Utility: Toast Message ---
+        // --- Utility: Toast & Modals ---
         function showMessage(text, type = 'success') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             const bgColor = type === 'error' ? 'bg-red-500' : 'bg-blue-500';
             const icon = type === 'error' ? 'ph-warning-circle' : 'ph-check-circle';
             
-            toast.className = `flex items-center gap-2 px-4 py-3 rounded shadow-lg text-white font-medium text-sm toast-enter z-50 ${bgColor}`;
+            toast.className = `flex items-center gap-2 px-4 py-3 rounded shadow-lg text-white font-medium text-sm toast-enter pointer-events-auto ${bgColor}`;
             toast.innerHTML = `<i class="ph ${icon} text-lg"></i> <span>${text}</span>`;
             
             container.appendChild(toast);
@@ -439,37 +477,29 @@
             }, 3000);
         }
 
-        // --- Authentication ---
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const user = document.getElementById('username').value.trim();
-            const pass = document.getElementById('password').value.trim();
+        function showModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.remove('hidden');
+            modal.classList.add('flex', 'modal-enter');
+        }
 
-            if (!user || !pass) {
-                showMessage('Username dan password harus diisi', 'error');
-                return;
-            }
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.add('hidden');
+            modal.classList.remove('flex', 'modal-enter');
+            // Reset input form
+            if (id === 'create-playlist-modal') document.getElementById('playlist-name-input').value = '';
+        }
 
-            const submitBtn = e.target.querySelector('button[type="submit"]');
-            const origText = submitBtn.innerText;
-            submitBtn.innerText = "Memuat data...";
-            submitBtn.disabled = true;
-
-            // Load Data from Supabase
+        // --- Initialization ---
+        async function loadPublicData() {
             if (supabaseClient) {
                 try {
-                    // Fetch Songs
                     const { data: sData, error: sErr } = await supabaseClient.from('songs').select('*').order('created_at', { ascending: false });
                     if (!sErr && sData) {
                         songs = sData.map(s => ({
                             id: s.id, title: s.title, artist: s.artist, coverUrl: s.cover_url, audioUrl: s.audio_url, lyrics: s.lyrics
                         }));
-                    }
-
-                    // Fetch Likes
-                    const { data: lData, error: lErr } = await supabaseClient.from('likes').select('song_id').eq('username', user);
-                    if (!lErr && lData) {
-                        likedSongsIds = lData.map(l => l.song_id);
                     }
                 } catch (err) {
                     console.error(err);
@@ -477,8 +507,40 @@
             } else {
                 showMessage('Peringatan: URL Supabase belum diisi di kode', 'error');
             }
+            renderSongs(songs, document.getElementById('songs-grid'));
+            renderLibrary();
+        }
 
-            // Check Admin
+        // Mulai aplikasi langsung ke Home
+        window.onload = () => {
+            loadPublicData();
+            document.querySelectorAll('aside .nav-item[data-tab="home"]').forEach(i => i.classList.add('text-white'));
+            
+            // Render custom playlist di tab koleksi
+            renderCustomPlaylists();
+        };
+
+        // --- Authentication ---
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const user = document.getElementById('username').value.trim();
+            const pass = document.getElementById('password').value.trim();
+
+            if (!user || !pass) return showMessage('Username dan password harus diisi', 'error');
+
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const origText = submitBtn.innerText;
+            submitBtn.innerText = "Memuat...";
+            submitBtn.disabled = true;
+
+            // Fetch Likes after login
+            if (supabaseClient) {
+                try {
+                    const { data: lData, error: lErr } = await supabaseClient.from('likes').select('song_id').eq('username', user);
+                    if (!lErr && lData) likedSongsIds = lData.map(l => l.song_id);
+                } catch (err) { console.error(err); }
+            }
+
             if (user === 'putrasigma' && pass === 'cobatanyaputra') {
                 currentUser = { username: user, role: 'admin' };
                 showMessage('Berhasil login sebagai Admin BEM');
@@ -487,17 +549,26 @@
                 showMessage(`Selamat datang, ${user}`);
             }
 
+            // Update UI headers
+            document.getElementById('auth-login-btn').classList.add('hidden');
+            document.getElementById('auth-user-info').classList.remove('hidden');
+            document.getElementById('auth-user-info').classList.add('flex');
             document.getElementById('user-greeting').innerText = `Halo, ${user}`;
+            
+            if (currentUser.role === 'admin') {
+                document.getElementById('admin-menu').classList.remove('hidden');
+                document.getElementById('mobile-admin-btn').classList.remove('hidden');
+                document.getElementById('mobile-admin-btn').classList.add('flex');
+            }
+
             submitBtn.innerText = origText;
             submitBtn.disabled = false;
+            closeModal('login-modal');
             
-            loginView.classList.add('opacity-0');
-            setTimeout(() => {
-                loginView.classList.add('hidden');
-                appView.classList.remove('hidden');
-                setTimeout(() => appView.classList.remove('opacity-0'), 50);
-                initApp();
-            }, 500);
+            // Refresh views with like status
+            const activeTab = document.querySelector('.content-tab:not(.hidden)').id.replace('tab-', '');
+            switchTab(activeTab);
+            updateLikeIcon();
         });
 
         function logout() {
@@ -505,41 +576,19 @@
             isPlaying = false;
             updatePlayIcon();
             
-            appView.classList.add('opacity-0');
-            setTimeout(() => {
-                appView.classList.add('hidden');
-                loginView.classList.remove('hidden');
-                setTimeout(() => loginView.classList.remove('opacity-0'), 50);
-                
-                document.getElementById('login-form').reset();
-                currentUser = null;
-                songs = [];
-                likedSongsIds = [];
-                switchTab('home');
-            }, 500);
-        }
-
-        // --- App Init ---
-        function initApp() {
-            if (currentUser && currentUser.role === 'admin') {
-                document.getElementById('admin-menu').classList.remove('hidden');
-                document.getElementById('mobile-admin-btn').classList.remove('hidden');
-                document.getElementById('mobile-admin-btn').classList.add('flex');
-            } else {
-                document.getElementById('admin-menu').classList.add('hidden');
-                document.getElementById('mobile-admin-btn').classList.add('hidden');
-                document.getElementById('mobile-admin-btn').classList.remove('flex');
-            }
-
-            renderSongs(songs, songsGrid);
+            currentUser = null;
+            likedSongsIds = [];
             
-            if (currentSongIndex === -1 && songs.length > 0) {
-                const song = songs[0];
-                playerTitle.innerText = song.title;
-                playerArtist.innerText = song.artist;
-                playerCover.src = song.coverUrl;
-                updateLikeIcon();
-            }
+            document.getElementById('auth-login-btn').classList.remove('hidden');
+            document.getElementById('auth-user-info').classList.add('hidden');
+            document.getElementById('auth-user-info').classList.remove('flex');
+            document.getElementById('admin-menu').classList.add('hidden');
+            document.getElementById('mobile-admin-btn').classList.add('hidden');
+            document.getElementById('mobile-admin-btn').classList.remove('flex');
+            
+            document.getElementById('login-form').reset();
+            switchTab('home');
+            updateLikeIcon();
         }
 
         // --- Navigation ---
@@ -547,7 +596,7 @@
             document.querySelectorAll('.content-tab').forEach(tab => tab.classList.add('hidden'));
             document.getElementById(`tab-${tabId}`).classList.remove('hidden');
 
-            document.querySelectorAll('aside .nav-item, aside [data-tab]').forEach(item => {
+            document.querySelectorAll('.nav-item').forEach(item => {
                 if(item.dataset && item.dataset.tab === tabId) {
                     item.classList.remove('text-gray-400');
                     item.classList.add('text-white');
@@ -557,10 +606,148 @@
                 }
             });
             
-            if(tabId === 'home') renderSongs(songs, songsGrid);
-            else if (tabId === 'collection') renderCollection();
+            if(tabId === 'home') renderSongs(songs, document.getElementById('songs-grid'));
+            else if (tabId === 'collection') {
+                closePlaylistDetails();
+                document.getElementById('liked-count').innerText = likedSongsIds.length;
+                renderCustomPlaylists();
+            }
+            else if (tabId === 'library') renderLibrary();
             else if (tabId === 'lyrics') updateLyricsView();
         }
+
+        // --- Playlists Management (LocalStorage) ---
+        document.getElementById('create-playlist-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('playlist-name-input').value.trim();
+            if(!name) return;
+
+            const newPlaylist = {
+                id: 'pl_' + Date.now(),
+                name: name,
+                songs: []
+            };
+
+            customPlaylists.push(newPlaylist);
+            localStorage.setItem('bemspotipai_playlists', JSON.stringify(customPlaylists));
+            
+            showMessage(`Playlist '${name}' berhasil dibuat`);
+            closeModal('create-playlist-modal');
+            
+            if (!document.getElementById('tab-collection').classList.contains('hidden')) {
+                renderCustomPlaylists();
+            }
+        });
+
+        function openAddToPlaylistModal(songId) {
+            tempSongIdToAdd = songId;
+            const container = document.getElementById('playlist-options');
+            container.innerHTML = '';
+
+            if (customPlaylists.length === 0) {
+                container.innerHTML = '<p class="text-sm text-gray-500 py-4 text-center">Belum ada playlist kustom. Buat satu dulu!</p>';
+            } else {
+                customPlaylists.forEach(pl => {
+                    const btn = document.createElement('button');
+                    btn.className = "w-full text-left px-4 py-3 bg-gray-800 hover:bg-gray-700 rounded text-white text-sm font-medium transition-colors flex justify-between items-center";
+                    const isAdded = pl.songs.includes(songId);
+                    
+                    btn.innerHTML = `
+                        <span>${pl.name}</span>
+                        ${isAdded ? '<i class="ph-fill ph-check-circle text-spotify-green text-lg"></i>' : '<i class="ph ph-plus text-gray-400 text-lg"></i>'}
+                    `;
+                    
+                    btn.onclick = () => {
+                        if (isAdded) {
+                            pl.songs = pl.songs.filter(id => id !== songId);
+                            showMessage(`Dihapus dari '${pl.name}'`, 'error');
+                        } else {
+                            pl.songs.push(songId);
+                            showMessage(`Ditambahkan ke '${pl.name}'`);
+                        }
+                        localStorage.setItem('bemspotipai_playlists', JSON.stringify(customPlaylists));
+                        closeModal('add-to-playlist-modal');
+                    };
+                    container.appendChild(btn);
+                });
+            }
+            showModal('add-to-playlist-modal');
+        }
+
+        function renderCustomPlaylists() {
+            const container = document.getElementById('custom-playlists-grid');
+            container.innerHTML = '';
+            
+            if (customPlaylists.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-sm col-span-full">Kamu belum membuat playlist kustom apapun.</p>';
+                return;
+            }
+
+            customPlaylists.forEach(pl => {
+                const card = document.createElement('div');
+                card.className = 'bg-spotify-elevated p-4 rounded-md hover:bg-spotify-highlight transition-colors cursor-pointer group';
+                card.onclick = () => showPlaylistDetails(pl.id);
+                
+                // Get cover of first song if available
+                let coverHtml = '<div class="w-full h-full bg-gray-800 flex items-center justify-center"><i class="ph ph-music-notes text-4xl text-gray-500"></i></div>';
+                if (pl.songs.length > 0) {
+                    const firstSong = songs.find(s => s.id === pl.songs[0]);
+                    if (firstSong) coverHtml = `<img src="${firstSong.coverUrl}" class="w-full h-full object-cover">`;
+                }
+
+                card.innerHTML = `
+                    <div class="relative mb-4 pb-[100%] shadow-lg rounded overflow-hidden">
+                        <div class="absolute top-0 left-0 w-full h-full">
+                            ${coverHtml}
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-white mb-1 truncate">${pl.name}</h3>
+                    <p class="text-sm text-gray-400 truncate">${pl.songs.length} lagu Anak BEM</p>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function showPlaylistDetails(id) {
+            document.getElementById('custom-playlists-grid').classList.add('hidden');
+            const banners = document.querySelectorAll('#tab-collection > div.cursor-pointer');
+            if(banners.length > 0) banners[0].classList.add('hidden'); // hide Liked Songs banner
+            document.querySelector('#tab-collection > hr').classList.add('hidden');
+            document.querySelector('#tab-collection > div.flex.items-center').classList.add('hidden'); // hide "Playlist kustom" title
+
+            const detailView = document.getElementById('playlist-detail-view');
+            const detailSongs = document.getElementById('detail-playlist-songs');
+            const titleElem = document.getElementById('detail-playlist-title');
+            
+            detailView.classList.remove('hidden');
+            let songListToRender = [];
+
+            if (id === 'liked') {
+                titleElem.innerText = "Lagu yang Disukai";
+                songListToRender = songs.filter(s => likedSongsIds.includes(s.id));
+            } else {
+                const pl = customPlaylists.find(p => p.id === id);
+                if (pl) {
+                    titleElem.innerText = pl.name;
+                    songListToRender = songs.filter(s => pl.songs.includes(s.id));
+                }
+            }
+
+            renderSongs(songListToRender, detailSongs);
+        }
+
+        function closePlaylistDetails() {
+            document.getElementById('playlist-detail-view').classList.add('hidden');
+            
+            document.getElementById('custom-playlists-grid').classList.remove('hidden');
+            const banners = document.querySelectorAll('#tab-collection > div.cursor-pointer');
+            if(banners.length > 0) banners[0].classList.remove('hidden'); 
+            const hr = document.querySelector('#tab-collection > hr');
+            if(hr) hr.classList.remove('hidden');
+            const title = document.querySelector('#tab-collection > div.flex.items-center');
+            if(title) title.classList.remove('hidden');
+        }
+
 
         // --- Rendering UI ---
         function createSongCard(song, index) {
@@ -574,10 +761,20 @@
             card.innerHTML = `
                 <div class="relative mb-4 pb-[100%] shadow-lg rounded overflow-hidden">
                     <img src="${song.coverUrl}" onerror="this.src='${fallbackImg}'" alt="Cover" class="absolute top-0 left-0 w-full h-full object-cover">
+                    
+                    <!-- Love & Add Buttons (Visible on hover or if liked) -->
+                    <div class="absolute top-2 right-2 flex gap-2 z-20">
+                        <button class="p-1 rounded-full bg-black/40 hover:bg-black/80 transition-colors opacity-0 group-hover:opacity-100" onclick="event.stopPropagation(); openAddToPlaylistModal('${song.id}')" title="Tambah ke Playlist">
+                            <i class="ph ph-list-plus text-white text-xl"></i>
+                        </button>
+                        <button class="p-1 rounded-full bg-black/40 hover:bg-black/80 transition-colors ${isLiked ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}" onclick="event.stopPropagation(); toggleLikeCard('${song.id}')" title="Suka">
+                            <i class="${isLiked ? 'ph-fill text-spotify-green' : 'ph text-white'} ph-heart text-xl drop-shadow-md"></i>
+                        </button>
+                    </div>
+
                     <button class="absolute bottom-2 right-2 bg-spotify-green text-black rounded-full w-12 h-12 flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all shadow-xl hover:scale-105 hover:bg-green-400 z-10" onclick="event.stopPropagation(); playSong(${index})">
                         <i class="ph-fill ph-play text-2xl"></i>
                     </button>
-                    ${isLiked ? '<i class="ph-fill ph-heart absolute top-2 right-2 text-spotify-green text-xl shadow-sm drop-shadow-md"></i>' : ''}
                 </div>
                 <h3 class="font-bold text-white mb-1 truncate" title="${song.title}">${song.title}</h3>
                 <p class="text-sm text-gray-400 truncate" title="${song.artist}">${song.artist}</p>
@@ -588,7 +785,7 @@
         function renderSongs(songList, container) {
             container.innerHTML = '';
             if (songList.length === 0) {
-                container.innerHTML = '<p class="text-gray-400 col-span-full">Belum ada lagu yang tersedia. Silakan hubungi Admin.</p>';
+                container.innerHTML = '<p class="text-gray-400 col-span-full">Belum ada lagu. Admin Anak BEM perlu mengunggahnya.</p>';
                 return;
             }
             songList.forEach((song) => {
@@ -596,21 +793,56 @@
                 container.appendChild(createSongCard(song, actualIndex));
             });
         }
-        
-        function renderCollection() {
-            const collectionSongs = songs.filter(song => likedSongsIds.includes(song.id));
-            document.getElementById('liked-count').innerText = collectionSongs.length;
-            renderSongs(collectionSongs, collectionGrid);
+
+        function renderLibrary() {
+            const tbody = document.getElementById('library-list');
+            tbody.innerHTML = '';
+            if(songs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="px-6 py-4 text-center">Arsip kosong.</td></tr>';
+                return;
+            }
+            songs.forEach((song, i) => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-gray-800 hover:bg-gray-800/50 transition-colors cursor-pointer";
+                tr.onclick = () => playSong(i);
+                tr.innerHTML = `
+                    <td class="px-6 py-4">${i+1}</td>
+                    <td class="px-6 py-4 font-medium text-white flex items-center gap-3">
+                        <img src="${song.coverUrl}" class="w-10 h-10 rounded object-cover shadow">
+                        ${song.title}
+                    </td>
+                    <td class="px-6 py-4">${song.artist}</td>
+                    <td class="px-6 py-4 text-right">
+                        <button onclick="event.stopPropagation(); playSong(${i})" class="text-spotify-green hover:text-white mr-3"><i class="ph-fill ph-play-circle text-2xl"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
         }
 
-        searchInput.addEventListener('input', (e) => {
+        document.getElementById('search-input').addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase();
-            if (query === '') return searchResults.innerHTML = '';
+            if (query === '') return document.getElementById('search-results').innerHTML = '';
             const filtered = songs.filter(song => song.title.toLowerCase().includes(query) || song.artist.toLowerCase().includes(query));
-            renderSongs(filtered, searchResults);
+            renderSongs(filtered, document.getElementById('search-results'));
         });
 
-        // --- Toggle URL/File Inputs ---
+        // --- Auto Lyrics Generator ---
+        function generateAutoLyrics() {
+            const title = document.getElementById('add-title').value.trim() || "Pergerakan Kita";
+            const artist = document.getElementById('add-artist').value.trim() || "Anak BEM";
+            
+            const templates = [
+                `[Verse 1]\nDi bawah terik matahari kampus\nKita berdiri menyatukan suara\nDemi keadilan yang terus tergerus\n${artist} maju, pantang menyerah\n\n[Chorus]\nOh... ${title}\nGemakan terus di dada kita\nBiar penguasa mendengarnya\nAnak BEM bersatu, takkan mereda!`,
+                `[Verse 1]\nRansel di punggung, buku di tangan\nLangkah tegap menuju jalanan\nBukan untuk hura-hura semata\nTapi untuk rakyat yang menderita\n\n[Chorus]\nNyanyikan ${title}!\nKarya nyata ${artist} di garda depan\nKritis, logis, dan penuh harapan\nHidup Anak BEM! Hidup Perjuangan!`
+            ];
+            
+            const randomLyr = templates[Math.floor(Math.random() * templates.length)];
+            document.getElementById('add-lyrics').value = randomLyr;
+            showMessage("Lirik otomatis berhasil dibuat!");
+        }
+
+        // --- Toggle URL/File Inputs Admin ---
         document.querySelectorAll('input[name="cover_type"]').forEach(radio => {
             radio.addEventListener('change', (e) => {
                 if (e.target.value === 'url') {
@@ -639,14 +871,11 @@
         document.getElementById('add-song-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            if (!supabaseClient) {
-                showMessage("Supabase belum dikonfigurasi. Edit kode untuk memasukkan URL & Key.", "error");
-                return;
-            }
+            if (!supabaseClient) return showMessage("Supabase belum dikonfigurasi.", "error");
 
             const submitBtn = e.target.querySelector('button[type="submit"]');
             const originalText = submitBtn.innerText;
-            submitBtn.innerText = "Mengunggah ke Database...";
+            submitBtn.innerText = "Mengunggah...";
             submitBtn.disabled = true;
             
             try {
@@ -657,34 +886,29 @@
                 const coverType = document.querySelector('input[name="cover_type"]:checked').value;
                 const audioType = document.querySelector('input[name="audio_type"]:checked').value;
 
-                let coverUrl = '';
-                let audioUrl = '';
+                let coverUrl = '', audioUrl = '';
 
-                // Upload Cover
                 if (coverType === 'url') {
                     coverUrl = document.getElementById('add-cover-url').value.trim();
                 } else {
                     const file = document.getElementById('add-cover-file').files[0];
                     if (file) {
                         const path = `covers/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '')}`;
-                        const { error: upErr } = await supabaseClient.storage.from('media').upload(path, file);
-                        if(upErr) throw upErr;
-                        const { data: pubData } = supabaseClient.storage.from('media').getPublicUrl(path);
-                        coverUrl = pubData.publicUrl;
+                        const { error } = await supabaseClient.storage.from('media').upload(path, file);
+                        if(error) throw error;
+                        coverUrl = supabaseClient.storage.from('media').getPublicUrl(path).data.publicUrl;
                     }
                 }
 
-                // Upload Audio
                 if (audioType === 'url') {
                     audioUrl = document.getElementById('add-audio-url').value.trim();
                 } else {
                     const file = document.getElementById('add-audio-file').files[0];
                     if (file) {
                         const path = `audio/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '')}`;
-                        const { error: upErr } = await supabaseClient.storage.from('media').upload(path, file);
-                        if(upErr) throw upErr;
-                        const { data: pubData } = supabaseClient.storage.from('media').getPublicUrl(path);
-                        audioUrl = pubData.publicUrl;
+                        const { error } = await supabaseClient.storage.from('media').upload(path, file);
+                        if(error) throw error;
+                        audioUrl = supabaseClient.storage.from('media').getPublicUrl(path).data.publicUrl;
                     }
                 }
 
@@ -693,37 +917,20 @@
                     return;
                 }
 
-                const newSongData = {
-                    id: Date.now().toString(),
-                    title,
-                    artist,
-                    cover_url: coverUrl,
-                    audio_url: audioUrl,
-                    lyrics
-                };
+                const newSongData = { id: Date.now().toString(), title, artist, cover_url: coverUrl, audio_url: audioUrl, lyrics };
 
-                // Insert to Database
                 const { error: dbError } = await supabaseClient.from('songs').insert([newSongData]);
                 if(dbError) throw dbError;
 
-                // Insert to local state
-                songs.unshift({
-                    id: newSongData.id, title, artist, coverUrl, audioUrl, lyrics
-                });
+                songs.unshift({ id: newSongData.id, title, artist, coverUrl, audioUrl, lyrics });
                 
-                showMessage(`Berhasil menambahkan lagu: ${title}`);
+                showMessage(`Berhasil menambahkan: ${title}`);
                 document.getElementById('add-song-form').reset();
-                
-                document.getElementById('add-cover-url').classList.remove('hidden');
-                document.getElementById('add-cover-file').classList.add('hidden');
-                document.getElementById('add-audio-url').classList.remove('hidden');
-                document.getElementById('add-audio-file').classList.add('hidden');
-
                 switchTab('home');
 
             } catch (error) {
                 console.error("Error saving song:", error);
-                showMessage('Terjadi kesalahan saat mengunggah: ' + error.message, 'error');
+                showMessage('Kesalahan: ' + error.message, 'error');
             } finally {
                 submitBtn.innerText = originalText;
                 submitBtn.disabled = false;
@@ -731,36 +938,40 @@
         });
 
         // --- Like (Love) Logic ke Supabase ---
-        async function toggleLike() {
-            if (currentSongIndex === -1) return;
-            if (!supabaseClient) {
-                showMessage("Database belum dikonfigurasi.", "error");
-                return;
-            }
+        async function toggleLikeCard(songId) {
+            if (!currentUser) return showModal('login-modal'); // Harus login
             
-            const songId = songs[currentSongIndex].id;
             const index = likedSongsIds.indexOf(songId);
-            
             try {
                 if (index > -1) {
-                    // Remove Like
                     likedSongsIds.splice(index, 1);
                     await supabaseClient.from('likes').delete().match({ username: currentUser.username, song_id: songId });
                     showMessage('Dihapus dari Koleksi Kamu', 'error');
                 } else {
-                    // Add Like
                     likedSongsIds.push(songId);
                     await supabaseClient.from('likes').insert([{ username: currentUser.username, song_id: songId }]);
                     showMessage('Ditambahkan ke Koleksi Kamu');
                 }
                 
-                updateLikeIcon();
-                if (!document.getElementById('tab-collection').classList.contains('hidden')) renderCollection();
-                if (!document.getElementById('tab-home').classList.contains('hidden')) renderSongs(songs, songsGrid);
+                // Jika sedang mainkan lagu ini, update icon di player juga
+                if (currentSongIndex !== -1 && songs[currentSongIndex].id === songId) updateLikeIcon();
+                
+                // Refresh list yang aktif
+                const activeTab = document.querySelector('.content-tab:not(.hidden)').id;
+                if (activeTab === 'tab-home') renderSongs(songs, document.getElementById('songs-grid'));
+                if (activeTab === 'tab-collection' && !document.getElementById('playlist-detail-view').classList.contains('hidden')) {
+                    // Update inner view if open
+                    showPlaylistDetails(document.getElementById('detail-playlist-title').innerText === 'Lagu yang Disukai' ? 'liked' : null);
+                }
             } catch(e) {
-                console.error("Like Error:", e);
+                console.error(e);
                 showMessage('Gagal memperbarui Koleksi', 'error');
             }
+        }
+
+        function toggleLike() {
+            if (currentSongIndex === -1) return;
+            toggleLikeCard(songs[currentSongIndex].id);
         }
         
         function updateLikeIcon() {
@@ -830,7 +1041,7 @@
                 updatePlayIcon();
             }).catch(e => {
                 console.error(e);
-                showMessage("Gagal memutar audio. Link mungkin tidak valid.", "error");
+                showMessage("Gagal memutar audio.", "error");
                 isPlaying = false;
                 updatePlayIcon();
             });
@@ -838,7 +1049,7 @@
 
         function togglePlay() {
             if (currentSongIndex === -1 && songs.length > 0) return playSong(0);
-            else if (currentSongIndex === -1) return showMessage("Belum ada lagu. Admin perlu menambahkan lagu terlebih dahulu.", "error");
+            else if (currentSongIndex === -1) return showMessage("Belum ada lagu.", "error");
             
             if (audio.paused) { audio.play(); isPlaying = true; }
             else { audio.pause(); isPlaying = false; }
