@@ -130,6 +130,18 @@
         </div>
     </div>
 
+    <!-- 5. Delete Song Modal (Admin) -->
+    <div id="delete-song-modal" class="fixed inset-0 bg-black/80 z-50 hidden flex-col items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-spotify-elevated p-8 rounded-xl shadow-2xl w-full max-w-sm border border-gray-800 relative text-center">
+            <h2 class="text-xl font-bold mb-2">Hapus Lagu?</h2>
+            <p class="text-gray-400 text-sm mb-6">Lagu ini akan dihapus dari database secara permanen.</p>
+            <div class="flex justify-center gap-4">
+                <button onclick="closeModal('delete-song-modal')" class="px-6 py-2 text-white font-bold rounded-full hover:bg-gray-800 transition-colors">Batal</button>
+                <button id="confirm-delete-song-btn" class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 font-bold rounded-full transition-transform active:scale-95">Ya, Hapus</button>
+            </div>
+        </div>
+    </div>
+
     <!-- MAIN APP VIEW -->
     <div id="app-view" class="flex-1 flex flex-col h-full transition-opacity duration-500">
         
@@ -198,7 +210,11 @@
                 <div id="admin-menu" class="p-6 hidden">
                     <hr class="border-gray-800 mb-4">
                     <p class="text-xs text-gray-500 font-bold mb-3 uppercase tracking-wider">Menu Admin</p>
-                    <a href="#" onclick="switchTab('admin')" class="nav-item flex items-center gap-4 text-spotify-green hover:text-green-400 transition-colors" data-tab="admin">
+                    <a href="#" onclick="switchTab('admin-manage')" class="nav-item flex items-center gap-4 text-spotify-green hover:text-green-400 transition-colors mb-4" data-tab="admin-manage">
+                        <i class="ph-fill ph-folder-open text-2xl"></i>
+                        <span class="font-bold">Kelola Data Lagu</span>
+                    </a>
+                    <a href="#" onclick="switchTab('admin-add')" class="nav-item flex items-center gap-4 text-gray-400 hover:text-white transition-colors" data-tab="admin-add">
                         <i class="ph-fill ph-plus-circle text-2xl"></i>
                         <span class="font-bold">Tambah Lagu Baru</span>
                     </a>
@@ -307,11 +323,40 @@
                 </div>
 
                 <!-- Admin Tab -->
-                <div id="tab-admin" class="p-6 pb-24 content-tab hidden">
-                    <div class="max-w-2xl mx-auto bg-spotify-elevated p-8 rounded-xl border border-gray-800">
+                <!-- Admin: Kelola Lagu -->
+                <div id="tab-admin-manage" class="p-4 sm:p-6 pb-24 content-tab hidden">
+                    <div class="w-full bg-spotify-elevated p-6 sm:p-8 rounded-xl border border-gray-800">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 border-b border-gray-700 pb-4">
+                            <div class="flex items-center gap-3">
+                                <i class="ph-fill ph-folder-open text-3xl text-spotify-green"></i>
+                                <h2 class="text-xl sm:text-2xl font-bold">Kelola Data Lagu</h2>
+                            </div>
+                            <button onclick="switchTab('admin-add')" class="bg-spotify-green hover:bg-green-400 text-black px-4 py-2 rounded-full font-bold text-sm transition-colors md:hidden">
+                                + Tambah Lagu
+                            </button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm text-gray-400">
+                                <thead class="text-xs uppercase bg-black/60 text-gray-500 border-b border-gray-800">
+                                    <tr>
+                                        <th scope="col" class="px-4 py-3 font-medium">Judul Lagu</th>
+                                        <th scope="col" class="px-4 py-3 font-medium text-right">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-library-list">
+                                    <!-- List populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin: Tambah Lagu -->
+                <div id="tab-admin-add" class="p-4 sm:p-6 pb-24 content-tab hidden">
+                    <div class="max-w-2xl mx-auto bg-spotify-elevated p-6 sm:p-8 rounded-xl border border-gray-800">
                         <div class="flex items-center gap-3 mb-6 border-b border-gray-700 pb-4">
                             <i class="ph-fill ph-music-notes-plus text-3xl text-spotify-green"></i>
-                            <h2 class="text-2xl font-bold">Tambah Lagu ke Database</h2>
+                            <h2 class="text-xl sm:text-2xl font-bold">Tambah Lagu ke Database</h2>
                         </div>
                         
                         <form id="add-song-form" class="space-y-5">
@@ -362,32 +407,8 @@
             </main>
         </div>
 
-        <!-- Mobile Navigation Bottom Bar -->
-        <nav class="lg:hidden bg-black border-t border-gray-800 flex justify-around p-3 z-20 sticky bottom-0">
-            <a href="#" onclick="switchTab('home')" class="flex flex-col items-center text-gray-400 hover:text-white nav-item" data-tab="home">
-                <i class="ph-fill ph-house text-2xl"></i>
-                <span class="text-[10px] mt-1">Beranda</span>
-            </a>
-            <a href="#" onclick="switchTab('search')" class="flex flex-col items-center text-gray-400 hover:text-white nav-item" data-tab="search">
-                <i class="ph ph-magnifying-glass text-2xl"></i>
-                <span class="text-[10px] mt-1">Cari</span>
-            </a>
-            <a href="#" onclick="switchTab('library')" class="flex flex-col items-center text-gray-400 hover:text-white nav-item" data-tab="library">
-                <i class="ph ph-books text-2xl"></i>
-                <span class="text-[10px] mt-1">Perpus</span>
-            </a>
-            <a href="#" onclick="switchTab('collection')" class="flex flex-col items-center text-gray-400 hover:text-white nav-item" data-tab="collection">
-                <i class="ph ph-playlist text-2xl"></i>
-                <span class="text-[10px] mt-1">Koleksi</span>
-            </a>
-            <a href="#" id="mobile-admin-btn" onclick="switchTab('admin')" class="hidden flex-col items-center text-spotify-green nav-item" data-tab="admin">
-                <i class="ph-fill ph-plus-circle text-2xl"></i>
-                <span class="text-[10px] mt-1">Admin</span>
-            </a>
-        </nav>
-
         <!-- Player Bottom Bar -->
-        <div class="h-20 sm:h-24 bg-[#181818] border-t border-gray-800 flex items-center justify-between px-4 sm:px-6 z-30 absolute bottom-0 w-full lg:static lg:bottom-auto">
+        <div class="h-20 sm:h-24 bg-[#181818] border-t border-gray-800 flex items-center justify-between px-2 sm:px-6 z-30 w-full flex-shrink-0">
             
             <!-- Now Playing Info -->
             <div class="flex items-center w-1/3 min-w-[120px]">
@@ -450,12 +471,36 @@
             </div>
             
             <!-- Mobile compact controls -->
-            <div class="flex items-center justify-end w-1/3 md:hidden">
-                 <button class="text-gray-400 hover:text-white mr-2">
+            <div class="flex items-center justify-end w-1/4 md:hidden">
+                 <button class="text-gray-400 hover:text-white">
                     <i class="ph ph-devices text-xl"></i>
                 </button>
             </div>
         </div>
+
+        <!-- Mobile Navigation Bottom Bar (Dipindah ke paling bawah agar tidak tertumpuk player) -->
+        <nav class="lg:hidden bg-black border-t border-gray-800 flex justify-around p-2 z-40 w-full flex-shrink-0" style="padding-bottom: env(safe-area-inset-bottom);">
+            <a href="#" onclick="switchTab('home')" class="flex flex-col items-center text-gray-400 hover:text-white nav-item" data-tab="home">
+                <i class="ph-fill ph-house text-2xl"></i>
+                <span class="text-[10px] mt-1">Beranda</span>
+            </a>
+            <a href="#" onclick="switchTab('search')" class="flex flex-col items-center text-gray-400 hover:text-white nav-item" data-tab="search">
+                <i class="ph ph-magnifying-glass text-2xl"></i>
+                <span class="text-[10px] mt-1">Cari</span>
+            </a>
+            <a href="#" onclick="switchTab('library')" class="flex flex-col items-center text-gray-400 hover:text-white nav-item" data-tab="library">
+                <i class="ph ph-books text-2xl"></i>
+                <span class="text-[10px] mt-1">Perpus</span>
+            </a>
+            <a href="#" onclick="switchTab('collection')" class="flex flex-col items-center text-gray-400 hover:text-white nav-item" data-tab="collection">
+                <i class="ph ph-playlist text-2xl"></i>
+                <span class="text-[10px] mt-1">Koleksi</span>
+            </a>
+            <a href="#" id="mobile-admin-btn" onclick="switchTab('admin-manage')" class="hidden flex-col items-center text-spotify-green nav-item" data-tab="admin-manage">
+                <i class="ph-fill ph-shield-check text-2xl"></i>
+                <span class="text-[10px] mt-1">Admin</span>
+            </a>
+        </nav>
     </div>
 
     <script>
@@ -476,6 +521,7 @@
         let customPlaylists = JSON.parse(localStorage.getItem('bemspotipai_playlists')) || [];
         let tempSongIdToAdd = null; // Menyimpan ID lagu yang akan ditambah ke playlist
         let playlistToDelete = null; // Menyimpan ID playlist yang akan dihapus
+        let songToDelete = null; // Menyimpan ID lagu yang akan dihapus (Admin)
         
         let currentUser = null; 
         let currentSongIndex = -1;
@@ -582,7 +628,8 @@
                 } catch (err) { console.error(err); }
             }
 
-            if (user === 'putrasigma' && pass === 'cobatanyaputra') {
+            // Update Auth Logic to include 'admin' / 'admin'
+            if ((user === 'putrasigma' && pass === 'cobatanyaputra') || (user === 'admin' && pass === 'admin')) {
                 currentUser = { username: user, role: 'admin' };
                 showMessage('Berhasil login sebagai Admin BEM');
             } else {
@@ -656,6 +703,7 @@
             }
             else if (tabId === 'library') renderLibrary();
             else if (tabId === 'lyrics') updateLyricsView();
+            else if (tabId === 'admin-manage') renderAdminLibrary();
         }
 
         // --- Playlists Management (LocalStorage) ---
@@ -927,15 +975,118 @@
                     <td class="px-6 py-4">${i+1}</td>
                     <td class="px-6 py-4 font-medium text-white flex items-center gap-3">
                         <img src="${song.coverUrl}" class="w-10 h-10 rounded object-cover shadow">
-                        ${song.title}
+                        <div class="truncate max-w-[150px] sm:max-w-xs">${song.title}</div>
                     </td>
-                    <td class="px-6 py-4">${song.artist}</td>
+                    <td class="px-6 py-4 truncate max-w-[120px]">${song.artist}</td>
                     <td class="px-6 py-4 text-right">
                         <button onclick="event.stopPropagation(); playSong(${i})" class="text-spotify-green hover:text-white mr-3"><i class="ph-fill ph-play-circle text-2xl"></i></button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
+        }
+
+        // --- Admin Library & Download Logic ---
+        function renderAdminLibrary() {
+            const tbody = document.getElementById('admin-library-list');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+            if(songs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="2" class="px-4 py-4 text-center">Belum ada lagu.</td></tr>';
+                return;
+            }
+            songs.forEach((song) => {
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-gray-800 hover:bg-gray-800/50 transition-colors";
+                tr.innerHTML = `
+                    <td class="px-4 py-3">
+                        <div class="flex items-center gap-3 overflow-hidden">
+                            <img src="${song.coverUrl}" class="w-10 h-10 rounded object-cover shadow hidden sm:block flex-shrink-0">
+                            <div class="min-w-0">
+                                <p class="truncate font-bold text-sm sm:text-base text-white">${song.title}</p>
+                                <p class="text-xs text-gray-500 truncate">${song.artist}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3 text-right">
+                        <div class="flex items-center justify-end gap-2">
+                            <button onclick="downloadSong('${song.audioUrl}', '${song.title.replace(/'/g, "\\'")}')" class="text-blue-400 hover:text-white transition-colors p-2 bg-blue-500/20 hover:bg-blue-500/40 rounded-full" title="Download Audio">
+                                <i class="ph-fill ph-download-simple text-xl"></i>
+                            </button>
+                            <button onclick="promptDeleteSong('${song.id}')" class="text-red-500 hover:text-white transition-colors p-2 bg-red-500/20 hover:bg-red-500/40 rounded-full" title="Hapus Lagu">
+                                <i class="ph-fill ph-trash text-xl"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function promptDeleteSong(id) {
+            songToDelete = id;
+            showModal('delete-song-modal');
+        }
+
+        document.getElementById('confirm-delete-song-btn').addEventListener('click', async () => {
+            if (!songToDelete || !supabaseClient) return;
+            const btn = document.getElementById('confirm-delete-song-btn');
+            const originalText = btn.innerText;
+            btn.innerText = "Menghapus...";
+            btn.disabled = true;
+
+            try {
+                // Delete from Supabase Database
+                const { error } = await supabaseClient.from('songs').delete().match({ id: songToDelete });
+                if (error) throw error;
+
+                // Update local array state
+                songs = songs.filter(s => s.id !== songToDelete);
+                
+                showMessage('Lagu berhasil dihapus dari database', 'error');
+                
+                // Re-render UI
+                renderAdminLibrary();
+                if(!document.getElementById('tab-home').classList.contains('hidden')) {
+                    renderSongs(songs, document.getElementById('songs-grid'));
+                }
+                if(!document.getElementById('tab-library').classList.contains('hidden')) {
+                    renderLibrary();
+                }
+                
+                closeModal('delete-song-modal');
+            } catch (error) {
+                console.error("Delete failed:", error);
+                showMessage('Gagal menghapus lagu', 'error');
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+                songToDelete = null;
+            }
+        });
+
+        async function downloadSong(url, filename) {
+            try {
+                showMessage(`Menyiapkan unduhan: ${filename}...`);
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Jaringan bermasalah');
+                const blob = await response.blob();
+                const blobUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = blobUrl;
+                a.download = `${filename}.mp3`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(blobUrl);
+                document.body.removeChild(a);
+                showMessage(`Unduhan '${filename}' berhasil disiapkan.`);
+            } catch (err) {
+                console.error("Download failed:", err);
+                // Fallback jika tidak diizinkan oleh CORS peramban
+                window.open(url, '_blank');
+                showMessage(`Membuka di tab baru (Izin unduh otomatis ditolak oleh sumber)`, 'error');
+            }
         }
 
         document.getElementById('search-input').addEventListener('input', (e) => {
@@ -1044,7 +1195,8 @@
                 
                 showMessage(`Berhasil menambahkan: ${title}`);
                 document.getElementById('add-song-form').reset();
-                switchTab('home');
+                renderAdminLibrary(); // Memperbarui tabel setelah menambah lagu
+                switchTab('admin-manage'); // Arahkan kembali ke tab Kelola Lagu
 
             } catch (error) {
                 console.error("Error saving song:", error);
