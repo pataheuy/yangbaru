@@ -460,6 +460,23 @@
         const audio = new Audio();
         audio.volume = 0.15;
 
+        // --- DOM Elements ---
+        const playerTitle = document.getElementById('player-title');
+        const playerArtist = document.getElementById('player-artist');
+        const playerCover = document.getElementById('player-cover');
+        const playPauseIcon = document.getElementById('play-pause-icon');
+        const progressBar = document.getElementById('progress-bar');
+        const progressFill = document.getElementById('progress-fill');
+        const timeCurrent = document.getElementById('time-current');
+        const timeTotal = document.getElementById('time-total');
+        const volumeBar = document.getElementById('volume-bar');
+        const volumeFill = document.getElementById('volume-fill');
+        const iconLike = document.getElementById('icon-like');
+        const btnLike = document.getElementById('btn-like');
+        const lyricsTitle = document.getElementById('lyrics-title');
+        const lyricsArtist = document.getElementById('lyrics-artist');
+        const lyricsContent = document.getElementById('lyrics-content');
+
         // --- Utility: Toast & Modals ---
         function showMessage(text, type = 'success') {
             const container = document.getElementById('toast-container');
