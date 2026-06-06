@@ -169,8 +169,8 @@
                     </nav>
                 </div>
 
-                <div class="mt-4 px-6">
-                    <div onclick="switchTab('collection')" class="flex items-center justify-between text-gray-400 hover:text-white transition-colors mb-4 cursor-pointer nav-item" data-tab="collection">
+                <div class="mt-4 px-6 border-b border-gray-800 pb-4">
+                    <div onclick="switchTab('collection')" class="flex items-center justify-between text-gray-400 hover:text-white transition-colors cursor-pointer nav-item" data-tab="collection">
                         <div class="flex items-center gap-2">
                             <i class="ph ph-playlist text-2xl"></i>
                             <span class="font-bold">Koleksi Kamu</span>
@@ -178,8 +178,13 @@
                     </div>
                 </div>
 
+                <!-- Pinned Playlists di Sidebar -->
+                <div id="sidebar-playlists" class="px-6 py-4 space-y-4 overflow-y-auto flex-1">
+                    <!-- Custom playlists disisipkan di sini -->
+                </div>
+
                 <!-- Admin Menu (Hidden by default) -->
-                <div id="admin-menu" class="mt-auto p-6 hidden">
+                <div id="admin-menu" class="p-6 hidden">
                     <hr class="border-gray-800 mb-4">
                     <p class="text-xs text-gray-500 font-bold mb-3 uppercase tracking-wider">Menu Admin</p>
                     <a href="#" onclick="switchTab('admin')" class="nav-item flex items-center gap-4 text-spotify-green hover:text-green-400 transition-colors" data-tab="admin">
@@ -533,8 +538,9 @@
             loadPublicData();
             document.querySelectorAll('aside .nav-item[data-tab="home"]').forEach(i => i.classList.add('text-white'));
             
-            // Render custom playlist di tab koleksi
+            // Render custom playlist di tab koleksi dan sidebar
             renderCustomPlaylists();
+            renderSidebarPlaylists();
         };
 
         // --- Authentication ---
@@ -606,6 +612,7 @@
             document.getElementById('login-form').reset();
             switchTab('home');
             updateLikeIcon();
+            showMessage('Berhasil keluar');
         }
 
         // --- Navigation ---
@@ -634,6 +641,25 @@
         }
 
         // --- Playlists Management (LocalStorage) ---
+        function renderSidebarPlaylists() {
+            const container = document.getElementById('sidebar-playlists');
+            if(!container) return;
+            container.innerHTML = '';
+            
+            customPlaylists.forEach(pl => {
+                const a = document.createElement('a');
+                a.href = "#";
+                a.className = "flex items-center gap-3 text-sm text-gray-400 hover:text-white transition-colors truncate w-full";
+                a.innerHTML = `<i class="ph ph-music-notes-simple text-lg"></i> <span class="truncate">${pl.name}</span>`;
+                a.onclick = (e) => {
+                    e.preventDefault();
+                    switchTab('collection');
+                    showPlaylistDetails(pl.id);
+                };
+                container.appendChild(a);
+            });
+        }
+
         document.getElementById('create-playlist-form').addEventListener('submit', (e) => {
             e.preventDefault();
             const name = document.getElementById('playlist-name-input').value.trim();
@@ -650,6 +676,8 @@
             
             showMessage(`Playlist '${name}' berhasil dibuat`);
             closeModal('create-playlist-modal');
+            
+            renderSidebarPlaylists(); // Update Sidebar
             
             if (!document.getElementById('tab-collection').classList.contains('hidden')) {
                 renderCustomPlaylists();
@@ -689,6 +717,17 @@
                 });
             }
             showModal('add-to-playlist-modal');
+        }
+
+        function removeSongFromPlaylist(playlistId, songId) {
+            const pl = customPlaylists.find(p => p.id === playlistId);
+            if (pl) {
+                pl.songs = pl.songs.filter(id => id !== songId);
+                localStorage.setItem('bemspotipai_playlists', JSON.stringify(customPlaylists));
+                showMessage(`Lagu dihapus dari playlist`);
+                showPlaylistDetails(playlistId); // Muat ulang lagu yang ada di detail playlist
+                renderCustomPlaylists(); // Muat ulang juga di daftar utamanya untuk memperbarui jumlah lagu
+            }
         }
 
         function renderCustomPlaylists() {
@@ -742,15 +781,15 @@
             if (id === 'liked') {
                 titleElem.innerText = "Lagu yang Disukai";
                 songListToRender = songs.filter(s => likedSongsIds.includes(s.id));
+                renderSongs(songListToRender, detailSongs, 'liked');
             } else {
                 const pl = customPlaylists.find(p => p.id === id);
                 if (pl) {
                     titleElem.innerText = pl.name;
                     songListToRender = songs.filter(s => pl.songs.includes(s.id));
+                    renderSongs(songListToRender, detailSongs, id); // Mengirim ID playlist agar tau konteksnya
                 }
             }
-
-            renderSongs(songListToRender, detailSongs);
         }
 
         function closePlaylistDetails() {
@@ -767,18 +806,30 @@
 
 
         // --- Rendering UI ---
-        function createSongCard(song, index) {
+        function createSongCard(song, index, playlistId = null) {
             const card = document.createElement('div');
             card.className = 'bg-spotify-elevated p-4 rounded-md hover:bg-spotify-highlight transition-colors group cursor-pointer relative';
             card.onclick = () => playSong(index);
 
             const fallbackImg = 'https://images.unsplash.com/photo-1614613535308-eb51bd3d2c17?w=300&q=80';
             const isLiked = likedSongsIds.includes(song.id);
+            
+            // Tombol Hapus: Hanya ada jika berada di dalam tampilan playlist kustom
+            let removeBtnHtml = '';
+            if (playlistId && playlistId !== 'liked') {
+                removeBtnHtml = `
+                <button class="absolute top-2 left-2 w-8 h-8 flex items-center justify-center rounded-full bg-red-500/80 hover:bg-red-600 text-white transition-colors opacity-0 group-hover:opacity-100 z-20 shadow-md" onclick="event.stopPropagation(); removeSongFromPlaylist('${playlistId}', '${song.id}')" title="Hapus dari Playlist">
+                    <i class="ph ph-trash text-lg"></i>
+                </button>
+                `;
+            }
 
             card.innerHTML = `
                 <div class="relative mb-4 pb-[100%] shadow-lg rounded overflow-hidden">
                     <img src="${song.coverUrl}" onerror="this.src='${fallbackImg}'" alt="Cover" class="absolute top-0 left-0 w-full h-full object-cover">
                     
+                    ${removeBtnHtml}
+
                     <!-- Love & Add Buttons (Visible on hover or if liked) -->
                     <div class="absolute top-2 right-2 flex gap-2 z-20">
                         <button class="p-1 rounded-full bg-black/40 hover:bg-black/80 transition-colors opacity-0 group-hover:opacity-100" onclick="event.stopPropagation(); openAddToPlaylistModal('${song.id}')" title="Tambah ke Playlist">
@@ -799,15 +850,15 @@
             return card;
         }
 
-        function renderSongs(songList, container) {
+        function renderSongs(songList, container, playlistId = null) {
             container.innerHTML = '';
             if (songList.length === 0) {
-                container.innerHTML = '<p class="text-gray-400 col-span-full">Belum ada lagu. Admin Anak BEM perlu mengunggahnya.</p>';
+                container.innerHTML = '<p class="text-gray-400 col-span-full">Belum ada lagu. Admin Anak BEM perlu mengunggahnya, atau kamu belum menambahkan lagu ke playlist ini.</p>';
                 return;
             }
             songList.forEach((song) => {
                 const actualIndex = songs.findIndex(s => s.id === song.id);
-                container.appendChild(createSongCard(song, actualIndex));
+                container.appendChild(createSongCard(song, actualIndex, playlistId));
             });
         }
 
