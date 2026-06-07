@@ -211,13 +211,14 @@
                     </nav>
                 </div>
 
-                <div class="mt-4 px-6 border-b border-gray-800 pb-4">
-                    <div onclick="switchTab('collection')" class="flex items-center justify-between text-gray-400 hover:text-white transition-colors cursor-pointer nav-item" data-tab="collection">
-                        <div class="flex items-center gap-2">
-                            <i class="ph ph-playlist text-2xl"></i>
-                            <span class="font-bold">Koleksi Kamu</span>
-                        </div>
+                <div class="mt-4 px-6 border-b border-gray-800 pb-4 flex items-center justify-between group">
+                    <div onclick="switchTab('collection')" class="flex items-center gap-2 text-gray-400 hover:text-white transition-colors cursor-pointer nav-item" data-tab="collection">
+                        <i class="ph ph-playlist text-2xl"></i>
+                        <span class="font-bold">Koleksi Kamu</span>
                     </div>
+                    <button onclick="showModal('create-playlist-modal')" class="text-gray-400 hover:text-white transition-colors p-1 rounded hover:bg-gray-800" title="Buat Playlist">
+                        <i class="ph ph-plus text-xl"></i>
+                    </button>
                 </div>
 
                 <!-- Pinned Playlists di Sidebar -->
@@ -1061,10 +1062,10 @@
                     </td>
                     <td class="px-4 py-3 text-right">
                         <div class="flex items-center justify-end gap-2">
-                            <button onclick="downloadSong('${song.audioUrl}', '${song.title.replace(/'/g, "\\'")}')" class="text-blue-400 hover:text-white transition-colors p-2 bg-blue-500/20 hover:bg-blue-500/40 rounded-full" title="Download Audio">
+                            <button onclick="event.stopPropagation(); downloadSong('${song.audioUrl}', '${song.title.replace(/'/g, "\\'")}')" class="text-blue-400 hover:text-white transition-colors p-2 bg-blue-500/20 hover:bg-blue-500/40 rounded-full" title="Download Audio">
                                 <i class="ph-fill ph-download-simple text-xl"></i>
                             </button>
-                            <button onclick="promptDeleteSong('${song.id}')" class="text-red-500 hover:text-white transition-colors p-2 bg-red-500/20 hover:bg-red-500/40 rounded-full" title="Hapus Lagu">
+                            <button onclick="event.stopPropagation(); promptDeleteSong('${song.id}')" class="text-red-500 hover:text-white transition-colors p-2 bg-red-500/20 hover:bg-red-500/40 rounded-full" title="Hapus Lagu">
                                 <i class="ph-fill ph-trash text-xl"></i>
                             </button>
                         </div>
@@ -1079,6 +1080,7 @@
             showModal('delete-song-modal');
         }
 
+        // --- FITUR HAPUS LAGU ADMIN (DIPERBARUI) ---
         document.getElementById('confirm-delete-song-btn').addEventListener('click', async () => {
             if (!songToDelete || !supabaseClient) return;
             const btn = document.getElementById('confirm-delete-song-btn');
@@ -1087,16 +1089,31 @@
             btn.disabled = true;
 
             try {
-                // Delete from Supabase Database
-                const { error } = await supabaseClient.from('songs').delete().match({ id: songToDelete });
-                if (error) throw error;
+                // Menghapus dari Supabase dan MINTA KEMBALIAN (select) untuk memastikan data benar-benar terhapus
+                const { data, error } = await supabaseClient
+                    .from('songs')
+                    .delete()
+                    .eq('id', songToDelete)
+                    .select();
 
-                // Update local array state
+                if (error) throw error;
+                
+                // Jika data yang dikembalikan kosong, berarti RLS (Policy) Supabase menolak penghapusan
+                if (!data || data.length === 0) {
+                    showMessage('Gagal Hapus: Izin DELETE di Supabase belum diaktifkan!', 'error');
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                    closeModal('delete-song-modal');
+                    songToDelete = null;
+                    return;
+                }
+
+                // Jika berhasil, perbarui array lokal
                 songs = songs.filter(s => s.id !== songToDelete);
                 
-                showMessage('Lagu berhasil dihapus dari database', 'error');
+                showMessage('Lagu berhasil dihapus dari database', 'success');
                 
-                // Re-render UI
+                // Perbarui Tampilan UI
                 renderAdminLibrary();
                 if(!document.getElementById('tab-home').classList.contains('hidden')) {
                     renderSongs(songs, document.getElementById('songs-grid'));
@@ -1108,7 +1125,7 @@
                 closeModal('delete-song-modal');
             } catch (error) {
                 console.error("Delete failed:", error);
-                showMessage('Gagal menghapus lagu', 'error');
+                showMessage('Gagal menghapus lagu. Cek konsol.', 'error');
             } finally {
                 btn.innerText = originalText;
                 btn.disabled = false;
@@ -1147,19 +1164,63 @@
             renderSongs(filtered, document.getElementById('search-results'));
         });
 
+        // --- Fetch With Retry Utility ---
+        async function fetchWithRetry(url, options, retries = 5) {
+            const delays = [1000, 2000, 4000, 8000, 16000];
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response;
+                } catch (error) {
+                    if (i === retries - 1) throw error;
+                    await new Promise(res => setTimeout(res, delays[i]));
+                }
+            }
+        }
+
         // --- Auto Lyrics Generator ---
-        function generateAutoLyrics() {
-            const title = document.getElementById('add-title').value.trim() || "Pergerakan Kita";
+        async function generateAutoLyrics() {
+            const title = document.getElementById('add-title').value.trim() || "Semangat Perjuangan";
             const artist = document.getElementById('add-artist').value.trim() || "Anak BEM";
-            
-            const templates = [
-                `[Verse 1]\nDi bawah terik matahari kampus\nKita berdiri menyatukan suara\nDemi keadilan yang terus tergerus\n${artist} maju, pantang menyerah\n\n[Chorus]\nOh... ${title}\nGemakan terus di dada kita\nBiar penguasa mendengarnya\nAnak BEM bersatu, takkan mereda!`,
-                `[Verse 1]\nRansel di punggung, buku di tangan\nLangkah tegap menuju jalanan\nBukan untuk hura-hura semata\nTapi untuk rakyat yang menderita\n\n[Chorus]\nNyanyikan ${title}!\nKarya nyata ${artist} di garda depan\nKritis, logis, dan penuh harapan\nHidup Anak BEM! Hidup Perjuangan!`
-            ];
-            
-            const randomLyr = templates[Math.floor(Math.random() * templates.length)];
-            document.getElementById('add-lyrics').value = randomLyr;
-            showMessage("Lirik otomatis berhasil dibuat!");
+            const lyricsArea = document.getElementById('add-lyrics');
+            const btn = document.querySelector('#tab-admin-add button[onclick="generateAutoLyrics()"]');
+
+            const originalText = btn.innerHTML;
+            btn.innerHTML = `<i class="ph ph-spinner animate-spin"></i> Memproses...`;
+            btn.disabled = true;
+            btn.classList.add('opacity-70', 'cursor-not-allowed');
+
+            const apiKey = ""; // Key akan disediakan secara otomatis oleh sistem runtime
+            const prompt = `Buatkan lirik lagu bertema semangat mahasiswa atau 'Anak BEM' (Badan Eksekutif Mahasiswa) yang positif, inspiratif, dan membangun. Judul lagu: "${title}", Penyanyi: "${artist}". Sertakan struktur lagu yang jelas seperti [Verse 1], [Chorus], dan [Bridge]. Jangan terlalu panjang, maksimal 3 bait saja.`;
+
+            try {
+                const response = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }],
+                        systemInstruction: { parts: [{ text: "You are a helpful assistant that writes inspiring and safe song lyrics in Indonesian." }] }
+                    })
+                });
+
+                const data = await response.json();
+                const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (text) {
+                    lyricsArea.value = text.trim();
+                    showMessage("Lirik berhasil dibuat oleh AI!");
+                } else {
+                    throw new Error("Format respons tidak sesuai");
+                }
+            } catch (err) {
+                console.error("AI Error:", err);
+                showMessage("Gagal membuat lirik AI. Silakan coba lagi.", "error");
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                btn.classList.remove('opacity-70', 'cursor-not-allowed');
+            }
         }
 
         // --- Toggle URL/File Inputs Admin ---
