@@ -51,11 +51,11 @@
 
         /* Smooth Entrance & Exit Animations */
         @keyframes appEntrance {
-            from { opacity: 0; transform: scale(0.97) translateY(20px); filter: blur(5px); }
-            to { opacity: 1; transform: scale(1) translateY(0); filter: blur(0); }
+            from { opacity: 0; transform: scale(0.98); filter: blur(3px); }
+            to { opacity: 1; transform: scale(1); filter: blur(0); }
         }
         .animate-app-entrance {
-            animation: appEntrance 1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+            animation: appEntrance 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
         }
         .fade-out-exit {
             transition: opacity 0.8s ease, filter 0.8s ease, transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
@@ -68,10 +68,10 @@
 </head>
 <body class="h-screen w-screen flex flex-col selection:bg-green-500 selection:text-white">
 
-    <!-- Fake 404 Screen (Easter Egg) -->
-    <div id="fake-404" class="fixed inset-0 bg-black z-[100] flex flex-col items-center justify-center p-6 text-gray-300 transition-all duration-700" style="font-family: 'Courier New', Courier, monospace;">
+    <!-- Fake 404 Screen (Easter Egg) - Desain Hitam & Sangat Meyakinkan -->
+    <div id="fake-404" class="fixed inset-0 bg-black z-[100] flex flex-col items-center justify-center p-6 text-gray-300 transition-all duration-700 select-none" style="font-family: 'Courier New', Courier, monospace;">
         <div class="w-full max-w-lg text-left bg-[#121212] p-8 rounded-lg border border-gray-800 shadow-2xl">
-            <h1 id="error-title" class="text-4xl font-bold mb-4 cursor-default select-none text-white">404 Not Found</h1>
+            <h1 id="error-title" class="text-4xl font-bold mb-4 cursor-default text-white">404 Page Not Found</h1>
             <p class="text-sm text-gray-400 mb-6">The page your looking for may have been moved, deleted or possibly never existed. Additionally, a 404 Not Found error was encountered while trying to use an ErrorDocument to handle the request.</p>
             <div class="border-t border-gray-800 pt-4 space-y-2 text-xs text-gray-500">
                 <p><strong>Server:</strong> nginx/1.18.0 (Ubuntu)</p>
@@ -228,7 +228,7 @@
     </div>
 
     <!-- MAIN APP VIEW -->
-    <div id="app-view" class="flex-1 flex flex-col h-full opacity-0">
+    <div id="app-view" class="flex-1 flex flex-col h-full opacity-0 transition-opacity duration-1000">
         
         <!-- Top Navigation / Header -->
         <header class="h-16 bg-black flex items-center justify-between px-6 z-10 sticky top-0">
@@ -650,12 +650,14 @@
             }, 3000);
         }
 
+        // Tampilkan modal/menutup modal biasa
         function showModal(id) {
             const modal = document.getElementById(id);
             modal.classList.remove('hidden');
             modal.classList.add('flex', 'modal-enter');
         }
 
+        // Menutup modal biasa
         function closeModal(id) {
             const modal = document.getElementById(id);
             modal.classList.add('hidden');
@@ -689,23 +691,40 @@
             }, 1000);
         }
 
-        // --- Easter Egg Logic (Diperbarui) ---
+        // --- Logika Urutkan Lagu (Lagu di bawah) ---
+        function sortSongs() {
+            const bottomTitles = ["Bintang 5", "Sency", "Berubah", "Tabola Bale"];
+            songs.sort((a, b) => {
+                const aTitle = a.title.toLowerCase();
+                const bTitle = b.title.toLowerCase();
+                
+                const aIsBottom = bottomTitles.some(t => aTitle.includes(t.toLowerCase()));
+                const bIsBottom = bottomTitles.some(t => bTitle.includes(t.toLowerCase()));
+                
+                if (aIsBottom && !bIsBottom) return 1;  // Dorong A ke bawah
+                if (!aIsBottom && bIsBottom) return -1; // Jaga B tetap di bawah
+                return 0; // Pertahankan urutan orisinal Supabase
+            });
+        }
+
+        // --- Easter Egg 404 Click Logic ---
         let errorClickCount = 0;
         document.getElementById('error-title').addEventListener('click', () => {
             errorClickCount++;
-            if (errorClickCount >= 5) { // Diubah dari 3 ke 5 kali klik
+            if (errorClickCount >= 5) {
                 const fake404 = document.getElementById('fake-404');
                 fake404.classList.add('fade-out-exit');
-                
-                // Tambahkan animasi masuk yang indah ke app-view
+
+                // Tampilkan aplikasi utama secara langsung
                 const appView = document.getElementById('app-view');
-                appView.classList.add('animate-app-entrance');
+                appView.classList.remove('opacity-0');
+                appView.classList.add('opacity-100', 'animate-app-entrance');
                 
                 setTimeout(() => {
                     fake404.classList.add('hidden');
                 }, 800);
 
-                // Panggil iklan 3 detik setelah halaman web aslinya terbuka
+                // Panggil iklan sponsor setelah 3 detik masuk (tanpa delay blocker)
                 setTimeout(() => {
                     showAdWithDelay();
                 }, 3000);
@@ -721,6 +740,7 @@
                         songs = sData.map(s => ({
                             id: s.id, title: s.title, artist: s.artist, coverUrl: s.cover_url, audioUrl: s.audio_url, lyrics: s.lyrics
                         }));
+                        sortSongs(); // Urutkan lagu agar daftar tertentu paling bawah
                     }
                 } catch (err) {
                     console.error(err);
@@ -792,8 +812,6 @@
             const activeTab = document.querySelector('.content-tab:not(.hidden)').id.replace('tab-', '');
             switchTab(activeTab);
             updateLikeIcon();
-            
-            // (Iklan sudah dihapus dari sini)
         });
 
         function logout() {
@@ -1440,102 +1458,6 @@
             }
         }
 
-        // --- Toggle URL/File Inputs Admin ---
-        document.querySelectorAll('input[name="cover_type"]').forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                if (e.target.value === 'url') {
-                    document.getElementById('add-cover-url').classList.remove('hidden');
-                    document.getElementById('add-cover-file').classList.add('hidden');
-                } else {
-                    document.getElementById('add-cover-url').classList.add('hidden');
-                    document.getElementById('add-cover-file').classList.remove('hidden');
-                }
-            });
-        });
-
-        document.querySelectorAll('input[name="audio_type"]').forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                if (e.target.value === 'url') {
-                    document.getElementById('add-audio-url').classList.remove('hidden');
-                    document.getElementById('add-audio-file').classList.add('hidden');
-                } else {
-                    document.getElementById('add-audio-url').classList.add('hidden');
-                    document.getElementById('add-audio-file').classList.remove('hidden');
-                }
-            });
-        });
-
-        // --- Admin: Add Song ke Supabase ---
-        document.getElementById('add-song-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            if (!supabaseClient) return showMessage("Supabase belum dikonfigurasi.", "error");
-
-            const submitBtn = e.target.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerText;
-            submitBtn.innerText = "Mengunggah...";
-            submitBtn.disabled = true;
-            
-            try {
-                const title = document.getElementById('add-title').value.trim();
-                const artist = document.getElementById('add-artist').value.trim();
-                const lyrics = document.getElementById('add-lyrics').value.trim();
-
-                const coverType = document.querySelector('input[name="cover_type"]:checked').value;
-                const audioType = document.querySelector('input[name="audio_type"]:checked').value;
-
-                let coverUrl = '', audioUrl = '';
-
-                if (coverType === 'url') {
-                    coverUrl = document.getElementById('add-cover-url').value.trim();
-                } else {
-                    const file = document.getElementById('add-cover-file').files[0];
-                    if (file) {
-                        const path = `covers/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '')}`;
-                        const { error } = await supabaseClient.storage.from('media').upload(path, file);
-                        if(error) throw error;
-                        coverUrl = supabaseClient.storage.from('media').getPublicUrl(path).data.publicUrl;
-                    }
-                }
-
-                if (audioType === 'url') {
-                    audioUrl = document.getElementById('add-audio-url').value.trim();
-                } else {
-                    const file = document.getElementById('add-audio-file').files[0];
-                    if (file) {
-                        const path = `audio/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '')}`;
-                        const { error } = await supabaseClient.storage.from('media').upload(path, file);
-                        if(error) throw error;
-                        audioUrl = supabaseClient.storage.from('media').getPublicUrl(path).data.publicUrl;
-                    }
-                }
-
-                if (!title || !artist || !coverUrl || !audioUrl) {
-                    showMessage('Semua kolom utama harus diisi (URL atau File)', 'error');
-                    return;
-                }
-
-                const newSongData = { id: Date.now().toString(), title, artist, cover_url: coverUrl, audio_url: audioUrl, lyrics };
-
-                const { error: dbError } = await supabaseClient.from('songs').insert([newSongData]);
-                if(dbError) throw dbError;
-
-                songs.unshift({ id: newSongData.id, title, artist, coverUrl, audioUrl, lyrics });
-                
-                showMessage(`Berhasil menambahkan: ${title}`);
-                document.getElementById('add-song-form').reset();
-                renderAdminLibrary(); // Memperbarui tabel setelah menambah lagu
-                switchTab('admin-manage'); // Arahkan kembali ke tab Kelola Lagu
-
-            } catch (error) {
-                console.error("Error saving song:", error);
-                showMessage('Kesalahan: ' + error.message, 'error');
-            } finally {
-                submitBtn.innerText = originalText;
-                submitBtn.disabled = false;
-            }
-        });
-
         // --- Like (Love) Logic ke Supabase ---
         async function toggleLikeCard(songId) {
             if (!currentUser) return showModal('login-modal'); // Harus login
@@ -1672,7 +1594,6 @@
             else playPauseIcon.className = "ph-fill ph-play text-xl sm:text-xl ml-1";
         }
 
-        // Volume default 15%
         function nextSong() {
             if (songs.length === 0) return;
             let nextIndex = currentSongIndex + 1;
