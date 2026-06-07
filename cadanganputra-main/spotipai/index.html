@@ -155,7 +155,7 @@
                     <p class="text-lg font-black text-white tracking-wide">pufutara</p>
                 </div>
                 <button id="close-ad-btn" onclick="closeModal('ad-modal')" class="px-6 py-3 bg-[#333] text-gray-500 font-bold rounded-full transition-colors cursor-not-allowed w-full text-xs uppercase tracking-widest" disabled>
-                    Tutup (4)
+                    Tutup (3)
                 </button>
             </div>
         </div>
@@ -606,7 +606,7 @@
             closeBtn.disabled = true;
             closeBtn.className = "px-6 py-3 bg-[#333] text-gray-500 font-bold rounded-full transition-colors cursor-not-allowed w-full text-xs uppercase tracking-widest";
             
-            let timeLeft = 4;
+            let timeLeft = 3;
             closeBtn.innerText = `Tutup (${timeLeft})`;
             
             const timer = setInterval(() => {
@@ -1031,7 +1031,14 @@
                     </td>
                     <td class="px-6 py-4 truncate max-w-[120px]">${song.artist}</td>
                     <td class="px-6 py-4 text-right">
-                        <button onclick="event.stopPropagation(); playSong(${i})" class="text-spotify-green hover:text-white mr-3"><i class="ph-fill ph-play-circle text-2xl"></i></button>
+                        <div class="flex items-center justify-end gap-3">
+                            <button onclick="event.stopPropagation(); playSong(${i})" class="text-spotify-green hover:scale-110 transition-transform flex items-center justify-center" title="Putar">
+                                <i class="ph-fill ph-play-circle text-3xl"></i>
+                            </button>
+                            <button onclick="event.stopPropagation(); attemptDownload('${song.audioUrl}', '${song.title.replace(/'/g, "\\'")}')" class="text-blue-400 hover:text-white transition-all p-2 bg-blue-500/20 hover:bg-blue-500/40 rounded-full w-10 h-10 flex items-center justify-center" title="Download Audio">
+                                <i class="ph-bold ph-download-simple text-xl"></i>
+                            </button>
+                        </div>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -1132,6 +1139,16 @@
                 songToDelete = null;
             }
         });
+
+        // Cek login admin sebelum download dari halaman publik (Perpustakaan)
+        function attemptDownload(url, filename) {
+            if (currentUser && currentUser.role === 'admin') {
+                downloadSong(url, filename);
+            } else {
+                showMessage("Login sebagai Admin Pufu untuk mengunduh lagu.", "error");
+                showModal('login-modal');
+            }
+        }
 
         async function downloadSong(url, filename) {
             try {
