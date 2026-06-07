@@ -142,6 +142,25 @@
         </div>
     </div>
 
+    <!-- 6. Ad Modal (Credit) -->
+    <div id="ad-modal" class="fixed inset-0 bg-black/80 z-[70] hidden flex-col items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-[#242424] rounded-xl shadow-2xl w-full max-w-[280px] overflow-hidden border border-[#333]">
+            <div class="bg-gradient-to-b from-[#1ed760] to-[#242424] p-5 pb-2 flex justify-center">
+                <i class="ph-fill ph-spotify-logo text-6xl text-white drop-shadow-md"></i>
+            </div>
+            <div class="p-6 pt-2 text-center">
+                <h2 class="text-xl font-black text-white tracking-tight mb-4">spotipaiKW</h2>
+                <div class="bg-black/40 py-3 px-4 rounded-lg inline-block mb-6 border border-gray-800 shadow-inner w-full">
+                    <p class="text-xs font-medium text-gray-400 mb-1 uppercase tracking-widest">Credit By</p>
+                    <p class="text-lg font-black text-white tracking-wide">pufutara</p>
+                </div>
+                <button id="close-ad-btn" onclick="closeModal('ad-modal')" class="px-6 py-3 bg-[#333] text-gray-500 font-bold rounded-full transition-colors cursor-not-allowed w-full text-xs uppercase tracking-widest" disabled>
+                    Tutup (4)
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- MAIN APP VIEW -->
     <div id="app-view" class="flex-1 flex flex-col h-full transition-opacity duration-500">
         
@@ -577,6 +596,31 @@
             if (id === 'create-playlist-modal') document.getElementById('playlist-name-input').value = '';
         }
 
+        // --- Fitur Iklan (Credit) ---
+        function showAdWithDelay() {
+            showModal('ad-modal');
+            const closeBtn = document.getElementById('close-ad-btn');
+            
+            // Set state awal tombol mati
+            closeBtn.disabled = true;
+            closeBtn.className = "px-6 py-3 bg-[#333] text-gray-500 font-bold rounded-full transition-colors cursor-not-allowed w-full text-xs uppercase tracking-widest";
+            
+            let timeLeft = 4;
+            closeBtn.innerText = `Tutup (${timeLeft})`;
+            
+            const timer = setInterval(() => {
+                timeLeft--;
+                if (timeLeft > 0) {
+                    closeBtn.innerText = `Tutup (${timeLeft})`;
+                } else {
+                    clearInterval(timer);
+                    closeBtn.innerText = 'Tutup Iklan';
+                    closeBtn.disabled = false;
+                    closeBtn.className = "px-6 py-3 bg-white hover:scale-105 text-black font-bold rounded-full transition-transform active:scale-95 w-full text-xs uppercase tracking-widest shadow-lg";
+                }
+            }, 1000);
+        }
+
         // --- Initialization ---
         async function loadPublicData() {
             if (supabaseClient) {
@@ -605,6 +649,11 @@
             // Render custom playlist di tab koleksi dan sidebar
             renderCustomPlaylists();
             renderSidebarPlaylists();
+
+            // Panggil iklan 3 detik setelah halaman web pertama kali dimuat (awal masuk)
+            setTimeout(() => {
+                showAdWithDelay();
+            }, 3000);
         };
 
         // --- Authentication ---
@@ -657,6 +706,8 @@
             const activeTab = document.querySelector('.content-tab:not(.hidden)').id.replace('tab-', '');
             switchTab(activeTab);
             updateLikeIcon();
+            
+            // (Iklan sudah dihapus dari sini)
         });
 
         function logout() {
