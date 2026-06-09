@@ -10,21 +10,21 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #121212; }
-        ::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #666; }
+        ::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #888; }
         
         /* Range slider styling */
         input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
         input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none; height: 10px; width: 10px; border-radius: 50%;
-            background: #1DB954; cursor: pointer; margin-top: -3px;
+            -webkit-appearance: none; height: 12px; width: 12px; border-radius: 50%;
+            background: #1DB954; cursor: pointer; margin-top: -4px;
             box-shadow: 0 0 2px rgba(0,0,0,0.5); display: none;
         }
         .group:hover input[type=range]::-webkit-slider-thumb { display: block; }
         input[type=range]::-webkit-slider-runnable-track {
-            width: 100%; height: 3px; cursor: pointer; background: #535353; border-radius: 2px;
+            width: 100%; height: 4px; cursor: pointer; background: #535353; border-radius: 2px;
         }
         input[type=range]:focus { outline: none; }
         
@@ -32,7 +32,7 @@
             background-color: #000000; color: #FFFFFF;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             overflow: hidden;
-            font-size: 0.9rem; /* Skala dikurangi 10% */
+            font-size: 1rem; /* Skala dikembalikan ke ukuran normal (100%) */
         }
         
         .bg-spotify-base { background-color: #121212; }
@@ -215,11 +215,30 @@
         </div>
     </div>
 
+    <!-- 6. Ad Modal (Credit) -->
+    <div id="ad-modal" class="fixed inset-0 bg-black/80 z-[70] hidden flex-col items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-[#242424] rounded-xl shadow-2xl w-full max-w-[280px] overflow-hidden border border-[#333]">
+            <div class="bg-gradient-to-b from-[#1ed760] to-[#242424] p-5 pb-2 flex justify-center">
+                <i class="ph-fill ph-spotify-logo text-6xl text-white drop-shadow-md"></i>
+            </div>
+            <div class="p-6 pt-2 text-center">
+                <h2 class="text-xl font-black text-white tracking-tight mb-4">spotipaiKW</h2>
+                <div class="bg-black/40 py-3 px-4 rounded-lg inline-block mb-6 border border-gray-800 shadow-inner w-full">
+                    <p class="text-xs font-medium text-gray-400 mb-1 uppercase tracking-widest">Credit By</p>
+                    <p class="text-lg font-black text-white tracking-wide">pufutara</p>
+                </div>
+                <button id="close-ad-btn" onclick="closeModal('ad-modal')" class="px-6 py-3 bg-[#333] text-gray-500 font-bold rounded-full transition-colors cursor-not-allowed w-full text-xs uppercase tracking-widest" disabled>
+                    Tutup (5)
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- MAIN APP VIEW -->
     <div id="app-view" class="flex-1 flex flex-col h-full opacity-0">
         
-        <!-- Top Navigation / Header (Diperkecil tinggi dari h-16 ke h-14) -->
-        <header class="h-14 bg-black flex items-center justify-between px-6 z-10 sticky top-0">
+        <!-- Top Navigation / Header (Dikembalikan ke tinggi normal h-16) -->
+        <header class="h-16 bg-black flex items-center justify-between px-6 z-10 sticky top-0">
             <div class="flex items-center gap-4">
                 <div class="flex items-center gap-2 lg:hidden">
                     <i class="ph-fill ph-spotify-logo text-3xl text-spotify-green"></i>
@@ -229,11 +248,11 @@
             <div class="flex items-center gap-3">
                 <!-- Logged Out View -->
                 <div id="auth-login-btn">
-                    <button onclick="showModal('login-modal')" class="bg-white text-black font-bold px-6 py-1.5 rounded-full hover:scale-105 transition-transform text-xs">Masuk</button>
+                    <button onclick="showModal('login-modal')" class="bg-white text-black font-bold px-6 py-2 rounded-full hover:scale-105 transition-transform text-sm">Masuk</button>
                 </div>
                 <!-- Logged In View -->
                 <div id="auth-user-info" class="hidden items-center gap-3">
-                    <span id="user-greeting" class="text-xs font-medium text-gray-300 hidden sm:block">Halo, Pengguna</span>
+                    <span id="user-greeting" class="text-sm font-medium text-gray-300 hidden sm:block">Halo, Pengguna</span>
                     <div class="h-8 w-8 rounded-full bg-gray-800 flex items-center justify-center border border-gray-700 cursor-pointer hover:scale-105 transition-transform" onclick="logout()" title="Keluar">
                         <i class="ph ph-sign-out text-gray-400 hover:text-white"></i>
                     </div>
@@ -280,10 +299,10 @@
                     <!-- Custom playlists disisipkan di sini -->
                 </div>
 
-                <!-- Admin Menu (Hidden by default) -->
+                <!-- Admin Menu -->
                 <div id="admin-menu" class="p-6 hidden">
                     <hr class="border-gray-800 mb-4">
-                    <p class="text-[10px] text-gray-500 font-bold mb-3 uppercase tracking-wider">Menu Admin</p>
+                    <p class="text-xs text-gray-500 font-bold mb-3 uppercase tracking-wider">Menu Admin</p>
                     <a href="#" onclick="switchTab('admin-manage')" class="nav-item flex items-center gap-4 text-spotify-green hover:text-green-400 transition-colors mb-4" data-tab="admin-manage">
                         <i class="ph-fill ph-folder-open text-2xl"></i>
                         <span class="font-bold text-sm">Kelola Data Lagu</span>
@@ -387,12 +406,12 @@
 
                 </div>
 
-                <!-- Lyrics Tab (Karaoke Rapi di Tengah-Tengah Vertikal & Horizontal) -->
+                <!-- Lyrics Tab (Karaoke Rapi di Tengah-Tengah Vertikal & Horizontal, Tanpa Padding Menggantung) -->
                 <div id="tab-lyrics" class="p-6 pb-24 content-tab hidden flex-col items-center justify-center text-center min-h-full bg-gradient-to-b from-[#2a2a2a]/40 to-transparent overflow-y-auto">
-                    <div class="my-auto py-12 flex flex-col items-center justify-center w-full">
+                    <div class="my-auto py-12 flex flex-col items-center justify-center w-full max-w-2xl">
                         <h2 id="lyrics-title" class="text-3xl font-bold mb-2 text-center text-white">Pilih lagu untuk melihat lirik</h2>
                         <p id="lyrics-artist" class="text-sm text-gray-400 mb-8 font-medium text-center">-</p>
-                        <div id="lyrics-content" class="text-xl md:text-3xl font-bold leading-relaxed max-w-3xl text-white whitespace-pre-wrap transition-all duration-500 text-center flex flex-col items-center justify-center w-full">
+                        <div id="lyrics-content" class="w-full flex flex-col gap-4 text-center items-center justify-center text-xl md:text-3xl font-bold leading-relaxed text-white whitespace-pre-wrap transition-all duration-500">
                             Belum ada lagu yang diputar.
                         </div>
                     </div>
@@ -484,73 +503,73 @@
             </main>
         </div>
 
-        <!-- Player Bottom Bar (Diperkecil tinggi dari h-20 sm:h-24 menjadi h-16 sm:h-20) -->
-        <div class="h-16 sm:h-20 bg-[#181818] border-t border-gray-800 flex items-center justify-between px-2 sm:px-6 z-30 w-full flex-shrink-0 text-xs sm:text-sm">
+        <!-- Player Bottom Bar (Tinggi dikembalikan ke h-20 sm:h-24) -->
+        <div class="h-20 sm:h-24 bg-[#181818] border-t border-gray-800 flex items-center justify-between px-2 sm:px-6 z-30 w-full flex-shrink-0 text-xs sm:text-sm">
             
             <!-- Now Playing Info -->
             <div class="flex items-center w-1/3 min-w-[120px]">
-                <img id="player-cover" src="https://images.unsplash.com/photo-1614613535308-eb51bd3d2c17?w=150&q=80" alt="Cover" class="h-10 w-10 sm:h-12 sm:w-12 rounded object-cover shadow-lg hidden sm:block">
-                <div class="ml-0 sm:ml-3 overflow-hidden">
+                <img id="player-cover" src="https://images.unsplash.com/photo-1614613535308-eb51bd3d2c17?w=150&q=80" alt="Cover" class="h-12 w-12 sm:h-14 sm:w-14 rounded object-cover shadow-lg hidden sm:block">
+                <div class="ml-0 sm:ml-4 overflow-hidden">
                     <div id="player-title" class="text-xs sm:text-sm font-semibold text-white truncate cursor-pointer hover:underline">Belum ada lagu</div>
                     <div id="player-artist" class="text-[10px] sm:text-xs text-gray-400 truncate cursor-pointer hover:underline">Pilih lagu untuk memutar</div>
                 </div>
-                <button id="btn-like" onclick="toggleLike()" class="ml-3 text-gray-400 hover:text-white hidden md:block transition-colors">
-                    <i id="icon-like" class="ph ph-heart text-lg"></i>
+                <button id="btn-like" onclick="toggleLike()" class="ml-4 text-gray-400 hover:text-white hidden md:block transition-colors">
+                    <i id="icon-like" class="ph ph-heart text-xl"></i>
                 </button>
             </div>
 
             <!-- Player Controls -->
             <div class="flex flex-col items-center w-1/3 max-w-[722px]">
-                <div class="flex items-center gap-3 sm:gap-5">
+                <div class="flex items-center gap-4 sm:gap-6">
                     <button class="text-gray-400 hover:text-white hidden sm:block">
-                        <i class="ph ph-shuffle text-lg"></i>
+                        <i class="ph ph-shuffle text-xl"></i>
                     </button>
                     <button onclick="prevSong()" class="text-gray-400 hover:text-white transition-colors">
-                        <i class="ph-fill ph-skip-back text-xl sm:text-2xl"></i>
+                        <i class="ph-fill ph-skip-back text-2xl sm:text-3xl"></i>
                     </button>
-                    <button onclick="togglePlay()" class="bg-white text-black rounded-full h-7 w-7 sm:h-8 sm:w-8 flex items-center justify-center hover:scale-105 transition-transform">
-                        <i id="play-pause-icon" class="ph-fill ph-play text-sm ml-0.5"></i>
+                    <button onclick="togglePlay()" class="bg-white text-black rounded-full h-8 w-8 sm:h-10 sm:w-10 flex items-center justify-center hover:scale-105 transition-transform">
+                        <i id="play-pause-icon" class="ph-fill ph-play text-xl sm:text-xl"></i>
                     </button>
                     <button onclick="nextSong()" class="text-gray-400 hover:text-white transition-colors">
-                        <i class="ph-fill ph-skip-forward text-xl sm:text-2xl"></i>
+                        <i class="ph-fill ph-skip-forward text-2xl sm:text-3xl"></i>
                     </button>
                     <button onclick="toggleRepeat()" class="text-gray-400 hover:text-white hidden sm:block transition-colors" title="Replay">
-                        <i id="repeat-icon" class="ph ph-repeat text-lg"></i>
+                        <i id="repeat-icon" class="ph ph-repeat text-xl"></i>
                     </button>
                 </div>
                 
                 <!-- Progress Bar -->
-                <div class="w-full flex items-center gap-2 mt-1 group">
-                    <span id="time-current" class="text-[10px] text-gray-400 min-w-[30px] text-right">0:00</span>
+                <div class="w-full flex items-center gap-2 mt-1 sm:mt-2 group">
+                    <span id="time-current" class="text-xs text-gray-400 min-w-[35px] text-right">0:00</span>
                     <div class="flex-1 relative flex items-center">
                         <input type="range" id="progress-bar" min="0" max="100" value="0" class="w-full z-10" onchange="seekAudio(this.value)" oninput="updateProgressBarColor(this)">
-                        <div id="progress-fill" class="absolute h-0.5 bg-white rounded-l-full pointer-events-none group-hover:bg-spotify-green" style="width: 0%;"></div>
+                        <div id="progress-fill" class="absolute h-1 bg-white rounded-l-full pointer-events-none group-hover:bg-spotify-green" style="width: 0%;"></div>
                     </div>
-                    <span id="time-total" class="text-[10px] text-gray-400 min-w-[30px]">0:00</span>
+                    <span id="time-total" class="text-xs text-gray-400 min-w-[35px]">0:00</span>
                 </div>
             </div>
 
             <!-- Volume Controls -->
             <div class="flex items-center justify-end w-1/3 min-w-[120px] gap-2 hidden md:flex group">
                 <button onclick="switchTab('lyrics')" class="text-gray-400 hover:text-white transition-colors" title="Lihat Lirik">
-                    <i class="ph ph-microphone-stage text-base"></i>
+                    <i class="ph ph-microphone-stage text-lg"></i>
                 </button>
                 <button class="text-gray-400 hover:text-white">
-                    <i class="ph ph-queue text-base"></i>
+                    <i class="ph ph-queue text-lg"></i>
                 </button>
                 <button class="text-gray-400 hover:text-white">
-                    <i class="ph ph-speaker-high text-lg"></i>
+                    <i class="ph ph-speaker-high text-xl"></i>
                 </button>
-                <div class="w-20 relative flex items-center">
+                <div class="w-24 relative flex items-center">
                     <input type="range" id="volume-bar" min="0" max="1" step="0.01" value="0.15" class="w-full z-10" oninput="changeVolume(this.value); updateVolumeBarColor(this)">
-                     <div id="volume-fill" class="absolute h-0.5 bg-white rounded-l-full pointer-events-none group-hover:bg-spotify-green" style="width: 15%;"></div>
+                     <div id="volume-fill" class="absolute h-1 bg-white rounded-l-full pointer-events-none group-hover:bg-spotify-green" style="width: 15%;"></div>
                 </div>
             </div>
             
             <!-- Mobile compact controls -->
             <div class="flex items-center justify-end w-1/4 md:hidden">
                  <button class="text-gray-400 hover:text-white">
-                    <i class="ph ph-devices text-lg"></i>
+                    <i class="ph ph-devices text-xl"></i>
                 </button>
             </div>
         </div>
@@ -558,23 +577,23 @@
         <!-- Mobile Navigation Bottom Bar -->
         <nav class="lg:hidden bg-black border-t border-gray-800 flex justify-around p-2 z-40 w-full flex-shrink-0 text-xs" style="padding-bottom: env(safe-area-inset-bottom);">
             <a href="#" onclick="switchTab('home')" class="flex flex-col items-center text-gray-400 hover:text-white nav-item" data-tab="home">
-                <i class="ph-fill ph-house text-xl"></i>
+                <i class="ph-fill ph-house text-2xl"></i>
                 <span class="text-[10px] mt-1">Beranda</span>
             </a>
             <a href="#" onclick="switchTab('search')" class="flex flex-col items-center text-gray-400 hover:text-white nav-item" data-tab="search">
-                <i class="ph ph-magnifying-glass text-xl"></i>
+                <i class="ph ph-magnifying-glass text-2xl"></i>
                 <span class="text-[10px] mt-1">Cari</span>
             </a>
             <a href="#" onclick="switchTab('library')" class="flex flex-col items-center text-gray-400 hover:text-white nav-item" data-tab="library">
-                <i class="ph ph-books text-xl"></i>
+                <i class="ph ph-books text-2xl"></i>
                 <span class="text-[10px] mt-1">Perpus</span>
             </a>
             <a href="#" onclick="switchTab('collection')" class="flex flex-col items-center text-gray-400 hover:text-white nav-item" data-tab="collection">
-                <i class="ph ph-playlist text-xl"></i>
+                <i class="ph ph-playlist text-2xl"></i>
                 <span class="text-[10px] mt-1">Koleksi</span>
             </a>
             <a href="#" id="mobile-admin-btn" onclick="switchTab('admin-manage')" class="hidden flex-col items-center text-spotify-green nav-item" data-tab="admin-manage">
-                <i class="ph-fill ph-shield-check text-xl"></i>
+                <i class="ph-fill ph-shield-check text-2xl"></i>
                 <span class="text-[10px] mt-1">Admin</span>
             </a>
         </nav>
@@ -734,7 +753,7 @@
             }
         });
 
-        // --- File .lrc Uploader Handler ---
+        // --- File .lrc/srt Uploader Handler ---
         function handleLrcUpload(input, textareaId) {
             const file = input.files[0];
             if (!file) return;
@@ -808,6 +827,31 @@
             result.sort((a, b) => a.time - b.time);
             return result;
         }
+
+        // --- Toggle URL/File Inputs Admin (BUGFIX: Ditambahkan Kembali) ---
+        document.querySelectorAll('input[name="cover_type"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                if (e.target.value === 'url') {
+                    document.getElementById('add-cover-url').classList.remove('hidden');
+                    document.getElementById('add-cover-file').classList.add('hidden');
+                } else {
+                    document.getElementById('add-cover-url').classList.add('hidden');
+                    document.getElementById('add-cover-file').classList.remove('hidden');
+                }
+            });
+        });
+
+        document.querySelectorAll('input[name="audio_type"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                if (e.target.value === 'url') {
+                    document.getElementById('add-audio-url').classList.remove('hidden');
+                    document.getElementById('add-audio-file').classList.add('hidden');
+                } else {
+                    document.getElementById('add-audio-url').classList.add('hidden');
+                    document.getElementById('add-audio-file').classList.remove('hidden');
+                }
+            });
+        });
 
         // --- Initialization ---
         async function loadPublicData() {
@@ -1581,7 +1625,7 @@
 
                 if (parsedLyrics && parsedLyrics.length > 0) {
                     currentSyncedLyrics = parsedLyrics;
-                    // Kelas pembantu flex dan perata tengahan penuh
+                    // Mengembalikan Flexbox agar lirik selalu di tengah layar
                     lyricsContent.className = "w-full max-w-2xl flex flex-col gap-4 text-center items-center justify-center py-6"; 
                     
                     currentSyncedLyrics.forEach((line, i) => {
@@ -1607,6 +1651,12 @@
         }
 
         // --- Audio Player Logic ---
+        // Skala diperkecil agar pas dengan visual bar pemutar
+        function updatePlayIcon() {
+            if (isPlaying) playPauseIcon.className = "ph-fill ph-pause text-xl";
+            else playPauseIcon.className = "ph-fill ph-play text-xl ml-0.5";
+        }
+
         function formatTime(seconds) {
             if (isNaN(seconds)) return "0:00";
             const min = Math.floor(seconds / 60);
@@ -1657,12 +1707,6 @@
                 icon.classList.add('text-gray-400');
                 icon.classList.remove('text-spotify-green');
             }
-        }
-
-        // Skala diperkecil agar pas dengan visual bar pemutar
-        function updatePlayIcon() {
-            if (isPlaying) playPauseIcon.className = "ph-fill ph-pause text-xl";
-            else playPauseIcon.className = "ph-fill ph-play text-xl ml-0.5";
         }
 
         function nextSong() {
