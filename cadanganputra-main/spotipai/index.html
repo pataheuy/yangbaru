@@ -406,12 +406,12 @@
                 <!-- Home Tab (Telah Diperbarui dengan Trending Songs & Artis) -->
                 <div id="tab-home" class="p-6 pb-24 content-tab">
                     
-                    <h2 class="text-2xl font-bold mb-4 text-white">Lagu Paling Banyak Diputar</h2>
+                    <h2 id="home-trending-heading" class="text-2xl font-bold mb-4 text-white">Lagu Paling Banyak Diputar</h2>
                     <div id="trending-songs-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6 mb-8">
                         <!-- Top Songs injected here -->
                     </div>
 
-                    <h2 class="text-2xl font-bold mb-4 text-white">Artis Populer</h2>
+                    <h2 id="home-artists-heading" class="text-2xl font-bold mb-4 text-white">Artis Populer</h2>
                     <div id="trending-artists-grid" class="flex gap-6 overflow-x-auto pb-6 mb-4 hide-scrollbar px-2">
                         <!-- Top Artists injected here -->
                     </div>
@@ -997,28 +997,35 @@
             // Tampilkan/sembunyikan tombol X
             if (clearBtn) clearBtn.classList.toggle('hidden', !val.trim());
 
-            // Sembunyikan/tampilkan section trending & artis
-            const trendingH2 = document.querySelector('#tab-home h2:first-of-type');
-            const trendingGrid = document.getElementById('trending-songs-grid');
-            const artistH2 = document.querySelector('#tab-home h2:nth-of-type(2)');
-            const artistWrapper = document.getElementById('trending-artists-grid');
-            const hrEl = document.querySelector('#tab-home > hr');
+            // Elemen yang disembunyikan saat ada query
+            const hideOnSearch = [
+                document.getElementById('home-trending-heading'),
+                document.getElementById('trending-songs-grid'),
+                document.getElementById('home-artists-heading'),
+                document.getElementById('trending-artists-grid'),
+                document.querySelector('#tab-home > hr'),
+            ];
 
             const hasQuery = val.trim().length > 0;
-            [trendingH2, trendingGrid, artistH2, hrEl].forEach(el => { if (el) el.style.display = hasQuery ? 'none' : ''; });
-            if (artistWrapper) artistWrapper.parentElement.style.display = hasQuery ? 'none' : '';
+            hideOnSearch.forEach(el => { if (el) el.style.display = hasQuery ? 'none' : ''; });
 
             if (!hasQuery) {
                 if (heading) heading.textContent = 'Semua Lagu';
                 renderHome();
                 return;
             }
+
+            const q = val.toLowerCase();
             const filtered = songs.filter(s =>
-                s.title.toLowerCase().includes(val.toLowerCase()) ||
-                s.artist.toLowerCase().includes(val.toLowerCase())
+                s.title.toLowerCase().includes(q) ||
+                s.artist.toLowerCase().includes(q)
             );
+
             if (heading) heading.textContent = `Hasil: "${val}" (${filtered.length} lagu)`;
-            if (grid) renderSongs(filtered, grid, 'all');
+            if (grid) {
+                grid.className = 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6';
+                renderSongs(filtered, grid, 'all');
+            }
         }
 
         function clearHeaderSearch() {
