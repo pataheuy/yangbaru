@@ -102,17 +102,47 @@
 </head>
 <body class="h-screen w-screen flex flex-col selection:bg-green-500 selection:text-white">
 
-    <!-- Fake 404 Screen (Easter Egg) - Desain Hitam & Sangat Meyakinkan -->
-    <div id="fake-404" class="fixed inset-0 bg-black z-[100] flex flex-col items-center justify-center p-6 text-gray-300 transition-all duration-700 select-none" style="font-family: 'Courier New', Courier, monospace;">
-        <div class="w-full max-w-lg text-left bg-[#121212] p-8 rounded-lg border border-gray-800 shadow-2xl">
-            <h1 id="error-title" class="text-4xl font-bold mb-4 cursor-default text-white">404 Page Not Found</h1>
-            <p class="text-sm text-gray-400 mb-6">The page your looking for may have been moved, deleted or possibly never existed. Additionally, a 404 Not Found error was encountered while trying to use an ErrorDocument to handle the request.</p>
-            <div class="border-t border-gray-800 pt-4 space-y-2 text-xs text-gray-500">
+    <!-- Fake 404 Screen (Easter Egg) - Tampilan Browser Bawaan Polos -->
+    <div id="fake-404" class="fixed inset-0 z-[100] transition-all duration-700" style="background:#fff; color:#000; font-family: Times New Roman, Times, serif; font-size: 16px; cursor: text; user-select: text; overflow-y: auto;">
+        <div style="display:flex; align-items:center; justify-content:center; min-height:100vh; padding: 40px 20px;">
+        <div style="width:100%; max-width:640px; text-align:left;">
+            <h1 id="error-title" style="font-family:Times New Roman,Times,serif; font-size:1.8rem; font-weight:bold; cursor:text; margin-bottom:1rem; user-select:text;">404 Page Not Found</h1>
+
+            <p style="font-family:Times New Roman,Times,serif; font-size:0.9rem; color:#000; margin-bottom:1.2rem; line-height:1.6; user-select:text;">
+                The page your looking for may have been moved, deleted or possibly never existed. Additionally, a 404 Not Found error was encountered while trying to use an ErrorDocument to handle the request.
+            </p>
+
+            <hr style="border:none; border-top:1px solid #ccc; margin: 1rem 0;">
+
+            <p style="font-family:Times New Roman,Times,serif; font-size:0.85rem; color:#333; line-height:1.8; user-select:text;">
+                <strong>Additionally, a 404 Not Found error was encountered while trying to use an ErrorDocument to handle the request.</strong>
+            </p>
+
+            <hr style="border:none; border-top:1px solid #ccc; margin: 1rem 0;">
+
+            <div style="font-family:Times New Roman,Times,serif; font-size:0.82rem; color:#444; line-height:2.2; user-select:text;">
                 <p><strong>Server:</strong> nginx/1.18.0 (Ubuntu)</p>
-                <p><strong>Connection:</strong> Closed dynamically</p>
-                <p id="error-status"><strong>Status:</strong> Resolving server response...</p>
+                <p><strong>Date:</strong> <span id="error-date"></span></p>
+                <p><strong>Content-Type:</strong> text/html; charset=iso-8859-1</p>
+                <p><strong>Connection:</strong> close</p>
+                <p><strong>Vary:</strong> Accept-Encoding</p>
             </div>
+
+            <hr style="border:none; border-top:1px solid #ccc; margin: 1rem 0;">
+
+            <p id="error-status" style="font-family:Times New Roman,Times,serif; font-size:0.82rem; color:#666; user-select:text;">
+                Status: Failed to resolve server response
+            </p>
         </div>
+        </div>
+
+        <script>
+            (function() {
+                const d = new Date();
+                const el = document.getElementById('error-date');
+                if (el) el.textContent = d.toUTCString();
+            })();
+        </script>
     </div>
 
     <!-- Toast Notification Container -->
@@ -218,7 +248,13 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-300 mb-1">Nama Penyanyi / Band</label>
-                    <input type="text" id="edit-artist" class="w-full bg-black border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-spotify-green transition-colors text-sm" required>
+                    <div id="edit-artist-tags-container" class="flex flex-wrap gap-2 mb-2 min-h-[20px]"></div>
+                    <div class="flex gap-2">
+                        <input type="text" id="edit-artist-input" list="artist-suggestions" class="flex-1 bg-black border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-spotify-green transition-colors text-sm" placeholder="Ketik penyanyi lalu tekan Enter atau +" autocomplete="off">
+                        <button type="button" onclick="addEditArtistTag()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded font-bold text-sm transition-colors">+</button>
+                    </div>
+                    <input type="hidden" id="edit-artist" required>
+                    <p class="text-xs text-gray-500 mt-1">Tekan Enter atau + untuk tambah. Bisa lebih dari satu.</p>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-300 mb-1">Cover Baru (Gambar)</label>
@@ -271,19 +307,31 @@
     <div id="app-view" class="flex-1 flex flex-col h-full opacity-0">
         
         <!-- Top Navigation / Header -->
-        <header class="h-16 bg-black flex items-center justify-between px-6 z-10 sticky top-0">
-            <div class="flex items-center gap-3">
+        <header class="h-16 bg-black flex items-center justify-between px-6 z-10 sticky top-0 gap-4">
+            <div class="flex items-center gap-3 flex-shrink-0">
                 <!-- Tombol minimize sidebar (hanya di lg) -->
                 <button id="sidebar-toggle-btn" onclick="toggleSidebar()" class="hidden lg:flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-800 transition-colors text-gray-400 hover:text-white" title="Minimize sidebar">
                     <i class="ph ph-sidebar-simple text-xl"></i>
                 </button>
-                <!-- Logo sejajar tombol Masuk — klik ke home -->
+                <!-- Logo -->
                 <a href="#" onclick="switchTab('home')" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
                     <i class="ph-fill ph-spotify-logo text-3xl text-spotify-green"></i>
-                    <span class="font-bold text-lg">spotipaiKW</span>
+                    <span class="font-bold text-lg hidden sm:block">spotipaiKW</span>
                 </a>
             </div>
-            <div class="flex items-center gap-3">
+
+            <!-- Searchbar tengah -->
+            <div class="flex-1 max-w-sm mx-auto hidden md:block">
+                <div class="relative">
+                    <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg"></i>
+                    <input type="text" id="header-search-input" placeholder="Cari lagu atau artis..." class="w-full bg-[#2a2a2a] border border-transparent hover:border-gray-700 focus:border-gray-500 text-white rounded-full py-2 pl-10 pr-8 text-sm focus:outline-none transition-colors placeholder-gray-500" oninput="handleHeaderSearch(this.value)">
+                    <button id="header-search-clear" onclick="clearHeaderSearch()" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white hidden transition-colors">
+                        <i class="ph ph-x text-sm"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3 flex-shrink-0">
                 <!-- Logged Out View -->
                 <div id="auth-login-btn">
                     <button onclick="showModal('login-modal')" class="bg-white text-black font-bold px-6 py-2 rounded-full hover:scale-105 transition-transform text-sm">Masuk</button>
@@ -314,6 +362,10 @@
                         <a href="#" onclick="switchTab('library')" class="nav-item flex items-center gap-4 text-gray-400 hover:text-white transition-colors" data-tab="library" title="Perpustakaan">
                             <i class="ph ph-books text-2xl flex-shrink-0"></i>
                             <span class="sidebar-full font-bold text-sm whitespace-nowrap">Perpustakaan</span>
+                        </a>
+                        <a href="#" onclick="switchTab('about')" class="nav-item flex items-center gap-4 text-gray-400 hover:text-white transition-colors" data-tab="about" title="Tentang">
+                            <i class="ph ph-info text-2xl flex-shrink-0"></i>
+                            <span class="sidebar-full font-bold text-sm whitespace-nowrap">Tentang</span>
                         </a>
                     </nav>
                 </div>
@@ -366,7 +418,7 @@
 
                     <hr class="border-gray-800 my-6">
 
-                    <h2 class="text-2xl font-bold mb-4 text-white mt-8">Semua Lagu</h2>
+                    <h2 id="songs-section-heading" class="text-2xl font-bold mb-4 text-white mt-8">Semua Lagu</h2>
                     <div id="songs-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
                         <!-- Song cards will be injected here by JS -->
                     </div>
@@ -399,13 +451,44 @@
 
                 <!-- Search Tab -->
                 <div id="tab-search" class="p-6 pb-24 content-tab hidden">
-                    <h2 class="text-2xl font-bold mb-6">Cari Lagu</h2>
-                    <div class="relative max-w-md">
-                        <i class="ph ph-magnifying-glass absolute left-3 top-3 text-gray-400 text-xl"></i>
-                        <input type="text" id="search-input" placeholder="Apa yang ingin kamu dengarkan?" class="w-full bg-white text-black rounded-full py-2.5 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-white font-medium text-sm">
+                    <!-- Header Search -->
+                    <div class="mb-8">
+                        <h2 class="text-2xl font-bold mb-6 text-white">Cari</h2>
+                        <div class="relative max-w-lg">
+                            <i class="ph ph-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xl"></i>
+                            <input type="text" id="search-input" placeholder="Apa yang ingin kamu dengarkan?" 
+                                class="w-full bg-white text-black rounded-full py-3 pl-12 pr-5 focus:outline-none focus:ring-2 focus:ring-white font-medium text-sm shadow-md">
+                        </div>
                     </div>
-                    <div id="search-results" class="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-                        <!-- Search results -->
+
+                    <!-- Hasil pencarian kosong — tampilkan Browse -->
+                    <div id="search-browse" class="">
+                        <h3 class="text-base font-bold text-white mb-4">Telusuri semua</h3>
+                        <div id="browse-categories" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                            <!-- kategori injected by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Hasil pencarian -->
+                    <div id="search-results-section" class="hidden">
+                        <h3 class="text-base font-bold text-white mb-4">Hasil Teratas</h3>
+
+                        <!-- Top Result (satu card besar) -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                            <div id="search-top-result" class="bg-spotify-elevated rounded-xl p-5 hover:bg-spotify-highlight transition-colors cursor-pointer">
+                                <!-- diisi JS -->
+                            </div>
+                            <div>
+                                <h3 class="text-base font-bold text-white mb-4">Lagu</h3>
+                                <div id="search-songs-list" class="flex flex-col gap-1">
+                                    <!-- list lagu -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <h3 class="text-base font-bold text-white mb-4">Semua Hasil</h3>
+                        <div id="search-results" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+                        </div>
                     </div>
                 </div>
 
@@ -479,13 +562,93 @@
                 </div>
 
                 <!-- Lyrics Tab (Karaoke Rapi di Tengah-Tengah Vertikal & Horizontal) -->
-                <div id="tab-lyrics" class="p-6 pb-24 content-tab hidden flex-col items-center justify-center text-center min-h-full bg-gradient-to-b from-[#2a2a2a]/40 to-transparent overflow-y-auto">
-                    <div class="my-auto py-12 flex flex-col items-center justify-center w-full max-w-2xl mx-auto">
+                <div id="tab-lyrics" class="p-6 pb-24 content-tab hidden flex-col items-center justify-center text-center min-h-full bg-gradient-to-b from-[#2a2a2a]/40 to-transparent overflow-y-auto">                    <div class="my-auto py-12 flex flex-col items-center justify-center w-full max-w-2xl mx-auto">
                         <h2 id="lyrics-title" class="text-3xl font-bold mb-2 text-center text-white w-full">Pilih lagu untuk melihat lirik</h2>
                         <p id="lyrics-artist" class="text-sm text-gray-400 mb-8 font-medium text-center w-full">-</p>
                         <div id="lyrics-content" class="w-full flex flex-col gap-4 text-center items-center justify-center text-xl md:text-3xl font-bold leading-relaxed text-white whitespace-pre-wrap transition-all duration-500">
                             Belum ada lagu yang diputar.
                         </div>
+                    </div>
+                </div>
+
+                <!-- Tab Tentang -->
+                <div id="tab-about" class="p-6 pb-24 content-tab hidden">
+                    <div class="max-w-2xl mx-auto">
+                        
+                        <!-- Header -->
+                        <div class="flex items-center gap-4 mb-8">
+                            <div class="w-16 h-16 rounded-full bg-spotify-green flex items-center justify-center flex-shrink-0">
+                                <i class="ph-fill ph-code text-3xl text-black"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-spotify-green uppercase tracking-widest mb-1">Dibuat oleh</p>
+                                <h1 class="text-3xl font-extrabold text-white tracking-tight">Pufutara</h1>
+                            </div>
+                        </div>
+
+                        <!-- Bio -->
+                        <div class="bg-spotify-elevated rounded-2xl p-6 mb-6 border border-gray-800">
+                            <h2 class="text-lg font-bold text-white mb-3">Siapa Pufutara?</h2>
+                            <p class="text-gray-400 text-sm leading-relaxed mb-4">
+                                Pufutara adalah seorang siswa SMP yang punya passion gede banget di dunia coding. Mulai serius ngoding sejak kelas 8 (2025), dan sejak saat itu nggak berhenti bikin proyek digital.
+                            </p>
+                            <p class="text-gray-400 text-sm leading-relaxed">
+                                Dari balik layar pesantren, dia udah ngebangun banyak banget aplikasi — dari yang serius sampai yang iseng. Semuanya dibangun dengan semangat belajar dan rasa ingin tahu yang tinggi.
+                            </p>
+                        </div>
+
+                        <!-- Proyek -->
+                        <div class="bg-spotify-elevated rounded-2xl p-6 mb-6 border border-gray-800">
+                            <h2 class="text-lg font-bold text-white mb-4">Proyek yang Sudah Dibuat</h2>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                <div class="bg-black/40 rounded-xl p-3 text-center">
+                                    <i class="ph-fill ph-desktop text-2xl text-spotify-green mb-1 block"></i>
+                                    <p class="text-xs font-bold text-white">PufutaraOS</p>
+                                    <p class="text-[10px] text-gray-500">Operating System</p>
+                                </div>
+                                <div class="bg-black/40 rounded-xl p-3 text-center">
+                                    <i class="ph-fill ph-calculator text-2xl text-blue-400 mb-1 block"></i>
+                                    <p class="text-xs font-bold text-white">Calc Pro</p>
+                                    <p class="text-[10px] text-gray-500">Kalkulator</p>
+                                </div>
+                                <div class="bg-black/40 rounded-xl p-3 text-center">
+                                    <i class="ph-fill ph-newspaper text-2xl text-yellow-400 mb-1 block"></i>
+                                    <p class="text-xs font-bold text-white">News</p>
+                                    <p class="text-[10px] text-gray-500">Berita</p>
+                                </div>
+                                <div class="bg-black/40 rounded-xl p-3 text-center">
+                                    <i class="ph-fill ph-chats text-2xl text-purple-400 mb-1 block"></i>
+                                    <p class="text-xs font-bold text-white">PufutaraChat</p>
+                                    <p class="text-[10px] text-gray-500">Chat App</p>
+                                </div>
+                                <div class="bg-black/40 rounded-xl p-3 text-center">
+                                    <i class="ph-fill ph-cloud text-2xl text-cyan-400 mb-1 block"></i>
+                                    <p class="text-xs font-bold text-white">PufutaraDrive</p>
+                                    <p class="text-[10px] text-gray-500">Cloud Storage</p>
+                                </div>
+                                <div class="bg-black/40 rounded-xl p-3 text-center">
+                                    <i class="ph-fill ph-dots-three-circle text-2xl text-orange-400 mb-1 block"></i>
+                                    <p class="text-xs font-bold text-white">& Banyak lagi</p>
+                                    <p class="text-[10px] text-gray-500">Terus berkembang</p>
+                                </div>
+                            </div>
+                            <a href="https://pufutara.vercel.app" target="_blank" rel="noopener" class="mt-4 flex items-center justify-center gap-2 w-full py-3 bg-spotify-green hover:bg-green-400 text-black font-bold rounded-full transition-colors text-sm">
+                                <i class="ph-fill ph-arrow-square-out text-lg"></i>
+                                Lihat Semua Proyek di pufutara.vercel.app
+                            </a>
+                        </div>
+
+                        <!-- Inspirasi -->
+                        <div class="bg-spotify-elevated rounded-2xl p-6 mb-6 border border-gray-800">
+                            <h2 class="text-lg font-bold text-white mb-3">Tentang SpotipaiKW</h2>
+                            <p class="text-gray-400 text-sm leading-relaxed mb-3">
+                                SpotipaiKW adalah platform streaming musik yang dibangun dari nol oleh Pufutara. Terinspirasi dari <span class="text-white font-semibold">BEMRCHIVE</span>, sebuah proyek keren buatan <span class="text-spotify-green font-semibold">atharinsyah</span>.
+                            </p>
+                            <p class="text-gray-400 text-sm leading-relaxed">
+                                Dari sana, muncul ide untuk bikin sesuatu yang serupa tapi dengan sentuhan sendiri — lengkap dengan fitur karaoke lirik, sistem playlist, manajemen artis, dan panel admin.
+                            </p>
+                        </div>
+
                     </div>
                 </div>
 
@@ -534,7 +697,14 @@
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-300 mb-1">Nama Penyanyi / Band</label>
-                                <input type="text" id="add-artist" class="w-full bg-black border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-spotify-green transition-colors text-sm" placeholder="Contoh: Anak BEM Bersatu" required>
+                                <div id="artist-tags-container" class="flex flex-wrap gap-2 mb-2 min-h-[20px]"></div>
+                                <div class="flex gap-2">
+                                    <input type="text" id="add-artist-input" list="artist-suggestions" class="flex-1 bg-black border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-spotify-green transition-colors text-sm" placeholder="Ketik penyanyi lalu tekan Enter atau +" autocomplete="off">
+                                    <button type="button" onclick="addArtistTag()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded font-bold text-sm transition-colors">+</button>
+                                </div>
+                                <datalist id="artist-suggestions"></datalist>
+                                <input type="hidden" id="add-artist" required>
+                                <p class="text-xs text-gray-500 mt-1">Tekan Enter atau + untuk tambah penyanyi. Bisa lebih dari satu.</p>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-300 mb-1">Cover (Gambar)</label>
@@ -665,6 +835,10 @@
                 <i class="ph ph-playlist text-2xl"></i>
                 <span class="text-[10px] mt-1">Koleksi</span>
             </a>
+            <a href="#" onclick="switchTab('about')" class="flex flex-col items-center text-gray-400 hover:text-white nav-item" data-tab="about">
+                <i class="ph ph-info text-2xl"></i>
+                <span class="text-[10px] mt-1">Tentang</span>
+            </a>
             <a href="#" id="mobile-admin-btn" onclick="switchTab('admin-manage')" class="hidden flex-col items-center text-spotify-green nav-item" data-tab="admin-manage">
                 <i class="ph-fill ph-shield-check text-2xl"></i>
                 <span class="text-[10px] mt-1">Admin</span>
@@ -686,7 +860,7 @@
 
         // --- Data & State ---
         let songs = [];
-        let likedSongsIds = [];
+        let likedSongsIds = JSON.parse(localStorage.getItem('spotipai_liked') || '[]');
         let customPlaylists = JSON.parse(localStorage.getItem('bemspotipai_playlists')) || [];
         let tempSongIdToAdd = null; 
         let playlistToDelete = null; 
@@ -731,6 +905,128 @@
                 toast.classList.replace('toast-enter', 'toast-exit');
                 setTimeout(() => toast.remove(), 300);
             }, 3000);
+        }
+
+        // --- Isi Dropdown Saran Penyanyi ---
+        function populateArtistSuggestions() {
+            const datalist = document.getElementById('artist-suggestions');
+            if (!datalist) return;
+            const artists = [...new Set(songs.map(s => s.artist).filter(Boolean))].sort();
+            datalist.innerHTML = artists.map(a => `<option value="${a.replace(/"/g, '&quot;')}">`).join('');
+        }
+
+        // --- Tag Input Penyanyi Multi (Tambah Lagu) ---
+        let artistTags = [];
+
+        function renderArtistTags() {
+            const container = document.getElementById('artist-tags-container');
+            const hidden = document.getElementById('add-artist');
+            if (!container) return;
+            container.innerHTML = artistTags.map((a, i) => `
+                <span style="display:inline-flex;align-items:center;gap:4px;background:#1DB954;color:#000;padding:3px 10px;border-radius:999px;font-size:0.75rem;font-weight:700;">
+                    ${a}
+                    <button type="button" onclick="removeArtistTag(${i})" style="background:none;border:none;color:#000;cursor:pointer;font-size:0.9rem;line-height:1;padding:0 2px;">×</button>
+                </span>
+            `).join('');
+            if (hidden) hidden.value = artistTags.join(', ');
+        }
+
+        function addArtistTag() {
+            const input = document.getElementById('add-artist-input');
+            if (!input) return;
+            const val = input.value.trim();
+            if (val && !artistTags.includes(val)) {
+                artistTags.push(val);
+                renderArtistTags();
+            }
+            input.value = '';
+            input.focus();
+        }
+
+        function removeArtistTag(i) {
+            artistTags.splice(i, 1);
+            renderArtistTags();
+        }
+
+        function resetArtistTags() {
+            artistTags = [];
+            renderArtistTags();
+            const input = document.getElementById('add-artist-input');
+            if (input) input.value = '';
+        }
+
+        // --- Tag Input Penyanyi Multi (Edit Lagu) ---
+        let editArtistTags = [];
+
+        function renderEditArtistTags() {
+            const container = document.getElementById('edit-artist-tags-container');
+            const hidden = document.getElementById('edit-artist');
+            if (!container) return;
+            container.innerHTML = editArtistTags.map((a, i) => `
+                <span style="display:inline-flex;align-items:center;gap:4px;background:#1DB954;color:#000;padding:3px 10px;border-radius:999px;font-size:0.75rem;font-weight:700;">
+                    ${a}
+                    <button type="button" onclick="removeEditArtistTag(${i})" style="background:none;border:none;color:#000;cursor:pointer;font-size:0.9rem;line-height:1;padding:0 2px;">×</button>
+                </span>
+            `).join('');
+            if (hidden) hidden.value = editArtistTags.join(', ');
+        }
+
+        function addEditArtistTag() {
+            const input = document.getElementById('edit-artist-input');
+            if (!input) return;
+            const val = input.value.trim();
+            if (val && !editArtistTags.includes(val)) {
+                editArtistTags.push(val);
+                renderEditArtistTags();
+            }
+            input.value = '';
+            input.focus();
+        }
+
+        function removeEditArtistTag(i) {
+            editArtistTags.splice(i, 1);
+            renderEditArtistTags();
+        }
+
+        // --- Header Search ---
+        function handleHeaderSearch(val) {
+            const heading = document.getElementById('songs-section-heading');
+            const grid = document.getElementById('songs-grid');
+            const clearBtn = document.getElementById('header-search-clear');
+
+            // Tampilkan/sembunyikan tombol X
+            if (clearBtn) clearBtn.classList.toggle('hidden', !val.trim());
+
+            // Sembunyikan/tampilkan section trending & artis
+            const trendingH2 = document.querySelector('#tab-home h2:first-of-type');
+            const trendingGrid = document.getElementById('trending-songs-grid');
+            const artistH2 = document.querySelector('#tab-home h2:nth-of-type(2)');
+            const artistWrapper = document.getElementById('trending-artists-grid');
+            const hrEl = document.querySelector('#tab-home > hr');
+
+            const hasQuery = val.trim().length > 0;
+            [trendingH2, trendingGrid, artistH2, hrEl].forEach(el => { if (el) el.style.display = hasQuery ? 'none' : ''; });
+            if (artistWrapper) artistWrapper.parentElement.style.display = hasQuery ? 'none' : '';
+
+            if (!hasQuery) {
+                if (heading) heading.textContent = 'Semua Lagu';
+                renderHome();
+                return;
+            }
+            const filtered = songs.filter(s =>
+                s.title.toLowerCase().includes(val.toLowerCase()) ||
+                s.artist.toLowerCase().includes(val.toLowerCase())
+            );
+            if (heading) heading.textContent = `Hasil: "${val}" (${filtered.length} lagu)`;
+            if (grid) renderSongs(filtered, grid, 'all');
+        }
+
+        function clearHeaderSearch() {
+            const input = document.getElementById('header-search-input');
+            const clearBtn = document.getElementById('header-search-clear');
+            if (input) { input.value = ''; input.focus(); }
+            if (clearBtn) clearBtn.classList.add('hidden');
+            handleHeaderSearch('');
         }
 
         // --- Sidebar Minimize ---
@@ -805,37 +1101,61 @@
             });
         }
 
-        // --- Easter Egg 404 Click Logic (Delay bypass 1 detik) ---
+        // --- Easter Egg 404 Click Logic ---
         let errorClickCount = 0;
-        let canClickError = false; 
-        let isProcessingEntrance = false; 
+        let canClickError = false;
+        let isProcessingEntrance = false;
 
         document.getElementById('error-title').addEventListener('click', () => {
-            if (!canClickError || isProcessingEntrance) return; 
+            if (!canClickError || isProcessingEntrance) return;
             errorClickCount++;
+
+            // Feedback klik kecil — status berubah tiap klik
+            const statusEl = document.getElementById('error-status');
+            if (statusEl && errorClickCount < 5) {
+                const msgs = [
+                    'Status: Retrying connection...',
+                    'Status: Connection timed out. Retrying...',
+                    'Status: Server not responding...',
+                    'Status: Attempting failover...',
+                ];
+                statusEl.textContent = msgs[Math.min(errorClickCount - 1, msgs.length - 1)];
+            }
+
             if (errorClickCount >= 5) {
                 isProcessingEntrance = true;
-                
-                const statusEl = document.getElementById('error-status');
+
                 if (statusEl) {
-                    statusEl.innerHTML = "<strong>Status:</strong> Bypassing security... Mengalihkan ke spotipaiKW dalam 1 detik...";
-                    statusEl.classList.add('text-spotify-green', 'animate-pulse');
+                    statusEl.textContent = 'Status: Bypassing... Redirecting in 1s...';
+                    statusEl.style.color = '#1DB954';
                 }
 
-                // Jeda dipangkas dari 2000ms menjadi 1000ms (1 detik)
+                // Tunggu 1 detik lalu animasi keluar
                 setTimeout(() => {
                     const fake404 = document.getElementById('fake-404');
-                    fake404.classList.add('fade-out-exit');
-
                     const appView = document.getElementById('app-view');
+
+                    // Fade out 404 screen
+                    fake404.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                    fake404.style.opacity = '0';
+                    fake404.style.transform = 'scale(1.03)';
+                    fake404.style.pointerEvents = 'none';
+
+                    // App view muncul dengan animasi
+                    appView.style.opacity = '0';
                     appView.classList.remove('opacity-0');
-                    appView.classList.add('opacity-100', 'animate-app-entrance');
-                    
+                    appView.style.transition = 'opacity 0.7s ease 0.3s';
+                    requestAnimationFrame(() => {
+                        requestAnimationFrame(() => {
+                            appView.style.opacity = '1';
+                        });
+                    });
+
                     setTimeout(() => {
                         fake404.classList.add('hidden');
-                    }, 800);
+                    }, 700);
 
-                    // Iklan tetap muncul setelah 3 detik pemuatan aplikasi utama
+                    // Iklan muncul 3 detik setelah masuk
                     setTimeout(() => {
                         showAdWithDelay();
                     }, 3000);
@@ -995,6 +1315,7 @@
             }
             renderHome();
             renderLibrary();
+            populateArtistSuggestions();
         }
 
         window.onload = () => {
@@ -1022,6 +1343,30 @@
                     statusEl.innerHTML = "<strong>Status:</strong> Failed to resolve server response";
                 }
             }, 1000);
+
+            // Enter listener untuk add-artist-input
+            const addArtistInput = document.getElementById('add-artist-input');
+            if (addArtistInput) {
+                addArtistInput.addEventListener('keydown', e => {
+                    if (e.key === 'Enter') { e.preventDefault(); addArtistTag(); }
+                });
+            }
+
+            // Enter listener untuk edit-artist-input
+            const editArtistInput = document.getElementById('edit-artist-input');
+            if (editArtistInput) {
+                editArtistInput.addEventListener('keydown', e => {
+                    if (e.key === 'Enter') { e.preventDefault(); addEditArtistTag(); }
+                });
+            }
+
+            // Sync header search dengan search tab
+            const headerSearch = document.getElementById('header-search-input');
+            if (headerSearch) {
+                document.getElementById('search-input')?.addEventListener('input', e => {
+                    headerSearch.value = e.target.value;
+                });
+            }
         };
 
         // --- Fitur Render Home (Trending & Semua Lagu) ---
@@ -1115,10 +1460,9 @@
                     if (!lErr && lData) likedSongsIds = lData.map(l => l.song_id);
                 } catch (err) { console.error(err); }
             }
-
             if ((user === 'putrasigma' && pass === 'cobatanyaputra') || (user === 'admin' && pass === 'admin')) {
-                currentUser = { username: user, role: 'admin' };
-                showMessage('Berhasil login sebagai Admin BEM');
+                currentUser = { username: user, role: user === 'admin' ? 'uploader' : 'admin' };
+                showMessage(user === 'admin' ? 'Login sebagai Uploader Lagu' : 'Berhasil login sebagai Admin BEM');
             } else {
                 currentUser = { username: user, role: 'user' };
                 showMessage(`Selamat datang, ${user}`);
@@ -1133,6 +1477,17 @@
                 document.getElementById('admin-menu').classList.remove('hidden');
                 document.getElementById('mobile-admin-btn').classList.remove('hidden');
                 document.getElementById('mobile-admin-btn').classList.add('flex');
+            } else if (currentUser.role === 'uploader') {
+                // Uploader hanya bisa tambah lagu — sembunyikan menu kelola
+                const adminMenu = document.getElementById('admin-menu');
+                adminMenu.classList.remove('hidden');
+                // Sembunyikan link Kelola Data Lagu, hanya tampilkan Tambah Lagu
+                const manageLink = adminMenu.querySelector('[data-tab="admin-manage"]');
+                if (manageLink) manageLink.style.display = 'none';
+                document.getElementById('mobile-admin-btn').classList.remove('hidden');
+                document.getElementById('mobile-admin-btn').classList.add('flex');
+                // Langsung switch ke tambah lagu
+                switchTab('admin-add');
             }
 
             submitBtn.innerText = origText;
@@ -1150,7 +1505,7 @@
             updatePlayIcon();
             
             currentUser = null;
-            likedSongsIds = [];
+            // likedSongsIds tetap dari localStorage, tidak direset saat logout
             
             document.getElementById('auth-login-btn').classList.remove('hidden');
             document.getElementById('auth-user-info').classList.add('hidden');
@@ -1184,6 +1539,7 @@
             });
             
             if(tabId === 'home') renderHome();
+            else if (tabId === 'search') renderBrowseCategories();
             else if (tabId === 'collection') {
                 closePlaylistDetails();
                 document.getElementById('liked-count').innerText = likedSongsIds.length;
@@ -1192,6 +1548,9 @@
             else if (tabId === 'library') renderLibrary();
             else if (tabId === 'lyrics') {
                 updateLyricsView();
+                // Auto scroll ke atas saat buka lirik
+                const lyricsTab = document.getElementById('tab-lyrics');
+                if (lyricsTab) lyricsTab.scrollTo({ top: 0, behavior: 'smooth' });
                 // Auto-minimize sidebar saat buka lirik
                 const sidebar = document.getElementById('main-sidebar');
                 const btn = document.getElementById('sidebar-toggle-btn');
@@ -1200,7 +1559,15 @@
                     if (btn) btn.querySelector('i').className = 'ph ph-sidebar-simple-fill text-xl';
                 }
             }
-            else if (tabId === 'admin-manage') renderAdminLibrary();
+            else if (tabId === 'admin-manage') {
+                if (currentUser && currentUser.role === 'uploader') {
+                    showMessage('Akses ditolak. Kamu hanya bisa menambah lagu.', 'error');
+                    switchTab('admin-add');
+                    return;
+                }
+                renderAdminLibrary();
+            }
+            else if (tabId === 'admin-add') populateArtistSuggestions();
         }
 
         // --- Playlists Management (LocalStorage) ---
@@ -1587,9 +1954,12 @@
 
             document.getElementById('edit-song-id').value = song.id;
             document.getElementById('edit-title').value = song.title;
-            document.getElementById('edit-artist').value = song.artist;
             document.getElementById('edit-cover-url').value = song.coverUrl;
             document.getElementById('edit-lyrics').value = song.lyrics || '';
+
+            // Populate edit artist tags
+            editArtistTags = song.artist ? song.artist.split(',').map(a => a.trim()).filter(Boolean) : [];
+            renderEditArtistTags();
 
             document.querySelector('input[name="edit_cover_type"][value="url"]').checked = true;
             document.getElementById('edit-cover-url').classList.remove('hidden');
@@ -1709,38 +2079,93 @@
         }
 
         document.getElementById('search-input').addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase();
-            if (query === '') return document.getElementById('search-results').innerHTML = '';
-            const filtered = songs.filter(song => song.title.toLowerCase().includes(query) || song.artist.toLowerCase().includes(query));
-            renderSongs(filtered, document.getElementById('search-results'));
+            const query = e.target.value.toLowerCase().trim();
+            const browseSection = document.getElementById('search-browse');
+            const resultsSection = document.getElementById('search-results-section');
+            const topResult = document.getElementById('search-top-result');
+            const songsList = document.getElementById('search-songs-list');
+            const allResults = document.getElementById('search-results');
+
+            // Sync ke header search
+            const headerSearch = document.getElementById('header-search-input');
+            if (headerSearch) headerSearch.value = e.target.value;
+
+            if (!query) {
+                browseSection.classList.remove('hidden');
+                resultsSection.classList.add('hidden');
+                return;
+            }
+
+            const filtered = songs.filter(s =>
+                s.title.toLowerCase().includes(query) ||
+                s.artist.toLowerCase().includes(query)
+            );
+
+            browseSection.classList.add('hidden');
+            resultsSection.classList.remove('hidden');
+
+            // Top result
+            if (filtered.length > 0) {
+                const top = filtered[0];
+                const topIdx = songs.findIndex(s => s.id === top.id);
+                const fallbackImg = 'https://images.unsplash.com/photo-1614613535308-eb51bd3d2c17?w=300&q=80';
+                topResult.innerHTML = `
+                    <div onclick="playSong(${topIdx})" class="flex flex-col gap-4">
+                        <img src="${top.coverUrl}" onerror="this.src='${fallbackImg}'" class="w-24 h-24 rounded-lg object-cover shadow-xl">
+                        <div>
+                            <p class="text-2xl font-extrabold text-white mb-1">${top.title}</p>
+                            <p class="text-sm text-gray-400 font-medium">${top.artist}</p>
+                        </div>
+                        <button class="self-start mt-2 bg-spotify-green hover:bg-green-400 text-black font-bold px-6 py-2.5 rounded-full text-sm transition-colors flex items-center gap-2">
+                            <i class="ph-fill ph-play text-base"></i> Putar
+                        </button>
+                    </div>
+                `;
+            } else {
+                topResult.innerHTML = '<p class="text-gray-500 text-sm">Tidak ada hasil.</p>';
+            }
+
+            // Songs list (5 teratas)
+            const top5 = filtered.slice(0, 5);
+            const fallbackImg = 'https://images.unsplash.com/photo-1614613535308-eb51bd3d2c17?w=300&q=80';
+            songsList.innerHTML = top5.map(song => {
+                const idx = songs.findIndex(s => s.id === song.id);
+                return `
+                    <div class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-spotify-elevated transition-colors cursor-pointer group" onclick="playSong(${idx})">
+                        <img src="${song.coverUrl}" onerror="this.src='${fallbackImg}'" class="w-10 h-10 rounded object-cover shadow flex-shrink-0">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-bold text-white truncate">${song.title}</p>
+                            <p class="text-xs text-gray-400 truncate">${song.artist}</p>
+                        </div>
+                        <button class="opacity-0 group-hover:opacity-100 transition-opacity text-white bg-spotify-green rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0 hover:bg-green-400" onclick="event.stopPropagation(); playSong(${idx})">
+                            <i class="ph-fill ph-play text-sm ml-0.5"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+
+            // All results grid
+            renderSongs(filtered, allResults, 'all');
         });
 
-        // --- Like (Love) Logic ke Supabase ---
-        async function toggleLikeCard(songId) {
-            if (!currentUser) return showModal('login-modal'); 
-            
+        // --- Like (Love) Logic — LocalStorage, tanpa login ---
+        function toggleLikeCard(songId) {
             const index = likedSongsIds.indexOf(songId);
-            try {
-                if (index > -1) {
-                    likedSongsIds.splice(index, 1);
-                    await supabaseClient.from('likes').delete().match({ username: currentUser.username, song_id: songId });
-                    showMessage('Dihapus dari Koleksi Kamu', 'error');
-                } else {
-                    likedSongsIds.push(songId);
-                    await supabaseClient.from('likes').insert([{ username: currentUser.username, song_id: songId }]);
-                    showMessage('Ditambahkan ke Koleksi Kamu');
-                }
-                
-                if (currentSongIndex !== -1 && songs[currentSongIndex].id === songId) updateLikeIcon();
-                
-                const activeTab = document.querySelector('.content-tab:not(.hidden)').id;
-                if (activeTab === 'tab-home') renderHome();
-                if (activeTab === 'tab-collection' && !document.getElementById('playlist-detail-view').classList.contains('hidden')) {
-                    showPlaylistDetails(document.getElementById('detail-playlist-title').innerText === 'Lagu yang Disukai' ? 'liked' : null);
-                }
-            } catch(e) {
-                console.error(e);
-                showMessage('Gagal memperbarui Koleksi', 'error');
+            if (index > -1) {
+                likedSongsIds.splice(index, 1);
+                showMessage('Dihapus dari Koleksi Kamu', 'error');
+            } else {
+                likedSongsIds.push(songId);
+                showMessage('Ditambahkan ke Koleksi Kamu');
+            }
+            localStorage.setItem('spotipai_liked', JSON.stringify(likedSongsIds));
+
+            if (currentSongIndex !== -1 && songs[currentSongIndex].id === songId) updateLikeIcon();
+
+            const activeTab = document.querySelector('.content-tab:not(.hidden)').id;
+            if (activeTab === 'tab-home') renderHome();
+            if (activeTab === 'tab-collection' && !document.getElementById('playlist-detail-view').classList.contains('hidden')) {
+                showPlaylistDetails(document.getElementById('detail-playlist-title').innerText === 'Lagu yang Disukai' ? 'liked' : null);
             }
         }
 
@@ -1872,6 +2297,15 @@
         }
 
         async function incrementPlayCount(songId) {
+            // Delay 1 menit per lagu — jika lagu sama diputar lagi dalam 60 detik, skip
+            const now = Date.now();
+            const lastPlayed = window._lastPlayedTime || {};
+            if (lastPlayed[songId] && (now - lastPlayed[songId]) < 60000) {
+                return; // Belum 1 menit, skip increment
+            }
+            lastPlayed[songId] = now;
+            window._lastPlayedTime = lastPlayed;
+
             // Update Array Lokal Dulu (Biar UI Responsif instan)
             const songIndex = songs.findIndex(s => s.id === songId);
             if (songIndex !== -1) {
@@ -2073,6 +2507,36 @@
                 submitBtn.disabled = false;
             }
         });
+
+        // --- Browse Categories (Tab Search) ---
+        function renderBrowseCategories() {
+            const container = document.getElementById('browse-categories');
+            if (!container) return;
+            const categories = [
+                { name: 'Semua', color: '#1DB954', icon: 'ph-music-notes' },
+                { name: 'Pop', color: '#E13300', icon: 'ph-star' },
+                { name: 'Religi', color: '#006450', icon: 'ph-moon-stars' },
+                { name: 'Nostalgia', color: '#8D67AB', icon: 'ph-clock-clockwise' },
+                { name: 'Indie', color: '#1E3264', icon: 'ph-guitar' },
+                { name: 'Rap', color: '#BC5900', icon: 'ph-microphone' },
+                { name: 'Rock', color: '#B02897', icon: 'ph-lightning' },
+                { name: 'Lo-fi', color: '#148A08', icon: 'ph-coffee' },
+            ];
+            container.innerHTML = categories.map(c => `
+                <div class="relative rounded-xl overflow-hidden p-4 h-24 flex items-end cursor-pointer hover:scale-[1.02] transition-transform" style="background:${c.color};" onclick="filterByCategory('${c.name}')">
+                    <i class="ph-fill ${c.icon} absolute top-3 right-3 text-3xl text-white/60"></i>
+                    <span class="font-extrabold text-white text-sm relative z-10">${c.name}</span>
+                </div>
+            `).join('');
+        }
+
+        function filterByCategory(cat) {
+            const searchInput = document.getElementById('search-input');
+            if (searchInput) {
+                searchInput.value = cat === 'Semua' ? '' : cat;
+                searchInput.dispatchEvent(new Event('input'));
+            }
+        }
 
     </script>
 </body>
