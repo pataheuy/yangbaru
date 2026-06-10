@@ -28,6 +28,13 @@
         }
         input[type=range]:focus { outline: none; }
         
+        #progress-bar::-webkit-slider-runnable-track {
+            background: linear-gradient(to right, #fff var(--progress, 0%), #535353 var(--progress, 0%));
+        }
+
+        #trending-artists-grid { cursor: grab; user-select: none; }
+        #trending-artists-grid.dragging { cursor: grabbing; }
+        
         body {
             background-color: #000000; color: #FFFFFF;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -67,6 +74,30 @@
         }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Sidebar mini mode */
+        #main-sidebar.sidebar-collapsed {
+            width: 72px !important;
+        }
+        #main-sidebar.sidebar-collapsed .sidebar-full {
+            display: none !important;
+        }
+        #main-sidebar.sidebar-collapsed .sidebar-mini {
+            display: flex !important;
+        }
+        #main-sidebar.sidebar-collapsed nav a,
+        #main-sidebar.sidebar-collapsed [onclick*="switchTab"] {
+            justify-content: center;
+            gap: 0;
+            padding-left: 0;
+            padding-right: 0;
+        }
+        /* Tombol minimize selalu center saat collapsed */
+        #main-sidebar.sidebar-collapsed #sidebar-toggle-btn {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
     </style>
 </head>
 <body class="h-screen w-screen flex flex-col selection:bg-green-500 selection:text-white">
@@ -230,7 +261,7 @@
                     <p class="text-lg font-black text-white tracking-wide">pufutara</p>
                 </div>
                 <button id="close-ad-btn" onclick="closeModal('ad-modal')" class="px-6 py-3 bg-[#333] text-gray-500 font-bold rounded-full transition-colors cursor-not-allowed w-full text-xs uppercase tracking-widest" disabled>
-                    Tutup (5)
+                    Tutup (3)
                 </button>
             </div>
         </div>
@@ -241,11 +272,16 @@
         
         <!-- Top Navigation / Header -->
         <header class="h-16 bg-black flex items-center justify-between px-6 z-10 sticky top-0">
-            <div class="flex items-center gap-4">
-                <div class="flex items-center gap-2 lg:hidden">
+            <div class="flex items-center gap-3">
+                <!-- Tombol minimize sidebar (hanya di lg) -->
+                <button id="sidebar-toggle-btn" onclick="toggleSidebar()" class="hidden lg:flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-800 transition-colors text-gray-400 hover:text-white" title="Minimize sidebar">
+                    <i class="ph ph-sidebar-simple text-xl"></i>
+                </button>
+                <!-- Logo sejajar tombol Masuk — klik ke home -->
+                <a href="#" onclick="switchTab('home')" class="flex items-center gap-2 hover:opacity-80 transition-opacity">
                     <i class="ph-fill ph-spotify-logo text-3xl text-spotify-green"></i>
                     <span class="font-bold text-lg">spotipaiKW</span>
-                </div>
+                </a>
             </div>
             <div class="flex items-center gap-3">
                 <!-- Logged Out View -->
@@ -264,54 +300,50 @@
 
         <div class="flex flex-1 overflow-hidden">
             <!-- Sidebar -->
-            <aside class="w-64 bg-black flex-col hidden lg:flex border-r border-gray-900">
+            <aside id="main-sidebar" class="w-64 bg-black flex-col hidden lg:flex border-r border-gray-900 transition-all duration-300 overflow-hidden flex-shrink-0">
                 <div class="p-6">
-                    <div class="flex items-center gap-2 mb-8">
-                        <i class="ph-fill ph-spotify-logo text-4xl text-spotify-green"></i>
-                        <h1 class="text-2xl font-bold tracking-tight">spotipaiKW</h1>
-                    </div>
                     <nav class="space-y-4">
-                        <a href="#" onclick="switchTab('home')" class="nav-item flex items-center gap-4 text-white transition-colors" data-tab="home">
-                            <i class="ph-fill ph-house text-2xl"></i>
-                            <span class="font-bold text-sm">Beranda</span>
+                        <a href="#" onclick="switchTab('home')" class="nav-item flex items-center gap-4 text-white transition-colors" data-tab="home" title="Beranda">
+                            <i class="ph-fill ph-house text-2xl flex-shrink-0"></i>
+                            <span class="sidebar-full font-bold text-sm whitespace-nowrap">Beranda</span>
                         </a>
-                        <a href="#" onclick="switchTab('search')" class="nav-item flex items-center gap-4 text-gray-400 hover:text-white transition-colors" data-tab="search">
-                            <i class="ph ph-magnifying-glass text-2xl"></i>
-                            <span class="font-bold text-sm">Cari</span>
+                        <a href="#" onclick="switchTab('search')" class="nav-item flex items-center gap-4 text-gray-400 hover:text-white transition-colors" data-tab="search" title="Cari">
+                            <i class="ph ph-magnifying-glass text-2xl flex-shrink-0"></i>
+                            <span class="sidebar-full font-bold text-sm whitespace-nowrap">Cari</span>
                         </a>
-                        <a href="#" onclick="switchTab('library')" class="nav-item flex items-center gap-4 text-gray-400 hover:text-white transition-colors" data-tab="library">
-                            <i class="ph ph-books text-2xl"></i>
-                            <span class="font-bold text-sm">Perpustakaan</span>
+                        <a href="#" onclick="switchTab('library')" class="nav-item flex items-center gap-4 text-gray-400 hover:text-white transition-colors" data-tab="library" title="Perpustakaan">
+                            <i class="ph ph-books text-2xl flex-shrink-0"></i>
+                            <span class="sidebar-full font-bold text-sm whitespace-nowrap">Perpustakaan</span>
                         </a>
                     </nav>
                 </div>
 
                 <div class="mt-4 px-6 border-b border-gray-800 pb-4 flex items-center justify-between group">
-                    <div onclick="switchTab('collection')" class="flex items-center gap-2 text-gray-400 hover:text-white transition-colors cursor-pointer nav-item" data-tab="collection">
-                        <i class="ph ph-playlist text-2xl"></i>
-                        <span class="font-bold text-sm">Koleksi Kamu</span>
+                    <div onclick="switchTab('collection')" class="flex items-center gap-2 text-gray-400 hover:text-white transition-colors cursor-pointer nav-item" data-tab="collection" title="Koleksi Kamu">
+                        <i class="ph ph-playlist text-2xl flex-shrink-0"></i>
+                        <span class="sidebar-full font-bold text-sm whitespace-nowrap">Koleksi Kamu</span>
                     </div>
-                    <button onclick="showModal('create-playlist-modal')" class="text-gray-400 hover:text-white transition-colors p-1 rounded hover:bg-gray-800" title="Buat Playlist">
+                    <button onclick="showModal('create-playlist-modal')" class="sidebar-full text-gray-400 hover:text-white transition-colors p-1 rounded hover:bg-gray-800" title="Buat Playlist">
                         <i class="ph ph-plus text-xl"></i>
                     </button>
                 </div>
 
                 <!-- Pinned Playlists di Sidebar -->
-                <div id="sidebar-playlists" class="px-6 py-4 space-y-4 overflow-y-auto flex-1 text-xs">
+                <div id="sidebar-playlists" class="sidebar-full px-6 py-4 space-y-4 overflow-y-auto flex-1 text-xs">
                     <!-- Custom playlists disisipkan di sini -->
                 </div>
 
                 <!-- Admin Menu -->
                 <div id="admin-menu" class="p-6 hidden">
                     <hr class="border-gray-800 mb-4">
-                    <p class="text-xs text-gray-500 font-bold mb-3 uppercase tracking-wider">Menu Admin</p>
-                    <a href="#" onclick="switchTab('admin-manage')" class="nav-item flex items-center gap-4 text-spotify-green hover:text-green-400 transition-colors mb-4" data-tab="admin-manage">
-                        <i class="ph-fill ph-folder-open text-2xl"></i>
-                        <span class="font-bold text-sm">Kelola Data Lagu</span>
+                    <p class="sidebar-full text-xs text-gray-500 font-bold mb-3 uppercase tracking-wider">Menu Admin</p>
+                    <a href="#" onclick="switchTab('admin-manage')" class="nav-item flex items-center gap-4 text-spotify-green hover:text-green-400 transition-colors mb-4" data-tab="admin-manage" title="Kelola Data Lagu">
+                        <i class="ph-fill ph-folder-open text-2xl flex-shrink-0"></i>
+                        <span class="sidebar-full font-bold text-sm whitespace-nowrap">Kelola Data Lagu</span>
                     </a>
-                    <a href="#" onclick="switchTab('admin-add')" class="nav-item flex items-center gap-4 text-gray-400 hover:text-white transition-colors" data-tab="admin-add">
-                        <i class="ph-fill ph-plus-circle text-2xl"></i>
-                        <span class="font-bold text-sm">Tambah Lagu Baru</span>
+                    <a href="#" onclick="switchTab('admin-add')" class="nav-item flex items-center gap-4 text-gray-400 hover:text-white transition-colors" data-tab="admin-add" title="Tambah Lagu Baru">
+                        <i class="ph-fill ph-plus-circle text-2xl flex-shrink-0"></i>
+                        <span class="sidebar-full font-bold text-sm whitespace-nowrap">Tambah Lagu Baru</span>
                     </a>
                 </div>
             </aside>
@@ -328,7 +360,7 @@
                     </div>
 
                     <h2 class="text-2xl font-bold mb-4 text-white">Artis Populer</h2>
-                    <div id="trending-artists-grid" class="flex gap-6 overflow-x-auto pb-6 mb-4 hide-scrollbar">
+                    <div id="trending-artists-grid" class="flex gap-6 overflow-x-auto pb-6 mb-4 hide-scrollbar px-2">
                         <!-- Top Artists injected here -->
                     </div>
 
@@ -448,9 +480,9 @@
 
                 <!-- Lyrics Tab (Karaoke Rapi di Tengah-Tengah Vertikal & Horizontal) -->
                 <div id="tab-lyrics" class="p-6 pb-24 content-tab hidden flex-col items-center justify-center text-center min-h-full bg-gradient-to-b from-[#2a2a2a]/40 to-transparent overflow-y-auto">
-                    <div class="my-auto py-12 flex flex-col items-center justify-center w-full max-w-2xl">
-                        <h2 id="lyrics-title" class="text-3xl font-bold mb-2 text-center text-white">Pilih lagu untuk melihat lirik</h2>
-                        <p id="lyrics-artist" class="text-sm text-gray-400 mb-8 font-medium text-center">-</p>
+                    <div class="my-auto py-12 flex flex-col items-center justify-center w-full max-w-2xl mx-auto">
+                        <h2 id="lyrics-title" class="text-3xl font-bold mb-2 text-center text-white w-full">Pilih lagu untuk melihat lirik</h2>
+                        <p id="lyrics-artist" class="text-sm text-gray-400 mb-8 font-medium text-center w-full">-</p>
                         <div id="lyrics-content" class="w-full flex flex-col gap-4 text-center items-center justify-center text-xl md:text-3xl font-bold leading-relaxed text-white whitespace-pre-wrap transition-all duration-500">
                             Belum ada lagu yang diputar.
                         </div>
@@ -545,11 +577,11 @@
         </div>
 
         <!-- Player Bottom Bar -->
-        <div class="h-20 sm:h-24 bg-[#181818] border-t border-gray-800 flex items-center justify-between px-2 sm:px-6 z-30 w-full flex-shrink-0 text-sm">
+        <div class="h-20 sm:h-24 bg-black border-t border-gray-800 flex items-center justify-between px-2 sm:px-6 z-30 w-full flex-shrink-0 text-sm">
             
             <!-- Now Playing Info -->
             <div class="flex items-center w-1/3 min-w-[120px]">
-                <img id="player-cover" src="https://images.unsplash.com/photo-1614613535308-eb51bd3d2c17?w=150&q=80" alt="Cover" class="h-12 w-12 sm:h-14 sm:w-14 rounded object-cover shadow-lg hidden sm:block">
+                <img id="player-cover" src="" alt="Cover" class="h-12 w-12 sm:h-14 sm:w-14 rounded object-cover shadow-lg hidden sm:block flex-shrink-0" style="background:#535353;" onerror="this.style.background='#535353'; this.removeAttribute('src');">
                 <div class="ml-0 sm:ml-4 overflow-hidden">
                     <div id="player-title" class="text-sm sm:text-base font-semibold text-white truncate cursor-pointer hover:underline">Belum ada lagu</div>
                     <div id="player-artist" class="text-xs text-gray-400 truncate cursor-pointer hover:underline">Pilih lagu untuk memutar</div>
@@ -602,8 +634,8 @@
                     <i class="ph ph-speaker-high text-xl"></i>
                 </button>
                 <div class="w-24 relative flex items-center">
-                    <input type="range" id="volume-bar" min="0" max="1" step="0.01" value="0.15" class="w-full z-10" oninput="changeVolume(this.value); updateVolumeBarColor(this)">
-                     <div id="volume-fill" class="absolute h-1 bg-white rounded-l-full pointer-events-none group-hover:bg-spotify-green" style="width: 15%;"></div>
+                    <input type="range" id="volume-bar" min="0" max="1" step="0.01" value="1" class="w-full z-10" oninput="changeVolume(this.value); updateVolumeBarColor(this)">
+                     <div id="volume-fill" class="absolute h-1 bg-white rounded-l-full pointer-events-none group-hover:bg-spotify-green" style="width: 100%;"></div>
                 </div>
             </div>
             
@@ -665,7 +697,7 @@
         let isPlaying = false;
         let isRepeat = false;
         const audio = new Audio();
-        audio.volume = 0.15;
+        audio.volume = 1;
 
         // --- DOM Elements ---
         const playerTitle = document.getElementById('player-title');
@@ -701,6 +733,23 @@
             }, 3000);
         }
 
+        // --- Sidebar Minimize ---
+        function toggleSidebar() {
+            const sidebar = document.getElementById('main-sidebar');
+            const btn = document.getElementById('sidebar-toggle-btn');
+            sidebar.classList.toggle('sidebar-collapsed');
+            const isCollapsed = sidebar.classList.contains('sidebar-collapsed');
+            btn.querySelector('i').className = isCollapsed
+                ? 'ph ph-sidebar-simple-fill text-xl'
+                : 'ph ph-sidebar-simple text-xl';
+        }
+
+        // --- Scroll Artis Populer ---
+        function scrollArtists(dir) {
+            const container = document.getElementById('trending-artists-grid');
+            container.scrollBy({ left: dir * 280, behavior: 'smooth' });
+        }
+
         // Tampilkan modal biasa
         function showModal(id) {
             const modal = document.getElementById(id);
@@ -724,7 +773,7 @@
             closeBtn.disabled = true;
             closeBtn.className = "px-6 py-3 bg-[#333] text-gray-500 font-bold rounded-full transition-colors cursor-not-allowed w-full text-xs uppercase tracking-widest";
             
-            let timeLeft = 5;
+            let timeLeft = 3;
             closeBtn.innerText = `Tutup (${timeLeft})`;
             
             const timer = setInterval(() => {
@@ -955,6 +1004,16 @@
             renderCustomPlaylists();
             renderSidebarPlaylists();
 
+            // Drag-to-scroll untuk Artis Populer
+            const artistGrid = document.getElementById('trending-artists-grid');
+            if (artistGrid) {
+                let isDown = false, startX, scrollLeft;
+                artistGrid.addEventListener('mousedown', e => { isDown = true; artistGrid.classList.add('dragging'); startX = e.pageX - artistGrid.offsetLeft; scrollLeft = artistGrid.scrollLeft; });
+                artistGrid.addEventListener('mouseleave', () => { isDown = false; artistGrid.classList.remove('dragging'); });
+                artistGrid.addEventListener('mouseup', () => { isDown = false; artistGrid.classList.remove('dragging'); });
+                artistGrid.addEventListener('mousemove', e => { if (!isDown) return; e.preventDefault(); const x = e.pageX - artistGrid.offsetLeft; artistGrid.scrollLeft = scrollLeft - (x - startX) * 1.5; });
+            }
+
             // Set jeda diubah ke 1 detik (1000ms)
             setTimeout(() => {
                 canClickError = true;
@@ -985,7 +1044,7 @@
                 if(!artistMap[s.artist]) artistMap[s.artist] = { name: s.artist, playCount: 0, image: s.coverUrl };
                 artistMap[s.artist].playCount += (s.playCount || 0);
             });
-            const trendingArtists = Object.values(artistMap).sort((a, b) => b.playCount - a.playCount).slice(0, 8); // Top 8
+            const trendingArtists = Object.values(artistMap).sort((a, b) => b.playCount - a.playCount).slice(0, 10); // Top 10
             
             artistContainer.innerHTML = '';
             if (trendingArtists.length === 0) {
@@ -1131,7 +1190,16 @@
                 renderCustomPlaylists();
             }
             else if (tabId === 'library') renderLibrary();
-            else if (tabId === 'lyrics') updateLyricsView();
+            else if (tabId === 'lyrics') {
+                updateLyricsView();
+                // Auto-minimize sidebar saat buka lirik
+                const sidebar = document.getElementById('main-sidebar');
+                const btn = document.getElementById('sidebar-toggle-btn');
+                if (sidebar && !sidebar.classList.contains('sidebar-collapsed')) {
+                    sidebar.classList.add('sidebar-collapsed');
+                    if (btn) btn.querySelector('i').className = 'ph ph-sidebar-simple-fill text-xl';
+                }
+            }
             else if (tabId === 'admin-manage') renderAdminLibrary();
         }
 
@@ -1780,6 +1848,12 @@
             playerArtist.innerText = song.artist;
             playerCover.src = song.coverUrl;
             
+            // Auto-minimize sidebar saat memutar lagu
+            const sb = document.getElementById('main-sidebar');
+            if (sb && !sb.classList.contains('sidebar-collapsed')) {
+                sb.classList.add('sidebar-collapsed');
+            }
+            
             updateLikeIcon();
             updateLyricsView();
             
@@ -1877,6 +1951,7 @@
             if (audio.duration) {
                 progressBar.value = (audio.currentTime / audio.duration) * 100;
                 updateProgressBarColor(progressBar);
+                progressBar.style.setProperty('--progress', (audio.currentTime / audio.duration * 100) + '%');
             }
 
             if (currentSyncedLyrics && !document.getElementById('tab-lyrics').classList.contains('hidden')) {
