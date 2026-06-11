@@ -574,7 +574,6 @@
                 <!-- Tab Tentang -->
                 <div id="tab-about" class="p-6 pb-24 content-tab hidden">
                     <div class="max-w-2xl mx-auto">
-                        
                         <!-- Header -->
                         <div class="flex items-center gap-4 mb-8">
                             <div class="w-16 h-16 rounded-full bg-spotify-green flex items-center justify-center flex-shrink-0">
@@ -649,6 +648,61 @@
                             </p>
                         </div>
 
+                    </div>
+                </div>
+
+                <!-- Tab Request Lagu -->
+                <div id="tab-request" class="p-6 pb-24 content-tab hidden">
+                    <div class="max-w-2xl mx-auto">
+                        <div class="flex items-center gap-3 mb-8">
+                            <div class="w-12 h-12 rounded-xl bg-spotify-green flex items-center justify-center flex-shrink-0">
+                                <i class="ph-fill ph-music-note-plus text-2xl text-black"></i>
+                            </div>
+                            <div>
+                                <h1 class="text-2xl font-extrabold text-white">Request Lagu</h1>
+                                <p class="text-xs text-gray-500 mt-0.5">Minta lagu yang ingin kamu dengar di SpotipaiKW</p>
+                            </div>
+                        </div>
+
+                        <!-- Form Request -->
+                        <div class="bg-spotify-elevated rounded-2xl p-6 mb-8 border border-gray-800">
+                            <form id="request-form" class="space-y-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Nama Kamu</label>
+                                    <input type="text" id="req-name" placeholder="Contoh: Putra" required
+                                        class="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-spotify-green transition-colors placeholder-gray-600">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Judul Lagu yang Diminta</label>
+                                    <input type="text" id="req-song" placeholder="Contoh: Kill Bill - SZA" required
+                                        class="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-spotify-green transition-colors placeholder-gray-600">
+                                </div>
+                                <button type="submit" class="w-full py-3 bg-spotify-green hover:bg-green-400 text-black font-bold rounded-full transition-colors text-sm flex items-center justify-center gap-2">
+                                    <i class="ph-fill ph-paper-plane-right text-lg"></i>
+                                    Kirim Request
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Tabel Request -->
+                        <div>
+                            <h2 class="text-base font-bold text-white mb-4">Daftar Request (<span id="req-count">0</span>)</h2>
+                            <div class="bg-spotify-elevated rounded-2xl border border-gray-800 overflow-hidden">
+                                <table class="w-full text-sm text-gray-400">
+                                    <thead class="text-xs uppercase bg-black/60 text-gray-500 border-b border-gray-800">
+                                        <tr>
+                                            <th class="px-4 py-3 text-left font-medium">#</th>
+                                            <th class="px-4 py-3 text-left font-medium">Nama</th>
+                                            <th class="px-4 py-3 text-left font-medium">Lagu</th>
+                                            <th class="px-4 py-3 text-center font-medium">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="request-table-body">
+                                        <tr><td colspan="4" class="px-4 py-8 text-center text-gray-600 text-xs">Belum ada request.</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -1558,6 +1612,8 @@
                 // Auto scroll ke atas saat buka lirik
                 const lyricsTab = document.getElementById('tab-lyrics');
                 if (lyricsTab) lyricsTab.scrollTo({ top: 0, behavior: 'smooth' });
+                const mainEl = document.querySelector('main');
+                if (mainEl) mainEl.scrollTo({ top: 0, behavior: 'smooth' });
                 // Auto-minimize sidebar saat buka lirik
                 const sidebar = document.getElementById('main-sidebar');
                 const btn = document.getElementById('sidebar-toggle-btn');
@@ -1575,6 +1631,15 @@
                 renderAdminLibrary();
             }
             else if (tabId === 'admin-add') populateArtistSuggestions();
+            else if (tabId === 'about') {
+                const mainEl = document.querySelector('main');
+                if (mainEl) mainEl.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+            else if (tabId === 'request') {
+                renderRequestTable();
+                const mainEl = document.querySelector('main');
+                if (mainEl) mainEl.scrollTo({ top: 0, behavior: 'smooth' });
+            }
         }
 
         // --- Playlists Management (LocalStorage) ---
@@ -2503,8 +2568,13 @@
                 
                 showMessage(`Berhasil menambahkan: ${title}`);
                 document.getElementById('add-song-form').reset();
-                renderAdminLibrary(); 
-                switchTab('admin-manage'); 
+                resetArtistTags();
+                populateArtistSuggestions();
+                // Uploader (admin/admin) tetap di tab tambah lagu, bukan redirect ke kelola
+                if (currentUser && currentUser.role !== 'uploader') {
+                    renderAdminLibrary();
+                    switchTab('admin-manage');
+                }
 
             } catch (error) {
                 console.error("Error saving song:", error);
