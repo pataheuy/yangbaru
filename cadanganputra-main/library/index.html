@@ -3,438 +3,850 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pufutara Library</title>
+    <title>Pufutara Digilib</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- PageFlip.js for 3D Book Flip Animation -->
+    <script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.js"></script>
+    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&display=swap');
 
         body {
-            background-color: #f9f9f9;
-            color: #111;
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+            background-color: #ffffff;
+            color: #000000;
         }
 
-        /* --- Sidebar (Kiri) --- */
-        .sidebar {
-            width: 260px;
-            background-color: #fff;
-            border-right: 1px solid #eaeaea;
+        .book-font {
+            font-family: 'Merriweather', serif;
+        }
+
+        /* PageFlip Custom Styles */
+        .flip-book {
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            border-radius: 4px;
+            display: none; /* Hidden until loaded */
+        }
+
+        .page {
+            background-color: #fdfcf7; /* Slight warm paper color */
+            border: solid 1px #e8e8e8;
+            overflow: hidden;
+            box-shadow: inset -2px 0 5px rgba(0,0,0,0.02);
+        }
+
+        .page.--left {
+            border-right: 0;
+            box-shadow: inset -7px 0 30px -7px rgba(0, 0, 0, 0.1);
+        }
+
+        .page.--right {
+            border-left: 0;
+            box-shadow: inset 7px 0 30px -7px rgba(0, 0, 0, 0.1);
+        }
+
+        .page-content {
+            padding: 30px;
+            height: 100%;
             display: flex;
             flex-direction: column;
-            padding: 30px 24px;
-            z-index: 10;
-            flex-shrink: 0;
+            justify-content: space-between;
         }
 
-        .logo { font-size: 1.5rem; font-weight: 900; letter-spacing: -1px; margin-bottom: 50px; }
-        .logo span { color: #888; font-weight: 400; }
-
-        .nav-menu { list-style: none; display: flex; flex-direction: column; gap: 15px; }
-        .nav-menu li { width: 100%; }
-        .nav-btn {
-            background: none; border: none; text-align: left; width: 100%;
-            font-size: 1rem; font-weight: 600; color: #777; padding: 10px 15px;
-            border-radius: 8px; cursor: pointer; transition: all 0.2s;
-        }
-        .nav-btn:hover { background: #f5f5f5; color: #111; }
-        .nav-btn.active { background: #111; color: #fff; }
-
-        /* --- Main Content (Tengah - Rak Buku) --- */
-        .main-content {
-            flex: 1; overflow-y: auto; padding: 40px 60px; position: relative;
-        }
-        .main-content::-webkit-scrollbar { width: 6px; }
-        .main-content::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
-
-        .header-container { margin-bottom: 40px; }
-        .back-btn { 
-            text-decoration: none; color: #999; font-size: 0.9rem; font-weight: 600;
-            transition: 0.3s; display: inline-block; margin-bottom: 20px;
-        }
-        .back-btn:hover { color: #111; }
-        
-        .top-bar { display: flex; justify-content: space-between; align-items: center; }
-        .greeting { font-size: 2.5rem; font-weight: 900; letter-spacing: -1px; }
-        .date-today { color: #888; font-weight: 500; margin-top: 5px; }
-
-        /* --- Book Grid --- */
-        .book-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 40px 30px;
+        .page-text {
+            font-size: 14px;
+            line-height: 1.8;
+            text-align: justify;
         }
 
-        .book-card {
-            cursor: pointer; display: flex; flex-direction: column;
-            transition: transform 0.3s ease;
+        .page-number {
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+            margin-top: 10px;
         }
-        .book-card:hover { transform: translateY(-8px); }
-        .book-card:hover .book-cover { box-shadow: 0 15px 30px rgba(0,0,0,0.15); }
 
-        .book-cover {
-            width: 100%; aspect-ratio: 2 / 3; /* Proporsi buku */
-            background-color: #eee; border-radius: 8px 12px 12px 8px; /* Efek punggung buku */
-            margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-            transition: box-shadow 0.3s ease; position: relative; overflow: hidden;
-            display: flex; align-items: center; justify-content: center; padding: 20px; text-align: center;
+        .page-cover {
+            background-color: #2563eb;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            background-size: cover;
+            background-position: center;
         }
-        /* Efek lipatan buku */
-        .book-cover::before {
-            content: ''; position: absolute; top: 0; left: 0; height: 100%; width: 10px;
-            background: linear-gradient(to right, rgba(255,255,255,0.4), rgba(255,255,255,0) 100%);
+
+        .page-cover::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 20px;
+            background: linear-gradient(to right, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0) 100%);
         }
         
-        .cover-title { color: #fff; font-size: 1.2rem; font-weight: 800; text-transform: uppercase; line-height: 1.2; z-index: 1;}
-
-        .book-info { flex: 1; }
-        .book-title { font-size: 1rem; font-weight: 700; color: #111; margin-bottom: 5px; line-height: 1.3; }
-        .book-author { font-size: 0.85rem; color: #777; font-weight: 500; }
-        .category-hidden { display: none; }
-
-        /* --- Side Drawer (Panel Detail Buku) --- */
-        .backdrop {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.4); z-index: 90; opacity: 0; visibility: hidden;
-            transition: all 0.3s ease; backdrop-filter: blur(2px);
+        .page.--right .page-cover::after {
+            left: 0;
+            right: auto;
+            background: linear-gradient(to right, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0) 100%);
         }
-        .backdrop.open { opacity: 1; visibility: visible; }
 
-        .side-drawer {
-            position: fixed; top: 0; right: 0; width: 400px; max-width: 90%; height: 100%;
-            background: #fff; z-index: 100; box-shadow: -5px 0 30px rgba(0,0,0,0.1);
-            transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            display: flex; flex-direction: column; overflow-y: auto;
+        .page.--left .page-cover::after {
+            right: 0;
+            left: auto;
+            background: linear-gradient(to left, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0) 100%);
         }
-        .side-drawer.open { transform: translateX(0); }
 
-        .drawer-header { padding: 30px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
-        .drawer-title { font-size: 1.2rem; font-weight: 800; }
-        .close-drawer { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #888; transition: 0.2s; }
-        .close-drawer:hover { color: #111; }
-
-        .drawer-content { padding: 30px; flex: 1; }
-        .drawer-cover { width: 160px; height: 240px; background: #eee; border-radius: 8px; margin: 0 auto 20px; display: block; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-        .drawer-book-title { font-size: 1.5rem; font-weight: 800; text-align: center; margin-bottom: 5px; }
-        .drawer-book-author { font-size: 1rem; color: #777; text-align: center; margin-bottom: 25px; }
-        
-        .drawer-synopsis { font-size: 0.95rem; line-height: 1.6; color: #444; margin-bottom: 30px; }
-        
-        .read-btn {
-            display: block; width: 100%; padding: 15px; background: #111; color: #fff;
-            border: none; border-radius: 8px; font-size: 1rem; font-weight: 700;
-            cursor: pointer; text-align: center; transition: 0.2s; margin-top: auto;
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
         }
-        .read-btn:hover { background: #333; }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #111827; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #000000; 
+        }
 
-        /* Empty State */
-        .no-book { grid-column: 1 / -1; text-align: center; padding: 50px; color: #888; font-size: 1.1rem; display: none; }
+        /* Marquee Animation */
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .animate-marquee {
+            display: flex;
+            width: max-content;
+            animation: marquee 30s linear infinite;
+        }
+        .animate-marquee:hover {
+            animation-play-state: paused;
+        }
     </style>
 </head>
-<body>
+<body class="min-h-screen flex flex-col bg-black">
 
-    <aside class="sidebar">
-        <div class="logo">PUFUTARA.<span>LIB</span></div>
-        <ul class="nav-menu">
-            <li><button class="nav-btn active" data-filter="all">Semua Buku</button></li>
-            <li><button class="nav-btn" data-filter="fiksi">Fiksi & Sastra</button></li>
-            <li><button class="nav-btn" data-filter="self">Self-Improvement</button></li>
-            <li><button class="nav-btn" data-filter="tech">Teknologi</button></li>
-        </ul>
-    </aside>
-
-    <main class="main-content">
-        <div class="header-container">
-            <a href="../index.html" class="back-btn">← Kembali ke Archive</a>
-            <header class="top-bar">
-                <div>
-                    <h1 class="greeting">Koleksi Buku.</h1>
-                    <p class="date-today" id="currentDate">Memuat tanggal...</p>
+    <!-- Navigation -->
+    <nav id="mainNav" class="bg-white border-b border-gray-200 fixed w-full top-0 z-50 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center cursor-pointer" onclick="goHome()">
+                    <i data-lucide="book-open" class="text-black h-8 w-8 mr-2"></i>
+                    <span class="font-bold text-xl tracking-tight text-black">Pufutara <span class="text-gray-500">Digilib</span></span>
                 </div>
-            </header>
+
+                <!-- Action Button -->
+                <div class="flex items-center">
+                    <button onclick="openModal()" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-full shadow-sm text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-colors">
+                        <i data-lucide="upload" class="h-4 w-4 mr-2"></i>
+                        Upload Buku
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Parallax Wrapper (Hero & Library) -->
+    <div id="parallaxWrapper" class="relative w-full pt-16 block">
+        
+        <!-- Hero Section (Sticky) -->
+        <div id="heroSection" class="sticky top-16 w-full h-[60vh] bg-black flex flex-col justify-center items-center text-center px-4 z-0">
+            <!-- Penambahan Padding Top 30px di elemen tulisan Perpustakaan Era Baru -->
+            <span class="inline-block py-1 px-3 rounded-full bg-gray-800 text-white text-xs font-bold tracking-wide uppercase mb-6 border border-gray-700 mt-[30px]">Perpustakaan Era Baru</span>
+            <h2 class="text-4xl md:text-6xl font-extrabold text-white tracking-tight mb-4">
+                Koleksi Terlengkap<br>
+                <span class="text-gray-400">Buku Digital Pilihan</span>
+            </h2>
+            <p class="mt-4 text-base md:text-xl text-gray-400 max-w-2xl mx-auto mb-10">
+                Nikmati pengalaman membaca buku digital layaknya buku fisik. Jelajahi ribuan judul favoritmu hari ini.
+            </p>
+            
+            <!-- Centered Search Bar -->
+            <div class="w-full max-w-2xl mx-auto relative group">
+                <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                    <i data-lucide="search" class="h-6 w-6 text-gray-400 group-focus-within:text-black transition-colors"></i>
+                </div>
+                <input type="text" id="searchInput" class="block w-full pl-14 pr-4 py-4 border border-gray-700 rounded-full leading-5 bg-white/10 backdrop-blur-md text-white placeholder-gray-300 focus:outline-none focus:bg-white focus:text-black focus:ring-4 focus:ring-gray-500 text-base sm:text-lg shadow-2xl transition-all duration-300" placeholder="Cari judul buku atau penulis...">
+            </div>
         </div>
 
-        <div class="book-grid" id="bookGrid">
+        <!-- Main Content: Library View (Slides over Hero) -->
+        <main id="libraryView" class="relative z-10 bg-white rounded-t-[2.5rem] sm:rounded-t-[3.5rem] shadow-[0_-10px_40px_rgba(0,0,0,0.5)] min-h-screen pt-10 pb-24 px-4 sm:px-6 lg:px-8 mt-[5vh]">
+            <div class="max-w-screen-2xl mx-auto">
+                
+                <!-- Categories Marquee -->
+                <div class="overflow-hidden mb-12 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
+                    <div class="animate-marquee space-x-3">
+                        <!-- Group 1 -->
+                        <button onclick="filterCategory('')" class="px-6 py-2.5 rounded-full bg-black text-white text-sm font-semibold shadow-md shrink-0 cursor-pointer hover:bg-gray-800 transition">Semua Kategori</button>
+                        <button onclick="filterCategory('Fiksi')" class="px-6 py-2.5 rounded-full bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 text-sm font-medium shrink-0 transition-colors cursor-pointer">Fiksi & Sastra</button>
+                        <button onclick="filterCategory('Sejarah')" class="px-6 py-2.5 rounded-full bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 text-sm font-medium shrink-0 transition-colors cursor-pointer">Sejarah Dunia</button>
+                        <button onclick="filterCategory('Pengembangan')" class="px-6 py-2.5 rounded-full bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 text-sm font-medium shrink-0 transition-colors cursor-pointer">Pengembangan Diri</button>
+                        <button onclick="filterCategory('Teknologi')" class="px-6 py-2.5 rounded-full bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 text-sm font-medium shrink-0 transition-colors cursor-pointer">Teknologi & Sains</button>
+                        <button onclick="filterCategory('Biografi')" class="px-6 py-2.5 rounded-full bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 text-sm font-medium shrink-0 transition-colors cursor-pointer">Biografi</button>
+                        <button onclick="filterCategory('Manga')" class="px-6 py-2.5 rounded-full bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 text-sm font-medium shrink-0 transition-colors cursor-pointer">Komik & Manga</button>
+                        
+                        <!-- Group 2 (Duplicate for seamless loop) -->
+                        <button onclick="filterCategory('')" class="px-6 py-2.5 rounded-full bg-black text-white text-sm font-semibold shadow-md shrink-0 ml-3 cursor-pointer hover:bg-gray-800 transition">Semua Kategori</button>
+                        <button onclick="filterCategory('Fiksi')" class="px-6 py-2.5 rounded-full bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 text-sm font-medium shrink-0 transition-colors cursor-pointer">Fiksi & Sastra</button>
+                        <button onclick="filterCategory('Sejarah')" class="px-6 py-2.5 rounded-full bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 text-sm font-medium shrink-0 transition-colors cursor-pointer">Sejarah Dunia</button>
+                        <button onclick="filterCategory('Pengembangan')" class="px-6 py-2.5 rounded-full bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 text-sm font-medium shrink-0 transition-colors cursor-pointer">Pengembangan Diri</button>
+                        <button onclick="filterCategory('Teknologi')" class="px-6 py-2.5 rounded-full bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 text-sm font-medium shrink-0 transition-colors cursor-pointer">Teknologi & Sains</button>
+                        <button onclick="filterCategory('Biografi')" class="px-6 py-2.5 rounded-full bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 text-sm font-medium shrink-0 transition-colors cursor-pointer">Biografi</button>
+                        <button onclick="filterCategory('Manga')" class="px-6 py-2.5 rounded-full bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 text-sm font-medium shrink-0 transition-colors cursor-pointer">Komik & Manga</button>
+                    </div>
+                </div>
+
+                <div id="koleksi" class="flex justify-between items-end mb-6">
+                    <div>
+                        <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">Koleksi Buku</h2>
+                        <p class="text-sm sm:text-base text-gray-500 mt-1 sm:mt-2">Buku-buku terbaik pilihan editor Pufutara.</p>
+                    </div>
+                </div>
+                
+                <!-- Book Grid -->
+                <div id="bookGrid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-7 xl:grid-cols-8 gap-x-4 gap-y-8">
+                    <!-- Books will be injected here via JS -->
+                </div>
+
+                <div id="noResults" class="hidden text-center py-16">
+                    <i data-lucide="book-x" class="h-20 w-20 text-gray-300 mx-auto mb-5"></i>
+                    <h3 class="text-xl font-bold text-gray-900">Buku tidak ditemukan</h3>
+                    <p class="text-gray-500 mt-2">Coba kata kunci lain atau upload buku baru.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Detail Buku View (Hidden by default) -->
+    <div id="detailView" class="hidden relative z-20 bg-gray-50 min-h-screen pt-24 pb-24 px-4 sm:px-6 lg:px-8 w-full">
+        <div class="max-w-5xl mx-auto">
+            <button onclick="closeDetails()" class="inline-flex items-center text-gray-600 hover:text-black transition-colors mb-6 font-medium">
+                <i data-lucide="arrow-left" class="h-5 w-5 mr-2"></i> Kembali ke Perpustakaan
+            </button>
             
-            <div class="book-card" data-category="fiksi">
-                <div class="book-cover" style="background: linear-gradient(135deg, #111, #444);">
-                    <span class="cover-title">Hujan di<br>Bulan Juni</span>
-                </div>
-                <div class="book-info">
-                    <h3 class="book-title">Hujan di Bulan Juni</h3>
-                    <p class="book-author">Sapardi Djoko Damono</p>
-                </div>
-                <div class="hidden-synopsis" style="display: none;">
-                    Kumpulan puisi yang magis dan menyentuh hati. Mengisahkan tentang ketabahan, kerinduan, dan cinta yang tak terucapkan, direpresentasikan melalui metafora alam yang indah.
-                </div>
-                <div class="hidden-color" style="display: none;">linear-gradient(135deg, #111, #444)</div>
-            </div>
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="flex flex-col md:flex-row">
+                    <!-- Cover and Action (Left) -->
+                    <div class="w-full md:w-1/3 bg-gray-100 p-8 flex flex-col items-center border-r border-gray-200">
+                        <div class="relative w-48 shadow-2xl rounded-md overflow-hidden aspect-[2/3] mb-8">
+                            <img id="detailCover" src="" alt="Cover" class="w-full h-full object-cover">
+                        </div>
+                        <button onclick="startReading()" class="w-full inline-flex justify-center items-center px-6 py-3 border border-transparent text-base font-bold rounded-full shadow-md text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+                            <i data-lucide="book-open" class="h-5 w-5 mr-2"></i> Mulai Membaca
+                        </button>
+                    </div>
+                    
+                    <!-- Info & Comments (Right) -->
+                    <div class="w-full md:w-2/3 p-8">
+                        <div class="mb-2 flex items-center text-sm font-medium text-blue-600">
+                            <span id="detailCategory">E-Book Digital</span>
+                        </div>
+                        <h1 id="detailTitle" class="text-3xl font-extrabold text-gray-900 leading-tight mb-2">Judul Buku</h1>
+                        <p id="detailAuthor" class="text-lg text-gray-600 mb-6 font-medium">Penulis</p>
+                        
+                        <div class="mb-8">
+                            <h3 class="text-lg font-bold text-gray-900 mb-3 border-b pb-2">Sinopsis / Deskripsi</h3>
+                            <p id="detailDesc" class="text-gray-700 leading-relaxed text-sm md:text-base text-justify"></p>
+                        </div>
 
-            <div class="book-card" data-category="fiksi">
-                <div class="book-cover" style="background: linear-gradient(135deg, #4a4a4a, #7a7a7a);">
-                    <span class="cover-title">Bumi<br>Manusia</span>
-                </div>
-                <div class="book-info">
-                    <h3 class="book-title">Bumi Manusia</h3>
-                    <p class="book-author">Pramoedya A. Toer</p>
-                </div>
-                <div class="hidden-synopsis" style="display: none;">
-                    Kisah cinta Minke dan Annelies di masa kolonial Hindia Belanda yang penuh dengan intrik, ketidakadilan, dan perjuangan kelas sosial. Mahakarya sastra Indonesia.
-                </div>
-                <div class="hidden-color" style="display: none;">linear-gradient(135deg, #4a4a4a, #7a7a7a)</div>
-            </div>
+                        <!-- Komentar Section -->
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-900 mb-4 border-b pb-2">Komentar & Rating</h3>
+                            
+                            <!-- Daftar Komentar -->
+                            <div id="commentsList" class="space-y-4 mb-6 max-h-64 overflow-y-auto pr-2">
+                                <!-- Comments generated here -->
+                            </div>
 
-            <div class="book-card" data-category="fiksi">
-                <div class="book-cover" style="background: linear-gradient(135deg, #222, #000);">
-                    <span class="cover-title">Laut<br>Bercerita</span>
+                            <!-- Form Tambah Komentar -->
+                            <div class="bg-gray-50 rounded-xl p-5 border border-gray-200 mt-6">
+                                <h4 class="text-sm font-bold text-gray-900 mb-3">Tambahkan Ulasanmu</h4>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-3">
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-700 mb-1">Nama Kamu</label>
+                                        <input type="text" id="commentName" class="w-full rounded-md border border-gray-300 p-2 text-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Contoh: John Doe">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-700 mb-1">Rating</label>
+                                        <select id="commentRating" class="w-full rounded-md border border-gray-300 p-2 text-sm focus:ring-blue-500 focus:border-blue-500">
+                                            <option value="5">⭐⭐⭐⭐⭐ (5/5 Sangat Bagus)</option>
+                                            <option value="4">⭐⭐⭐⭐ (4/5 Bagus)</option>
+                                            <option value="3">⭐⭐⭐ (3/5 Cukup)</option>
+                                            <option value="2">⭐⭐ (2/5 Kurang)</option>
+                                            <option value="1">⭐ (1/5 Sangat Kurang)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">Ulasan</label>
+                                    <textarea id="commentText" rows="3" class="w-full rounded-md border border-gray-300 p-2 text-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Tuliskan pendapatmu tentang buku ini..."></textarea>
+                                </div>
+                                <button onclick="submitComment()" class="inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-black hover:bg-gray-800 focus:outline-none transition-colors">
+                                    <i data-lucide="send" class="h-4 w-4 mr-2"></i> Kirim Ulasan
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="book-info">
-                    <h3 class="book-title">Laut Bercerita</h3>
-                    <p class="book-author">Leila S. Chudori</p>
-                </div>
-                <div class="hidden-synopsis" style="display: none;">
-                    Menyelami kisah kelam para aktivis mahasiswa tahun 1998 yang dihilangkan secara paksa. Sebuah novel tentang keluarga, persahabatan, dan pengkhianatan.
-                </div>
-                <div class="hidden-color" style="display: none;">linear-gradient(135deg, #222, #000)</div>
             </div>
+        </div>
+    </div>
 
-            <div class="book-card" data-category="fiksi">
-                <div class="book-cover" style="background: linear-gradient(135deg, #666, #999);">
-                    <span class="cover-title">Cantik<br>Itu Luka</span>
-                </div>
-                <div class="book-info">
-                    <h3 class="book-title">Cantik Itu Luka</h3>
-                    <p class="book-author">Eka Kurniawan</p>
-                </div>
-                <div class="hidden-synopsis" style="display: none;">
-                    Balutan realisme magis yang menceritakan sejarah gelap Indonesia melalui kisah seorang perempuan bernama Dewi Ayu dan keempat anak perempuannya.
-                </div>
-                <div class="hidden-color" style="display: none;">linear-gradient(135deg, #666, #999)</div>
+    <!-- Main Content: Reader View (Hidden by default) -->
+    <main id="readerView" class="hidden flex-1 bg-gray-50 relative flex flex-col pt-16 z-30 w-full h-screen fixed inset-0">
+        <!-- Reader Toolbar -->
+        <div class="bg-white border-b border-gray-200 px-4 py-3 flex justify-between items-center shadow-sm">
+            <button onclick="closeReader()" class="inline-flex items-center text-gray-600 hover:text-black transition-colors font-medium">
+                <i data-lucide="x" class="h-5 w-5 mr-2"></i>
+                Tutup Buku
+            </button>
+            <div id="readerTitle" class="font-semibold text-gray-900 truncate max-w-md hidden sm:block">Judul Buku</div>
+            <div class="flex space-x-2">
+                <button onclick="prevPage()" class="p-2 rounded-full bg-gray-100 text-black hover:bg-gray-200 transition-colors">
+                    <i data-lucide="chevron-left" class="h-5 w-5"></i>
+                </button>
+                <button onclick="nextPage()" class="p-2 rounded-full bg-gray-100 text-black hover:bg-gray-200 transition-colors">
+                    <i data-lucide="chevron-right" class="h-5 w-5"></i>
+                </button>
             </div>
+        </div>
 
-            <div class="book-card" data-category="self">
-                <div class="book-cover" style="background: linear-gradient(135deg, #e0e0e0, #ffffff); color: #111;">
-                    <span class="cover-title" style="color: #111;">Atomic<br>Habits</span>
-                </div>
-                <div class="book-info">
-                    <h3 class="book-title">Atomic Habits</h3>
-                    <p class="book-author">James Clear</p>
-                </div>
-                <div class="hidden-synopsis" style="display: none;">
-                    Panduan praktis dan terbukti untuk membangun kebiasaan baik dan menghilangkan kebiasaan buruk. Perubahan kecil yang memberikan hasil luar biasa dalam hidup Anda.
-                </div>
-                <div class="hidden-color" style="display: none;">linear-gradient(135deg, #e0e0e0, #ffffff)</div>
-            </div>
-
-            <div class="book-card" data-category="self">
-                <div class="book-cover" style="background: linear-gradient(135deg, #333, #555);">
-                    <span class="cover-title">Bodo<br>Amat</span>
-                </div>
-                <div class="book-info">
-                    <h3 class="book-title">Sebuah Seni Bodo Amat</h3>
-                    <p class="book-author">Mark Manson</p>
-                </div>
-                <div class="hidden-synopsis" style="display: none;">
-                    Pendekatan yang jujur dan blak-blakan tentang cara menjalani hidup yang lebih baik dengan berhenti memedulikan hal-hal yang tidak penting.
-                </div>
-                <div class="hidden-color" style="display: none;">linear-gradient(135deg, #333, #555)</div>
-            </div>
-
-            <div class="book-card" data-category="self">
-                <div class="book-cover" style="background: linear-gradient(135deg, #888, #ccc);">
-                    <span class="cover-title">Filosofi<br>Teras</span>
-                </div>
-                <div class="book-info">
-                    <h3 class="book-title">Filosofi Teras</h3>
-                    <p class="book-author">Henry Manampiring</p>
-                </div>
-                <div class="hidden-synopsis" style="display: none;">
-                    Pengantar filsafat Stoisisme kuno yang disesuaikan dengan kehidupan modern di Indonesia. Cara ampuh mengendalikan emosi negatif dan hidup lebih tangguh.
-                </div>
-                <div class="hidden-color" style="display: none;">linear-gradient(135deg, #888, #ccc)</div>
-            </div>
-
-            <div class="book-card" data-category="self">
-                <div class="book-cover" style="background: linear-gradient(135deg, #1a1a1a, #4d4d4d);">
-                    <span class="cover-title">Deep<br>Work</span>
-                </div>
-                <div class="book-info">
-                    <h3 class="book-title">Deep Work</h3>
-                    <p class="book-author">Cal Newport</p>
-                </div>
-                <div class="hidden-synopsis" style="display: none;">
-                    Aturan untuk meraih kesuksesan terfokus di dunia yang penuh distraksi. Panduan penting bagi para profesional, desainer, dan programmer.
-                </div>
-                <div class="hidden-color" style="display: none;">linear-gradient(135deg, #1a1a1a, #4d4d4d)</div>
-            </div>
-
-            <div class="book-card" data-category="tech">
-                <div class="book-cover" style="background: linear-gradient(135deg, #0f0f0f, #2a2a2a);">
-                    <span class="cover-title">Clean<br>Code</span>
-                </div>
-                <div class="book-info">
-                    <h3 class="book-title">Clean Code</h3>
-                    <p class="book-author">Robert C. Martin</p>
-                </div>
-                <div class="hidden-synopsis" style="display: none;">
-                    Buku suci bagi para programmer. Membahas prinsip-prinsip, pola, dan praktik terbaik dalam menulis kode yang rapi, efisien, dan mudah di-maintain.
-                </div>
-                <div class="hidden-color" style="display: none;">linear-gradient(135deg, #0f0f0f, #2a2a2a)</div>
-            </div>
-
-            <div class="book-card" data-category="tech">
-                <div class="book-cover" style="background: linear-gradient(135deg, #5c5c5c, #8c8c8c);">
-                    <span class="cover-title">Design<br>Of Everyday</span>
-                </div>
-                <div class="book-info">
-                    <h3 class="book-title">The Design of Everyday Things</h3>
-                    <p class="book-author">Don Norman</p>
-                </div>
-                <div class="hidden-synopsis" style="display: none;">
-                    Buku fundamental tentang UX (User Experience). Mengapa beberapa desain membuat kita frustrasi dan bagaimana merancang produk yang intuitif.
-                </div>
-                <div class="hidden-color" style="display: none;">linear-gradient(135deg, #5c5c5c, #8c8c8c)</div>
-            </div>
-
-            <div class="book-card" data-category="tech">
-                <div class="book-cover" style="background: linear-gradient(135deg, #d4d4d4, #f4f4f4); color: #111;">
-                    <span class="cover-title" style="color: #111;">Masa<br>Depan AI</span>
-                </div>
-                <div class="book-info">
-                    <h3 class="book-title">Superintelligence</h3>
-                    <p class="book-author">Nick Bostrom</p>
-                </div>
-                <div class="hidden-synopsis" style="display: none;">
-                    Analisis mendalam tentang apa yang akan terjadi jika mesin melampaui kecerdasan manusia. Peluang, bahaya, dan strategi menghadapinya.
-                </div>
-                <div class="hidden-color" style="display: none;">linear-gradient(135deg, #d4d4d4, #f4f4f4)</div>
-            </div>
-
-            <div class="book-card" data-category="tech">
-                <div class="book-cover" style="background: linear-gradient(135deg, #000, #333);">
-                    <span class="cover-title">Pragmatic<br>Programmer</span>
-                </div>
-                <div class="book-info">
-                    <h3 class="book-title">The Pragmatic Programmer</h3>
-                    <p class="book-author">Andrew Hunt & David Thomas</p>
-                </div>
-                <div class="hidden-synopsis" style="display: none;">
-                    Perjalanan dari sekadar "koder" menjadi programmer profesional. Berisi tips filosofis dan teknis untuk menguasai seni rekayasa perangkat lunak.
-                </div>
-                <div class="hidden-color" style="display: none;">linear-gradient(135deg, #000, #333)</div>
-            </div>
-
-            <div class="no-book" id="noBookMsg">Belum ada buku di kategori ini.</div>
+        <!-- Book Container -->
+        <div class="flex-1 flex justify-center items-center py-4 sm:py-8 overflow-hidden relative" id="bookWrapper">
+            <!-- Pages injected dynamically in JS -->
         </div>
     </main>
 
-    <div class="backdrop" id="backdrop"></div>
-    <div class="side-drawer" id="sideDrawer">
-        <div class="drawer-header">
-            <span class="drawer-title">Detail Buku</span>
-            <button class="close-drawer" id="closeDrawerBtn">&times;</button>
-        </div>
-        <div class="drawer-content">
-            <div class="drawer-cover" id="drawerCover" style="display: flex; align-items: center; justify-content: center; padding: 20px; text-align: center;">
-                <span id="drawerCoverTitle" style="color: #fff; font-size: 1.2rem; font-weight: 800; text-transform: uppercase; line-height: 1.2;"></span>
-            </div>
-            
-            <h2 class="drawer-book-title" id="drawerTitle">Judul Buku</h2>
-            <p class="drawer-book-author" id="drawerAuthor">Nama Penulis</p>
-            
-            <div class="drawer-synopsis" id="drawerSynopsis">
-                Sinopsis buku akan muncul di sini.
-            </div>
+    <!-- Upload Modal -->
+    <div id="uploadModal" class="fixed inset-0 z-[100] hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <!-- Background overlay -->
+            <div class="fixed inset-0 bg-gray-900 bg-opacity-50 transition-opacity" aria-hidden="true" onclick="closeModal()"></div>
 
-            <button class="read-btn" onclick="alert('Fitur membaca PDF akan segera hadir!')">Baca Sekarang</button>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+            <div class="inline-block align-bottom bg-white rounded-xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-gray-100 sm:mx-0 sm:h-10 sm:w-10">
+                            <i data-lucide="book-plus" class="h-6 w-6 text-black"></i>
+                        </div>
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                            <h3 class="text-lg leading-6 font-bold text-gray-900" id="modal-title">Upload Buku Baru</h3>
+                            <div class="mt-4 space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Judul Buku</label>
+                                    <input type="text" id="upTitle" class="mt-1 focus:ring-black focus:border-black block w-full shadow-sm sm:text-sm border-gray-300 rounded-md p-2 border" placeholder="Contoh: Belajar JavaScript">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Penulis</label>
+                                    <input type="text" id="upAuthor" class="mt-1 focus:ring-black focus:border-black block w-full shadow-sm sm:text-sm border-gray-300 rounded-md p-2 border" placeholder="Nama Penulis">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">URL Gambar Sampul (Opsional)</label>
+                                    <input type="url" id="upCover" class="mt-1 focus:ring-black focus:border-black block w-full shadow-sm sm:text-sm border-gray-300 rounded-md p-2 border" placeholder="https://example.com/cover.jpg">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Isi Buku (Teks)</label>
+                                    <textarea id="upContent" rows="6" class="mt-1 focus:ring-black focus:border-black block w-full shadow-sm sm:text-sm border-gray-300 rounded-md p-2 border" placeholder="Masukkan cerita atau isi buku di sini. Teks yang panjang akan otomatis dipisah menjadi beberapa halaman."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" onclick="saveBook()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-black text-base font-medium text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 sm:ml-3 sm:w-auto sm:text-sm">
+                        Simpan Buku
+                    </button>
+                    <button type="button" onclick="closeModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                        Batal
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        // --- DATA BUKU DEFAULT ---
+        const dummyText = "Di sebuah desa terpencil yang dikelilingi oleh pegunungan hijau, hiduplah seorang pemuda bernama Arya. Sejak kecil, Arya selalu tertarik dengan buku-buku tua yang disimpan kakeknya di loteng rumah. Kakeknya adalah seorang sejarawan yang telah berkeliling dunia untuk mengumpulkan cerita-cerita yang hampir terlupakan. Setiap malam, di bawah cahaya lampu minyak yang remang-remang, Arya menghabiskan waktunya membaca kisah-kisah tentang kerajaan kuno, pahlawan legendaris, dan makhluk mitologi yang katanya pernah hidup berdampingan dengan manusia. \n\nSuatu hari, saat sedang membersihkan rak buku kakeknya yang berdebu, Arya menemukan sebuah buku aneh yang belum pernah ia lihat sebelumnya. Sampulnya terbuat dari kulit hitam yang tebal dan usang, tanpa ada judul maupun nama penulis. Di bagian tengah sampul, terdapat sebuah ukiran berbentuk burung hantu bermata merah yang tampak begitu hidup. Didorong oleh rasa penasaran yang tak tertahankan, Arya membuka buku itu perlahan-lahan. Halaman pertamanya kosong, begitu pula halaman kedua dan ketiga. Namun, ketika ia membuka halaman keempat, sebuah tulisan bercahaya keemasan tiba-tiba muncul di atas kertas perkamen tua tersebut. \n\nTulisan itu berisi sebuah peta dan teka-teki misterius. 'Bagi mereka yang mencari kebenaran di balik kabut waktu, ikutilah bayangan elang saat matahari terbenam,' demikian bunyi kalimat pertama teka-teki itu. Arya merasakan jantungnya berdebar kencang. Ia menyadari bahwa ini bukanlah buku biasa, melainkan sebuah petunjuk menuju sesuatu yang besar. Tanpa ragu, ia memutuskan untuk mengikuti petunjuk tersebut. Ia mengemasi beberapa helai pakaian, persediaan makanan secukupnya, dan tentu saja, buku misterius itu. \n\nPerjalanannya dimulai keesokan harinya. Ia menyusuri hutan lebat yang belum pernah ia masuki sebelumnya, melewati sungai-sungai berarus deras, dan mendaki tebing-tebing curam. Selama perjalanan, ia sering kali menemui berbagai rintangan, mulai dari cuaca buruk hingga gangguan hewan liar. Namun, semangatnya tidak pernah padam. Ia selalu teringat pada cerita-cerita petualangan yang sering dibacanya, dan ia merasa seolah-olah kini ia sendiri yang menjadi tokoh utama dalam salah satu cerita tersebut. Petualangan Arya baru saja dimulai, dan ia tidak tahu bahaya apa yang menantinya di ujung jalan sana.";
+
+        function generatePages(text, wordsPerPage = 100) {
+            const words = text.split(' ');
+            let pages = [];
+            for (let i = 0; i < words.length; i += wordsPerPage) {
+                pages.push(words.slice(i, i + wordsPerPage).join(' '));
+            }
+            if(pages.length % 2 !== 0) {
+                pages.push("..."); 
+            }
+            return pages;
+        }
+
+        const defaultContent = generatePages(dummyText);
+
+        let books = [
+            {
+                id: 1,
+                title: "Senja di Jakarta",
+                author: "Mochtar Lubis",
+                cover: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=400&q=80",
+                description: "Novel ini menggambarkan kondisi sosial dan politik di Jakarta pada suatu masa. Menceritakan tentang intrik, kekuasaan, dan kehidupan masyarakat bawah yang berjuang di tengah kerasnya ibukota.",
+                pages: defaultContent,
+                comments: [
+                    { name: "Andi", rating: 5, text: "Sangat merefleksikan keadaan riil masyarakat." }
+                ]
+            },
+            {
+                id: 2,
+                title: "Bumi Manusia",
+                author: "Pramoedya A. Toer",
+                cover: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&w=400&q=80",
+                description: "Minke adalah seorang pribumi yang bersekolah di HBS. Pertemuannya dengan Annelies dan Nyai Ontosoroh menjadi awal kisah cinta dan perjuangan luar biasa melawan penindasan kolonial.",
+                pages: generatePages("Minke adalah seorang pribumi yang bersekolah di HBS, sekolah untuk orang Eropa. Ia sangat pandai dan gemar menulis. Suatu hari, temannya mengajaknya ke rumah seorang Nyai bernama Nyai Ontosoroh. Di sana, Minke bertemu dengan Annelies, putri Nyai Ontosoroh yang sangat cantik. Pertemuan ini adalah awal mula dari sebuah kisah cinta dan perjuangan yang luar biasa dalam menghadapi penindasan kolonial Belanda pada masa itu. Kisah ini tidak hanya tentang cinta, tetapi juga tentang kebangkitan kesadaran nasional dan martabat sebagai manusia merdeka yang menolak untuk terus diinjak-injak oleh bangsa penjajah."),
+                comments: [
+                    { name: "Siti", rating: 5, text: "Karya sastra terbaik Indonesia yang pernah saya baca!" },
+                    { name: "Budi", rating: 4, text: "Sangat inspiratif dan membuka wawasan sejarah." }
+                ]
+            },
+            {
+                id: 3,
+                title: "Pemrograman Web Modern",
+                author: "Budi Santoso",
+                cover: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=400&q=80",
+                description: "Panduan lengkap mempelajari fondasi web: HTML, CSS, dan JavaScript hingga beranjak ke konsep modern, performa, serta aksesibilitas antarmuka pengguna.",
+                pages: generatePages("HTML adalah kerangka dasar dari setiap halaman web. CSS memberikan gaya, warna, dan tata letak. Sedangkan JavaScript memberikan interaktivitas dan logika. Ketiga teknologi ini adalah pilar utama dalam pengembangan antarmuka web masa kini. Dalam buku ini, kita akan mempelajari bagaimana menggabungkan ketiganya untuk menciptakan aplikasi web yang tidak hanya indah secara visual, tetapi juga sangat responsif dan fungsional. Kita juga akan membahas tentang pentingnya aksesibilitas web dan performa aplikasi di era perangkat seluler saat ini."),
+                comments: []
+            },
+            {
+                id: 4,
+                title: "Filosofi Kopi",
+                author: "Dee Lestari",
+                cover: "https://images.unsplash.com/photo-1497935586351-b67a49e012bf?auto=format&fit=crop&w=400&q=80",
+                description: "Kumpulan cerita pendek yang menawan tentang kopi, persahabatan, dan penemuan jati diri di kedai sederhana bernama Filosofi Kopi.",
+                pages: defaultContent,
+                comments: []
+            },
+            {
+                id: 5,
+                title: "Seni Berpikir Positif",
+                author: "Dr. Ibrahim Elfiky",
+                cover: "https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?auto=format&fit=crop&w=400&q=80",
+                description: "Buku pengembangan diri yang menuntun Anda bagaimana menata pikiran, menghilangkan racun kehidupan, dan merengkuh kebahagiaan hakiki.",
+                pages: defaultContent,
+                comments: [
+                    { name: "Ayu", rating: 5, text: "Buku yang mengubah cara pandang saya tentang hidup." }
+                ]
+            },
+            {
+                id: 6,
+                title: "Sejarah Majapahit",
+                author: "Slamet Muljana",
+                cover: "https://images.unsplash.com/photo-1533669955142-6a73332af4db?auto=format&fit=crop&w=400&q=80",
+                description: "Eksplorasi mendalam mengenai masa keemasan kerajaan terbesar di Nusantara, menelusuri literatur kuno dan penemuan arkeologis.",
+                pages: defaultContent,
+                comments: []
+            },
+            {
+                id: 7,
+                title: "Kosmos",
+                author: "Carl Sagan",
+                cover: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=400&q=80",
+                description: "Perjalanan melintasi ruang dan waktu untuk memahami tempat kemanusiaan di dalam alam semesta yang maha luas dan penuh misteri.",
+                pages: defaultContent,
+                comments: []
+            },
+            {
+                id: 8,
+                title: "Desain UI/UX",
+                author: "Don Norman",
+                cover: "https://images.unsplash.com/photo-1561070791-2526d30994b5?auto=format&fit=crop&w=400&q=80",
+                description: "Sebuah kitab wajib bagi para desainer untuk memahami bahwa produk tidak hanya harus indah, namun juga mudah, intuitif, dan melayani kebutuhan penggunanya.",
+                pages: defaultContent,
+                comments: []
+            }
+        ];
+
+        let pageFlipObj = null;
+        let currentBookId = null;
+
+        // --- RENDER LOGIC ---
+        const bookGrid = document.getElementById('bookGrid');
+        const noResults = document.getElementById('noResults');
+
+        function renderLibrary(filterText = '') {
+            bookGrid.innerHTML = '';
             
-            // 1. Tampilkan Tanggal
-            const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            document.getElementById('currentDate').textContent = new Date().toLocaleDateString('id-ID', dateOptions);
+            if (filterText.length > 0) {
+                const libraryElement = document.getElementById('libraryView');
+                if(window.scrollY < 100) {
+                    libraryElement.scrollIntoView({ behavior: 'smooth' });
+                }
+            }
 
-            // 2. Sistem Filter Kategori
-            const filterBtns = document.querySelectorAll('.nav-btn');
-            const books = document.querySelectorAll('.book-card');
-            const noBookMsg = document.getElementById('noBookMsg');
+            const filteredBooks = books.filter(book => 
+                book.title.toLowerCase().includes(filterText.toLowerCase()) || 
+                book.author.toLowerCase().includes(filterText.toLowerCase())
+            );
 
-            filterBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    filterBtns.forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
+            if (filteredBooks.length === 0) {
+                bookGrid.classList.add('hidden');
+                noResults.classList.remove('hidden');
+            } else {
+                bookGrid.classList.remove('hidden');
+                noResults.classList.add('hidden');
 
-                    const targetCat = btn.getAttribute('data-filter');
-                    let visibleCount = 0;
-
-                    books.forEach(book => {
-                        const bookCat = book.getAttribute('data-category');
-                        if (targetCat === 'all' || targetCat === bookCat) {
-                            book.style.display = 'flex';
-                            visibleCount++;
-                        } else {
-                            book.style.display = 'none';
-                        }
-                    });
-
-                    noBookMsg.style.display = (visibleCount === 0) ? 'block' : 'none';
-                });
-            });
-
-            // 3. Logika Side Drawer (Detail Buku)
-            const sideDrawer = document.getElementById('sideDrawer');
-            const backdrop = document.getElementById('backdrop');
-            const closeDrawerBtn = document.getElementById('closeDrawerBtn');
-
-            // Elemen di dalam Drawer
-            const drawerTitle = document.getElementById('drawerTitle');
-            const drawerAuthor = document.getElementById('drawerAuthor');
-            const drawerSynopsis = document.getElementById('drawerSynopsis');
-            const drawerCover = document.getElementById('drawerCover');
-            const drawerCoverTitle = document.getElementById('drawerCoverTitle');
-
-            // Buka Drawer saat buku diklik
-            books.forEach(book => {
-                book.addEventListener('click', () => {
-                    const title = book.querySelector('.book-title').textContent;
-                    const author = book.querySelector('.book-author').textContent;
-                    const synopsis = book.querySelector('.hidden-synopsis').textContent;
-                    const coverColor = book.querySelector('.hidden-color').textContent;
-                    const coverText = book.querySelector('.cover-title').innerHTML;
-                    const isLightCover = book.querySelector('.cover-title').style.color === 'rgb(17, 17, 17)';
-
-                    // Set Data ke Drawer
-                    drawerTitle.textContent = title;
-                    drawerAuthor.textContent = author;
-                    drawerSynopsis.textContent = synopsis;
+                filteredBooks.forEach(book => {
+                    const card = document.createElement('div');
+                    card.className = "group cursor-pointer flex flex-col";
+                    card.onclick = () => openDetails(book.id);
                     
-                    // Replikasi visual cover ke dalam drawer
-                    drawerCover.style.background = coverColor;
-                    drawerCoverTitle.innerHTML = coverText;
-                    drawerCoverTitle.style.color = isLightCover ? '#111' : '#fff';
+                    // Hitung rata-rata rating
+                    let avgRating = 0;
+                    if(book.comments && book.comments.length > 0) {
+                        const total = book.comments.reduce((sum, c) => sum + c.rating, 0);
+                        avgRating = (total / book.comments.length).toFixed(1);
+                    } else {
+                        avgRating = "0.0";
+                    }
 
-                    // Tampilkan Drawer
-                    backdrop.classList.add('open');
-                    sideDrawer.classList.add('open');
+                    // Render rating bintang kecil
+                    let starsHtml = '';
+                    for(let i=1; i<=5; i++) {
+                        starsHtml += `<i data-lucide="star" class="h-3 w-3 ${i <= Math.round(avgRating) ? 'fill-current text-yellow-400' : 'text-gray-300'}"></i>`;
+                    }
+
+                    card.innerHTML = `
+                        <div class="relative w-full aspect-[2/3] rounded-md shadow-sm border border-gray-200 overflow-hidden transform group-hover:-translate-y-1.5 group-hover:shadow-2xl transition-all duration-300 bg-gray-100">
+                            <img src="${book.cover}" alt="${book.title}" class="w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all duration-300 flex items-center justify-center">
+                                <div class="bg-black text-white p-3 rounded-full opacity-0 group-hover:opacity-100 transform scale-50 group-hover:scale-100 transition-all duration-300 shadow-xl">
+                                    <i data-lucide="eye" class="h-6 w-6"></i>
+                                </div>
+                            </div>
+                            <div class="absolute top-2 right-2 bg-black bg-opacity-90 backdrop-blur-sm px-2 py-1 rounded text-[10px] font-bold text-white shadow-sm uppercase tracking-wider">
+                                E-Book
+                            </div>
+                        </div>
+                        <div class="mt-3 px-1">
+                            <p class="text-xs text-gray-500 line-clamp-1 mb-0.5 font-medium">${book.author}</p>
+                            <h3 class="font-bold text-gray-900 text-sm line-clamp-2 leading-tight group-hover:text-black transition-colors">${book.title}</h3>
+                            <div class="mt-1.5 flex items-center text-xs">
+                                ${starsHtml} <span class="ml-1 text-gray-400">(${avgRating})</span>
+                            </div>
+                        </div>
+                    `;
+                    bookGrid.appendChild(card);
                 });
+                lucide.createIcons();
+            }
+        }
+
+        // --- FILTER KATEGORI ---
+        function filterCategory(cat) {
+            document.getElementById('searchInput').value = cat;
+            renderLibrary(cat);
+        }
+
+        function goHome() {
+            closeDetails();
+            closeReader();
+            document.getElementById('searchInput').value = '';
+            renderLibrary('');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+
+        // --- DETAIL VIEW LOGIC ---
+        function openDetails(id) {
+            currentBookId = id;
+            const book = books.find(b => b.id === id);
+            if (!book) return;
+
+            // Update DOM Details
+            document.getElementById('detailCover').src = book.cover;
+            document.getElementById('detailTitle').innerText = book.title;
+            document.getElementById('detailAuthor').innerText = book.author;
+            document.getElementById('detailDesc').innerText = book.description || "Belum ada deskripsi untuk buku ini.";
+            
+            renderComments();
+
+            // Toggle visibility
+            document.getElementById('parallaxWrapper').classList.add('hidden');
+            document.getElementById('detailView').classList.remove('hidden');
+            
+            window.scrollTo({ top: 0, behavior: 'instant' });
+        }
+
+        function closeDetails() {
+            currentBookId = null;
+            document.getElementById('detailView').classList.add('hidden');
+            document.getElementById('parallaxWrapper').classList.remove('hidden');
+        }
+
+        function renderComments() {
+            const book = books.find(b => b.id === currentBookId);
+            const listEl = document.getElementById('commentsList');
+            listEl.innerHTML = '';
+
+            if(!book.comments || book.comments.length === 0) {
+                listEl.innerHTML = `<p class="text-sm text-gray-500 italic">Belum ada ulasan. Jadilah yang pertama memberikan ulasan!</p>`;
+                return;
+            }
+
+            book.comments.forEach(comment => {
+                let stars = '';
+                for(let i=1; i<=5; i++) {
+                    stars += `<span class="text-sm ${i <= comment.rating ? 'text-yellow-400' : 'text-gray-300'}">★</span>`;
+                }
+                
+                listEl.innerHTML += `
+                    <div class="bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
+                        <div class="flex items-center justify-between mb-1">
+                            <span class="font-bold text-sm text-gray-900">${comment.name}</span>
+                            <div>${stars}</div>
+                        </div>
+                        <p class="text-sm text-gray-600">${comment.text}</p>
+                    </div>
+                `;
+            });
+        }
+
+        function submitComment() {
+            if(!currentBookId) return;
+            
+            const name = document.getElementById('commentName').value.trim();
+            const rating = parseInt(document.getElementById('commentRating').value);
+            const text = document.getElementById('commentText').value.trim();
+
+            if(!name || !text) {
+                alert("Mohon isi nama dan ulasan Anda.");
+                return;
+            }
+
+            const bookIndex = books.findIndex(b => b.id === currentBookId);
+            if(bookIndex !== -1) {
+                if(!books[bookIndex].comments) books[bookIndex].comments = [];
+                books[bookIndex].comments.push({ name, rating, text });
+                
+                // Clear form
+                document.getElementById('commentName').value = '';
+                document.getElementById('commentText').value = '';
+                document.getElementById('commentRating').value = '5';
+                
+                // Re-render
+                renderComments();
+                // Re-render library in background to update stars
+                renderLibrary(document.getElementById('searchInput').value);
+            }
+        }
+
+
+        // --- BOOK READER LOGIC (PageFlip) ---
+        function startReading() {
+            if(!currentBookId) return;
+            const book = books.find(b => b.id === currentBookId);
+
+            // Hide Details, Show Reader
+            document.getElementById('detailView').classList.add('hidden');
+            document.getElementById('mainNav').classList.add('hidden');
+            document.getElementById('readerView').classList.remove('hidden');
+            document.getElementById('readerView').classList.add('flex'); 
+            
+            // Set Title
+            document.getElementById('readerTitle').innerText = book.title;
+
+            // Pastikan elemen div buku dibuat jika sebelumnya terhapus oleh PageFlip destroy
+            let bookEl = document.getElementById('book');
+            if (!bookEl) {
+                bookEl = document.createElement('div');
+                bookEl.id = 'book';
+                bookEl.className = 'flip-book';
+                document.getElementById('bookWrapper').appendChild(bookEl);
+            }
+
+            // Generate HTML for pages
+            bookEl.innerHTML = ''; 
+            
+            // Front Cover
+            bookEl.innerHTML += `
+                <div class="page page-cover" data-density="hard" style="background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('${book.cover}')">
+                    <div class="page-content justify-center items-center h-full text-white drop-shadow-lg">
+                        <h1 class="text-3xl font-bold mb-4 font-serif leading-tight">${book.title}</h1>
+                        <p class="text-lg opacity-90">${book.author}</p>
+                    </div>
+                </div>
+            `;
+
+            // Inner Cover (Blank)
+            bookEl.innerHTML += `
+                <div class="page" data-density="hard"><div class="page-content"></div></div>
+            `;
+
+            // Pages Content
+            book.pages.forEach((pageContent, index) => {
+                bookEl.innerHTML += `
+                    <div class="page">
+                        <div class="page-content book-font">
+                            <div class="page-text">${pageContent.replace(/\n/g, '<br><br>')}</div>
+                            <div class="page-number">${index + 1}</div>
+                        </div>
+                    </div>
+                `;
             });
 
-            // Tutup Drawer (Fungsi Helper)
-            const closeDrawer = () => {
-                sideDrawer.classList.remove('open');
-                backdrop.classList.remove('open');
+            // Back Inner Cover & Back Cover
+            bookEl.innerHTML += `<div class="page" data-density="hard"><div class="page-content"></div></div>`;
+            bookEl.innerHTML += `
+                <div class="page page-cover" data-density="hard" style="background-color: #111827;">
+                    <div class="page-content justify-center items-center">
+                        <div class="w-16 h-16 rounded-full bg-white bg-opacity-10 flex items-center justify-center mb-4 border border-gray-600">
+                            <i data-lucide="book-open" class="h-8 w-8 text-white"></i>
+                        </div>
+                        <p class="text-gray-300 text-sm font-light">Pufutara Digilib</p>
+                    </div>
+                </div>
+            `;
+
+            lucide.createIcons();
+            bookEl.style.display = 'block';
+
+            // Initialize PageFlip
+            const containerWidth = document.getElementById('bookWrapper').clientWidth;
+            const containerHeight = document.getElementById('bookWrapper').clientHeight;
+            
+            let bWidth = 350;
+            let bHeight = 500;
+
+            if (containerWidth < 768) {
+                bWidth = containerWidth / 2 - 20; 
+                bHeight = containerHeight - 60;
+            }
+
+            pageFlipObj = new St.PageFlip(bookEl, {
+                width: bWidth,
+                height: bHeight,
+                size: "stretch",
+                minWidth: 200,
+                maxWidth: 500,
+                minHeight: 300,
+                maxHeight: 700,
+                maxShadowOpacity: 0.5,
+                showCover: true,
+                mobileScrollSupport: false
+            });
+
+            pageFlipObj.loadFromHTML(document.querySelectorAll('.page'));
+        }
+
+        function closeReader() {
+            if (pageFlipObj) {
+                try {
+                    pageFlipObj.destroy();
+                } catch(e) {
+                    console.error("PageFlip destroy error: ", e);
+                }
+                pageFlipObj = null;
+            }
+            
+            // Pencegahan error jika elemen 'book' sudah terhapus oleh proses destroy
+            let bookEl = document.getElementById('book');
+            if (bookEl) {
+                bookEl.style.display = 'none';
+            }
+
+            document.getElementById('readerView').classList.add('hidden');
+            document.getElementById('readerView').classList.remove('flex');
+            
+            document.getElementById('mainNav').classList.remove('hidden');
+            
+            // Return to detail view if a book is selected, else library
+            if(currentBookId) {
+                document.getElementById('detailView').classList.remove('hidden');
+            } else {
+                document.getElementById('parallaxWrapper').classList.remove('hidden');
+            }
+        }
+
+        function prevPage() { if (pageFlipObj) pageFlipObj.flipPrev(); }
+        function nextPage() { if (pageFlipObj) pageFlipObj.flipNext(); }
+
+        document.addEventListener('keydown', (e) => {
+            if (document.getElementById('readerView').classList.contains('hidden')) return;
+            if (e.key === 'ArrowLeft') prevPage();
+            if (e.key === 'ArrowRight') nextPage();
+            if (e.key === 'Escape') closeReader();
+        });
+
+
+        // --- SEARCH LOGIC ---
+        const searchInput = document.getElementById('searchInput');
+        searchInput.addEventListener('input', (e) => renderLibrary(e.target.value));
+
+
+        // --- MODAL UPLOAD LOGIC ---
+        function openModal() { document.getElementById('uploadModal').classList.remove('hidden'); }
+        function closeModal() {
+            document.getElementById('uploadModal').classList.add('hidden');
+            document.getElementById('upTitle').value = '';
+            document.getElementById('upAuthor').value = '';
+            document.getElementById('upCover').value = '';
+            document.getElementById('upContent').value = '';
+        }
+
+        function saveBook() {
+            const title = document.getElementById('upTitle').value.trim();
+            const author = document.getElementById('upAuthor').value.trim();
+            let cover = document.getElementById('upCover').value.trim();
+            const content = document.getElementById('upContent').value.trim();
+
+            if (!title || !author || !content) {
+                alert("Judul, Penulis, dan Isi Buku harus diisi!");
+                return;
+            }
+
+            if (!cover.startsWith('http')) {
+                cover = `https://ui-avatars.com/api/?name=${encodeURIComponent(title)}&background=111827&color=fff&size=512&font-size=0.3`;
+            }
+
+            const newBook = {
+                id: books.length + 1,
+                title: title,
+                author: author,
+                cover: cover,
+                description: "Buku baru yang diupload oleh pengguna.",
+                pages: generatePages(content),
+                comments: []
             };
 
-            closeDrawerBtn.addEventListener('click', closeDrawer);
-            backdrop.addEventListener('click', closeDrawer); // Klik area gelap untuk tutup
+            books.unshift(newBook); 
+            renderLibrary(document.getElementById('searchInput').value);
+            closeModal();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+
+        // --- INITIALIZATION ---
+        window.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            renderLibrary();
+        });
+
+        window.addEventListener('resize', () => {
+            if(pageFlipObj && !document.getElementById('readerView').classList.contains('hidden')) {
+               pageFlipObj.update();
+            }
         });
     </script>
 </body>
