@@ -35,6 +35,44 @@
             background: #94a3b8; /* slate-400 */
         }
 
+        /* Animasi Masuk Kustom */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(24px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        .animate-float {
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .delay-100 { animation-delay: 100ms; }
+        .delay-200 { animation-delay: 200ms; }
+        .delay-300 { animation-delay: 300ms; }
+
         /* Layout Utama dengan Sidebar */
         .app-container {
             display: flex;
@@ -214,89 +252,193 @@
 </head>
 <body class="bg-slate-50 text-slate-800 flex flex-col h-screen select-none antialiased">
 
-    <!-- ==================== LANDING PAGE SECTION ==================== -->
-    <div id="landingPage" class="min-h-screen bg-[#09090b] text-white flex flex-col justify-between overflow-y-auto">
+    <!-- ==================== LANDING PAGE SECTION (MODERN WHITE THEME WITH BLUE ACCENTS) ==================== -->
+    <div id="landingPage" class="min-h-screen bg-[#fafafa] text-zinc-900 flex flex-col justify-between overflow-y-auto">
+        
         <!-- Navigation -->
-        <header class="flex items-center justify-between px-8 py-6 max-w-7xl mx-auto w-full">
+        <header class="flex items-center justify-between px-8 py-5 max-w-7xl mx-auto w-full border-b border-zinc-100 bg-white/80 backdrop-blur sticky top-0 z-50">
             <div class="flex items-center gap-3">
-                <div class="bg-blue-600 p-2 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
-                    <i class="ph-fill ph-file-text text-2xl text-white"></i>
+                <div class="bg-blue-600 p-2 rounded-xl flex items-center justify-center shadow-md shadow-blue-500/10">
+                    <i class="ph-fill ph-file-text text-xl text-white"></i>
                 </div>
-                <span class="text-xl font-bold tracking-tight font-display text-white">Pufutara Doc</span>
+                <span class="text-lg font-extrabold tracking-tight font-display text-zinc-950">Pufutara Doc</span>
             </div>
             <div class="flex items-center gap-4">
-                <button onclick="startWriting()" class="bg-white text-black hover:bg-zinc-200 px-5 py-2 rounded-lg font-semibold text-sm transition-all shadow-md active:scale-95">
-                    Mulai Menulis
+                <button onclick="startWriting()" class="bg-zinc-950 text-white hover:bg-zinc-900 px-5 py-2.5 rounded-lg font-semibold text-sm transition-all shadow-sm active:scale-95 flex items-center gap-1.5">
+                    Mulai Menulis <i class="ph ph-note-pencil"></i>
                 </button>
             </div>
         </header>
 
-        <!-- Hero Section -->
-        <main class="max-w-5xl mx-auto px-8 py-12 flex flex-col items-center text-center my-auto">
-            <div class="inline-flex items-center gap-2 px-3 py-1 bg-zinc-950 border border-zinc-800 rounded-full text-xs text-zinc-400 font-medium mb-6">
-                <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
-                Pengolahan Kata Generasi Baru
-            </div>
+        <!-- Main Content Hero -->
+        <main class="max-w-7xl mx-auto px-6 py-16 flex flex-col items-center">
             
-            <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight font-display mb-6 leading-tight max-w-3xl">
-                Tulis Ide Hebat Anda dengan <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">Pufutara Doc</span>
-            </h1>
-            
-            <p class="text-zinc-400 text-lg md:text-xl max-w-2xl mb-10 leading-relaxed">
-                Platform pengolah kata berbasis web yang minimalis, cepat, dan modern. Dilengkapi dengan auto-save, manajemen tabel interaktif, dan penataan halaman otomatis.
-            </p>
+            <!-- Hero Content -->
+            <div class="flex flex-col items-center text-center max-w-4xl animate-fade-in-up">
+                <div class="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 rounded-full text-xs text-blue-700 font-semibold mb-6 shadow-sm">
+                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
+                    Versi 2.1 Baru Dirilis
+                </div>
+                
+                <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight font-display mb-6 leading-tight max-w-3xl text-zinc-950">
+                    Pengalaman Menulis Modern, <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Sederhana & Cepat</span>
+                </h1>
+                
+                <p class="text-zinc-500 text-lg md:text-xl max-w-2xl mb-10 leading-relaxed">
+                    Ubah ide kreatif Anda menjadi dokumen profesional langsung dari browser. Dilengkapi dengan auto-save instan, manajemen tabel dinamis, dan layout kertas asli.
+                </p>
 
-            <div class="flex flex-col sm:flex-row gap-4 mb-16">
-                <button onclick="startWriting()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-4 rounded-xl text-base transition-all shadow-lg shadow-blue-600/20 active:scale-95 flex items-center gap-2">
-                    Mulai Menulis Sekarang <i class="ph ph-arrow-right"></i>
-                </button>
+                <div class="flex flex-col sm:flex-row gap-4 mb-20">
+                    <button onclick="startWriting()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-4 rounded-xl text-base transition-all shadow-lg shadow-blue-600/15 active:scale-95 flex items-center gap-2.5">
+                        Buka Editor Pufutara <i class="ph ph-arrow-right"></i>
+                    </button>
+                    <a href="#features" class="bg-white hover:bg-zinc-50 text-zinc-800 font-semibold px-8 py-4 rounded-xl text-base transition-all border border-zinc-200 shadow-sm flex items-center justify-center">
+                        Pelajari Fitur
+                    </a>
+                </div>
             </div>
 
-            <!-- Features Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full text-left">
-                <div class="p-6 bg-zinc-950 border border-zinc-900 rounded-2xl">
-                    <div class="w-10 h-10 bg-blue-500/10 text-blue-400 rounded-lg flex items-center justify-center mb-4 text-xl">
-                        <i class="ph ph-layout"></i>
+            <!-- Interactive Document Preview (Mini Mockup) -->
+            <div class="w-full max-w-4xl bg-white border border-zinc-200/80 rounded-2xl p-4 shadow-xl shadow-zinc-200/50 mb-24 animate-fade-in delay-100">
+                <div class="flex items-center justify-between border-b border-zinc-100 pb-3 mb-4">
+                    <div class="flex gap-1.5">
+                        <span class="w-3.5 h-3.5 rounded-full bg-red-400"></span>
+                        <span class="w-3.5 h-3.5 rounded-full bg-yellow-400"></span>
+                        <span class="w-3.5 h-3.5 rounded-full bg-green-400"></span>
                     </div>
-                    <h3 class="font-bold text-lg text-white mb-2 font-display">Tampilan Dokumen Real</h3>
-                    <p class="text-zinc-500 text-sm leading-relaxed">Layout kertas A4 asli dengan penambahan halaman baru otomatis saat tulisan melebihi batas.</p>
+                    <div class="text-xs text-zinc-400 font-semibold bg-zinc-50 border border-zinc-200/50 px-3 py-1 rounded-md">Laporan Kegiatan Pufutara.html</div>
+                    <div class="w-12"></div>
                 </div>
-                <div class="p-6 bg-zinc-950 border border-zinc-900 rounded-2xl">
-                    <div class="w-10 h-10 bg-blue-500/10 text-blue-400 rounded-lg flex items-center justify-center mb-4 text-xl">
-                        <i class="ph ph-git-commit"></i>
+                <div class="bg-slate-50 border border-zinc-100 rounded-xl p-8 flex justify-center h-80 overflow-hidden relative">
+                    <!-- Fake Document -->
+                    <div class="bg-white w-[85%] h-96 rounded-lg shadow border border-zinc-100 p-8 flex flex-col text-left">
+                        <div class="h-6 w-1/3 bg-zinc-900 rounded-md mb-4"></div>
+                        <div class="h-3 w-full bg-zinc-200 rounded-md mb-2"></div>
+                        <div class="h-3 w-5/6 bg-zinc-200 rounded-md mb-4"></div>
+                        
+                        <div class="h-4 w-1/4 bg-blue-600 rounded-md mb-3"></div>
+                        <div class="h-3 w-full bg-zinc-200 rounded-md mb-2"></div>
+                        <div class="h-3 w-4/5 bg-zinc-200 rounded-md mb-2"></div>
+                        <div class="h-3 w-1/2 bg-zinc-200 rounded-md mb-6"></div>
+
+                        <div class="grid grid-cols-3 gap-2 border border-zinc-200 p-2 rounded-lg">
+                            <div class="h-4 bg-zinc-100 rounded"></div>
+                            <div class="h-4 bg-zinc-100 rounded"></div>
+                            <div class="h-4 bg-zinc-100 rounded"></div>
+                        </div>
                     </div>
-                    <h3 class="font-bold text-lg text-white mb-2 font-display">Riwayat Versi & Auto-save</h3>
-                    <p class="text-zinc-500 text-sm leading-relaxed">Dokumen disimpan otomatis setiap saat. Rekam dan pulihkan draf tulisan Anda dengan aman.</p>
-                </div>
-                <div class="p-6 bg-zinc-950 border border-zinc-900 rounded-2xl">
-                    <div class="w-10 h-10 bg-blue-500/10 text-blue-400 rounded-lg flex items-center justify-center mb-4 text-xl">
-                        <i class="ph ph-table"></i>
-                    </div>
-                    <h3 class="font-bold text-lg text-white mb-2 font-display">Tabel & Kolom Dinamis</h3>
-                    <p class="text-zinc-500 text-sm leading-relaxed">Sisipkan tabel dengan visualisasi grid interaktif dan geser lebar kolom sesuai selera.</p>
+                    <!-- Absolute Blur gradient overlay -->
+                    <div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-slate-50 to-transparent"></div>
                 </div>
             </div>
+
+            <!-- Rich Features Grid -->
+            <section id="features" class="w-full max-w-6xl py-12 border-t border-zinc-100 animate-fade-in delay-200">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl font-bold font-display text-zinc-950 mb-3">Fitur Kaya Sekelas Desktop Word</h2>
+                    <p class="text-zinc-500 max-w-xl mx-auto text-sm">Semua kehebatan program dokumen komputer desktop kini dikemas ringkas di dalam peramban web modern Anda.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Feature 1 -->
+                    <div class="p-6 bg-white border border-zinc-200/80 rounded-2xl hover:border-blue-500/30 hover:shadow-lg transition-all group duration-300">
+                        <div class="w-11 h-11 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-5 text-lg font-bold group-hover:bg-blue-600 group-hover:text-white transition-all">
+                            <i class="ph ph-layout"></i>
+                        </div>
+                        <h3 class="font-bold text-base text-zinc-950 mb-2 font-display">Tampilan Kertas Kelipatan</h3>
+                        <p class="text-zinc-500 text-xs leading-relaxed">Secara dinamis mendeteksi tinggi ketikan dan secara otomatis membagi lembaran baru secara visual tanpa mengganggu fokus kursor mengetik.</p>
+                    </div>
+
+                    <!-- Feature 2 -->
+                    <div class="p-6 bg-white border border-zinc-200/80 rounded-2xl hover:border-blue-500/30 hover:shadow-lg transition-all group duration-300">
+                        <div class="w-11 h-11 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-5 text-lg font-bold group-hover:bg-blue-600 group-hover:text-white transition-all">
+                            <i class="ph ph-table"></i>
+                        </div>
+                        <h3 class="font-bold text-base text-zinc-950 mb-2 font-display">Tabel & Resize Kolom</h3>
+                        <p class="text-zinc-500 text-xs leading-relaxed">Buat tabel instan dengan grid visual. Anda juga dapat dengan mudah menggeser garis batas kolom untuk menyesuaikan ukuran teks tabel.</p>
+                    </div>
+
+                    <!-- Feature 3 -->
+                    <div class="p-6 bg-white border border-zinc-200/80 rounded-2xl hover:border-blue-500/30 hover:shadow-lg transition-all group duration-300">
+                        <div class="w-11 h-11 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-5 text-lg font-bold group-hover:bg-blue-600 group-hover:text-white transition-all">
+                            <i class="ph ph-git-commit"></i>
+                        </div>
+                        <h3 class="font-bold text-base text-zinc-950 mb-2 font-display">Riwayat Versi Manual</h3>
+                        <p class="text-zinc-500 text-xs leading-relaxed">Amankan draf tulisan penting Anda. Simpan versi secara mandiri dan pulihkan kembali draf kapan pun Anda membutuhkannya.</p>
+                    </div>
+
+                    <!-- Feature 4 -->
+                    <div class="p-6 bg-white border border-zinc-200/80 rounded-2xl hover:border-blue-500/30 hover:shadow-lg transition-all group duration-300">
+                        <div class="w-11 h-11 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-5 text-lg font-bold group-hover:bg-blue-600 group-hover:text-white transition-all">
+                            <i class="ph ph-floppy-disk"></i>
+                        </div>
+                        <h3 class="font-bold text-base text-zinc-950 mb-2 font-display">Quiet Auto-Save</h3>
+                        <p class="text-zinc-500 text-xs leading-relaxed">Menyimpan draf tulisan Anda di latar belakang secara otomatis tanpa mengganggu kenyamanan menulis Anda dengan pop-up atau notifikasi mengganggu.</p>
+                    </div>
+
+                    <!-- Feature 5 -->
+                    <div class="p-6 bg-white border border-zinc-200/80 rounded-2xl hover:border-blue-500/30 hover:shadow-lg transition-all group duration-300">
+                        <div class="w-11 h-11 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-5 text-lg font-bold group-hover:bg-blue-600 group-hover:text-white transition-all">
+                            <i class="ph ph-magnifying-glass"></i>
+                        </div>
+                        <h3 class="font-bold text-base text-zinc-950 mb-2 font-display">Cari dan Ganti Teks</h3>
+                        <p class="text-zinc-500 text-xs leading-relaxed">Cari kata penting dalam dokumen atau ubah banyak kata secara sekaligus melalui modul dialog Cari & Ganti (`Ctrl + F`).</p>
+                    </div>
+
+                    <!-- Feature 6 -->
+                    <div class="p-6 bg-white border border-zinc-200/80 rounded-2xl hover:border-blue-500/30 hover:shadow-lg transition-all group duration-300">
+                        <div class="w-11 h-11 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-5 text-lg font-bold group-hover:bg-blue-600 group-hover:text-white transition-all">
+                            <i class="ph ph-sidebar"></i>
+                        </div>
+                        <h3 class="font-bold text-base text-zinc-950 mb-2 font-display">Daftar Isi Otomatis</h3>
+                        <p class="text-zinc-500 text-xs leading-relaxed">Gunakan pemilih Heading di toolbar, dan dokumen secara ajaib akan langsung mendata kerangka tulisan Anda di panel navigasi samping.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Guide Section -->
+            <section class="w-full max-w-4xl py-12 border-t border-zinc-100 animate-fade-in delay-300">
+                <h3 class="text-2xl font-bold font-display text-zinc-950 text-center mb-12">Hanya 3 Langkah Mudah</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="flex flex-col items-center text-center">
+                        <div class="w-12 h-12 rounded-full bg-zinc-900 text-white flex items-center justify-center font-bold font-display text-lg mb-4">1</div>
+                        <h4 class="font-bold text-zinc-950 mb-1">Mulai Tulis Baru</h4>
+                        <p class="text-zinc-400 text-xs">Klik tombol mulai untuk langsung diarahkan pada editor tanpa login.</p>
+                    </div>
+                    <div class="flex flex-col items-center text-center">
+                        <div class="w-12 h-12 rounded-full bg-zinc-900 text-white flex items-center justify-center font-bold font-display text-lg mb-4">2</div>
+                        <h4 class="font-bold text-zinc-950 mb-1">Sesuaikan Format</h4>
+                        <p class="text-zinc-400 text-xs">Atur ukuran kertas, margins, sematkan tabel, serta gunakan Heading.</p>
+                    </div>
+                    <div class="flex flex-col items-center text-center">
+                        <div class="w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold font-display text-lg mb-4">3</div>
+                        <h4 class="font-bold text-zinc-950 mb-1">Unduh & Ekspor</h4>
+                        <p class="text-zinc-400 text-xs">Simpan dokumen menjadi berkas HTML atau langsung ekspor ke Microsoft Word (.doc).</p>
+                    </div>
+                </div>
+            </section>
+
         </main>
 
         <!-- Footer -->
-        <footer class="border-t border-zinc-900 py-6 text-center text-xs text-zinc-600">
+        <footer class="border-t border-zinc-100 py-8 bg-white text-center text-xs text-zinc-400 font-medium">
             PUFUTARA DOC &copy; 2026. Hak Cipta Dilindungi.
         </footer>
     </div>
 
 
-    <!-- ==================== APP EDITOR SECTION ==================== -->
-    <div id="appEditor" class="hidden flex-col h-screen">
+    <!-- ==================== APP EDITOR SECTION (COOL SPA SLIDE TRANSITION) ==================== -->
+    <div id="appEditor" class="hidden flex-col h-screen opacity-0 transform scale-105 duration-500">
         <!-- Header (Warna Hitam Pekat Premium, Menu Horizontal, Logo Putih) -->
         <header class="bg-[#09090b] text-white flex items-center justify-between px-6 py-3.5 shadow-sm z-20 relative flex-shrink-0 border-b border-zinc-800">
             <div class="flex items-center gap-6">
                 <!-- Tombol Kembali ke Landing Page -->
-                <button onclick="goToLandingPage()" class="text-zinc-400 hover:text-white text-xl p-1 rounded-md hover:bg-zinc-900 transition-all flex items-center gap-1.5" title="Kembali ke Beranda">
+                <button onclick="goToLandingPage()" class="text-zinc-400 hover:text-white text-xl p-1.5 rounded-md hover:bg-zinc-900 transition-all flex items-center gap-1.5" title="Kembali ke Beranda">
                     <i class="ph ph-house"></i>
                 </button>
 
                 <!-- Tombol Toggle Sidebar dengan Animasi Hover -->
-                <button onclick="toggleSidebar()" class="text-zinc-400 hover:text-white text-xl focus:outline-none transition-colors p-1 rounded-md hover:bg-zinc-900" title="Buka/Tutup Sidebar">
+                <button onclick="toggleSidebar()" class="text-zinc-400 hover:text-white text-xl focus:outline-none transition-colors p-1.5 rounded-md hover:bg-zinc-900" title="Buka/Tutup Sidebar">
                     <i class="ph ph-sidebar"></i>
                 </button>
                 
@@ -341,7 +483,7 @@
             </div>
         </header>
 
-        <!-- Toolbar Utama (Sangat Bersih dan Teratur) -->
+        <!-- Toolbar Utama -->
         <div class="bg-white border-b border-slate-100 px-6 py-2.5 flex flex-wrap items-center gap-y-2 shadow-sm z-10 flex-shrink-0">
             
             <!-- Undo/Redo -->
@@ -350,9 +492,9 @@
                 <button class="btn-tool" onclick="execCmd('redo')" data-title="Ulangi (Ctrl+Y)"><i class="ph ph-arrow-u-up-right"></i></button>
             </div>
 
-            <!-- Selector Gaya Paragraf / Heading (Jawaban Permintaan User) -->
+            <!-- Selector Gaya Paragraf / Heading -->
             <div class="toolbar-group">
-                <select id="formatBlockSelector" class="tool-input w-28 mr-1 cursor-pointer hover:bg-slate-50 font-semibold text-blue-600" onchange="execCmd('formatBlock', this.value)" data-title="Format Paragraf / Heading">
+                <select id="formatBlockSelector" class="tool-input w-32 mr-1 cursor-pointer hover:bg-slate-50 font-semibold text-blue-600" onchange="execCmd('formatBlock', this.value)" data-title="Format Paragraf / Heading">
                     <option value="p">Teks Normal</option>
                     <option value="h1">Heading 1</option>
                     <option value="h2">Heading 2</option>
@@ -517,7 +659,7 @@
         </div>
 
         <!-- Status Bar Minimalis (Bawah Pekat) -->
-        <footer class="bg-[#09090b] text-zinc-400 px-6 py-3.5 flex justify-between items-center text-xs z-20 border-t border-zinc-800 flex-shrink-0 font-medium">
+        <footer class="bg-[#09090b] text-zinc-400 px-6 py-3.5 flex justify-between items-center text-xs z-20 border-t border-zinc-800 flex-shrink-0 font-medium font-display">
             <div class="flex items-center gap-5">
                 <div class="flex items-center gap-2 bg-zinc-900 px-2.5 py-1 rounded-md border border-zinc-800/60">
                     <i class="ph ph-text-t text-sm text-blue-500"></i> <span><strong id="wordCount" class="text-white">0</strong> kata</span>
@@ -639,23 +781,57 @@
             });
         });
 
-        // --- SPA Page Transition ---
+        // --- SPA Page Transition (Beautiful Exit/Enter Animations) ---
         function startWriting() {
-            document.getElementById('landingPage').style.display = 'none';
-            document.getElementById('appEditor').style.display = 'flex';
+            const lp = document.getElementById('landingPage');
+            const editorDiv = document.getElementById('appEditor');
             
-            // Re-kalkulasi & fokus editor setelah transisi
+            // Animasi memudar & mengecil untuk Landing Page (Out)
+            lp.classList.add('transition-all', 'duration-500', 'opacity-0', 'scale-95');
+            
             setTimeout(() => {
-                editor.focus();
-                updatePageBreaks();
-                updateStatsAndOutline();
-            }, 100);
+                lp.style.display = 'none';
+                lp.classList.remove('transition-all', 'duration-500', 'opacity-0', 'scale-95');
+                
+                // Siapkan Editor untuk animasi masuk (In)
+                editorDiv.style.display = 'flex';
+                editorDiv.classList.add('opacity-0', 'scale-105');
+                
+                // Memicu reflow browser agar transisi CSS terbaca
+                editorDiv.offsetHeight;
+                
+                editorDiv.classList.add('transition-all', 'duration-500');
+                editorDiv.classList.remove('opacity-0', 'scale-105');
+                
+                setTimeout(() => {
+                    editor.focus();
+                    updatePageBreaks();
+                    updateStatsAndOutline();
+                }, 100);
+            }, 450);
         }
 
         function goToLandingPage() {
             if(confirm("Kembali ke Halaman Utama? Tenang saja, dokumen Anda tetap tersimpan otomatis.")) {
-                document.getElementById('appEditor').style.display = 'none';
-                document.getElementById('landingPage').style.display = 'flex';
+                const lp = document.getElementById('landingPage');
+                const editorDiv = document.getElementById('appEditor');
+                
+                // Animasi memudar & mengecil untuk Editor (Out)
+                editorDiv.classList.add('transition-all', 'duration-500', 'opacity-0', 'scale-95');
+                
+                setTimeout(() => {
+                    editorDiv.style.display = 'none';
+                    editorDiv.classList.remove('transition-all', 'duration-500', 'opacity-0', 'scale-95');
+                    
+                    // Siapkan Landing Page untuk animasi masuk (In)
+                    lp.style.display = 'flex';
+                    lp.classList.add('opacity-0', 'scale-105');
+                    
+                    lp.offsetHeight;
+                    
+                    lp.classList.add('transition-all', 'duration-500');
+                    lp.classList.remove('opacity-0', 'scale-105');
+                }, 450);
             }
         }
 
@@ -912,7 +1088,7 @@
                 const line = document.createElement('div');
                 line.className = 'absolute left-0 right-0 border-t border-dashed border-slate-300 z-10 flex justify-center items-center pointer-events-none';
                 line.style.top = (i * pageHeight) + 'px';
-                line.innerHTML = `<span class="bg-slate-100 px-3 py-1 text-[10px] font-bold text-slate-500 rounded-full border border-slate-200 transform -translate-y-1/2 shadow-sm tracking-wide">Lembar Baru / Halaman ${i + 1}</span>`;
+                line.innerHTML = `<span class="bg-slate-100 px-3 py-1 text-[10px] font-bold text-slate-500 rounded-full border border-slate-200 transform -translate-y-1/2 shadow-sm tracking-wide font-display">Lembar Baru / Halaman ${i + 1}</span>`;
                 overlaysContainer.appendChild(line);
             }
         }
@@ -1054,7 +1230,7 @@
             document.getElementById('charCount').innerText = chars;
             document.getElementById('readTime').innerText = readTime;
 
-            // Generate Daftar Isi (Outline)
+            // Generate Daftar Ini (Outline)
             const headings = editor.querySelectorAll('h1, h2, h3');
             const outlineContainer = document.getElementById('outlineContent');
             
