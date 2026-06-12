@@ -3,269 +3,1326 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pufutara Office </title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=JetBrains+Mono&family=Playfair+Display:ital,wght@0,700;1,700&family=Libre+Baskerville&display=swap" rel="stylesheet">
+    <title>Pufutara Doc - Pengolah Kata Modern</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <style>
-        :root {
-            --bg: #ffffff;
-            --text: #000000;
-            --border: #e1e4e8;
-            --muted: #586069;
-            --surface: #f6f8fa;
-            --accent: #0969da;
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            overflow: hidden; /* Mencegah scroll pada body utama */
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: var(--surface); 
-            color: var(--text);
+        h1, h2, h3, h4, .font-display {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        /* Desain Scrollbar Minimalis */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; /* slate-300 */
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; /* slate-400 */
+        }
+
+        /* Layout Utama dengan Sidebar */
+        .app-container {
+            display: flex;
+            height: calc(100vh - 124px); /* Menyesuaikan dengan header, toolbar, dan status bar */
+            width: 100vw;
+            position: relative;
+        }
+
+        /* Sidebar Kiri Modern */
+        .sidebar {
+            width: 280px;
+            background-color: #ffffff;
+            border-right: 1px solid #f1f5f9;
             display: flex;
             flex-direction: column;
-            height: 100vh;
-            overflow: hidden; 
-        }
-
-        /* --- TOOLBAR (Gede & Rinci) --- */
-        nav {
-            background: var(--bg);
-            border-bottom: 1px solid var(--border);
-            padding: 20px 3%; 
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 100;
-            gap: 20px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
             flex-shrink: 0;
         }
 
-        .logo { 
-            font-weight: 900; 
-            font-size: 1.1rem; 
-            letter-spacing: 1px; 
-            padding-left: 10px; 
+        .sidebar.collapsed {
+            width: 0;
+            border-right: none;
         }
 
-        .toolbar {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .tool-group {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            border-right: 1px solid var(--border);
-            padding: 0 15px;
-        }
-
-        .tool-group:last-child { border-right: none; }
-
-        .btn {
-            background: none;
-            border: 1px solid transparent;
-            padding: 8px 14px; 
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.85rem; 
-            font-weight: 700;
-            color: var(--muted);
-            text-transform: uppercase;
-            transition: 0.2s;
-        }
-
-        .btn:hover { color: #000; background: var(--surface); border-color: var(--border); }
-        
-        select {
-            border: 1px solid var(--border);
-            padding: 8px;
-            border-radius: 4px;
-            font-size: 0.8rem; 
-            outline: none;
-            background: #fff;
-            cursor: pointer;
-        }
-
-        /* --- CANVAS --- */
-        main {
-            flex: 1;
+        /* Area Kerja (Meja Kerja Abu-abu Minimalis) */
+        .workspace {
+            background-color: #f8fafc; /* slate-50 */
+            flex-grow: 1;
             overflow-y: auto;
-            padding: 40px 0;
+            padding: 3rem 0;
             display: flex;
-            flex-direction: column;
-            align-items: center;
+            justify-content: center;
+            position: relative;
+            scroll-behavior: smooth;
         }
 
+        /* Setelan Dimensi Dasar Kertas */
+        :root {
+            --page-width: 816px; /* A4 Lebar pada 96 DPI */
+            --page-min-height: 1123px; 
+            --margin-top: 80px; 
+            --margin-right: 80px;
+            --margin-bottom: 80px;
+            --margin-left: 80px;
+        }
+
+        /* Elemen Kertas Premium */
         .paper {
-            background: var(--bg);
-            width: 210mm;
-            min-height: 297mm;
-            padding: 25.4mm;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
-            border: 1px solid var(--border);
+            width: var(--page-width);
+            min-height: var(--page-min-height);
+            background-color: white;
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 30px -4px rgba(0, 0, 0, 0.03);
+            border: 1px solid #f1f5f9;
+            border-radius: 8px;
+            padding: var(--margin-top) var(--margin-right) var(--margin-bottom) var(--margin-left);
             outline: none;
+            box-sizing: border-box;
+            color: #0f172a; /* slate-900 */
+            font-family: Arial, sans-serif;
             font-size: 11pt;
             line-height: 1.6;
-            color: #24292f;
-            margin-bottom: 50px;
+            transition: min-height 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            cursor: text;
         }
 
-        .paper h1 { font-size: 2.5rem; font-weight: 900; margin-bottom: 0.5em; text-align: center; }
-        .paper h2 { font-size: 1.8rem; font-weight: 800; margin-top: 1em; }
-
-        .sync-status {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            font-size: 0.65rem;
-            font-weight: 800;
-            color: var(--muted);
-            background: rgba(255,255,255,0.9);
-            padding: 8px 15px;
-            border-radius: 4px;
-            border: 1px solid var(--border);
-            backdrop-filter: blur(5px);
-            z-index: 1000;
+        /* Desain Kursor Khusus & Highlight Seleksi */
+        .paper::selection, .paper *::selection {
+            background-color: #dbeafe; /* biru muda */
+            color: #1e40af; /* biru tua */
         }
 
-        @media print {
-            nav, .sync-status { display: none; }
-            main { padding: 0; overflow: visible; }
-            body { overflow: visible; }
-            .paper { box-shadow: none; border: none; width: 100%; margin: 0; }
+        /* Aturan Gaya di Dalam Editor */
+        .paper p { margin-bottom: 1em; }
+        .paper h1 { font-size: 2.25em; font-weight: 700; margin-bottom: 0.6em; color: #0f172a; }
+        .paper h2 { font-size: 1.6em; font-weight: 600; margin-bottom: 0.5em; color: #1e293b; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.2em; }
+        .paper h3 { font-size: 1.3em; font-weight: 600; margin-bottom: 0.4em; color: #334155; }
+        .paper ul { list-style-type: disc; margin-left: 2em; margin-bottom: 1em; }
+        .paper ol { list-style-type: decimal; margin-left: 2em; margin-bottom: 1em; }
+        .paper img { max-width: 100%; height: auto; cursor: pointer; border: 1px solid transparent; transition: all 0.2s; border-radius: 6px; }
+        .paper img:hover { box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2); }
+        .paper img.selected { outline: 2px solid #2563eb; outline-offset: 2px; }
+        
+        /* Tabel Modern */
+        .paper table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1.25em;
+            table-layout: fixed;
         }
+        .paper th, .paper td {
+            border: 1px solid #e2e8f0;
+            padding: 10px 12px;
+            text-align: left;
+            position: relative;
+            word-wrap: break-word;
+        }
+        .paper th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        /* Hubungkan Gaya Toolbar */
+        .toolbar-group {
+            display: flex;
+            align-items: center;
+            gap: 0.15rem;
+            padding-right: 0.5rem;
+            margin-right: 0.5rem;
+            border-right: 1px solid #f1f5f9;
+        }
+        .toolbar-group:last-child {
+            border-right: none;
+        }
+
+        /* Tombol Tool Premium */
+        .btn-tool {
+            padding: 0.45rem;
+            border-radius: 0.375rem;
+            color: #475569; /* slate-600 */
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+            font-size: 1.15rem;
+        }
+        .btn-tool:hover {
+            background-color: #f1f5f9;
+            color: #0f172a;
+        }
+        .btn-tool.active {
+            background-color: #eff6ff;
+            color: #2563eb;
+        }
+
+        .tool-input {
+            border: 1px solid #e2e8f0;
+            border-radius: 0.375rem;
+            padding: 0.3rem 0.6rem;
+            font-size: 0.85rem;
+            color: #334155;
+            background-color: #ffffff;
+            outline: none;
+            transition: all 0.15s ease;
+        }
+        .tool-input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+        }
+        
+        /* Tooltip Minimalis */
+        [data-title]:hover::after {
+            content: attr(data-title);
+            position: absolute;
+            bottom: -32px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0f172a;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 500;
+            white-space: nowrap;
+            z-index: 50;
+            pointer-events: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        [data-title] { position: relative; }
+
     </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-800 flex flex-col h-screen select-none antialiased">
 
-    <nav>
-        <div class="logo">PUFUTARADOC</div>
-        
-        <div class="toolbar">
-            <div class="tool-group">
-                <button class="btn" title="Undo" onclick="apply('undo')">↶</button>
-                <button class="btn" title="Redo" onclick="apply('redo')">↷</button>
+    <!-- ==================== LANDING PAGE SECTION ==================== -->
+    <div id="landingPage" class="min-h-screen bg-[#09090b] text-white flex flex-col justify-between overflow-y-auto">
+        <!-- Navigation -->
+        <header class="flex items-center justify-between px-8 py-6 max-w-7xl mx-auto w-full">
+            <div class="flex items-center gap-3">
+                <div class="bg-blue-600 p-2 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
+                    <i class="ph-fill ph-file-text text-2xl text-white"></i>
+                </div>
+                <span class="text-xl font-bold tracking-tight font-display text-white">Pufutara Doc</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="startWriting()" class="bg-white text-black hover:bg-zinc-200 px-5 py-2 rounded-lg font-semibold text-sm transition-all shadow-md active:scale-95">
+                    Mulai Menulis
+                </button>
+            </div>
+        </header>
+
+        <!-- Hero Section -->
+        <main class="max-w-5xl mx-auto px-8 py-12 flex flex-col items-center text-center my-auto">
+            <div class="inline-flex items-center gap-2 px-3 py-1 bg-zinc-950 border border-zinc-800 rounded-full text-xs text-zinc-400 font-medium mb-6">
+                <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
+                Pengolahan Kata Generasi Baru
+            </div>
+            
+            <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight font-display mb-6 leading-tight max-w-3xl">
+                Tulis Ide Hebat Anda dengan <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">Pufutara Doc</span>
+            </h1>
+            
+            <p class="text-zinc-400 text-lg md:text-xl max-w-2xl mb-10 leading-relaxed">
+                Platform pengolah kata berbasis web yang minimalis, cepat, dan modern. Dilengkapi dengan auto-save, manajemen tabel interaktif, dan penataan halaman otomatis.
+            </p>
+
+            <div class="flex flex-col sm:flex-row gap-4 mb-16">
+                <button onclick="startWriting()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-4 rounded-xl text-base transition-all shadow-lg shadow-blue-600/20 active:scale-95 flex items-center gap-2">
+                    Mulai Menulis Sekarang <i class="ph ph-arrow-right"></i>
+                </button>
             </div>
 
-            <div class="tool-group">
-                <select onchange="apply('fontname', this.value)">
-                    <option value="Inter">Inter</option>
-                    <option value="Playfair Display">Playfair</option>
-                    <option value="Libre Baskerville">Baskerville</option>
-                    <option value="JetBrains Mono">Mono</option>
+            <!-- Features Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full text-left">
+                <div class="p-6 bg-zinc-950 border border-zinc-900 rounded-2xl">
+                    <div class="w-10 h-10 bg-blue-500/10 text-blue-400 rounded-lg flex items-center justify-center mb-4 text-xl">
+                        <i class="ph ph-layout"></i>
+                    </div>
+                    <h3 class="font-bold text-lg text-white mb-2 font-display">Tampilan Dokumen Real</h3>
+                    <p class="text-zinc-500 text-sm leading-relaxed">Layout kertas A4 asli dengan penambahan halaman baru otomatis saat tulisan melebihi batas.</p>
+                </div>
+                <div class="p-6 bg-zinc-950 border border-zinc-900 rounded-2xl">
+                    <div class="w-10 h-10 bg-blue-500/10 text-blue-400 rounded-lg flex items-center justify-center mb-4 text-xl">
+                        <i class="ph ph-git-commit"></i>
+                    </div>
+                    <h3 class="font-bold text-lg text-white mb-2 font-display">Riwayat Versi & Auto-save</h3>
+                    <p class="text-zinc-500 text-sm leading-relaxed">Dokumen disimpan otomatis setiap saat. Rekam dan pulihkan draf tulisan Anda dengan aman.</p>
+                </div>
+                <div class="p-6 bg-zinc-950 border border-zinc-900 rounded-2xl">
+                    <div class="w-10 h-10 bg-blue-500/10 text-blue-400 rounded-lg flex items-center justify-center mb-4 text-xl">
+                        <i class="ph ph-table"></i>
+                    </div>
+                    <h3 class="font-bold text-lg text-white mb-2 font-display">Tabel & Kolom Dinamis</h3>
+                    <p class="text-zinc-500 text-sm leading-relaxed">Sisipkan tabel dengan visualisasi grid interaktif dan geser lebar kolom sesuai selera.</p>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="border-t border-zinc-900 py-6 text-center text-xs text-zinc-600">
+            PUFUTARA DOC &copy; 2026. Hak Cipta Dilindungi.
+        </footer>
+    </div>
+
+
+    <!-- ==================== APP EDITOR SECTION ==================== -->
+    <div id="appEditor" class="hidden flex-col h-screen">
+        <!-- Header (Warna Hitam Pekat Premium, Menu Horizontal, Logo Putih) -->
+        <header class="bg-[#09090b] text-white flex items-center justify-between px-6 py-3.5 shadow-sm z-20 relative flex-shrink-0 border-b border-zinc-800">
+            <div class="flex items-center gap-6">
+                <!-- Tombol Kembali ke Landing Page -->
+                <button onclick="goToLandingPage()" class="text-zinc-400 hover:text-white text-xl p-1 rounded-md hover:bg-zinc-900 transition-all flex items-center gap-1.5" title="Kembali ke Beranda">
+                    <i class="ph ph-house"></i>
+                </button>
+
+                <!-- Tombol Toggle Sidebar dengan Animasi Hover -->
+                <button onclick="toggleSidebar()" class="text-zinc-400 hover:text-white text-xl focus:outline-none transition-colors p-1 rounded-md hover:bg-zinc-900" title="Buka/Tutup Sidebar">
+                    <i class="ph ph-sidebar"></i>
+                </button>
+                
+                <!-- Nama File / Judul Dokumen & Logo Putih -->
+                <div class="flex items-center gap-2.5">
+                    <div class="bg-zinc-900 p-1.5 rounded-lg border border-zinc-800 flex items-center justify-center">
+                        <i class="ph-fill ph-file-text text-xl text-white"></i>
+                    </div>
+                    <input type="text" id="docTitle" value="Dokumen Tanpa Judul" class="bg-transparent text-base font-semibold tracking-wide outline-none border-b border-transparent hover:border-zinc-800 focus:border-zinc-700 focus:bg-zinc-900/50 rounded px-2 py-0.5 transition-all w-52 text-white" title="Ganti Nama Dokumen">
+                </div>
+                
+                <!-- Menu Bar Horizontal Premium -->
+                <nav class="flex gap-1 text-sm font-medium border-l border-zinc-800 pl-6 h-6 items-center">
+                    <div class="relative group">
+                        <button class="hover:bg-zinc-900 px-3 py-1 rounded-md cursor-pointer transition-all text-zinc-300 hover:text-white flex items-center gap-1">
+                            File <i class="ph ph-caret-down text-[10px] text-zinc-500"></i>
+                        </button>
+                        <div class="absolute left-0 top-full mt-1.5 hidden group-hover:block bg-white text-slate-800 shadow-xl border border-slate-100 rounded-lg w-52 z-50 overflow-hidden py-1">
+                            <label class="block px-4 py-2 hover:bg-slate-50 cursor-pointer flex items-center gap-2.5 text-sm text-slate-700 font-medium">
+                                <i class="ph ph-folder-open text-base text-slate-400"></i> Buka (Impor)
+                                <input type="file" id="importFile" class="hidden" accept=".html,.txt">
+                            </label>
+                            <div class="block px-4 py-2 hover:bg-slate-50 cursor-pointer flex items-center gap-2.5 text-sm text-slate-700 font-medium" onclick="exportToDoc()">
+                                <i class="ph ph-download-simple text-base text-slate-400"></i> Simpan ke .doc
+                            </div>
+                            <hr class="border-slate-100 my-1">
+                            <div class="block px-4 py-2 hover:bg-slate-50 cursor-pointer flex items-center gap-2.5 text-sm text-slate-700 font-medium" onclick="saveVersionManual()">
+                                <i class="ph ph-git-commit text-base text-slate-400"></i> Simpan Versi Baru
+                            </div>
+                        </div>
+                    </div>
+                    <button class="hover:bg-zinc-900 px-3 py-1 rounded-md cursor-pointer transition-all text-zinc-300 hover:text-white" onclick="showFindReplaceModal()">Edit / Cari</button>
+                    <button class="hover:bg-zinc-900 px-3 py-1 rounded-md cursor-pointer transition-all text-zinc-300 hover:text-white" onclick="togglePageSetup()">Tampilan</button>
+                </nav>
+            </div>
+            
+            <!-- Sisi Kanan Header -->
+            <div class="flex items-center gap-3">
+                <button class="bg-blue-600 px-4 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 cursor-pointer hover:bg-blue-700 active:scale-[0.98] transition-all shadow-sm shadow-blue-900/10 text-white" onclick="exportToDoc()">
+                    <i class="ph ph-export text-sm"></i> Ekspor ke Word
+                </button>
+            </div>
+        </header>
+
+        <!-- Toolbar Utama (Sangat Bersih dan Teratur) -->
+        <div class="bg-white border-b border-slate-100 px-6 py-2.5 flex flex-wrap items-center gap-y-2 shadow-sm z-10 flex-shrink-0">
+            
+            <!-- Undo/Redo -->
+            <div class="toolbar-group">
+                <button class="btn-tool" onclick="execCmd('undo')" data-title="Batal (Ctrl+Z)"><i class="ph ph-arrow-u-up-left"></i></button>
+                <button class="btn-tool" onclick="execCmd('redo')" data-title="Ulangi (Ctrl+Y)"><i class="ph ph-arrow-u-up-right"></i></button>
+            </div>
+
+            <!-- Selector Gaya Paragraf / Heading (Jawaban Permintaan User) -->
+            <div class="toolbar-group">
+                <select id="formatBlockSelector" class="tool-input w-28 mr-1 cursor-pointer hover:bg-slate-50 font-semibold text-blue-600" onchange="execCmd('formatBlock', this.value)" data-title="Format Paragraf / Heading">
+                    <option value="p">Teks Normal</option>
+                    <option value="h1">Heading 1</option>
+                    <option value="h2">Heading 2</option>
+                    <option value="h3">Heading 3</option>
                 </select>
-                <select onchange="apply('fontsize', this.value)">
-                    <option value="3">Normal</option>
-                    <option value="1">Small</option>
-                    <option value="5">Large</option>
-                    <option value="6">X-Large</option>
-                    <option value="7">Huge</option>
+            </div>
+
+            <!-- Gaya & Ukuran Font Modern -->
+            <div class="toolbar-group">
+                <select id="fontSelector" class="tool-input w-32 mr-1 cursor-pointer hover:bg-slate-50 font-medium" onchange="execCmd('fontName', this.value)" data-title="Jenis Font">
+                    <option value="Arial">Arial</option>
+                    <option value="Times New Roman">Times New Roman</option>
+                    <option value="Courier New">Courier</option>
+                    <option value="Georgia">Georgia</option>
+                    <option value="Verdana">Verdana</option>
                 </select>
+                <select class="tool-input w-16 mr-2 cursor-pointer hover:bg-slate-50 font-medium" onchange="execCmd('fontSize', this.value)" data-title="Ukuran Teks">
+                    <option value="1">10</option>
+                    <option value="2">13</option>
+                    <option value="3" selected>16</option>
+                    <option value="4">18</option>
+                    <option value="5">24</option>
+                    <option value="6">32</option>
+                    <option value="7">48</option>
+                </select>
+                <button class="btn-tool" onclick="execCmd('bold')" data-title="Tebal"><i class="ph ph-text-b"></i></button>
+                <button class="btn-tool" onclick="execCmd('italic')" data-title="Miring"><i class="ph ph-text-italic"></i></button>
+                <button class="btn-tool" onclick="execCmd('underline')" data-title="Garis Bawah"><i class="ph ph-text-underline"></i></button>
+                <button class="btn-tool" onclick="execCmd('strikeThrough')" data-title="Coret"><i class="ph ph-text-strikethrough"></i></button>
+                <button class="btn-tool" onclick="execCmd('removeFormat')" data-title="Hapus Format"><i class="ph ph-eraser"></i></button>
             </div>
 
-            <div class="tool-group">
-                <button class="btn" onclick="apply('justifyleft')">LEFT</button>
-                <button class="btn" onclick="apply('justifycenter')">MID</button>
-                <button class="btn" onclick="apply('justifyright')">RIGHT</button>
+            <!-- Warna Modern -->
+            <div class="toolbar-group">
+                <div class="flex flex-col items-center relative group" data-title="Warna Teks">
+                    <input type="color" id="foreColor" class="w-6 h-6 p-0 border-0 cursor-pointer rounded overflow-hidden" onchange="execCmd('foreColor', this.value)" title="Warna Teks">
+                    <div class="text-[9px] text-slate-400 font-bold -mt-0.5">A</div>
+                </div>
+                <div class="flex flex-col items-center relative ml-3 group" data-title="Warna Latar">
+                    <input type="color" id="backColor" class="w-6 h-6 p-0 border-0 cursor-pointer rounded overflow-hidden" value="#ffffff" onchange="execCmd('hiliteColor', this.value)" title="Sorot">
+                    <i class="ph ph-highlighter text-slate-400 text-[10px] -mt-0.5"></i>
+                </div>
             </div>
 
-            <div class="tool-group">
-                <button class="btn" onclick="apply('bold')">BOLD</button>
-                <button class="btn" onclick="apply('italic')">ITALIC</button>
-                <button class="btn" onclick="apply('underline')">UNDERLINE</button>
+            <!-- Penjajaran -->
+            <div class="toolbar-group">
+                <button class="btn-tool" onclick="execCmd('justifyLeft')" data-title="Rata Kiri"><i class="ph ph-text-align-left"></i></button>
+                <button class="btn-tool" onclick="execCmd('justifyCenter')" data-title="Rata Tengah"><i class="ph ph-text-align-center"></i></button>
+                <button class="btn-tool" onclick="execCmd('justifyRight')" data-title="Rata Kanan"><i class="ph ph-text-align-right"></i></button>
+                <button class="btn-tool" onclick="execCmd('justifyFull')" data-title="Rata Penuh"><i class="ph ph-text-align-justify"></i></button>
             </div>
 
-            <div class="tool-group">
-                <button class="btn" onclick="apply('formatblock', '<h1>')">H1</button>
-                <button class="btn" onclick="apply('insertunorderedlist')">LIST</button>
+            <!-- List & Indentasi -->
+            <div class="toolbar-group">
+                <button class="btn-tool" onclick="execCmd('insertUnorderedList')" data-title="Daftar Bulat"><i class="ph ph-list-bullets"></i></button>
+                <button class="btn-tool" onclick="execCmd('insertOrderedList')" data-title="Daftar Angka"><i class="ph ph-list-numbers"></i></button>
+                <button class="btn-tool" onclick="execCmd('outdent')" data-title="Kurangi Inden"><i class="ph ph-text-outdent"></i></button>
+                <button class="btn-tool" onclick="execCmd('indent')" data-title="Tambah Inden"><i class="ph ph-text-indent"></i></button>
             </div>
 
-            <div class="tool-group">
-                <button class="btn" style="color: var(--accent);" onclick="exportDoc()">.DOC</button>
-                <button class="btn" style="color: var(--text);" onclick="exportTxt()">.TXT</button>
+            <!-- Sisipkan (Tabel Grid UI) -->
+            <div class="toolbar-group">
+                <label class="btn-tool cursor-pointer" data-title="Sisipkan Gambar">
+                    <i class="ph ph-image"></i>
+                    <input type="file" id="imageUpload" accept="image/*" class="hidden">
+                </label>
+                <div class="relative" id="tableMenuWrapper">
+                    <button class="btn-tool" onclick="toggleTableMenu(event)" data-title="Sisipkan Tabel"><i class="ph ph-table"></i></button>
+                    <div id="tableMenu" class="hidden absolute top-full left-0 mt-2 bg-white border border-slate-100 shadow-xl p-3.5 rounded-lg z-50 w-52">
+                        <div class="text-[11px] text-slate-500 mb-2.5 font-semibold text-center" id="tablePreviewSize">Tabel 0 x 0</div>
+                        <div class="grid grid-cols-10 gap-[1.5px] bg-slate-100 border border-slate-200 p-1 rounded-md" id="tableGrid" onmouseleave="resetGrid()">
+                            <!-- Sel diinjeksikan via JavaScript -->
+                        </div>
+                    </div>
+                </div>
+                <button class="btn-tool" onclick="execCmd('insertHorizontalRule')" data-title="Garis Horizontal"><i class="ph ph-minus"></i></button>
+                <button class="btn-tool" onclick="showFindReplaceModal()" data-title="Cari & Ganti (Ctrl+F)"><i class="ph ph-magnifying-glass"></i></button>
+            </div>
+
+            <!-- Tombol Setelan Halaman -->
+            <div class="toolbar-group">
+                <button class="btn-tool" onclick="togglePageSetup()" data-title="Pengaturan Halaman"><i class="ph ph-layout"></i></button>
             </div>
         </div>
-    </nav>
 
-    <div class="sync-status" id="status">Ready</div>
+        <!-- Layout Utama: Sidebar + Area Kerja -->
+        <div class="app-container">
+            
+            <!-- Sidebar Kiri (Navigasi / Daftar Isi & Riwayat Versi) -->
+            <aside id="sidebar" class="sidebar">
+                <!-- Tab Headers Modern -->
+                <div class="flex border-b border-slate-100 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                    <button onclick="switchSidebarTab('outline')" id="tabOutlineBtn" class="w-1/2 py-3.5 text-center border-b-2 border-blue-600 text-blue-600 focus:outline-none transition-all">
+                        Daftar Isi
+                    </button>
+                    <button onclick="switchSidebarTab('versions')" id="tabVersionsBtn" class="w-1/2 py-3.5 text-center text-slate-400 hover:text-slate-800 focus:outline-none transition-all">
+                        Riwayat Versi
+                    </button>
+                </div>
 
-    <main>
-        <div class="paper" id="editor" contenteditable="true" spellcheck="false">
-            <h1>Asbok Bandunh</h1>
-            <p>Sebuah nama yang tidak asing di dengar oleh seluruh anak asipa cagak atu. terutama seluruh anak angkatan reporner. karena sudah tahu yaudah</p>
+                <!-- Tab Content: Outline (Daftar Isi) -->
+                <div id="tabOutline" class="p-5 flex-grow overflow-y-auto">
+                    <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Struktur Dokumen</h3>
+                    <div id="outlineContent" class="space-y-1 text-sm text-slate-600">
+                        <p class="italic text-slate-400 text-xs">Belum ada judul struktur (Gunakan Heading H1 atau H2)...</p>
+                    </div>
+                </div>
+
+                <!-- Tab Content: Riwayat Versi -->
+                <div id="tabVersions" class="p-5 flex-grow overflow-y-auto hidden">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Versi Disimpan</h3>
+                        <button onclick="saveVersionManual()" class="text-[10px] bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold px-2 py-1 rounded-md transition-colors flex items-center gap-1">
+                            <i class="ph ph-plus"></i> Simpan Baru
+                        </button>
+                    </div>
+                    <div id="versionsList" class="space-y-3">
+                        <p class="italic text-slate-400 text-xs">Belum ada versi tersimpan secara manual.</p>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Area Kerja Utama (Dokumen Editor) -->
+            <main class="workspace" id="workspace">
+                <div id="editor" class="paper" contenteditable="true" spellcheck="false">
+                    <h1 style="text-align: center;">Selamat Datang di Pufutara Doc</h1>
+                    <p>Ini adalah simulasi pengolah kata modern dengan fitur lengkap. Anda dapat mengetik secara bebas di halaman ini.</p>
+                    <h2>Panduan Menambahkan Heading</h2>
+                    <p>Cara termudah untuk menambahkan Heading di Pufutara Doc adalah menggunakan <b>Dropdown Gaya Paragraf</b> yang terletak di toolbar atas (sebelah pilihan jenis font). Cukup blok baris teks yang diinginkan, kemudian pilih opsi:</p>
+                    <ul>
+                        <li><b>Heading 1</b>: Untuk judul utama bab besar.</li>
+                        <li><b>Heading 2</b>: Untuk sub-judul bagian.</li>
+                        <li><b>Heading 3</b>: Untuk sub-bagian kecil.</li>
+                    </ul>
+                    <p>Setelah diubah, heading tersebut otomatis terdeteksi di <b>Sidebar Kiri (Daftar Isi)</b> sebagai navigasi dinamis!</p>
+                    
+                    <h2>Cari dan Ganti Kata</h2>
+                    <p>Tekan tombol pencarian di toolbar atau tekan pintasan tombol <kbd class="bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded text-xs border border-slate-200 font-sans">Ctrl + F</kbd> pada keyboard Anda untuk mencari kata tertentu dan menggantinya langsung.</p>
+                    
+                    <table id="demoTable">
+                        <tbody>
+                            <tr>
+                                <th>No</th>
+                                <th>Header Kolom</th>
+                                <th>Deskripsi Kegiatan</th>
+                            </tr>
+                            <tr>
+                                <td>1</td>
+                                <td>Data Pertama</td>
+                                <td>Contoh isi kolom tabel yang dinamis</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>Data Kedua</td>
+                                <td>Anda dapat menggeser garis batas kolom untuk mengubah ukurannya!</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p><br></p>
+                </div>
+            </main>
         </div>
-    </main>
+
+        <!-- Status Bar Minimalis (Bawah Pekat) -->
+        <footer class="bg-[#09090b] text-zinc-400 px-6 py-3.5 flex justify-between items-center text-xs z-20 border-t border-zinc-800 flex-shrink-0 font-medium">
+            <div class="flex items-center gap-5">
+                <div class="flex items-center gap-2 bg-zinc-900 px-2.5 py-1 rounded-md border border-zinc-800/60">
+                    <i class="ph ph-text-t text-sm text-blue-500"></i> <span><strong id="wordCount" class="text-white">0</strong> kata</span>
+                </div>
+                <div class="flex items-center gap-2 bg-zinc-900 px-2.5 py-1 rounded-md border border-zinc-800/60">
+                    <i class="ph ph-hash text-sm text-blue-500"></i> <span><strong id="charCount" class="text-white">0</strong> karakter</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i class="ph ph-clock text-sm"></i> Waktu Baca: <span id="readTime" class="text-zinc-300">1</span> mnt
+                </div>
+            </div>
+            <div class="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">
+                PUFUTARA DOC &copy; 2026
+            </div>
+        </footer>
+    </div>
+
+    <!-- Modal Pengaturan Halaman Modern (Backdrop Blur) -->
+    <div id="pageSetupModal" class="hidden fixed inset-0 bg-zinc-950/40 backdrop-blur-sm z-50 flex items-center justify-center transition-all duration-300">
+        <div class="bg-white p-6 rounded-xl shadow-2xl w-96 text-slate-800 border border-slate-100 transform scale-100 transition-all">
+            <div class="flex justify-between items-center mb-5">
+                <h2 class="text-base font-bold text-slate-900 flex items-center gap-2"><i class="ph ph-layout text-lg text-blue-600"></i>Pengaturan Halaman</h2>
+                <button onclick="togglePageSetup()" class="text-slate-400 hover:text-red-500 p-1.5 rounded-lg hover:bg-slate-50 transition-all"><i class="ph ph-x text-lg"></i></button>
+            </div>
+            
+            <div class="mb-4">
+                <label for="paperSize" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Ukuran Kertas</label>
+                <select id="paperSize" class="tool-input w-full bg-white cursor-pointer font-medium" onchange="changePaperSize()">
+                    <option value="a4">A4 (210 × 297 mm)</option>
+                    <option value="letter">Letter (8.5 × 11 in)</option>
+                    <option value="legal">Legal (8.5 × 14 in)</option>
+                </select>
+            </div>
+
+            <div class="mb-5">
+                <span class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Margin Halaman (px)</span>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-medium text-slate-400 w-6">Atas</span>
+                        <input type="number" id="marginTop" class="tool-input w-full font-medium" value="96" onchange="updateMargin('top')">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-medium text-slate-400 w-6">Bwh</span>
+                        <input type="number" id="marginBottom" class="tool-input w-full font-medium" value="96" onchange="updateMargin('bottom')">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-medium text-slate-400 w-6">Kiri</span>
+                        <input type="number" id="marginLeft" class="tool-input w-full font-medium" value="96" onchange="updateMargin('left')">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-medium text-slate-400 w-6">Knan</span>
+                        <input type="number" id="marginRight" class="tool-input w-full font-medium" value="96" onchange="updateMargin('right')">
+                    </div>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end">
+                <button onclick="togglePageSetup()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2.5 rounded-lg transition-all active:scale-[0.98] shadow-sm shadow-blue-900/10">Selesai</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Cari & Ganti (Find & Replace) (Backdrop Blur) -->
+    <div id="findReplaceModal" class="hidden fixed inset-0 bg-zinc-950/40 backdrop-blur-sm z-50 flex items-center justify-center transition-all duration-300">
+        <div class="bg-white p-6 rounded-xl shadow-2xl w-96 text-slate-800 border border-slate-100">
+            <div class="flex justify-between items-center mb-5">
+                <h2 class="text-base font-bold text-slate-900 flex items-center gap-2"><i class="ph ph-magnifying-glass text-lg text-blue-600"></i>Cari & Ganti Teks</h2>
+                <button onclick="toggleFindReplaceModal()" class="text-slate-400 hover:text-red-500 p-1.5 rounded-lg hover:bg-slate-50 transition-all"><i class="ph ph-x text-lg"></i></button>
+            </div>
+            
+            <div class="mb-4">
+                <label for="findText" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Kata yang Dicari</label>
+                <input type="text" id="findText" class="tool-input w-full placeholder-slate-300 text-sm py-2" placeholder="Masukkan kata...">
+            </div>
+
+            <div class="mb-5">
+                <label for="replaceText" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Ganti Dengan</label>
+                <input type="text" id="replaceText" class="tool-input w-full placeholder-slate-300 text-sm py-2" placeholder="Masukkan pengganti...">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 mt-4">
+                <button onclick="findTextInDoc()" class="bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold py-2.5 px-3 rounded-lg border border-slate-200/60 transition-all flex justify-center items-center gap-1.5">
+                    <i class="ph ph-binoculars text-sm text-slate-400"></i> Cari Teks
+                </button>
+                <button onclick="replaceTextInDoc()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold py-2.5 px-3 rounded-lg transition-all active:scale-[0.98] flex justify-center items-center gap-1.5 shadow-sm shadow-blue-900/10">
+                    <i class="ph ph-arrow-counter-clockwise text-sm"></i> Ganti Semua
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Handles Manipulasi Gambar -->
+    <div id="resizer" class="hidden fixed w-3.5 h-3.5 bg-blue-600 border-2 border-white rounded-full cursor-se-resize z-50 shadow-md" style="transform: translate(-50%, -50%);"></div>
+
+    <!-- Toolbar Gambar Modern -->
+    <div id="imageToolbar" class="hidden fixed bg-white border border-slate-100 shadow-xl rounded-lg flex gap-1 p-1 z-50">
+        <button class="btn-tool text-xs p-1.5 rounded-md hover:bg-slate-50" onclick="cutImage()" data-title="Cut (Potong)"><i class="ph ph-scissors"></i></button>
+        <button class="btn-tool text-xs p-1.5 rounded-md text-red-500 hover:text-red-600 hover:bg-red-50" onclick="deleteImage()" data-title="Hapus"><i class="ph ph-trash"></i></button>
+    </div>
 
     <script>
         const editor = document.getElementById('editor');
-        const status = document.getElementById('status');
 
-        // Restore content on load
-        window.onload = () => {
-            const saved = localStorage.getItem('pufutara_pro_fixed_final');
-            if (saved) editor.innerHTML = saved;
-        };
+        // --- Core Editor Functions ---
+        function execCmd(command, value = null) {
+            editor.focus();
+            if (command === 'hiliteColor' && !document.queryCommandSupported('hiliteColor')) {
+                command = 'backColor';
+            }
+            document.execCommand(command, false, value);
+            updateToolbarState();
+            updatePageBreaks();
+            onContentChange();
+        }
 
-        // Auto-save logic
-        let timeout;
-        editor.addEventListener('input', () => {
-            status.innerText = "Saving...";
-            clearTimeout(timeout);
-            timeout = setTimeout(() => {
-                localStorage.setItem('pufutara_pro_fixed_final', editor.innerHTML);
-                status.innerText = "Ready";
-            }, 1000);
+        // Mencegah button mencuri focus dari kursor teks
+        document.querySelectorAll('.btn-tool, .sidebar button').forEach(btn => {
+            btn.addEventListener('mousedown', (e) => {
+                if(btn.tagName !== 'LABEL') e.preventDefault(); 
+            });
         });
 
-        // Perbaikan fungsi apply: menggunakan nama perintah lowercase yang benar
-        function apply(cmd, value = null) {
-            // Fokus ke editor sebelum eksekusi, untuk memastikan range aktif
-            editor.focus();
+        // --- SPA Page Transition ---
+        function startWriting() {
+            document.getElementById('landingPage').style.display = 'none';
+            document.getElementById('appEditor').style.display = 'flex';
             
-            // Eksekusi perintah
-            document.execCommand(cmd, false, value);
-            
-            // Beberapa browser mungkin kehilangan fokus setelah execCommand, jadi fokuskan lagi
-            editor.focus();
+            // Re-kalkulasi & fokus editor setelah transisi
+            setTimeout(() => {
+                editor.focus();
+                updatePageBreaks();
+                updateStatsAndOutline();
+            }, 100);
         }
 
-        // Export ke Word (.doc)
-        function exportDoc() {
-            const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'></head><body>";
-            const footer = "</body></html>";
-            const sourceHTML = header + editor.innerHTML + footer;
-            const url = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
-            const link = document.createElement("a");
-            link.href = url;
-            link.download = 'pufutara-document.doc';
-            link.click();
+        function goToLandingPage() {
+            if(confirm("Kembali ke Halaman Utama? Tenang saja, dokumen Anda tetap tersimpan otomatis.")) {
+                document.getElementById('appEditor').style.display = 'none';
+                document.getElementById('landingPage').style.display = 'flex';
+            }
         }
 
-        // Export ke Teks (.txt)
-        function exportTxt() {
-            const text = editor.innerText;
-            const blob = new Blob([text], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = 'pufutara-note.txt';
-            link.click();
+        // --- Fitur Sisipkan Gambar ---
+        document.getElementById('imageUpload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const imgHtml = `<img src="${event.target.result}" alt="Gambar" draggable="true" style="max-width: 100%; margin: 10px 0; border-radius: 6px;">`;
+                    execCmd('insertHTML', imgHtml);
+                };
+                reader.readAsDataURL(file);
+            }
+            this.value = '';
+        });
+
+        // --- Tabel Grid UI & Resizer Kolom ---
+        const tableGrid = document.getElementById('tableGrid');
+        let selectedRows = 0, selectedCols = 0;
+
+        for(let r=1; r<=10; r++) {
+            for(let c=1; c<=10; c++) {
+                const cell = document.createElement('div');
+                cell.className = 'w-3.5 h-3.5 bg-white cursor-pointer rounded-sm border border-slate-200/60 transition-all duration-100';
+                cell.dataset.row = r;
+                cell.dataset.col = c;
+                cell.addEventListener('mouseover', () => highlightGrid(r, c));
+                cell.addEventListener('click', () => insertTableUI(r, c));
+                tableGrid.appendChild(cell);
+            }
         }
 
-        // Global Shortcuts untuk Undo/Redo
-        document.addEventListener('keydown', (e) => {
-            if (e.ctrlKey || e.metaKey) {
-                if (e.key === 'z') { e.preventDefault(); apply('undo'); }
-                if (e.key === 'y') { e.preventDefault(); apply('redo'); }
+        function highlightGrid(row, col) {
+            selectedRows = row; selectedCols = col;
+            document.getElementById('tablePreviewSize').innerText = `Tabel ${col} x ${row}`;
+            Array.from(tableGrid.children).forEach(cell => {
+                const r = parseInt(cell.dataset.row);
+                const c = parseInt(cell.dataset.col);
+                if (r <= row && c <= col) {
+                    cell.className = 'w-3.5 h-3.5 bg-blue-500 cursor-pointer rounded-sm border border-blue-600 scale-[1.05] shadow-sm';
+                } else {
+                    cell.className = 'w-3.5 h-3.5 bg-white cursor-pointer rounded-sm border border-slate-200/60 transition-all';
+                }
+            });
+        }
+
+        function resetGrid() {
+            highlightGrid(0, 0);
+            document.getElementById('tablePreviewSize').innerText = `Tabel 0 x 0`;
+        }
+
+        function toggleTableMenu(e) {
+            e.stopPropagation();
+            document.getElementById('tableMenu').classList.toggle('hidden');
+        }
+
+        document.addEventListener('click', (e) => {
+            const tableMenu = document.getElementById('tableMenu');
+            if (tableMenu && !tableMenu.classList.contains('hidden') && !e.target.closest('#tableMenuWrapper')) {
+                tableMenu.classList.add('hidden');
             }
         });
 
-        // Sedikit catatan: beberapa browser mungkin tidak mendukung execCommand pada tipe tertentu,
-        // namun untuk kebutuhan dasar teks kaya, ini sudah mencukupi.
-        // Jika ada masalah, pastikan menggunakan browser modern.
+        function insertTableUI(rows, cols) {
+            if (rows <= 0 || cols <= 0) return;
+            let tableHTML = '<table><tbody>';
+            for (let i = 0; i < rows; i++) {
+                tableHTML += '<tr>';
+                for (let j = 0; j < cols; j++) {
+                    if (i === 0) tableHTML += '<th>Header</th>';
+                    else tableHTML += '<td>Data</td>';
+                }
+                tableHTML += '</tr>';
+            }
+            tableHTML += '</tbody></table><p><br></p>';
+            execCmd('insertHTML', tableHTML);
+            document.getElementById('tableMenu').classList.add('hidden');
+            resetGrid();
+        }
+
+        // --- Penyesuaian Lebar Kolom Tabel (Resize Columns) ---
+        let isResizingCol = false;
+        let activeCell = null;
+        let startXCol = 0;
+        let startWidthCol = 0;
+
+        editor.addEventListener('mousedown', (e) => {
+            const cell = e.target.closest('td, th');
+            if (cell) {
+                const rect = cell.getBoundingClientRect();
+                if (e.clientX > rect.right - 8 && e.clientX < rect.right + 4) {
+                    isResizingCol = true;
+                    activeCell = cell;
+                    startXCol = e.clientX;
+                    startWidthCol = cell.offsetWidth;
+                    e.preventDefault();
+                    document.body.style.cursor = 'col-resize';
+                }
+            }
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isResizingCol && activeCell) {
+                const diff = e.clientX - startXCol;
+                activeCell.style.width = (startWidthCol + diff) + 'px';
+                document.body.style.cursor = 'col-resize';
+            } else {
+                const cell = e.target.closest('td, th');
+                if (cell) {
+                    const rect = cell.getBoundingClientRect();
+                    if (e.clientX > rect.right - 8 && e.clientX < rect.right + 4) {
+                        cell.style.cursor = 'col-resize';
+                    } else {
+                        cell.style.cursor = 'default';
+                    }
+                }
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isResizingCol) {
+                isResizingCol = false;
+                activeCell = null;
+                document.body.style.cursor = 'default';
+                updatePageBreaks();
+                onContentChange();
+            }
+        });
+
+        // --- File Operations (Import/Export ke .doc dengan Garis & Font) ---
+        function exportToDoc() {
+            const title = document.getElementById("docTitle").value || 'Dokumen_Tanpa_Judul';
+            const activeFont = document.getElementById("fontSelector").value || 'Arial';
+            
+            const inlineStyles = `
+                <style>
+                    body {
+                        font-family: '${activeFont}', Arial, sans-serif;
+                        font-size: 11pt;
+                        line-height: 1.5;
+                    }
+                    p { margin-bottom: 1em; }
+                    h1 { font-size: 20pt; font-weight: bold; margin-bottom: 0.5em; text-align: center; }
+                    h2 { font-size: 16pt; font-weight: bold; margin-bottom: 0.5em; }
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin-bottom: 1em;
+                    }
+                    th, td {
+                        border: 1px solid #1e293b !important;
+                        padding: 8px;
+                        text-align: left;
+                    }
+                    th {
+                        background-color: #f1f5f9;
+                        font-weight: bold;
+                    }
+                </style>
+            `;
+            
+            const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>" + title + "</title>" + inlineStyles + "</head><body>";
+            const footer = "</body></html>";
+            
+            const sourceHTML = header + editor.innerHTML + footer;
+            
+            const blob = new Blob(['\ufeff', sourceHTML], { type: 'application/msword' });
+            const url = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(sourceHTML);
+            const downloadLink = document.createElement("a");
+            
+            document.body.appendChild(downloadLink);
+            if (navigator.msSaveOrOpenBlob) {
+                navigator.msSaveOrOpenBlob(blob, title + '.doc');
+            } else {
+                downloadLink.href = url;
+                downloadLink.download = title + '.doc';
+                downloadLink.click();
+            }
+            document.body.removeChild(downloadLink);
+        }
+
+        document.getElementById('importFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const fileNameWithoutExt = file.name.split('.').slice(0, -1).join('.');
+            document.getElementById('docTitle').value = fileNameWithoutExt || file.name;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                editor.innerHTML = event.target.result;
+                updatePageBreaks();
+                onContentChange();
+            };
+            reader.readAsText(file);
+            this.value = '';
+        });
+
+        // --- Setelan Halaman ---
+        function changePaperSize() {
+            const size = document.getElementById('paperSize').value;
+            const root = document.documentElement;
+            
+            switch(size) {
+                case 'a4':
+                    root.style.setProperty('--page-width', '816px');
+                    root.style.setProperty('--page-min-height', '1123px');
+                    break;
+                case 'letter':
+                    root.style.setProperty('--page-width', '816px');
+                    root.style.setProperty('--page-min-height', '1056px');
+                    break;
+                case 'legal':
+                    root.style.setProperty('--page-width', '816px');
+                    root.style.setProperty('--page-min-height', '1344px');
+                    break;
+            }
+            updatePageBreaks();
+        }
+
+        function updateMargin(side) {
+            const val = document.getElementById(`margin${side.charAt(0).toUpperCase() + side.slice(1)}`).value;
+            const root = document.documentElement;
+            root.style.setProperty(`--margin-${side}`, `${val}px`);
+            updatePageBreaks();
+        }
+
+        // Buka / Tutup Modal Tampilan / Halaman
+        function togglePageSetup() {
+            const modal = document.getElementById('pageSetupModal');
+            modal.classList.toggle('hidden');
+        }
+
+        // --- Penanganan Penambahan Halaman Otomatis (Page Spawner) ---
+        function updatePageBreaks() {
+            const paper = document.getElementById('editor');
+            const pageHeight = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--page-min-height')) || 1123;
+            const currentHeight = paper.scrollHeight;
+            
+            const pageCount = Math.max(1, Math.ceil(currentHeight / pageHeight));
+            paper.style.minHeight = (pageCount * pageHeight) + 'px';
+            
+            let overlaysContainer = document.getElementById('page-overlays');
+            if (!overlaysContainer) {
+                overlaysContainer = document.createElement('div');
+                overlaysContainer.id = 'page-overlays';
+                overlaysContainer.className = 'absolute inset-0 pointer-events-none';
+                paper.appendChild(overlaysContainer);
+            }
+            overlaysContainer.innerHTML = '';
+            
+            for (let i = 1; i < pageCount; i++) {
+                const line = document.createElement('div');
+                line.className = 'absolute left-0 right-0 border-t border-dashed border-slate-300 z-10 flex justify-center items-center pointer-events-none';
+                line.style.top = (i * pageHeight) + 'px';
+                line.innerHTML = `<span class="bg-slate-100 px-3 py-1 text-[10px] font-bold text-slate-500 rounded-full border border-slate-200 transform -translate-y-1/2 shadow-sm tracking-wide">Lembar Baru / Halaman ${i + 1}</span>`;
+                overlaysContainer.appendChild(line);
+            }
+        }
+
+        // --- Fitur Resize & Drag Gambar ---
+        let currentImg = null;
+        let isResizing = false;
+        let startX, startY, startWidth, startHeight;
+        const resizer = document.getElementById('resizer');
+        const imgToolbar = document.getElementById('imageToolbar');
+        const workspace = document.getElementById('workspace');
+
+        editor.addEventListener('click', (e) => {
+            if (e.target.tagName === 'IMG') {
+                if (currentImg) currentImg.classList.remove('selected');
+                currentImg = e.target;
+                currentImg.classList.add('selected');
+                positionResizerAndToolbar();
+                resizer.classList.remove('hidden');
+                imgToolbar.classList.remove('hidden');
+            } else if (e.target !== resizer && !e.target.closest('#imageToolbar')) {
+                if (currentImg) currentImg.classList.remove('selected');
+                resizer.classList.add('hidden');
+                imgToolbar.classList.add('hidden');
+                currentImg = null;
+            }
+        });
+
+        workspace.addEventListener('scroll', () => {
+            if (currentImg && !resizer.classList.contains('hidden')) {
+                positionResizerAndToolbar();
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            if (currentImg && !resizer.classList.contains('hidden')) {
+                positionResizerAndToolbar();
+            }
+        });
+
+        function positionResizerAndToolbar() {
+            if (!currentImg) return;
+            const rect = currentImg.getBoundingClientRect();
+            resizer.style.left = rect.right + 'px';
+            resizer.style.top = rect.bottom + 'px';
+            
+            imgToolbar.style.left = rect.left + 'px';
+            imgToolbar.style.top = (rect.top - 46) + 'px';
+        }
+
+        function cutImage() {
+            if (currentImg) {
+                const range = document.createRange();
+                range.selectNode(currentImg);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                
+                document.execCommand('cut');
+                
+                currentImg.classList.remove('selected');
+                resizer.classList.add('hidden');
+                imgToolbar.classList.add('hidden');
+                currentImg = null;
+                updatePageBreaks();
+                onContentChange();
+            }
+        }
+
+        function deleteImage() {
+            if (currentImg) {
+                currentImg.remove();
+                resizer.classList.add('hidden');
+                imgToolbar.classList.add('hidden');
+                currentImg = null;
+                updateToolbarState();
+                updatePageBreaks();
+                onContentChange();
+            }
+        }
+
+        resizer.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            isResizing = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            startWidth = currentImg.clientWidth;
+            startHeight = currentImg.clientHeight;
+            
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+        });
+
+        function handleMouseMove(e) {
+            if (!isResizing || !currentImg) return;
+            const dx = e.clientX - startX;
+            const newWidth = Math.max(50, startWidth + dx);
+            
+            const ratio = startHeight / startWidth;
+            currentImg.style.width = newWidth + 'px';
+            currentImg.style.height = (newWidth * ratio) + 'px';
+            
+            positionResizerAndToolbar();
+            updatePageBreaks();
+            onContentChange();
+        }
+
+        function handleMouseUp() {
+            isResizing = false;
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+        }
+
+        // --- Deteksi State Tombol Format ---
+        function updateToolbarState() {
+            const commands = ['bold', 'italic', 'underline', 'strikeThrough', 'justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull', 'insertUnorderedList', 'insertOrderedList'];
+            
+            commands.forEach(cmd => {
+                const btn = document.querySelector(`button[onclick="execCmd('${cmd}')"]`);
+                if (btn) {
+                    if (document.queryCommandState(cmd)) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                }
+            });
+        }
+
+        // --- POIN 1: Real-time Word & Character Counter & Outline ---
+        function updateStatsAndOutline() {
+            const text = editor.innerText || "";
+            
+            const cleanText = text.trim().replace(/\s+/g, " ");
+            const words = cleanText === "" ? 0 : cleanText.split(" ").length;
+            const chars = text.length;
+            const readTime = Math.max(1, Math.ceil(words / 200)); 
+
+            document.getElementById('wordCount').innerText = words;
+            document.getElementById('charCount').innerText = chars;
+            document.getElementById('readTime').innerText = readTime;
+
+            // Generate Daftar Isi (Outline)
+            const headings = editor.querySelectorAll('h1, h2, h3');
+            const outlineContainer = document.getElementById('outlineContent');
+            
+            if (headings.length === 0) {
+                outlineContainer.innerHTML = '<p class="italic text-slate-400 text-xs">Belum ada judul struktur (Gunakan Heading H1 atau H2)...</p>';
+                return;
+            }
+
+            outlineContainer.innerHTML = '';
+            headings.forEach((heading, index) => {
+                const id = `heading-${index}`;
+                heading.id = id; 
+
+                const link = document.createElement('button');
+                let styleClass = 'block text-left w-full truncate py-1.5 px-2 rounded-md hover:bg-slate-50 hover:text-blue-600 transition-all text-xs ';
+                
+                if (heading.tagName === 'H1') {
+                    styleClass += 'font-bold text-slate-800';
+                } else if (heading.tagName === 'H2') {
+                    styleClass += 'pl-4 text-slate-600 font-semibold';
+                } else {
+                    styleClass += 'pl-6 text-slate-400 italic';
+                }
+
+                link.className = styleClass;
+                link.innerText = heading.innerText || "Judul Kosong";
+                link.onclick = () => {
+                    heading.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // Efek kedip visual penanda navigasi
+                    heading.style.backgroundColor = '#eff6ff';
+                    setTimeout(() => { heading.style.backgroundColor = 'transparent'; }, 800);
+                };
+                outlineContainer.appendChild(link);
+            });
+        }
+
+        // --- POIN 1: Cari & Ganti (Find & Replace) ---
+        function showFindReplaceModal() {
+            document.getElementById('findReplaceModal').classList.remove('hidden');
+            document.getElementById('findText').focus();
+        }
+
+        function toggleFindReplaceModal() {
+            document.getElementById('findReplaceModal').classList.add('hidden');
+        }
+
+        // Cari Teks di Dokumen (Menggunakan Highlight Native)
+        function findTextInDoc() {
+            const findText = document.getElementById('findText').value;
+            if (!findText) return;
+
+            if (!window.find(findText, false, false, true, false, true, false)) {
+                window.getSelection().removeAllRanges();
+                if (!window.find(findText, false, false, true, false, true, false)) {
+                    alert(`Teks "${findText}" tidak ditemukan.`);
+                }
+            }
+        }
+
+        // Ganti Semua Kata yang Cocok
+        function replaceTextInDoc() {
+            const findText = document.getElementById('findText').value;
+            const replaceText = document.getElementById('replaceText').value;
+            if (!findText) return;
+
+            const content = editor.innerHTML;
+            const escapedFindText = findText.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+            const regex = new RegExp(`(?<!<[^>]*)${escapedFindText}(?![^<]*>)`, 'g'); 
+            
+            if (regex.test(content)) {
+                editor.innerHTML = content.replace(regex, replaceText);
+                updatePageBreaks();
+                updateStatsAndOutline();
+                onContentChange();
+                toggleFindReplaceModal();
+            } else {
+                alert(`Teks "${findText}" tidak ditemukan di dalam isi dokumen.`);
+            }
+        }
+
+        // Support Ctrl + F shortcut
+        window.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+                e.preventDefault();
+                showFindReplaceModal();
+            }
+        });
+
+        // --- Sidebar Tab Switches & Visibility ---
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('collapsed');
+        }
+
+        function switchSidebarTab(tab) {
+            const tabOutline = document.getElementById('tabOutline');
+            const tabVersions = document.getElementById('tabVersions');
+            const btnOutline = document.getElementById('tabOutlineBtn');
+            const btnVersions = document.getElementById('tabVersionsBtn');
+
+            if (tab === 'outline') {
+                tabOutline.classList.remove('hidden');
+                tabVersions.classList.add('hidden');
+                btnOutline.className = "w-1/2 py-3.5 text-center border-b-2 border-blue-600 text-blue-600 focus:outline-none transition-all";
+                btnVersions.className = "w-1/2 py-3.5 text-center text-slate-400 hover:text-slate-800 focus:outline-none transition-all";
+            } else {
+                tabOutline.classList.add('hidden');
+                tabVersions.classList.remove('hidden');
+                btnOutline.className = "w-1/2 py-3.5 text-center text-slate-400 hover:text-slate-800 focus:outline-none transition-all";
+                btnVersions.className = "w-1/2 py-3.5 text-center border-b-2 border-blue-600 text-blue-600 focus:outline-none transition-all";
+                renderVersionsList();
+            }
+        }
+
+        // --- POIN 2: Quiet Auto-save ---
+        let autoSaveTimeout = null;
+        const AUTO_SAVE_DELAY = 3000; 
+
+        function onContentChange() {
+            clearTimeout(autoSaveTimeout);
+            autoSaveTimeout = setTimeout(() => {
+                saveToLocalStorage();
+            }, AUTO_SAVE_DELAY);
+        }
+
+        function saveToLocalStorage() {
+            const docData = {
+                title: document.getElementById('docTitle').value,
+                content: editor.innerHTML,
+                paperSize: document.getElementById('paperSize').value,
+                margins: {
+                    top: document.getElementById('marginTop').value,
+                    bottom: document.getElementById('marginBottom').value,
+                    left: document.getElementById('marginLeft').value,
+                    right: document.getElementById('marginRight').value,
+                },
+                lastSaved: new Date().toISOString()
+            };
+
+            localStorage.setItem('pufutara_doc_draft', JSON.stringify(docData));
+        }
+
+        function loadFromLocalStorage() {
+            const savedData = localStorage.getItem('pufutara_doc_draft');
+            if (savedData) {
+                try {
+                    const docData = JSON.parse(savedData);
+                    document.getElementById('docTitle').value = docData.title || "Dokumen Tanpa Judul";
+                    editor.innerHTML = docData.content || "";
+                    
+                    if(docData.paperSize) {
+                        document.getElementById('paperSize').value = docData.paperSize;
+                        changePaperSize();
+                    }
+                    if(docData.margins) {
+                        document.getElementById('marginTop').value = docData.margins.top;
+                        document.getElementById('marginBottom').value = docData.margins.bottom;
+                        document.getElementById('marginLeft').value = docData.margins.left;
+                        document.getElementById('marginRight').value = docData.margins.right;
+                        updateMargin('top');
+                        updateMargin('bottom');
+                        updateMargin('left');
+                        updateMargin('right');
+                    }
+                    
+                    updatePageBreaks();
+                    updateStatsAndOutline();
+                } catch (e) {
+                    console.error("Gagal memulihkan dokumen ter-autosave", e);
+                }
+            }
+        }
+
+        // Manajemen Riwayat Versi Manual
+        function saveVersionManual() {
+            const title = document.getElementById('docTitle').value;
+            const content = editor.innerHTML;
+            const timestamp = new Date().toLocaleString('id-ID');
+
+            let versions = JSON.parse(localStorage.getItem('pufutara_doc_versions')) || [];
+            
+            const newVersion = {
+                id: Date.now(),
+                title: title,
+                content: content,
+                time: timestamp
+            };
+
+            versions.unshift(newVersion); 
+            localStorage.setItem('pufutara_doc_versions', JSON.stringify(versions));
+            
+            renderVersionsList();
+        }
+
+        // Merender list riwayat penyimpanan
+        function renderVersionsList() {
+            const versionsList = document.getElementById('versionsList');
+            const versions = JSON.parse(localStorage.getItem('pufutara_doc_versions')) || [];
+
+            if (versions.length === 0) {
+                versionsList.innerHTML = '<p class="italic text-slate-400 text-xs">Belum ada versi tersimpan secara manual.</p>';
+                return;
+            }
+
+            versionsList.innerHTML = '';
+            versions.forEach((version, index) => {
+                const item = document.createElement('div');
+                item.className = "border border-slate-100 rounded-xl p-3.5 hover:bg-slate-50 transition-all text-xs space-y-2 relative group shadow-sm bg-white";
+                item.innerHTML = `
+                    <div class="font-bold text-slate-800 truncate pr-5">${version.title}</div>
+                    <div class="text-slate-400 flex items-center gap-1"><i class="ph ph-clock"></i> ${version.time}</div>
+                    <div class="flex gap-2 pt-1">
+                        <button onclick="restoreVersion(${version.id})" class="text-blue-600 hover:text-blue-800 font-bold flex items-center gap-0.5">
+                            <i class="ph ph-git-merge text-sm"></i> Pulihkan
+                        </button>
+                        <button onclick="deleteVersion(${version.id})" class="text-red-500 hover:text-red-700 font-bold flex items-center gap-0.5 ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
+                            <i class="ph ph-trash text-sm"></i> Hapus
+                        </button>
+                    </div>
+                `;
+                versionsList.appendChild(item);
+            });
+        }
+
+        function restoreVersion(id) {
+            if(confirm("Apakah Anda yakin ingin memulihkan dokumen ke versi ini? Ketikan saat ini akan diganti.")) {
+                const versions = JSON.parse(localStorage.getItem('pufutara_doc_versions')) || [];
+                const target = versions.find(v => v.id === id);
+                if (target) {
+                    editor.innerHTML = target.content;
+                    document.getElementById('docTitle').value = target.title;
+                    updatePageBreaks();
+                    updateStatsAndOutline();
+                    saveToLocalStorage(); 
+                }
+            }
+        }
+
+        function deleteVersion(id) {
+            let versions = JSON.parse(localStorage.getItem('pufutara_doc_versions')) || [];
+            versions = versions.filter(v => v.id !== id);
+            localStorage.setItem('pufutara_doc_versions', JSON.stringify(versions));
+            renderVersionsList();
+        }
+
+        // Daftarkan listener ketikan baru untuk memicu Auto-save dan Penghitungan Statistik
+        editor.addEventListener('input', () => {
+            onContentChange();
+            updateStatsAndOutline();
+        });
+
+        document.getElementById('docTitle').addEventListener('input', () => {
+            onContentChange();
+        });
+
+        editor.addEventListener('keyup', () => {
+            updateToolbarState();
+            updatePageBreaks();
+        });
+        editor.addEventListener('mouseup', updateToolbarState);
+
+        // Inisialisasi awal saat window dimuat
+        window.onload = () => {
+            loadFromLocalStorage(); 
+            updatePageBreaks();
+            updateStatsAndOutline();
+        };
+
     </script>
 </body>
 </html>
