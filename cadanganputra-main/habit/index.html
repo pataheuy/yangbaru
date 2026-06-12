@@ -1,203 +1,568 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pufutara Habit Tracker</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600&display=swap" rel="stylesheet">
-
-<style>
-:root {
-    --bg: #f3f4f6;
-    --card: #ffffff;
-    --text: #111111;
-    --muted: #94a3b8;
-    --accent: #111111;
-    --dot-empty: #f1f5f9;
-}
-
-body {
-    margin: 0;
-    font-family: 'Inter', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-}
-
-.habit-card {
-    background: var(--card);
-    width: 100%;
-    max-width: 450px;
-    padding: 40px;
-    border-radius: 32px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.05);
-}
-
-h1 {
-    font-family: 'Poppins', sans-serif;
-    font-size: 26px;
-    margin: 0 0 10px 0;
-    letter-spacing: -0.5px;
-}
-
-.desc {
-    font-size: 14px;
-    color: var(--muted);
-    margin-bottom: 30px;
-}
-
-.habit-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #f8fafc;
-}
-
-.habit-info {
-    flex: 1;
-}
-
-.habit-name {
-    font-weight: 600;
-    font-size: 15px;
-    margin-bottom: 4px;
-}
-
-.habit-streak {
-    font-size: 12px;
-    color: var(--muted);
-}
-
-.dots-container {
-    display: flex;
-    gap: 8px;
-}
-
-.dot {
-    width: 24px;
-    height: 24px;
-    background: var(--dot-empty);
-    border-radius: 50%;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.dot.active {
-    background: var(--accent);
-    transform: scale(1.1);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
-
-.dot:hover:not(.active) {
-    background: #e2e8f0;
-}
-
-/* Input Minimalis */
-.add-habit {
-    display: flex;
-    margin-top: 30px;
-    gap: 10px;
-}
-
-input {
-    flex: 1;
-    padding: 12px 20px;
-    border: 1px solid #e5e7eb;
-    border-radius: 14px;
-    font-family: 'Inter';
-}
-
-button {
-    background: var(--accent);
-    color: white;
-    border: none;
-    padding: 0 20px;
-    border-radius: 14px;
-    cursor: pointer;
-    font-weight: 600;
-}
-</style>
-</head>
-<body>
-
-<div class="habit-card">
-    <h1>Habits.</h1>
-    <div class="desc">7 hari terakhir. Konsistensi adalah kunci.</div>
-
-    <div id="habitList">
-        </div>
-
-    <div class="add-habit">
-        <input type="text" id="habitInput" placeholder="Tambah habit baru...">
-        <button onclick="addHabit()">+</button>
-    </div>
-</div>
-
-<script>
-let habits = JSON.parse(localStorage.getItem('puf_habits')) || [];
-
-function save() {
-    localStorage.setItem('p_habits', JSON.stringify(habits));
-    render();
-}
-
-function addHabit() {
-    const input = document.getElementById('habitInput');
-    if (!input.value.trim()) return;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pufutara - Modern Habit Tracker</title>
     
-    habits.push({
-        id: Date.now(),
-        name: input.value,
-        // Array 7 hari (false = belum dilakukan)
-        days: [false, false, false, false, false, false, false]
-    });
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     
-    input.value = '';
-    save();
-}
-
-function toggleDay(habitId, dayIndex) {
-    habits = habits.map(h => {
-        if (h.id === habitId) {
-            h.days[dayIndex] = !h.days[dayIndex];
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        black: '#09090b',
+                        gray: { 50: '#fafafa', 100: '#f4f4f5', 200: '#e4e4e7', 800: '#27272a', 900: '#18181b' },
+                        blue: { 500: '#3b82f6', 600: '#2563eb' }
+                    },
+                    boxShadow: {
+                        'soft': '0 8px 30px rgba(0,0,0,0.04)',
+                        'soft-hover': '0 15px 40px rgba(0,0,0,0.08)',
+                    }
+                }
+            }
         }
-        return h;
-    });
-    save();
-}
+    </script>
 
-function render() {
-    const list = document.getElementById('habitList');
-    list.innerHTML = '';
-    
-    habits.forEach(h => {
-        const item = document.createElement('div');
-        item.className = 'habit-item';
+    <style>
+        /* Skala tetap 78% sesuai permintaan sebelumnya */
+        html { font-size: 78%; }
+
+        /* Custom Scrollbar yang elegan */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #e4e4e7; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #d4d4d8; }
+
+        /* Transitions */
+        .habit-card { transition: all 0.3s ease; }
+        .progress-ring__circle { transition: stroke-dashoffset 0.8s ease-in-out; transform: rotate(-90deg); transform-origin: 50% 50%; }
+
+        /* Modals dengan efek blur yang halus */
+        .modal-overlay { backdrop-filter: blur(4px); opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        .modal-overlay.show { opacity: 1; pointer-events: auto; z-index: 100; }
+        .modal-content { transform: translateY(15px) scale(0.98); transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .modal-overlay.show .modal-content { transform: translateY(0) scale(1); }
+    </style>
+</head>
+<body class="bg-[#fcfcfc] text-black min-h-screen flex items-center justify-center p-8 antialiased selection:bg-black selection:text-white">
+
+    <!-- Modals -->
+    <div id="name-modal" class="modal-overlay fixed inset-0 flex items-center justify-center bg-white/80">
+        <div class="modal-content bg-white p-12 rounded-3xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] max-w-lg w-full text-center border border-gray-100">
+            <div class="w-20 h-20 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <i class="ph-fill ph-sparkle text-4xl text-black"></i>
+            </div>
+            <h2 class="text-3xl font-black mb-2 tracking-tight">Selamat Datang di Pufutara</h2>
+            <p class="text-gray-500 mb-8 font-medium">Mari mulai perjalanan produktivitasmu. Siapa namamu?</p>
+            <form id="name-form" class="flex flex-col gap-4">
+                <input type="text" id="name-input-field" required class="w-full bg-gray-50/50 rounded-2xl py-4 px-6 border border-gray-200 text-lg font-semibold focus:bg-white focus:border-black focus:ring-4 focus:ring-black/5 transition-all outline-none text-center" placeholder="Ketik namamu di sini...">
+                <button type="submit" class="w-full bg-black text-white rounded-2xl py-4 text-lg font-bold hover:bg-gray-800 transition-colors shadow-md">Mulai Sekarang</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="notif-modal" class="modal-overlay fixed inset-0 flex items-center justify-center bg-gray-900/40">
+        <div class="modal-content bg-white p-10 rounded-3xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] text-center max-w-sm w-full border border-gray-100">
+            <i id="notif-icon" class="ph-fill ph-bell text-6xl text-black mb-4"></i>
+            <h2 id="notif-title" class="text-2xl font-black mb-2 tracking-tight">Pemberitahuan</h2>
+            <p id="notif-desc" class="text-gray-500 mb-8 font-medium">Pesan.</p>
+            <button onclick="closeModal('notif-modal')" class="w-full bg-black text-white rounded-2xl py-3.5 text-lg font-bold hover:bg-gray-800 transition-colors">Tutup</button>
+        </div>
+    </div>
+
+    <div id="shop-modal" class="modal-overlay fixed inset-0 flex items-center justify-center bg-gray-900/40">
+        <div class="modal-content bg-white p-8 rounded-3xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] max-w-4xl w-full border border-gray-100 flex flex-col max-h-[80vh]">
+            <div class="flex justify-between items-center mb-8 pb-6 border-b border-gray-100">
+                <div>
+                    <h2 class="text-3xl font-black tracking-tight mb-1">Toko Pufutara</h2>
+                    <p class="text-gray-500 font-medium text-sm">Tukarkan koinmu dengan berbagai keuntungan.</p>
+                </div>
+                <button onclick="closeModal('shop-modal')" class="p-3 bg-gray-50 hover:bg-gray-100 rounded-full transition-colors text-gray-500 hover:text-black"><i class="ph-bold ph-x text-xl"></i></button>
+            </div>
+            <div class="flex justify-between items-center bg-gray-50 border border-gray-200 text-black p-5 rounded-2xl mb-8">
+                <span class="font-bold text-gray-500">Saldo Koin Saat Ini</span>
+                <span class="text-3xl font-black flex items-center gap-2 tracking-tight"><i class="ph-fill ph-coins text-yellow-500"></i> <span id="shop-coin-balance">0</span></span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 overflow-y-auto pb-4" id="shop-items-container">
+                <!-- Shop items injected here -->
+            </div>
+        </div>
+    </div>
+
+    <div id="achievements-modal" class="modal-overlay fixed inset-0 flex items-center justify-center bg-gray-900/40">
+        <div class="modal-content bg-white p-8 rounded-3xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] max-w-4xl w-full border border-gray-100 flex flex-col max-h-[80vh]">
+            <div class="flex justify-between items-center mb-8 pb-6 border-b border-gray-100">
+                <div>
+                    <h2 class="text-3xl font-black tracking-tight mb-1">Daftar Pencapaian</h2>
+                    <p class="text-gray-500 font-medium text-sm">Selesaikan lebih banyak quest untuk membuka piala.</p>
+                </div>
+                <button onclick="closeModal('achievements-modal')" class="p-3 bg-gray-50 hover:bg-gray-100 rounded-full transition-colors text-gray-500 hover:text-black"><i class="ph-bold ph-x text-xl"></i></button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5 overflow-y-auto pr-2 pb-4" id="achievements-container">
+                <!-- Achievements injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Layout -->
+    <div class="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-12 gap-12">
         
-        let dotsHtml = '';
-        h.days.forEach((done, index) => {
-            dotsHtml += `<div class="dot ${done ? 'active' : ''}" onclick="toggleDay(${h.id}, ${index})"></div>`;
+        <!-- SIDEBAR -->
+        <aside class="lg:col-span-4 flex flex-col gap-6">
+            <!-- Header -->
+            <div class="pt-2 pl-2">
+                <h1 class="text-4xl font-black tracking-tight text-black flex items-center gap-2">
+                    <div class="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
+                        <i class="ph-fill ph-sparkle text-white text-lg"></i>
+                    </div>
+                    Pufutara
+                </h1>
+                <p id="greeting-text" class="text-gray-400 font-medium mt-2 tracking-wide uppercase text-xs">Pemain ...</p>
+            </div>
+
+            <!-- Dashboard Card -->
+            <div class="bg-white rounded-[2rem] p-8 border border-gray-100 shadow-soft flex flex-col items-center text-center relative overflow-hidden">
+                <!-- Circular Level Indicator -->
+                <div class="relative w-48 h-48 mb-8 flex items-center justify-center">
+                    <svg class="w-full h-full absolute inset-0 drop-shadow-sm" viewBox="0 0 120 120">
+                        <circle cx="60" cy="60" r="54" fill="none" stroke="#f4f4f5" stroke-width="4" />
+                        <circle id="xp-ring" class="progress-ring__circle" cx="60" cy="60" r="54" fill="none" stroke="#000" stroke-width="5" stroke-dasharray="339.292" stroke-dashoffset="339.292" stroke-linecap="round" />
+                    </svg>
+                    <div class="z-10 flex flex-col items-center">
+                        <span class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Level</span>
+                        <span id="current-level" class="text-6xl font-black tracking-tighter text-black">1</span>
+                    </div>
+                </div>
+
+                <!-- Currency & XP -->
+                <div class="w-full grid grid-cols-2 gap-4 mb-5">
+                    <div class="bg-gray-50/80 rounded-2xl p-4 border border-gray-100 flex flex-col items-center justify-center transition-colors hover:bg-gray-50">
+                        <span class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Total Koin</span>
+                        <span class="text-2xl font-black tracking-tight text-gray-800 flex items-center gap-1.5"><i class="ph-fill ph-coins text-yellow-500"></i> <span id="coin-balance">0</span></span>
+                    </div>
+                    <div class="bg-gray-50/80 rounded-2xl p-4 border border-gray-100 flex flex-col items-center justify-center transition-colors hover:bg-gray-50">
+                        <span class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Total Quest</span>
+                        <span class="text-2xl font-black tracking-tight text-gray-800 flex items-center gap-1.5"><i class="ph-fill ph-check-square text-blue-500"></i> <span id="total-quests">0</span></span>
+                    </div>
+                </div>
+
+                <!-- XP Bar details -->
+                <div class="w-full bg-gray-50/80 rounded-2xl p-5 border border-gray-100">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-xs font-bold text-gray-600 uppercase tracking-wide flex items-center gap-1.5">
+                            <i class="ph-fill ph-lightning text-blue-500"></i> Progress XP
+                        </span>
+                        <span class="text-sm font-black text-gray-800"><span id="xp-progress">0</span> <span class="text-gray-400 font-medium">/ 100</span></span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                        <div id="xp-bar" class="bg-black h-2 rounded-full transition-all duration-700 ease-out" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Boosters Indicator -->
+                <div id="active-boosters" class="w-full flex flex-col gap-2 mt-4 hidden">
+                    <!-- Injected via JS -->
+                </div>
+            </div>
+
+            <!-- Action Menus -->
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="openModal('shop-modal')" class="bg-white border border-gray-200 rounded-[1.5rem] p-5 flex flex-col items-center justify-center gap-3 hover:border-black hover:shadow-soft-hover transition-all group">
+                    <div class="w-12 h-12 rounded-full bg-gray-50 group-hover:bg-black group-hover:text-white transition-colors flex items-center justify-center text-gray-600">
+                        <i class="ph-fill ph-storefront text-2xl"></i>
+                    </div>
+                    <span class="font-bold text-sm text-gray-700 group-hover:text-black">Buka Toko</span>
+                </button>
+                <button onclick="openModal('achievements-modal')" class="bg-white border border-gray-200 rounded-[1.5rem] p-5 flex flex-col items-center justify-center gap-3 hover:border-black hover:shadow-soft-hover transition-all group">
+                    <div class="w-12 h-12 rounded-full bg-gray-50 group-hover:bg-black group-hover:text-white transition-colors flex items-center justify-center text-gray-600">
+                        <i class="ph-fill ph-medal text-2xl"></i>
+                    </div>
+                    <span class="font-bold text-sm text-gray-700 group-hover:text-black">Pencapaian</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="lg:col-span-8 flex flex-col h-[calc(100vh-4rem)]">
+            
+            <!-- Add Habit Form -->
+            <form id="add-form" class="relative mb-10 group">
+                <input 
+                    type="text" 
+                    id="habit-input" 
+                    class="w-full bg-white rounded-[2rem] py-6 pl-8 pr-40 border border-gray-200 text-lg font-medium text-black placeholder:text-gray-400 focus:outline-none transition-all shadow-sm hover:shadow-md focus:border-gray-400 focus:ring-4 focus:ring-gray-50/50" 
+                    placeholder="Apa target rutinitasmu hari ini?"
+                    autocomplete="off"
+                >
+                <button 
+                    type="submit" 
+                    class="absolute right-3 top-3 bottom-3 bg-black text-white rounded-2xl px-8 font-bold hover:bg-gray-800 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    id="submit-btn" disabled
+                >
+                    Tambah <i class="ph-bold ph-plus"></i>
+                </button>
+            </form>
+
+            <!-- Habit List -->
+            <div class="flex-1 overflow-y-auto pr-4 pb-8 space-y-4" id="habits-container">
+                <!-- Habits injected here -->
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // --- System Constants ---
+        const BASE_XP = 20;
+        const BASE_COIN = 10;
+        const XP_PER_LEVEL = 100;
+        const LOGIN_BONUS_XP = 20;
+        const LOGIN_BONUS_COIN = 20;
+
+        // --- Data Models ---
+        const SHOP_ITEMS = [
+            { id: 'xp_50', name: 'Instant 50 XP', desc: 'Langsung tingkatkan progress sebanyak 50 XP.', cost: 50, icon: 'ph-lightning', color: 'text-blue-500' },
+            { id: 'boost_xp', name: 'XP Booster', desc: 'Dapatkan XP 2x lipat selama 24 jam berturut-turut.', cost: 150, icon: 'ph-trend-up', color: 'text-blue-500' },
+            { id: 'boost_coin', name: 'Coin Booster', desc: 'Dapatkan Koin 2x lipat selama 24 jam berturut-turut.', cost: 150, icon: 'ph-coins', color: 'text-yellow-500' }
+        ];
+
+        const ACHIEVEMENTS = [
+            { id: 'ach_1', name: 'Langkah Pertama', desc: 'Menyelesaikan 1 quest pertama.', target: 1, rewardCoin: 50 },
+            { id: 'ach_10', name: 'Mulai Terbiasa', desc: 'Menyelesaikan total 10 quest.', target: 10, rewardCoin: 150 },
+            { id: 'ach_50', name: 'Sangat Produktif', desc: 'Menyelesaikan total 50 quest.', target: 50, rewardCoin: 500 },
+            { id: 'ach_100', name: 'Sang Master', desc: 'Menyelesaikan total 100 quest.', target: 100, rewardCoin: 1000 },
+        ];
+        
+        // --- State Management ---
+        let state = {
+            username: localStorage.getItem('pufutara_username') || '',
+            habits: JSON.parse(localStorage.getItem('pufutara_habits')) || [],
+            xp: parseInt(localStorage.getItem('pufutara_xp')) || 0,
+            coins: parseInt(localStorage.getItem('pufutara_coins')) || 0,
+            totalCompleted: parseInt(localStorage.getItem('pufutara_total_comp')) || 0,
+            unlockedAchievements: JSON.parse(localStorage.getItem('pufutara_achievements')) || [],
+            boosterXpExp: parseInt(localStorage.getItem('pufutara_boost_xp')) || 0,
+            boosterCoinExp: parseInt(localStorage.getItem('pufutara_boost_coin')) || 0,
+        };
+
+        // --- DOM Elements ---
+        const els = {
+            habitInput: document.getElementById('habit-input'),
+            submitBtn: document.getElementById('submit-btn'),
+            addForm: document.getElementById('add-form'),
+            habitsContainer: document.getElementById('habits-container'),
+            greetingText: document.getElementById('greeting-text'),
+            currentLevel: document.getElementById('current-level'),
+            xpProgress: document.getElementById('xp-progress'),
+            xpBar: document.getElementById('xp-bar'),
+            xpRing: document.getElementById('xp-ring'),
+            coinBalance: document.getElementById('coin-balance'),
+            totalQuests: document.getElementById('total-quests'),
+            shopCoinBalance: document.getElementById('shop-coin-balance'),
+            shopItemsContainer: document.getElementById('shop-items-container'),
+            achievementsContainer: document.getElementById('achievements-container'),
+            activeBoosters: document.getElementById('active-boosters'),
+            modals: {
+                name: document.getElementById('name-modal'),
+                notif: document.getElementById('notif-modal'),
+                shop: document.getElementById('shop-modal'),
+                achievements: document.getElementById('achievements-modal'),
+            }
+        };
+
+        // --- Core Helpers ---
+        const getTodayStr = () => {
+            const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+            return d.toISOString().split('T')[0];
+        };
+        const isCompletedToday = (dates) => dates.includes(getTodayStr());
+        const hasActiveBooster = (expTime) => Date.now() < expTime;
+
+        const calcStreak = (dates) => {
+            if (!dates || dates.length === 0) return 0;
+            let streak = 0, check = new Date();
+            check.setMinutes(check.getMinutes() - check.getTimezoneOffset());
+            
+            if (!dates.includes(check.toISOString().split('T')[0])) {
+                check.setDate(check.getDate() - 1);
+            }
+
+            while (dates.includes(check.toISOString().split('T')[0])) {
+                streak++; check.setDate(check.getDate() - 1);
+            }
+            return streak;
+        };
+
+        const saveData = () => {
+            localStorage.setItem('pufutara_habits', JSON.stringify(state.habits));
+            localStorage.setItem('pufutara_xp', state.xp);
+            localStorage.setItem('pufutara_coins', state.coins);
+            localStorage.setItem('pufutara_total_comp', state.totalCompleted);
+            localStorage.setItem('pufutara_achievements', JSON.stringify(state.unlockedAchievements));
+            localStorage.setItem('pufutara_boost_xp', state.boosterXpExp);
+            localStorage.setItem('pufutara_boost_coin', state.boosterCoinExp);
+        };
+
+        // --- Modals & Confetti ---
+        const openModal = (id) => els.modals[id.replace('-modal', '')].classList.add('show');
+        const closeModal = (id) => els.modals[id.replace('-modal', '')].classList.remove('show');
+        
+        const showNotif = (title, desc, icon = 'ph-bell') => {
+            document.getElementById('notif-title').textContent = title;
+            document.getElementById('notif-desc').textContent = desc;
+            document.getElementById('notif-icon').className = `ph-fill ${icon} text-6xl text-black mb-4`;
+            openModal('notif-modal');
+        };
+
+        const fireConfetti = (colors = ['#000000', '#3b82f6', '#ffffff', '#e4e4e7']) => {
+            confetti({ particleCount: 70, spread: 70, origin: { y: 0.6 }, colors: colors, disableForReducedMotion: true, zIndex: 1000 });
+        };
+
+        // --- UI Updaters ---
+        const updateStatsUI = () => {
+            const level = Math.floor(state.xp / XP_PER_LEVEL) + 1;
+            const progress = state.xp % XP_PER_LEVEL;
+            const pct = (progress / XP_PER_LEVEL) * 100;
+
+            els.currentLevel.textContent = level;
+            els.xpProgress.textContent = progress;
+            els.coinBalance.textContent = state.coins;
+            els.shopCoinBalance.textContent = state.coins;
+            els.totalQuests.textContent = state.totalCompleted;
+            
+            els.xpBar.style.width = `${pct}%`;
+            els.xpRing.style.strokeDashoffset = 339.292 - (pct / 100) * 339.292;
+
+            // Render Boosters
+            els.activeBoosters.innerHTML = '';
+            els.activeBoosters.classList.add('hidden');
+            let hasBooster = false;
+            
+            if (hasActiveBooster(state.boosterXpExp)) {
+                hasBooster = true;
+                els.activeBoosters.innerHTML += `<div class="bg-blue-50 border border-blue-100 text-blue-700 text-xs font-bold px-4 py-2 rounded-xl flex items-center justify-between"><span class="flex items-center gap-1.5"><i class="ph-fill ph-trend-up"></i> XP x2 Aktif</span> <span class="text-blue-400 font-medium">24 Jam</span></div>`;
+            }
+            if (hasActiveBooster(state.boosterCoinExp)) {
+                hasBooster = true;
+                els.activeBoosters.innerHTML += `<div class="bg-yellow-50 border border-yellow-100 text-yellow-700 text-xs font-bold px-4 py-2 rounded-xl flex items-center justify-between"><span class="flex items-center gap-1.5"><i class="ph-fill ph-coins"></i> Koin x2 Aktif</span> <span class="text-yellow-500 font-medium">24 Jam</span></div>`;
+            }
+            if (hasBooster) els.activeBoosters.classList.remove('hidden');
+            
+            renderShop(); // Update shop button states
+        };
+
+        const renderHabits = () => {
+            els.habitsContainer.innerHTML = state.habits.length === 0 ? `
+                <div class="flex flex-col items-center justify-center h-full text-gray-400 border-2 border-dashed border-gray-200 rounded-3xl p-12 bg-gray-50/50">
+                    <i class="ph-thin ph-target text-6xl mb-4 text-gray-300"></i>
+                    <p class="text-xl font-bold text-gray-500 tracking-tight">Belum Ada Target</p>
+                    <p class="text-sm font-medium mt-1 text-gray-400">Tambahkan rutinitas pertamamu di atas.</p>
+                </div>` : '';
+
+            [...state.habits].sort((a, b) => isCompletedToday(a.completedDates) - isCompletedToday(b.completedDates)).forEach(habit => {
+                const completed = isCompletedToday(habit.completedDates);
+                const streak = calcStreak(habit.completedDates);
+                
+                const card = document.createElement('div');
+                // Desain bersih, minim border tebal
+                card.className = `habit-card group relative flex items-center justify-between p-5 rounded-[1.5rem] border ${completed ? 'bg-black text-white border-black shadow-lg shadow-black/10' : 'bg-white text-black border-gray-200 shadow-sm hover:shadow-soft hover:border-gray-300'}`;
+                
+                card.innerHTML = `
+                    <div class="flex items-center gap-5 cursor-pointer flex-1" onclick="toggleHabit('${habit.id}')">
+                        <div class="w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${completed ? 'bg-white border-white' : 'border-gray-300 group-hover:border-black bg-gray-50'}">
+                            ${completed ? '<i class="ph-bold ph-check text-black text-sm"></i>' : ''}
+                        </div>
+                        <div>
+                            <h3 class="text-[1.1rem] font-bold tracking-tight ${completed ? 'line-through decoration-2 decoration-white/30 text-gray-200' : 'text-gray-900'}">
+                                ${habit.title}
+                            </h3>
+                            <div class="flex items-center gap-4 mt-1.5 text-xs font-semibold ${completed ? 'text-gray-400' : 'text-gray-500'}">
+                                <span class="flex items-center gap-1"><i class="${streak > 0 ? 'ph-fill' : 'ph-bold'} ph-fire ${streak > 0 && !completed ? 'text-orange-500' : ''}"></i> Streak: ${streak}</span>
+                                ${completed ? `<span class="flex items-center gap-1 text-white"><i class="ph-fill ph-lightning text-blue-400"></i> +${hasActiveBooster(state.boosterXpExp)?BASE_XP*2:BASE_XP} XP</span>` : ''}
+                                ${completed ? `<span class="flex items-center gap-1 text-white"><i class="ph-fill ph-coins text-yellow-400"></i> +${hasActiveBooster(state.boosterCoinExp)?BASE_COIN*2:BASE_COIN}</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="deleteHabit('${habit.id}')" class="ml-4 w-10 h-10 rounded-full flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 border border-transparent ${completed ? 'hover:bg-white/10 text-gray-400 hover:text-white' : 'hover:bg-gray-100 hover:text-red-500 text-gray-400'}" title="Hapus">
+                        <i class="ph-bold ph-trash text-lg"></i>
+                    </button>
+                `;
+                els.habitsContainer.appendChild(card);
+            });
+        };
+
+        const renderShop = () => {
+            els.shopItemsContainer.innerHTML = '';
+            SHOP_ITEMS.forEach(item => {
+                const canBuy = state.coins >= item.cost;
+                els.shopItemsContainer.innerHTML += `
+                    <div class="border border-gray-200 rounded-[1.5rem] p-6 flex flex-col items-center text-center relative bg-white shadow-sm transition-shadow hover:shadow-soft">
+                        <div class="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center mb-4">
+                            <i class="ph-fill ${item.icon} text-3xl ${item.color}"></i>
+                        </div>
+                        <h3 class="text-lg font-bold tracking-tight mb-2">${item.name}</h3>
+                        <p class="text-xs font-medium text-gray-500 mb-6 flex-1 leading-relaxed">${item.desc}</p>
+                        <button onclick="buyItem('${item.id}')" ${!canBuy ? 'disabled' : ''} class="w-full py-3 rounded-xl font-bold transition-all text-sm ${canBuy ? 'bg-black text-white hover:bg-gray-800 shadow-md' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}">
+                            Beli (${item.cost} Koin)
+                        </button>
+                    </div>
+                `;
+            });
+        };
+
+        const renderAchievements = () => {
+            els.achievementsContainer.innerHTML = '';
+            ACHIEVEMENTS.forEach(ach => {
+                const unlocked = state.unlockedAchievements.includes(ach.id);
+                const progress = Math.min(state.totalCompleted, ach.target);
+                
+                els.achievementsContainer.innerHTML += `
+                    <div class="border ${unlocked ? 'border-gray-200 bg-gray-50' : 'border-gray-100 bg-white'} rounded-[1.5rem] p-5 flex items-center gap-4 transition-all">
+                        <div class="w-14 h-14 rounded-full flex items-center justify-center ${unlocked ? 'bg-yellow-100' : 'bg-gray-50'}">
+                            <i class="ph-fill ph-trophy text-2xl ${unlocked ? 'text-yellow-500' : 'text-gray-300'}"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-base font-bold tracking-tight ${unlocked ? 'text-black' : 'text-gray-700'}">${ach.name}</h3>
+                            <p class="text-xs font-medium text-gray-500 mb-2 mt-0.5">${ach.desc}</p>
+                            <div class="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                                <div class="${unlocked ? 'bg-yellow-400' : 'bg-gray-400'} h-full transition-all" style="width: ${(progress/ach.target)*100}%"></div>
+                            </div>
+                        </div>
+                        ${unlocked ? `<div class="text-right pl-2"><span class="block text-[10px] uppercase font-bold text-gray-400 mb-0.5">Selesai</span><span class="font-black text-sm text-yellow-500">+${ach.rewardCoin} <i class="ph-fill ph-coins"></i></span></div>` : ''}
+                    </div>
+                `;
+            });
+        };
+
+        // --- Core Logics ---
+        const checkAchievements = () => {
+            let justUnlocked = false;
+            ACHIEVEMENTS.forEach(ach => {
+                if (state.totalCompleted >= ach.target && !state.unlockedAchievements.includes(ach.id)) {
+                    state.unlockedAchievements.push(ach.id);
+                    state.coins += ach.rewardCoin;
+                    justUnlocked = true;
+                    showNotif('Pencapaian Terbuka!', `Kamu menyelesaikan "${ach.name}" dan mendapatkan bonus ${ach.rewardCoin} koin.`, 'ph-trophy');
+                    fireConfetti(['#fbbf24', '#f59e0b', '#000000', '#ffffff']);
+                }
+            });
+            if (justUnlocked) {
+                renderAchievements();
+                updateStatsUI();
+            }
+        };
+
+        const buyItem = (id) => {
+            const item = SHOP_ITEMS.find(i => i.id === id);
+            if (state.coins < item.cost) return;
+
+            state.coins -= item.cost;
+            const DayMS = 24 * 60 * 60 * 1000;
+
+            if (id === 'xp_50') state.xp += 50;
+            if (id === 'boost_xp') state.boosterXpExp = Date.now() + DayMS;
+            if (id === 'boost_coin') state.boosterCoinExp = Date.now() + DayMS;
+
+            saveData();
+            updateStatsUI();
+            showNotif('Pembelian Berhasil', `Item ${item.name} berhasil diaktifkan.`, 'ph-check-circle');
+            fireConfetti();
+        };
+
+        const toggleHabit = (id) => {
+            const today = getTodayStr();
+            const oldLvl = Math.floor(state.xp / XP_PER_LEVEL);
+            let checkSound = false;
+
+            const xpGain = hasActiveBooster(state.boosterXpExp) ? BASE_XP * 2 : BASE_XP;
+            const coinGain = hasActiveBooster(state.boosterCoinExp) ? BASE_COIN * 2 : BASE_COIN;
+
+            state.habits = state.habits.map(h => {
+                if (h.id === id) {
+                    const done = isCompletedToday(h.completedDates);
+                    if (done) {
+                        h.completedDates = h.completedDates.filter(d => d !== today);
+                        state.xp = Math.max(0, state.xp - xpGain);
+                        state.coins = Math.max(0, state.coins - coinGain);
+                        state.totalCompleted = Math.max(0, state.totalCompleted - 1);
+                    } else {
+                        h.completedDates.push(today);
+                        state.xp += xpGain;
+                        state.coins += coinGain;
+                        state.totalCompleted += 1;
+                        checkSound = true;
+                    }
+                }
+                return h;
+            });
+
+            saveData(); renderHabits(); updateStatsUI();
+            if (checkSound) { checkAchievements(); fireConfetti(); }
+
+            if (Math.floor(state.xp / XP_PER_LEVEL) > oldLvl) {
+                showNotif('LEVEL UP!', `Kamu telah mencapai Level ${Math.floor(state.xp / XP_PER_LEVEL) + 1}. Terus semangat!`, 'ph-rocket-launch');
+            }
+        };
+
+        const deleteHabit = (id) => {
+            state.habits = state.habits.filter(h => h.id !== id);
+            saveData(); renderHabits();
+        };
+
+        // --- Init & Events ---
+        els.addForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const title = els.habitInput.value.trim();
+            if (!title) return;
+            state.habits.unshift({ id: Date.now().toString(), title, completedDates: [] });
+            els.habitInput.value = ''; els.submitBtn.disabled = true;
+            saveData(); renderHabits();
         });
 
-        item.innerHTML = `
-            <div class="habit-info">
-                <div class="habit-name">${h.name}</div>
-                <div class="habit-streak">${h.days.filter(d => d).length}/7 hari selesai</div>
-            </div>
-            <div class="dots-container">
-                ${dotsHtml}
-            </div>
-        `;
-        list.appendChild(item);
-    });
-}
+        els.habitInput.addEventListener('input', (e) => els.submitBtn.disabled = !e.target.value.trim());
 
-render();
-</script>
+        document.getElementById('name-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            state.username = document.getElementById('name-input-field').value.trim();
+            if (state.username) {
+                localStorage.setItem('pufutara_username', state.username);
+                localStorage.setItem('pufutara_last_login', getTodayStr()); // Skip first day bonus
+                els.greetingText.textContent = `Pemain: ${state.username}`;
+                closeModal('name-modal');
+            }
+        });
+
+        const checkDaily = () => {
+            if (!state.username) return;
+            const today = getTodayStr();
+            if (localStorage.getItem('pufutara_last_login') !== today) {
+                state.xp += LOGIN_BONUS_XP;
+                state.coins += LOGIN_BONUS_COIN;
+                localStorage.setItem('pufutara_last_login', today);
+                saveData(); updateStatsUI();
+                showNotif('Bonus Harian!', `Selamat kembali! Kamu mendapat +${LOGIN_BONUS_XP} XP & +${LOGIN_BONUS_COIN} Koin hari ini.`, 'ph-gift');
+                setTimeout(fireConfetti, 500);
+            }
+        };
+
+        // Bootstrap
+        if (!state.username) openModal('name-modal');
+        else { els.greetingText.textContent = `Pemain: ${state.username}`; checkDaily(); }
+
+        updateStatsUI();
+        renderHabits();
+        renderAchievements();
+
+    </script>
 </body>
 </html>
