@@ -98,8 +98,8 @@ let galleryData = [
     {
         id: 1,
         type: 'foto',
-        title: 'Putra masuk google',
-        desc: 'apa saja yang penting selesai.',
+        title: 'Putra masuk google pertamakali',
+        desc: 'sesuai judul. ya begitulah.',
         icon: 'fa-laptop-code',
         fileUrl: '1.png'
     },
@@ -113,20 +113,30 @@ let galleryData = [
     {
         id: 3,
         type: 'foto',
-        title: 'random',
-        desc: 'gatau ah serah nanti aja',
+        title: 'Putra Pidato Ketua Pelaksana',
+        desc: 'ketuplak harbuknas 2026 di smpit assyifa!',
         icon: 'fa-users',
         fileUrl: '2.png'
     },
     {
         id: 4,
         type: 'foto',
-        title: 'Foto Baru',
-        desc: 'Ganti src gambar ini dengan foto kamu.',
+        title: 'Putra OSN IPS',
+        desc: 'masuk web seabagai perwakilan sekolah',
         icon: 'fa-image',
         fileUrl: '3.png'
     }
 ];
+
+function galleryImgFallback(imgEl, icon) {
+    const wrap = imgEl.parentElement;
+    imgEl.remove();
+    wrap.classList.remove('bg-slate-100');
+    wrap.classList.add('bg-gradient-to-tr', 'from-slate-200', 'to-slate-300');
+    const i = document.createElement('i');
+    i.className = `fa-solid ${icon} text-4xl md:text-6xl text-slate-400`;
+    wrap.insertBefore(i, wrap.firstChild);
+}
 
 function renderGallery(filterType = 'semua') {
     const grid = document.getElementById('gallery-grid');
@@ -144,14 +154,16 @@ function renderGallery(filterType = 'semua') {
         if (item.type === 'foto') {
             if (item.fileUrl) {
                 mediaPreviewHtml = `
-                    <div class="h-36 md:h-56 bg-slate-100 relative overflow-hidden flex items-center justify-center">
-                        <img src="${item.fileUrl}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 cursor-zoom-in" alt="${item.title}" onclick="openLightbox('${item.fileUrl}', '${item.title.replace(/'/g, "\\'")}')">
-                        <span class="absolute top-2 left-2 bg-white text-primary text-[8px] md:text-[9px] font-bold px-1.5 md:px-2 py-0.5 md:py-1 rounded-md border border-slate-200 shadow-sm">FOTO</span>
+                    <div class="h-36 md:h-56 bg-slate-100 relative overflow-hidden flex items-center justify-center" id="img-wrap-${item.id}">
+                        <img src="${item.fileUrl}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 cursor-zoom-in" alt="${item.title}"
+                            onclick="openLightbox('${item.fileUrl}', '${item.title.replace(/'/g, "\\'")}')"
+                            onerror="galleryImgFallback(this, '${item.icon || 'fa-image'}')">
+                        <span class="absolute top-2 left-2 bg-white text-primary text-[8px] md:text-[9px] font-bold px-1.5 md:px-2 py-0.5 md:py-1 rounded-md border border-slate-200 shadow-sm z-10">FOTO</span>
                     </div>`;
             } else {
                 mediaPreviewHtml = `
                     <div class="h-36 md:h-56 bg-gradient-to-tr from-slate-200 to-slate-300 relative flex items-center justify-center p-4">
-                        <i class="fa-solid ${item.icon || 'fa-image'} text-4xl md:text-6xl text-slate-700 opacity-85 group-hover:scale-110 transition-transform duration-300"></i>
+                        <i class="fa-solid ${item.icon || 'fa-image'} text-4xl md:text-6xl text-slate-400 group-hover:scale-110 transition-transform duration-300"></i>
                         <span class="absolute top-2 left-2 bg-white text-primary text-[8px] md:text-[9px] font-bold px-1.5 md:px-2 py-0.5 md:py-1 rounded-md border border-slate-200">FOTO</span>
                     </div>`;
             }
@@ -274,138 +286,55 @@ document.addEventListener('keydown', (e) => {
 renderGallery('semua');
 
 // ============================================================
-// AUDIO PLAYER (POJOK LAGU)
+// PRESTASI & ORGANISASI
 // ============================================================
-const playlist = [
-    {
-        title: "Mejikuhibiniu",
-        desc: "waduh",
-        category: "Kaciw",
-        audioSrc: "mejikuhibiniu.mp3"
-    },
-    {
-        title: "kosong",
-        desc: "kosong",
-        category: "-",
-        audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"
-    },
-    {
-        title: "kosong",
-        desc: "kosong",
-        category: "-g",
-        audioSrc: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3"
-    }
+const organisasiData = [
+    { nama: 'Staff humas dan ASFERA 2026',  periode: 'Bertanggung jawab untuk mendokumentasikan acara dengan baik',                 peran: '2025-2026' },
+    { nama: 'Ketua Komunitas Literasi Sekolah',   periode: 'Smpit Assyifa Boarding School Jalancagak',                              peran: '2025-2026' },
+    { nama: 'Anggota Badan Eksekutif Murid (BEM) Pendidikan', periode: 'Organisasi tertinggi dan sekelas OSIS negri, di Assyifa',   peran: '2025-2026' },
+    { nama: 'Sekretaris Organisasi Mitra Duta Kesehatan Asrama',   periode: 'Organisasi Asrama dari pembinaan',                     peran: '2025-2026' },
+    { nama: 'Sekretaris Halaqoh BPA', periode: 'Kelompok Bina Pribadi Assyifa Ustad Syaiful Anwar',                                 peran: '2025-2026' },
+    { nama: 'Anggota Organisasi Angkatan : Keagamaan',  periode: 'Organisasi angkatan 17. Revourner. di Assyifa',                   peran: '2025-2026' },
+    { nama: 'Anggota Komunitas Literasi Sekolah',  periode: 'Sebelum jadi ketua. kabinet Ki Hadjar Dewantara',                      peran: '2025-2026' },
+
 ];
 
-let currentSongIndex = 0;
-let isPlaying = false;
+const prestasiData = [
+    { tahun: '2026',        judul: 'Dormitory Award — Hafalan Terbanyak',    desc: 'Kategori reguler: 2 Juz 10 Halaman dalam satu semester.' },
+    { tahun: '2026',        judul: 'Klub OSN SMPIT Assyifa (Tahap 3)',        desc: 'Pelatihan Olimpiade Sains Nasional tingkat sekolah tahap lanjut.' },
+    { tahun: '2026',        judul: 'KOSSMI IPS Provinsi',                    desc: 'Peserta Kompetisi Sains Siswa Muslim Indonesia tingkat Jawa Barat.' },
+    { tahun: '2020 – 2026', judul: 'Ranking 3 Umum SDIT Al-Hikmah',          desc: 'Peringkat 3 rata-rata nilai selama 6 tahun (Angkatan 18).' },
+    { tahun: '2019',        judul: 'Juara 3 Mewarnai',                       desc: 'Pemenang lomba tingkat kelas 2 SDIT Al-Hikmah.' },
+];
 
-const audioElement = document.getElementById('real-audio-element');
-const playBtn = document.getElementById('play-btn');
-const playIcon = document.getElementById('play-icon');
-const prevBtn = document.getElementById('prev-btn');
-const nextBtn = document.getElementById('next-btn');
-const songTitle = document.getElementById('song-title');
-const songDesc = document.getElementById('song-desc');
-const progressBar = document.getElementById('progress-bar');
-const progressContainer = document.getElementById('progress-container');
-const currentTimeEl = document.getElementById('current-time');
-const durationTimeEl = document.getElementById('duration-time');
-const widgetHeader = document.getElementById('widget-header');
-const playerBody = document.getElementById('player-body');
-const toggleIcon = document.getElementById('toggle-icon');
-const songSelectorBtns = document.querySelectorAll('.song-selector-btn');
-
-function loadSong(index) {
-    currentSongIndex = index;
-    const song = playlist[index];
-    songTitle.textContent = song.title;
-    songDesc.textContent = song.desc;
-    audioElement.src = song.audioSrc;
-
-    songSelectorBtns.forEach(btn => {
-        const btnIdx = parseInt(btn.getAttribute('data-index'));
-        if (btnIdx === index) {
-            btn.classList.add('bg-slate-100', 'text-primary', 'font-bold');
-            btn.classList.remove('text-slate-700');
-        } else {
-            btn.classList.remove('bg-slate-100', 'text-primary', 'font-bold');
-            btn.classList.add('text-slate-700');
-        }
-    });
+function renderOrganisasi() {
+    const container = document.getElementById('organisasi-list');
+    if (!container) return;
+    container.innerHTML = organisasiData.map(item => `
+        <div class="flex items-center justify-between py-4">
+            <div>
+                <p class="font-bold text-sm text-primary">${item.nama}</p>
+                <p class="text-xs font-semibold text-indigo-600 mt-0.5">${item.periode}</p>
+            </div>
+            <span class="text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-100 px-3 py-1 rounded-full whitespace-nowrap ml-4">${item.peran}</span>
+        </div>
+    `).join('');
 }
 
-function playAudio() {
-    isPlaying = true;
-    audioElement.play().catch(() => {});
-    playIcon.className = "fa-solid fa-pause";
+function renderPrestasi() {
+    const container = document.getElementById('prestasi-list');
+    if (!container) return;
+    container.innerHTML = prestasiData.map(item => `
+        <div class="bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 hover:border-primary hover:bg-white hover:shadow-md transition-all duration-200">
+            <span class="text-[11px] font-bold text-amber-600 uppercase tracking-wider">${item.tahun}</span>
+            <p class="font-bold text-sm text-primary mt-1">${item.judul}</p>
+            <p class="text-xs text-slate-500 mt-1 leading-relaxed">${item.desc}</p>
+        </div>
+    `).join('');
 }
 
-function pauseAudio() {
-    isPlaying = false;
-    audioElement.pause();
-    playIcon.className = "fa-solid fa-play ml-0.5";
-}
-
-playBtn.addEventListener('click', () => {
-    if (isPlaying) pauseAudio();
-    else playAudio();
-});
-
-function nextSong() {
-    let nextIndex = currentSongIndex + 1;
-    if (nextIndex >= playlist.length) nextIndex = 0;
-    loadSong(nextIndex);
-    if (isPlaying) playAudio();
-}
-
-nextBtn.addEventListener('click', nextSong);
-
-prevBtn.addEventListener('click', () => {
-    let prevIndex = currentSongIndex - 1;
-    if (prevIndex < 0) prevIndex = playlist.length - 1;
-    loadSong(prevIndex);
-    if (isPlaying) playAudio();
-});
-
-audioElement.addEventListener('timeupdate', () => {
-    const currentTime = audioElement.currentTime;
-    const duration = audioElement.duration || 0;
-    progressBar.style.width = `${(currentTime / duration) * 100}%`;
-    currentTimeEl.textContent = formatTime(currentTime);
-    durationTimeEl.textContent = formatTime(duration);
-});
-
-function formatTime(secs) {
-    if (isNaN(secs)) return "0:00";
-    const minutes = Math.floor(secs / 60);
-    const seconds = Math.floor(secs % 60);
-    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-}
-
-progressContainer.addEventListener('click', (e) => {
-    const duration = audioElement.duration || 0;
-    audioElement.currentTime = (e.offsetX / progressContainer.clientWidth) * duration;
-});
-
-audioElement.addEventListener('ended', nextSong);
-
-widgetHeader.addEventListener('click', () => {
-    playerBody.classList.toggle('hidden');
-    toggleIcon.className = playerBody.classList.contains('hidden')
-        ? "fa-solid fa-chevron-up text-xs"
-        : "fa-solid fa-chevron-down text-xs";
-});
-
-songSelectorBtns.forEach(btn => {
-    btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        loadSong(parseInt(btn.getAttribute('data-index')));
-        playAudio();
-    });
-});
-
-loadSong(0);
+renderOrganisasi();
+renderPrestasi();
 
 // ============================================================
 // SOSMED COMING SOON TOAST
