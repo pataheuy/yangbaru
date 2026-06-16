@@ -1,0 +1,1972 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pufutara CBT - Minimalist Exam Engine</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Alpine.js CDN -->
+  <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+  <!-- Supabase JS CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    /* Custom font styles & smoothness */
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    /* Hide scrollbar for IE, Edge and Firefox */
+    .no-scrollbar {
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;  /* Firefox */
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-50/50 text-black flex flex-col antialiased"
+      x-data="cbtApp()"
+      x-init="initApp()">
+
+  <!-- HEADER BAR (Hidden during active exam) -->
+  <header x-show="view !== 'exam_active'" class="border-b border-neutral-100 py-4 px-6 sm:px-12 flex justify-between items-center bg-white sticky top-0 z-40 shadow-sm transition-all duration-300">
+    <div class="flex items-center gap-3 cursor-pointer" @click="goHome()">
+      <div class="bg-black text-white p-2.5 rounded-xl font-black text-lg tracking-wider shadow-md shadow-neutral-200">
+        PF
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-xl font-bold tracking-tight text-neutral-900">Pufutara <span class="text-blue-600">CBT</span></h1>
+          <!-- Supabase Connection Status Badge -->
+          <span 
+            class="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider"
+            :class="supabaseConnected ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'"
+            x-text="supabaseConnected ? 'Supabase Online' : 'Offline / Demo'"
+          ></span>
+        </div>
+        <p class="text-[10px] uppercase tracking-widest text-neutral-400 font-semibold">Minimalist Exam Engine</p>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-4">
+      <!-- Landing Page Admin Login Button -->
+      <template x-if="view === 'landing'">
+        <button 
+          @click="showAdminLoginModal = true"
+          class="flex items-center gap-2 text-xs font-bold px-5 py-2.5 border border-black hover:bg-black hover:text-white transition-all duration-300 rounded-xl uppercase tracking-wider shadow-sm hover:shadow-md"
+        >
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+          Login Admin
+        </button>
+      </template>
+
+      <!-- Admin Actions when Logged In -->
+      <template x-if="isAdminLoggedIn && (view === 'admin_dashboard' || view === 'landing')">
+        <div class="flex items-center gap-3">
+          <button 
+            @click="view = (view === 'admin_dashboard' ? 'landing' : 'admin_dashboard')"
+            class="text-xs font-bold px-5 py-2.5 bg-neutral-100 hover:bg-neutral-200 text-black transition-all rounded-xl uppercase tracking-wider shadow-sm"
+            x-text="view === 'admin_dashboard' ? 'Lihat Daftar Ujian' : 'Dashboard Admin'"
+          >
+          </button>
+          <button 
+            @click="handleAdminLogout()"
+            class="flex items-center gap-1.5 text-xs font-bold px-4 py-2.5 bg-red-50 text-red-600 hover:bg-red-100 transition-all rounded-xl uppercase tracking-wider"
+          >
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+            Keluar
+          </button>
+        </div>
+      </template>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT SPACE -->
+  <main class="flex-1 flex flex-col justify-center">
+    
+    <!-- VIEW 1: LANDING / EXAM LIST -->
+    <div x-show="view === 'landing'" class="max-w-5xl mx-auto w-full px-6 py-12 sm:py-20 flex-1 flex flex-col justify-center">
+      <!-- Supabase Connection Tip Info -->
+      <div x-show="!supabaseConnected" class="mb-8 p-4 bg-amber-50 border border-amber-200 text-xs text-amber-800 flex justify-between items-center rounded-2xl">
+        <span>⚠️ <strong>Mode Demo Aktif:</strong> Anda sedang menggunakan penyimpanan memori lokal. Untuk mengaktifkan sinkronisasi database awan, harap buka kode <code>index.html</code> lalu isi kredensial <code>SUPABASE_URL</code> dan <code>SUPABASE_ANON_KEY</code>.</span>
+      </div>
+
+      <div class="text-center mb-16 max-w-2xl mx-auto">
+        <span class="text-blue-600 text-xs font-bold uppercase tracking-widest px-3 py-1 bg-blue-50 inline-block mb-4 rounded-full">Sistem CBT Modern</span>
+        <h2 class="text-4xl sm:text-5xl font-black tracking-tight text-neutral-900 leading-tight mb-4">
+          Ujian Digital yang Bersih, Fokus &amp; Aman.
+        </h2>
+        <p class="text-neutral-500 text-sm sm:text-base leading-relaxed">
+          Selamat datang di portal Pufutara CBT. Pilih mata ujian yang tersedia di bawah ini untuk memulai evaluasi pembelajaran Anda secara tertib.
+        </p>
+      </div>
+
+      <div class="border-t border-neutral-200 pt-8">
+        <h3 class="text-sm font-bold uppercase tracking-wider text-neutral-400 mb-6">Daftar Ujian Aktif</h3>
+        
+        <template x-if="exams.length === 0">
+          <div class="border border-dashed border-neutral-200 p-12 text-center text-neutral-500 rounded-2xl">
+            <svg class="w-8 h-8 mx-auto mb-3 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+            <p class="font-semibold text-neutral-700">Belum Ada Ujian Tersedia</p>
+            <p class="text-xs mt-1">Silahkan masuk sebagai admin untuk membuat jadwal ujian baru.</p>
+          </div>
+        </template>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <template x-for="exam in exams" :key="exam.id">
+            <div class="bg-white border border-neutral-200 p-6 flex flex-col justify-between hover:border-blue-500 hover:shadow-lg transition-all duration-300 rounded-2xl group">
+              <div>
+                <div class="flex items-center gap-2 mb-4">
+                  <span class="flex items-center gap-1 text-xs text-neutral-600 bg-neutral-100 px-3 py-1 rounded-xl font-semibold">
+                    <svg class="w-3.5 h-3.5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span x-text="exam.duration + ' Menit'"></span>
+                  </span>
+                  <span class="flex items-center gap-1 text-xs text-neutral-600 bg-neutral-100 px-3 py-1 rounded-xl font-semibold">
+                    <svg class="w-3.5 h-3.5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    <span x-text="(exam.questions?.length || 0) + ' Soal'"></span>
+                  </span>
+                </div>
+                <h4 class="text-xl font-bold text-neutral-900 group-hover:text-blue-600 transition-colors mb-3" x-text="exam.title"></h4>
+                
+                <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-neutral-400 mt-4 mb-6">
+                  <span class="flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5" :class="exam.randomizeQuestions ? 'text-blue-600' : 'text-neutral-300'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 7.89"></path></svg>
+                    Acak Soal: <span class="font-semibold" x-text="exam.randomizeQuestions ? 'Aktif' : 'Tidak'"></span>
+                  </span>
+                  <span class="flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5" :class="exam.randomizeOptions ? 'text-blue-600' : 'text-neutral-300'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 7.89"></path></svg>
+                    Acak Jawaban: <span class="font-semibold" x-text="exam.randomizeOptions ? 'Aktif' : 'Tidak'"></span>
+                  </span>
+                </div>
+              </div>
+
+              <button 
+                @click="handleSelectExam(exam)"
+                class="w-full py-3.5 bg-black text-white hover:bg-blue-600 transition-all duration-300 font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 rounded-xl shadow-md hover:shadow-lg"
+              >
+                Mulai Ujian
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+              </button>
+            </div>
+          </template>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 2: EXAM INTRO & STUDENT REGISTRATION -->
+    <div x-show="view === 'exam_intro' && selectedExam" class="max-w-md mx-auto w-full px-6 py-12 flex-1 flex flex-col justify-center" style="display: none;">
+      <div class="bg-white border border-neutral-200 p-8 shadow-xl rounded-2xl">
+        <button 
+          @click="view = 'landing'"
+          class="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-neutral-400 hover:text-black mb-6 transition-colors"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
+          Kembali
+        </button>
+
+        <div class="mb-6" x-show="selectedExam">
+          <span class="text-xs font-bold text-blue-600 uppercase tracking-widest block mb-1">Pendaftaran Peserta</span>
+          <h3 class="text-2xl font-black tracking-tight text-neutral-900" x-text="selectedExam?.title"></h3>
+          <p class="text-xs text-neutral-400 mt-1">
+            Durasi: <span class="font-semibold" x-text="selectedExam?.duration"></span> Menit | Total: <span class="font-semibold" x-text="selectedExam?.questions?.length"></span> Soal
+          </p>
+        </div>
+
+        <!-- Security Alerts / Instructions -->
+        <div class="bg-blue-50 border border-blue-100 p-4 mb-6 text-xs text-blue-800 space-y-3 rounded-xl">
+          <div class="flex items-start gap-2.5">
+            <svg class="w-4 h-4 mt-0.5 flex-shrink-0 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4M4 20l5-5m11 5v-4m0 4h-4m4 0l-5-5"></path></svg>
+            <p><strong>Layar Penuh Otomatis:</strong> Aplikasi akan meminta izin dan otomatis masuk ke mode layar penuh saat Anda menekan tombol mulai.</p>
+          </div>
+          <div class="flex items-start gap-2.5">
+            <svg class="w-4 h-4 mt-0.5 text-red-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            <p><strong>Proteksi Anti-Curang:</strong> Menekan tombol <strong>Esc, F11, Alt+Tab, atau meminimalkan browser</strong> akan langsung <strong>MENGUNCI</strong> pengerjaan ujian seketika. Pembukaan kunci hanya bisa dilakukan oleh admin/pengawas.</p>
+          </div>
+        </div>
+
+        <form @submit.prevent="handleStartExam()" class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-1.5">Nama Lengkap</label>
+            <input 
+              type="text" 
+              required
+              x-model="studentName"
+              placeholder="Contoh: Muhammad Rafli"
+              class="w-full p-3.5 border border-neutral-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm bg-neutral-50/50"
+            />
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-1.5">NIS (Nomor Induk Siswa)</label>
+            <input 
+              type="text" 
+              required
+              x-model="studentNis"
+              placeholder="Contoh: 22010928"
+              class="w-full p-3.5 border border-neutral-200 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm bg-neutral-50/50 font-mono"
+            />
+          </div>
+
+          <p x-show="studentError" x-text="studentError" class="text-xs text-red-600 font-semibold" style="display: none;"></p>
+
+          <button 
+            type="submit"
+            class="w-full py-4 bg-blue-600 text-white hover:bg-blue-700 transition-colors font-bold text-xs uppercase tracking-widest mt-2 rounded-xl shadow-lg hover:shadow-xl"
+          >
+            Masuk &amp; Mulai Ujian Sekarang
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- VIEW 3: ACTIVE EXAM INTERFACE (NO HEADER, HIGH FOCUS & PERFECTLY CENTERED CARD) -->
+    <div x-show="view === 'exam_active' && activeQuestions.length > 0" class="flex-1 flex flex-col justify-center items-center bg-slate-50 py-10 px-4 sm:px-6" style="display: none;">
+      
+      <!-- Main Centered Examination Card -->
+      <div class="max-w-3xl w-full bg-white border border-neutral-200 shadow-2xl rounded-3xl p-6 sm:p-10 flex flex-col relative transition-all duration-300">
+        
+        <div x-show="activeQuestions.length > 0 && activeQuestions[currentQuestionIndex]">
+          
+          <!-- Exam Mini Top Bar inside the Card -->
+          <div class="flex justify-between items-center border-b border-neutral-100 pb-4 mb-6">
+            <div>
+              <span class="text-[10px] font-extrabold uppercase text-blue-600 tracking-wider">Lembar Pengerjaan Soal</span>
+              <p class="text-xs text-neutral-500">Siswa: <span class="font-bold text-neutral-800" x-text="studentName"></span> (<span x-text="studentNis"></span>)</p>
+            </div>
+            
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold uppercase tracking-widest text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
+                Soal <span x-text="currentQuestionIndex + 1"></span> dari <span x-text="activeQuestions.length"></span>
+              </span>
+              <span class="text-xs font-bold text-neutral-400 bg-neutral-100 px-3 py-1 rounded-full">
+                Bobot: <span x-text="activeQuestions[currentQuestionIndex]?.points"></span> Poin
+              </span>
+            </div>
+          </div>
+
+          <!-- Question Content with Scalable font size -->
+          <div 
+            class="font-semibold text-neutral-900 leading-relaxed mb-8 bg-neutral-50 p-6 border-l-4 border-blue-600 rounded-r-2xl shadow-sm transition-all duration-300"
+            :style="{ fontSize: fontScale + 'rem' }"
+            x-text="activeQuestions[currentQuestionIndex]?.questionText">
+          </div>
+
+          <!-- Answers Options Area with Scalable font size -->
+          <div class="space-y-3 max-w-3xl" :style="{ fontSize: (fontScale * 0.875) + 'rem' }">
+            
+            <!-- MCQ Options (ABCD or ABCDE) -->
+            <template x-if="activeQuestions[currentQuestionIndex]?.type === 'mcq'">
+              <div class="space-y-3">
+                <template x-for="option in activeQuestions[currentQuestionIndex]?.options" :key="option.id">
+                  <button
+                    @click="studentAnswers[activeQuestions[currentQuestionIndex].id] = option.id"
+                    class="w-full text-left p-4 border transition-all flex items-start gap-4 rounded-xl"
+                    :class="studentAnswers[activeQuestions[currentQuestionIndex].id] === option.id 
+                      ? 'border-blue-600 bg-blue-50/50 text-neutral-950 font-semibold ring-1 ring-blue-500' 
+                      : 'border-neutral-200 hover:border-neutral-400 bg-white'"
+                  >
+                    <span 
+                      class="inline-flex items-center justify-center w-6 h-6 border font-extrabold text-xs flex-shrink-0 uppercase rounded-lg shadow-sm"
+                      :class="studentAnswers[activeQuestions[currentQuestionIndex].id] === option.id 
+                        ? 'bg-blue-600 text-white border-blue-600' 
+                        : 'border-neutral-300 bg-neutral-50'"
+                      x-text="option.id"
+                    ></span>
+                    <span class="pt-0.5" x-text="option.text"></span>
+                  </button>
+                </template>
+              </div>
+            </template>
+
+            <!-- True / False Statement Table -->
+            <template x-if="activeQuestions[currentQuestionIndex]?.type === 'tf'">
+              <div class="border border-neutral-200 overflow-hidden mt-4 bg-white rounded-2xl shadow-sm">
+                <table class="w-full text-left border-collapse">
+                  <thead>
+                    <tr class="bg-neutral-50 border-b border-neutral-200 text-[11px] font-bold uppercase tracking-wider text-neutral-500">
+                      <th class="p-4 w-2/3">Pernyataan Soal</th>
+                      <th class="p-4 text-center w-1/6">Benar</th>
+                      <th class="p-4 text-center w-1/6">Salah</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="border-b border-neutral-100 hover:bg-neutral-50/50 transition-colors">
+                      <td class="p-4 font-semibold text-neutral-800" x-text="activeQuestions[currentQuestionIndex].questionText"></td>
+                      <td class="p-4 text-center">
+                        <button
+                          type="button"
+                          @click="studentAnswers[activeQuestions[currentQuestionIndex].id] = 'benar'"
+                          class="w-11 h-11 rounded-full border transition-all inline-flex items-center justify-center shadow-sm"
+                          :class="studentAnswers[activeQuestions[currentQuestionIndex].id] === 'benar'
+                            ? 'bg-emerald-800 text-white border-emerald-800 shadow-md ring-4 ring-emerald-100'
+                            : 'border-neutral-200 hover:border-emerald-600 bg-white text-neutral-600 hover:bg-emerald-50'"
+                        >
+                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+                        </button>
+                      </td>
+                      <td class="p-4 text-center">
+                        <button
+                          type="button"
+                          @click="studentAnswers[activeQuestions[currentQuestionIndex].id] = 'salah'"
+                          class="w-11 h-11 rounded-full border transition-all inline-flex items-center justify-center shadow-sm"
+                          :class="studentAnswers[activeQuestions[currentQuestionIndex].id] === 'salah'
+                            ? 'bg-red-600 text-white border-red-600 shadow-md ring-4 ring-red-100'
+                            : 'border-neutral-200 hover:border-red-600 bg-white text-neutral-600 hover:bg-red-50'"
+                        >
+                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="bg-neutral-50 p-4 text-center border-t border-neutral-200 text-xs font-semibold text-neutral-500">
+                  <template x-if="studentAnswers[activeQuestions[currentQuestionIndex].id]">
+                    <span class="text-blue-600 flex items-center justify-center gap-1.5">
+                      <svg class="w-4 h-4 text-emerald-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                      Anda memilih: <strong class="uppercase text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded-lg" x-text="studentAnswers[activeQuestions[currentQuestionIndex].id]"></strong>
+                    </span>
+                  </template>
+                  <template x-if="!studentAnswers[activeQuestions[currentQuestionIndex].id]">
+                    <span class="text-neutral-400">Harap tentukan pilihan jawaban Anda di atas.</span>
+                  </template>
+                </div>
+              </div>
+            </template>
+
+            <!-- Short Answer -->
+            <template x-if="activeQuestions[currentQuestionIndex]?.type === 'short'">
+              <div class="space-y-1">
+                <label class="block text-xs font-bold uppercase tracking-wider text-neutral-400 mb-2">Jawaban Singkat Anda</label>
+                <input 
+                  type="text"
+                  x-model="studentAnswers[activeQuestions[currentQuestionIndex].id]"
+                  placeholder="Tuliskan jawaban Anda di sini..."
+                  class="w-full p-4 border border-neutral-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-mono bg-neutral-50/30"
+                />
+              </div>
+            </template>
+
+            <!-- Essay Answer -->
+            <template x-if="activeQuestions[currentQuestionIndex]?.type === 'essay'">
+              <div class="space-y-1">
+                <label class="block text-xs font-bold uppercase tracking-wider text-neutral-400 mb-2">Jawaban Lengkap Essay Anda</label>
+                <textarea 
+                  rows="6"
+                  x-model="studentAnswers[activeQuestions[currentQuestionIndex].id]"
+                  placeholder="Tuliskan analisis atau penjelasan panjang Anda di sini..."
+                  class="w-full p-4 border border-neutral-300 rounded-xl focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-neutral-50/30"
+                ></textarea>
+              </div>
+            </template>
+          </div>
+        </div>
+
+        <!-- Mini Soal Navigator Grid (Accordion Toggle) -->
+        <div class="mt-8 border-t border-neutral-100 pt-6">
+          <button 
+            @click="showNavigatorDrawer = !showNavigatorNavigatorDrawer" 
+            class="flex items-center justify-between w-full text-xs font-bold text-neutral-400 hover:text-black uppercase tracking-wider pb-2 focus:outline-none"
+          >
+            <span>Navigasi Cepat Nomor Soal</span>
+            <svg class="w-4 h-4 transition-transform duration-300" :class="showNavigatorNavigatorDrawer ? 'transform rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+          </button>
+          
+          <div x-show="showNavigatorNavigatorDrawer" class="grid grid-cols-6 sm:grid-cols-10 gap-2 mt-4 transition-all duration-300" style="display: none;">
+            <template x-for="(q, idx) in activeQuestions" :key="q.id">
+              <button
+                @click="setCurrentQuestion(idx)"
+                class="aspect-square flex items-center justify-center font-bold text-xs border transition-all rounded-xl shadow-sm"
+                :class="idx === currentQuestionIndex 
+                  ? 'bg-blue-600 text-white border-blue-600 ring-4 ring-blue-100 font-extrabold shadow-md' 
+                  : (studentAnswers[q.id] !== undefined && studentAnswers[q.id] !== ''
+                    ? 'bg-neutral-900 text-white border-neutral-900' 
+                    : 'bg-white text-neutral-700 border-neutral-200 hover:border-neutral-400')"
+                x-text="idx + 1"
+              ></button>
+            </template>
+          </div>
+        </div>
+
+        <!-- NEW BOTTOM CONTROLS & TIMING BAR (Centered & Consolidated) -->
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mt-8 pt-6 border-t border-neutral-100">
+          
+          <!-- Font Zoom Scale Controls -->
+          <div class="flex items-center gap-1.5 bg-neutral-100 p-1 rounded-xl">
+            <button 
+              @click="decreaseScale()"
+              class="w-8 h-8 rounded-lg bg-white text-neutral-700 border border-neutral-200 hover:border-neutral-400 text-xs font-bold flex items-center justify-center"
+              title="Perkecil Ukuran Teks"
+            >
+              -
+            </button>
+            <span class="text-[10px] font-extrabold uppercase tracking-widest px-2.5 text-neutral-500">Skala</span>
+            <button 
+              @click="increaseScale()"
+              class="w-8 h-8 rounded-lg bg-white text-neutral-700 border border-neutral-200 hover:border-neutral-400 text-xs font-bold flex items-center justify-center"
+              title="Perbesar Ukuran Teks"
+            >
+              +
+            </button>
+          </div>
+
+          <!-- Centered Real-Time Countdown Clock -->
+          <div class="flex items-center gap-2 bg-red-50 text-red-600 border border-red-100 px-4 py-2 rounded-2xl shadow-sm">
+            <svg class="w-4 h-4 text-red-500 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="animation-duration: 4s;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span class="text-[10px] font-extrabold uppercase tracking-wider text-red-500">Sisa Waktu:</span>
+            <span class="text-sm font-mono font-black" x-text="formatTime(timeLeft)"></span>
+          </div>
+
+          <!-- Navigation controls -->
+          <div class="flex gap-2">
+            <button
+              @click="setCurrentQuestion(Math.max(0, currentQuestionIndex - 1))"
+              :disabled="currentQuestionIndex === 0"
+              class="flex items-center gap-1.5 px-4 py-2 border border-neutral-200 hover:border-black text-xs font-bold uppercase tracking-wider transition-colors rounded-xl disabled:opacity-30 disabled:hover:border-neutral-200"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
+              Kembali
+            </button>
+
+            <button
+              x-show="currentQuestionIndex < activeQuestions.length - 1"
+              @click="setCurrentQuestion(Math.min(activeQuestions.length - 1, currentQuestionIndex + 1))"
+              class="flex items-center gap-1.5 px-5 py-2 bg-black text-white hover:bg-neutral-900 text-xs font-bold uppercase tracking-wider transition-colors rounded-xl shadow-md"
+            >
+              Lanjut
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+            </button>
+
+            <button
+              x-show="currentQuestionIndex === activeQuestions.length - 1"
+              @click="confirmFinishExam()"
+              class="flex items-center gap-1.5 px-5 py-2 bg-blue-600 text-white hover:bg-blue-700 text-xs font-bold uppercase tracking-widest transition-colors rounded-xl shadow-lg hover:shadow-xl"
+            >
+              Selesai
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <!-- VIEW 4: EXAM PAUSED (BLOCKED/ANTI-CHEAT TRIGGERED) -->
+    <div x-show="view === 'exam_paused'" class="max-w-md mx-auto w-full px-6 py-12 flex-1 flex flex-col justify-center" style="display: none;">
+      <div class="border-2 border-red-600 p-8 shadow-2xl bg-white text-center rounded-3xl">
+        <div class="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-100">
+          <svg class="w-8 h-8 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+        </div>
+        
+        <h3 class="text-2xl font-black tracking-tight text-neutral-900 mb-2">Ujian Dihentikan Sementara</h3>
+        <p class="text-xs text-red-600 font-bold uppercase tracking-wider mb-4 bg-red-50 px-3 py-1 rounded-full inline-block">Sistem Mendeteksi Pelanggaran Keamanan</p>
+        
+        <div class="bg-neutral-50 p-4 text-xs text-neutral-600 text-left space-y-2.5 mb-6 border border-neutral-200 rounded-2xl">
+          <p>⚠️ <strong>Penyebab:</strong> Anda terdeteksi keluar dari mode layar penuh (*fullscreen*), berganti jendela aplikasi, menekan tombol <strong>Escape / F11</strong>, atau membuka tab baru.</p>
+          <p>🚫 <strong>Sanksi:</strong> Sesi ujian Anda dikunci secara otomatis demi integritas kejujuran akademik.</p>
+          <p>🔑 <strong>Solusi:</strong> Mintalah <strong>Pengawas Ujian (Admin)</strong> untuk memasukkan password otentikasi di bawah ini untuk membuka kembali sesi ujian Anda.</p>
+        </div>
+
+        <form @submit.prevent="handleResumeExam()" class="space-y-4 text-left">
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-1.5">Masukan Password Admin</label>
+            <input 
+              type="password" 
+              required
+              x-model="resumePassword"
+              placeholder="Sandi Admin Pengawas"
+              class="w-full p-3.5 border border-neutral-300 rounded-xl focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 text-sm font-mono bg-neutral-50/50"
+            />
+          </div>
+
+          <p x-show="resumeError" x-text="resumeError" class="text-xs text-red-600 font-bold" style="display: none;"></p>
+
+          <button 
+            type="submit"
+            class="w-full py-4 bg-black text-white hover:bg-neutral-950 transition-colors font-bold text-xs uppercase tracking-widest mt-2 rounded-xl shadow-lg"
+          >
+            Buka &amp; Lanjutkan Ujian
+          </button>
+        </form>
+
+        <div class="mt-6 text-[10px] text-neutral-400 font-bold">
+          Jumlah Pelanggaran Akun: <span class="font-extrabold text-red-600" x-text="violationsCount + 'x'"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 5: EXAM RESULT / SUBMISSION CONFIRMATION -->
+    <div x-show="view === 'exam_result' && selectedExam" class="max-w-md mx-auto w-full px-6 py-12 flex-1 flex flex-col justify-center" style="display: none;">
+      <div class="border border-neutral-200 p-8 text-center bg-white rounded-3xl shadow-xl">
+        <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 border border-blue-100">
+          <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+        </div>
+
+        <h3 class="text-2xl font-bold tracking-tight text-neutral-900 mb-1">Ujian Selesai Dikirim</h3>
+        <p class="text-xs text-neutral-400 uppercase tracking-widest font-bold mb-6">Pufutara CBT Integrity System</p>
+        
+        <div class="border-y border-neutral-100 py-4 text-left text-xs space-y-3 mb-8">
+          <div class="flex justify-between"><span class="text-neutral-400 font-medium">Nama Siswa:</span><span class="font-bold" x-text="studentName"></span></div>
+          <div class="flex justify-between"><span class="text-neutral-400 font-medium">NIS:</span><span class="font-bold" x-text="studentNis"></span></div>
+          <div class="flex justify-between"><span class="text-neutral-400 font-medium">Mata Pelajaran:</span><span class="font-bold" x-text="selectedExam?.title"></span></div>
+          <div class="flex justify-between"><span class="text-neutral-400 font-medium">Total Soal Terjawab:</span><span class="font-bold"><span x-text="Object.keys(studentAnswers).length"></span> dari <span x-text="activeQuestions.length"></span></span></div>
+          <div class="flex justify-between">
+            <span class="text-neutral-400 font-medium">Pelanggaran Terdeteksi:</span>
+            <span class="font-bold" :class="violationsCount > 0 ? 'text-red-600' : 'text-emerald-800'" x-text="violationsCount + ' Kali'"></span>
+          </div>
+        </div>
+
+        <div class="bg-neutral-50 p-4 border border-neutral-200 mb-8 text-[11px] text-neutral-500 text-left rounded-2xl">
+          Jawaban Anda telah diarsip di server database awan. Hasil penilaian akan dirilis secara resmi oleh pihak akademik sekolah setelah seluruh sesi usai.
+        </div>
+
+        <button 
+          @click="selectedExam = null; view = 'landing';"
+          class="w-full py-3.5 bg-black text-white hover:bg-neutral-900 transition-colors font-bold text-xs uppercase tracking-wider rounded-xl shadow-md"
+        >
+          Kembali ke Daftar Ujian
+        </button>
+      </div>
+    </div>
+
+    <!-- VIEW 6: ADMIN DASHBOARD -->
+    <div x-show="view === 'admin_dashboard'" class="max-w-6xl mx-auto w-full px-6 py-10 flex-1" style="display: none;">
+      
+      <!-- Dashboard Top Section -->
+      <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-neutral-200 pb-6 mb-8 gap-4">
+        <div>
+          <h2 class="text-3xl font-black tracking-tight text-neutral-900">Dashboard Panel CBT</h2>
+          <p class="text-xs text-neutral-400 uppercase tracking-wider font-bold mt-1">Kelola Jadwal Ujian, Butir Soal, &amp; Parameter Proteksi</p>
+        </div>
+
+        <button 
+          @click="showExamForm = true; newExamTitle = '';"
+          class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs uppercase tracking-wider px-5 py-3 transition-colors rounded-xl shadow-lg hover:shadow-xl"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+          Buat Ujian Baru
+        </button>
+      </div>
+
+      <!-- STATS GRID -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="bg-white p-5 border border-neutral-200 rounded-2xl shadow-sm">
+          <span class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Total Ujian</span>
+          <span class="text-2xl font-black text-neutral-900" x-text="exams.length"></span>
+        </div>
+        <div class="bg-white p-5 border border-neutral-200 rounded-2xl shadow-sm">
+          <span class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Total Pertanyaan</span>
+          <span class="text-2xl font-black text-neutral-900" x-text="exams.reduce((acc, curr) => acc + (curr.questions?.length || 0), 0)"></span>
+        </div>
+        <div class="bg-white p-5 border border-neutral-200 rounded-2xl shadow-sm">
+          <span class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Total Hasil Pengumpulan</span>
+          <span class="text-2xl font-black text-blue-600" x-text="submissions.length"></span>
+        </div>
+        <div class="bg-white p-5 border border-neutral-200 rounded-2xl shadow-sm">
+          <span class="block text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Rata-rata Pelanggaran</span>
+          <span class="text-2xl font-black text-red-600" x-text="submissions.length ? (submissions.reduce((acc, curr) => acc + curr.violations_count, 0) / submissions.length).toFixed(1) : 0"></span>
+        </div>
+      </div>
+
+      <!-- ADMIN TABS NAVIGATION -->
+      <div class="flex border-b border-neutral-200 mb-8 gap-1 bg-neutral-100 p-1.5 rounded-xl max-w-sm">
+        <button 
+          @click="adminTab = 'ujian'"
+          class="flex-1 py-2.5 text-xs font-bold uppercase tracking-wider text-center transition-all rounded-lg"
+          :class="adminTab === 'ujian' ? 'bg-white text-black shadow-md' : 'text-neutral-500 hover:text-black'"
+        >
+          Kelola Ujian
+        </button>
+        <button 
+          @click="adminTab = 'peserta'"
+          class="flex-1 py-2.5 text-xs font-bold uppercase tracking-wider text-center transition-all rounded-lg"
+          :class="adminTab === 'peserta' ? 'bg-white text-black shadow-md' : 'text-neutral-500 hover:text-black'"
+        >
+          Hasil Peserta
+        </button>
+      </div>
+
+      <!-- TAB 1: KELOLA UJIAN -->
+      <div x-show="adminTab === 'ujian'">
+        <!-- Form Buat Ujian Baru -->
+        <div x-show="showExamForm" class="border border-neutral-200 p-6 mb-8 bg-neutral-50 rounded-2xl" style="display: none;">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="font-bold text-sm uppercase tracking-wider text-neutral-800">Form Pembuatan Ujian Baru</h3>
+            <button @click="showExamForm = false" class="text-neutral-400 hover:text-black">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+          </div>
+
+          <form @submit.prevent="handleCreateExam()" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-4">
+              <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-1.5">Judul / Nama Ujian</label>
+                <input 
+                  type="text" 
+                  required
+                  x-model="newExamTitle"
+                  placeholder="Contoh: Penilaian Akhir Semester Ganjil Kimia"
+                  class="w-full p-3 border border-neutral-300 rounded-xl focus:outline-none focus:border-black text-sm bg-white"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-1.5">Durasi Ujian (Menit)</label>
+                <input 
+                  type="number" 
+                  required
+                  min="1"
+                  x-model="newExamDuration"
+                  class="w-full p-3 border border-neutral-300 rounded-xl focus:outline-none focus:border-black text-sm bg-white"
+                />
+              </div>
+            </div>
+
+            <div class="space-y-4">
+              <label class="block text-xs font-bold uppercase tracking-wider text-neutral-500">Konfigurasi Aturan Ujian</label>
+              
+              <div class="space-y-3 bg-white p-4 border border-neutral-200 rounded-xl">
+                <label class="flex items-center gap-3 cursor-pointer text-xs font-semibold text-neutral-700">
+                  <input 
+                    type="checkbox"
+                    x-model="newRandomizeQ"
+                    class="w-4 h-4 text-blue-600 border-neutral-300 focus:ring-black rounded"
+                  />
+                  Acak Urutan Soal (Tiap siswa menerima urutan soal yang berbeda)
+                </label>
+
+                <label class="flex items-center gap-3 cursor-pointer text-xs font-semibold text-neutral-700">
+                  <input 
+                    type="checkbox"
+                    x-model="newRandomizeOpt"
+                    class="w-4 h-4 text-blue-600 border-neutral-300 focus:ring-black rounded"
+                  />
+                  Acak Pilihan Jawaban (Hanya berpengaruh pada soal Pilihan Ganda)
+                </label>
+              </div>
+
+              <div class="flex gap-2 pt-2">
+                <button 
+                  type="submit"
+                  class="flex-1 py-3 bg-black text-white hover:bg-neutral-900 transition-colors font-bold text-xs uppercase tracking-wider rounded-xl"
+                >
+                  Simpan Ujian
+                </button>
+                <button 
+                  type="button"
+                  @click="showExamForm = false"
+                  class="px-5 py-3 bg-neutral-200 text-neutral-700 hover:bg-neutral-300 transition-colors font-bold text-xs uppercase tracking-wider rounded-xl"
+                >
+                  Batal
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <!-- Layout Admin Panel: Left (Exams List) & Right (Question Builder/Editor for Selected Exam) -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          <!-- Left Side: Exams List -->
+          <div class="lg:col-span-1 space-y-4">
+            <h3 class="font-bold text-sm uppercase tracking-wider text-neutral-400 mb-2">Daftar Jadwal Ujian (<span x-text="exams.length"></span>)</h3>
+            
+            <template x-if="exams.length === 0">
+              <p class="text-xs text-neutral-500 italic">Belum ada ujian. Tambahkan ujian terlebih dahulu.</p>
+            </template>
+
+            <template x-for="exam in exams" :key="exam.id">
+              <div 
+                @click="selectEditingExam(exam)"
+                class="p-5 border cursor-pointer transition-all rounded-2xl opacity-95 hover:opacity-100 hover:shadow-md"
+                :class="editingExam?.id === exam.id 
+                  ? 'border-black bg-neutral-50 shadow-md ring-1 ring-black' 
+                  : 'border-neutral-200 hover:border-neutral-400 bg-white'"
+              >
+                <div class="flex justify-between items-start">
+                  <h4 class="font-bold text-base text-neutral-900 line-clamp-1" x-text="exam.title"></h4>
+                  <button 
+                    @click.stop="handleDeleteExam(exam.id)"
+                    class="text-neutral-400 hover:text-red-600 p-1"
+                    title="Hapus Ujian"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                  </button>
+                </div>
+                
+                <div class="flex items-center gap-2 mt-2 mb-3">
+                  <span class="text-[10px] uppercase font-bold text-neutral-400" x-text="exam.duration + ' Menit'"></span>
+                  <span class="text-neutral-300">•</span>
+                  <span class="text-[10px] uppercase font-bold text-neutral-400" x-text="(exam.questions?.length || 0) + ' Butir Soal'"></span>
+                </div>
+
+                <div class="flex flex-wrap gap-2 text-[9px] font-semibold text-neutral-500">
+                  <span class="px-2 py-0.5 border rounded-full" :class="exam.randomizeQuestions ? 'border-blue-200 text-blue-600 bg-blue-50/50' : 'border-neutral-200'">
+                    Acak Soal: <span x-text="exam.randomizeQuestions ? 'ON' : 'OFF'"></span>
+                  </span>
+                  <span class="px-2 py-0.5 border rounded-full" :class="exam.randomizeOptions ? 'border-blue-200 text-blue-600 bg-blue-50/50' : 'border-neutral-200'">
+                    Acak Opsi: <span x-text="exam.randomizeOptions ? 'ON' : 'OFF'"></span>
+                  </span>
+                </div>
+
+                <div class="mt-4 flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-blue-600">
+                  <span>Kelola Soal &amp; Rincian</span>
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+                </div>
+              </div>
+            </template>
+          </div>
+
+          <!-- Right Side: Questions Editor Panel -->
+          <div class="lg:col-span-2">
+            <template x-if="editingExam">
+              <div class="border border-neutral-200 p-6 sm:p-8 bg-white rounded-2xl shadow-sm">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-neutral-100 pb-4 mb-6 gap-2">
+                  <div>
+                    <span class="text-[10px] font-bold text-blue-600 uppercase tracking-widest">Konfigurasi Konten Soal</span>
+                    <h3 class="text-xl font-bold text-neutral-900" x-text="editingExam.title"></h3>
+                  </div>
+                  
+                  <button
+                    @click="triggerAddQuestionForm()"
+                    class="flex items-center gap-1 bg-black text-white hover:bg-neutral-900 text-xs font-bold uppercase tracking-wider px-4 py-2 transition-colors rounded-xl shadow"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    Tambah Soal
+                  </button>
+                </div>
+
+                <!-- Form Builder Tambah / Edit Pertanyaan -->
+                <div x-show="showQuestionForm" class="border border-neutral-200 p-5 bg-neutral-50 mb-8 space-y-4 rounded-xl shadow-inner" style="display: none;">
+                  <div class="flex justify-between items-center pb-2 border-b border-neutral-200">
+                    <h4 class="font-bold text-xs uppercase tracking-wider text-neutral-800" x-text="editingQuestionId ? 'Edit Butir Soal' : 'Pembuat Butir Soal Baru'"></h4>
+                    <button 
+                      @click="showQuestionForm = false; editingQuestionId = null;" 
+                      class="text-neutral-400 hover:text-black"
+                    >
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                  </div>
+
+                  <form @submit.prevent="handleSaveQuestion()" class="space-y-4">
+                    <!-- Pilih Tipe Soal -->
+                    <div>
+                      <label class="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-1.5">Tipe Soal</label>
+                      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        <button
+                          type="button"
+                          @click="qType = 'mcq'"
+                          class="p-2.5 border text-xs font-semibold uppercase tracking-wider transition-all text-center rounded-xl"
+                          :class="qType === 'mcq' ? 'border-blue-600 bg-blue-50 text-blue-700 ring-1 ring-blue-500' : 'border-neutral-300 bg-white hover:border-neutral-400 text-neutral-700'"
+                        >
+                          Pilihan Ganda
+                        </button>
+                        <button
+                          type="button"
+                          @click="qType = 'tf'"
+                          class="p-2.5 border text-xs font-semibold uppercase tracking-wider transition-all text-center rounded-xl"
+                          :class="qType === 'tf' ? 'border-blue-600 bg-blue-50 text-blue-700 ring-1 ring-blue-500' : 'border-neutral-300 bg-white hover:border-neutral-400 text-neutral-700'"
+                        >
+                          Benar / Salah
+                        </button>
+                        <button
+                          type="button"
+                          @click="qType = 'short'"
+                          class="p-2.5 border text-xs font-semibold uppercase tracking-wider transition-all text-center rounded-xl"
+                          :class="qType === 'short' ? 'border-blue-600 bg-blue-50 text-blue-700 ring-1 ring-blue-500' : 'border-neutral-300 bg-white hover:border-neutral-400 text-neutral-700'"
+                        >
+                          Isian Singkat
+                        </button>
+                        <button
+                          type="button"
+                          @click="qType = 'essay'"
+                          class="p-2.5 border text-xs font-semibold uppercase tracking-wider transition-all text-center rounded-xl"
+                          :class="qType === 'essay' ? 'border-blue-600 bg-blue-50 text-blue-700 ring-1 ring-blue-500' : 'border-neutral-300 bg-white hover:border-neutral-400 text-neutral-700'"
+                        >
+                          Essay / Uraian
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- Pertanyaan -->
+                    <div>
+                      <label class="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-1.5">Isi Pertanyaan / Narasi Soal</label>
+                      <textarea
+                        rows="3"
+                        required
+                        x-model="qText"
+                        placeholder="Tuliskan teks pertanyaan di sini..."
+                        class="w-full p-3 border border-neutral-300 rounded-xl focus:outline-none focus:border-black text-sm bg-white"
+                      ></textarea>
+                    </div>
+
+                    <!-- Bobot Poin -->
+                    <div>
+                      <label class="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-1.5">Bobot Nilai (Poin)</label>
+                      <input
+                        type="number"
+                        required
+                        min="1"
+                        x-model="qPoints"
+                        class="w-32 p-2.5 border border-neutral-300 rounded-xl focus:outline-none focus:border-black text-sm bg-white"
+                      />
+                    </div>
+
+                    <!-- Dinamis Form berdasarkan Tipe Soal -->
+                    
+                    <!-- MCQ Options -->
+                    <div x-show="qType === 'mcq'" class="space-y-3 bg-white p-4 border border-neutral-200 rounded-xl" style="display: none;">
+                      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-2">
+                        <span class="block text-xs font-bold uppercase tracking-wider text-neutral-500">Jumlah Opsi Pilihan</span>
+                        <div class="flex gap-2">
+                          <button
+                            type="button"
+                            @click="qMcqCount = 4"
+                            class="px-3 py-1 border text-xs font-bold rounded-lg"
+                            :class="qMcqCount === 4 ? 'bg-black text-white border-black' : 'bg-white text-neutral-600 border-neutral-300 hover:border-black'"
+                          >
+                            4 Opsi (A-D)
+                          </button>
+                          <button
+                            type="button"
+                            @click="qMcqCount = 5"
+                            class="px-3 py-1 border text-xs font-bold rounded-lg"
+                            :class="qMcqCount === 5 ? 'bg-black text-white border-black' : 'bg-white text-neutral-600 border-neutral-300 hover:border-black'"
+                          >
+                            5 Opsi (A-E)
+                          </button>
+                        </div>
+                      </div>
+
+                      <span class="block text-xs font-bold uppercase tracking-wider text-neutral-400">Input Opsi Jawaban</span>
+                      
+                      <template x-for="(opt, idx) in qMcqOptions.slice(0, qMcqCount)" :key="idx">
+                        <div class="flex items-center gap-2">
+                          <span class="font-bold text-xs uppercase w-5 text-neutral-500" x-text="['a', 'b', 'c', 'd', 'e'][idx] + '.'"></span>
+                          <input 
+                            type="text"
+                            :required="qType === 'mcq'"
+                            x-model="opt.text"
+                            :placeholder="'Teks pilihan jawaban untuk opsi ' + ['A', 'B', 'C', 'D', 'E'][idx]"
+                            class="flex-1 p-2 border border-neutral-300 rounded-lg focus:outline-none focus:border-black text-xs"
+                          />
+                          <label class="flex items-center gap-1.5 text-xs cursor-pointer font-bold font-sans">
+                            <input 
+                              type="radio" 
+                              name="mcqCorrectRadio"
+                              :value="['a', 'b', 'c', 'd', 'e'][idx]"
+                              x-model="qMcqCorrect"
+                              class="text-blue-600 focus:ring-black"
+                            />
+                            Benar
+                          </label>
+                        </div>
+                      </template>
+                    </div>
+
+                    <!-- True or False Options -->
+                    <div x-show="qType === 'tf'" class="bg-white p-4 border border-neutral-200 space-y-2 rounded-xl" style="display: none;">
+                      <span class="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-1">Kunci Jawaban Benar / Salah</span>
+                      <div class="flex gap-4">
+                        <label class="flex items-center gap-2 cursor-pointer text-xs font-bold">
+                          <input 
+                            type="radio" 
+                            name="tfCorrectRadio"
+                            value="benar"
+                            x-model="qTfCorrect"
+                            class="text-blue-600 focus:ring-black"
+                          />
+                          BENAR
+                        </label>
+                        <label class="flex items-center gap-2 cursor-pointer text-xs font-bold">
+                          <input 
+                            type="radio" 
+                            name="tfCorrectRadio"
+                            value="salah"
+                            x-model="qTfCorrect"
+                            class="text-blue-600 focus:ring-black"
+                          />
+                          SALAH
+                        </label>
+                      </div>
+                    </div>
+
+                    <!-- Short Answer -->
+                    <div x-show="qType === 'short'" class="bg-white p-4 border border-neutral-200 rounded-xl" style="display: none;">
+                      <label class="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-1.5">Kunci Jawaban Isian Singkat</label>
+                      <input 
+                        type="text"
+                        :required="qType === 'short'"
+                        x-model="qShortCorrect"
+                        placeholder="Contoh: 8 (case-insensitive)"
+                        class="w-full p-2.5 border border-neutral-300 rounded-lg focus:outline-none focus:border-black text-xs"
+                      />
+                    </div>
+
+                    <!-- Essay Description -->
+                    <div x-show="qType === 'essay'" class="bg-white p-4 border border-neutral-200 text-xs text-neutral-500 italic rounded-xl" style="display: none;">
+                      * Soal Essay tidak membutuhkan pengaturan kunci jawaban instan. Pemeriksaan jawaban essay akan dinilai manual oleh guru pengampu setelah ujian selesai.
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="flex gap-2">
+                      <button 
+                        type="submit"
+                        class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs uppercase tracking-wider transition-colors rounded-xl"
+                        x-text="editingQuestionId ? 'Perbarui Butir Soal' : 'Simpan Butir Soal'"
+                      >
+                      </button>
+                      <button 
+                        type="button"
+                        @click="showQuestionForm = false; editingQuestionId = null;"
+                        class="px-4 py-2.5 bg-neutral-200 text-neutral-700 hover:bg-neutral-300 transition-colors font-bold text-xs uppercase tracking-wider rounded-xl"
+                      >
+                        Batal
+                      </button>
+                    </div>
+                  </form>
+                </div>
+
+                <!-- Question Items List Inside Admin Selected Exam -->
+                <div class="space-y-4">
+                  <h4 class="font-bold text-xs uppercase tracking-wider text-neutral-400 mb-1">Butir Pertanyaan Terdaftar (<span x-text="editingExam.questions?.length || 0"></span>)</h4>
+                  
+                  <template x-if="!editingExam.questions || editingExam.questions.length === 0">
+                    <div class="text-center py-12 border border-dashed border-neutral-200 text-neutral-400 rounded-2xl text-xs">
+                      Belum ada pertanyaan pada ujian ini. Silahkan klik tombol 'Tambah Soal' di atas.
+                    </div>
+                  </template>
+
+                  <div class="space-y-4">
+                    <template x-for="(q, idx) in editingExam.questions" :key="q.id">
+                      <div class="border border-neutral-200 p-5 hover:border-neutral-400 transition-all bg-neutral-50/50 rounded-2xl">
+                        <div class="flex justify-between items-start gap-4">
+                          <div class="space-y-1">
+                            <div class="flex flex-wrap items-center gap-2">
+                              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 bg-neutral-200 text-neutral-800 rounded-lg" x-text="'Soal ' + (idx + 1)"></span>
+                              <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 bg-blue-50 text-blue-700 rounded-lg">
+                                <span x-show="q.type === 'mcq'" x-text="'Pilihan Ganda (A-' + (q.options?.length === 4 ? 'D' : 'E') + ')'"></span>
+                                <span x-show="q.type === 'tf'">Benar / Salah</span>
+                                <span x-show="q.type === 'short'">Isian Singkat</span>
+                                <span x-show="q.type === 'essay'">Essay / Uraian</span>
+                              </span>
+                              <span class="text-xs text-neutral-500 font-bold" x-text="'(' + q.points + ' Poin)'"></span>
+                            </div>
+                            <p class="text-sm font-bold text-neutral-950 pt-2 leading-relaxed" x-text="q.questionText"></p>
+                          </div>
+
+                          <div class="flex items-center gap-1 flex-shrink-0">
+                            <button
+                              @click="handleEditQuestionClick(q)"
+                              class="text-neutral-500 hover:text-black p-1.5 border border-neutral-200 hover:border-black transition-all bg-white rounded-xl shadow-sm"
+                              title="Edit Soal"
+                            >
+                              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                            </button>
+                            <button 
+                              @click="handleDeleteQuestion(q.id)"
+                              class="text-neutral-400 hover:text-red-600 p-1.5 border border-neutral-200 hover:border-red-200 transition-all bg-white rounded-xl shadow-sm"
+                              title="Hapus Soal"
+                            >
+                              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1-1v3M4 7h16"></path></svg>
+                            </button>
+                          </div>
+                        </div>
+
+                        <!-- Details of Options/Answers for Admin Reference -->
+                        <div class="mt-4 pt-3 border-t border-neutral-100 text-xs">
+                          <!-- MCQ Options Preview -->
+                          <template x-if="q.type === 'mcq'">
+                            <div class="space-y-1.5 pl-2 border-l-2 border-neutral-200">
+                              <template x-for="opt in q.options" :key="opt.id">
+                                <div class="flex items-center gap-1.5 text-neutral-600">
+                                  <span 
+                                    class="w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center uppercase"
+                                    :class="q.correctAnswer === opt.id ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-neutral-100'"
+                                    x-text="opt.id"
+                                  ></span>
+                                  <span :class="q.correctAnswer === opt.id ? 'text-emerald-800 font-semibold' : ''" x-text="opt.text"></span>
+                                </div>
+                              </template>
+                            </div>
+                          </template>
+
+                          <!-- True/False Preview -->
+                          <template x-if="q.type === 'tf'">
+                            <p class="text-neutral-600">Kunci Jawaban: <span class="font-bold uppercase text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded" x-text="q.correctAnswer"></span></p>
+                          </template>
+
+                          <!-- Short Answer Preview -->
+                          <template x-if="q.type === 'short'">
+                            <p class="text-neutral-600">Kunci Jawaban: <span class="font-mono bg-neutral-100 px-1.5 py-0.5 font-bold text-neutral-800 rounded" x-text="q.correctAnswer"></span></p>
+                          </template>
+
+                          <!-- Essay Preview -->
+                          <template x-if="q.type === 'essay'">
+                            <p class="text-neutral-400 italic">Evaluasi manual diperlukan untuk jawaban uraian.</p>
+                          </template>
+                        </div>
+                      </div>
+                    </template>
+                  </div>
+                </div>
+
+              </div>
+            </template>
+
+            <template x-if="!editingExam">
+              <div class="border border-dashed border-neutral-200 p-16 text-center text-neutral-400 rounded-2xl h-full flex flex-col justify-center items-center bg-neutral-50/50">
+                <svg class="w-10 h-10 text-neutral-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                <p class="font-bold text-sm text-neutral-700 uppercase tracking-wider">Editor Ujian Belum Terpilih</p>
+                <p class="text-xs mt-1 max-w-xs mx-auto">Klik salah satu daftar ujian di sebelah kiri untuk melihat rincian, memodifikasi parameter, atau menambah daftar soal.</p>
+              </div>
+            </template>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- TAB 2: HASIL PESERTA (SUBMISSIONS) -->
+      <div x-show="adminTab === 'peserta'" style="display: none;">
+        <div class="bg-white border border-neutral-200 rounded-2xl shadow-sm overflow-hidden">
+          <div class="p-5 border-b border-neutral-100 bg-neutral-50 flex justify-between items-center">
+            <h3 class="font-bold text-sm uppercase tracking-wider text-neutral-800">Daftar Hasil Pengumpulan Ujian Siswa</h3>
+            <button 
+              @click="syncFromSupabase()"
+              class="flex items-center gap-1.5 bg-black text-white hover:bg-neutral-800 transition-all px-4 py-2 rounded-xl text-xs font-bold"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 7.89"></path></svg>
+              Segarkan Data
+            </button>
+          </div>
+
+          <template x-if="submissions.length === 0">
+            <div class="p-12 text-center text-neutral-400 text-xs italic">
+              Belum ada hasil ujian yang dikirimkan oleh peserta didik.
+            </div>
+          </template>
+
+          <template x-if="submissions.length > 0">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-neutral-100/70 text-[10px] font-bold text-neutral-500 uppercase tracking-wider border-b border-neutral-200">
+                    <th class="p-4">Nama Siswa</th>
+                    <th class="p-4">NIS</th>
+                    <th class="p-4">Ujian</th>
+                    <th class="p-4">Pelanggaran</th>
+                    <th class="p-4">Waktu Selesai</th>
+                    <th class="p-4 text-right">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <template x-for="sub in submissions" :key="sub.id">
+                    <tr class="border-b border-neutral-100 hover:bg-neutral-50/40 transition-colors">
+                      <td class="p-4 text-sm font-bold text-neutral-800" x-text="sub.student_name"></td>
+                      <td class="p-4 text-sm font-mono text-neutral-500" x-text="sub.student_nis"></td>
+                      <td class="p-4 text-sm font-semibold text-neutral-700" x-text="getExamTitle(sub.exam_id)"></td>
+                      <td class="p-4 text-sm">
+                        <span 
+                          class="px-2 py-0.5 rounded-full text-xs font-bold"
+                          :class="sub.violations_count > 0 ? 'bg-red-50 text-red-600' : 'bg-emerald-50 text-emerald-800'"
+                          x-text="sub.violations_count + 'x'"
+                        ></span>
+                      </td>
+                      <td class="p-4 text-xs text-neutral-400 font-semibold" x-text="formatDate(sub.submitted_at || sub.created_at)"></td>
+                      <td class="p-4 text-right">
+                        <button 
+                          @click="showSubmissionDetail(sub)"
+                          class="bg-blue-50 text-blue-700 hover:bg-blue-100 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all"
+                        >
+                          Lihat Jawaban
+                        </button>
+                      </td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+          </template>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-neutral-100 py-6 px-12 text-center text-xs text-neutral-400 bg-white">
+    <div>&copy; 2026 Pufutara CBT System. Modern Minimalist CBT Engine.</div>
+    <div class="mt-1 text-[10px] text-neutral-300 uppercase tracking-widest font-mono">Secure Online Assessment Architecture</div>
+  </footer>
+
+  <!-- ADMIN LOGIN MODAL -->
+  <div 
+    x-show="showAdminLoginModal" 
+    class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" 
+    style="display: none;"
+  >
+    <div class="bg-white border border-neutral-200 p-8 max-w-sm w-full relative shadow-2xl rounded-3xl">
+      <button 
+        @click="showAdminLoginModal = false; adminError = '';"
+        class="absolute top-4 right-4 text-neutral-400 hover:text-black transition-colors"
+      >
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+
+      <div class="text-center mb-6">
+        <div class="w-12 h-12 bg-neutral-100 text-black rounded-full flex items-center justify-center mx-auto mb-3">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+        </div>
+        <h3 class="text-lg font-bold text-neutral-900">Otorisasi Admin</h3>
+        <p class="text-xs text-neutral-400 mt-1">Gunakan kredensial pengawas ujian</p>
+      </div>
+
+      <form @submit.prevent="handleAdminLogin()" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-1">Username</label>
+          <input 
+            type="text" 
+            required
+            x-model="adminUsername"
+            placeholder="admin"
+            class="w-full p-3.5 border border-neutral-200 rounded-xl focus:outline-none focus:border-black text-sm"
+          />
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-neutral-500 mb-1">Password</label>
+          <input 
+            type="password" 
+            required
+            x-model="adminPassword"
+            placeholder="••••••••"
+            class="w-full p-3.5 border border-neutral-200 rounded-xl focus:outline-none focus:border-black text-sm font-mono"
+          />
+        </div>
+
+        <p x-show="adminError" x-text="adminError" class="text-xs text-red-600 font-bold" style="display: none;"></p>
+
+        <div class="bg-neutral-50 p-2.5 text-[10px] text-neutral-400 font-mono text-center border border-neutral-100 rounded-xl">
+          Tip Demo: Username 'admin' &amp; PW 'admin'
+        </div>
+
+        <button 
+          type="submit"
+          class="w-full py-3.5 bg-black text-white hover:bg-neutral-950 transition-colors font-bold text-xs uppercase tracking-widest rounded-xl"
+        >
+          Masuk Dashboard
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- SUBMISSION DETAIL MODAL -->
+  <div 
+    x-show="showDetailModal"
+    class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+    style="display: none;"
+  >
+    <div class="bg-white border border-neutral-200 p-6 sm:p-8 max-w-2xl w-full relative shadow-2xl rounded-3xl flex flex-col max-h-[85vh]">
+      <button 
+        @click="showDetailModal = false; selectedSubmission = null;"
+        class="absolute top-4 right-4 text-neutral-400 hover:text-black transition-colors"
+      >
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+
+      <div class="mb-5 border-b border-neutral-100 pb-4">
+        <h3 class="text-xl font-black text-neutral-900">Detail Jawaban Peserta</h3>
+        <p class="text-xs text-neutral-400 mt-1 uppercase tracking-wider font-semibold">Lembar Hasil Ujian Digital</p>
+      </div>
+
+      <!-- Participant Info Card -->
+      <div class="grid grid-cols-2 gap-4 bg-neutral-50 p-4 rounded-2xl border border-neutral-200 text-xs mb-6 flex-shrink-0">
+        <div>
+          <span class="block text-neutral-400">Nama Siswa:</span>
+          <span class="font-bold text-neutral-900" x-text="selectedSubmission?.student_name"></span>
+        </div>
+        <div>
+          <span class="block text-neutral-400">NIS Siswa:</span>
+          <span class="font-bold text-neutral-900 font-mono" x-text="selectedSubmission?.student_nis"></span>
+        </div>
+        <div>
+          <span class="block text-neutral-400">Mata Pelajaran:</span>
+          <span class="font-bold text-neutral-900" x-text="getExamTitle(selectedSubmission?.exam_id)"></span>
+        </div>
+        <div>
+          <span class="block text-neutral-400">Pelanggaran Terdeteksi:</span>
+          <span class="font-bold" :class="selectedSubmission?.violations_count > 0 ? 'text-red-600' : 'text-emerald-800'" x-text="selectedSubmission?.violations_count + ' Kali'"></span>
+        </div>
+      </div>
+
+      <!-- Question and Answer Scrollable List -->
+      <div class="flex-1 overflow-y-auto space-y-4 pr-1 no-scrollbar">
+        <template x-for="(q, idx) in getSubmissionQuestions(selectedSubmission?.exam_id)" :key="q.id">
+          <div class="border border-neutral-200 p-5 rounded-2xl bg-white space-y-3">
+            <div class="flex justify-between items-center">
+              <span class="text-[10px] font-bold uppercase bg-neutral-100 px-2 py-0.5 rounded-md text-neutral-600" x-text="'Soal ' + (idx + 1)"></span>
+              <span class="text-[10px] font-bold uppercase text-blue-600" x-text="q.type === 'mcq' ? 'Pilihan Ganda' : (q.type === 'tf' ? 'Benar/Salah' : (q.type === 'short' ? 'Isian' : 'Essay'))"></span>
+            </div>
+            <p class="text-sm font-semibold text-neutral-900 leading-relaxed" x-text="q.questionText"></p>
+            
+            <div class="pt-2 border-t border-neutral-100 text-xs">
+              <!-- If MCQ or TF -->
+              <template x-if="q.type === 'mcq' || q.type === 'tf'">
+                <div class="space-y-1">
+                  <p class="text-neutral-500">Kunci Jawaban: <span class="font-bold uppercase text-emerald-800" x-text="q.correctAnswer"></span></p>
+                  <p class="text-neutral-900">Jawaban Siswa: 
+                    <span 
+                      class="font-bold uppercase px-2 py-0.5 rounded-md text-[11px]" 
+                      :class="selectedSubmission?.answers[q.id] === q.correctAnswer ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-600'"
+                      x-text="selectedSubmission?.answers[q.id] || 'Tidak Menjawab'"
+                    ></span>
+                  </p>
+                </div>
+              </template>
+
+              <!-- If Short Answer -->
+              <template x-if="q.type === 'short'">
+                <div class="space-y-1">
+                  <p class="text-neutral-500">Kunci Jawaban: <span class="font-bold text-emerald-800" x-text="q.correctAnswer"></span></p>
+                  <p class="text-neutral-900">Jawaban Siswa: 
+                    <span 
+                      class="font-bold px-2 py-0.5 rounded-md text-[11px]"
+                      :class="String(selectedSubmission?.answers[q.id]).toLowerCase().trim() === String(q.correctAnswer).toLowerCase().trim() ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-600'"
+                      x-text="selectedSubmission?.answers[q.id] || 'Tidak Menjawab'"
+                    ></span>
+                  </p>
+                </div>
+              </template>
+
+              <!-- If Essay -->
+              <template x-if="q.type === 'essay'">
+                <div class="space-y-1">
+                  <p class="text-neutral-400 italic mb-1">* Memerlukan penilaian manual oleh pengampu.</p>
+                  <p class="text-neutral-500">Jawaban Siswa:</p>
+                  <div class="p-3 bg-neutral-50 rounded-xl border border-neutral-200 text-neutral-800 font-medium whitespace-pre-wrap leading-relaxed" x-text="selectedSubmission?.answers[q.id] || '(Kosong / Tidak Menjawab)'"></div>
+                </div>
+              </template>
+            </div>
+          </div>
+        </template>
+      </div>
+
+      <div class="mt-6 border-t border-neutral-100 pt-4 flex-shrink-0">
+        <button 
+          @click="showDetailModal = false; selectedSubmission = null;"
+          class="w-full py-3 bg-neutral-900 text-white font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-black transition-colors"
+        >
+          Tutup Detail
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==========================================
+    // SUPABASE INTEGRATION CREDENTIALS PLACEHOLDERS
+    // ==========================================
+    const SUPABASE_URL = "https://puywjdopumlzvmzbcudr.supabase.co"; 
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1eXdqZG9wdW1senZtemJjdWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDE3MTksImV4cCI6MjA4NzkxNzcxOX0.vvThyjtK2SlA9oA9Mr_XOmt1R_tNZk-ib3PO9XpiiSc"; 
+
+    let supabaseClient = null;
+    
+    // Inisialisasi aman Supabase
+    if (SUPABASE_URL && SUPABASE_ANON_KEY && SUPABASE_URL !== "") {
+      try {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      } catch (e) {
+        console.error("Gagal menginisialisasi Supabase Client: ", e);
+      }
+    }
+
+    function cbtApp() {
+      return {
+        // App State
+        view: 'landing',
+        adminTab: 'ujian', // 'ujian' | 'peserta'
+        exams: [],
+        submissions: [],
+        supabaseConnected: false,
+        
+        // Font Scale zoom
+        fontScale: 1.125, // default rem size
+        showNavigatorNavigatorDrawer: false,
+
+        // Admin Auth
+        adminUsername: '',
+        adminPassword: '',
+        adminError: '',
+        isAdminLoggedIn: false,
+        showAdminLoginModal: false,
+
+        // Student Data
+        selectedExam: null,
+        studentName: '',
+        studentNis: '',
+        studentError: '',
+
+        // Running Exam State
+        activeQuestions: [],
+        studentAnswers: {},
+        currentQuestionIndex: 0,
+        timeLeft: 0,
+        violationsCount: 0,
+        resumePassword: '',
+        resumeError: '',
+
+        // Submission Detail Modal State
+        showDetailModal: false,
+        selectedSubmission: null,
+
+        // New Exam Creation Form State
+        showExamForm: false,
+        newExamTitle: '',
+        newExamDuration: 30,
+        newRandomizeQ: false,
+        newRandomizeOpt: false,
+
+        // Question Form Builder State
+        editingExam: null,
+        showQuestionForm: false,
+        editingQuestionId: null,
+        qType: 'mcq',
+        qText: '',
+        qPoints: 10,
+        qMcqCount: 4,
+        qMcqOptions: [
+          { id: 'a', text: '' },
+          { id: 'b', text: '' },
+          { id: 'c', text: '' },
+          { id: 'd', text: '' },
+          { id: 'e', text: '' }
+        ],
+        qMcqCorrect: 'a',
+        qTfCorrect: 'benar',
+        qShortCorrect: '',
+
+        // Initialize App Data
+        async initApp() {
+          if (supabaseClient) {
+            this.supabaseConnected = true;
+            await this.syncFromSupabase();
+          } else {
+            this.supabaseConnected = false;
+            this.loadMockData();
+          }
+
+          // EVENT LISTENERS UNTUK SECURITY/ANTI-CHEAT TINGKAT TINGGI (Esc, F11, & Switch Tab)
+          window.addEventListener('blur', () => {
+            if (this.view === 'exam_active') {
+              this.triggerPause();
+            }
+          });
+
+          document.addEventListener('visibilitychange', () => {
+            if (document.hidden && this.view === 'exam_active') {
+              this.triggerPause();
+            }
+          });
+
+          // Memantau status fullscreen (jika keluar manual atau menggunakan Esc)
+          const handleFullscreenChange = () => {
+            if (!document.fullscreenElement && this.view === 'exam_active') {
+              this.triggerPause();
+            }
+          };
+          document.addEventListener('fullscreenchange', handleFullscreenChange);
+          document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+          document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+          document.addEventListener('msfullscreenchange', handleFullscreenChange);
+
+          // Memantau F11 & Escape di Keyboard
+          window.addEventListener('keydown', (e) => {
+            if (this.view === 'exam_active') {
+              if (e.key === 'Escape' || e.key === 'F11') {
+                e.preventDefault();
+                this.triggerPause();
+              }
+            }
+          }, true);
+
+          // Custom global interval untuk hitung mundur ujian
+          setInterval(() => {
+            if (this.view === 'exam_active' && this.timeLeft > 0) {
+              this.timeLeft--;
+              if (this.timeLeft <= 0) {
+                this.handleFinishExam();
+              }
+            }
+          }, 1000);
+        },
+
+        // Text scale controllers
+        increaseScale() {
+          if (this.fontScale < 1.6) {
+            this.fontScale = parseFloat((this.fontScale + 0.1).toFixed(2));
+          }
+        },
+        decreaseScale() {
+          if (this.fontScale > 0.8) {
+            this.fontScale = parseFloat((this.fontScale - 0.1).toFixed(2));
+          }
+        },
+
+        // Set current question with automatic top scroll
+        setCurrentQuestion(index) {
+          this.currentQuestionIndex = index;
+          // Smooth scroll to top of exam wrapper
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        },
+
+        // Sinkronisasi data utama dari Supabase
+        async syncFromSupabase() {
+          if (!this.supabaseConnected) return;
+          try {
+            // Fetch exams
+            const { data: examsData, error: examsError } = await supabaseClient
+              .from('exams')
+              .select('*');
+
+            if (examsError) throw examsError;
+
+            // Fetch questions
+            const { data: questionsData, error: questionsError } = await supabaseClient
+              .from('questions')
+              .select('*');
+
+            if (questionsError) throw questionsError;
+
+            // Fetch submissions
+            const { data: subsData, error: subsError } = await supabaseClient
+              .from('submissions')
+              .select('*')
+              .order('submitted_at', { ascending: false });
+
+            if (subsError) throw subsError;
+
+            this.submissions = subsData || [];
+
+            // Gabungkan relasi questions ke dalam exams
+            this.exams = examsData.map(exam => {
+              return {
+                id: exam.id,
+                title: exam.title,
+                duration: exam.duration,
+                randomizeQuestions: exam.randomize_questions,
+                randomizeOptions: exam.randomize_options,
+                questions: questionsData
+                  .filter(q => q.exam_id === exam.id)
+                  .map(q => ({
+                    id: q.id,
+                    type: q.type,
+                    questionText: q.question_text,
+                    points: q.points,
+                    options: q.options,
+                    correctAnswer: q.correct_answer
+                  }))
+              };
+            });
+          } catch (e) {
+            console.error("Gagal menarik data dari Supabase, beralih ke local storage:", e);
+            this.loadMockData();
+          }
+        },
+
+        loadMockData() {
+          this.exams = [
+            {
+              id: 'exam-1',
+              title: 'Ujian Harian Matematika Diskrit',
+              duration: 30,
+              randomizeQuestions: true,
+              randomizeOptions: false,
+              questions: [
+                {
+                  id: 'q1',
+                  type: 'mcq',
+                  questionText: 'Jika p benar dan q salah, manakah pernyataan majemuk berikut yang bernilai benar?',
+                  options: [
+                    { id: 'a', text: 'p ∧ q (Konjungsi)' },
+                    { id: 'b', text: 'p → q (Implikasi)' },
+                    { id: 'c', text: 'p ↔ q (Biimplikasi)' },
+                    { id: 'd', text: 'p ∨ ~q (Disjungsi dengan negasi q)' }
+                  ],
+                  correctAnswer: 'd',
+                  points: 25
+                },
+                {
+                  id: 'q2',
+                  type: 'tf',
+                  questionText: 'Himpunan kosong merupakan himpunan bagian dari setiap himpunan.',
+                  correctAnswer: 'benar',
+                  points: 25
+                },
+                {
+                  id: 'q3',
+                  type: 'short',
+                  questionText: 'Berapakah jumlah himpunan bagian (subset) dari himpunan A = {1, 2, 3}?',
+                  correctAnswer: '8',
+                  points: 25
+                },
+                {
+                  id: 'q4',
+                  type: 'essay',
+                  questionText: 'Jelaskan perbedaan mendasar antara Relasi dan Fungsi dalam teori himpunan!',
+                  correctAnswer: '',
+                  points: 25
+                }
+              ]
+            }
+          ];
+          this.submissions = [
+            {
+              id: 'sub-demo-1',
+              exam_id: 'exam-1',
+              student_name: 'Budi Handoko',
+              student_nis: '22010991',
+              answers: {
+                'q1': 'd',
+                'q2': 'benar',
+                'q3': '8',
+                'q4': 'Relasi adalah hubungan sembarang, sedangkan fungsi adalah relasi khusus yang memasangkan tepat satu anggota domain ke kodomain.'
+              },
+              violations_count: 0,
+              submitted_at: new Date().toISOString()
+            }
+          ];
+        },
+
+        goHome() {
+          if (this.view === 'landing' || this.view === 'admin_dashboard') {
+            this.view = 'landing';
+          }
+        },
+
+        getExamTitle(examId) {
+          const exam = this.exams.find(e => e.id === examId);
+          return exam ? exam.title : "Ujian Tidak Diketahui";
+        },
+
+        getSubmissionQuestions(examId) {
+          const exam = this.exams.find(e => e.id === examId);
+          return exam ? exam.questions : [];
+        },
+
+        showSubmissionDetail(sub) {
+          this.selectedSubmission = sub;
+          this.showDetailModal = true;
+        },
+
+        // Helper fungsi format Tanggal
+        formatDate(isoString) {
+          if (!isoString) return "-";
+          const date = new Date(isoString);
+          return date.toLocaleDateString('id-ID', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+        },
+
+        // Admin Auth
+        handleAdminLogin() {
+          if (this.adminUsername === 'admin' && this.adminPassword === 'admin') {
+            this.isAdminLoggedIn = true;
+            this.showAdminLoginModal = false;
+            this.adminError = '';
+            this.view = 'admin_dashboard';
+            this.adminUsername = '';
+            this.adminPassword = '';
+          } else {
+            this.adminError = 'Username atau Password Admin salah!';
+          }
+        },
+
+        handleAdminLogout() {
+          this.isAdminLoggedIn = false;
+          this.view = 'landing';
+        },
+
+        // Exam Selecting and Starting Process
+        handleSelectExam(exam) {
+          this.selectedExam = exam;
+          this.studentName = '';
+          this.studentNis = '';
+          this.studentError = '';
+          this.view = 'exam_intro';
+        },
+
+        handleStartExam() {
+          if (!this.studentName.trim() || !this.studentNis.trim()) {
+            this.studentError = 'Harap isi Nama dan Nomor Induk Siswa (NIS) Anda.';
+            return;
+          }
+
+          // Shuffle Question / Options Logic
+          let processedQuestions = this.selectedExam.questions.map(q => {
+            if (q.type === 'mcq' && this.selectedExam.randomizeOptions) {
+              return {
+                ...q,
+                options: this.shuffleArray(q.options)
+              };
+            }
+            return q;
+          });
+
+          if (this.selectedExam.randomizeQuestions) {
+            processedQuestions = this.shuffleArray(processedQuestions);
+          }
+
+          this.activeQuestions = processedQuestions;
+          this.studentAnswers = {};
+          this.currentQuestionIndex = 0;
+          this.timeLeft = this.selectedExam.duration * 60;
+          this.violationsCount = 0;
+          this.showNavigatorNavigatorDrawer = false;
+
+          // Attempt Fullscreen
+          this.requestFullscreen();
+          this.view = 'exam_active';
+        },
+
+        // Cheat Protection
+        triggerPause() {
+          this.violationsCount++;
+          this.view = 'exam_paused';
+          this.resumePassword = '';
+          this.resumeError = '';
+          this.exitFullscreen();
+        },
+
+        handleResumeExam() {
+          if (this.resumePassword === 'admin') {
+            this.resumeError = '';
+            this.resumePassword = '';
+            this.requestFullscreen();
+            this.view = 'exam_active';
+          } else {
+            this.resumeError = 'Password Admin Salah! Hubungi pengawas ujian.';
+          }
+        },
+
+        confirmFinishExam() {
+          if (confirm("Apakah Anda yakin ingin menyelesaikan dan mengumpulkan ujian sekarang?")) {
+            this.handleFinishExam();
+          }
+        },
+
+        // Selesai Ujian & Simpan Submission ke Supabase
+        async handleFinishExam() {
+          this.exitFullscreen();
+          this.view = 'exam_result';
+
+          const submissionPayload = {
+            exam_id: this.selectedExam.id,
+            student_name: this.studentName,
+            student_nis: this.studentNis,
+            answers: this.studentAnswers,
+            violations_count: this.violationsCount
+          };
+
+          // Simpan ke State Lokal untuk fallback
+          this.submissions.unshift({
+            ...submissionPayload,
+            id: `sub-local-${Date.now()}`,
+            submitted_at: new Date().toISOString()
+          });
+
+          // Sinkronisasi ke Supabase jika terhubung
+          if (this.supabaseConnected) {
+            try {
+              const { error } = await supabaseClient
+                .from('submissions')
+                .insert(submissionPayload);
+              if (error) throw error;
+              console.log("Submission sukses disimpan ke Supabase!");
+              await this.syncFromSupabase();
+            } catch (e) {
+              console.error("Gagal mengirim hasil ke Supabase: ", e.message);
+            }
+          }
+        },
+
+        // Fullscreen Helpers
+        requestFullscreen() {
+          const elem = document.documentElement;
+          if (elem.requestFullscreen) {
+            elem.requestFullscreen().catch((err) => {
+              console.log("Fullscreen request failed: " + err.message);
+            });
+          }
+        },
+
+        exitFullscreen() {
+          if (document.fullscreenElement) {
+            document.exitFullscreen().catch((err) => {
+              console.log("Fullscreen exit failed: " + err.message);
+            });
+          }
+        },
+
+        // Helper functions
+        shuffleArray(array) {
+          const arr = [...array];
+          for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+          }
+          return arr;
+        },
+
+        formatTime(seconds) {
+          const mins = Math.floor(seconds / 60);
+          const secs = seconds % 60;
+          return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        },
+
+        // Admin panel functions
+        selectEditingExam(exam) {
+          this.editingExam = exam;
+          this.showQuestionForm = false;
+          this.editingQuestionId = null;
+        },
+
+        // Tambah Ujian & Simpan ke Supabase
+        async handleCreateExam() {
+          if (!this.newExamTitle.trim()) return;
+
+          const examId = `exam-${Date.now()}`;
+          const newExam = {
+            id: examId,
+            title: this.newExamTitle,
+            duration: parseInt(this.newExamDuration) || 30,
+            randomizeQuestions: this.newRandomizeQ,
+            randomizeOptions: this.newRandomizeOpt,
+            questions: []
+          };
+
+          // Simpan ke state Alpine
+          this.exams.push(newExam);
+
+          // Simpan ke database Supabase jika terhubung
+          if (this.supabaseConnected) {
+            try {
+              const { error } = await supabaseClient
+                .from('exams')
+                .insert({
+                  id: newExam.id,
+                  title: newExam.title,
+                  duration: newExam.duration,
+                  randomize_questions: newExam.randomizeQuestions,
+                  randomize_options: newExam.randomizeOptions
+                });
+              if (error) throw error;
+              await this.syncFromSupabase();
+            } catch (e) {
+              console.error("Gagal menyimpan ujian baru ke Supabase:", e.message);
+            }
+          }
+
+          this.newExamTitle = '';
+          this.newExamDuration = 30;
+          this.newRandomizeQ = false;
+          this.newRandomizeOpt = false;
+          this.showExamForm = false;
+        },
+
+        // Hapus Ujian & Hapus dari Supabase
+        async handleDeleteExam(examId) {
+          if (confirm("Apakah Anda yakin ingin menghapus ujian ini?")) {
+            this.exams = this.exams.filter(e => e.id !== examId);
+            if (this.editingExam?.id === examId) {
+              this.editingExam = null;
+            }
+
+            // Hapus di Supabase
+            if (this.supabaseConnected) {
+              try {
+                const { error } = await supabaseClient
+                  .from('exams')
+                  .delete()
+                  .eq('id', examId);
+                if (error) throw error;
+                await this.syncFromSupabase();
+              } catch (e) {
+                console.error("Gagal menghapus ujian dari Supabase:", e.message);
+              }
+            }
+          }
+        },
+
+        triggerAddQuestionForm() {
+          this.editingQuestionId = null;
+          this.qType = 'mcq';
+          this.qText = '';
+          this.qPoints = 10;
+          this.qMcqCount = 4;
+          this.qMcqOptions = [
+            { id: 'a', text: '' },
+            { id: 'b', text: '' },
+            { id: 'c', text: '' },
+            { id: 'd', text: '' },
+            { id: 'e', text: '' }
+          ];
+          this.qMcqCorrect = 'a';
+          this.qTfCorrect = 'benar';
+          this.qShortCorrect = '';
+          this.showQuestionForm = true;
+        },
+
+        handleEditQuestionClick(q) {
+          this.editingQuestionId = q.id;
+          this.qType = q.type;
+          this.qText = q.questionText;
+          this.qPoints = q.points;
+          
+          if (q.type === 'mcq') {
+            this.qMcqCount = q.options.length;
+            const defaultOptions = [
+              { id: 'a', text: '' },
+              { id: 'b', text: '' },
+              { id: 'c', text: '' },
+              { id: 'd', text: '' },
+              { id: 'e', text: '' }
+            ];
+            this.qMcqOptions = defaultOptions.map((opt) => {
+              const found = q.options.find(o => o.id === opt.id);
+              return found ? { ...found } : opt;
+            });
+            this.qMcqCorrect = q.correctAnswer;
+          } else if (q.type === 'tf') {
+            this.qTfCorrect = q.correctAnswer;
+          } else if (q.type === 'short') {
+            this.qShortCorrect = q.correctAnswer;
+          }
+
+          this.showQuestionForm = true;
+        },
+
+        // Tambah/Update Soal & Sinkron ke Supabase
+        async handleSaveQuestion() {
+          if (!this.qText.trim()) return;
+
+          const qId = this.editingQuestionId ? this.editingQuestionId : `q-${Date.now()}`;
+          let finalQuestion = {
+            id: qId,
+            type: this.qType,
+            questionText: this.qText,
+            points: parseInt(this.qPoints) || 10
+          };
+
+          if (this.qType === 'mcq') {
+            const activeOptions = this.qMcqOptions.slice(0, this.qMcqCount);
+            finalQuestion.options = activeOptions.map((opt, idx) => ({
+              id: ['a', 'b', 'c', 'd', 'e'][idx],
+              text: opt.text.trim() || `Pilihan ${['A', 'B', 'C', 'D', 'E'][idx]}`
+            }));
+
+            if (this.qMcqCorrect.charCodeAt(0) - 97 >= this.qMcqCount) {
+              finalQuestion.correctAnswer = 'a';
+            } else {
+              finalQuestion.correctAnswer = this.qMcqCorrect;
+            }
+          } else if (this.qType === 'tf') {
+            finalQuestion.correctAnswer = this.qTfCorrect;
+          } else if (this.qType === 'short') {
+            finalQuestion.correctAnswer = this.qShortCorrect.trim();
+          } else {
+            finalQuestion.correctAnswer = '';
+          }
+
+          let updatedQuestions;
+          if (this.editingQuestionId) {
+            updatedQuestions = this.editingExam.questions.map(q => 
+              q.id === this.editingQuestionId ? finalQuestion : q
+            );
+          } else {
+            updatedQuestions = [...this.editingExam.questions, finalQuestion];
+          }
+
+          const updatedExam = {
+            ...this.editingExam,
+            questions: updatedQuestions
+          };
+
+          // Update di Supabase jika terhubung
+          if (this.supabaseConnected) {
+            try {
+              const { error } = await supabaseClient
+                .from('questions')
+                .upsert({
+                  id: finalQuestion.id,
+                  exam_id: this.editingExam.id,
+                  type: finalQuestion.type,
+                  question_text: finalQuestion.questionText,
+                  points: finalQuestion.points,
+                  options: finalQuestion.options || null, // JSONB
+                  correct_answer: finalQuestion.correctAnswer
+                });
+              if (error) throw error;
+              await this.syncFromSupabase();
+            } catch (e) {
+              console.error("Gagal mengunggah pertanyaan ke Supabase:", e.message);
+            }
+          }
+
+          // Perbarui state lokal Alpine
+          this.exams = this.exams.map(e => e.id === this.editingExam.id ? updatedExam : e);
+          this.editingExam = updatedExam;
+
+          // Reset States Form
+          this.editingQuestionId = null;
+          this.qText = '';
+          this.qPoints = 10;
+          this.qMcqCount = 4;
+          this.qMcqOptions = [
+            { id: 'a', text: '' },
+            { id: 'b', text: '' },
+            { id: 'c', text: '' },
+            { id: 'd', text: '' },
+            { id: 'e', text: '' }
+          ];
+          this.showQuestionForm = false;
+        },
+
+        // Hapus Soal & Hapus dari Supabase
+        async handleDeleteQuestion(qId) {
+          if (confirm("Apakah Anda yakin ingin menghapus soal ini?")) {
+            const updatedQuestions = this.editingExam.questions.filter(q => q.id !== qId);
+            const updatedExam = {
+              ...this.editingExam,
+              questions: updatedQuestions
+            };
+
+            // Hapus di Supabase
+            if (this.supabaseConnected) {
+              try {
+                const { error } = await supabaseClient
+                  .from('questions')
+                  .delete()
+                  .eq('id', qId);
+                if (error) throw error;
+                await this.syncFromSupabase();
+              } catch (e) {
+                console.error("Gagal menghapus pertanyaan dari Supabase:", e.message);
+              }
+            }
+
+            // Perbarui state lokal Alpine
+            this.exams = this.exams.map(e => e.id === this.editingExam.id ? updatedExam : e);
+            this.editingExam = updatedExam;
+          }
+        }
+      }
+    }
+  </script>
+</body>
+</html>
