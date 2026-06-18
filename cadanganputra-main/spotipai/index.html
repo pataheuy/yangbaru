@@ -32,6 +32,13 @@
             background: linear-gradient(to right, #fff var(--progress, 0%), #535353 var(--progress, 0%));
         }
 
+        #volume-bar::-webkit-slider-runnable-track {
+            background: linear-gradient(to right, #fff var(--vol, 100%), #535353 var(--vol, 100%));
+        }
+        .group\/vol:hover #volume-bar::-webkit-slider-runnable-track {
+            background: linear-gradient(to right, #1DB954 var(--vol, 100%), #535353 var(--vol, 100%));
+        }
+
         #trending-artists-grid { cursor: grab; user-select: none; }
         #trending-artists-grid.dragging { cursor: grabbing; }
         
@@ -75,6 +82,15 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
+        /* Page entrance animation */
+        @keyframes pageEnter {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .page-enter {
+            animation: pageEnter 0.32s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+
         /* Sidebar mini mode */
         #main-sidebar.sidebar-collapsed {
             width: 72px !important;
@@ -85,19 +101,96 @@
         #main-sidebar.sidebar-collapsed .sidebar-mini {
             display: flex !important;
         }
+        /* Collapsed: all nav items & collection btn center their icon */
         #main-sidebar.sidebar-collapsed nav a,
-        #main-sidebar.sidebar-collapsed [onclick*="switchTab"] {
+        #main-sidebar.sidebar-collapsed [onclick*="switchTab"],
+        #main-sidebar.sidebar-collapsed #sidebar-collection-btn {
+            justify-content: center !important;
+            gap: 0 !important;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+        /* Tombol minimize tetap terlihat & center saat collapsed */
+        #main-sidebar.sidebar-collapsed #sidebar-toggle-btn {
+            display: flex !important;
+            justify-content: center;
+            width: 100%;
+        }
+        /* Hide the toggle button text (it has no text, just icon — kept for safety) */
+
+        /* Sidebar collapsed: playlist mini icons */
+        #main-sidebar.sidebar-collapsed #sidebar-playlists-mini {
+            display: flex !important;
+        }
+        #main-sidebar.sidebar-collapsed #sidebar-playlists {
+            display: none !important;
+        }
+        /* Hide the + create button next to Koleksi Kamu when collapsed */
+        #main-sidebar.sidebar-collapsed .btn-create-playlist {
+            display: none !important;
+        }
+
+        /* Sidebar collapsed: admin menu pinned to bottom, icons centered */
+        #main-sidebar.sidebar-collapsed #admin-menu {
+            margin-top: auto;
+        }
+        #main-sidebar.sidebar-collapsed #admin-menu a {
             justify-content: center;
             gap: 0;
             padding-left: 0;
             padding-right: 0;
         }
-        /* Tombol minimize selalu center saat collapsed */
-        #main-sidebar.sidebar-collapsed #sidebar-toggle-btn {
-            display: flex;
-            justify-content: center;
-            width: 100%;
+        #main-sidebar.sidebar-collapsed #admin-menu .sidebar-full {
+            display: none !important;
         }
+        #main-sidebar.sidebar-collapsed #admin-menu hr,
+        #main-sidebar.sidebar-collapsed #admin-menu p {
+            display: none !important;
+        }
+
+        /* Song card hover zoom */
+        .song-card-img {
+            transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .group:hover .song-card-img {
+            transform: scale(1.06);
+        }
+
+        /* Queue sidebar panel */
+        #queue-panel {
+            transition: width 0.3s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.25s ease;
+            min-width: 0;
+        }
+        #queue-panel.queue-open {
+            width: 300px !important;
+            opacity: 1;
+            pointer-events: auto;
+        }
+        #queue-panel.queue-closed {
+            width: 0 !important;
+            opacity: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        /* Lihat Semua artis button hover */
+        #btn-see-all-artists {
+            position: relative;
+            overflow: hidden;
+        }
+        #btn-see-all-artists::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: rgba(29,185,84,0.08);
+            border-radius: 999px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        #btn-see-all-artists:hover::after { opacity: 1; }
+        #btn-see-all-artists:hover { color: #1DB954; }
+        #btn-see-all-artists:hover i { transform: translateX(3px); }
+        #btn-see-all-artists i { transition: transform 0.2s; }
     </style>
 </head>
 <body class="h-screen w-screen flex flex-col selection:bg-green-500 selection:text-white">
@@ -348,7 +441,7 @@
         <div class="flex flex-1 overflow-hidden">
             <!-- Sidebar -->
             <aside id="main-sidebar" class="w-64 bg-black flex-col hidden lg:flex border-r border-gray-900 transition-all duration-300 overflow-hidden flex-shrink-0">
-                <div class="p-6">
+                <div class="p-6 flex-shrink-0">
                     <nav class="space-y-4">
                         <a href="#" onclick="switchTab('home')" class="nav-item flex items-center gap-4 text-white transition-colors" data-tab="home" title="Beranda">
                             <i class="ph-fill ph-house text-2xl flex-shrink-0"></i>
@@ -369,30 +462,36 @@
                     </nav>
                 </div>
 
-                <div class="mt-4 px-6 border-b border-gray-800 pb-4 flex items-center justify-between group">
-                    <div onclick="switchTab('collection')" class="flex items-center gap-2 text-gray-400 hover:text-white transition-colors cursor-pointer nav-item" data-tab="collection" title="Koleksi Kamu">
+                <!-- Koleksi Kamu — sejajar dengan nav, tepat setelah Tentang -->
+                <div class="px-6 pb-3 flex items-center justify-between flex-shrink-0">
+                    <div id="sidebar-collection-btn" onclick="switchTab('collection')" class="flex items-center gap-4 text-gray-400 hover:text-white transition-colors cursor-pointer nav-item" data-tab="collection" title="Koleksi Kamu">
                         <i class="ph ph-playlist text-2xl flex-shrink-0"></i>
                         <span class="sidebar-full font-bold text-sm whitespace-nowrap">Koleksi Kamu</span>
                     </div>
-                    <button onclick="showModal('create-playlist-modal')" class="sidebar-full text-gray-400 hover:text-white transition-colors p-1 rounded hover:bg-gray-800" title="Buat Playlist">
+                    <button onclick="showModal('create-playlist-modal')" class="btn-create-playlist sidebar-full text-gray-400 hover:text-white transition-colors p-1 rounded hover:bg-gray-800" title="Buat Playlist">
                         <i class="ph ph-plus text-xl"></i>
                     </button>
                 </div>
 
-                <!-- Pinned Playlists di Sidebar -->
-                <div id="sidebar-playlists" class="sidebar-full px-6 py-4 space-y-4 overflow-y-auto flex-1 text-xs">
+                <!-- Playlist list (full sidebar) -->
+                <div id="sidebar-playlists" class="px-6 py-3 space-y-3 overflow-y-auto flex-1 text-xs">
                     <!-- Custom playlists disisipkan di sini -->
                 </div>
 
-                <!-- Admin Menu -->
-                <div id="admin-menu" class="p-6 hidden">
-                    <hr class="border-gray-800 mb-4">
+                <!-- Playlist mini icons (collapsed sidebar) -->
+                <div id="sidebar-playlists-mini" class="hidden flex-col items-center gap-1 overflow-y-auto flex-1 py-2">
+                    <!-- Mini playlist icons injected by JS -->
+                </div>
+
+                <!-- Admin Menu — selalu di bawah -->
+                <div id="admin-menu" class="p-4 hidden flex-shrink-0">
+                    <hr class="border-gray-800 mb-3">
                     <p class="sidebar-full text-xs text-gray-500 font-bold mb-3 uppercase tracking-wider">Menu Admin</p>
-                    <a href="#" onclick="switchTab('admin-manage')" class="nav-item flex items-center gap-4 text-spotify-green hover:text-green-400 transition-colors mb-4" data-tab="admin-manage" title="Kelola Data Lagu">
+                    <a href="#" onclick="switchTab('admin-manage')" class="nav-item flex items-center gap-4 text-spotify-green hover:text-green-400 transition-colors mb-3 px-2 py-1" data-tab="admin-manage" title="Kelola Data Lagu">
                         <i class="ph-fill ph-folder-open text-2xl flex-shrink-0"></i>
                         <span class="sidebar-full font-bold text-sm whitespace-nowrap">Kelola Data Lagu</span>
                     </a>
-                    <a href="#" onclick="switchTab('admin-add')" class="nav-item flex items-center gap-4 text-gray-400 hover:text-white transition-colors" data-tab="admin-add" title="Tambah Lagu Baru">
+                    <a href="#" onclick="switchTab('admin-add')" class="nav-item flex items-center gap-4 text-gray-400 hover:text-white transition-colors px-2 py-1" data-tab="admin-add" title="Tambah Lagu Baru">
                         <i class="ph-fill ph-plus-circle text-2xl flex-shrink-0"></i>
                         <span class="sidebar-full font-bold text-sm whitespace-nowrap">Tambah Lagu Baru</span>
                     </a>
@@ -412,7 +511,7 @@
 
                     <h2 id="home-artists-heading" class="text-2xl font-bold mb-4 text-white flex items-center justify-between">
                         <span>Artis Populer</span>
-                        <button onclick="showAllArtistsPage()" class="text-sm font-bold text-gray-400 hover:text-spotify-green transition-colors flex items-center gap-1">
+                        <button id="btn-see-all-artists" onclick="showAllArtistsPage()" class="text-sm font-bold text-gray-400 transition-colors flex items-center gap-1 px-3 py-1 rounded-full border border-transparent hover:border-gray-700">
                             Lihat Semua <i class="ph ph-arrow-right text-base"></i>
                         </button>
                     </h2>
@@ -531,49 +630,68 @@
 
                 <!-- Collection Tab (Playlist Love & Custom Playlists) -->
                 <div id="tab-collection" class="p-6 pb-24 content-tab hidden">
-                    <!-- Liked Songs Banner -->
-                    <div class="flex flex-col md:flex-row items-end gap-6 mb-8 mt-4 cursor-pointer hover:opacity-90" onclick="showPlaylistDetails('liked')">
-                        <div class="bg-gradient-to-br from-indigo-600 to-blue-400 w-32 h-32 md:w-48 md:h-48 flex items-center justify-center shadow-2xl rounded">
-                            <i class="ph-fill ph-heart text-6xl text-white"></i>
+                    <!-- Liked Songs Banner — Spotify style gradient -->
+                    <div class="flex flex-col sm:flex-row items-end gap-5 mb-8 mt-2 cursor-pointer group" onclick="showPlaylistDetails('liked')">
+                        <div class="w-40 h-40 sm:w-52 sm:h-52 flex-shrink-0 bg-gradient-to-br from-purple-700 via-indigo-600 to-blue-400 flex items-center justify-center shadow-2xl rounded-lg group-hover:shadow-indigo-500/30 transition-shadow">
+                            <i class="ph-fill ph-heart text-7xl text-white drop-shadow-lg"></i>
                         </div>
-                        <div>
-                            <p class="text-sm font-bold uppercase tracking-wider text-gray-300">Playlist</p>
-                            <h2 class="text-4xl md:text-6xl font-bold mt-1 mb-4">Lagu yang Disukai</h2>
-                            <p class="text-gray-400 text-sm font-medium"><span id="liked-count">0</span> lagu tersimpan</p>
+                        <div class="pb-2">
+                            <p class="text-xs font-bold uppercase tracking-widest text-gray-300 mb-1">Playlist</p>
+                            <h2 class="text-3xl sm:text-5xl font-extrabold text-white mb-3 leading-tight group-hover:text-white transition-colors">Lagu yang Disukai</h2>
+                            <p class="text-gray-400 text-sm font-medium flex items-center gap-1.5">
+                                <i class="ph-fill ph-spotify-logo text-spotify-green text-base"></i>
+                                spotipaiKW · <span id="liked-count" class="text-white font-bold">0</span> lagu
+                            </p>
+                            <button class="mt-4 bg-spotify-green hover:bg-green-400 text-black font-bold px-8 py-3 rounded-full text-sm transition-all hover:scale-105 shadow-lg flex items-center gap-2 w-fit">
+                                <i class="ph-fill ph-play text-lg ml-0.5"></i> Putar
+                            </button>
                         </div>
                     </div>
-                    
-                    <hr class="border-gray-800 my-8">
 
                     <!-- Custom Playlists Section -->
-                    <div class="flex items-center justify-between mb-6">
-                        <h2 class="text-2xl font-bold">Playlist Kustom Kamu</h2>
-                        <button onclick="showModal('create-playlist-modal')" class="text-sm font-bold text-spotify-green hover:text-white border border-spotify-green hover:border-white px-4 py-1.5 rounded-full transition-colors">
-                            + Buat Playlist
+                    <div class="flex items-center justify-between mb-5">
+                        <h2 class="text-xl font-bold text-white">Playlist Kamu</h2>
+                        <button onclick="showModal('create-playlist-modal')" class="text-sm font-bold text-spotify-green hover:bg-spotify-green hover:text-black border border-spotify-green px-4 py-1.5 rounded-full transition-all flex items-center gap-1.5">
+                            <i class="ph ph-plus text-base"></i> Buat Playlist
                         </button>
                     </div>
-                    
-                    <div id="custom-playlists-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+
+                    <div id="custom-playlists-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                         <!-- Custom playlists injected here -->
                     </div>
 
                     <!-- Inner View for a selected Playlist (Hidden by default) -->
-                    <div id="playlist-detail-view" class="hidden mt-12">
-                        <div class="flex items-center justify-between mb-6">
-                            <div class="flex items-center gap-4">
-                                <button onclick="closePlaylistDetails()" class="bg-black/50 p-2 rounded-full hover:bg-black text-gray-400 hover:text-white"><i class="ph-fill ph-arrow-left text-xl"></i></button>
-                                <h2 id="detail-playlist-title" class="text-3xl font-bold">Nama Playlist</h2>
+                    <div id="playlist-detail-view" class="hidden">
+                        <!-- Playlist header -->
+                        <div class="flex flex-col sm:flex-row items-end gap-5 mb-8">
+                            <div class="w-40 h-40 sm:w-52 sm:h-52 flex-shrink-0 bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center shadow-2xl rounded-lg" id="playlist-detail-cover">
+                                <i class="ph ph-music-notes text-6xl text-gray-500"></i>
                             </div>
-                            <!-- Tombol Hapus Playlist -->
-                            <button id="delete-playlist-btn" class="hidden text-red-500 hover:text-red-400 font-bold text-sm border border-red-500 hover:border-red-400 px-4 py-1.5 rounded-full transition-colors flex items-center gap-2">
-                                <i class="ph ph-trash"></i> <span class="hidden sm:inline">Hapus</span>
-                            </button>
+                            <div class="pb-2 flex-1 min-w-0">
+                                <p class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-1">Playlist</p>
+                                <h2 id="detail-playlist-title" class="text-3xl sm:text-5xl font-extrabold text-white mb-3 leading-tight truncate">Nama Playlist</h2>
+                                <p class="text-gray-400 text-sm font-medium flex items-center gap-1.5">
+                                    <i class="ph-fill ph-spotify-logo text-spotify-green text-base"></i>
+                                    spotipaiKW
+                                </p>
+                                <div class="flex items-center gap-3 mt-4 flex-wrap">
+                                    <button id="playlist-detail-play-btn" class="bg-spotify-green hover:bg-green-400 text-black font-bold px-8 py-3 rounded-full text-sm transition-all hover:scale-105 shadow-lg flex items-center gap-2">
+                                        <i class="ph-fill ph-play text-lg ml-0.5"></i> Putar
+                                    </button>
+                                    <button onclick="closePlaylistDetails()" class="text-gray-400 hover:text-white font-bold text-sm border border-gray-700 hover:border-gray-500 px-4 py-2.5 rounded-full transition-colors flex items-center gap-2">
+                                        <i class="ph ph-arrow-left"></i> Kembali
+                                    </button>
+                                    <button id="delete-playlist-btn" class="hidden text-red-500 hover:text-white hover:bg-red-500 font-bold text-sm border border-red-500 px-4 py-2.5 rounded-full transition-colors flex items-center gap-2">
+                                        <i class="ph ph-trash"></i> <span class="hidden sm:inline">Hapus</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                        <div id="detail-playlist-songs" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+
+                        <div id="detail-playlist-songs" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                             <!-- Songs of selected playlist -->
                         </div>
                     </div>
-
                 </div>
 
                 <!-- Lyrics Tab (Karaoke Rapi di Tengah-Tengah Vertikal & Horizontal) -->
@@ -815,10 +933,40 @@
                 </div>
 
             </main>
+
+            <!-- Queue Panel (right sidebar) — Spotify style -->
+            <div id="queue-panel" class="queue-closed bg-[#121212] border-l border-gray-900 flex-col flex-shrink-0 overflow-hidden hidden lg:flex" style="width:0">
+                <!-- Header -->
+                <div class="flex items-center justify-between px-6 pt-6 pb-4 flex-shrink-0">
+                    <h2 class="text-xl font-extrabold text-white tracking-tight">Queue</h2>
+                    <button onclick="toggleQueuePanel()" class="text-gray-400 hover:text-white transition-colors p-1.5 rounded-full hover:bg-white/10">
+                        <i class="ph ph-x text-lg"></i>
+                    </button>
+                </div>
+
+                <!-- Now Playing -->
+                <div class="px-6 pb-4 flex-shrink-0">
+                    <p class="text-sm font-bold text-white mb-3">Now playing</p>
+                    <div id="queue-now-playing" class="flex items-center gap-3 group cursor-pointer rounded-md px-2 py-1.5 hover:bg-white/5 transition-colors -mx-2">
+                        <p class="text-gray-600 text-xs">Belum ada lagu</p>
+                    </div>
+                </div>
+
+                <!-- Divider -->
+                <div class="border-t border-gray-800 mx-6 mb-4 flex-shrink-0"></div>
+
+                <!-- Next in Queue -->
+                <div class="flex-1 overflow-y-auto px-6 pb-6">
+                    <p id="queue-next-label" class="text-sm font-bold text-white mb-3">Next in queue</p>
+                    <div id="queue-list" class="flex flex-col gap-0.5">
+                        <p class="text-gray-600 text-xs">Antrian kosong.</p>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Player Bottom Bar -->
-        <div class="h-20 sm:h-24 bg-black border-t border-gray-800 flex items-center justify-between px-2 sm:px-6 z-30 w-full flex-shrink-0 text-sm">
+        <div class="h-20 sm:h-24 bg-black border-t-2 border-black flex items-center justify-between px-2 sm:px-6 z-30 w-full flex-shrink-0 text-sm">
             
             <!-- Now Playing Info -->
             <div class="flex items-center w-1/3 min-w-[120px]">
@@ -832,23 +980,23 @@
                 </button>
             </div>
 
-            <!-- Player Controls -->
+            <!-- Player Controls — 20% smaller -->
             <div class="flex flex-col items-center w-1/3 max-w-[722px]">
-                <div class="flex items-center gap-4 sm:gap-6">
+                <div class="flex items-center gap-3 sm:gap-5">
                     <button class="text-gray-400 hover:text-white hidden sm:block">
-                        <i class="ph ph-shuffle text-xl"></i>
+                        <i class="ph ph-shuffle" style="font-size:1.15rem;"></i>
                     </button>
                     <button onclick="prevSong()" class="text-gray-400 hover:text-white transition-colors">
-                        <i class="ph-fill ph-skip-back text-2xl sm:text-3xl"></i>
+                        <i class="ph-fill ph-skip-back" style="font-size:1.5rem;"></i>
                     </button>
-                    <button onclick="togglePlay()" class="bg-white text-black rounded-full h-8 w-8 sm:h-10 sm:w-10 flex items-center justify-center hover:scale-105 transition-transform">
-                        <i id="play-pause-icon" class="ph-fill ph-play text-xl sm:text-xl"></i>
+                    <button onclick="togglePlay()" class="bg-white text-black rounded-full h-7 w-7 sm:h-9 sm:w-9 flex items-center justify-center hover:scale-105 transition-transform flex-shrink-0">
+                        <i id="play-pause-icon" class="ph-fill ph-play" style="font-size:1rem;"></i>
                     </button>
                     <button onclick="nextSong()" class="text-gray-400 hover:text-white transition-colors">
-                        <i class="ph-fill ph-skip-forward text-2xl sm:text-3xl"></i>
+                        <i class="ph-fill ph-skip-forward" style="font-size:1.5rem;"></i>
                     </button>
                     <button onclick="toggleRepeat()" class="text-gray-400 hover:text-white hidden sm:block transition-colors" title="Replay">
-                        <i id="repeat-icon" class="ph ph-repeat text-xl"></i>
+                        <i id="repeat-icon" class="ph ph-repeat" style="font-size:1.15rem;"></i>
                     </button>
                 </div>
                 
@@ -866,17 +1014,17 @@
             <!-- Volume Controls -->
             <div class="flex items-center justify-end w-1/3 min-w-[120px] gap-2 hidden md:flex group">
                 <button onclick="switchTab('lyrics')" class="text-gray-400 hover:text-white transition-colors" title="Lihat Lirik">
-                    <i class="ph ph-microphone-stage text-lg"></i>
+                    <i class="ph ph-microphone-stage" style="font-size:1rem;"></i>
                 </button>
-                <button class="text-gray-400 hover:text-white">
-                    <i class="ph ph-queue text-lg"></i>
+                <button onclick="toggleQueuePanel()" id="btn-queue" class="text-gray-400 hover:text-white transition-colors" title="Antrian Lagu">
+                    <i class="ph ph-queue" style="font-size:1rem;"></i>
                 </button>
-                <button class="text-gray-400 hover:text-white">
-                    <i class="ph ph-speaker-high text-xl"></i>
+                <button id="btn-volume-icon" class="text-gray-400 hover:text-white flex-shrink-0">
+                    <i id="volume-icon" class="ph ph-speaker-high" style="font-size:1rem;"></i>
                 </button>
-                <div class="w-24 relative flex items-center">
+                <div class="w-24 relative flex items-center group/vol">
                     <input type="range" id="volume-bar" min="0" max="1" step="0.01" value="1" class="w-full z-10" oninput="changeVolume(this.value); updateVolumeBarColor(this)">
-                     <div id="volume-fill" class="absolute h-1 bg-white rounded-l-full pointer-events-none group-hover:bg-spotify-green" style="width: 100%;"></div>
+                    <div id="volume-fill" class="absolute h-1 bg-white rounded-l-full pointer-events-none group-hover/vol:bg-spotify-green transition-colors" style="width: 100%;"></div>
                 </div>
             </div>
             
