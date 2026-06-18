@@ -359,7 +359,91 @@ function toggleSidebar() {
     if (!sidebar || !btn) return;
     sidebar.classList.toggle('sidebar-collapsed');
     const isCollapsed = sidebar.classList.contains('sidebar-collapsed');
-    btn.querySelector('i').className = isCollapsed ? 'ph ph-sidebar-simple-fill text-xl' : 'ph ph-sidebar-simple text-xl';
+    btn.querySelector('i').className = isCollapsed ? 'ph ph-layout text-xl' : 'ph ph-sidebar-simple text-xl';
+}
+
+// ==========================================
+// QUEUE PANEL
+// ==========================================
+let isQueueOpen = false;
+
+function toggleQueuePanel() {
+    isQueueOpen = !isQueueOpen;
+    const panel = document.getElementById('queue-panel');
+    const btn = document.getElementById('btn-queue');
+    if (!panel) return;
+    if (isQueueOpen) {
+        panel.classList.remove('queue-closed');
+        panel.classList.add('queue-open');
+        if (btn) { btn.querySelector('i').classList.add('text-white'); btn.classList.add('text-white'); }
+    } else {
+        panel.classList.remove('queue-open');
+        panel.classList.add('queue-closed');
+        if (btn) { btn.querySelector('i').classList.remove('text-white'); btn.classList.remove('text-white'); }
+    }
+    updateQueuePanel();
+}
+
+function updateQueuePanel() {
+    if (!isQueueOpen) return;
+    const nowPlayingEl = document.getElementById('queue-now-playing');
+    const queueListEl = document.getElementById('queue-list');
+    const nextLabel = document.getElementById('queue-next-label');
+    if (!nowPlayingEl || !queueListEl) return;
+
+    const fallbackImg = 'https://images.unsplash.com/photo-1614613535308-eb51bd3d2c17?w=150&q=80';
+
+    // Now playing
+    if (currentSongIndex === -1 || !songs[currentSongIndex]) {
+        nowPlayingEl.innerHTML = '<p class="text-gray-500 text-sm">Belum ada lagu diputar</p>';
+        queueListEl.innerHTML = '<p class="text-gray-600 text-sm">Antrian kosong.</p>';
+        return;
+    }
+    const current = songs[currentSongIndex];
+    nowPlayingEl.innerHTML = `
+        <img src="${current.coverUrl}" onerror="this.src='${fallbackImg}'" class="w-10 h-10 rounded object-cover flex-shrink-0 shadow">
+        <div class="min-w-0 flex-1">
+            <p class="text-sm font-bold text-spotify-green truncate leading-tight">${current.title}</p>
+            <p class="text-xs text-gray-400 truncate mt-0.5">${current.artist}</p>
+        </div>`;
+
+    // Build upcoming list from currentQueue
+    const upcoming = [];
+    if (currentQueue.length > 1) {
+        const qLen = currentQueue.length;
+        const startIdx = (currentQueueIndex + 1) % qLen;
+        const total = Math.min(qLen - 1, 50);
+        for (let i = 0; i < total; i++) {
+            upcoming.push(currentQueue[(startIdx + i) % qLen]);
+        }
+    }
+
+    if (nextLabel) nextLabel.textContent = 'Next in queue';
+
+    if (upcoming.length === 0) {
+        queueListEl.innerHTML = '<p class="text-gray-600 text-sm">Tidak ada lagu berikutnya.</p>';
+        return;
+    }
+
+    queueListEl.innerHTML = '';
+    upcoming.forEach((song) => {
+        const globalIdx = songs.findIndex(s => s.id === song.id);
+        const row = document.createElement('div');
+        row.className = 'flex items-center gap-3 px-2 py-2 rounded-md hover:bg-white/10 cursor-pointer group transition-colors -mx-2';
+        row.innerHTML = `
+            <img src="${song.coverUrl}" onerror="this.src='${fallbackImg}'" class="w-10 h-10 rounded object-cover flex-shrink-0 shadow">
+            <div class="min-w-0 flex-1">
+                <p class="text-sm font-medium text-white truncate leading-tight">${song.title}</p>
+                <p class="text-xs text-gray-400 truncate mt-0.5">${song.artist}</p>
+            </div>`;
+        row.onclick = () => {
+            if (globalIdx !== -1) {
+                playSong(globalIdx, currentQueue);
+                setTimeout(updateQueuePanel, 100);
+            }
+        };
+        queueListEl.appendChild(row);
+    });
 }
 
 function scrollArtists(dir) {
@@ -382,7 +466,7 @@ function showAdWithDelay() {
         if (timeLeft > 0) { closeBtn.innerText = `Tutup (${timeLeft})`; }
         else {
             clearInterval(timer);
-            closeBtn.innerText = 'Tutup Iklan';
+            closeBtn.innerText = 'Tutup Kredit
             closeBtn.disabled = false;
             closeBtn.className = "px-6 py-3 bg-white hover:scale-105 text-black font-bold rounded-full transition-transform active:scale-95 w-full text-xs uppercase tracking-widest shadow-lg";
         }
@@ -544,7 +628,13 @@ function logout() {
 function switchTab(tabId) {
     document.querySelectorAll('.content-tab').forEach(tab => tab.classList.add('hidden'));
     const targetTab = document.getElementById(`tab-${tabId}`);
-    if (targetTab) targetTab.classList.remove('hidden');
+    if (targetTab) {
+        targetTab.classList.remove('hidden');
+        // Smooth page entrance
+        targetTab.classList.remove('page-enter');
+        void targetTab.offsetWidth; // reflow
+        targetTab.classList.add('page-enter');
+    }
 
     document.querySelectorAll('.nav-item').forEach(item => {
         if (item.dataset && item.dataset.tab === tabId) {
@@ -715,15 +805,44 @@ function showArtistPage(artistName) {
 // ==========================================
 function renderSidebarPlaylists() {
     const container = document.getElementById('sidebar-playlists');
+    const miniContainer = document.getElementById('sidebar-playlists-mini');
     if (!container) return;
     container.innerHTML = '';
+    if (miniContainer) miniContainer.innerHTML = '';
+
     customPlaylists.forEach(pl => {
+        // Full sidebar item
         const a = document.createElement('a');
         a.href = "#";
-        a.className = "flex items-center gap-4 text-sm text-gray-400 hover:text-white transition-colors truncate w-full font-medium";
-        a.innerHTML = `<i class="ph ph-music-notes-simple text-xl"></i> <span class="truncate">${pl.name}</span>`;
+        a.className = "flex items-center gap-3 text-sm text-gray-400 hover:text-white transition-colors truncate w-full font-medium py-1 rounded-md hover:bg-white/5 px-1";
+        // Cover thumbnail
+        let thumbHtml = '<div class="w-8 h-8 rounded bg-gray-800 flex items-center justify-center flex-shrink-0"><i class="ph ph-music-notes text-gray-500 text-sm"></i></div>';
+        if (pl.songs.length > 0) {
+            const firstSong = songs.find(s => s.id === pl.songs[0]);
+            if (firstSong) thumbHtml = `<img src="${firstSong.coverUrl}" class="w-8 h-8 rounded object-cover flex-shrink-0" onerror="this.style.display='none'">`;
+        }
+        a.innerHTML = `${thumbHtml}<span class="truncate">${pl.name}</span>`;
         a.onclick = (e) => { e.preventDefault(); switchTab('collection'); showPlaylistDetails(pl.id); };
         container.appendChild(a);
+
+        // Mini icon for collapsed sidebar
+        if (miniContainer) {
+            const mini = document.createElement('button');
+            mini.className = "w-10 h-10 rounded-lg overflow-hidden hover:scale-105 transition-transform flex-shrink-0 bg-gray-800 flex items-center justify-center";
+            mini.title = pl.name;
+            if (pl.songs.length > 0) {
+                const firstSong = songs.find(s => s.id === pl.songs[0]);
+                if (firstSong) {
+                    mini.innerHTML = `<img src="${firstSong.coverUrl}" class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='<i class=\\'ph ph-music-notes text-gray-400 text-sm\\'></i>'">`;
+                } else {
+                    mini.innerHTML = '<i class="ph ph-music-notes text-gray-400 text-sm"></i>';
+                }
+            } else {
+                mini.innerHTML = '<i class="ph ph-music-notes text-gray-400 text-sm"></i>';
+            }
+            mini.onclick = () => { switchTab('collection'); showPlaylistDetails(pl.id); };
+            miniContainer.appendChild(mini);
+        }
     });
 }
 
@@ -840,7 +959,7 @@ function createSongCard(song, index, playlistId = null, contextQueue = null) {
     }
     card.innerHTML = `
         <div class="relative mb-4 pb-[100%] shadow-lg rounded overflow-hidden">
-            <img src="${song.coverUrl}" onerror="this.src='${fallbackImg}'" alt="Cover" class="absolute top-0 left-0 w-full h-full object-cover">
+            <img src="${song.coverUrl}" onerror="this.src='${fallbackImg}'" alt="Cover" class="song-card-img absolute top-0 left-0 w-full h-full object-cover">
             ${removeBtnHtml}
             <div class="absolute top-2 right-2 flex gap-2 z-20">
                 <button class="btn-add-playlist p-1 rounded-full bg-black/40 hover:bg-black/80 transition-colors opacity-0 group-hover:opacity-100" title="Tambah ke Playlist"><i class="ph ph-list-plus text-white text-xl"></i></button>
@@ -1171,7 +1290,7 @@ async function playSong(index, contextQueue = null) {
     if (sb && !sb.classList.contains('sidebar-collapsed')) sb.classList.add('sidebar-collapsed');
     updateLikeIcon(); updateLyricsView();
     incrementPlayCount(song.id);
-    audio.play().then(() => { isPlaying = true; updatePlayIcon(); })
+    audio.play().then(() => { isPlaying = true; updatePlayIcon(); updateQueuePanel(); })
         .catch(e => { console.error(e); showMessage("Gagal memutar audio.", "error"); isPlaying = false; updatePlayIcon(); });
 }
 
@@ -1242,7 +1361,19 @@ function updateProgressBarColor(input) {
 }
 function updateVolumeBarColor(input) {
     const vf = volumeFill || document.getElementById('volume-fill');
-    if (vf) vf.style.width = (input.value * 100) + '%';
+    const pct = Math.round(input.value * 100);
+    if (vf) vf.style.width = pct + '%';
+    // Drive the CSS gradient on the track
+    input.style.setProperty('--vol', pct + '%');
+    // Update volume icon
+    const icon = document.getElementById('volume-icon');
+    if (icon) {
+        if (input.value == 0) icon.className = 'ph ph-speaker-slash';
+        else if (input.value < 0.4) icon.className = 'ph ph-speaker-low';
+        else if (input.value < 0.7) icon.className = 'ph ph-speaker';
+        else icon.className = 'ph ph-speaker-high';
+        icon.style.fontSize = '1rem';
+    }
 }
 
 audio.addEventListener('timeupdate', () => {
