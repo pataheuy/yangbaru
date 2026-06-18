@@ -466,7 +466,7 @@ function showAdWithDelay() {
         if (timeLeft > 0) { closeBtn.innerText = `Tutup (${timeLeft})`; }
         else {
             clearInterval(timer);
-            closeBtn.innerText = 'Tutup Kredit
+            closeBtn.innerText = 'Tutup Kredit';
             closeBtn.disabled = false;
             closeBtn.className = "px-6 py-3 bg-white hover:scale-105 text-black font-bold rounded-full transition-transform active:scale-95 w-full text-xs uppercase tracking-widest shadow-lg";
         }
