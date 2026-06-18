@@ -218,8 +218,8 @@ function getArtistSuggestions(query) {
 }
 
 function showArtistDropdown(mode) {
-    const inputId = mode === 'add' ? 'add-artist-input' : 'edit-artist-input';
-    const dropdownId = mode === 'add' ? 'add-artist-dropdown' : 'edit-artist-dropdown';
+    const inputId = mode === 'add' ? 'add-artist-input' : mode === 'multi' ? 'multi-artist-input' : 'edit-artist-input';
+    const dropdownId = mode === 'add' ? 'add-artist-dropdown' : mode === 'multi' ? 'multi-artist-dropdown' : 'edit-artist-dropdown';
     const input = document.getElementById(inputId);
     const dropdown = document.getElementById(dropdownId);
     if (!input || !dropdown) return;
@@ -251,8 +251,8 @@ function highlightMatch(text, query) {
 }
 
 function selectArtistFromDropdown(name, mode) {
-    const inputId = mode === 'add' ? 'add-artist-input' : 'edit-artist-input';
-    const dropdownId = mode === 'add' ? 'add-artist-dropdown' : 'edit-artist-dropdown';
+    const inputId = mode === 'add' ? 'add-artist-input' : mode === 'multi' ? 'multi-artist-input' : 'edit-artist-input';
+    const dropdownId = mode === 'add' ? 'add-artist-dropdown' : mode === 'multi' ? 'multi-artist-dropdown' : 'edit-artist-dropdown';
     const input = document.getElementById(inputId);
     const dropdown = document.getElementById(dropdownId);
     if (!input) return;
@@ -260,32 +260,29 @@ function selectArtistFromDropdown(name, mode) {
     input.value = name;
     if (dropdown) dropdown.classList.add('hidden');
 
-    // Langsung tambahkan sebagai tag
-    if (mode === 'add') {
-        addArtistTag();
-    } else {
-        addEditArtistTag();
-    }
+    if (mode === 'add') addArtistTag();
+    else if (mode === 'multi') addMultiArtistTag();
+    else addEditArtistTag();
 }
 
 function hideArtistDropdown(mode) {
-    const dropdownId = mode === 'add' ? 'add-artist-dropdown' : 'edit-artist-dropdown';
+    const dropdownId = mode === 'add' ? 'add-artist-dropdown' : mode === 'multi' ? 'multi-artist-dropdown' : 'edit-artist-dropdown';
     const dropdown = document.getElementById(dropdownId);
     if (dropdown) setTimeout(() => dropdown.classList.add('hidden'), 150);
 }
 
 function handleArtistInputKey(e, mode) {
-    const dropdownId = mode === 'add' ? 'add-artist-dropdown' : 'edit-artist-dropdown';
+    const dropdownId = mode === 'add' ? 'add-artist-dropdown' : mode === 'multi' ? 'multi-artist-dropdown' : 'edit-artist-dropdown';
     const dropdown = document.getElementById(dropdownId);
 
     if (e.key === 'Enter') {
         e.preventDefault();
-        // Jika ada item yang di-highlight, pilih itu; kalau tidak, tambah langsung
         const highlighted = dropdown?.querySelector('.bg-spotify-green\\/20');
         if (highlighted) {
             highlighted.dispatchEvent(new MouseEvent('mousedown'));
         } else {
             if (mode === 'add') addArtistTag();
+            else if (mode === 'multi') addMultiArtistTag();
             else addEditArtistTag();
         }
         if (dropdown) dropdown.classList.add('hidden');
@@ -297,7 +294,6 @@ function handleArtistInputKey(e, mode) {
         return;
     }
 
-    // Navigasi atas/bawah dengan keyboard
     if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && dropdown && !dropdown.classList.contains('hidden')) {
         e.preventDefault();
         const items = dropdown.querySelectorAll('.artist-dropdown-item');
@@ -727,7 +723,9 @@ function renderHome() {
         });
     }
 
-    renderSongs(songs, allContainer, 'all');
+    // "Semua Lagu" — selalu ditampilkan acak setiap render
+    const shuffledSongs = [...songs].sort(() => Math.random() - 0.5);
+    renderSongs(shuffledSongs, allContainer, 'all');
 }
 
 // ==========================================
@@ -1272,8 +1270,13 @@ async function playSong(index, contextQueue = null) {
         currentQueue = contextQueue;
         currentQueueIndex = contextQueue.findIndex(s => s.id === songs[index].id);
     } else {
-        currentQueue = songs;
-        currentQueueIndex = index;
+        // Konteks global: gunakan songs[] yang di-shuffle agar next/prev acak
+        const shuffled = [...songs].sort(() => Math.random() - 0.5);
+        // Taruh lagu yang diklik di posisi 0 agar langsung diputar
+        const clickedSong = songs[index];
+        const filteredShuffled = shuffled.filter(s => s.id !== clickedSong.id);
+        currentQueue = [clickedSong, ...filteredShuffled];
+        currentQueueIndex = 0;
     }
 
     currentSongIndex = index;
@@ -1335,7 +1338,15 @@ function updatePlayIcon() {
 function nextSong() {
     if (!currentQueue.length) return;
     let nextIdx = currentQueueIndex + 1;
-    if (nextIdx >= currentQueue.length) nextIdx = 0;
+    // When reaching the end, wrap back to start (loop queue)
+    if (nextIdx >= currentQueue.length) {
+        nextIdx = 0;
+        // If queue is the global songs list, reshuffle for variety
+        if (currentQueue === songs || currentQueue.length === songs.length) {
+            const reshuffled = [...songs].sort(() => Math.random() - 0.5);
+            currentQueue = reshuffled;
+        }
+    }
     currentQueueIndex = nextIdx;
     const song = currentQueue[nextIdx];
     const globalIdx = songs.findIndex(s => s.id === song.id);
@@ -1406,6 +1417,264 @@ audio.addEventListener('loadedmetadata', () => {
     if (tt) tt.innerText = formatTime(audio.duration);
 });
 audio.addEventListener('ended', () => { if (isRepeat) { audio.currentTime = 0; audio.play(); } else nextSong(); });
+
+// ==========================================
+// MULTI UPLOAD
+// ==========================================
+let isMultiUploadMode = false;
+let multiArtistTags = [];
+let multiSongFiles = []; // { audioFile, title, artist, coverUrl, coverFile, lyrics, lrcFile }
+
+function toggleMultiUploadMode() {
+    isMultiUploadMode = !isMultiUploadMode;
+    const single = document.getElementById('single-upload-section');
+    const multi = document.getElementById('multi-upload-section');
+    const btn = document.getElementById('btn-toggle-multi-upload');
+    const label = document.getElementById('multi-upload-mode-label');
+    if (isMultiUploadMode) {
+        single.classList.add('hidden');
+        multi.classList.remove('hidden');
+        btn.classList.add('border-spotify-green', 'text-spotify-green');
+        label.textContent = 'Mode Single';
+    } else {
+        single.classList.remove('hidden');
+        multi.classList.add('hidden');
+        btn.classList.remove('border-spotify-green', 'text-spotify-green');
+        label.textContent = 'Multi Upload';
+    }
+}
+
+// Multi-upload artist tags
+function renderMultiArtistTags() {
+    const container = document.getElementById('multi-artist-tags-container');
+    const hidden = document.getElementById('multi-artist-value');
+    if (!container) return;
+    container.innerHTML = multiArtistTags.map((a, i) => `
+        <span style="display:inline-flex;align-items:center;gap:4px;background:#1DB954;color:#000;padding:3px 10px;border-radius:999px;font-size:0.75rem;font-weight:700;">
+            ${a}<button type="button" onclick="removeMultiArtistTag(${i})" style="background:none;border:none;color:#000;cursor:pointer;font-size:0.9rem;line-height:1;padding:0 2px;">×</button>
+        </span>`).join('');
+    if (hidden) hidden.value = multiArtistTags.join(', ');
+    // propagate default artist to all rows that still use default
+    document.querySelectorAll('.multi-row-use-default').forEach(checkbox => {
+        if (checkbox.checked) {
+            const rowIdx = parseInt(checkbox.dataset.row);
+            if (multiSongFiles[rowIdx]) multiSongFiles[rowIdx].artist = multiArtistTags.join(', ');
+            const artistInput = document.getElementById(`multi-row-artist-${rowIdx}`);
+            if (artistInput) artistInput.value = multiArtistTags.join(', ');
+        }
+    });
+}
+
+function addMultiArtistTag() {
+    const input = document.getElementById('multi-artist-input');
+    if (!input) return;
+    const val = input.value.trim();
+    if (val && !multiArtistTags.includes(val)) { multiArtistTags.push(val); renderMultiArtistTags(); }
+    input.value = ''; input.focus();
+}
+function removeMultiArtistTag(i) { multiArtistTags.splice(i, 1); renderMultiArtistTags(); }
+
+// Handle artist dropdown for multi mode — reuse existing infrastructure
+function handleMultiArtistKey(e) {
+    if (e.key === 'Enter') { e.preventDefault(); addMultiArtistTag(); }
+}
+
+// Handle selecting multiple audio files
+function handleMultiAudioSelect(input) {
+    const files = Array.from(input.files);
+    if (!files.length) return;
+    // Merge: keep existing entries for files already in list, add new ones
+    const existingNames = multiSongFiles.map(s => s.audioFile.name);
+    files.forEach(f => {
+        if (!existingNames.includes(f.name)) {
+            const titleFromFile = f.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+            multiSongFiles.push({
+                audioFile: f,
+                title: titleFromFile,
+                artist: multiArtistTags.join(', '),
+                coverUrl: '',
+                coverFile: null,
+                lyrics: '',
+                lrcFile: null,
+            });
+        }
+    });
+    renderMultiSongRows();
+}
+
+function renderMultiSongRows() {
+    const container = document.getElementById('multi-songs-list');
+    if (!container) return;
+    container.innerHTML = '';
+    if (multiSongFiles.length === 0) return;
+
+    multiSongFiles.forEach((item, i) => {
+        const row = document.createElement('div');
+        row.className = 'bg-black/50 border border-gray-700 rounded-xl p-4 space-y-3';
+        row.innerHTML = `
+            <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2 min-w-0">
+                    <i class="ph-fill ph-music-note text-spotify-green flex-shrink-0"></i>
+                    <span class="text-xs text-gray-400 truncate">${item.audioFile.name}</span>
+                </div>
+                <button type="button" onclick="removeMultiRow(${i})" class="text-red-500 hover:text-red-400 p-1 flex-shrink-0" title="Hapus"><i class="ph ph-trash text-base"></i></button>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1 font-medium">Judul Lagu</label>
+                    <input type="text" id="multi-row-title-${i}" value="${item.title}"
+                        class="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white text-sm focus:outline-none focus:border-spotify-green"
+                        oninput="multiSongFiles[${i}].title = this.value">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1 font-medium flex items-center justify-between">
+                        <span>Penyanyi</span>
+                        <label class="flex items-center gap-1 font-normal cursor-pointer">
+                            <input type="checkbox" class="accent-spotify-green multi-row-use-default" data-row="${i}" ${multiArtistTags.length ? 'checked' : ''}
+                                onchange="onMultiRowUseDefault(${i}, this.checked)">
+                            <span class="text-gray-500 text-xs">Pakai default</span>
+                        </label>
+                    </label>
+                    <input type="text" id="multi-row-artist-${i}" value="${item.artist}"
+                        class="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white text-sm focus:outline-none focus:border-spotify-green"
+                        ${multiArtistTags.length ? 'readonly' : ''}
+                        oninput="multiSongFiles[${i}].artist = this.value">
+                </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1 font-medium">Cover (URL atau kosongkan pakai default)</label>
+                    <input type="url" id="multi-row-cover-${i}" value="${item.coverUrl}"
+                        class="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white text-sm focus:outline-none focus:border-spotify-green"
+                        placeholder="URL cover (opsional)"
+                        oninput="multiSongFiles[${i}].coverUrl = this.value">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1 font-medium flex items-center justify-between">
+                        <span>File Lirik (.lrc/.srt)</span>
+                        <span id="multi-row-lrc-name-${i}" class="text-spotify-green text-xs"></span>
+                    </label>
+                    <input type="file" accept=".lrc,.srt" class="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white text-xs"
+                        onchange="handleMultiRowLrc(${i}, this)">
+                </div>
+            </div>`;
+        container.appendChild(row);
+    });
+}
+
+function onMultiRowUseDefault(rowIdx, checked) {
+    const artistInput = document.getElementById(`multi-row-artist-${rowIdx}`);
+    if (checked) {
+        if (artistInput) { artistInput.value = multiArtistTags.join(', '); artistInput.readOnly = true; }
+        if (multiSongFiles[rowIdx]) multiSongFiles[rowIdx].artist = multiArtistTags.join(', ');
+    } else {
+        if (artistInput) { artistInput.readOnly = false; artistInput.focus(); }
+    }
+}
+
+function handleMultiRowLrc(rowIdx, input) {
+    const file = input.files[0];
+    if (!file) return;
+    multiSongFiles[rowIdx].lrcFile = file;
+    const nameEl = document.getElementById(`multi-row-lrc-name-${rowIdx}`);
+    if (nameEl) nameEl.textContent = file.name;
+    const reader = new FileReader();
+    reader.onload = e => { multiSongFiles[rowIdx].lyrics = e.target.result; };
+    reader.readAsText(file);
+}
+
+function removeMultiRow(i) {
+    multiSongFiles.splice(i, 1);
+    renderMultiSongRows();
+}
+
+function clearMultiUpload() {
+    multiSongFiles = [];
+    multiArtistTags = [];
+    renderMultiArtistTags();
+    renderMultiSongRows();
+    const audioInput = document.getElementById('multi-audio-files');
+    if (audioInput) audioInput.value = '';
+    const coverUrl = document.getElementById('multi-cover-url');
+    if (coverUrl) coverUrl.value = '';
+}
+
+async function submitMultiUpload() {
+    if (!supabaseClient) return showMessage('Supabase belum dikonfigurasi.', 'error');
+    if (multiSongFiles.length === 0) return showMessage('Pilih file audio terlebih dahulu.', 'error');
+
+    const btn = document.getElementById('btn-multi-submit');
+    const originalHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="ph ph-spinner animate-spin text-lg"></i> Mengupload...';
+
+    // Resolve shared cover
+    let sharedCoverUrl = '';
+    const sharedCoverType = document.querySelector('input[name="multi_cover_type"]:checked')?.value || 'url';
+    if (sharedCoverType === 'url') {
+        sharedCoverUrl = document.getElementById('multi-cover-url')?.value.trim() || '';
+    } else {
+        const f = document.getElementById('multi-cover-file')?.files[0];
+        if (f) {
+            try {
+                const path = `covers/${Date.now()}_${f.name.replace(/[^a-zA-Z0-9.-]/g, '')}`;
+                const { error } = await supabaseClient.storage.from('media').upload(path, f);
+                if (!error) sharedCoverUrl = supabaseClient.storage.from('media').getPublicUrl(path).data.publicUrl;
+            } catch(e) { console.warn('Cover upload failed', e); }
+        }
+    }
+
+    let successCount = 0, failCount = 0;
+    for (let i = 0; i < multiSongFiles.length; i++) {
+        const item = multiSongFiles[i];
+        const titleInput = document.getElementById(`multi-row-title-${i}`);
+        const artistInput = document.getElementById(`multi-row-artist-${i}`);
+        const coverInput = document.getElementById(`multi-row-cover-${i}`);
+        const title = (titleInput?.value || item.title).trim();
+        const artist = (artistInput?.value || item.artist).trim();
+        const coverUrl = (coverInput?.value || item.coverUrl || sharedCoverUrl).trim();
+        const lyrics = item.lyrics || '';
+
+        if (!title || !artist) { showMessage(`Baris ${i+1}: Judul dan penyanyi wajib diisi`, 'error'); failCount++; continue; }
+
+        btn.innerHTML = `<i class="ph ph-spinner text-lg"></i> Upload ${i+1}/${multiSongFiles.length}...`;
+
+        try {
+            // Upload audio
+            const audioPath = `audio/${Date.now()}_${item.audioFile.name.replace(/[^a-zA-Z0-9.-]/g, '')}`;
+            const { error: audioErr } = await supabaseClient.storage.from('media').upload(audioPath, item.audioFile);
+            if (audioErr) throw audioErr;
+            const audioUrl = supabaseClient.storage.from('media').getPublicUrl(audioPath).data.publicUrl;
+
+            // Resolve cover
+            let finalCoverUrl = coverUrl;
+            if (!finalCoverUrl) finalCoverUrl = 'https://images.unsplash.com/photo-1614613535308-eb51bd3d2c17?w=300&q=80';
+
+            const newSongData = { id: Date.now().toString() + i, title, artist, cover_url: finalCoverUrl, audio_url: audioUrl, lyrics, play_count: 0 };
+            const { error: dbErr } = await supabaseClient.from('songs').insert([newSongData]);
+            if (dbErr) throw dbErr;
+
+            songs.unshift({ id: newSongData.id, title, artist, coverUrl: finalCoverUrl, audioUrl, lyrics, playCount: 0 });
+            if (isUploaderMode && !(currentUser && currentUser.role === 'admin')) uploaderSessionSongIds.push(newSongData.id);
+            successCount++;
+        } catch(err) {
+            console.error(`Upload gagal untuk ${title}:`, err);
+            showMessage(`Gagal: ${title} — ${err.message}`, 'error');
+            failCount++;
+        }
+    }
+
+    sortSongs();
+    btn.disabled = false;
+    btn.innerHTML = originalHtml;
+
+    if (successCount > 0) {
+        showMessage(`${successCount} lagu berhasil diupload!${failCount ? ` (${failCount} gagal)` : ''}`);
+        clearMultiUpload();
+        renderAdminLibrary();
+        switchTab('admin-manage');
+    }
+}
 
 // ==========================================
 // ADD SONG FORM
@@ -1584,6 +1853,14 @@ function initRadioToggles() {
         radio.addEventListener('change', e => {
             document.getElementById('edit-cover-url').classList.toggle('hidden', e.target.value !== 'url');
             document.getElementById('edit-cover-file').classList.toggle('hidden', e.target.value === 'url');
+        });
+    });
+    document.querySelectorAll('input[name="multi_cover_type"]').forEach(radio => {
+        radio.addEventListener('change', e => {
+            const urlEl = document.getElementById('multi-cover-url');
+            const fileEl = document.getElementById('multi-cover-file');
+            if (urlEl) urlEl.classList.toggle('hidden', e.target.value !== 'url');
+            if (fileEl) fileEl.classList.toggle('hidden', e.target.value === 'url');
         });
     });
 }
