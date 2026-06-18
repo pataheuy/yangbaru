@@ -871,12 +871,25 @@
 
                 <!-- Admin: Tambah Lagu -->
                 <div id="tab-admin-add" class="p-4 sm:p-6 pb-24 content-tab hidden">
-                    <div class="max-w-2xl mx-auto bg-spotify-elevated p-6 sm:p-8 rounded-xl border border-gray-800 text-sm">
-                        <div class="flex items-center gap-3 mb-6 border-b border-gray-700 pb-4">
-                            <i class="ph-fill ph-music-notes-plus text-3xl text-spotify-green"></i>
-                            <h2 class="text-xl sm:text-2xl font-bold">Tambah Lagu ke Database</h2>
+                    <div class="max-w-4xl mx-auto">
+
+                    <!-- Header row -->
+                    <div class="bg-spotify-elevated p-6 sm:p-8 rounded-xl border border-gray-800 text-sm mb-4">
+                        <div class="flex items-center justify-between mb-6 border-b border-gray-700 pb-4">
+                            <div class="flex items-center gap-3">
+                                <i class="ph-fill ph-music-notes-plus text-3xl text-spotify-green"></i>
+                                <h2 class="text-xl sm:text-2xl font-bold">Tambah Lagu ke Database</h2>
+                            </div>
+                            <!-- Toggle mode -->
+                            <button id="btn-toggle-multi-upload" onclick="toggleMultiUploadMode()"
+                                class="flex items-center gap-2 px-4 py-2 rounded-full border border-gray-600 hover:border-spotify-green text-gray-400 hover:text-spotify-green text-xs font-bold transition-all">
+                                <i class="ph ph-stack text-base"></i>
+                                <span id="multi-upload-mode-label">Multi Upload</span>
+                            </button>
                         </div>
-                        
+
+                        <!-- ===== SINGLE UPLOAD FORM ===== -->
+                        <div id="single-upload-section">
                         <form id="add-song-form" class="space-y-5">
                             <div>
                                 <label class="block text-sm font-medium text-gray-300 mb-1">Judul Lagu</label>
@@ -887,7 +900,7 @@
                                 <div id="artist-tags-container" class="flex flex-wrap gap-2 mb-2 min-h-[20px]"></div>
                                 <div class="flex gap-2 relative">
                                     <div class="relative flex-1">
-                                        <input type="text" id="add-artist-input" class="w-full bg-black border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-spotify-green transition-colors text-sm" placeholder="Ketik atau pilih penyanyi..." autocomplete="off" oninput="showArtistDropdown('add')" onkeydown="handleArtistInputKey(event,'add')">
+                                        <input type="text" id="add-artist-input" class="w-full bg-black border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-spotify-green transition-colors text-sm" placeholder="Ketik atau pilih penyanyi..." autocomplete="off" oninput="showArtistDropdown('add')" onkeydown="handleArtistInputKey(event,'add')" onfocus="showArtistDropdown('add')" onblur="hideArtistDropdown('add')">
                                         <div id="add-artist-dropdown" class="absolute left-0 right-0 top-full mt-1 bg-[#1a1a1a] border border-gray-700 rounded-lg shadow-2xl z-50 hidden max-h-48 overflow-y-auto"></div>
                                     </div>
                                     <button type="button" onclick="addArtistTag()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded font-bold text-sm transition-colors">+</button>
@@ -929,6 +942,61 @@
                                 </button>
                             </div>
                         </form>
+                        </div>
+
+                        <!-- ===== MULTI UPLOAD SECTION ===== -->
+                        <div id="multi-upload-section" class="hidden space-y-5">
+                            <!-- Shared artist (optional) -->
+                            <div class="bg-black/40 rounded-xl p-4 border border-gray-700">
+                                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Penyanyi Default (opsional — bisa diubah per lagu)</p>
+                                <div id="multi-artist-tags-container" class="flex flex-wrap gap-2 mb-2 min-h-[20px]"></div>
+                                <div class="flex gap-2 relative">
+                                    <div class="relative flex-1">
+                                        <input type="text" id="multi-artist-input" class="w-full bg-black border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-spotify-green transition-colors text-sm" placeholder="Ketik penyanyi default..." autocomplete="off"
+                                            oninput="showArtistDropdown('multi')" onkeydown="handleArtistInputKey(event,'multi')" onfocus="showArtistDropdown('multi')" onblur="hideArtistDropdown('multi')">
+                                        <div id="multi-artist-dropdown" class="absolute left-0 right-0 top-full mt-1 bg-[#1a1a1a] border border-gray-700 rounded-lg shadow-2xl z-50 hidden max-h-48 overflow-y-auto"></div>
+                                    </div>
+                                    <button type="button" onclick="addMultiArtistTag()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded font-bold text-sm">+</button>
+                                </div>
+                                <input type="hidden" id="multi-artist-value">
+                            </div>
+
+                            <!-- Shared cover (optional) -->
+                            <div class="bg-black/40 rounded-xl p-4 border border-gray-700">
+                                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Cover Default (opsional — bisa diubah per lagu)</p>
+                                <div class="flex gap-4 mb-2">
+                                    <label class="flex items-center gap-2 text-sm text-gray-400 cursor-pointer hover:text-white"><input type="radio" name="multi_cover_type" value="url" checked class="accent-spotify-green"> URL</label>
+                                    <label class="flex items-center gap-2 text-sm text-gray-400 cursor-pointer hover:text-white"><input type="radio" name="multi_cover_type" value="file" class="accent-spotify-green"> Upload File</label>
+                                </div>
+                                <input type="url" id="multi-cover-url" class="w-full bg-black border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-spotify-green transition-colors text-sm" placeholder="URL cover default (opsional)">
+                                <input type="file" id="multi-cover-file" accept="image/*" class="w-full bg-black border border-gray-700 rounded p-3 text-white hidden">
+                            </div>
+
+                            <!-- Pick audio files -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Pilih File Audio (bisa banyak)</label>
+                                <input type="file" id="multi-audio-files" accept="audio/*" multiple
+                                    class="w-full bg-black border border-dashed border-gray-600 rounded-xl p-4 text-white text-sm cursor-pointer hover:border-spotify-green transition-colors"
+                                    onchange="handleMultiAudioSelect(this)">
+                            </div>
+
+                            <!-- Per-song rows -->
+                            <div id="multi-songs-list" class="space-y-3"></div>
+
+                            <!-- Submit all -->
+                            <div class="pt-4 flex justify-end gap-3">
+                                <button type="button" onclick="clearMultiUpload()" class="px-6 py-2.5 rounded-full border border-gray-600 hover:border-gray-400 text-gray-400 hover:text-white text-sm font-bold transition-colors">
+                                    Reset
+                                </button>
+                                <button type="button" onclick="submitMultiUpload()" id="btn-multi-submit"
+                                    class="bg-spotify-green hover:bg-green-400 text-black font-bold py-2.5 px-8 rounded-full transition-transform active:scale-95 text-sm flex items-center gap-2">
+                                    <i class="ph ph-cloud-arrow-up text-lg"></i>
+                                    Upload Semua
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
                     </div>
                 </div>
 
