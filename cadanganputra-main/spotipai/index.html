@@ -276,8 +276,43 @@
             <h2 class="text-2xl font-bold mb-6">Buat Playlist Baru</h2>
             <form id="create-playlist-form" class="space-y-4">
                 <div>
-                    <input type="text" id="playlist-name-input" class="w-full bg-black border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-spotify-green text-sm" placeholder="Nama Playlist (misal: Lagu Perjuangan)" required>
+                    <label class="block text-sm font-medium text-gray-300 mb-1">Nama Playlist</label>
+                    <input type="text" id="playlist-name-input" class="w-full bg-black border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-spotify-green text-sm" placeholder="Nama Playlist (misal: Lagu Santai)" required>
                 </div>
+
+                <!-- Visibility -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-300 mb-2">Visibilitas</label>
+                    <div class="flex gap-4">
+                        <label class="flex-1 flex items-center gap-2 p-3 rounded-lg border border-gray-700 cursor-pointer hover:border-spotify-green transition-colors has-[:checked]:border-spotify-green has-[:checked]:bg-spotify-green/10">
+                            <input type="radio" name="playlist_visibility" value="private" checked class="accent-spotify-green">
+                            <div>
+                                <p class="text-sm font-bold text-white">Privat</p>
+                                <p class="text-xs text-gray-500">Hanya kamu</p>
+                            </div>
+                        </label>
+                        <label class="flex-1 flex items-center gap-2 p-3 rounded-lg border border-gray-700 cursor-pointer hover:border-spotify-green transition-colors has-[:checked]:border-spotify-green has-[:checked]:bg-spotify-green/10">
+                            <input type="radio" name="playlist_visibility" value="public" class="accent-spotify-green">
+                            <div>
+                                <p class="text-sm font-bold text-white flex items-center gap-1"><i class="ph ph-globe text-spotify-green text-sm"></i> Publik</p>
+                                <p class="text-xs text-gray-500">Tampil di beranda</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Creator section (shown when public) -->
+                <div id="creator-section" class="hidden space-y-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-1">Nama Pembuat (opsional)</label>
+                        <input type="text" id="playlist-creator-input" class="w-full bg-black border border-gray-700 rounded p-3 text-white focus:outline-none focus:border-spotify-green text-sm" placeholder="Nama kamu (kosongkan untuk anonim)">
+                    </div>
+                    <label class="flex items-center gap-2 cursor-pointer select-none">
+                        <input type="checkbox" id="playlist-show-creator" class="accent-spotify-green w-4 h-4" checked>
+                        <span class="text-sm text-gray-400">Tampilkan nama pembuat di playlist publik</span>
+                    </label>
+                </div>
+
                 <div class="pt-2 flex justify-end gap-3 text-sm">
                     <button type="button" onclick="closeModal('create-playlist-modal')" class="px-6 py-2 text-white font-bold rounded-full hover:bg-gray-800">Batal</button>
                     <button type="submit" class="bg-spotify-green hover-bg-spotify-green text-black px-6 py-2 font-bold rounded-full transition-transform active:scale-95">Simpan</button>
@@ -486,10 +521,14 @@
                 <!-- Admin Menu — selalu di bawah -->
                 <div id="admin-menu" class="p-4 hidden flex-shrink-0">
                     <hr class="border-gray-800 mb-3">
-                    <p class="sidebar-full text-xs text-gray-500 font-bold mb-3 uppercase tracking-wider">Menu Admin</p>
+                    <p id="admin-menu-label" class="sidebar-full text-xs text-gray-500 font-bold mb-3 uppercase tracking-wider">Menu Admin</p>
                     <a href="#" onclick="switchTab('admin-manage')" class="nav-item flex items-center gap-4 text-spotify-green hover:text-green-400 transition-colors mb-3 px-2 py-1" data-tab="admin-manage" title="Kelola Data Lagu">
                         <i class="ph-fill ph-folder-open text-2xl flex-shrink-0"></i>
                         <span class="sidebar-full font-bold text-sm whitespace-nowrap">Kelola Data Lagu</span>
+                    </a>
+                    <a href="#" id="admin-playlists-link" onclick="switchTab('admin-playlists')" class="nav-item hidden flex items-center gap-4 text-gray-400 hover:text-white transition-colors mb-3 px-2 py-1" data-tab="admin-playlists" title="Kelola Playlist">
+                        <i class="ph-fill ph-playlist text-2xl flex-shrink-0"></i>
+                        <span class="sidebar-full font-bold text-sm whitespace-nowrap">Kelola Playlist</span>
                     </a>
                     <a href="#" onclick="switchTab('admin-add')" class="nav-item flex items-center gap-4 text-gray-400 hover:text-white transition-colors px-2 py-1" data-tab="admin-add" title="Tambah Lagu Baru">
                         <i class="ph-fill ph-plus-circle text-2xl flex-shrink-0"></i>
@@ -503,12 +542,19 @@
                 
                 <!-- Home Tab (Telah Diperbarui dengan Trending Songs & Artis) -->
                 <div id="tab-home" class="p-6 pb-24 content-tab">
-                    
-                    <h2 id="home-trending-heading" class="text-2xl font-bold mb-4 text-white">Lagu Paling Banyak Diputar</h2>
-                    <div id="trending-songs-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6 mb-8">
-                        <!-- Top Songs injected here -->
+
+                    <!-- ===== PLAYLIST DARI PENDENGAR ===== -->
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-2xl font-bold text-white">Playlist dari Pendengar</h2>
+                        <button onclick="showModal('create-playlist-modal')" class="text-sm font-bold text-gray-400 hover:text-spotify-green transition-colors flex items-center gap-1.5 px-3 py-1 rounded-full border border-transparent hover:border-gray-700">
+                            <i class="ph ph-plus text-base"></i> Buat Playlist
+                        </button>
+                    </div>
+                    <div id="public-playlists-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5 mb-8">
+                        <p class="text-gray-500 text-sm col-span-full">Memuat playlist...</p>
                     </div>
 
+                    
                     <h2 id="home-artists-heading" class="text-2xl font-bold mb-4 text-white flex items-center justify-between">
                         <span>Artis Populer</span>
                         <button id="btn-see-all-artists" onclick="showAllArtistsPage()" class="text-sm font-bold text-gray-400 transition-colors flex items-center gap-1 px-3 py-1 rounded-full border border-transparent hover:border-gray-700">
@@ -519,8 +565,6 @@
                         <!-- Top Artists injected here -->
                     </div>
 
-                    <hr class="border-gray-800 my-6">
-
                     <h2 id="songs-section-heading" class="text-2xl font-bold mb-4 text-white mt-8">Semua Lagu</h2>
                     <div id="songs-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
                         <!-- Song cards will be injected here by JS -->
@@ -528,27 +572,36 @@
                 </div>
 
                 <!-- Artist Detail Tab -->
-                <div id="tab-artist" class="p-6 pb-24 content-tab hidden">
-                    <button onclick="switchTab('home')" class="bg-black/50 px-4 py-2 rounded-full hover:bg-black text-gray-400 hover:text-white mb-6 transition-colors inline-flex items-center gap-2 text-sm font-bold shadow-lg">
-                        <i class="ph-fill ph-arrow-left text-xl"></i> Kembali
-                    </button>
-                    
-                    <div class="flex flex-col md:flex-row items-end gap-6 mb-8">
-                        <img id="artist-page-image" src="" class="w-32 h-32 md:w-48 md:h-48 rounded-full object-cover shadow-2xl border-4 border-gray-800">
-                        <div>
-                            <p class="text-sm font-bold uppercase tracking-wider text-gray-300 flex items-center gap-2">
-                                <i class="ph-fill ph-check-circle text-blue-400 text-lg"></i> Artis SpotipaiKW
-                            </p>
-                            <h2 id="artist-page-name" class="text-4xl md:text-6xl font-bold mt-1 mb-4 text-white drop-shadow-lg">Nama Artis</h2>
-                            <p class="text-gray-400 text-sm font-medium"><span id="artist-page-plays" class="text-white font-bold">0</span> kali diputar total</p>
+                <div id="tab-artist" class="pb-24 content-tab hidden">
+                    <!-- Hero header dengan background gambar artis -->
+                    <div class="relative overflow-hidden">
+                        <!-- Background blur image -->
+                        <div id="artist-page-bg" class="absolute inset-0 bg-cover bg-center" style="filter: blur(18px) brightness(0.55); transform: scale(1.08);"></div>
+                        <!-- Dark overlay gradient -->
+                        <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-[#121212]"></div>
+                        <!-- Content -->
+                        <div class="relative z-10 p-6 pb-10 pt-6">
+                            <button onclick="switchTab('home')" class="bg-black/50 px-4 py-2 rounded-full hover:bg-black/80 text-gray-300 hover:text-white mb-8 transition-colors inline-flex items-center gap-2 text-sm font-bold shadow-lg backdrop-blur-sm">
+                                <i class="ph-fill ph-arrow-left text-xl"></i> Kembali
+                            </button>
+                            <div class="flex flex-col md:flex-row items-end gap-6">
+                                <img id="artist-page-image" src="" class="w-36 h-36 md:w-52 md:h-52 rounded-full object-cover shadow-2xl border-4 border-white/10 flex-shrink-0">
+                                <div class="pb-2">
+                                    <p class="text-sm font-bold uppercase tracking-wider text-gray-300 flex items-center gap-2 mb-1">
+                                        <i class="ph-fill ph-check-circle text-blue-400 text-lg"></i> Artis SpotipaiKW
+                                    </p>
+                                    <h2 id="artist-page-name" class="text-4xl md:text-6xl font-extrabold mt-1 mb-3 text-white drop-shadow-lg leading-tight">Nama Artis</h2>
+                                    <p class="text-gray-300 text-sm font-medium"><span id="artist-page-plays" class="text-white font-bold">0</span> kali diputar total</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    
-                    <hr class="border-gray-800 my-8">
 
-                    <h2 class="text-xl font-bold mb-6 text-white">Lagu oleh <span id="artist-page-name-sub" class="text-spotify-green">Artis</span></h2>
-                    <div id="artist-songs-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-                        <!-- Artist songs injected here -->
+                    <div class="px-6">
+                        <h2 class="text-xl font-bold mb-6 mt-6 text-white">Lagu oleh <span id="artist-page-name-sub" class="text-spotify-green">Artis</span></h2>
+                        <div id="artist-songs-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+                            <!-- Artist songs injected here -->
+                        </div>
                     </div>
                 </div>
 
@@ -608,8 +661,20 @@
 
                 <!-- Library Tab (Perpustakaan) -->
                 <div id="tab-library" class="p-6 pb-24 content-tab hidden">
-                    <h2 class="text-2xl font-bold mb-6">Perpustakaan Lagu Spotipai KW</h2>
-                    <p class="text-gray-400 mb-6">Semua arsip pergerakan dan musik tertata rapi di sini.</p>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white">Perpustakaan Lagu Spotipai KW</h2>
+                            <p class="text-gray-400 text-sm mt-1">Semua arsip pergerakan dan musik tertata rapi di sini.</p>
+                        </div>
+                        <!-- Searchbar perpustakaan -->
+                        <div class="relative w-full sm:w-72 flex-shrink-0">
+                            <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg"></i>
+                            <input type="text" id="library-search-input"
+                                placeholder="Cari judul atau penyanyi..."
+                                class="w-full bg-black border border-gray-700 rounded-full py-2 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-spotify-green transition-colors placeholder-gray-500"
+                                oninput="filterLibrary(this.value)">
+                        </div>
+                    </div>
                     <div class="bg-black/40 rounded-xl border border-gray-800 overflow-hidden">
                         <table class="w-full text-left text-sm text-gray-400">
                             <thead class="text-xs uppercase bg-black/60 text-gray-500 border-b border-gray-800">
@@ -664,13 +729,22 @@
                     <div id="playlist-detail-view" class="hidden">
                         <!-- Playlist header -->
                         <div class="flex flex-col sm:flex-row items-end gap-5 mb-8">
-                            <div class="w-40 h-40 sm:w-52 sm:h-52 flex-shrink-0 bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center shadow-2xl rounded-lg" id="playlist-detail-cover">
-                                <i class="ph ph-music-notes text-6xl text-gray-500"></i>
+                            <!-- Cover — klik untuk ganti -->
+                            <div class="relative group/cover flex-shrink-0" id="playlist-detail-cover-wrap">
+                                <div class="w-40 h-40 sm:w-52 sm:h-52 flex-shrink-0 bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center shadow-2xl rounded-lg overflow-hidden" id="playlist-detail-cover">
+                                    <i class="ph ph-music-notes text-6xl text-gray-500"></i>
+                                </div>
+                                <!-- Edit overlay -->
+                                <label id="playlist-cover-edit-btn" class="hidden absolute inset-0 bg-black/60 rounded-lg flex-col items-center justify-center cursor-pointer group-hover/cover:flex transition-all">
+                                    <i class="ph ph-pencil-simple text-2xl text-white mb-1"></i>
+                                    <span class="text-xs text-white font-bold">Ganti Cover</span>
+                                    <input type="file" id="playlist-cover-file-input" accept="image/*" class="hidden" onchange="handlePlaylistCoverChange(this)">
+                                </label>
                             </div>
                             <div class="pb-2 flex-1 min-w-0">
                                 <p class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-1">Playlist</p>
                                 <h2 id="detail-playlist-title" class="text-3xl sm:text-5xl font-extrabold text-white mb-3 leading-tight truncate">Nama Playlist</h2>
-                                <p class="text-gray-400 text-sm font-medium flex items-center gap-1.5">
+                                <p id="detail-playlist-creator" class="text-gray-400 text-sm font-medium flex items-center gap-1.5 mb-0">
                                     <i class="ph-fill ph-spotify-logo text-spotify-green text-base"></i>
                                     spotipaiKW
                                 </p>
@@ -843,7 +917,7 @@
                 <!-- Admin: Kelola Lagu -->
                 <div id="tab-admin-manage" class="p-4 sm:p-6 pb-24 content-tab hidden">
                     <div class="w-full bg-spotify-elevated p-6 sm:p-8 rounded-xl border border-gray-800">
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 border-b border-gray-700 pb-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 border-b border-gray-700 pb-4">
                             <div class="flex items-center gap-3">
                                 <i class="ph-fill ph-folder-open text-3xl text-spotify-green"></i>
                                 <h2 class="text-xl sm:text-2xl font-bold">Kelola Data Lagu</h2>
@@ -851,6 +925,14 @@
                             <button onclick="switchTab('admin-add')" class="bg-spotify-green hover:bg-green-400 text-black px-4 py-2 rounded-full font-bold text-sm transition-colors md:hidden">
                                 + Tambah Lagu
                             </button>
+                        </div>
+                        <!-- Searchbar kelola lagu -->
+                        <div class="relative mb-4">
+                            <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg"></i>
+                            <input type="text" id="admin-manage-search-input"
+                                placeholder="Cari judul atau penyanyi..."
+                                class="w-full bg-black border border-gray-700 rounded-full py-2 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-spotify-green transition-colors placeholder-gray-500"
+                                oninput="filterAdminLibrary(this.value)">
                         </div>
                         <div class="overflow-x-auto text-sm">
                             <table class="w-full text-left text-gray-400">
@@ -865,6 +947,24 @@
                                     <!-- List populated by JS -->
                                 </tbody>
                             </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin: Kelola Playlist Publik -->
+                <div id="tab-admin-playlists" class="p-4 sm:p-6 pb-24 content-tab hidden">
+                    <div class="w-full bg-spotify-elevated p-6 sm:p-8 rounded-xl border border-gray-800">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 border-b border-gray-700 pb-4">
+                            <div class="flex items-center gap-3">
+                                <i class="ph-fill ph-playlist text-3xl text-spotify-green"></i>
+                                <h2 class="text-xl sm:text-2xl font-bold">Kelola Playlist Publik</h2>
+                            </div>
+                            <button onclick="loadAdminPlaylists()" class="text-gray-400 hover:text-white text-sm flex items-center gap-2 border border-gray-700 px-4 py-2 rounded-full transition-colors">
+                                <i class="ph ph-arrows-clockwise text-base"></i> Refresh
+                            </button>
+                        </div>
+                        <div id="admin-playlists-list" class="space-y-2">
+                            <p class="text-gray-500 text-sm text-center py-8">Memuat...</p>
                         </div>
                     </div>
                 </div>
