@@ -102,6 +102,9 @@ function handleUploadBtn() {
         isUploaderMode = true;
         updateUploadBtn();
         document.getElementById('admin-menu').classList.remove('hidden');
+        // Uploader tamu: label "Menu Uploader"
+        const menuLabel = document.getElementById('admin-menu-label');
+        if (menuLabel) menuLabel.textContent = 'Menu Uploader';
 // Uploader tamu: tampilkan menu Kelola (hanya lagu sendiri) + Tambah Lagu
         const manageLink = document.getElementById('admin-menu').querySelector('[data-tab="admin-manage"]');
         if (manageLink) manageLink.style.display = '';
@@ -588,9 +591,14 @@ function initLoginForm() {
         document.getElementById('auth-user-info').classList.add('flex');
         document.getElementById('user-greeting').innerText = `Halo, ${user}`;
         document.getElementById('admin-menu').classList.remove('hidden');
-        // Admin sadmin tampilkan semua menu
+        // Admin sadmin tampilkan semua menu + label "Menu Admin"
+        const menuLabelAdmin = document.getElementById('admin-menu-label');
+        if (menuLabelAdmin) menuLabelAdmin.textContent = 'Menu Admin';
         const manageLink = document.getElementById('admin-menu').querySelector('[data-tab="admin-manage"]');
         if (manageLink) manageLink.style.display = '';
+        // Tampilkan Kelola Playlist hanya untuk sadmin
+        const playlistsLink = document.getElementById('admin-playlists-link');
+        if (playlistsLink) playlistsLink.classList.remove('hidden');
         const mobileBtn = document.getElementById('mobile-admin-btn');
         if (mobileBtn) { mobileBtn.classList.remove('hidden'); mobileBtn.classList.add('flex'); }
 
@@ -611,6 +619,9 @@ function logout() {
     document.getElementById('auth-user-info').classList.add('hidden');
     document.getElementById('auth-user-info').classList.remove('flex');
     document.getElementById('admin-menu').classList.add('hidden');
+    // Reset Kelola Playlist link
+    const playlistsLinkLogout = document.getElementById('admin-playlists-link');
+    if (playlistsLinkLogout) playlistsLinkLogout.classList.add('hidden');
     const mobileBtn = document.getElementById('mobile-admin-btn');
     if (mobileBtn) { mobileBtn.classList.add('hidden'); mobileBtn.classList.remove('flex'); }
     document.getElementById('login-form').reset();
@@ -668,6 +679,13 @@ function switchTab(tabId) {
         }
         renderAdminLibrary();
     }
+    else if (tabId === 'admin-playlists') {
+        if (!currentUser || currentUser.role !== 'admin') {
+            showMessage('Akses ditolak. Hanya sadmin.', 'error');
+            switchTab('home'); return;
+        }
+        loadAdminPlaylists();
+    }
     else if (tabId === 'admin-add') populateArtistSuggestions();
     else if (tabId === 'about') {
         const mainEl = document.querySelector('main');
@@ -683,45 +701,46 @@ function switchTab(tabId) {
 // ==========================================
 // RENDER HOME
 // ==========================================
-function renderHome() {
-    const trendingContainer = document.getElementById('trending-songs-grid');
-    const artistContainer = document.getElementById('trending-artists-grid');
-    const allContainer = document.getElementById('songs-grid');
-    if (!trendingContainer || !artistContainer || !allContainer) return;
 
-    const trendingSongs = [...songs].sort((a, b) => (b.playCount || 0) - (a.playCount || 0)).slice(0, 6);
-    renderSongs(trendingSongs, trendingContainer, 'trending');
+// Update hanya bagian artis populer tanpa re-render grid semua lagu
+// Ini mencegah re-shuffle saat play count diupdate
+function renderTrendingOnly() {
+    const artistContainer = document.getElementById('trending-artists-grid');
+    if (!artistContainer) return;
 
     const artistMap = {};
     songs.forEach(s => {
         if (!s.artist) return;
-        const artistNames = getArtistNames(s.artist);
-        artistNames.forEach(artistName => {
-            if (!artistMap[artistName]) {
-                artistMap[artistName] = { name: artistName, playCount: 0, image: s.coverUrl };
-            }
+        getArtistNames(s.artist).forEach(artistName => {
+            if (!artistMap[artistName]) artistMap[artistName] = { name: artistName, playCount: 0, image: s.coverUrl };
             artistMap[artistName].playCount += (s.playCount || 0);
         });
     });
     const trendingArtists = Object.values(artistMap).sort((a, b) => b.playCount - a.playCount).slice(0, 10);
-
     artistContainer.innerHTML = '';
     if (trendingArtists.length === 0) {
         artistContainer.innerHTML = '<p class="text-gray-500 text-sm">Belum ada artis terdaftar.</p>';
-    } else {
-        trendingArtists.forEach(art => {
-            const escapedName = art.name.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-            const div = document.createElement('div');
-            div.className = 'flex flex-col items-center gap-3 cursor-pointer group min-w-[120px]';
-            div.setAttribute('onclick', `showArtistPage('${escapedName}')`);
-            div.innerHTML = `
-                <div class="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden shadow-lg group-hover:shadow-spotify-green/20 transition-all">
-                    <img src="${art.image}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 pointer-events-none select-none" draggable="false">
-                </div>
-                <span class="text-sm font-bold text-white text-center w-full truncate group-hover:text-spotify-green transition-colors">${art.name}</span>`;
-            artistContainer.appendChild(div);
-        });
+        return;
     }
+    trendingArtists.forEach(art => {
+        const escapedName = art.name.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+        const div = document.createElement('div');
+        div.className = 'flex flex-col items-center gap-3 cursor-pointer group min-w-[120px]';
+        div.setAttribute('onclick', `showArtistPage('${escapedName}')`);
+        div.innerHTML = `
+            <div class="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden shadow-lg group-hover:shadow-spotify-green/20 transition-all">
+                <img src="${art.image}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 pointer-events-none select-none" draggable="false">
+            </div>
+            <span class="text-sm font-bold text-white text-center w-full truncate group-hover:text-spotify-green transition-colors">${art.name}</span>`;
+        artistContainer.appendChild(div);
+    });
+}
+
+function renderHome() {
+    const allContainer = document.getElementById('songs-grid');
+    if (!allContainer) return;
+
+    renderTrendingOnly();
 
     // "Semua Lagu" — selalu ditampilkan acak setiap render
     const shuffledSongs = [...songs].sort(() => Math.random() - 0.5);
@@ -794,6 +813,10 @@ function showArtistPage(artistName) {
     document.getElementById('artist-page-name-sub').innerText = artistName;
     document.getElementById('artist-page-plays').innerText = totalPlays;
     document.getElementById('artist-page-image').src = artistImage;
+
+    // Set blurred background image
+    const bgEl = document.getElementById('artist-page-bg');
+    if (bgEl) bgEl.style.backgroundImage = `url('${artistImage}')`;
 
     renderSongs(artistSongs, document.getElementById('artist-songs-grid'), 'artist');
 }
@@ -869,42 +892,166 @@ function renderCustomPlaylists() {
     });
 }
 
+let currentOpenPlaylistId = null; // Track which playlist is open for cover editing
+
 function showPlaylistDetails(id) {
+    currentOpenPlaylistId = id;
+
+    // Hide all collection-level UI
     document.getElementById('custom-playlists-grid').classList.add('hidden');
-    const banners = document.querySelectorAll('#tab-collection > div.cursor-pointer');
-    if (banners.length > 0) banners[0].classList.add('hidden');
+    // Hide liked songs banner (first direct child div with cursor-pointer)
+    const likedBanner = document.querySelector('#tab-collection > div.cursor-pointer, #tab-collection > div.group');
+    if (likedBanner) likedBanner.classList.add('hidden');
+    // Hide "Playlist Kamu" heading row
+    const playlistsHeading = document.querySelector('#tab-collection > div.flex.items-center');
+    if (playlistsHeading) playlistsHeading.classList.add('hidden');
     const hr = document.querySelector('#tab-collection > hr');
     if (hr) hr.classList.add('hidden');
-    const title = document.querySelector('#tab-collection > div.flex.items-center');
-    if (title) title.classList.add('hidden');
+
     const detailView = document.getElementById('playlist-detail-view');
     const detailSongs = document.getElementById('detail-playlist-songs');
     const titleElem = document.getElementById('detail-playlist-title');
     const deleteBtn = document.getElementById('delete-playlist-btn');
+    const coverEl = document.getElementById('playlist-detail-cover');
+    const coverEditBtn = document.getElementById('playlist-cover-edit-btn');
+    const creatorEl = document.getElementById('detail-playlist-creator');
     detailView.classList.remove('hidden');
+
+    // Reset cover
+    if (coverEl) {
+        coverEl.className = 'w-40 h-40 sm:w-52 sm:h-52 flex-shrink-0 flex items-center justify-center shadow-2xl rounded-lg overflow-hidden';
+        coverEl.innerHTML = '<i class="ph ph-music-notes text-6xl text-gray-500"></i>';
+    }
+    if (coverEditBtn) coverEditBtn.classList.add('hidden');
+    if (creatorEl) creatorEl.innerHTML = `<i class="ph-fill ph-spotify-logo text-spotify-green text-base"></i> spotipaiKW`;
+
     if (id === 'liked') {
-        titleElem.innerText = "Lagu yang Disukai";
+        if (titleElem) titleElem.innerText = 'Lagu yang Disukai';
+        // Liked banner cover
+        if (coverEl) {
+            coverEl.className = 'w-40 h-40 sm:w-52 sm:h-52 flex-shrink-0 bg-gradient-to-br from-purple-700 via-indigo-600 to-blue-400 flex items-center justify-center shadow-2xl rounded-lg';
+            coverEl.innerHTML = '<i class="ph-fill ph-heart text-7xl text-white drop-shadow-lg"></i>';
+        }
         renderSongs(songs.filter(s => likedSongsIds.includes(s.id)), detailSongs, 'liked');
         if (deleteBtn) deleteBtn.classList.add('hidden');
+        const playBtn = document.getElementById('playlist-detail-play-btn');
+        if (playBtn) playBtn.onclick = () => {
+            const likedSongs = songs.filter(s => likedSongsIds.includes(s.id));
+            if (likedSongs.length) playSong(songs.findIndex(s => s.id === likedSongs[0].id), likedSongs);
+        };
     } else {
         const pl = customPlaylists.find(p => p.id === id);
         if (pl) {
-            titleElem.innerText = pl.name;
-            renderSongs(songs.filter(s => pl.songs.includes(s.id)), detailSongs, id);
-            if (deleteBtn) { deleteBtn.classList.remove('hidden'); deleteBtn.onclick = () => promptDeletePlaylist(id); }
+            if (titleElem) titleElem.innerText = pl.name;
+            const plSongs = songs.filter(s => pl.songs.includes(s.id));
+
+            // Cover from first song, or custom cover
+            if (coverEl) {
+                const firstSong = plSongs[0];
+                const customCover = pl.customCover || '';
+                if (customCover) {
+                    coverEl.innerHTML = `<img src="${customCover}" class="w-full h-full object-cover">`;
+                } else if (firstSong) {
+                    coverEl.innerHTML = `<img src="${firstSong.coverUrl}" class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='<i class=\\'ph ph-music-notes text-6xl text-gray-500\\'></i>'">`;
+                }
+            }
+
+            // Edit cover dinonaktifkan
+            if (coverEditBtn) coverEditBtn.classList.add('hidden');
+
+            // Creator info for public playlists
+            if (pl.isPublic) {
+                const pubData = publicPlaylists.find(p => p.id === id);
+                if (pubData && creatorEl) {
+                    const creator = pubData.show_creator && pubData.creator_name
+                        ? `oleh <span class="text-white font-semibold">${pubData.creator_name}</span>`
+                        : 'Playlist Publik';
+                    creatorEl.innerHTML = `<i class="ph-fill ph-spotify-logo text-spotify-green text-base"></i> spotipaiKW · ${creator} · <span class="text-spotify-green"><i class="ph ph-globe text-xs"></i> Publik</span>`;
+                }
+            }
+
+            renderSongs(plSongs, detailSongs, id);
+
+            // Hapus: hanya milik sendiri atau sadmin
+            const isOwnPlaylist = !pl.isPublic || pl._ownedThisSession;
+            if (deleteBtn) {
+                if (isOwnPlaylist || currentUser?.role === 'admin') {
+                    deleteBtn.classList.remove('hidden');
+                    deleteBtn.onclick = () => promptDeletePlaylist(id);
+                } else {
+                    deleteBtn.classList.add('hidden');
+                }
+            }
+            const playBtn = document.getElementById('playlist-detail-play-btn');
+            if (playBtn) playBtn.onclick = () => {
+                if (plSongs.length) {
+                    playSong(songs.findIndex(s => s.id === plSongs[0].id), plSongs);
+                    // Update play count realtime di beranda
+                    incrementPublicPlaylistPlayCount(id).then(() => renderPublicPlaylists());
+                }
+            };
         }
     }
 }
 
 function closePlaylistDetails() {
+    currentOpenPlaylistId = null;
     document.getElementById('playlist-detail-view').classList.add('hidden');
     document.getElementById('custom-playlists-grid').classList.remove('hidden');
-    const banners = document.querySelectorAll('#tab-collection > div.cursor-pointer');
-    if (banners.length > 0) banners[0].classList.remove('hidden');
+    const likedBanner = document.querySelector('#tab-collection > div.cursor-pointer, #tab-collection > div.group');
+    if (likedBanner) likedBanner.classList.remove('hidden');
+    const playlistsHeading = document.querySelector('#tab-collection > div.flex.items-center');
+    if (playlistsHeading) playlistsHeading.classList.remove('hidden');
     const hr = document.querySelector('#tab-collection > hr');
     if (hr) hr.classList.remove('hidden');
-    const title = document.querySelector('#tab-collection > div.flex.items-center');
-    if (title) title.classList.remove('hidden');
+}
+
+// Handle cover image change for a playlist
+async function handlePlaylistCoverChange(input) {
+    const file = input.files[0];
+    if (!file || !currentOpenPlaylistId) return;
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+        const dataUrl = e.target.result;
+        const coverEl = document.getElementById('playlist-detail-cover');
+
+        // Update preview
+        if (coverEl) coverEl.innerHTML = `<img src="${dataUrl}" class="w-full h-full object-cover">`;
+
+        // Save to local playlist
+        const pl = customPlaylists.find(p => p.id === currentOpenPlaylistId);
+        if (pl) {
+            // Try upload to Supabase storage if available, otherwise use data URL
+            let finalCoverUrl = dataUrl;
+            if (supabaseClient) {
+                try {
+                    const path = `covers/playlist_${currentOpenPlaylistId}_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '')}`;
+                    const { error } = await supabaseClient.storage.from('media').upload(path, file);
+                    if (!error) {
+                        finalCoverUrl = supabaseClient.storage.from('media').getPublicUrl(path).data.publicUrl;
+                    }
+                } catch(e) { /* fallback to dataUrl */ }
+            }
+            pl.customCover = finalCoverUrl;
+            localStorage.setItem('bemspotipai_playlists', JSON.stringify(customPlaylists));
+
+            // Sync to Supabase if public
+            if (pl.isPublic && supabaseClient) {
+                try {
+                    await supabaseClient.from('public_playlists').update({ cover_url: finalCoverUrl }).eq('id', pl.id);
+                    const pubPl = publicPlaylists.find(p => p.id === pl.id);
+                    if (pubPl) pubPl.cover_url = finalCoverUrl;
+                    renderPublicPlaylists();
+                } catch(e) { console.error('Gagal sync cover:', e); }
+            }
+            // Refresh grids
+            renderCustomPlaylists();
+            renderSidebarPlaylists();
+            showMessage('Cover playlist berhasil diubah');
+        }
+    };
+    reader.readAsDataURL(file);
 }
 
 function promptDeletePlaylist(id) { playlistToDelete = id; showModal('delete-playlist-modal'); }
@@ -921,10 +1068,19 @@ function openAddToPlaylistModal(songId) {
             btn.className = "w-full text-left px-4 py-3 bg-gray-800 hover:bg-gray-700 rounded text-white text-sm font-medium transition-colors flex justify-between items-center";
             const isAdded = pl.songs.includes(songId);
             btn.innerHTML = `<span>${pl.name}</span>${isAdded ? '<i class="ph-fill ph-check-circle text-spotify-green text-lg"></i>' : '<i class="ph ph-plus text-gray-400 text-lg"></i>'}`;
-            btn.onclick = () => {
+            btn.onclick = async () => {
                 if (isAdded) { pl.songs = pl.songs.filter(id => id !== songId); showMessage(`Dihapus dari '${pl.name}'`, 'error'); }
                 else { pl.songs.push(songId); showMessage(`Ditambahkan ke '${pl.name}'`); }
                 localStorage.setItem('bemspotipai_playlists', JSON.stringify(customPlaylists));
+                // Sync ke Supabase jika playlist publik
+                if (pl.isPublic && supabaseClient) {
+                    try {
+                        await supabaseClient.from('public_playlists').update({ song_ids: pl.songs }).eq('id', pl.id);
+                        // Update cache
+                        const pubPl = publicPlaylists.find(p => p.id === pl.id);
+                        if (pubPl) pubPl.song_ids = pl.songs;
+                    } catch(e) { console.error('Gagal sync playlist ke Supabase:', e); }
+                }
                 closeModal('add-to-playlist-modal');
             };
             container.appendChild(btn);
@@ -952,7 +1108,11 @@ function createSongCard(song, index, playlistId = null, contextQueue = null) {
     const fallbackImg = 'https://images.unsplash.com/photo-1614613535308-eb51bd3d2c17?w=300&q=80';
     const isLiked = likedSongsIds.includes(song.id);
     let removeBtnHtml = '';
-    if (playlistId && !['liked','trending','all','artist'].includes(playlistId)) {
+    const isPublicPlaylist = playlistId && playlistId.startsWith('pub_');
+    const canRemove = playlistId
+        && !['liked','trending','all','artist'].includes(playlistId)
+        && (!isPublicPlaylist || (currentUser && currentUser.role === 'admin'));
+    if (canRemove) {
         removeBtnHtml = `<button class="absolute top-2 left-2 w-8 h-8 flex items-center justify-center rounded-full bg-red-500/80 hover:bg-red-600 text-white transition-colors opacity-0 group-hover:opacity-100 z-20 shadow-md" title="Hapus dari Playlist"><i class="ph ph-trash text-lg"></i></button>`;
     }
     card.innerHTML = `
@@ -975,7 +1135,7 @@ function createSongCard(song, index, playlistId = null, contextQueue = null) {
 
     // Tombol hapus dari playlist
     const btnRemove = card.querySelector('.absolute.top-2.left-2');
-    if (btnRemove && playlistId && !['liked','trending','all','artist'].includes(playlistId)) {
+    if (btnRemove && canRemove) {
         btnRemove.onclick = (e) => { e.stopPropagation(); removeSongFromPlaylist(playlistId, song.id); };
     }
 
@@ -1043,6 +1203,73 @@ function renderAdminLibrary() {
         return;
     }
     visibleSongs.forEach(song => {
+        const tr = document.createElement('tr');
+        tr.className = "border-b border-gray-800 hover:bg-gray-800/30 transition-colors";
+        tr.innerHTML = `
+            <td class="px-4 py-2.5"><div class="flex items-center gap-3 overflow-hidden">
+                <img src="${song.coverUrl}" class="w-10 h-10 rounded object-cover shadow hidden sm:block flex-shrink-0" onerror="this.src='https://images.unsplash.com/photo-1614613535308-eb51bd3d2c17?w=150&q=80'">
+                <div class="min-w-0"><p class="truncate font-bold text-sm text-white">${song.title}</p><p class="text-xs text-gray-500 truncate">${song.artist}</p></div>
+            </div></td>
+            <td class="px-4 py-2.5 text-center text-xs text-gray-400">${song.playCount || 0}</td>
+            <td class="px-4 py-2.5 text-right"><div class="flex items-center justify-end gap-2">
+                ${isAdmin ? `<button onclick="event.stopPropagation(); downloadSong('${song.audioUrl}', '${song.title.replace(/'/g, "\\'")}')" class="text-blue-400 hover:text-white transition-colors p-2 bg-blue-500/20 hover:bg-blue-500/40 rounded-full w-9 h-9 flex items-center justify-center" title="Download Audio"><i class="ph-fill ph-download-simple text-lg"></i></button>` : ''}
+                <button onclick="event.stopPropagation(); openEditSongModal('${song.id}')" class="text-yellow-500 hover:text-white transition-colors p-2 bg-yellow-500/20 hover:bg-yellow-500/40 rounded-full w-9 h-9 flex items-center justify-center" title="Edit Lagu"><i class="ph-fill ph-pencil-simple text-lg"></i></button>
+                <button onclick="event.stopPropagation(); promptDeleteSong('${song.id}')" class="text-red-500 hover:text-white transition-colors p-2 bg-red-500/20 hover:bg-red-500/40 rounded-full w-9 h-9 flex items-center justify-center" title="Hapus Lagu"><i class="ph-fill ph-trash text-lg"></i></button>
+            </div></td>`;
+        tbody.appendChild(tr);
+    });
+}
+
+// ==========================================
+// LIBRARY / ADMIN SEARCH FILTER
+// ==========================================
+function filterLibrary(query) {
+    const tbody = document.getElementById('library-list');
+    if (!tbody) return;
+    const q = query.trim().toLowerCase();
+    if (!q) { renderLibrary(); return; }
+
+    const filtered = songs.map((song, i) => ({ song, i }))
+        .filter(({ song }) => song.title.toLowerCase().includes(q) || song.artist.toLowerCase().includes(q));
+
+    tbody.innerHTML = '';
+    if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-6 text-center text-gray-500 text-sm">Tidak ada lagu yang cocok dengan "<span class="text-white">${query}</span>"</td></tr>`;
+        return;
+    }
+    filtered.forEach(({ song, i }, rowNum) => {
+        const tr = document.createElement('tr');
+        tr.className = "border-b border-gray-800 hover:bg-gray-800/40 transition-colors cursor-pointer";
+        tr.onclick = () => playSong(i);
+        tr.innerHTML = `
+            <td class="px-6 py-4">${rowNum + 1}</td>
+            <td class="px-6 py-4 font-medium text-white flex items-center gap-3"><img src="${song.coverUrl}" class="w-10 h-10 rounded object-cover shadow" onerror="this.src='https://images.unsplash.com/photo-1614613535308-eb51bd3d2c17?w=150&q=80'"><div class="truncate max-w-[150px] sm:max-w-xs text-sm">${song.title}</div></td>
+            <td class="px-6 py-4 truncate max-w-[120px] text-sm">${song.artist}</td>
+            <td class="px-6 py-4 truncate text-sm text-gray-400"><i class="ph-fill ph-headphones mr-1"></i>${song.playCount || 0}</td>
+            <td class="px-6 py-4 text-right"><div class="flex items-center justify-end gap-3">
+                <button onclick="event.stopPropagation(); playSong(${i})" class="text-spotify-green hover:scale-110 transition-transform flex items-center justify-center" title="Putar"><i class="ph-fill ph-play-circle text-3xl"></i></button>
+                <button onclick="event.stopPropagation(); attemptDownload('${song.audioUrl}', '${song.title.replace(/'/g, "\\'")}')" class="text-blue-400 hover:text-white transition-all p-2 bg-blue-500/20 hover:bg-blue-500/40 rounded-full w-10 h-10 flex items-center justify-center" title="Download Audio"><i class="ph-bold ph-download-simple text-xl"></i></button>
+            </div></td>`;
+        tbody.appendChild(tr);
+    });
+}
+
+function filterAdminLibrary(query) {
+    const tbody = document.getElementById('admin-library-list');
+    if (!tbody) return;
+    const q = query.trim().toLowerCase();
+    if (!q) { renderAdminLibrary(); return; }
+
+    const isAdmin = currentUser && currentUser.role === 'admin';
+    const sourceSongs = isAdmin ? songs : songs.filter(s => uploaderSessionSongIds.includes(s.id));
+    const filtered = sourceSongs.filter(s => s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q));
+
+    tbody.innerHTML = '';
+    if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="3" class="px-4 py-6 text-center text-gray-500 text-sm">Tidak ada lagu yang cocok dengan "<span class="text-white">${query}</span>"</td></tr>`;
+        return;
+    }
+    filtered.forEach(song => {
         const tr = document.createElement('tr');
         tr.className = "border-b border-gray-800 hover:bg-gray-800/30 transition-colors";
         tr.innerHTML = `
@@ -1299,18 +1526,35 @@ async function playSong(index, contextQueue = null) {
 
 async function incrementPlayCount(songId) {
     const now = Date.now();
-    const lastPlayed = window._lastPlayedTime || {};
-    if (lastPlayed[songId] && (now - lastPlayed[songId]) < 60000) return;
-    lastPlayed[songId] = now; window._lastPlayedTime = lastPlayed;
+    const isAdmin = currentUser && currentUser.role === 'admin';
+
+    if (!isAdmin) {
+        // Non-admin: throttle — max 1 increment per 60 detik per lagu
+        const lastPlayed = window._lastPlayedTime || {};
+        if (lastPlayed[songId] && (now - lastPlayed[songId]) < 60000) return;
+        lastPlayed[songId] = now; window._lastPlayedTime = lastPlayed;
+    }
+    // Admin sadmin: tidak ada delay, setiap klik langsung increment
+
     const songIndex = songs.findIndex(s => s.id === songId);
     if (songIndex !== -1) songs[songIndex].playCount = (songs[songIndex].playCount || 0) + 1;
+
+    // Hanya update bagian trending (bukan re-render seluruh halaman)
+    // agar grid "Semua Lagu" tidak ter-shuffle ulang saat klik lagu
     const activeTabEl = document.querySelector('.content-tab:not(.hidden)');
-    if (activeTabEl && activeTabEl.id === 'tab-home') renderHome();
+    if (activeTabEl && activeTabEl.id === 'tab-home') renderTrendingOnly();
     if (activeTabEl && activeTabEl.id === 'tab-library') renderLibrary();
+
     if (!supabaseClient) return;
     try {
-        const { data } = await supabaseClient.from('songs').select('play_count').eq('id', songId).single();
-        if (data) await supabaseClient.from('songs').update({ play_count: (data.play_count || 0) + 1 }).eq('id', songId);
+        if (isAdmin) {
+            // Admin: langsung update tanpa baca dulu (lebih cepat, tidak throttled)
+            const { data } = await supabaseClient.from('songs').select('play_count').eq('id', songId).single();
+            if (data) await supabaseClient.from('songs').update({ play_count: (data.play_count || 0) + 1 }).eq('id', songId);
+        } else {
+            const { data } = await supabaseClient.from('songs').select('play_count').eq('id', songId).single();
+            if (data) await supabaseClient.from('songs').update({ play_count: (data.play_count || 0) + 1 }).eq('id', songId);
+        }
     } catch (err) { console.error("Gagal menambah jumlah putar:", err); }
 }
 
@@ -1831,6 +2075,7 @@ async function loadPublicData() {
         showMessage('Peringatan: URL Supabase belum diisi di kode', 'error');
     }
     renderHome(); renderLibrary(); populateArtistSuggestions();
+    loadPublicPlaylists(); // Load playlist publik dari pendengar
 }
 
 // ==========================================
@@ -1866,29 +2111,318 @@ function initRadioToggles() {
 }
 
 // ==========================================
+// PUBLIC PLAYLISTS (Supabase)
+// ==========================================
+let publicPlaylists = []; // Cache dari Supabase
+
+// Load + render public playlists di beranda
+async function loadPublicPlaylists() {
+    if (!supabaseClient) return;
+    try {
+        const { data, error } = await supabaseClient
+            .from('public_playlists')
+            .select('*')
+            .eq('is_public', true)
+            .order('play_count', { ascending: false });
+        if (error) throw error;
+        publicPlaylists = data || [];
+    } catch (e) {
+        console.error('Gagal memuat public playlists:', e);
+        publicPlaylists = [];
+    }
+    renderPublicPlaylists();
+}
+
+function renderPublicPlaylists() {
+    const grid = document.getElementById('public-playlists-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    if (publicPlaylists.length === 0) {
+        grid.innerHTML = '<p class="text-gray-500 text-sm col-span-full">Belum ada playlist publik. Jadilah yang pertama!</p>';
+        return;
+    }
+
+    publicPlaylists.forEach(pl => {
+        const songIds = Array.isArray(pl.song_ids) ? pl.song_ids : (pl.song_ids || []);
+        const coverSong = songs.find(s => songIds.includes(s.id));
+        const coverUrl = pl.cover_url || coverSong?.coverUrl || 'https://images.unsplash.com/photo-1614613535308-eb51bd3d2c17?w=300&q=80';
+        const songCount = songIds.length;
+        const creatorLine = pl.show_creator && pl.creator_name
+            ? `<p class="text-xs text-gray-500 truncate mt-0.5">oleh ${pl.creator_name}</p>`
+            : `<p class="text-xs text-gray-500 truncate mt-0.5">${songCount} lagu</p>`;
+
+        const card = document.createElement('div');
+        card.className = 'bg-spotify-elevated p-4 rounded-md hover:bg-spotify-highlight transition-colors cursor-pointer group';
+        card.onclick = () => openPublicPlaylistDetail(pl.id);
+        card.innerHTML = `
+            <div class="relative mb-3 pb-[100%] shadow-lg rounded overflow-hidden">
+                <img src="${coverUrl}" class="song-card-img absolute top-0 left-0 w-full h-full object-cover"
+                    onerror="this.src='https://images.unsplash.com/photo-1614613535308-eb51bd3d2c17?w=300&q=80'">
+                <button class="absolute bottom-2 right-2 bg-spotify-green text-black rounded-full w-10 h-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all shadow-xl hover:scale-105 hover:bg-green-400 z-10">
+                    <i class="ph-fill ph-play text-xl ml-0.5"></i>
+                </button>
+                ${pl.play_count > 0 ? `` : ''}
+            </div>
+            <h3 class="font-bold text-white text-sm truncate">${pl.name}</h3>
+            ${creatorLine}`;
+
+        // Play button
+        card.querySelector('button').onclick = (e) => {
+            e.stopPropagation();
+            playPublicPlaylist(pl);
+            // Update count after playing
+            setTimeout(() => renderPublicPlaylists(), 600);
+        };
+        grid.appendChild(card);
+    });
+}
+
+async function openPublicPlaylistDetail(playlistId) {
+    const pl = publicPlaylists.find(p => p.id === playlistId);
+    if (!pl) return;
+
+    // Increment play count
+    await incrementPublicPlaylistPlayCount(playlistId);
+
+    const songIds = Array.isArray(pl.song_ids) ? pl.song_ids : [];
+
+    // Find matching local playlist, or create a temporary one
+    let localPl = customPlaylists.find(p => p.id === playlistId);
+    if (!localPl) {
+        // Create a temporary in-memory entry so showPlaylistDetails works
+        // NOT marked as _ownedThisSession — this is someone else's public playlist
+        localPl = {
+            id: playlistId,
+            name: pl.name,
+            songs: songIds,
+            isPublic: true,
+            _ownedThisSession: false,
+            customCover: pl.cover_url || ''
+        };
+        customPlaylists.push(localPl);
+    } else {
+        // Sync song list from Supabase
+        localPl.songs = songIds;
+        localPl.isPublic = true;
+        localPl.customCover = pl.cover_url || localPl.customCover || '';
+        // Preserve _ownedThisSession flag — don't overwrite it
+    }
+
+    switchTab('collection');
+    setTimeout(() => showPlaylistDetails(playlistId), 60);
+}
+
+function playPublicPlaylist(pl) {
+    const songIds = Array.isArray(pl.song_ids) ? pl.song_ids : [];
+    const plSongs = songIds.map(id => songs.find(s => s.id === id)).filter(Boolean);
+    if (plSongs.length === 0) return showMessage('Playlist ini kosong.', 'error');
+    const globalIdx = songs.findIndex(s => s.id === plSongs[0].id);
+    if (globalIdx !== -1) playSong(globalIdx, plSongs);
+    incrementPublicPlaylistPlayCount(pl.id);
+}
+
+async function incrementPublicPlaylistPlayCount(playlistId) {
+    if (!supabaseClient) return;
+    try {
+        const pl = publicPlaylists.find(p => p.id === playlistId);
+        const current = pl?.play_count || 0;
+        await supabaseClient.from('public_playlists').update({ play_count: current + 1 }).eq('id', playlistId);
+        if (pl) {
+            pl.play_count = current + 1;
+            // Refresh beranda kalau sedang tampil
+            const homeTab = document.getElementById('tab-home');
+            if (homeTab && !homeTab.classList.contains('hidden')) renderPublicPlaylists();
+        }
+    } catch (e) { console.error('Gagal update play count playlist:', e); }
+}
+
+// ==========================================
+// ADMIN: Kelola Playlist Publik
+// ==========================================
+async function loadAdminPlaylists() {
+    if (!supabaseClient) return;
+    const container = document.getElementById('admin-playlists-list');
+    if (!container) return;
+    container.innerHTML = '<p class="text-gray-500 text-sm text-center py-8">Memuat...</p>';
+    try {
+        const { data, error } = await supabaseClient
+            .from('public_playlists')
+            .select('*')
+            .order('created_at', { ascending: false });
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+            container.innerHTML = '<p class="text-gray-500 text-sm text-center py-8">Belum ada playlist publik.</p>';
+            return;
+        }
+
+        container.innerHTML = '';
+        data.forEach(pl => {
+            const songIds = Array.isArray(pl.song_ids) ? pl.song_ids : [];
+            const row = document.createElement('div');
+            row.className = 'flex items-center justify-between gap-3 p-3 bg-black/30 rounded-lg border border-gray-800 hover:border-gray-700 transition-colors';
+            row.innerHTML = `
+                <div class="flex items-center gap-3 min-w-0 flex-1">
+                    <div class="w-10 h-10 rounded bg-gray-800 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                        ${(() => {
+                            const firstSong = songs.find(s => songIds.includes(s.id));
+                            return firstSong
+                                ? `<img src="${firstSong.coverUrl}" class="w-full h-full object-cover">`
+                                : `<i class="ph ph-playlist text-gray-500 text-lg"></i>`;
+                        })()}
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-sm font-bold text-white truncate">${pl.name}</p>
+                        <div class="flex items-center gap-2 flex-wrap mt-0.5">
+                            <span class="text-xs ${pl.is_public ? 'text-spotify-green' : 'text-gray-500'}">
+                                <i class="ph ph-${pl.is_public ? 'globe' : 'lock'} text-xs"></i> ${pl.is_public ? 'Publik' : 'Privat'}
+                            </span>
+                            <span class="text-xs text-gray-500">${songIds.length} lagu</span>
+                            <span class="text-xs text-gray-500"><i class="ph ph-headphones text-xs"></i> ${pl.play_count || 0}×</span>
+                            ${pl.show_creator && pl.creator_name ? `<span class="text-xs text-gray-400">oleh ${pl.creator_name}</span>` : ''}
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    <button onclick="adminTogglePlaylistVisibility('${pl.id}', ${pl.is_public})"
+                        class="text-xs px-3 py-1.5 rounded-full border ${pl.is_public ? 'border-yellow-500 text-yellow-500 hover:bg-yellow-500/10' : 'border-spotify-green text-spotify-green hover:bg-spotify-green/10'} transition-colors font-bold">
+                        ${pl.is_public ? 'Jadikan Privat' : 'Jadikan Publik'}
+                    </button>
+                    <button onclick="adminDeletePublicPlaylist('${pl.id}', '${pl.name.replace(/'/g, "\\'")}')"
+                        class="p-2 rounded-full text-red-500 hover:bg-red-500/10 transition-colors" title="Hapus">
+                        <i class="ph-fill ph-trash text-base"></i>
+                    </button>
+                </div>`;
+            container.appendChild(row);
+        });
+    } catch (e) {
+        console.error('Gagal memuat admin playlists:', e);
+        container.innerHTML = '<p class="text-red-500 text-sm text-center py-8">Gagal memuat playlist.</p>';
+    }
+}
+
+async function adminTogglePlaylistVisibility(playlistId, currentlyPublic) {
+    if (!supabaseClient) return;
+    try {
+        await supabaseClient.from('public_playlists').update({ is_public: !currentlyPublic }).eq('id', playlistId);
+        showMessage(`Playlist berhasil dijadikan ${currentlyPublic ? 'privat' : 'publik'}`);
+        loadAdminPlaylists();
+        loadPublicPlaylists(); // refresh beranda
+    } catch (e) { showMessage('Gagal mengubah visibilitas.', 'error'); }
+}
+
+async function adminDeletePublicPlaylist(playlistId, name) {
+    if (!supabaseClient) return;
+    if (!confirm(`Hapus playlist "${name}"?`)) return;
+    try {
+        await supabaseClient.from('public_playlists').delete().eq('id', playlistId);
+        showMessage(`Playlist '${name}' dihapus`);
+        // Also remove from local cache
+        publicPlaylists = publicPlaylists.filter(p => p.id !== playlistId);
+        loadAdminPlaylists();
+        renderPublicPlaylists();
+        closePlaylistDetails();
+    } catch (e) { showMessage('Gagal menghapus playlist.', 'error'); }
+}
+
+// ==========================================
 // PLAYLIST FORMS
 // ==========================================
 function initPlaylistForms() {
+    // Toggle creator section when public is selected
+    const visibilityRadios = document.querySelectorAll('input[name="playlist_visibility"]');
+    visibilityRadios.forEach(radio => {
+        radio.addEventListener('change', () => {
+            const creatorSection = document.getElementById('creator-section');
+            if (creatorSection) {
+                creatorSection.classList.toggle('hidden', radio.value !== 'public' || !radio.checked);
+            }
+        });
+    });
+
     const createForm = document.getElementById('create-playlist-form');
     if (createForm) {
-        createForm.addEventListener('submit', (e) => {
+        createForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const name = document.getElementById('playlist-name-input').value.trim();
             if (!name) return;
-            const newPlaylist = { id: 'pl_' + Date.now(), name, songs: [] };
-            customPlaylists.push(newPlaylist);
-            localStorage.setItem('bemspotipai_playlists', JSON.stringify(customPlaylists));
-            showMessage(`Playlist '${name}' berhasil dibuat`);
-            closeModal('create-playlist-modal');
-            renderSidebarPlaylists();
-            if (!document.getElementById('tab-collection').classList.contains('hidden')) renderCustomPlaylists();
+
+            const visibilityEl = document.querySelector('input[name="playlist_visibility"]:checked');
+            const isPublic = visibilityEl?.value === 'public';
+            const creatorName = document.getElementById('playlist-creator-input')?.value.trim() || '';
+            const showCreator = document.getElementById('playlist-show-creator')?.checked ?? true;
+
+            const submitBtn = createForm.querySelector('button[type="submit"]');
+            const origText = submitBtn.innerText;
+            submitBtn.innerText = 'Menyimpan...'; submitBtn.disabled = true;
+
+            try {
+                if (isPublic && supabaseClient) {
+                    // Simpan ke Supabase sebagai playlist publik
+                    const newId = 'pub_' + Date.now();
+                    const { error } = await supabaseClient.from('public_playlists').insert([{
+                        id: newId,
+                        name,
+                        creator_name: creatorName,
+                        show_creator: showCreator,
+                        is_public: true,
+                        song_ids: [],
+                        play_count: 0
+                    }]);
+                    if (error) throw error;
+
+                    // Also save locally so user can add songs to it
+                    const newPlaylist = { id: newId, name, songs: [], isPublic: true, _ownedThisSession: true };
+                    customPlaylists.push(newPlaylist);
+                    localStorage.setItem('bemspotipai_playlists', JSON.stringify(customPlaylists));
+
+                    showMessage(`Playlist publik '${name}' berhasil dibuat!`);
+                    await loadPublicPlaylists(); // refresh beranda
+                } else {
+                    // Simpan lokal saja (privat)
+                    const newPlaylist = { id: 'pl_' + Date.now(), name, songs: [], isPublic: false };
+                    customPlaylists.push(newPlaylist);
+                    localStorage.setItem('bemspotipai_playlists', JSON.stringify(customPlaylists));
+                    showMessage(`Playlist '${name}' berhasil dibuat`);
+                }
+
+                closeModal('create-playlist-modal');
+                renderSidebarPlaylists();
+                if (!document.getElementById('tab-collection').classList.contains('hidden')) renderCustomPlaylists();
+
+                // Reset form
+                document.getElementById('playlist-name-input').value = '';
+                if (document.getElementById('playlist-creator-input')) document.getElementById('playlist-creator-input').value = '';
+                const creatorSection = document.getElementById('creator-section');
+                if (creatorSection) creatorSection.classList.add('hidden');
+                const privRadio = document.querySelector('input[name="playlist_visibility"][value="private"]');
+                if (privRadio) privRadio.checked = true;
+            } catch (err) {
+                console.error(err);
+                showMessage('Gagal membuat playlist: ' + err.message, 'error');
+            } finally {
+                submitBtn.innerText = origText; submitBtn.disabled = false;
+            }
         });
     }
+
     const confirmDeletePl = document.getElementById('confirm-delete-playlist-btn');
     if (confirmDeletePl) {
-        confirmDeletePl.addEventListener('click', () => {
+        confirmDeletePl.addEventListener('click', async () => {
             if (!playlistToDelete) return;
-            const plName = customPlaylists.find(p => p.id === playlistToDelete)?.name || 'Playlist';
+            const pl = customPlaylists.find(p => p.id === playlistToDelete);
+            const plName = pl?.name || 'Playlist';
+
+            // If it's a public playlist, also delete from Supabase
+            if (pl?.isPublic && supabaseClient) {
+                try {
+                    await supabaseClient.from('public_playlists').delete().eq('id', playlistToDelete);
+                    publicPlaylists = publicPlaylists.filter(p => p.id !== playlistToDelete);
+                    renderPublicPlaylists();
+                } catch (e) { console.error('Gagal hapus dari Supabase:', e); }
+            }
+
             customPlaylists = customPlaylists.filter(p => p.id !== playlistToDelete);
             localStorage.setItem('bemspotipai_playlists', JSON.stringify(customPlaylists));
             showMessage(`Playlist '${plName}' berhasil dihapus`, 'error');
