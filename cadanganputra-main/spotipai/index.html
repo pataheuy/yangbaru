@@ -205,10 +205,6 @@
                 The page your looking for may have been moved, deleted or possibly never existed. Additionally, a 404 Not Found error was encountered while trying to use an ErrorDocument to handle the request.
             </p>
 
-
-
-            <hr style="border:none; border-top:1px solid #ccc; margin: 1rem 0;">
-
             <div style="font-family:Times New Roman,Times,serif; font-size:0.82rem; color:#444; line-height:2.2; user-select:text;">
                 <p><strong>Server:</strong> nginx/1.18.0 (Ubuntu)</p>
                 <p><strong>Date:</strong> <span id="error-date"></span></p>
@@ -216,8 +212,6 @@
                 <p><strong>Connection:</strong> close</p>
                 <p><strong>Vary:</strong> Accept-Encoding</p>
             </div>
-
-            <hr style="border:none; border-top:1px solid #ccc; margin: 1rem 0;">
 
             <p id="error-status" style="font-family:Times New Roman,Times,serif; font-size:0.82rem; color:#666; user-select:text;">
                 Status: Failed to resolve server response
@@ -546,9 +540,14 @@
                     <!-- ===== PLAYLIST DARI PENDENGAR ===== -->
                     <div class="flex items-center justify-between mb-4">
                         <h2 class="text-2xl font-bold text-white">Playlist dari Pendengar</h2>
-                        <button onclick="showModal('create-playlist-modal')" class="text-sm font-bold text-gray-400 hover:text-spotify-green transition-colors flex items-center gap-1.5 px-3 py-1 rounded-full border border-transparent hover:border-gray-700">
-                            <i class="ph ph-plus text-base"></i> Buat Playlist
-                        </button>
+                        <div class="flex items-center gap-2">
+                            <button id="btn-see-all-playlists" onclick="showAllPublicPlaylistsPage()" class="text-sm font-bold text-gray-400 transition-colors flex items-center gap-1 px-3 py-1 rounded-full border border-transparent hover:border-gray-700 hover:text-spotify-green hidden">
+                                Lihat Semua <i class="ph ph-arrow-right text-base" style="transition:transform 0.2s"></i>
+                            </button>
+                            <button onclick="showModal('create-playlist-modal')" class="text-sm font-bold text-gray-400 hover:text-spotify-green transition-colors flex items-center gap-1.5 px-3 py-1 rounded-full border border-transparent hover:border-gray-700">
+                                <i class="ph ph-plus text-base"></i> Buat Playlist
+                            </button>
+                        </div>
                     </div>
                     <div id="public-playlists-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5 mb-8">
                         <p class="text-gray-500 text-sm col-span-full">Memuat playlist...</p>
@@ -613,6 +612,22 @@
                     <h2 class="text-2xl font-bold mb-6 text-white">Semua Artis</h2>
                     <div id="all-artists-grid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-6">
                         <!-- All artists injected here -->
+                    </div>
+                </div>
+
+                <!-- All Public Playlists Tab -->
+                <div id="tab-all-playlists" class="p-6 pb-24 content-tab hidden">
+                    <button onclick="switchTab('home')" class="bg-black/50 px-4 py-2 rounded-full hover:bg-black text-gray-400 hover:text-white mb-6 transition-colors inline-flex items-center gap-2 text-sm font-bold shadow-lg">
+                        <i class="ph-fill ph-arrow-left text-xl"></i> Kembali
+                    </button>
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl font-bold text-white">Semua Playlist dari Pendengar</h2>
+                        <button onclick="showModal('create-playlist-modal')" class="text-sm font-bold text-gray-400 hover:text-spotify-green transition-colors flex items-center gap-1.5 px-3 py-1 rounded-full border border-transparent hover:border-gray-700">
+                            <i class="ph ph-plus text-base"></i> Buat Playlist
+                        </button>
+                    </div>
+                    <div id="all-public-playlists-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
+                        <!-- All public playlists injected here -->
                     </div>
                 </div>
 
