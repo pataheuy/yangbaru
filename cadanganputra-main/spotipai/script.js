@@ -325,6 +325,9 @@ function handleHeaderSearch(val) {
         document.getElementById('home-artists-heading'),
         document.getElementById('trending-artists-grid'),
         document.querySelector('#tab-home > hr'),
+        // Sembunyikan section playlist dari pendengar saat search
+        document.querySelector('#tab-home > div.flex.items-center.justify-between'),
+        document.getElementById('public-playlists-grid'),
     ];
     const hasQuery = val.trim().length > 0;
     hideOnSearch.forEach(el => { if (el) el.style.display = hasQuery ? 'none' : ''; });
@@ -2135,45 +2138,83 @@ async function loadPublicPlaylists() {
 
 function renderPublicPlaylists() {
     const grid = document.getElementById('public-playlists-grid');
+    const seeAllBtn = document.getElementById('btn-see-all-playlists');
     if (!grid) return;
     grid.innerHTML = '';
 
     if (publicPlaylists.length === 0) {
         grid.innerHTML = '<p class="text-gray-500 text-sm col-span-full">Belum ada playlist publik. Jadilah yang pertama!</p>';
+        if (seeAllBtn) seeAllBtn.classList.add('hidden');
         return;
     }
 
+    // Tampilkan maks 6, sisanya di halaman "Lihat Semua"
+    const displayed = publicPlaylists.slice(0, 6);
+    if (seeAllBtn) {
+        publicPlaylists.length > 6 ? seeAllBtn.classList.remove('hidden') : seeAllBtn.classList.add('hidden');
+    }
+
+    displayed.forEach(pl => {
+        const card = buildPublicPlaylistCard(pl);
+        grid.appendChild(card);
+    });
+}
+
+function buildPublicPlaylistCard(pl) {
+    const songIds = Array.isArray(pl.song_ids) ? pl.song_ids : (pl.song_ids || []);
+    const coverSong = songs.find(s => songIds.includes(s.id));
+    const coverUrl = pl.cover_url || coverSong?.coverUrl || 'https://images.unsplash.com/photo-1614613535308-eb51bd3d2c17?w=300&q=80';
+    const songCount = songIds.length;
+    const creatorLine = pl.show_creator && pl.creator_name
+        ? `<p class="text-xs text-gray-500 truncate mt-0.5">oleh ${pl.creator_name}</p>`
+        : `<p class="text-xs text-gray-500 truncate mt-0.5">${songCount} lagu</p>`;
+
+    const card = document.createElement('div');
+    card.className = 'bg-spotify-elevated p-4 rounded-md hover:bg-spotify-highlight transition-colors cursor-pointer group';
+    card.onclick = () => openPublicPlaylistDetail(pl.id);
+    card.innerHTML = `
+        <div class="relative mb-3 pb-[100%] shadow-lg rounded overflow-hidden">
+            <img src="${coverUrl}" class="song-card-img absolute top-0 left-0 w-full h-full object-cover"
+                onerror="this.src='https://images.unsplash.com/photo-1614613535308-eb51bd3d2c17?w=300&q=80'">
+            <button class="absolute bottom-2 right-2 bg-spotify-green text-black rounded-full w-10 h-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all shadow-xl hover:scale-105 hover:bg-green-400 z-10">
+                <i class="ph-fill ph-play text-xl ml-0.5"></i>
+            </button>
+        </div>
+        <h3 class="font-bold text-white text-sm truncate">${pl.name}</h3>
+        ${creatorLine}`;
+
+    card.querySelector('button').onclick = (e) => {
+        e.stopPropagation();
+        playPublicPlaylist(pl);
+        setTimeout(() => renderPublicPlaylists(), 600);
+    };
+    return card;
+}
+
+function showAllPublicPlaylistsPage() {
+    document.querySelectorAll('.content-tab').forEach(tab => tab.classList.add('hidden'));
+    const tab = document.getElementById('tab-all-playlists');
+    if (tab) {
+        tab.classList.remove('hidden');
+        tab.classList.remove('page-enter');
+        void tab.offsetWidth;
+        tab.classList.add('page-enter');
+    }
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('text-white'); item.classList.add('text-gray-400');
+    });
+    const mainEl = document.querySelector('main');
+    if (mainEl) mainEl.scrollTo({ top: 0, behavior: 'smooth' });
+
+    const grid = document.getElementById('all-public-playlists-grid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    if (publicPlaylists.length === 0) {
+        grid.innerHTML = '<p class="text-gray-500 text-sm col-span-full">Belum ada playlist publik.</p>';
+        return;
+    }
     publicPlaylists.forEach(pl => {
-        const songIds = Array.isArray(pl.song_ids) ? pl.song_ids : (pl.song_ids || []);
-        const coverSong = songs.find(s => songIds.includes(s.id));
-        const coverUrl = pl.cover_url || coverSong?.coverUrl || 'https://images.unsplash.com/photo-1614613535308-eb51bd3d2c17?w=300&q=80';
-        const songCount = songIds.length;
-        const creatorLine = pl.show_creator && pl.creator_name
-            ? `<p class="text-xs text-gray-500 truncate mt-0.5">oleh ${pl.creator_name}</p>`
-            : `<p class="text-xs text-gray-500 truncate mt-0.5">${songCount} lagu</p>`;
-
-        const card = document.createElement('div');
-        card.className = 'bg-spotify-elevated p-4 rounded-md hover:bg-spotify-highlight transition-colors cursor-pointer group';
-        card.onclick = () => openPublicPlaylistDetail(pl.id);
-        card.innerHTML = `
-            <div class="relative mb-3 pb-[100%] shadow-lg rounded overflow-hidden">
-                <img src="${coverUrl}" class="song-card-img absolute top-0 left-0 w-full h-full object-cover"
-                    onerror="this.src='https://images.unsplash.com/photo-1614613535308-eb51bd3d2c17?w=300&q=80'">
-                <button class="absolute bottom-2 right-2 bg-spotify-green text-black rounded-full w-10 h-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all shadow-xl hover:scale-105 hover:bg-green-400 z-10">
-                    <i class="ph-fill ph-play text-xl ml-0.5"></i>
-                </button>
-                ${pl.play_count > 0 ? `` : ''}
-            </div>
-            <h3 class="font-bold text-white text-sm truncate">${pl.name}</h3>
-            ${creatorLine}`;
-
-        // Play button
-        card.querySelector('button').onclick = (e) => {
-            e.stopPropagation();
-            playPublicPlaylist(pl);
-            // Update count after playing
-            setTimeout(() => renderPublicPlaylists(), 600);
-        };
+        const card = buildPublicPlaylistCard(pl);
         grid.appendChild(card);
     });
 }
