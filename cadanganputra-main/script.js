@@ -74,10 +74,10 @@ function renderProyek() {
 // ============================================================
 const menuBtn = document.getElementById('menu-btn');
 const mobileMenu = document.getElementById('mobile-menu');
-const hamburgerLines = menuBtn.querySelectorAll('.hamburger-line');
+const hamburgerLines = menuBtn ? menuBtn.querySelectorAll('.hamburger-line') : [];
 let menuOpen = false;
 
-menuBtn.addEventListener('click', () => {
+if (menuBtn) menuBtn.addEventListener('click', () => {
     menuOpen = !menuOpen;
     if (menuOpen) {
         mobileMenu.style.maxHeight = mobileMenu.scrollHeight + 'px';
@@ -100,7 +100,7 @@ menuBtn.addEventListener('click', () => {
     }
 });
 
-const mobileLinks = mobileMenu.querySelectorAll('a');
+const mobileLinks = mobileMenu ? mobileMenu.querySelectorAll('a') : [];
 mobileLinks.forEach(link => {
     link.addEventListener('click', () => {
         menuOpen = false;
@@ -138,6 +138,10 @@ document.querySelectorAll('.reveal-on-scroll').forEach((el) => {
 
 // Init: render proyek dari data, lalu observe kartu-kartunya
 renderProyek();
+// Observe setelah render — kartu yang langsung di viewport akan muncul via observer
+document.querySelectorAll('#projects-grid .reveal-on-scroll').forEach(el => {
+    revealObserver.observe(el);
+});
 
 // ===== FILTER & SEARCH PROYEK =====
 const filterBtns = document.querySelectorAll('.filter-btn');
