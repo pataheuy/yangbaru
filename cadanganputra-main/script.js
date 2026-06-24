@@ -2,7 +2,76 @@
 // SCRIPT UTAMA — Putra Azzam Elfathin Portfolio
 // ============================================================
 
-// ===== NAVBAR MOBILE =====
+// ===== DATA PROYEK =====
+const proyekData = [
+    { no: 1, title: 'PufutaraOS', titlePrefix: 'Pufutara', kategori: 'OS', desc: 'Sistem operasi modern berbasis web. Cita-cita Putra waktu kecil akhirnya terwujud di PC Labkom!', cover: '/foto/cover1.png', link: '/os/index.html', category: 'web' },
+    { no: 2, title: 'PufutaraArchive', titlePrefix: 'Pufutara', kategori: 'Web App', desc: 'Platform pusat proyek web dengan desain modern, rounded, dan minimalis.', cover: '/foto/cover18.png', link: 'indexlama.html', category: 'web' },
+    { no: 3, title: 'MutabaahOS', kategori: 'Startup', desc: 'Landing page proyek full stack dan full keren. InsyaAllah jadi startup baru di Indo.', cover: '/foto/cover19.png', link: 'https://mutabaahos.vercel.app', category: 'desktop' },
+    { no: 4, title: 'PufutaraTube', titlePrefix: 'Pufutara', kategori: 'Media', desc: 'Tempat nonton video favorit tanpa iklan yang mengganggu fokus koding kamu.', cover: '/foto/cover2.png', link: '/tube/index.html', category: 'web' },
+    { no: 5, title: 'PufutaraChat', titlePrefix: 'Pufutara', kategori: 'Comm', desc: 'Obrolan Simple, tambah akun, login, langsung chat ke semua orang secara real-time.', cover: '/foto/cover3.png', link: '/chat/index.html', category: 'web' },
+    { no: 6, title: 'PufutaraDrive', titlePrefix: 'Pufutara', kategori: 'Cloud', desc: 'Simpan file-file penting proyek kodingan kamu dengan aman dan mudah diakses di mana saja.', cover: '/foto/cover4.png', link: '/drive/index.html', category: 'web' },
+    { no: 7, title: 'PufutaraGallery', titlePrefix: 'Pufutara', kategori: 'Fullstack', desc: 'Proyek Full Stack pertama Putra! Upload foto otomatis tersimpan ke server untuk dilihat semua orang.', cover: '/foto/cover5.png', link: '/gallery/index.html', category: 'web' },
+    { no: 8, title: 'PufutaraAudio', titlePrefix: 'Pufutara', kategori: 'Audio', desc: 'Dengerin lo-fi beat dan ambience alam biar koding makin chill dan nggak spaneng.', cover: '/foto/cover6.png', link: '/audio/index.html', category: 'web' },
+    { no: 9, title: 'Pufutara MiniGames', titlePrefix: 'Pufutara', kategori: 'Fun', desc: 'Kumpulan game ringan buat refreshing otak setelah pusing ngurusin bug di HTML.', cover: '/foto/cover7.png', link: '/game/index.html', category: 'web' },
+    { no: 10, title: 'Pufutara ProPaint', titlePrefix: 'Pufutara', kategori: 'Design', desc: 'Gambar dan sketsa apa saja dengan mudah. Aplikasi simpel, tapi tools-nya profesional.', cover: '/foto/cover8.png', link: '/paint/index.html', category: 'web' },
+    { no: 11, title: 'Pufutara Writer', titlePrefix: 'Pufutara', kategori: 'Writing', desc: 'Pengolahan kata yang cepat dan ringan. Cocok buat nulis ide proyek yang tiba-tiba muncul.', cover: '/foto/cover9.png', link: '/write/index.html', category: 'web' },
+    { no: 12, title: 'Pufutara DigLib', titlePrefix: 'Pufutara', kategori: 'Library', desc: 'Perpustakaan digital dan info cuaca Jalancagak biar tau kapan harus bawa payung ke Labkom.', cover: '/foto/cover10.png', link: '/library/index.html', category: 'web' },
+    { no: 13, title: 'Pufutara SpinWheel', titlePrefix: 'Pufutara', kategori: 'Tools', desc: 'Putuskan kelompok belajar atau pilihan sulit lainnya dengan roda tak terduga ini.', cover: '/foto/cover11.png', link: '/spin/index.html', category: 'web' },
+    { no: 14, title: 'Pufutara Workspace', titlePrefix: 'Pufutara', kategori: 'Hub', desc: 'Hub pusat aplikasi produktivitas Pufutara, gabungan dari berbagai proyek jadi satu.', cover: '/foto/cover12.png', link: '/work/index.html', category: 'web' },
+    { no: 15, title: 'Pufutara ToDo List', titlePrefix: 'Pufutara', kategori: 'Focus', desc: 'List tugas simpel dan modern untuk Putra yang pelupa biar jadwal tetap teratur.', cover: '/foto/cover13.png', link: '/todo/index.html', category: 'web' },
+    { no: 16, title: 'Pufutara Habit Tracker', titlePrefix: 'Pufutara', kategori: 'Goals', desc: 'Pantau proses membangun kebiasaan baik dan hilangkan kebiasaan buruk setiap hari.', cover: '/foto/cover14.png', link: '/habit/index.html', category: 'web' },
+    { no: 17, title: 'Pufutara News & Calc', titlePrefix: 'Pufutara', kategori: 'Utility', desc: 'Baca berita terbaru atau pakai kalkulator sains akurat buat bantu tugas Labkom kamu.', cover: '/foto/cover15.png', link: '/news/landing.html', category: 'web' },
+    { no: 18, title: 'Pufutara Web V2', titlePrefix: 'Pufutara', kategori: 'Official', desc: 'Website utama Putra versi terbaru. Modern, cepat, dan pastinya tetap \'putraganteng\'.', cover: '/foto/cover16.png', link: 'https://pufuta.vercel.app', category: 'web' },
+    { no: 19, title: 'Pufutara Web V1', titlePrefix: 'Pufutara', kategori: 'History', desc: 'Saksi bisu perjalanan di BEM. Tanya anak BEM se-Sikma kalau mau tau sejarah web ini!', cover: '/foto/cover17.png', link: 'https://kanay.vercel.app', category: 'web' },
+    { no: 20, title: 'Pufutara AI', titlePrefix: 'Pufutara', kategori: 'AI', desc: 'AI chatbot menggunakan Gemini API key sebagai dasar AI nya.', cover: '/foto/cover20.png', link: 'https://pufutaraai.vercel.app', category: 'web' },
+    { no: 21, title: 'Pufutara Calc Pro', titlePrefix: 'Pufutara', kategori: 'Utility', desc: 'Kalkulator modern dengan fungsi sains, persentase, dan riwayat perhitungan.', cover: '/foto/cover21.png', link: '/calc/index.html', category: 'web' },
+    { no: 22, title: 'Pufutara Vote System', titlePrefix: 'Pufutara', kategori: 'Web', desc: 'Sistem voting sederhana untuk menentukan pilihan kelas atau keputusan bersama.', cover: '/foto/cover22.png', link: '/vote/index.html', category: 'web' },
+    { no: 23, title: 'Pufutara Quiz App', titlePrefix: 'Pufutara', kategori: 'Edu', desc: 'Uji pengetahuanmu lewat kuis interaktif. Pilihan gacor dan leaderboard seru.', cover: '/foto/cover23.png', link: '/quiz/index.html', category: 'web' },
+    { no: 24, title: 'Pufutara StikiNot', titlePrefix: 'Pufutara', kategori: 'App', desc: 'Aplikasi catatan ringan, mendukung rich text dan fitur praktis lainnya.', cover: '/foto/cover24.png', link: '/stikinot/index.html', category: 'desktop' },
+    { no: 25, title: 'Pufutara Cahier', titlePrefix: 'Pufutara', kategori: 'Note', desc: 'Jurnal digital minimalis. Catat ide atau tugas sekolah dengan antarmuka menenangkan.', cover: '/foto/cover25.png', link: '/kasir/index.html', category: 'web' },
+    { no: 26, title: 'Pufutara Shop', titlePrefix: 'Pufutara', kategori: 'Store', desc: 'Toko merchandise resmi Pufutara. Dukung terus karya lokal.', cover: '/foto/cover26.png', link: '/shop/index.html', category: 'web' },
+    { no: 27, title: 'Pufutara Browser', titlePrefix: 'Pufutara', kategori: 'Tools', desc: 'Browser cepat, ringan dan modern! dibuat dari framework electron.', cover: '/foto/cover27.png', link: '/browser/index.html', category: 'desktop' },
+    { no: 28, title: 'Mang Pey', kategori: 'Client', desc: 'Web buat temen pertama putra. dibuat saat gabut di hari minggu di ruang BEM.', cover: '/foto/cover28.png', link: '/dapurmangpey/index.html', category: 'web' },
+    { no: 29, title: 'KLS WEB', kategori: 'Pro', desc: 'Landing page website organisasi authot pufutara. Kece banget kek profesional.', cover: '/foto/cover29.png', link: '/kls/index.html', category: 'web' },
+    { no: 30, title: 'Pufutara AI 2.0', titlePrefix: 'Pufutara', kategori: 'AI', desc: 'AI chatbot generasi terbaru, lebih mantap dan berkualitas tinggi.', cover: '/foto/cover30.png', link: 'https://pufutara-ai--putraazzam2110.replit.app/', category: 'web' },
+    { no: 31, title: 'DepDik Putra Web', kategori: 'Our lovely Departement', desc: 'Web departmen pendidikan bem asbosch. dibuat dengan alasan untuk menyaingi web bapuk S.id depdik putri yg bayi pun bisa bikin', cover: '/foto/cover32.png', link: '/depdikweb/index.html', category: 'web' }
+    { no: 32, title: 'PufutaraCBT', kategori: 'Concept', desc: 'CBT bersih dan aman! gaperlu pakai exam browser lagi! otoamtis fullscreen! dan kalo keluar otomatis di Ban.', cover: '/foto/cover31.png', link: 'cbt/index.html', category: 'web' },
+];
+
+// ===== RENDER PROYEK =====
+function renderProyek() {
+    const grid = document.getElementById('projects-grid');
+    if (!grid) return;
+
+    grid.innerHTML = proyekData.map((p, idx) => {
+        const titleHTML = p.titlePrefix 
+            ? `<span class="bg-gradient-to-r from-slate-500 to-slate-400 bg-clip-text text-transparent">${p.titlePrefix}</span>${p.title.replace(p.titlePrefix, '')}`
+            : p.title;
+        
+        const delay = (idx % 4) * 80; // Stagger animasi per 4 kartu
+        
+        return `
+            <a href="${p.link}" target="_blank" class="group block no-underline reveal-on-scroll" data-delay="${delay}" data-category="${p.category}">
+                <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-slate-200 transition-all duration-300 h-full flex flex-col">
+                    <div class="card-image-container relative" style="--card-cover: url('${p.cover}');"></div>
+                    <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                        <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-slate-500 uppercase tracking-widest">${String(p.no).padStart(2, '0')}</span>
+                        <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                        <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">${p.kategori}</span>
+                    </div>
+                    <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">${titleHTML}</h3>
+                    <p class="text-slate-500 text-[0.65rem] sm:text-[0.75rem] leading-relaxed">${p.desc}</p>
+                </div>
+            </a>
+        `;
+    }).join('');
+
+    // Re-apply reveal observer dipanggil dari luar setelah revealObserver siap
+}
+
+// ============================================================
+// NAVBAR MOBILE
+// ============================================================
 const menuBtn = document.getElementById('menu-btn');
 const mobileMenu = document.getElementById('mobile-menu');
 const hamburgerLines = menuBtn.querySelectorAll('.hamburger-line');
@@ -66,6 +135,9 @@ const revealObserver = new IntersectionObserver((entries) => {
 document.querySelectorAll('.reveal-on-scroll').forEach((el) => {
     revealObserver.observe(el);
 });
+
+// Init: render proyek dari data, lalu observe kartu-kartunya
+renderProyek();
 
 // ===== FILTER & SEARCH PROYEK =====
 const filterBtns = document.querySelectorAll('.filter-btn');
