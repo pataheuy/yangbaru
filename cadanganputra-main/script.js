@@ -67,9 +67,42 @@ document.querySelectorAll('.reveal-on-scroll').forEach((el) => {
     revealObserver.observe(el);
 });
 
-// ===== FILTER PROYEK =====
+// ===== FILTER & SEARCH PROYEK =====
 const filterBtns = document.querySelectorAll('.filter-btn');
-const projectCards = document.querySelectorAll('.project-card');
+// Semua <a> langsung di dalam #projects-grid adalah kartu proyek
+const getAllProjectCards = () => document.querySelectorAll('#projects-grid > a');
+
+let activeFilter = 'semua';
+let searchQuery = '';
+
+function updateProjectVisibility() {
+    const cards = getAllProjectCards();
+    let visibleCount = 0;
+
+    cards.forEach(card => {
+        const category = card.getAttribute('data-category') || 'semua';
+        const text = card.textContent.toLowerCase();
+        const matchFilter = activeFilter === 'semua' || category === activeFilter;
+        const matchSearch = searchQuery === '' || text.includes(searchQuery);
+
+        if (matchFilter && matchSearch) {
+            card.style.display = '';
+            visibleCount++;
+        } else {
+            card.style.display = 'none';
+        }
+    });
+
+    // Update info jumlah hasil pencarian
+    const resultInfo = document.getElementById('search-result-info');
+    const resultNum = document.getElementById('search-result-num');
+    if (searchQuery !== '' && resultInfo && resultNum) {
+        resultNum.textContent = visibleCount + ' proyek';
+        resultInfo.classList.remove('hidden');
+    } else if (resultInfo) {
+        resultInfo.classList.add('hidden');
+    }
+}
 
 filterBtns.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -80,16 +113,37 @@ filterBtns.forEach(btn => {
         btn.classList.add('bg-primary', 'text-white');
         btn.classList.remove('text-slate-500', 'hover:text-primary');
 
-        const target = btn.getAttribute('data-target');
-        projectCards.forEach(card => {
-            if (target === 'semua' || card.getAttribute('data-category') === target) {
-                card.style.display = 'flex';
-            } else {
-                card.style.display = 'none';
-            }
-        });
+        activeFilter = btn.getAttribute('data-target');
+        updateProjectVisibility();
     });
 });
+
+// ===== SEARCH BAR =====
+const searchInput = document.getElementById('project-search');
+const searchClear = document.getElementById('project-search-clear');
+
+if (searchInput) {
+    searchInput.addEventListener('input', () => {
+        searchQuery = searchInput.value.trim().toLowerCase();
+        // Tampilkan/sembunyikan tombol clear
+        if (searchQuery !== '') {
+            searchClear && searchClear.classList.remove('hidden');
+        } else {
+            searchClear && searchClear.classList.add('hidden');
+        }
+        updateProjectVisibility();
+    });
+}
+
+if (searchClear) {
+    searchClear.addEventListener('click', () => {
+        searchInput.value = '';
+        searchQuery = '';
+        searchClear.classList.add('hidden');
+        updateProjectVisibility();
+        searchInput.focus();
+    });
+}
 
 // ============================================================
 // GALERI DINAMIS
@@ -300,10 +354,11 @@ const organisasiData = [
 ];
 
 const prestasiData = [
-    { tahun: '2026',        judul: 'Dormitory Award — Hafalan Terbanyak',    desc: 'Kategori reguler: 2 Juz 10 Halaman dalam satu semester.' },
+    { tahun: '2026',        judul: 'Juara 2 Santri Cinta Lingkungan',    desc: 'juara 2 konsisten membantu membersihkan lingkungan sekolah Assyifa.' },
+    { tahun: '2026',        judul: 'Dormitory Award — Hafalan Terbanyak',    desc: 'Kategori reguler pembinaan: 2 Juz 10 Halaman dalam satu semester.' },
     { tahun: '2026',        judul: 'Klub OSN SMPIT Assyifa (Tahap 3)',        desc: 'Pelatihan Olimpiade Sains Nasional tingkat sekolah tahap lanjut.' },
     { tahun: '2026',        judul: 'KOSSMI IPS Provinsi',                    desc: 'Peserta Kompetisi Sains Siswa Muslim Indonesia tingkat Jawa Barat.' },
-    { tahun: '2020 – 2026', judul: 'Ranking 3 Umum SDIT Al-Hikmah',          desc: 'Peringkat 3 rata-rata nilai selama 6 tahun (Angkatan 18).' },
+    { tahun: '2020 – 2026', judul: 'Ranking 3 Ijazah SDIT Al-Hikmah',          desc: 'Peringkat 3 rata-rata nilai selama 6 tahun (Angkatan 18).' },
     { tahun: '2019',        judul: 'Juara 3 Mewarnai',                       desc: 'Pemenang lomba tingkat kelas 2 SDIT Al-Hikmah.' },
 ];
 
