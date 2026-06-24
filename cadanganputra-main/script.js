@@ -34,7 +34,7 @@ const proyekData = [
     { no: 28, title: 'Mang Pey', kategori: 'Client', desc: 'Web buat temen pertama putra. dibuat saat gabut di hari minggu di ruang BEM.', cover: '/foto/cover28.png', link: '/dapurmangpey/index.html', category: 'web' },
     { no: 29, title: 'KLS WEB', kategori: 'Pro', desc: 'Landing page website organisasi authot pufutara. Kece banget kek profesional.', cover: '/foto/cover29.png', link: '/kls/index.html', category: 'web' },
     { no: 30, title: 'Pufutara AI 2.0', titlePrefix: 'Pufutara', kategori: 'AI', desc: 'AI chatbot generasi terbaru, lebih mantap dan berkualitas tinggi.', cover: '/foto/cover30.png', link: 'https://pufutara-ai--putraazzam2110.replit.app/', category: 'web' },
-    { no: 31, title: 'DepDik Putra Web', kategori: 'Our lovely Departement', desc: 'Web departmen pendidikan bem asbosch. dibuat dengan alasan untuk menyaingi web bapuk S.id depdik putri yg bayi pun bisa bikin', cover: '/foto/cover32.png', link: '/depdikweb/index.html', category: 'web' }
+    { no: 31, title: 'DepDik Putra Web', kategori: 'Our lovely Departement', desc: 'Web departmen pendidikan bem asbosch. dibuat dengan alasan untuk menyaingi web bapuk S.id depdik putri yg bayi pun bisa bikin', cover: '/foto/cover32.png', link: '/depdikweb/index.html', category: 'web' },
     { no: 32, title: 'PufutaraCBT', kategori: 'Concept', desc: 'CBT bersih dan aman! gaperlu pakai exam browser lagi! otoamtis fullscreen! dan kalo keluar otomatis di Ban.', cover: '/foto/cover31.png', link: 'cbt/index.html', category: 'web' },
 ];
 
