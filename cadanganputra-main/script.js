@@ -231,7 +231,7 @@ let galleryData = [
         title: 'Putra masuk google pertamakali',
         desc: 'sesuai judul. ya begitulah.',
         icon: 'fa-laptop-code',
-        fileUrl: '1.png'
+        fileUrl: '1.jpg'
     },
     {
         id: 2,
@@ -254,7 +254,7 @@ let galleryData = [
         title: 'Putra OSN IPS',
         desc: 'masuk web seabagai perwakilan sekolah',
         icon: 'fa-image',
-        fileUrl: '3.png'
+        fileUrl: '3.jpg'
     }
 ];
 
