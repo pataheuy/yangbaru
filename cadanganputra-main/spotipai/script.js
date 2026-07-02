@@ -369,21 +369,68 @@ function toggleSidebar() {
 // ==========================================
 let isQueueOpen = false;
 
-function toggleQueuePanel() {
-    isQueueOpen = !isQueueOpen;
-    const panel = document.getElementById('queue-panel');
-    const btn = document.getElementById('btn-queue');
-    if (!panel) return;
-    if (isQueueOpen) {
-        panel.classList.remove('queue-closed');
-        panel.classList.add('queue-open');
-        if (btn) { btn.querySelector('i').classList.add('text-white'); btn.classList.add('text-white'); }
+function toggleLyricsTab() {
+    // Kalau sedang di lyrics → balik ke home
+    const lyricsTab = document.getElementById('tab-lyrics');
+    if (lyricsTab && !lyricsTab.classList.contains('hidden')) {
+        switchTab('home');
+        // Update icon mobile
+        const btn = document.getElementById('btn-lyrics-mobile');
+        if (btn) btn.querySelector('i').className = 'ph ph-microphone-stage text-xl';
     } else {
-        panel.classList.remove('queue-open');
-        panel.classList.add('queue-closed');
-        if (btn) { btn.querySelector('i').classList.remove('text-white'); btn.classList.remove('text-white'); }
+        switchTab('lyrics');
+        // Highlight icon mobile
+        const btn = document.getElementById('btn-lyrics-mobile');
+        if (btn) btn.querySelector('i').className = 'ph-fill ph-microphone-stage text-xl text-white';
     }
-    updateQueuePanel();
+}
+
+function toggleQueuePanel() {
+    const isMobile = window.innerWidth < 768;
+
+    if (isMobile) {
+        // Mobile: bottom sheet
+        const sheet   = document.getElementById('queue-mobile-sheet');
+        const overlay = document.getElementById('queue-mobile-overlay');
+        if (!sheet) return;
+
+        isQueueOpen = !isQueueOpen;
+
+        if (isQueueOpen) {
+            sheet.classList.remove('hidden');
+            overlay.classList.remove('hidden');
+            // Trigger animasi slide up
+            requestAnimationFrame(() => {
+                sheet.classList.remove('translate-y-full');
+            });
+            updateQueuePanelMobile();
+        } else {
+            sheet.classList.add('translate-y-full');
+            overlay.classList.add('hidden');
+            setTimeout(() => sheet.classList.add('hidden'), 300);
+        }
+
+        const btn = document.getElementById('btn-queue-mobile');
+        if (btn) btn.querySelector('i').className = isQueueOpen
+            ? 'ph-fill ph-queue text-xl text-white'
+            : 'ph ph-queue text-xl';
+    } else {
+        // Desktop: side panel
+        isQueueOpen = !isQueueOpen;
+        const panel = document.getElementById('queue-panel');
+        const btn   = document.getElementById('btn-queue');
+        if (!panel) return;
+        if (isQueueOpen) {
+            panel.classList.remove('queue-closed');
+            panel.classList.add('queue-open');
+            if (btn) { btn.querySelector('i').classList.add('text-white'); btn.classList.add('text-white'); }
+        } else {
+            panel.classList.remove('queue-open');
+            panel.classList.add('queue-closed');
+            if (btn) { btn.querySelector('i').classList.remove('text-white'); btn.classList.remove('text-white'); }
+        }
+        updateQueuePanel();
+    }
 }
 
 function updateQueuePanel() {
@@ -442,6 +489,61 @@ function updateQueuePanel() {
             if (globalIdx !== -1) {
                 playSong(globalIdx, currentQueue);
                 setTimeout(updateQueuePanel, 100);
+            }
+        };
+        queueListEl.appendChild(row);
+    });
+}
+
+// Mobile queue panel — sama kontennya, elemen berbeda
+function updateQueuePanelMobile() {
+    const nowPlayingEl = document.getElementById('queue-now-playing-mobile');
+    const queueListEl  = document.getElementById('queue-list-mobile');
+    if (!nowPlayingEl || !queueListEl) return;
+
+    const fallbackImg = 'https://images.unsplash.com/photo-1614613535308-eb51bd3d2c17?w=150&q=80';
+
+    if (currentSongIndex === -1 || !songs[currentSongIndex]) {
+        nowPlayingEl.innerHTML = '<p class="text-gray-500 text-sm">Belum ada lagu diputar</p>';
+        queueListEl.innerHTML  = '<p class="text-gray-600 text-sm">Antrian kosong.</p>';
+        return;
+    }
+    const current = songs[currentSongIndex];
+    nowPlayingEl.innerHTML = `
+        <img src="${current.coverUrl}" onerror="this.src='${fallbackImg}'" class="w-10 h-10 rounded object-cover flex-shrink-0 shadow">
+        <div class="min-w-0 flex-1">
+            <p class="text-sm font-bold text-spotify-green truncate leading-tight">${current.title}</p>
+            <p class="text-xs text-gray-400 truncate mt-0.5">${current.artist}</p>
+        </div>`;
+
+    const upcoming = [];
+    if (currentQueue.length > 1) {
+        const qLen = currentQueue.length;
+        const startIdx = (currentQueueIndex + 1) % qLen;
+        const total = Math.min(qLen - 1, 50);
+        for (let i = 0; i < total; i++) upcoming.push(currentQueue[(startIdx + i) % qLen]);
+    }
+
+    if (upcoming.length === 0) {
+        queueListEl.innerHTML = '<p class="text-gray-600 text-sm">Tidak ada lagu berikutnya.</p>';
+        return;
+    }
+
+    queueListEl.innerHTML = '';
+    upcoming.forEach(song => {
+        const globalIdx = songs.findIndex(s => s.id === song.id);
+        const row = document.createElement('div');
+        row.className = 'flex items-center gap-3 px-2 py-2 rounded-md hover:bg-white/10 cursor-pointer transition-colors -mx-2';
+        row.innerHTML = `
+            <img src="${song.coverUrl}" onerror="this.src='${fallbackImg}'" class="w-10 h-10 rounded object-cover flex-shrink-0 shadow">
+            <div class="min-w-0 flex-1">
+                <p class="text-sm font-medium text-white truncate leading-tight">${song.title}</p>
+                <p class="text-xs text-gray-400 truncate mt-0.5">${song.artist}</p>
+            </div>`;
+        row.onclick = () => {
+            if (globalIdx !== -1) {
+                playSong(globalIdx, currentQueue);
+                setTimeout(updateQueuePanelMobile, 100);
             }
         };
         queueListEl.appendChild(row);
@@ -640,10 +742,17 @@ function switchTab(tabId) {
     const targetTab = document.getElementById(`tab-${tabId}`);
     if (targetTab) {
         targetTab.classList.remove('hidden');
-        // Smooth page entrance
         targetTab.classList.remove('page-enter');
-        void targetTab.offsetWidth; // reflow
+        void targetTab.offsetWidth;
         targetTab.classList.add('page-enter');
+    }
+
+    // Reset icon lirik mobile kalau pindah dari lyrics
+    const btnLyricsMobile = document.getElementById('btn-lyrics-mobile');
+    if (btnLyricsMobile) {
+        btnLyricsMobile.querySelector('i').className = tabId === 'lyrics'
+            ? 'ph-fill ph-microphone-stage text-xl text-white'
+            : 'ph ph-microphone-stage text-xl';
     }
 
     document.querySelectorAll('.nav-item').forEach(item => {
@@ -1519,6 +1628,9 @@ async function playSong(index, contextQueue = null) {
     if (pTitle)  pTitle.innerText  = song.title;
     if (pArtist) pArtist.innerText = song.artist;
     if (pCover)  pCover.src        = song.coverUrl;
+    // Sync mobile cover
+    const pCoverMobile = document.getElementById('player-cover-mobile');
+    if (pCoverMobile) pCoverMobile.src = song.coverUrl;
     const sb = document.getElementById('main-sidebar');
     if (sb && !sb.classList.contains('sidebar-collapsed')) sb.classList.add('sidebar-collapsed');
     updateLikeIcon(); updateLyricsView();
