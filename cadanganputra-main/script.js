@@ -231,7 +231,7 @@ let galleryData = [
         title: 'Putra masuk google pertamakali',
         desc: 'sesuai judul. ya begitulah.',
         icon: 'fa-laptop-code',
-        fileUrl: '1.jpg'
+        fileUrl: 'foto/1.jpg'
     },
     {
         id: 2,
@@ -246,7 +246,7 @@ let galleryData = [
         title: 'Putra Pidato Ketua Pelaksana',
         desc: 'ketuplak harbuknas 2026 di smpit assyifa!',
         icon: 'fa-users',
-        fileUrl: '2.png'
+        fileUrl: 'foto/2.png'
     },
     {
         id: 4,
@@ -254,7 +254,7 @@ let galleryData = [
         title: 'Putra OSN IPS',
         desc: 'masuk web seabagai perwakilan sekolah',
         icon: 'fa-image',
-        fileUrl: '3.jpg'
+        fileUrl: 'foto/3.jpg'
     }
 ];
 

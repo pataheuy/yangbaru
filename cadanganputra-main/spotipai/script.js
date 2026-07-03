@@ -1,8 +1,8 @@
 // ==========================================
 // KONFIGURASI SUPABASE
 // ==========================================
-const SUPABASE_URL = 'https://puywjdopumlzvmzbcudr.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1eXdqZG9wdW1senZtemJjdWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDE3MTksImV4cCI6MjA4NzkxNzcxOX0.vvThyjtK2SlA9oA9Mr_XOmt1R_tNZk-ib3PO9XpiiSc';
+const SUPABASE_URL = 'https://xhgwgdsurorujsvwzdpi.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhoZ3dnZHN1cm9ydWpzdnd6ZHBpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMwMzUxMzEsImV4cCI6MjA5ODYxMTEzMX0.Az8W5OaQEpZHCtmJ1mUvRAF_O8jlOFAM3zDIE3KTfew';
 
 // supabaseClient diinisialisasi di window.onload agar CDN pasti sudah siap
 let supabaseClient = null;
@@ -315,22 +315,30 @@ function handleArtistInputKey(e, mode) {
 // HEADER SEARCH
 // ==========================================
 function handleHeaderSearch(val) {
-    const heading = document.getElementById('songs-section-heading');
-    const grid = document.getElementById('songs-grid');
+    const heading  = document.getElementById('songs-section-heading');
+    const grid     = document.getElementById('songs-grid');
     const clearBtn = document.getElementById('header-search-clear');
     if (clearBtn) clearBtn.classList.toggle('hidden', !val.trim());
+
+    const hasQuery = val.trim().length > 0;
+
+    // Pindah ke tab home dulu kalau belum di sana
+    const homeTab = document.getElementById('tab-home');
+    if (hasQuery && homeTab && homeTab.classList.contains('hidden')) {
+        switchTab('home');
+    }
+
     const hideOnSearch = [
         document.getElementById('home-trending-heading'),
         document.getElementById('trending-songs-grid'),
         document.getElementById('home-artists-heading'),
         document.getElementById('trending-artists-grid'),
         document.querySelector('#tab-home > hr'),
-        // Sembunyikan section playlist dari pendengar saat search
         document.querySelector('#tab-home > div.flex.items-center.justify-between'),
         document.getElementById('public-playlists-grid'),
     ];
-    const hasQuery = val.trim().length > 0;
     hideOnSearch.forEach(el => { if (el) el.style.display = hasQuery ? 'none' : ''; });
+
     if (!hasQuery) {
         if (heading) heading.textContent = 'Semua Lagu';
         renderHome(); return;
@@ -339,7 +347,7 @@ function handleHeaderSearch(val) {
     const filtered = songs.filter(s => s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q));
     if (heading) heading.textContent = `Hasil: "${val}" (${filtered.length} lagu)`;
     if (grid) {
-        grid.className = 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6';
+        grid.className = 'grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3';
         renderSongs(filtered, grid, 'all');
     }
 }
@@ -372,16 +380,24 @@ let isQueueOpen = false;
 function toggleLyricsTab() {
     // Kalau sedang di lyrics → balik ke home
     const lyricsTab = document.getElementById('tab-lyrics');
-    if (lyricsTab && !lyricsTab.classList.contains('hidden')) {
+    const isOnLyrics = lyricsTab && !lyricsTab.classList.contains('hidden');
+
+    if (isOnLyrics) {
         switchTab('home');
-        // Update icon mobile
-        const btn = document.getElementById('btn-lyrics-mobile');
-        if (btn) btn.querySelector('i').className = 'ph ph-microphone-stage text-xl';
+        // Reset semua ikon lirik
+        const btnMobile  = document.getElementById('btn-lyrics-mobile');
+        const btnDesktop = document.getElementById('btn-lyrics-desktop');
+        if (btnMobile)  btnMobile.querySelector('i').className  = 'ph ph-microphone-stage text-xl';
+        if (btnDesktop) btnDesktop.querySelector('i').className = 'ph ph-microphone-stage';
+        if (btnDesktop) btnDesktop.style.color = '';
     } else {
         switchTab('lyrics');
-        // Highlight icon mobile
-        const btn = document.getElementById('btn-lyrics-mobile');
-        if (btn) btn.querySelector('i').className = 'ph-fill ph-microphone-stage text-xl text-white';
+        // Highlight ikon lirik
+        const btnMobile  = document.getElementById('btn-lyrics-mobile');
+        const btnDesktop = document.getElementById('btn-lyrics-desktop');
+        if (btnMobile)  btnMobile.querySelector('i').className  = 'ph-fill ph-microphone-stage text-xl text-white';
+        if (btnDesktop) btnDesktop.querySelector('i').className = 'ph-fill ph-microphone-stage';
+        if (btnDesktop) btnDesktop.style.color = 'white';
     }
 }
 
@@ -747,12 +763,15 @@ function switchTab(tabId) {
         targetTab.classList.add('page-enter');
     }
 
-    // Reset icon lirik mobile kalau pindah dari lyrics
-    const btnLyricsMobile = document.getElementById('btn-lyrics-mobile');
-    if (btnLyricsMobile) {
-        btnLyricsMobile.querySelector('i').className = tabId === 'lyrics'
-            ? 'ph-fill ph-microphone-stage text-xl text-white'
-            : 'ph ph-microphone-stage text-xl';
+    // Reset icon lirik mobile & desktop kalau pindah dari lyrics
+    const btnLyricsMobile  = document.getElementById('btn-lyrics-mobile');
+    const btnLyricsDesktop = document.getElementById('btn-lyrics-desktop');
+    if (tabId === 'lyrics') {
+        if (btnLyricsMobile)  btnLyricsMobile.querySelector('i').className  = 'ph-fill ph-microphone-stage text-xl text-white';
+        if (btnLyricsDesktop) { btnLyricsDesktop.querySelector('i').className = 'ph-fill ph-microphone-stage'; btnLyricsDesktop.style.color = 'white'; }
+    } else {
+        if (btnLyricsMobile)  btnLyricsMobile.querySelector('i').className  = 'ph ph-microphone-stage text-xl';
+        if (btnLyricsDesktop) { btnLyricsDesktop.querySelector('i').className = 'ph ph-microphone-stage'; btnLyricsDesktop.style.color = ''; }
     }
 
     document.querySelectorAll('.nav-item').forEach(item => {
