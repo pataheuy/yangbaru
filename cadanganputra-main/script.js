@@ -3,39 +3,50 @@
 // ============================================================
 
 // ===== DATA PROYEK =====
+// Untuk nambah proyek baru, copy salah satu blok di bawah dan isi:
+//   no        : nomor urut
+//   title     : judul proyek
+//   titlePrefix: bagian awal yang diberi warna abu (opsional, biasanya 'Pufutara')
+//   kategori  : badge kecil di kartu
+//   desc      : deskripsi singkat
+//   cover     : path foto — taruh di folder /foto/ lalu tulis '/foto/namafile.png'
+//   link      : URL tujuan saat kartu diklik
+//   category  : 'web' atau 'desktop' (untuk filter)
+// ---------------------------------------------------------------
 const proyekData = [
-    { no: 1, title: 'PufutaraOS', titlePrefix: 'Pufutara', kategori: 'OS', desc: 'Sistem operasi modern berbasis web. Cita-cita Putra waktu kecil akhirnya terwujud di PC Labkom!', cover: '/foto/cover1.png', link: '/os/index.html', category: 'web' },
-    { no: 2, title: 'PufutaraArchive', titlePrefix: 'Pufutara', kategori: 'Web App', desc: 'Platform pusat proyek web dengan desain modern, rounded, dan minimalis.', cover: '/foto/cover18.png', link: 'indexlama.html', category: 'web' },
-    { no: 3, title: 'MutabaahOS', kategori: 'Startup', desc: 'Landing page proyek full stack dan full keren. InsyaAllah jadi startup baru di Indo.', cover: '/foto/cover19.png', link: 'https://mutabaahos.vercel.app', category: 'desktop' },
-    { no: 4, title: 'PufutaraTube', titlePrefix: 'Pufutara', kategori: 'Media', desc: 'Tempat nonton video favorit tanpa iklan yang mengganggu fokus koding kamu.', cover: '/foto/cover2.png', link: '/tube/index.html', category: 'web' },
-    { no: 5, title: 'PufutaraChat', titlePrefix: 'Pufutara', kategori: 'Comm', desc: 'Obrolan Simple, tambah akun, login, langsung chat ke semua orang secara real-time.', cover: '/foto/cover3.png', link: '/chat/index.html', category: 'web' },
-    { no: 6, title: 'PufutaraDrive', titlePrefix: 'Pufutara', kategori: 'Cloud', desc: 'Simpan file-file penting proyek kodingan kamu dengan aman dan mudah diakses di mana saja.', cover: '/foto/cover4.png', link: '/drive/index.html', category: 'web' },
-    { no: 7, title: 'PufutaraGallery', titlePrefix: 'Pufutara', kategori: 'Fullstack', desc: 'Proyek Full Stack pertama Putra! Upload foto otomatis tersimpan ke server untuk dilihat semua orang.', cover: '/foto/cover5.png', link: '/gallery/index.html', category: 'web' },
-    { no: 8, title: 'PufutaraAudio', titlePrefix: 'Pufutara', kategori: 'Audio', desc: 'Dengerin lo-fi beat dan ambience alam biar koding makin chill dan nggak spaneng.', cover: '/foto/cover6.png', link: '/audio/index.html', category: 'web' },
-    { no: 9, title: 'Pufutara MiniGames', titlePrefix: 'Pufutara', kategori: 'Fun', desc: 'Kumpulan game ringan buat refreshing otak setelah pusing ngurusin bug di HTML.', cover: '/foto/cover7.png', link: '/game/index.html', category: 'web' },
-    { no: 10, title: 'Pufutara ProPaint', titlePrefix: 'Pufutara', kategori: 'Design', desc: 'Gambar dan sketsa apa saja dengan mudah. Aplikasi simpel, tapi tools-nya profesional.', cover: '/foto/cover8.png', link: '/paint/index.html', category: 'web' },
-    { no: 11, title: 'Pufutara Writer', titlePrefix: 'Pufutara', kategori: 'Writing', desc: 'Pengolahan kata yang cepat dan ringan. Cocok buat nulis ide proyek yang tiba-tiba muncul.', cover: '/foto/cover9.png', link: '/write/index.html', category: 'web' },
-    { no: 12, title: 'Pufutara DigLib', titlePrefix: 'Pufutara', kategori: 'Library', desc: 'Perpustakaan digital dan info cuaca Jalancagak biar tau kapan harus bawa payung ke Labkom.', cover: '/foto/cover10.png', link: '/library/index.html', category: 'web' },
-    { no: 13, title: 'Pufutara SpinWheel', titlePrefix: 'Pufutara', kategori: 'Tools', desc: 'Putuskan kelompok belajar atau pilihan sulit lainnya dengan roda tak terduga ini.', cover: '/foto/cover11.png', link: '/spin/index.html', category: 'web' },
-    { no: 14, title: 'Pufutara Workspace', titlePrefix: 'Pufutara', kategori: 'Hub', desc: 'Hub pusat aplikasi produktivitas Pufutara, gabungan dari berbagai proyek jadi satu.', cover: '/foto/cover12.png', link: '/work/index.html', category: 'web' },
-    { no: 15, title: 'Pufutara ToDo List', titlePrefix: 'Pufutara', kategori: 'Focus', desc: 'List tugas simpel dan modern untuk Putra yang pelupa biar jadwal tetap teratur.', cover: '/foto/cover13.png', link: '/todo/index.html', category: 'web' },
-    { no: 16, title: 'Pufutara Habit Tracker', titlePrefix: 'Pufutara', kategori: 'Goals', desc: 'Pantau proses membangun kebiasaan baik dan hilangkan kebiasaan buruk setiap hari.', cover: '/foto/cover14.png', link: '/habit/index.html', category: 'web' },
-    { no: 17, title: 'Pufutara News & Calc', titlePrefix: 'Pufutara', kategori: 'Utility', desc: 'Baca berita terbaru atau pakai kalkulator sains akurat buat bantu tugas Labkom kamu.', cover: '/foto/cover15.png', link: '/news/landing.html', category: 'web' },
-    { no: 18, title: 'Pufutara Web V2', titlePrefix: 'Pufutara', kategori: 'Official', desc: 'Website utama Putra versi terbaru. Modern, cepat, dan pastinya tetap \'putraganteng\'.', cover: '/foto/cover16.png', link: 'https://pufuta.vercel.app', category: 'web' },
-    { no: 19, title: 'Pufutara Web V1', titlePrefix: 'Pufutara', kategori: 'History', desc: 'Saksi bisu perjalanan di BEM. Tanya anak BEM se-Sikma kalau mau tau sejarah web ini!', cover: '/foto/cover17.png', link: 'https://kanay.vercel.app', category: 'web' },
-    { no: 20, title: 'Pufutara AI', titlePrefix: 'Pufutara', kategori: 'AI', desc: 'AI chatbot menggunakan Gemini API key sebagai dasar AI nya.', cover: '/foto/cover20.png', link: 'https://pufutaraai.vercel.app', category: 'web' },
-    { no: 21, title: 'Pufutara Calc Pro', titlePrefix: 'Pufutara', kategori: 'Utility', desc: 'Kalkulator modern dengan fungsi sains, persentase, dan riwayat perhitungan.', cover: '/foto/cover21.png', link: '/calc/index.html', category: 'web' },
-    { no: 22, title: 'Pufutara Vote System', titlePrefix: 'Pufutara', kategori: 'Web', desc: 'Sistem voting sederhana untuk menentukan pilihan kelas atau keputusan bersama.', cover: '/foto/cover22.png', link: '/vote/index.html', category: 'web' },
-    { no: 23, title: 'Pufutara Quiz App', titlePrefix: 'Pufutara', kategori: 'Edu', desc: 'Uji pengetahuanmu lewat kuis interaktif. Pilihan gacor dan leaderboard seru.', cover: '/foto/cover23.png', link: '/quiz/index.html', category: 'web' },
-    { no: 24, title: 'Pufutara StikiNot', titlePrefix: 'Pufutara', kategori: 'App', desc: 'Aplikasi catatan ringan, mendukung rich text dan fitur praktis lainnya.', cover: '/foto/cover24.png', link: '/stikinot/index.html', category: 'desktop' },
-    { no: 25, title: 'Pufutara Cahier', titlePrefix: 'Pufutara', kategori: 'Note', desc: 'Jurnal digital minimalis. Catat ide atau tugas sekolah dengan antarmuka menenangkan.', cover: '/foto/cover25.png', link: '/kasir/index.html', category: 'web' },
-    { no: 26, title: 'Pufutara Shop', titlePrefix: 'Pufutara', kategori: 'Store', desc: 'Toko merchandise resmi Pufutara. Dukung terus karya lokal.', cover: '/foto/cover26.png', link: '/shop/index.html', category: 'web' },
-    { no: 27, title: 'Pufutara Browser', titlePrefix: 'Pufutara', kategori: 'Tools', desc: 'Browser cepat, ringan dan modern! dibuat dari framework electron.', cover: '/foto/cover27.png', link: '/browser/index.html', category: 'desktop' },
-    { no: 28, title: 'Mang Pey', kategori: 'Client', desc: 'Web buat temen pertama putra. dibuat saat gabut di hari minggu di ruang BEM.', cover: '/foto/cover28.png', link: '/dapurmangpey/index.html', category: 'web' },
-    { no: 29, title: 'KLS WEB', kategori: 'Pro', desc: 'Landing page website organisasi authot pufutara. Kece banget kek profesional.', cover: '/foto/cover29.png', link: '/kls/index.html', category: 'web' },
-    { no: 30, title: 'Pufutara AI 2.0', titlePrefix: 'Pufutara', kategori: 'AI', desc: 'AI chatbot generasi terbaru, lebih mantap dan berkualitas tinggi.', cover: '/foto/cover30.png', link: 'https://pufutara-ai--putraazzam2110.replit.app/', category: 'web' },
-    { no: 31, title: 'DepDik Putra Web', kategori: 'Our lovely Departement', desc: 'Web departmen pendidikan bem asbosch. dibuat dengan alasan untuk menyaingi web bapuk S.id depdik putri yg bayi pun bisa bikin', cover: '/foto/cover32.png', link: '/depdikweb/index.html', category: 'web' },
-    { no: 32, title: 'PufutaraCBT', kategori: 'Concept', desc: 'CBT bersih dan aman! gaperlu pakai exam browser lagi! otoamtis fullscreen! dan kalo keluar otomatis di Ban.', cover: '/foto/cover31.png', link: 'cbt/index.html', category: 'web' },
+    // --- Web Apps ---
+    { no: 1,  title: 'PufutaraOS',           titlePrefix: 'Pufutara', kategori: 'OS',                     cover: '/foto/os.png',          link: '/os/index.html',                                          category: 'web',     desc: 'Sistem operasi modern berbasis web. Cita-cita Putra waktu kecil akhirnya terwujud di PC Labkom!' },
+    { no: 2,  title: 'PufutaraArchive',       titlePrefix: 'Pufutara', kategori: 'Web App',                cover: '/foto/archive.png',      link: 'indexlama.html',                                          category: 'web',     desc: 'Platform pusat proyek web dengan desain modern, rounded, dan minimalis.' },
+    { no: 3,  title: 'MutabaahOS',                                     kategori: 'Startup',                cover: '/foto/mutabaahos.png',   link: 'https://mutabaahos.vercel.app',                           category: 'desktop', desc: 'Landing page proyek full stack dan full keren. InsyaAllah jadi startup baru di Indo.' },
+    { no: 4,  title: 'PufutaraTube',          titlePrefix: 'Pufutara', kategori: 'Media',                  cover: '/foto/tube.png',         link: '/tube/index.html',                                        category: 'web',     desc: 'Tempat nonton video favorit tanpa iklan yang mengganggu fokus koding kamu.' },
+    { no: 5,  title: 'PufutaraChat',          titlePrefix: 'Pufutara', kategori: 'Comm',                   cover: '/foto/chat.png',         link: '/chat/index.html',                                        category: 'web',     desc: 'Obrolan Simple, tambah akun, login, langsung chat ke semua orang secara real-time.' },
+    { no: 6,  title: 'PufutaraDrive',         titlePrefix: 'Pufutara', kategori: 'Cloud',                  cover: '/foto/cloud.png',        link: '/drive/index.html',                                       category: 'web',     desc: 'Simpan file-file penting proyek kodingan kamu dengan aman dan mudah diakses di mana saja.' },
+    { no: 7,  title: 'PufutaraGallery',       titlePrefix: 'Pufutara', kategori: 'Fullstack',              cover: '/foto/foto.jfif',        link: '/gallery/index.html',                                     category: 'web',     desc: 'Proyek Full Stack pertama Putra! Upload foto otomatis tersimpan ke server untuk dilihat semua orang.' },
+    { no: 8,  title: 'PufutaraAudio',         titlePrefix: 'Pufutara', kategori: 'Audio',                  cover: '/foto/mp3music.png',     link: '/audio/index.html',                                       category: 'web',     desc: 'Dengerin lo-fi beat dan ambience alam biar koding makin chill dan nggak spaneng.' },
+    { no: 9,  title: 'Pufutara MiniGames',    titlePrefix: 'Pufutara', kategori: 'Fun',                    cover: '/foto/game.png',         link: '/game/index.html',                                        category: 'web',     desc: 'Kumpulan game ringan buat refreshing otak setelah pusing ngurusin bug di HTML.' },
+    { no: 10, title: 'Pufutara ProPaint',     titlePrefix: 'Pufutara', kategori: 'Design',                 cover: '/foto/paint.png',        link: '/paint/index.html',                                       category: 'web',     desc: 'Gambar dan sketsa apa saja dengan mudah. Aplikasi simpel, tapi tools-nya profesional.' },
+    { no: 11, title: 'Pufutara Writer',       titlePrefix: 'Pufutara', kategori: 'Writing',                cover: '/foto/writer.png',       link: '/write/index.html',                                       category: 'web',     desc: 'Pengolahan kata yang cepat dan ringan. Cocok buat nulis ide proyek yang tiba-tiba muncul.' },
+    { no: 12, title: 'Pufutara DigLib',       titlePrefix: 'Pufutara', kategori: 'Library',                cover: '/foto/diglib.png',       link: '/library/index.html',                                     category: 'web',     desc: 'Perpustakaan digital dan info cuaca Jalancagak biar tau kapan harus bawa payung ke Labkom.' },
+    { no: 13, title: 'Pufutara SpinWheel',    titlePrefix: 'Pufutara', kategori: 'Tools',                  cover: '/foto/spinwheel.png',    link: '/spin/index.html',                                        category: 'web',     desc: 'Putuskan kelompok belajar atau pilihan sulit lainnya dengan roda tak terduga ini.' },
+    { no: 14, title: 'Pufutara Workspace',    titlePrefix: 'Pufutara', kategori: 'Hub',                    cover: '/foto/workspace.png',    link: '/work/index.html',                                        category: 'web',     desc: 'Hub pusat aplikasi produktivitas Pufutara, gabungan dari berbagai proyek jadi satu.' },
+    { no: 15, title: 'Pufutara ToDo List',    titlePrefix: 'Pufutara', kategori: 'Focus',                  cover: '/foto/Todo.png',         link: '/todo/index.html',                                        category: 'web',     desc: 'List tugas simpel dan modern untuk Putra yang pelupa biar jadwal tetap teratur.' },
+    { no: 16, title: 'Pufutara Habit Tracker',titlePrefix: 'Pufutara', kategori: 'Goals',                  cover: '/foto/habit.png',        link: '/habit/index.html',                                       category: 'web',     desc: 'Pantau proses membangun kebiasaan baik dan hilangkan kebiasaan buruk setiap hari.' },
+    { no: 17, title: 'Pufutara News & Calc',  titlePrefix: 'Pufutara', kategori: 'Utility',                cover: '/foto/news.png',         link: '/news/landing.html',                                      category: 'web',     desc: 'Baca berita terbaru atau pakai kalkulator sains akurat buat bantu tugas Labkom kamu.' },
+    { no: 18, title: 'Pufutara Web V2',       titlePrefix: 'Pufutara', kategori: 'Official',               cover: '/foto/webv2.png',        link: 'https://pufuta.vercel.app',                               category: 'web',     desc: "Website utama Putra versi terbaru. Modern, cepat, dan pastinya tetap 'putraganteng'." },
+    { no: 19, title: 'Pufutara Web V1',       titlePrefix: 'Pufutara', kategori: 'History',                cover: '/foto/webv1.png',        link: 'https://kanay.vercel.app',                                category: 'web',     desc: 'Saksi bisu perjalanan di BEM. Tanya anak BEM se-Sikma kalau mau tau sejarah web ini!' },
+    { no: 20, title: 'Pufutara AI',           titlePrefix: 'Pufutara', kategori: 'AI',                     cover: '/foto/ai1.png',          link: 'https://pufutaraai.vercel.app',                           category: 'web',     desc: 'AI chatbot menggunakan Gemini API key sebagai dasar AI nya.' },
+    { no: 21, title: 'Pufutara Calc Pro',     titlePrefix: 'Pufutara', kategori: 'Utility',                cover: '/foto/calculator.png',   link: '/calc/index.html',                                        category: 'web',     desc: 'Kalkulator modern dengan fungsi sains, persentase, dan riwayat perhitungan.' },
+    { no: 22, title: 'Pufutara Vote System',  titlePrefix: 'Pufutara', kategori: 'Web',                    cover: '/foto/vote.png',         link: '/vote/index.html',                                        category: 'web',     desc: 'Sistem voting sederhana untuk menentukan pilihan kelas atau keputusan bersama.' },
+    { no: 23, title: 'Pufutara Quiz App',     titlePrefix: 'Pufutara', kategori: 'Edu',                    cover: '/foto/quiz.png',         link: '/quiz/index.html',                                        category: 'web',     desc: 'Uji pengetahuanmu lewat kuis interaktif. Pilihan gacor dan leaderboard seru.' },
+    { no: 24, title: 'Pufutara StikiNot',     titlePrefix: 'Pufutara', kategori: 'App',                    cover: '/foto/stikinot.png',     link: '/stikinot/index.html',                                    category: 'desktop', desc: 'Aplikasi catatan ringan, mendukung rich text dan fitur praktis lainnya.' },
+    { no: 25, title: 'Pufutara Cahier',       titlePrefix: 'Pufutara', kategori: 'Note',                   cover: '/foto/cashier.png',      link: '/kasir/index.html',                                       category: 'web',     desc: 'Jurnal digital minimalis. Catat ide atau tugas sekolah dengan antarmuka menenangkan.' },
+    { no: 26, title: 'Pufutara Shop',         titlePrefix: 'Pufutara', kategori: 'Store',                  cover: '/foto/shop.png',         link: '/shop/index.html',                                        category: 'web',     desc: 'Toko merchandise resmi Pufutara. Dukung terus karya lokal.' },
+    { no: 27, title: 'Pufutara Browser',      titlePrefix: 'Pufutara', kategori: 'Tools',                  cover: '/foto/browser.png',      link: '/browser/index.html',                                     category: 'desktop', desc: 'Browser cepat, ringan dan modern! dibuat dari framework electron.' },
+    { no: 28, title: 'Mang Pey',                                        kategori: 'Client',                cover: '/foto/mangpey.png',      link: '/dapurmangpey/index.html',                                category: 'web',     desc: 'Web buat temen pertama putra. dibuat saat gabut di hari minggu di ruang BEM.' },
+    { no: 29, title: 'KLS WEB',                                         kategori: 'Pro',                   cover: '/foto/klsweb.png',       link: '/kls/index.html',                                         category: 'web',     desc: 'Landing page website organisasi authot pufutara. Kece banget kek profesional.' },
+    { no: 30, title: 'Pufutara AI 2.0',       titlePrefix: 'Pufutara', kategori: 'AI',                     cover: '/foto/ai2.png',          link: 'https://pufutara-ai--putraazzam2110.replit.app/',         category: 'web',     desc: 'AI chatbot generasi terbaru, lebih mantap dan berkualitas tinggi.' },
+    { no: 31, title: 'DepDik Putra Web',                                kategori: 'Our lovely Departement', cover: '/foto/depdikweb.png',   link: '/depdikweb/index.html',                                   category: 'web',     desc: 'Web departmen pendidikan bem asbosch. dibuat dengan alasan untuk menyaingi web bapuk S.id depdik putri yg bayi pun bisa bikin' },
+    { no: 32, title: 'PufutaraCBT',                                     kategori: 'Concept',               cover: '/foto/sarankritik.png',  link: 'cbt/index.html',                                          category: 'web',     desc: 'CBT bersih dan aman! gaperlu pakai exam browser lagi! otoamtis fullscreen! dan kalo keluar otomatis di Ban.' },
 ];
 
 // ===== RENDER PROYEK =====
@@ -418,24 +429,26 @@ renderGallery('semua');
 // ============================================================
 // PRESTASI & ORGANISASI
 // ============================================================
-const organisasiData = [
-    { nama: 'Staff humas dan ASFERA 2026',  periode: 'Bertanggung jawab untuk mendokumentasikan acara dengan baik',                 peran: '2025-2026' },
-    { nama: 'Ketua Komunitas Literasi Sekolah',   periode: 'Smpit Assyifa Boarding School Jalancagak',                              peran: '2025-2026' },
-    { nama: 'Anggota Badan Eksekutif Murid (BEM) Pendidikan', periode: 'Organisasi tertinggi dan sekelas OSIS negri, di Assyifa',   peran: '2025-2026' },
-    { nama: 'Sekretaris Organisasi Mitra Duta Kesehatan Asrama',   periode: 'Organisasi Asrama dari pembinaan',                     peran: '2025-2026' },
-    { nama: 'Sekretaris Halaqoh BPA', periode: 'Kelompok Bina Pribadi Assyifa Ustad Syaiful Anwar',                                 peran: '2025-2026' },
-    { nama: 'Anggota Organisasi Angkatan : Keagamaan',  periode: 'Organisasi angkatan 17. Revourner. di Assyifa',                   peran: '2025-2026' },
-    { nama: 'Anggota Komunitas Literasi Sekolah',  periode: 'Sebelum jadi ketua. kabinet Ki Hadjar Dewantara',                      peran: '2025-2026' },
 
+// Untuk nambah: copy salah satu baris, isi nama/periode/peran
+const organisasiData = [
+    { nama: 'Staff Humas dan ASFERA 2026',                    periode: 'Bertanggung jawab mendokumentasikan acara dengan baik',          peran: '2025-2026' },
+    { nama: 'Ketua Komunitas Literasi Sekolah',               periode: 'SMPIT Assyifa Boarding School Jalancagak',                       peran: '2025-2026' },
+    { nama: 'Anggota BEM Departemen Pendidikan',              periode: 'Organisasi tertinggi setara OSIS negri, di Assyifa',              peran: '2025-2026' },
+    { nama: 'Sekretaris Org. Mitra Duta Kesehatan Asrama',    periode: 'Organisasi asrama dari pembinaan',                               peran: '2025-2026' },
+    { nama: 'Sekretaris Halaqoh BPA',                         periode: 'Kelompok Bina Pribadi Assyifa — Ust. Syaiful Anwar',             peran: '2025-2026' },
+    { nama: 'Anggota Organisasi Angkatan — Keagamaan',        periode: 'Organisasi angkatan 17 "Revourner" di Assyifa',                  peran: '2025-2026' },
+    { nama: 'Anggota Komunitas Literasi Sekolah',             periode: 'Sebelum jadi ketua — kabinet Ki Hadjar Dewantara',               peran: '2025-2026' },
 ];
 
+// Untuk nambah: copy salah satu baris, isi tahun/judul/desc
 const prestasiData = [
-    { tahun: '2026',        judul: 'Juara 2 Santri Cinta Lingkungan',    desc: 'juara 2 konsisten membantu membersihkan lingkungan sekolah Assyifa.' },
-    { tahun: '2026',        judul: 'Dormitory Award — Hafalan Terbanyak',    desc: 'Kategori reguler pembinaan: 2 Juz 10 Halaman dalam satu semester.' },
-    { tahun: '2026',        judul: 'Klub OSN SMPIT Assyifa (Tahap 3)',        desc: 'Pelatihan Olimpiade Sains Nasional tingkat sekolah tahap lanjut.' },
-    { tahun: '2026',        judul: 'KOSSMI IPS Provinsi',                    desc: 'Peserta Kompetisi Sains Siswa Muslim Indonesia tingkat Jawa Barat.' },
-    { tahun: '2020 – 2026', judul: 'Ranking 3 Ijazah SDIT Al-Hikmah',          desc: 'Peringkat 3 rata-rata nilai selama 6 tahun (Angkatan 18).' },
-    { tahun: '2019',        judul: 'Juara 3 Mewarnai',                       desc: 'Pemenang lomba tingkat kelas 2 SDIT Al-Hikmah.' },
+    { tahun: '2026',        judul: 'Juara 2 Santri Cinta Lingkungan',    desc: 'Juara 2 konsisten membantu membersihkan lingkungan sekolah Assyifa.' },
+    { tahun: '2026',        judul: 'Dormitory Award — Hafalan Terbanyak', desc: 'Kategori reguler pembinaan: 2 Juz 10 Halaman dalam satu semester.' },
+    { tahun: '2026',        judul: 'Klub OSN SMPIT Assyifa (Tahap 3)',    desc: 'Pelatihan Olimpiade Sains Nasional tingkat sekolah tahap lanjut.' },
+    { tahun: '2026',        judul: 'KOSSMI IPS Provinsi',                 desc: 'Peserta Kompetisi Sains Siswa Muslim Indonesia tingkat Jawa Barat.' },
+    { tahun: '2020–2026',   judul: 'Ranking 3 Ijazah SDIT Al-Hikmah',    desc: 'Peringkat 3 rata-rata nilai selama 6 tahun (Angkatan 18).' },
+    { tahun: '2019',        judul: 'Juara 3 Mewarnai',                    desc: 'Pemenang lomba tingkat kelas 2 SDIT Al-Hikmah.' },
 ];
 
 function renderOrganisasi() {
