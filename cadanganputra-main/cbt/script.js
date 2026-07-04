@@ -389,6 +389,8 @@
                     btn.className = "tab-btn border-b-2 border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 font-medium px-3 py-3 text-sm flex items-center space-x-2";
                 }
             });
+            // Render konten sesuai tab yang dibuka
+            if (tabId === 'tab-admins') renderAdminsTable();
         }
 
         // Switch Tab Murid
