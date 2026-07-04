@@ -1639,17 +1639,18 @@ async function playSong(index, contextQueue = null) {
 
     currentSongIndex = index;
     const song = songs[index];
-    audio.src = song.audioUrl;
+    audio.src = song.audioUrl ? song.audioUrl.replace('puywjdopumlzvmzbcudr.supabase.co', 'xhgwgdsurorujsvwzdpi.supabase.co') : '';
     // Pastikan DOM elements sudah ada (bisa null jika belum di-init)
     const pTitle  = playerTitle  || document.getElementById('player-title');
     const pArtist = playerArtist || document.getElementById('player-artist');
     const pCover  = playerCover  || document.getElementById('player-cover');
     if (pTitle)  pTitle.innerText  = song.title;
     if (pArtist) pArtist.innerText = song.artist;
-    if (pCover)  pCover.src        = song.coverUrl;
+    const correctedCoverUrl = song.coverUrl ? song.coverUrl.replace('puywjdopumlzvmzbcudr.supabase.co', 'xhgwgdsurorujsvwzdpi.supabase.co') : '';
+    if (pCover)  pCover.src        = correctedCoverUrl;
     // Sync mobile cover
     const pCoverMobile = document.getElementById('player-cover-mobile');
-    if (pCoverMobile) pCoverMobile.src = song.coverUrl;
+    if (pCoverMobile) pCoverMobile.src = correctedCoverUrl;
     const sb = document.getElementById('main-sidebar');
     if (sb && !sb.classList.contains('sidebar-collapsed')) sb.classList.add('sidebar-collapsed');
     updateLikeIcon(); updateLyricsView();
