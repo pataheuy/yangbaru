@@ -11,6 +11,9 @@ let supabaseClient = null;
 let songs = [];
 let likedSongsIds = JSON.parse(localStorage.getItem('spotipai_liked') || '[]');
 let customPlaylists = JSON.parse(localStorage.getItem('bemspotipai_playlists')) || [];
+// Playlist publik yang hanya diimpor oleh sesi sadmin tidak boleh terbawa ke kunjungan berikutnya.
+customPlaylists = customPlaylists.filter(playlist => !playlist._adminManagedPublic);
+localStorage.setItem('bemspotipai_playlists', JSON.stringify(customPlaylists));
 let tempSongIdToAdd = null;
 let playlistToDelete = null;
 let songToDelete = null;
@@ -373,7 +376,7 @@ function performHeaderSearch(val) {
     const filtered = songs.filter(s => s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q));
     if (heading) heading.textContent = `Hasil: "${val}" (${filtered.length} lagu)`;
     if (grid) {
-        grid.className = 'grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-3';
+        grid.className = 'grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3';
         renderSongs(filtered, grid, 'all');
     }
 }
@@ -1894,7 +1897,7 @@ function createSongCard(song, index, playlistId = null, contextQueue = null) {
             <button class="btn-play absolute bottom-2 right-2 bg-spotify-green text-black rounded-full w-12 h-12 flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all shadow-xl hover:scale-105 hover:bg-green-400 z-10"><i class="ph-fill ph-play text-2xl ml-1"></i></button>
         </div>
         <h3 class="font-bold text-white mb-1 truncate text-sm" title="${song.title}">${song.title}</h3>
-        <p class="text-xs text-gray-400 truncate" title="${song.artist}">${song.artist}</p>`;
+        <p class="song-card-artist text-xs text-gray-400 truncate cursor-pointer hover:text-white hover:underline transition-colors" title="Lihat halaman artis ${song.artist}">${song.artist}</p>`;
 
     // Klik kartu atau tombol play → putar dengan konteks
     card.onclick = () => playSong(index, contextQueue);
@@ -1914,6 +1917,14 @@ function createSongCard(song, index, playlistId = null, contextQueue = null) {
     // Tombol like
     const btnLikeCard = card.querySelector('.btn-like');
     if (btnLikeCard) btnLikeCard.onclick = (e) => { e.stopPropagation(); toggleLikeCard(song.id); };
+
+    // Nama penyanyi membuka halaman artis tanpa ikut memutar kartu lagu.
+    const artistLink = card.querySelector('.song-card-artist');
+    if (artistLink) artistLink.onclick = (e) => {
+        e.stopPropagation();
+        const artistName = getArtistNames(song.artist)[0] || song.artist;
+        showArtistPage(artistName);
+    };
 
     return card;
 }

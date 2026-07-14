@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <title>An Error Accoured 404</title>
+    <title>An Error Accaoured 404</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Phosphor Icons dipakai oleh seluruh antarmuka (ph, ph-fill, ph-bold) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
@@ -14,12 +14,6 @@
     <!-- Tambahkan library Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* Skala umum UI 85%. Kartu lagu dan playlist pendengar tetap berukuran
-           proporsional karena ukuran kotaknya ditentukan oleh kolom grid dan rasio 1:1. */
-        html {
-            font-size: 85%;
-        }
-
         /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
@@ -36,6 +30,23 @@
 
         ::-webkit-scrollbar-thumb:hover {
             background: #888;
+        }
+
+        /* Playlist pendengar: enam kartu per baris, dapat digeser seperti Artis Populer. */
+        #public-playlists-grid {
+            display: flex !important;
+            flex-wrap: nowrap !important;
+            overflow-x: auto;
+            gap: 0.75rem;
+            padding-bottom: 0.75rem;
+            scrollbar-width: none;
+        }
+
+        #public-playlists-grid::-webkit-scrollbar { display: none; }
+
+        #public-playlists-grid > div {
+            flex: 0 0 calc((100% - 3.75rem) / 6);
+            min-width: 0;
         }
 
         /* Range slider styling */
@@ -956,7 +967,7 @@
     <!-- 6. Ad Modal (Credit) -->
     <div id="ad-modal"
         class="fixed inset-0 bg-black/80 z-[70] hidden flex-col items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-[#242424] rounded-xl shadow-2xl w-full max-w-[280px] overflow-hidden border border-[#333]">
+        <div class="bg-[#242424] rounded-xl shadow-2xl w-full max-w-[242px] overflow-hidden border border-[#333]">
             <div class="bg-gradient-to-b from-[#1ed760] to-[#242424] p-5 pb-2 flex justify-center">
                 <i class="ph-fill ph-spotify-logo text-6xl text-white drop-shadow-md"></i>
             </div>
@@ -1345,7 +1356,7 @@
                         </div>
                     </div>
                     <div id="public-playlists-grid"
-                        class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-3 mb-8">
+                        class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 mb-8">
                         <p class="text-gray-500 text-sm col-span-full">Memuat playlist...</p>
                     </div>
 
@@ -1364,7 +1375,7 @@
 
                     <h2 id="songs-section-heading" class="text-2xl font-bold mb-4 text-white mt-8">Semua Lagu</h2>
                     <div id="songs-grid"
-                        class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-3">
+                        class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
                         <!-- Song cards will be injected here by JS -->
                     </div>
                 </div>
@@ -1406,7 +1417,7 @@
                         <h2 class="text-xl font-bold mb-6 mt-6 text-white">Lagu oleh <span id="artist-page-name-sub"
                                 class="text-spotify-green">Artis</span></h2>
                         <div id="artist-songs-grid"
-                            class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-3">
+                            class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
                             <!-- Artist songs injected here -->
                         </div>
                     </div>
@@ -1430,7 +1441,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="px-6"><h2 class="mb-6 mt-6 text-xl font-bold text-white">Lagu dalam playlist</h2><div id="public-playlist-songs-grid" class="grid grid-cols-3 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7"></div></div>
+                    <div class="px-6"><h2 class="mb-6 mt-6 text-xl font-bold text-white">Lagu dalam playlist</h2><div id="public-playlist-songs-grid" class="grid grid-cols-3 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"></div></div>
                 </div>
 
                 <!-- All Artists Tab -->
@@ -1460,7 +1471,7 @@
                         </button>
                     </div>
                     <div id="all-public-playlists-grid"
-                        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-5">
+                        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
                         <!-- All public playlists injected here -->
                     </div>
                 </div>
@@ -1512,7 +1523,7 @@
 
                         <h3 class="text-base font-bold text-white mb-4">Semua Hasil</h3>
                         <div id="search-results"
-                            class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-6">
+                            class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
                         </div>
                     </div>
                 </div>
@@ -1587,7 +1598,7 @@
                     </div>
 
                     <div id="custom-playlists-grid"
-                        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-4">
+                        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                         <!-- Custom playlists injected here -->
                     </div>
 
@@ -1597,7 +1608,7 @@
                             <h2 class="text-xl font-bold text-white">Playlist dari Pendengar (Publik)</h2>
                         </div>
                         <div id="admin-listener-playlists-grid"
-                            class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-4">
+                            class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                             <!-- Injected by JS -->
                         </div>
                     </div>
@@ -1650,7 +1661,7 @@
                         </div>
 
                         <div id="detail-playlist-songs"
-                            class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-4">
+                            class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                             <!-- Songs of selected playlist -->
                         </div>
 
