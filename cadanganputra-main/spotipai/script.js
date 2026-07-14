@@ -21,6 +21,12 @@ let currentUser = null;
 let isUploaderMode = false;
 // IDs lagu yang diupload oleh uploader tamu dalam sesi ini
 let uploaderSessionSongIds = [];
+// ID playlist pendengar yang sedang aktif diputar (untuk bypass throttle play count)
+let currentPlayingPlaylistId = null;
+// State untuk modal edit cover playlist
+let coverSlotData = {}; // { 0: {type:'upload'|'song', url:'...'}, ... }
+let coverLayoutMode = 'single'; // 'single' | 'collage'
+let playlistOrderDraft = [];
 
 let currentSongIndex = -1;
 let currentQueue = [];      // Array of song objects untuk konteks aktif (artis / playlist / global)
@@ -37,6 +43,18 @@ let isProcessingEntrance = false;
 
 // Lyrics state
 let currentSyncedLyrics = null;
+let activeLyricIndex = -1;
+
+const TRENDING_ARTISTS_LIMIT = 15;
+let featureTourStep = 0;
+let featureTourTimer = null;
+let isFeatureTourOpen = false;
+let featureTourTargetListener = null;
+let hasShownFeatureTourThisSession = false;
+let isCreditModalComplete = false;
+let featureTourWaitingForCredit = false;
+let searchInputTimer = null;
+let headerSearchTimer = null;
 
 // DOM elements — diisi saat window.onload
 let playerTitle, playerArtist, playerCover, playPauseIcon;
@@ -105,9 +123,12 @@ function handleUploadBtn() {
         // Uploader tamu: label "Menu Uploader"
         const menuLabel = document.getElementById('admin-menu-label');
         if (menuLabel) menuLabel.textContent = 'Menu Uploader';
-// Uploader tamu: tampilkan menu Kelola (hanya lagu sendiri) + Tambah Lagu
+        // Uploader tamu: tampilkan menu Kelola (hanya lagu sendiri) + Tambah Lagu
         const manageLink = document.getElementById('admin-menu').querySelector('[data-tab="admin-manage"]');
         if (manageLink) manageLink.style.display = '';
+        // SEMBUNYIKAN tombol Kelola Playlist untuk uploader tamu (bukan sadmin)
+        const playlistsLinkUploader = document.getElementById('admin-playlists-link');
+        if (playlistsLinkUploader) playlistsLinkUploader.classList.add('hidden');
         const mobileBtn = document.getElementById('mobile-admin-btn');
         if (mobileBtn) { mobileBtn.classList.remove('hidden'); mobileBtn.classList.add('flex'); }
         switchTab('admin-add');
@@ -315,10 +336,15 @@ function handleArtistInputKey(e, mode) {
 // HEADER SEARCH
 // ==========================================
 function handleHeaderSearch(val) {
-    const heading  = document.getElementById('songs-section-heading');
-    const grid     = document.getElementById('songs-grid');
     const clearBtn = document.getElementById('header-search-clear');
     if (clearBtn) clearBtn.classList.toggle('hidden', !val.trim());
+    clearTimeout(headerSearchTimer);
+    headerSearchTimer = setTimeout(() => performHeaderSearch(val), 140);
+}
+
+function performHeaderSearch(val) {
+    const heading  = document.getElementById('songs-section-heading');
+    const grid     = document.getElementById('songs-grid');
 
     const hasQuery = val.trim().length > 0;
 
@@ -360,6 +386,13 @@ function clearHeaderSearch() {
     handleHeaderSearch('');
 }
 
+function clearSearchTabInput() {
+    const input = document.getElementById('search-input');
+    const clearBtn = document.getElementById('search-clear-btn');
+    if (input) { input.value = ''; input.focus(); input.dispatchEvent(new Event('input')); }
+    if (clearBtn) clearBtn.classList.add('hidden');
+}
+
 // ==========================================
 // SIDEBAR & SCROLL
 // ==========================================
@@ -367,9 +400,126 @@ function toggleSidebar() {
     const sidebar = document.getElementById('main-sidebar');
     const btn = document.getElementById('sidebar-toggle-btn');
     if (!sidebar || !btn) return;
+    sidebar.classList.remove('sidebar-hover-expanded');
     sidebar.classList.toggle('sidebar-collapsed');
     const isCollapsed = sidebar.classList.contains('sidebar-collapsed');
     btn.querySelector('i').className = isCollapsed ? 'ph ph-layout text-xl' : 'ph ph-sidebar-simple text-xl';
+}
+
+function initSidebarHoverExpand() {
+    const sidebar = document.getElementById('main-sidebar');
+    if (!sidebar) return;
+
+    sidebar.addEventListener('mouseenter', () => {
+        if (window.innerWidth < 1024 || !sidebar.classList.contains('sidebar-collapsed')) return;
+        sidebar.classList.remove('sidebar-collapsed');
+        sidebar.classList.add('sidebar-hover-expanded');
+    });
+    sidebar.addEventListener('mouseleave', () => {
+        if (!sidebar.classList.contains('sidebar-hover-expanded')) return;
+        sidebar.classList.remove('sidebar-hover-expanded');
+        sidebar.classList.add('sidebar-collapsed');
+    });
+}
+
+// ==========================================
+// TUR FITUR BARU
+// ==========================================
+function getFeatureTourTarget() {
+    const suffix = window.innerWidth >= 768 ? 'desktop' : 'mobile';
+    return featureTourStep === 0
+        ? document.getElementById(`btn-lyrics-${suffix}`)
+        : document.getElementById(`btn-queue${suffix === 'mobile' ? '-mobile' : ''}`);
+}
+
+function clearFeatureTourTargetListener() {
+    if (!featureTourTargetListener) return;
+    featureTourTargetListener.target.removeEventListener('click', featureTourTargetListener.handler);
+    featureTourTargetListener = null;
+}
+
+function closeFeatureTour() {
+    const callout = document.getElementById('feature-tour-callout');
+    const overlay = document.getElementById('feature-tour-overlay');
+    const hookModal = document.getElementById('feature-tour-hook-modal');
+    clearFeatureTourTargetListener();
+    document.querySelectorAll('.feature-tour-highlight').forEach(el => el.classList.remove('feature-tour-highlight'));
+    if (callout) callout.classList.add('hidden');
+    if (overlay) overlay.classList.add('hidden');
+    if (hookModal) { hookModal.classList.add('hidden'); hookModal.classList.remove('flex'); }
+    isFeatureTourOpen = false;
+}
+
+function showFeatureTourStep() {
+    const target = getFeatureTourTarget();
+    const callout = document.getElementById('feature-tour-callout');
+    if (!target || !callout) return closeFeatureTour();
+
+    const steps = [
+        { label: 'Fitur baru · 1 dari 2', title: 'Karaoke Lyrics', description: 'Tekan tombol ini untuk melihat lirik yang mengikuti lagu.' },
+        { label: 'Fitur baru · 2 dari 2', title: 'Antrian lagu', description: 'Lihat dan pilih lagu berikutnya dari antrian pemutaran.' }
+    ];
+    const step = steps[featureTourStep];
+    document.getElementById('feature-tour-step').textContent = step.label;
+    document.getElementById('feature-tour-title').textContent = step.title;
+    document.getElementById('feature-tour-description').textContent = step.description;
+    const next = document.getElementById('feature-tour-next');
+    next.textContent = featureTourStep === steps.length - 1 ? 'Mengerti' : 'Lanjut';
+    next.onclick = () => {
+        clearFeatureTourTargetListener();
+        if (featureTourStep === steps.length - 1) closeFeatureTour();
+        else { featureTourStep += 1; showFeatureTourStep(); }
+    };
+
+    clearFeatureTourTargetListener();
+    const handleTargetClick = () => {
+        featureTourTargetListener = null;
+        if (featureTourStep === steps.length - 1) closeFeatureTour();
+        else {
+            featureTourStep += 1;
+            setTimeout(showFeatureTourStep, 150);
+        }
+    };
+    target.addEventListener('click', handleTargetClick, { once: true });
+    featureTourTargetListener = { target, handler: handleTargetClick };
+    document.querySelectorAll('.feature-tour-highlight').forEach(el => el.classList.remove('feature-tour-highlight'));
+    target.classList.add('feature-tour-highlight');
+    const overlay = document.getElementById('feature-tour-overlay');
+    if (overlay) overlay.classList.remove('hidden');
+    callout.classList.remove('hidden');
+    const rect = target.getBoundingClientRect();
+    const calloutRect = callout.getBoundingClientRect();
+    const placeAbove = rect.top >= calloutRect.height + 24;
+    const left = Math.max(16, Math.min(window.innerWidth - calloutRect.width - 16, rect.left + rect.width / 2 - calloutRect.width / 2));
+    callout.dataset.placement = placeAbove ? 'above' : 'below';
+    callout.style.left = `${left}px`;
+    callout.style.top = `${placeAbove ? rect.top - calloutRect.height - 16 : rect.bottom + 16}px`;
+    callout.style.setProperty('--tour-arrow-left', `${Math.max(18, Math.min(calloutRect.width - 18, rect.left + rect.width / 2 - left))}px`);
+}
+
+function startFeatureTour() {
+    if (isFeatureTourOpen || hasShownFeatureTourThisSession) return;
+    if (!isCreditModalComplete) {
+        featureTourWaitingForCredit = true;
+        return;
+    }
+    const hookModal = document.getElementById('feature-tour-hook-modal');
+    const accept = document.getElementById('feature-tour-accept');
+    const decline = document.getElementById('feature-tour-decline');
+    if (!hookModal || !accept || !decline) return;
+
+    // Hanya tawarkan tur pada lagu pertama yang diputar di halaman ini.
+    hasShownFeatureTourThisSession = true;
+    isFeatureTourOpen = true;
+    hookModal.classList.remove('hidden');
+    hookModal.classList.add('flex');
+    decline.onclick = () => closeFeatureTour();
+    accept.onclick = () => {
+        hookModal.classList.add('hidden');
+        hookModal.classList.remove('flex');
+        featureTourStep = 0;
+        showFeatureTourStep();
+    };
 }
 
 // ==========================================
@@ -589,6 +739,14 @@ function showAdWithDelay() {
             closeBtn.innerText = 'Tutup Kredit';
             closeBtn.disabled = false;
             closeBtn.className = "px-6 py-3 bg-white hover:scale-105 text-black font-bold rounded-full transition-transform active:scale-95 w-full text-xs uppercase tracking-widest shadow-lg";
+            closeBtn.onclick = () => {
+                closeModal('ad-modal');
+                isCreditModalComplete = true;
+                if (featureTourWaitingForCredit) {
+                    featureTourWaitingForCredit = false;
+                    startFeatureTour();
+                }
+            };
         }
     }, 1000);
 }
@@ -675,7 +833,7 @@ function initEasterEgg() {
                 appView.style.transition = 'opacity 0.7s ease 0.3s';
                 requestAnimationFrame(() => requestAnimationFrame(() => { appView.style.opacity = '1'; }));
                 setTimeout(() => fake404.classList.add('hidden'), 700);
-                setTimeout(() => showAdWithDelay(), 3000);
+                setTimeout(() => showAdWithDelay(), 1000);
             }, 1000);
         }
     });
@@ -730,12 +888,22 @@ function initLoginForm() {
         const activeTab = activeTabEl ? activeTabEl.id.replace('tab-', '') : 'home';
         switchTab(activeTab === 'artist' ? 'home' : activeTab);
         updateLikeIcon();
+        // Sadmin: muat playlist publik pendengar agar tersedia di tab Koleksi
+        if (currentUser && currentUser.role === 'admin') {
+            loadPublicPlaylists();
+        }
     });
 }
 
 function logout() {
     audio.pause(); isPlaying = false; updatePlayIcon();
-    currentUser = null; isUploaderMode = false; uploaderSessionSongIds = []; updateUploadBtn();
+    currentUser = null; isUploaderMode = false; uploaderSessionSongIds = []; currentPlayingPlaylistId = null; updateUploadBtn();
+    // Bersihkan playlist pendengar dari customPlaylists saat logout
+    customPlaylists = customPlaylists.filter(p => !p._adminManagedPublic);
+    localStorage.setItem('bemspotipai_playlists', JSON.stringify(customPlaylists));
+    // Sembunyikan section playlist pendengar
+    const adminSection = document.getElementById('admin-listener-playlists-section');
+    if (adminSection) adminSection.classList.add('hidden');
     document.getElementById('auth-login-btn').classList.remove('hidden');
     document.getElementById('auth-user-info').classList.add('hidden');
     document.getElementById('auth-user-info').classList.remove('flex');
@@ -847,7 +1015,7 @@ function renderTrendingOnly() {
             artistMap[artistName].playCount += (s.playCount || 0);
         });
     });
-    const trendingArtists = Object.values(artistMap).sort((a, b) => b.playCount - a.playCount).slice(0, 10);
+    const trendingArtists = Object.values(artistMap).sort((a, b) => b.playCount - a.playCount).slice(0, TRENDING_ARTISTS_LIMIT);
     artistContainer.innerHTML = '';
     if (trendingArtists.length === 0) {
         artistContainer.innerHTML = '<p class="text-gray-500 text-sm">Belum ada artis terdaftar.</p>';
@@ -860,7 +1028,7 @@ function renderTrendingOnly() {
         div.setAttribute('onclick', `showArtistPage('${escapedName}')`);
         div.innerHTML = `
             <div class="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden shadow-lg group-hover:shadow-spotify-green/20 transition-all">
-                <img src="${art.image}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 pointer-events-none select-none" draggable="false">
+                <img src="${art.image}" loading="lazy" decoding="async" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 pointer-events-none select-none" draggable="false">
             </div>
             <span class="text-sm font-bold text-white text-center w-full truncate group-hover:text-spotify-green transition-colors">${art.name}</span>`;
         artistContainer.appendChild(div);
@@ -998,29 +1166,76 @@ function renderSidebarPlaylists() {
     });
 }
 
+function renderPlaylistCoverHtml(pl) {
+    // Mencoba parse cover_url/customCover sebagai JSON kolase
+    const rawCover = pl.customCover || pl.cover_url || '';
+    try {
+        const parsed = JSON.parse(rawCover);
+        if (parsed && parsed.type === 'collage' && Array.isArray(parsed.images)) {
+            const imgs = parsed.images;
+            return `<div class="grid grid-cols-2 w-full h-full">
+                ${imgs.map(url => `<div class="overflow-hidden"><img src="${url || ''}" class="w-full h-full object-cover" onerror="this.parentElement.style.background='#333'"></div>`).join('')}
+            </div>`;
+        }
+    } catch(e) { /* bukan JSON, lanjut */ }
+    // Single image
+    if (rawCover) return `<img src="${rawCover}" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1614613535308-eb51bd3d2c17?w=300&q=80'">`;
+    // Fallback dari lagu pertama
+    if (pl.songs && pl.songs.length > 0) {
+        const firstSong = songs.find(s => s.id === pl.songs[0]);
+        if (firstSong) return `<img src="${firstSong.coverUrl}" class="w-full h-full object-cover">`;
+    }
+    return '<div class="w-full h-full bg-gray-800 flex items-center justify-center"><i class="ph ph-music-notes text-4xl text-gray-500"></i></div>';
+}
+
 function renderCustomPlaylists() {
     const container = document.getElementById('custom-playlists-grid');
     if (!container) return;
     container.innerHTML = '';
-    if (customPlaylists.length === 0) {
+
+    // Filter: tampilkan hanya playlist yang bukan publik (milik user sendiri)
+    const myPlaylists = customPlaylists.filter(p => !p.isPublic || p._ownedThisSession);
+
+    if (myPlaylists.length === 0) {
         container.innerHTML = '<p class="text-gray-500 text-sm col-span-full">Kamu belum membuat playlist kustom apapun.</p>';
-        return;
+    } else {
+        myPlaylists.forEach(pl => {
+            const card = document.createElement('div');
+            card.className = 'bg-spotify-elevated p-4 rounded-md hover:bg-spotify-highlight transition-colors cursor-pointer group';
+            card.onclick = () => showPlaylistDetails(pl.id);
+            const coverHtml = renderPlaylistCoverHtml(pl);
+            card.innerHTML = `
+                <div class="relative mb-4 pb-[100%] shadow-lg rounded overflow-hidden"><div class="absolute top-0 left-0 w-full h-full">${coverHtml}</div></div>
+                <h3 class="font-bold text-white mb-1 truncate text-sm">${pl.name}</h3>
+                <p class="text-xs text-gray-400 truncate">${pl.songs.length} lagu</p>`;
+            container.appendChild(card);
+        });
     }
-    customPlaylists.forEach(pl => {
-        const card = document.createElement('div');
-        card.className = 'bg-spotify-elevated p-4 rounded-md hover:bg-spotify-highlight transition-colors cursor-pointer group';
-        card.onclick = () => showPlaylistDetails(pl.id);
-        let coverHtml = '<div class="w-full h-full bg-gray-800 flex items-center justify-center"><i class="ph ph-music-notes text-4xl text-gray-500"></i></div>';
-        if (pl.songs.length > 0) {
-            const firstSong = songs.find(s => s.id === pl.songs[0]);
-            if (firstSong) coverHtml = `<img src="${firstSong.coverUrl}" class="w-full h-full object-cover">`;
+
+    // Sadmin: tampilkan section playlist dari pendengar
+    const isAdmin = currentUser && currentUser.role === 'admin';
+    const adminSection = document.getElementById('admin-listener-playlists-section');
+    const adminGrid = document.getElementById('admin-listener-playlists-grid');
+    if (adminSection && adminGrid) {
+        if (isAdmin && publicPlaylists.length > 0) {
+            adminSection.classList.remove('hidden');
+            adminGrid.innerHTML = '';
+            publicPlaylists.forEach(pl => {
+                const fakePl = { id: pl.id, name: pl.name, songs: Array.isArray(pl.song_ids) ? pl.song_ids : [], customCover: pl.cover_url || '', cover_url: pl.cover_url || '' };
+                const coverHtml = renderPlaylistCoverHtml(fakePl);
+                const card = document.createElement('div');
+                card.className = 'bg-spotify-elevated p-4 rounded-md hover:bg-spotify-highlight transition-colors cursor-pointer group relative';
+                card.onclick = () => openPublicPlaylistDetail(pl.id);
+                card.innerHTML = `
+                    <div class="relative mb-4 pb-[100%] shadow-lg rounded overflow-hidden"><div class="absolute top-0 left-0 w-full h-full">${coverHtml}</div></div>
+                    <h3 class="font-bold text-white mb-1 truncate text-sm">${pl.name}</h3>
+                    <p class="text-xs text-gray-400 truncate">${fakePl.songs.length} lagu · ${pl.is_public ? '<span class="text-spotify-green">Publik</span>' : 'Privat'}</p>`;
+                adminGrid.appendChild(card);
+            });
+        } else {
+            adminSection.classList.add('hidden');
         }
-        card.innerHTML = `
-            <div class="relative mb-4 pb-[100%] shadow-lg rounded overflow-hidden"><div class="absolute top-0 left-0 w-full h-full">${coverHtml}</div></div>
-            <h3 class="font-bold text-white mb-1 truncate text-sm">${pl.name}</h3>
-            <p class="text-xs text-gray-400 truncate">${pl.songs.length} lagu</p>`;
-        container.appendChild(card);
-    });
+    }
 }
 
 let currentOpenPlaylistId = null; // Track which playlist is open for cover editing
@@ -1076,15 +1291,9 @@ function showPlaylistDetails(id) {
             if (titleElem) titleElem.innerText = pl.name;
             const plSongs = songs.filter(s => pl.songs.includes(s.id));
 
-            // Cover from first song, or custom cover
+            // Cover from custom cover (single/kolase) or first song
             if (coverEl) {
-                const firstSong = plSongs[0];
-                const customCover = pl.customCover || '';
-                if (customCover) {
-                    coverEl.innerHTML = `<img src="${customCover}" class="w-full h-full object-cover">`;
-                } else if (firstSong) {
-                    coverEl.innerHTML = `<img src="${firstSong.coverUrl}" class="w-full h-full object-cover" onerror="this.parentElement.innerHTML='<i class=\\'ph ph-music-notes text-6xl text-gray-500\\'></i>'">`;
-                }
+                coverEl.innerHTML = renderPlaylistCoverHtml({ customCover: pl.customCover || '', songs: pl.songs });
             }
 
             // Edit cover dinonaktifkan
@@ -1116,17 +1325,35 @@ function showPlaylistDetails(id) {
             const playBtn = document.getElementById('playlist-detail-play-btn');
             if (playBtn) playBtn.onclick = () => {
                 if (plSongs.length) {
+                    // Set context playlist untuk bypass throttle play count
+                    if (pl.isPublic) currentPlayingPlaylistId = id;
                     playSong(songs.findIndex(s => s.id === plSongs[0].id), plSongs);
                     // Update play count realtime di beranda
-                    incrementPublicPlaylistPlayCount(id).then(() => renderPublicPlaylists());
+                    if (pl.isPublic) incrementPublicPlaylistPlayCount(id).then(() => renderPublicPlaylists());
                 }
             };
+        }
+    }
+
+    // Tampilkan panel kelola lagu (hanya pemilik atau sadmin)
+    renderPlaylistManageSection(id);
+
+    // Tampilkan tombol edit cover untuk sadmin
+    const pl2 = customPlaylists.find(p => p.id === id);
+    const canEditCover = currentUser?.role === 'admin' || (pl2 && (pl2._ownedThisSession || !pl2.isPublic));
+    if (coverEditBtn) {
+        if (canEditCover) {
+            coverEditBtn.classList.remove('hidden');
+            coverEditBtn.onclick = () => openEditPlaylistCoverModal(id);
+        } else {
+            coverEditBtn.classList.add('hidden');
         }
     }
 }
 
 function closePlaylistDetails() {
     currentOpenPlaylistId = null;
+    currentPlayingPlaylistId = null;
     document.getElementById('playlist-detail-view').classList.add('hidden');
     document.getElementById('custom-playlists-grid').classList.remove('hidden');
     const likedBanner = document.querySelector('#tab-collection > div.cursor-pointer, #tab-collection > div.group');
@@ -1135,6 +1362,356 @@ function closePlaylistDetails() {
     if (playlistsHeading) playlistsHeading.classList.remove('hidden');
     const hr = document.querySelector('#tab-collection > hr');
     if (hr) hr.classList.remove('hidden');
+    // Sembunyikan manage section
+    const manageSection = document.getElementById('playlist-manage-songs-section');
+    if (manageSection) manageSection.classList.add('hidden');
+}
+
+// ==========================================
+// PLAYLIST MANAGE SONGS PANEL
+// ==========================================
+function renderPlaylistManageSection(playlistId) {
+    const section = document.getElementById('playlist-manage-songs-section');
+    if (!section) return;
+
+    const pl = customPlaylists.find(p => p.id === playlistId);
+    const isAdmin = currentUser && currentUser.role === 'admin';
+    const isOwner = pl && (pl._ownedThisSession || (!pl.isPublic));
+    const canManage = isAdmin || isOwner;
+
+    if (!canManage || playlistId === 'liked') {
+        section.classList.add('hidden');
+        return;
+    }
+    section.classList.remove('hidden');
+
+    // Render tabel lagu saat ini
+    const currentTbody = document.getElementById('playlist-current-songs-tbody');
+    if (currentTbody) {
+        const plSongs = pl ? songs.filter(s => pl.songs.includes(s.id)) : [];
+        if (plSongs.length === 0) {
+            currentTbody.innerHTML = '<tr><td colspan="3" class="px-4 py-4 text-center text-gray-500 text-sm">Belum ada lagu di playlist ini.</td></tr>';
+        } else {
+            currentTbody.innerHTML = plSongs.map(song => `
+                <tr class="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors">
+                    <td class="px-4 py-2"><div class="flex items-center gap-2"><img src="${song.coverUrl}" class="w-8 h-8 rounded object-cover hidden sm:block" onerror="this.src='https://images.unsplash.com/photo-1614613535308-eb51bd3d2c17?w=150&q=80'"><span class="text-white text-xs font-medium truncate max-w-[120px]">${song.title}</span></div></td>
+                    <td class="px-4 py-2 text-gray-400 text-xs truncate max-w-[100px]">${song.artist}</td>
+                    <td class="px-4 py-2 text-right">
+                        <button onclick="removeSongFromPlaylist('${playlistId}', '${song.id}')" class="text-red-500 hover:text-white hover:bg-red-500 transition-colors text-xs px-2 py-1 rounded-full border border-red-500/50 hover:border-red-500 flex items-center gap-1 ml-auto">
+                            <i class="ph ph-trash text-xs"></i> Hapus
+                        </button>
+                    </td>
+                </tr>`).join('');
+        }
+    }
+
+    // Setup search bar untuk tambah lagu
+    const searchInput = document.getElementById('playlist-song-search-input');
+    if (searchInput) {
+        searchInput.value = '';
+        setupPlaylistSongSearch(playlistId);
+        searchInput.dispatchEvent(new Event('input'));
+    }
+}
+
+function setupPlaylistSongSearch(playlistId) {
+    const searchInput = document.getElementById('playlist-song-search-input');
+    if (!searchInput) return;
+    // Hindari double listener
+    searchInput.oninput = null;
+    searchInput.oninput = () => {
+        const q = searchInput.value.toLowerCase().trim();
+        const resultsTbody = document.getElementById('playlist-search-results-tbody');
+        if (!resultsTbody) return;
+        const filtered = q ? songs.filter(s =>
+            s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q)
+        ).slice(0, 15) : songs.slice(0, 10);
+
+        const pl = customPlaylists.find(p => p.id === playlistId);
+        const alreadyInPlaylist = pl ? pl.songs : [];
+
+        if (filtered.length === 0) {
+            resultsTbody.innerHTML = '<tr><td colspan="3" class="px-4 py-4 text-center text-gray-500 text-sm">Tidak ada lagu ditemukan.</td></tr>';
+            return;
+        }
+        resultsTbody.innerHTML = filtered.map(song => {
+            const isAdded = alreadyInPlaylist.includes(song.id);
+            return `<tr class="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors">
+                <td class="px-4 py-2"><div class="flex items-center gap-2"><img src="${song.coverUrl}" class="w-8 h-8 rounded object-cover hidden sm:block" onerror="this.src='https://images.unsplash.com/photo-1614613535308-eb51bd3d2c17?w=150&q=80'"><span class="text-white text-xs font-medium truncate max-w-[120px]">${song.title}</span></div></td>
+                <td class="px-4 py-2 text-gray-400 text-xs truncate max-w-[100px]">${song.artist}</td>
+                <td class="px-4 py-2 text-right">
+                    ${isAdded
+                        ? `<span class="text-spotify-green text-xs flex items-center gap-1 justify-end"><i class="ph-fill ph-check-circle"></i> Ada</span>`
+                        : `<button onclick="adminAddSongToPlaylist('${playlistId}', '${song.id}')" class="text-spotify-green hover:text-white hover:bg-spotify-green transition-colors text-xs px-2 py-1 rounded-full border border-spotify-green/50 hover:border-spotify-green flex items-center gap-1 ml-auto"><i class="ph ph-plus text-xs"></i> Tambah</button>`
+                    }
+                </td>
+            </tr>`;
+        }).join('');
+    };
+    searchInput.dispatchEvent(new Event('input'));
+}
+
+async function adminAddSongToPlaylist(playlistId, songId) {
+    const pl = customPlaylists.find(p => p.id === playlistId);
+    if (!pl) return;
+    if (pl.songs.includes(songId)) return showMessage('Lagu sudah ada di playlist', 'error');
+    pl.songs.push(songId);
+    localStorage.setItem('bemspotipai_playlists', JSON.stringify(customPlaylists));
+    // Sync ke Supabase jika publik
+    if (pl.isPublic && supabaseClient) {
+        try {
+            await supabaseClient.from('public_playlists').update({ song_ids: pl.songs }).eq('id', playlistId);
+            const pubPl = publicPlaylists.find(p => p.id === playlistId);
+            if (pubPl) pubPl.song_ids = pl.songs;
+        } catch(e) { console.error('Gagal tambah lagu ke playlist:', e); }
+    }
+    showMessage('Lagu berhasil ditambahkan!');
+    renderPlaylistManageSection(playlistId);
+    // Refresh tampilan lagu playlist
+    const detailSongs = document.getElementById('detail-playlist-songs');
+    const plSongs = songs.filter(s => pl.songs.includes(s.id));
+    renderSongs(plSongs, detailSongs, playlistId);
+}
+
+// ==========================================
+// EDIT COVER PLAYLIST MODAL
+// ==========================================
+function openEditPlaylistCoverModal(playlistId) {
+    currentOpenPlaylistId = playlistId;
+    // Reset state
+    coverSlotData = {};
+    coverLayoutMode = 'single';
+    setCoverLayout('single');
+
+    // Populate dropdown lagu
+    const pl = customPlaylists.find(p => p.id === playlistId);
+    const plSongs = pl ? songs.filter(s => pl.songs.includes(s.id)) : [];
+    const allSongsForDropdown = plSongs.length > 0 ? plSongs : songs.slice(0, 30);
+
+    for (let i = 0; i <= 4; i++) {
+        const sel = document.getElementById(`cover-slot-song-${i}`);
+        if (!sel) continue;
+        sel.innerHTML = '<option value="">-- Pilih lagu --</option>' +
+            allSongsForDropdown.map(s => `<option value="${s.coverUrl}">${s.title} - ${s.artist}</option>`).join('');
+        // Reset preview
+        const prev = document.getElementById(`cover-slot-preview-${i}`);
+        if (prev) prev.innerHTML = '<i class="ph ph-image text-gray-500 text-2xl"></i>';
+        // Reset file input
+        const fileInp = document.getElementById(`cover-slot-file-${i}`);
+        if (fileInp) fileInp.value = '';
+        // Reset source to upload
+        setSlotSource(i, 'upload');
+    }
+    updateCoverModalPreview();
+    showModal('edit-playlist-cover-modal');
+}
+
+function setCoverLayout(mode) {
+    coverLayoutMode = mode;
+    const singleDiv = document.getElementById('cover-slots-single');
+    const collageDiv = document.getElementById('cover-slots-collage');
+    const singleBtn = document.getElementById('cover-layout-single-btn');
+    const collageBtn = document.getElementById('cover-layout-collage-btn');
+    if (mode === 'single') {
+        if (singleDiv) singleDiv.classList.remove('hidden');
+        if (collageDiv) collageDiv.classList.add('hidden');
+        if (singleBtn) { singleBtn.classList.add('border-spotify-green', 'bg-spotify-green/10'); singleBtn.classList.remove('border-gray-700'); }
+        if (collageBtn) { collageBtn.classList.remove('border-spotify-green', 'bg-spotify-green/10'); collageBtn.classList.add('border-gray-700'); }
+    } else {
+        if (singleDiv) singleDiv.classList.add('hidden');
+        if (collageDiv) collageDiv.classList.remove('hidden');
+        if (collageBtn) { collageBtn.classList.add('border-spotify-green', 'bg-spotify-green/10'); collageBtn.classList.remove('border-gray-700'); }
+        if (singleBtn) { singleBtn.classList.remove('border-spotify-green', 'bg-spotify-green/10'); singleBtn.classList.add('border-gray-700'); }
+    }
+    updateCoverModalPreview();
+}
+
+function setSlotSource(slotIdx, source) {
+    const uploadArea = document.getElementById(`slot-upload-area-${slotIdx}`);
+    const songArea = document.getElementById(`slot-song-area-${slotIdx}`);
+    const uploadBtn = document.getElementById(`slot-tab-upload-${slotIdx}`);
+    const songBtn = document.getElementById(`slot-tab-song-${slotIdx}`);
+    if (source === 'upload') {
+        if (uploadArea) uploadArea.classList.remove('hidden');
+        if (songArea) songArea.classList.add('hidden');
+        if (uploadBtn) { uploadBtn.classList.add('bg-spotify-green', 'text-black'); uploadBtn.classList.remove('bg-gray-700', 'text-white'); }
+        if (songBtn) { songBtn.classList.remove('bg-spotify-green', 'text-black'); songBtn.classList.add('bg-gray-700', 'text-white'); }
+        if (coverSlotData[slotIdx] && coverSlotData[slotIdx].type !== 'upload') {
+            delete coverSlotData[slotIdx];
+        }
+    } else {
+        if (uploadArea) uploadArea.classList.add('hidden');
+        if (songArea) songArea.classList.remove('hidden');
+        if (songBtn) { songBtn.classList.add('bg-spotify-green', 'text-black'); songBtn.classList.remove('bg-gray-700', 'text-white'); }
+        if (uploadBtn) { uploadBtn.classList.remove('bg-spotify-green', 'text-black'); uploadBtn.classList.add('bg-gray-700', 'text-white'); }
+    }
+}
+
+function handleSlotFile(slotIdx, input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const url = e.target.result;
+        coverSlotData[slotIdx] = { type: 'upload', url, file };
+        const prev = document.getElementById(`cover-slot-preview-${slotIdx}`);
+        if (prev) prev.innerHTML = `<img src="${url}" class="w-full h-full object-cover">`;
+        updateCoverModalPreview();
+    };
+    reader.readAsDataURL(file);
+}
+
+function handleSlotSong(slotIdx, select) {
+    const url = select.value;
+    if (!url) return;
+    coverSlotData[slotIdx] = { type: 'song', url };
+    const prev = document.getElementById(`cover-slot-preview-${slotIdx}`);
+    if (prev) prev.innerHTML = `<img src="${url}" class="w-full h-full object-cover">`;
+    updateCoverModalPreview();
+}
+
+function updateCoverModalPreview() {
+    const previewEl = document.getElementById('cover-modal-preview');
+    if (!previewEl) return;
+    if (coverLayoutMode === 'single') {
+        const slot = coverSlotData[0];
+        if (slot && slot.url) {
+            previewEl.innerHTML = `<img src="${slot.url}" class="w-full h-full object-cover">`;
+        } else {
+            previewEl.innerHTML = '<i class="ph ph-image text-gray-500 text-3xl"></i>';
+        }
+    } else {
+        const imgs = [1,2,3,4].map(i => coverSlotData[i]?.url || '');
+        previewEl.innerHTML = `<div class="grid grid-cols-2 w-full h-full">
+            ${imgs.map(url => url
+                ? `<div class="overflow-hidden"><img src="${url}" class="w-full h-full object-cover"></div>`
+                : `<div class="bg-gray-700"></div>`
+            ).join('')}
+        </div>`;
+    }
+}
+
+async function savePlaylistCover() {
+    const playlistId = currentOpenPlaylistId;
+    if (!playlistId) return;
+    const saveBtn = document.getElementById('save-cover-btn');
+    if (saveBtn) { saveBtn.disabled = true; saveBtn.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Menyimpan...'; }
+
+    let finalCoverData = null;
+
+    try {
+        if (coverLayoutMode === 'single') {
+            const slot = coverSlotData[0];
+            if (!slot) { showMessage('Pilih gambar terlebih dahulu.', 'error'); return; }
+            if (slot.type === 'upload' && slot.file && supabaseClient) {
+                const path = `covers/playlist_${playlistId}_${Date.now()}_${slot.file.name.replace(/[^a-zA-Z0-9.-]/g, '')}`;
+                const { error } = await supabaseClient.storage.from('media').upload(path, slot.file);
+                if (!error) finalCoverData = supabaseClient.storage.from('media').getPublicUrl(path).data.publicUrl;
+                else finalCoverData = slot.url;
+            } else {
+                finalCoverData = slot.url;
+            }
+        } else {
+            // Kolase: upload file jika ada, lainnya pakai url lagu
+            const urls = [];
+            for (let i = 1; i <= 4; i++) {
+                const slot = coverSlotData[i];
+                if (slot && slot.type === 'upload' && slot.file && supabaseClient) {
+                    const path = `covers/playlist_${playlistId}_slot${i}_${Date.now()}_${slot.file.name.replace(/[^a-zA-Z0-9.-]/g, '')}`;
+                    const { error } = await supabaseClient.storage.from('media').upload(path, slot.file);
+                    urls.push(!error ? supabaseClient.storage.from('media').getPublicUrl(path).data.publicUrl : (slot.url || ''));
+                } else {
+                    urls.push(slot?.url || '');
+                }
+            }
+            finalCoverData = JSON.stringify({ type: 'collage', images: urls });
+        }
+
+        // Simpan ke local playlist
+        const pl = customPlaylists.find(p => p.id === playlistId);
+        if (pl) {
+            pl.customCover = finalCoverData;
+            localStorage.setItem('bemspotipai_playlists', JSON.stringify(customPlaylists));
+        }
+        // Sync ke Supabase (public_playlists)
+        if (supabaseClient) {
+            await supabaseClient.from('public_playlists').update({ cover_url: finalCoverData }).eq('id', playlistId);
+            const pubPl = publicPlaylists.find(p => p.id === playlistId);
+            if (pubPl) pubPl.cover_url = finalCoverData;
+        }
+        // Update cover di detail view
+        const coverEl = document.getElementById('playlist-detail-cover');
+        if (coverEl) {
+            const fakePl = { customCover: finalCoverData, songs: pl ? pl.songs : [] };
+            coverEl.innerHTML = renderPlaylistCoverHtml(fakePl);
+        }
+        renderCustomPlaylists();
+        renderSidebarPlaylists();
+        renderPublicPlaylists();
+        showMessage('Cover playlist berhasil diubah!');
+        closeModal('edit-playlist-cover-modal');
+    } catch(e) {
+        console.error('Gagal simpan cover:', e);
+        showMessage('Gagal menyimpan cover.', 'error');
+    } finally {
+        if (saveBtn) { saveBtn.disabled = false; saveBtn.innerHTML = '<i class="ph ph-floppy-disk"></i> Simpan Cover'; }
+    }
+}
+
+function canManagePlaylist(playlist) {
+    return Boolean(playlist && (currentUser?.role === 'admin' || playlist._ownedThisSession || !playlist.isPublic));
+}
+
+function openPlaylistOrderModal(playlistId) {
+    const playlist = customPlaylists.find(p => p.id === playlistId);
+    if (!canManagePlaylist(playlist)) return showMessage('Kamu tidak memiliki izin mengatur urutan playlist ini.', 'error');
+    playlistOrderDraft = playlist.songs.filter(songId => songs.some(song => song.id === songId));
+    renderPlaylistOrderEditor();
+    showModal('playlist-order-modal');
+}
+
+function renderPlaylistOrderEditor() {
+    const list = document.getElementById('playlist-order-list');
+    if (!list) return;
+    if (playlistOrderDraft.length === 0) {
+        list.innerHTML = '<p class="py-8 text-center text-sm text-gray-500">Belum ada lagu untuk diurutkan.</p>';
+        return;
+    }
+    list.innerHTML = playlistOrderDraft.map((songId, index) => {
+        const song = songs.find(item => item.id === songId);
+        if (!song) return '';
+        return `<div class="flex items-center gap-3 rounded-lg border border-gray-800 bg-black/30 p-2.5"><span class="w-5 text-center text-xs font-bold text-gray-500">${index + 1}</span><img src="${song.coverUrl}" class="h-10 w-10 rounded object-cover" onerror="this.style.visibility='hidden'"><div class="min-w-0 flex-1"><p class="truncate text-sm font-bold text-white">${song.title}</p><p class="truncate text-xs text-gray-400">${song.artist}</p></div><div class="flex gap-1"><button onclick="movePlaylistSong(${index}, -1)" ${index === 0 ? 'disabled' : ''} class="h-8 w-8 rounded-full text-gray-300 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-30"><i class="ph ph-caret-up"></i></button><button onclick="movePlaylistSong(${index}, 1)" ${index === playlistOrderDraft.length - 1 ? 'disabled' : ''} class="h-8 w-8 rounded-full text-gray-300 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-30"><i class="ph ph-caret-down"></i></button></div></div>`;
+    }).join('');
+}
+
+function movePlaylistSong(index, direction) {
+    const nextIndex = index + direction;
+    if (nextIndex < 0 || nextIndex >= playlistOrderDraft.length) return;
+    [playlistOrderDraft[index], playlistOrderDraft[nextIndex]] = [playlistOrderDraft[nextIndex], playlistOrderDraft[index]];
+    renderPlaylistOrderEditor();
+}
+
+async function savePlaylistOrder() {
+    const playlist = customPlaylists.find(p => p.id === currentOpenPlaylistId);
+    if (!canManagePlaylist(playlist)) return showMessage('Kamu tidak memiliki izin mengatur urutan playlist ini.', 'error');
+    playlist.songs = [...playlistOrderDraft];
+    localStorage.setItem('bemspotipai_playlists', JSON.stringify(customPlaylists));
+    try {
+        if (playlist.isPublic && supabaseClient) {
+            const { error } = await supabaseClient.from('public_playlists').update({ song_ids: playlist.songs }).eq('id', playlist.id);
+            if (error) throw error;
+            const publicPlaylist = publicPlaylists.find(item => item.id === playlist.id);
+            if (publicPlaylist) publicPlaylist.song_ids = [...playlist.songs];
+        }
+        closeModal('playlist-order-modal');
+        showPlaylistDetails(playlist.id);
+        renderCustomPlaylists();
+        renderSidebarPlaylists();
+        showMessage('Urutan lagu berhasil disimpan.');
+    } catch (error) {
+        console.error('Gagal menyimpan urutan playlist:', error);
+        showMessage('Gagal menyinkronkan urutan ke Supabase.', 'error');
+    }
 }
 
 // Handle cover image change for a playlist
@@ -1220,13 +1797,30 @@ function openAddToPlaylistModal(songId) {
     showModal('add-to-playlist-modal');
 }
 
-function removeSongFromPlaylist(playlistId, songId) {
+function addCurrentSongToPlaylist() {
+    if (currentSongIndex === -1 || !songs[currentSongIndex]) {
+        showMessage('Putar lagu terlebih dahulu.', 'error');
+        return;
+    }
+    openAddToPlaylistModal(songs[currentSongIndex].id);
+}
+
+async function removeSongFromPlaylist(playlistId, songId) {
     const pl = customPlaylists.find(p => p.id === playlistId);
     if (pl) {
         pl.songs = pl.songs.filter(id => id !== songId);
         localStorage.setItem('bemspotipai_playlists', JSON.stringify(customPlaylists));
+        // Sinkronisasi ke Supabase jika playlist publik
+        if (pl.isPublic && supabaseClient) {
+            try {
+                await supabaseClient.from('public_playlists').update({ song_ids: pl.songs }).eq('id', playlistId);
+                const pubPl = publicPlaylists.find(p => p.id === playlistId);
+                if (pubPl) pubPl.song_ids = pl.songs;
+            } catch(e) { console.error('Gagal sync hapus lagu dari playlist:', e); }
+        }
         showMessage('Lagu dihapus dari playlist');
-        showPlaylistDetails(playlistId); renderCustomPlaylists();
+        showPlaylistDetails(playlistId);
+        renderCustomPlaylists();
     }
 }
 
@@ -1248,7 +1842,7 @@ function createSongCard(song, index, playlistId = null, contextQueue = null) {
     }
     card.innerHTML = `
         <div class="relative mb-4 pb-[100%] shadow-lg rounded overflow-hidden">
-            <img src="${song.coverUrl}" onerror="this.src='${fallbackImg}'" alt="Cover" class="song-card-img absolute top-0 left-0 w-full h-full object-cover">
+            <img src="${song.coverUrl}" loading="lazy" decoding="async" onerror="this.src='${fallbackImg}'" alt="Cover" class="song-card-img absolute top-0 left-0 w-full h-full object-cover">
             ${removeBtnHtml}
             <div class="absolute top-2 right-2 flex gap-2 z-20">
                 <button class="btn-add-playlist p-1 rounded-full bg-black/40 hover:bg-black/80 transition-colors opacity-0 group-hover:opacity-100" title="Tambah ke Playlist"><i class="ph ph-list-plus text-white text-xl"></i></button>
@@ -1289,10 +1883,13 @@ function renderSongs(songList, container, playlistId = null) {
         container.innerHTML = '<p class="text-gray-400 text-sm col-span-full">Tidak ada lagu yang ditemukan.</p>';
         return;
     }
+    // Hindari pencarian indeks berulang O(n²) dan reflow untuk setiap kartu.
+    const songIndexById = new Map(songs.map((song, index) => [song.id, index]));
+    const fragment = document.createDocumentFragment();
     songList.forEach(song => {
-        const actualIndex = songs.findIndex(s => s.id === song.id);
-        container.appendChild(createSongCard(song, actualIndex, playlistId, songList));
+        fragment.appendChild(createSongCard(song, songIndexById.get(song.id), playlistId, songList));
     });
+    container.appendChild(fragment);
 }
 
 function renderLibrary() {
@@ -1474,14 +2071,21 @@ function initSearch() {
     const searchInput = document.getElementById('search-input');
     if (!searchInput) return;
     searchInput.addEventListener('input', (e) => {
-        const query = e.target.value.toLowerCase().trim();
+        const value = e.target.value;
+        const headerSearch = document.getElementById('header-search-input');
+        if (headerSearch) headerSearch.value = value;
+        clearTimeout(searchInputTimer);
+        searchInputTimer = setTimeout(() => renderSearchResults(value), 140);
+    });
+}
+
+function renderSearchResults(value) {
+        const query = value.toLowerCase().trim();
         const browseSection = document.getElementById('search-browse');
         const resultsSection = document.getElementById('search-results-section');
         const topResult = document.getElementById('search-top-result');
         const songsList = document.getElementById('search-songs-list');
         const allResults = document.getElementById('search-results');
-        const headerSearch = document.getElementById('header-search-input');
-        if (headerSearch) headerSearch.value = e.target.value;
         if (!query) { browseSection.classList.remove('hidden'); resultsSection.classList.add('hidden'); return; }
         const filtered = songs.filter(s => s.title.toLowerCase().includes(query) || s.artist.toLowerCase().includes(query));
         browseSection.classList.add('hidden'); resultsSection.classList.remove('hidden');
@@ -1503,7 +2107,6 @@ function initSearch() {
             songsList.appendChild(row);
         });
         renderSongs(filtered, allResults, 'all');
-    });
 }
 
 function renderBrowseCategories() {
@@ -1589,6 +2192,7 @@ function updateLyricsView() {
     lArtist.innerText = song.artist;
     lContent.innerHTML = '';
     currentSyncedLyrics = null;
+    activeLyricIndex = -1;
     if (song.lyrics && song.lyrics.trim() !== '') {
         const lyricsStr = song.lyrics.trim();
         let parsedLyrics = null;
@@ -1655,21 +2259,30 @@ async function playSong(index, contextQueue = null) {
     if (sb && !sb.classList.contains('sidebar-collapsed')) sb.classList.add('sidebar-collapsed');
     updateLikeIcon(); updateLyricsView();
     incrementPlayCount(song.id);
-    audio.play().then(() => { isPlaying = true; updatePlayIcon(); updateQueuePanel(); })
+    audio.play().then(() => {
+        isPlaying = true;
+        updatePlayIcon();
+        updateQueuePanel();
+        clearTimeout(featureTourTimer);
+        featureTourTimer = setTimeout(startFeatureTour, 2000);
+    })
         .catch(e => { console.error(e); showMessage("Gagal memutar audio.", "error"); isPlaying = false; updatePlayIcon(); });
 }
 
 async function incrementPlayCount(songId) {
     const now = Date.now();
     const isAdmin = currentUser && currentUser.role === 'admin';
+    // Bypass throttle jika lagu dari playlist pendengar (public playlist)
+    const isFromPublicPlaylist = currentPlayingPlaylistId && currentPlayingPlaylistId.toString().startsWith('pub_') ||
+        (currentPlayingPlaylistId && publicPlaylists.some(p => p.id === currentPlayingPlaylistId));
 
-    if (!isAdmin) {
-        // Non-admin: throttle — max 1 increment per 60 detik per lagu
+    if (!isAdmin && !isFromPublicPlaylist) {
+        // Non-admin & bukan dari playlist pendengar: throttle — max 1 increment per 60 detik per lagu
         const lastPlayed = window._lastPlayedTime || {};
         if (lastPlayed[songId] && (now - lastPlayed[songId]) < 60000) return;
         lastPlayed[songId] = now; window._lastPlayedTime = lastPlayed;
     }
-    // Admin sadmin: tidak ada delay, setiap klik langsung increment
+    // Admin sadmin atau dari playlist pendengar: tidak ada delay, setiap klik langsung increment
 
     const songIndex = songs.findIndex(s => s.id === songId);
     if (songIndex !== -1) songs[songIndex].playCount = (songs[songIndex].playCount || 0) + 1;
@@ -1782,11 +2395,20 @@ audio.addEventListener('timeupdate', () => {
             for (let i = 0; i < currentSyncedLyrics.length; i++) {
                 if (audio.currentTime >= currentSyncedLyrics[i].time) activeIndex = i; else break;
             }
-            document.querySelectorAll('.lyric-line').forEach((el, i) => {
-                if (i === activeIndex) { el.classList.remove('text-gray-500/40'); el.classList.add('text-white','scale-110','drop-shadow-lg'); }
-                else { el.classList.add('text-gray-500/40'); el.classList.remove('text-white','scale-110','drop-shadow-lg'); }
-            });
-            if (activeIndex !== -1) { const el = document.getElementById(`lyric-line-${activeIndex}`); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+            // timeupdate berjalan beberapa kali per detik. Sentuh DOM hanya ketika
+            // lirik aktif berubah, bukan di setiap tick audio.
+            if (activeIndex !== activeLyricIndex) {
+                const previous = activeLyricIndex >= 0 ? document.getElementById(`lyric-line-${activeLyricIndex}`) : null;
+                if (previous) previous.classList.add('text-gray-500/40');
+                if (previous) previous.classList.remove('text-white', 'scale-110', 'drop-shadow-lg');
+                const active = activeIndex >= 0 ? document.getElementById(`lyric-line-${activeIndex}`) : null;
+                if (active) {
+                    active.classList.remove('text-gray-500/40');
+                    active.classList.add('text-white', 'scale-110', 'drop-shadow-lg');
+                    active.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                activeLyricIndex = activeIndex;
+            }
         }
     }
 });
@@ -2250,6 +2872,26 @@ function initRadioToggles() {
 // ==========================================
 let publicPlaylists = []; // Cache dari Supabase
 
+function syncAdminPublicPlaylists() {
+    if (currentUser?.role !== 'admin') return;
+    publicPlaylists.forEach(publicPlaylist => {
+        const existing = customPlaylists.find(playlist => playlist.id === publicPlaylist.id);
+        const playlistData = {
+            id: publicPlaylist.id,
+            name: publicPlaylist.name,
+            songs: Array.isArray(publicPlaylist.song_ids) ? publicPlaylist.song_ids : [],
+            isPublic: true,
+            _ownedThisSession: true,
+            _adminManagedPublic: true,
+            customCover: publicPlaylist.cover_url || ''
+        };
+        if (existing) Object.assign(existing, playlistData);
+        else customPlaylists.push(playlistData);
+    });
+    localStorage.setItem('bemspotipai_playlists', JSON.stringify(customPlaylists));
+    renderSidebarPlaylists();
+}
+
 // Load + render public playlists di beranda
 async function loadPublicPlaylists() {
     if (!supabaseClient) return;
@@ -2261,6 +2903,7 @@ async function loadPublicPlaylists() {
             .order('play_count', { ascending: false });
         if (error) throw error;
         publicPlaylists = data || [];
+        syncAdminPublicPlaylists();
     } catch (e) {
         console.error('Gagal memuat public playlists:', e);
         publicPlaylists = [];
@@ -2294,9 +2937,8 @@ function renderPublicPlaylists() {
 
 function buildPublicPlaylistCard(pl) {
     const songIds = Array.isArray(pl.song_ids) ? pl.song_ids : (pl.song_ids || []);
-    const coverSong = songs.find(s => songIds.includes(s.id));
-    const coverUrl = pl.cover_url || coverSong?.coverUrl || 'https://images.unsplash.com/photo-1614613535308-eb51bd3d2c17?w=300&q=80';
     const songCount = songIds.length;
+    const coverHtml = renderPlaylistCoverHtml({ customCover: pl.cover_url || '', cover_url: pl.cover_url || '', songs: songIds });
     const creatorLine = pl.show_creator && pl.creator_name
         ? `<p class="text-xs text-gray-500 truncate mt-0.5">oleh ${pl.creator_name}</p>`
         : `<p class="text-xs text-gray-500 truncate mt-0.5">${songCount} lagu</p>`;
@@ -2306,8 +2948,7 @@ function buildPublicPlaylistCard(pl) {
     card.onclick = () => openPublicPlaylistDetail(pl.id);
     card.innerHTML = `
         <div class="relative mb-3 pb-[100%] shadow-lg rounded overflow-hidden">
-            <img src="${coverUrl}" class="song-card-img absolute top-0 left-0 w-full h-full object-cover"
-                onerror="this.src='https://images.unsplash.com/photo-1614613535308-eb51bd3d2c17?w=300&q=80'">
+            <div class="absolute top-0 left-0 w-full h-full">${coverHtml}</div>
             <button class="absolute bottom-2 right-2 bg-spotify-green text-black rounded-full w-10 h-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all shadow-xl hover:scale-105 hover:bg-green-400 z-10">
                 <i class="ph-fill ph-play text-xl ml-0.5"></i>
             </button>
@@ -2370,7 +3011,8 @@ async function openPublicPlaylistDetail(playlistId) {
             name: pl.name,
             songs: songIds,
             isPublic: true,
-            _ownedThisSession: false,
+            _ownedThisSession: currentUser?.role === 'admin',
+            _adminManagedPublic: currentUser?.role === 'admin',
             customCover: pl.cover_url || ''
         };
         customPlaylists.push(localPl);
@@ -2379,6 +3021,10 @@ async function openPublicPlaylistDetail(playlistId) {
         localPl.songs = songIds;
         localPl.isPublic = true;
         localPl.customCover = pl.cover_url || localPl.customCover || '';
+        if (currentUser?.role === 'admin') {
+            localPl._ownedThisSession = true;
+            localPl._adminManagedPublic = true;
+        }
         // Preserve _ownedThisSession flag — don't overwrite it
     }
 
@@ -2438,12 +3084,7 @@ async function loadAdminPlaylists() {
             row.innerHTML = `
                 <div class="flex items-center gap-3 min-w-0 flex-1">
                     <div class="w-10 h-10 rounded bg-gray-800 flex items-center justify-center flex-shrink-0 overflow-hidden">
-                        ${(() => {
-                            const firstSong = songs.find(s => songIds.includes(s.id));
-                            return firstSong
-                                ? `<img src="${firstSong.coverUrl}" class="w-full h-full object-cover">`
-                                : `<i class="ph ph-playlist text-gray-500 text-lg"></i>`;
-                        })()}
+                        ${renderPlaylistCoverHtml({ customCover: pl.cover_url || '', cover_url: pl.cover_url || '', songs: songIds })}
                     </div>
                     <div class="min-w-0 flex-1">
                         <p class="text-sm font-bold text-white truncate">${pl.name}</p>
@@ -2645,6 +3286,7 @@ window.onload = () => {
     initPlaylistForms();
     initSearch();
     initEasterEgg();
+    initSidebarHoverExpand();
 
     // Drag-to-scroll artis populer — cegah gambar ikut ke-drag
     const artistGrid = document.getElementById('trending-artists-grid');
@@ -2690,6 +3332,17 @@ window.onload = () => {
     const searchTabInput = document.getElementById('search-input');
     if (headerSearch && searchTabInput) {
         searchTabInput.addEventListener('input', e => { headerSearch.value = e.target.value; });
+    }
+
+    // Toggle tombol X pada search tab berdasarkan isi input
+    if (searchTabInput) {
+        searchTabInput.addEventListener('input', e => {
+            const clearBtn = document.getElementById('search-clear-btn');
+            if (clearBtn) {
+                if (e.target.value.trim()) clearBtn.classList.remove('hidden');
+                else clearBtn.classList.add('hidden');
+            }
+        });
     }
 
     // Easter egg: aktifkan setelah 1 detik
