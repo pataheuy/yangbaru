@@ -14,6 +14,12 @@
     <!-- Tambahkan library Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
+        /* Skala umum UI 85%. Kartu lagu dan playlist pendengar tetap berukuran
+           proporsional karena ukuran kotaknya ditentukan oleh kolom grid dan rasio 1:1. */
+        html {
+            font-size: 85%;
+        }
+
         /* Custom Scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
@@ -413,6 +419,11 @@
             50% { box-shadow: 0 0 0 12px rgba(29, 185, 84, 0.12), 0 0 34px rgba(29, 185, 84, 1); }
         }
 
+        @keyframes spotifyModalOut {
+            from { opacity: 1; transform: translateY(0) scale(1); }
+            to { opacity: 0; transform: translateY(8px) scale(0.97); }
+        }
+
         .modal-enter > div,
         #feature-tour-hook-modal:not(.hidden) > div,
         #feature-tour-callout:not(.hidden) {
@@ -420,6 +431,23 @@
         }
 
         .feature-tour-highlight { animation: spotifyPointerPulse 1.35s ease-in-out infinite; }
+
+        #feature-tour-hook-modal button,
+        #feature-tour-callout button {
+            transition: transform 0.18s ease, filter 0.18s ease, box-shadow 0.18s ease;
+        }
+
+        #feature-tour-hook-modal button:hover,
+        #feature-tour-callout button:hover {
+            transform: translateY(-2px) scale(1.02);
+            filter: brightness(1.08);
+            box-shadow: 0 8px 20px rgba(29, 185, 84, 0.24);
+        }
+
+        #feature-tour-callout.feature-tour-exit,
+        #feature-tour-hook-modal.feature-tour-exit > div {
+            animation: spotifyModalOut 0.2s ease-in both;
+        }
 
         /* Teks sidebar — fade out dulu, lalu max-width collapse */
         .sidebar-full {
@@ -459,7 +487,8 @@
             gap: 0 !important;
             padding-left: 0 !important;
             padding-right: 0 !important;
-            justify-content: center !important;
+            /* Ikon tetap pada posisi semula; hanya sidebar yang menyusut. */
+            justify-content: flex-start !important;
         }
 
         /* Tombol minimize tetap terlihat & center saat collapsed */
@@ -1316,7 +1345,7 @@
                         </div>
                     </div>
                     <div id="public-playlists-grid"
-                        class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 mb-8">
+                        class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-3 mb-8">
                         <p class="text-gray-500 text-sm col-span-full">Memuat playlist...</p>
                     </div>
 
@@ -1335,7 +1364,7 @@
 
                     <h2 id="songs-section-heading" class="text-2xl font-bold mb-4 text-white mt-8">Semua Lagu</h2>
                     <div id="songs-grid"
-                        class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+                        class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-3">
                         <!-- Song cards will be injected here by JS -->
                     </div>
                 </div>
@@ -1377,10 +1406,31 @@
                         <h2 class="text-xl font-bold mb-6 mt-6 text-white">Lagu oleh <span id="artist-page-name-sub"
                                 class="text-spotify-green">Artis</span></h2>
                         <div id="artist-songs-grid"
-                            class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+                            class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-3">
                             <!-- Artist songs injected here -->
                         </div>
                     </div>
+                </div>
+
+                <!-- Public Playlist Detail Tab -->
+                <div id="tab-public-playlist" class="pb-24 content-tab hidden">
+                    <div class="relative overflow-hidden">
+                        <div id="public-playlist-page-bg" class="absolute inset-0 bg-cover bg-center" style="filter: blur(18px) brightness(0.5); transform: scale(1.08);"></div>
+                        <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-[#121212]"></div>
+                        <div class="relative z-10 p-6 pb-10 pt-6">
+                            <button onclick="switchTab('home')" class="mb-8 inline-flex items-center gap-2 rounded-full bg-black/50 px-4 py-2 text-sm font-bold text-gray-300 shadow-lg backdrop-blur-sm transition-colors hover:bg-black/80 hover:text-white"><i class="ph-fill ph-arrow-left text-xl"></i> Kembali</button>
+                            <div class="flex flex-col items-end gap-6 md:flex-row">
+                                <div id="public-playlist-page-cover" class="h-36 w-36 flex-shrink-0 overflow-hidden rounded-lg border-4 border-white/10 shadow-2xl md:h-52 md:w-52"></div>
+                                <div class="pb-2">
+                                    <p class="mb-1 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-gray-300"><i class="ph ph-globe text-spotify-green text-lg"></i> Playlist dari Pendengar</p>
+                                    <h2 id="public-playlist-page-name" class="mb-3 mt-1 text-4xl font-extrabold leading-tight text-white drop-shadow-lg md:text-6xl">Playlist</h2>
+                                    <p id="public-playlist-page-meta" class="text-sm font-medium text-gray-300">0 lagu</p>
+                                    <div class="mt-5 flex flex-wrap gap-3"><button id="public-playlist-page-play" class="flex items-center gap-2 rounded-full bg-spotify-green px-7 py-3 text-sm font-bold text-black shadow-lg transition-all hover:scale-105 hover:bg-green-400"><i class="ph-fill ph-play text-lg"></i> Putar</button><button id="public-playlist-page-cover-edit" class="hidden rounded-full border border-gray-400/60 px-4 py-2.5 text-sm font-bold text-white transition-colors hover:border-spotify-green hover:text-spotify-green"><i class="ph ph-pencil-simple"></i> Cover</button><button id="public-playlist-page-order-edit" class="hidden rounded-full border border-gray-400/60 px-4 py-2.5 text-sm font-bold text-white transition-colors hover:border-spotify-green hover:text-spotify-green"><i class="ph ph-sort-ascending"></i> Urutan</button></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="px-6"><h2 class="mb-6 mt-6 text-xl font-bold text-white">Lagu dalam playlist</h2><div id="public-playlist-songs-grid" class="grid grid-cols-3 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7"></div></div>
                 </div>
 
                 <!-- All Artists Tab -->
@@ -1410,7 +1460,7 @@
                         </button>
                     </div>
                     <div id="all-public-playlists-grid"
-                        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5">
+                        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-5">
                         <!-- All public playlists injected here -->
                     </div>
                 </div>
@@ -1462,7 +1512,7 @@
 
                         <h3 class="text-base font-bold text-white mb-4">Semua Hasil</h3>
                         <div id="search-results"
-                            class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+                            class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-6">
                         </div>
                     </div>
                 </div>
@@ -1537,7 +1587,7 @@
                     </div>
 
                     <div id="custom-playlists-grid"
-                        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-4">
                         <!-- Custom playlists injected here -->
                     </div>
 
@@ -1547,7 +1597,7 @@
                             <h2 class="text-xl font-bold text-white">Playlist dari Pendengar (Publik)</h2>
                         </div>
                         <div id="admin-listener-playlists-grid"
-                            class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                            class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-4">
                             <!-- Injected by JS -->
                         </div>
                     </div>
@@ -1600,7 +1650,7 @@
                         </div>
 
                         <div id="detail-playlist-songs"
-                            class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                            class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-4">
                             <!-- Songs of selected playlist -->
                         </div>
 

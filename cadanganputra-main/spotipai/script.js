@@ -373,7 +373,7 @@ function performHeaderSearch(val) {
     const filtered = songs.filter(s => s.title.toLowerCase().includes(q) || s.artist.toLowerCase().includes(q));
     if (heading) heading.textContent = `Hasil: "${val}" (${filtered.length} lagu)`;
     if (grid) {
-        grid.className = 'grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3';
+        grid.className = 'grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-3';
         renderSongs(filtered, grid, 'all');
     }
 }
@@ -438,15 +438,25 @@ function clearFeatureTourTargetListener() {
     featureTourTargetListener = null;
 }
 
+function hideFeatureTourElement(element, isModal = false) {
+    if (!element || element.classList.contains('hidden')) return;
+    element.classList.add('feature-tour-exit');
+    setTimeout(() => {
+        element.classList.add('hidden');
+        if (isModal) element.classList.remove('flex');
+        element.classList.remove('feature-tour-exit');
+    }, 200);
+}
+
 function closeFeatureTour() {
     const callout = document.getElementById('feature-tour-callout');
     const overlay = document.getElementById('feature-tour-overlay');
     const hookModal = document.getElementById('feature-tour-hook-modal');
     clearFeatureTourTargetListener();
     document.querySelectorAll('.feature-tour-highlight').forEach(el => el.classList.remove('feature-tour-highlight'));
-    if (callout) callout.classList.add('hidden');
+    hideFeatureTourElement(callout);
     if (overlay) overlay.classList.add('hidden');
-    if (hookModal) { hookModal.classList.add('hidden'); hookModal.classList.remove('flex'); }
+    hideFeatureTourElement(hookModal, true);
     isFeatureTourOpen = false;
 }
 
@@ -1289,7 +1299,7 @@ function showPlaylistDetails(id) {
         const pl = customPlaylists.find(p => p.id === id);
         if (pl) {
             if (titleElem) titleElem.innerText = pl.name;
-            const plSongs = songs.filter(s => pl.songs.includes(s.id));
+            const plSongs = getPlaylistSongsInOrder(pl);
 
             // Cover from custom cover (single/kolase) or first song
             if (coverEl) {
@@ -1338,15 +1348,24 @@ function showPlaylistDetails(id) {
     // Tampilkan panel kelola lagu (hanya pemilik atau sadmin)
     renderPlaylistManageSection(id);
 
-    // Tampilkan tombol edit cover untuk sadmin
+    // Pemilik playlist dan sadmin dapat mengubah cover serta urutan lagu.
     const pl2 = customPlaylists.find(p => p.id === id);
-    const canEditCover = currentUser?.role === 'admin' || (pl2 && (pl2._ownedThisSession || !pl2.isPublic));
+    const canEditCover = canManagePlaylist(pl2);
     if (coverEditBtn) {
         if (canEditCover) {
             coverEditBtn.classList.remove('hidden');
             coverEditBtn.onclick = () => openEditPlaylistCoverModal(id);
         } else {
             coverEditBtn.classList.add('hidden');
+        }
+    }
+    const orderBtn = document.getElementById('playlist-edit-order-btn');
+    if (orderBtn) {
+        if (canEditCover) {
+            orderBtn.classList.remove('hidden');
+            orderBtn.onclick = () => openPlaylistOrderModal(id);
+        } else {
+            orderBtn.classList.add('hidden');
         }
     }
 }
@@ -1388,7 +1407,7 @@ function renderPlaylistManageSection(playlistId) {
     // Render tabel lagu saat ini
     const currentTbody = document.getElementById('playlist-current-songs-tbody');
     if (currentTbody) {
-        const plSongs = pl ? songs.filter(s => pl.songs.includes(s.id)) : [];
+        const plSongs = pl ? getPlaylistSongsInOrder(pl) : [];
         if (plSongs.length === 0) {
             currentTbody.innerHTML = '<tr><td colspan="3" class="px-4 py-4 text-center text-gray-500 text-sm">Belum ada lagu di playlist ini.</td></tr>';
         } else {
@@ -1469,7 +1488,7 @@ async function adminAddSongToPlaylist(playlistId, songId) {
     renderPlaylistManageSection(playlistId);
     // Refresh tampilan lagu playlist
     const detailSongs = document.getElementById('detail-playlist-songs');
-    const plSongs = songs.filter(s => pl.songs.includes(s.id));
+    const plSongs = getPlaylistSongsInOrder(pl);
     renderSongs(plSongs, detailSongs, playlistId);
 }
 
@@ -1485,7 +1504,7 @@ function openEditPlaylistCoverModal(playlistId) {
 
     // Populate dropdown lagu
     const pl = customPlaylists.find(p => p.id === playlistId);
-    const plSongs = pl ? songs.filter(s => pl.songs.includes(s.id)) : [];
+    const plSongs = pl ? getPlaylistSongsInOrder(pl) : [];
     const allSongsForDropdown = plSongs.length > 0 ? plSongs : songs.slice(0, 30);
 
     for (let i = 0; i <= 4; i++) {
@@ -1544,7 +1563,24 @@ function setSlotSource(slotIdx, source) {
         if (songArea) songArea.classList.remove('hidden');
         if (songBtn) { songBtn.classList.add('bg-spotify-green', 'text-black'); songBtn.classList.remove('bg-gray-700', 'text-white'); }
         if (uploadBtn) { uploadBtn.classList.remove('bg-spotify-green', 'text-black'); uploadBtn.classList.add('bg-gray-700', 'text-white'); }
+        const songSelect = document.getElementById(`cover-slot-song-${slotIdx}`);
+        if (songSelect?.value) updateCoverSongPreview(slotIdx, songSelect.value);
     }
+}
+
+function updateCoverSongPreview(slotIdx, imageUrl) {
+    const songArea = document.getElementById(`slot-song-area-${slotIdx}`);
+    if (!songArea) return;
+    let preview = songArea.querySelector('.selected-song-cover-preview');
+    if (!preview) {
+        preview = document.createElement('div');
+        preview.className = 'selected-song-cover-preview mt-2 hidden items-center gap-2 rounded bg-black/30 p-2 text-xs text-gray-400';
+        songArea.appendChild(preview);
+    }
+    if (!imageUrl) { preview.classList.add('hidden'); return; }
+    preview.innerHTML = `<img src="${imageUrl}" class="h-9 w-9 rounded object-cover" onerror="this.style.visibility='hidden'"><span>Preview cover lagu terpilih</span>`;
+    preview.classList.remove('hidden');
+    preview.classList.add('flex');
 }
 
 function handleSlotFile(slotIdx, input) {
@@ -1563,10 +1599,11 @@ function handleSlotFile(slotIdx, input) {
 
 function handleSlotSong(slotIdx, select) {
     const url = select.value;
-    if (!url) return;
+    if (!url) { updateCoverSongPreview(slotIdx, ''); return; }
     coverSlotData[slotIdx] = { type: 'song', url };
     const prev = document.getElementById(`cover-slot-preview-${slotIdx}`);
     if (prev) prev.innerHTML = `<img src="${url}" class="w-full h-full object-cover">`;
+    updateCoverSongPreview(slotIdx, url);
     updateCoverModalPreview();
 }
 
@@ -1660,6 +1697,12 @@ async function savePlaylistCover() {
 
 function canManagePlaylist(playlist) {
     return Boolean(playlist && (currentUser?.role === 'admin' || playlist._ownedThisSession || !playlist.isPublic));
+}
+
+function getPlaylistSongsInOrder(playlist) {
+    if (!playlist?.songs) return [];
+    const songsById = new Map(songs.map(song => [song.id, song]));
+    return playlist.songs.map(songId => songsById.get(songId)).filter(Boolean);
 }
 
 function openPlaylistOrderModal(playlistId) {
@@ -2923,8 +2966,8 @@ function renderPublicPlaylists() {
         return;
     }
 
-    // Tampilkan maks 6, sisanya di halaman "Lihat Semua"
-    const displayed = publicPlaylists.slice(0, 6);
+    // Tampilkan maks 7 di Beranda, sisanya di halaman "Lihat Semua".
+    const displayed = publicPlaylists.slice(0, 7);
     if (seeAllBtn) {
         publicPlaylists.length > 6 ? seeAllBtn.classList.remove('hidden') : seeAllBtn.classList.add('hidden');
     }
@@ -2992,6 +3035,45 @@ function showAllPublicPlaylistsPage() {
     });
 }
 
+function getPlaylistHeroImage(playlist) {
+    const rawCover = playlist.customCover || playlist.cover_url || '';
+    try {
+        const collage = JSON.parse(rawCover);
+        if (collage?.type === 'collage' && Array.isArray(collage.images)) {
+            const availableImages = collage.images.filter(Boolean);
+            if (availableImages.length) return availableImages[Math.floor(Math.random() * availableImages.length)];
+        }
+    } catch (e) { /* cover tunggal, lanjutkan */ }
+    if (rawCover) return rawCover;
+    return getPlaylistSongsInOrder(playlist)[0]?.coverUrl || 'https://images.unsplash.com/photo-1614613535308-eb51bd3d2c17?w=300&q=80';
+}
+
+function showPublicPlaylistPage(playlist) {
+    document.querySelectorAll('.content-tab').forEach(tab => tab.classList.add('hidden'));
+    const tab = document.getElementById('tab-public-playlist');
+    if (!tab) return;
+    tab.classList.remove('hidden');
+    const songsInPlaylist = getPlaylistSongsInOrder(playlist);
+    const heroImage = getPlaylistHeroImage(playlist);
+    document.getElementById('public-playlist-page-name').textContent = playlist.name;
+    document.getElementById('public-playlist-page-meta').textContent = `${songsInPlaylist.length} lagu · Playlist publik`;
+    document.getElementById('public-playlist-page-bg').style.backgroundImage = `url('${heroImage}')`;
+    document.getElementById('public-playlist-page-cover').innerHTML = renderPlaylistCoverHtml(playlist);
+    renderSongs(songsInPlaylist, document.getElementById('public-playlist-songs-grid'), playlist.id);
+    const playBtn = document.getElementById('public-playlist-page-play');
+    if (playBtn) playBtn.onclick = () => {
+        if (songsInPlaylist.length) playSong(songs.findIndex(song => song.id === songsInPlaylist[0].id), songsInPlaylist);
+    };
+    const canEdit = canManagePlaylist(playlist);
+    const coverBtn = document.getElementById('public-playlist-page-cover-edit');
+    const orderBtn = document.getElementById('public-playlist-page-order-edit');
+    if (coverBtn) { coverBtn.classList.toggle('hidden', !canEdit); coverBtn.onclick = () => openEditPlaylistCoverModal(playlist.id); }
+    if (orderBtn) { orderBtn.classList.toggle('hidden', !canEdit); orderBtn.onclick = () => openPlaylistOrderModal(playlist.id); }
+    document.querySelectorAll('.nav-item').forEach(item => { item.classList.remove('text-white'); item.classList.add('text-gray-400'); });
+    const main = document.querySelector('main');
+    if (main) main.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
 async function openPublicPlaylistDetail(playlistId) {
     const pl = publicPlaylists.find(p => p.id === playlistId);
     if (!pl) return;
@@ -3028,8 +3110,7 @@ async function openPublicPlaylistDetail(playlistId) {
         // Preserve _ownedThisSession flag — don't overwrite it
     }
 
-    switchTab('collection');
-    setTimeout(() => showPlaylistDetails(playlistId), 60);
+    showPublicPlaylistPage(localPl);
 }
 
 function playPublicPlaylist(pl) {
