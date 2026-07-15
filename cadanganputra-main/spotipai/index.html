@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <title>An Error Accaoured 404</title>
+    <title>Spotipai - Pemutar Musik Modern</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Phosphor Icons dipakai oleh seluruh antarmuka (ph, ph-fill, ph-bold) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
@@ -2119,7 +2119,7 @@
                                 <!-- Pick audio files -->
                                 <div>
                                     <label class="block text-sm font-medium text-gray-300 mb-2">Pilih File Audio (bisa
-                                        banyak)</label>
+                                        banyak) <span class="text-xs font-normal text-spotify-green">— cover metadata MP3 akan dipakai otomatis</span></label>
                                     <input type="file" id="multi-audio-files" accept="audio/*" multiple
                                         class="w-full bg-black border border-dashed border-gray-600 rounded-xl p-4 text-white text-sm cursor-pointer hover:border-spotify-green transition-colors"
                                         onchange="handleMultiAudioSelect(this)">
@@ -2372,7 +2372,7 @@
     <div id="playlist-order-modal" class="fixed inset-0 z-[70] hidden flex-col items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
         <div class="w-full max-w-lg rounded-xl border border-gray-800 bg-[#242424] p-6 shadow-2xl">
             <div class="mb-5 flex items-center justify-between gap-4">
-                <div><h2 class="text-xl font-bold text-white">Edit Urutan Lagu</h2><p class="text-xs text-gray-400 mt-1">Atur urutan dengan tombol naik dan turun.</p></div>
+                <div><h2 class="text-xl font-bold text-white">Edit Urutan Lagu</h2><p class="text-xs text-gray-400 mt-1">Tarik lagu ke atas atau bawah untuk mengatur urutan.</p></div>
                 <button onclick="closeModal('playlist-order-modal')" class="text-gray-400 hover:text-white"><i class="ph ph-x text-2xl"></i></button>
             </div>
             <div id="playlist-order-list" class="max-h-[50vh] space-y-2 overflow-y-auto pr-1"></div>

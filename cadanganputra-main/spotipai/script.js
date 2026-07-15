@@ -1711,6 +1711,7 @@ function getPlaylistSongsInOrder(playlist) {
 function openPlaylistOrderModal(playlistId) {
     const playlist = customPlaylists.find(p => p.id === playlistId);
     if (!canManagePlaylist(playlist)) return showMessage('Kamu tidak memiliki izin mengatur urutan playlist ini.', 'error');
+    currentOpenPlaylistId = playlistId;
     playlistOrderDraft = playlist.songs.filter(songId => songs.some(song => song.id === songId));
     renderPlaylistOrderEditor();
     showModal('playlist-order-modal');
@@ -1726,8 +1727,28 @@ function renderPlaylistOrderEditor() {
     list.innerHTML = playlistOrderDraft.map((songId, index) => {
         const song = songs.find(item => item.id === songId);
         if (!song) return '';
-        return `<div class="flex items-center gap-3 rounded-lg border border-gray-800 bg-black/30 p-2.5"><span class="w-5 text-center text-xs font-bold text-gray-500">${index + 1}</span><img src="${song.coverUrl}" class="h-10 w-10 rounded object-cover" onerror="this.style.visibility='hidden'"><div class="min-w-0 flex-1"><p class="truncate text-sm font-bold text-white">${song.title}</p><p class="truncate text-xs text-gray-400">${song.artist}</p></div><div class="flex gap-1"><button onclick="movePlaylistSong(${index}, -1)" ${index === 0 ? 'disabled' : ''} class="h-8 w-8 rounded-full text-gray-300 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-30"><i class="ph ph-caret-up"></i></button><button onclick="movePlaylistSong(${index}, 1)" ${index === playlistOrderDraft.length - 1 ? 'disabled' : ''} class="h-8 w-8 rounded-full text-gray-300 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-30"><i class="ph ph-caret-down"></i></button></div></div>`;
+        return `<div class="playlist-order-row flex items-center gap-3 rounded-lg border border-gray-800 bg-black/30 p-2.5 transition-colors cursor-grab active:cursor-grabbing" draggable="true" data-index="${index}"><i class="ph ph-dots-six-vertical text-lg text-gray-500"></i><span class="w-5 text-center text-xs font-bold text-gray-500">${index + 1}</span><img src="${song.coverUrl}" class="h-10 w-10 rounded object-cover" onerror="this.style.visibility='hidden'"><div class="min-w-0 flex-1"><p class="truncate text-sm font-bold text-white">${song.title}</p><p class="truncate text-xs text-gray-400">${song.artist}</p></div><div class="flex gap-1"><button type="button" onclick="movePlaylistSong(${index}, -1)" ${index === 0 ? 'disabled' : ''} class="h-8 w-8 rounded-full text-gray-300 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-30" title="Naik"><i class="ph ph-caret-up"></i></button><button type="button" onclick="movePlaylistSong(${index}, 1)" ${index === playlistOrderDraft.length - 1 ? 'disabled' : ''} class="h-8 w-8 rounded-full text-gray-300 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-30" title="Turun"><i class="ph ph-caret-down"></i></button></div></div>`;
     }).join('');
+    list.querySelectorAll('.playlist-order-row').forEach(row => {
+        row.addEventListener('dragstart', event => {
+            event.dataTransfer.effectAllowed = 'move';
+            event.dataTransfer.setData('text/plain', row.dataset.index);
+            row.classList.add('opacity-40');
+        });
+        row.addEventListener('dragend', () => row.classList.remove('opacity-40', 'border-spotify-green'));
+        row.addEventListener('dragover', event => { event.preventDefault(); autoScrollPlaylistOrderList(event); row.classList.add('border-spotify-green'); });
+        row.addEventListener('dragleave', () => row.classList.remove('border-spotify-green'));
+        row.addEventListener('drop', event => {
+            event.preventDefault();
+            const fromIndex = Number(event.dataTransfer.getData('text/plain'));
+            const toIndex = Number(row.dataset.index);
+            if (Number.isInteger(fromIndex) && fromIndex !== toIndex) {
+                const [movedSong] = playlistOrderDraft.splice(fromIndex, 1);
+                playlistOrderDraft.splice(toIndex, 0, movedSong);
+                renderPlaylistOrderEditor();
+            }
+        });
+    });
 }
 
 function movePlaylistSong(index, direction) {
@@ -1750,7 +1771,8 @@ async function savePlaylistOrder() {
             if (publicPlaylist) publicPlaylist.song_ids = [...playlist.songs];
         }
         closeModal('playlist-order-modal');
-        showPlaylistDetails(playlist.id);
+        if (playlist.isPublic) showPublicPlaylistPage(playlist);
+        else showPlaylistDetails(playlist.id);
         renderCustomPlaylists();
         renderSidebarPlaylists();
         showMessage('Urutan lagu berhasil disimpan.');
@@ -1927,6 +1949,16 @@ function createSongCard(song, index, playlistId = null, contextQueue = null) {
     };
 
     return card;
+}
+
+function autoScrollPlaylistOrderList(event) {
+    const list = document.getElementById('playlist-order-list');
+    if (!list) return;
+    const bounds = list.getBoundingClientRect();
+    const edgeSize = 56;
+    const scrollSpeed = 14;
+    if (event.clientY < bounds.top + edgeSize) list.scrollTop -= scrollSpeed;
+    else if (event.clientY > bounds.bottom - edgeSize) list.scrollTop += scrollSpeed;
 }
 
 function renderSongs(songList, container, playlistId = null) {
@@ -2318,7 +2350,7 @@ async function playSong(index, contextQueue = null) {
         updatePlayIcon();
         updateQueuePanel();
         clearTimeout(featureTourTimer);
-        featureTourTimer = setTimeout(startFeatureTour, 2000);
+        featureTourTimer = setTimeout(startFeatureTour, 4000);
     })
         .catch(e => { console.error(e); showMessage("Gagal memutar audio.", "error"); isPlaying = false; updatePlayIcon(); });
 }
@@ -2534,26 +2566,77 @@ function handleMultiArtistKey(e) {
     if (e.key === 'Enter') { e.preventDefault(); addMultiArtistTag(); }
 }
 
+function synchsafeToInt(bytes, offset) {
+    return ((bytes[offset] & 0x7f) << 21) | ((bytes[offset + 1] & 0x7f) << 14) | ((bytes[offset + 2] & 0x7f) << 7) | (bytes[offset + 3] & 0x7f);
+}
+
+async function extractEmbeddedMp3Cover(audioFile) {
+    if (!/\.mp3$/i.test(audioFile.name)) return null;
+    try {
+        const bytes = new Uint8Array(await audioFile.slice(0, 8 * 1024 * 1024).arrayBuffer());
+        if (bytes.length < 10 || String.fromCharCode(...bytes.slice(0, 3)) !== 'ID3') return null;
+        const version = bytes[3];
+        const tagEnd = Math.min(bytes.length, 10 + synchsafeToInt(bytes, 6));
+        let offset = 10;
+        while (offset + 10 <= tagEnd) {
+            const frameId = String.fromCharCode(...bytes.slice(offset, offset + 4));
+            if (!frameId.trim()) break;
+            const frameSize = version === 4 ? synchsafeToInt(bytes, offset + 4)
+                : ((bytes[offset + 4] << 24) >>> 0) + (bytes[offset + 5] << 16) + (bytes[offset + 6] << 8) + bytes[offset + 7];
+            const frameStart = offset + 10;
+            const frameEnd = frameStart + frameSize;
+            if (!frameSize || frameEnd > tagEnd) break;
+            if (frameId === 'APIC') {
+                let cursor = frameStart + 1; // text encoding
+                const mimeEnd = bytes.indexOf(0, cursor);
+                if (mimeEnd === -1) return null;
+                let mimeType = String.fromCharCode(...bytes.slice(cursor, mimeEnd)) || 'image/jpeg';
+                cursor = mimeEnd + 1;
+                cursor += 1; // picture type
+                const encoding = bytes[frameStart];
+                if (encoding === 1 || encoding === 2) {
+                    while (cursor + 1 < frameEnd && !(bytes[cursor] === 0 && bytes[cursor + 1] === 0)) cursor += 2;
+                    cursor += 2;
+                } else {
+                    const descriptionEnd = bytes.indexOf(0, cursor);
+                    cursor = descriptionEnd === -1 ? cursor : descriptionEnd + 1;
+                }
+                if (cursor >= frameEnd) return null;
+                if (!mimeType.startsWith('image/')) mimeType = 'image/jpeg';
+                const imageBlob = new Blob([bytes.slice(cursor, frameEnd)], { type: mimeType });
+                const extension = mimeType.includes('png') ? 'png' : mimeType.includes('webp') ? 'webp' : 'jpg';
+                return new File([imageBlob], `${audioFile.name.replace(/\.mp3$/i, '')}-cover.${extension}`, { type: mimeType });
+            }
+            offset = frameEnd;
+        }
+    } catch (error) {
+        console.warn(`Cover metadata tidak dapat dibaca dari ${audioFile.name}:`, error);
+    }
+    return null;
+}
+
 // Handle selecting multiple audio files
-function handleMultiAudioSelect(input) {
+async function handleMultiAudioSelect(input) {
     const files = Array.from(input.files);
     if (!files.length) return;
     // Merge: keep existing entries for files already in list, add new ones
     const existingNames = multiSongFiles.map(s => s.audioFile.name);
-    files.forEach(f => {
-        if (!existingNames.includes(f.name)) {
+    const newFiles = files.filter(file => !existingNames.includes(file.name));
+    const entries = await Promise.all(newFiles.map(async f => {
             const titleFromFile = f.name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
-            multiSongFiles.push({
+            const embeddedCoverFile = await extractEmbeddedMp3Cover(f);
+            return {
                 audioFile: f,
                 title: titleFromFile,
                 artist: multiArtistTags.join(', '),
                 coverUrl: '',
-                coverFile: null,
+                coverFile: embeddedCoverFile,
+                embeddedCoverUrl: embeddedCoverFile ? URL.createObjectURL(embeddedCoverFile) : '',
                 lyrics: '',
                 lrcFile: null,
-            });
-        }
-    });
+            };
+    }));
+    multiSongFiles.push(...entries);
     renderMultiSongRows();
 }
 
@@ -2603,6 +2686,7 @@ function renderMultiSongRows() {
                         class="w-full bg-gray-900 border border-gray-700 rounded p-2 text-white text-sm focus:outline-none focus:border-spotify-green"
                         placeholder="URL cover (opsional)"
                         oninput="multiSongFiles[${i}].coverUrl = this.value">
+                    ${item.embeddedCoverUrl ? `<div class="mt-2 flex items-center gap-2 rounded bg-spotify-green/10 p-2 text-xs text-spotify-green"><img src="${item.embeddedCoverUrl}" class="h-9 w-9 rounded object-cover"><span>Cover dari metadata MP3 terdeteksi</span></div>` : ''}
                 </div>
                 <div>
                     <label class="block text-xs text-gray-400 mb-1 font-medium flex items-center justify-between">
@@ -2639,11 +2723,13 @@ function handleMultiRowLrc(rowIdx, input) {
 }
 
 function removeMultiRow(i) {
+    if (multiSongFiles[i]?.embeddedCoverUrl) URL.revokeObjectURL(multiSongFiles[i].embeddedCoverUrl);
     multiSongFiles.splice(i, 1);
     renderMultiSongRows();
 }
 
 function clearMultiUpload() {
+    multiSongFiles.forEach(item => { if (item.embeddedCoverUrl) URL.revokeObjectURL(item.embeddedCoverUrl); });
     multiSongFiles = [];
     multiArtistTags = [];
     renderMultiArtistTags();
@@ -2687,7 +2773,7 @@ async function submitMultiUpload() {
         const coverInput = document.getElementById(`multi-row-cover-${i}`);
         const title = (titleInput?.value || item.title).trim();
         const artist = (artistInput?.value || item.artist).trim();
-        const coverUrl = (coverInput?.value || item.coverUrl || sharedCoverUrl).trim();
+        const coverUrl = (coverInput?.value || item.coverUrl || '').trim();
         const lyrics = item.lyrics || '';
 
         if (!title || !artist) { showMessage(`Baris ${i+1}: Judul dan penyanyi wajib diisi`, 'error'); failCount++; continue; }
@@ -2703,6 +2789,12 @@ async function submitMultiUpload() {
 
             // Resolve cover
             let finalCoverUrl = coverUrl;
+            if (!finalCoverUrl && item.coverFile) {
+                const coverPath = `covers/${Date.now()}_${item.coverFile.name.replace(/[^a-zA-Z0-9.-]/g, '')}`;
+                const { error: coverErr } = await supabaseClient.storage.from('media').upload(coverPath, item.coverFile);
+                if (!coverErr) finalCoverUrl = supabaseClient.storage.from('media').getPublicUrl(coverPath).data.publicUrl;
+            }
+            if (!finalCoverUrl) finalCoverUrl = sharedCoverUrl;
             if (!finalCoverUrl) finalCoverUrl = 'https://images.unsplash.com/photo-1614613535308-eb51bd3d2c17?w=300&q=80';
 
             const newSongData = { id: Date.now().toString() + i, title, artist, cover_url: finalCoverUrl, audio_url: audioUrl, lyrics, play_count: 0 };
