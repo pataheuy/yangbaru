@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe – PufutaraPlay</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
+        body { background:#fff; color:#000; display:flex; flex-direction:column; align-items:center; min-height:100vh; }
+        header { width:100%; max-width:520px; padding:24px 20px 0; display:flex; justify-content:space-between; align-items:center; }
+        .back { color:#999; text-decoration:none; font-size:0.9rem; }
+        .back:hover { color:#000; }
+        .logo { font-weight:900; letter-spacing:-1px; }
+        h1 { font-size:2rem; font-weight:900; letter-spacing:-1px; margin:24px 0 8px; }
+        .status { font-size:1rem; color:#666; margin-bottom:20px; min-height:24px; font-weight:600; }
+        .board { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; width:300px; }
+        .cell {
+            width:88px; height:88px; border:2px solid #eee; border-radius:16px;
+            font-size:2.5rem; font-weight:900; cursor:pointer; background:#fff;
+            transition:.2s; display:flex; align-items:center; justify-content:center;
+        }
+        .cell:hover:not(.taken) { border-color:#000; background:#f9f9f9; }
+        .cell.x { color:#000; }
+        .cell.o { color:#555; }
+        .cell.win { background:#000; color:#fff !important; border-color:#000; }
+        .score-row { display:flex; gap:24px; margin:20px 0; text-align:center; }
+        .score-box { padding:12px 20px; border:1px solid #eee; border-radius:14px; min-width:80px; }
+        .score-box .label { font-size:0.7rem; font-weight:700; color:#aaa; letter-spacing:1px; text-transform:uppercase; }
+        .score-box .val   { font-size:1.8rem; font-weight:900; }
+        .btn { padding:10px 28px; border:2px solid #000; border-radius:12px; font-weight:700; font-size:0.9rem; cursor:pointer; background:#fff; transition:.2s; margin-top:8px; }
+        .btn:hover { background:#000; color:#fff; }
+        .mode-row { display:flex; gap:10px; margin-bottom:4px; }
+        .mode-btn { padding:7px 18px; border:1.5px solid #eee; border-radius:10px; font-size:0.82rem; font-weight:700; cursor:pointer; background:#fff; transition:.2s; color:#aaa; }
+        .mode-btn.active { border-color:#000; color:#000; }
+    </style>
+</head>
+<body>
+<header>
+    <a href="index.html" class="back">← Kembali</a>
+    <div class="logo">PUFUTARA.</div>
+</header>
+<h1>Tic Tac Toe</h1>
+<div class="mode-row">
+    <button class="mode-btn active" id="m2p" onclick="setMode('2p')">2 Player</button>
+    <button class="mode-btn" id="mAI" onclick="setMode('ai')">vs AI</button>
+</div>
+<div class="status" id="status">Giliran: ✕</div>
+<div class="board" id="board"></div>
+<div class="score-row">
+    <div class="score-box"><div class="label">✕ Menang</div><div class="val" id="sx">0</div></div>
+    <div class="score-box"><div class="label">Seri</div><div class="val" id="sd">0</div></div>
+    <div class="score-box"><div class="label">○ Menang</div><div class="val" id="so">0</div></div>
+</div>
+<button class="btn" onclick="reset()">↺ Ulang</button>
+<script>
+let board, turn, over, mode='2p', sc={x:0,o:0,d:0};
+const WINS=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+
+function setMode(m) { mode=m; document.getElementById('m2p').classList.toggle('active',m==='2p'); document.getElementById('mAI').classList.toggle('active',m==='ai'); reset(); }
+
+function reset() { board=Array(9).fill(''); turn='x'; over=false; render(); document.getElementById('status').textContent='Giliran: ✕'; }
+
+function render() {
+    const b=document.getElementById('board'); b.innerHTML='';
+    board.forEach((v,i)=>{
+        const c=document.createElement('button'); c.className='cell'+(v?' taken '+v:'');
+        c.textContent=v==='x'?'✕':v==='o'?'○':''; c.onclick=()=>play(i); b.appendChild(c);
+    });
+}
+
+function play(i) {
+    if (over||board[i]) return;
+    board[i]=turn;
+    const w=check();
+    if(w) { highlight(w); sc[turn]++; updateScore(); document.getElementById('status').textContent=(turn==='x'?'✕':'○')+' Menang! 🎉'; over=true; render(); highlight(w); return; }
+    if(board.every(v=>v)) { sc.d++; updateScore(); document.getElementById('status').textContent='Seri!'; over=true; return; }
+    turn=turn==='x'?'o':'x';
+    document.getElementById('status').textContent='Giliran: '+(turn==='x'?'✕':'○');
+    render();
+    if(mode==='ai'&&turn==='o'&&!over) setTimeout(aiMove,350);
+}
+
+function check() { return WINS.find(w=>board[w[0]]&&board[w[0]]===board[w[1]]&&board[w[1]]===board[w[2]])||null; }
+
+function highlight(w) { const cells=document.querySelectorAll('.cell'); w.forEach(i=>cells[i].classList.add('win')); }
+
+function updateScore() { document.getElementById('sx').textContent=sc.x; document.getElementById('so').textContent=sc.o; document.getElementById('sd').textContent=sc.d; }
+
+function aiMove() {
+    // Minimax sederhana
+    let best=-Infinity, move=0;
+    board.forEach((v,i)=>{ if(!v){ board[i]='o'; let s=minimax(board,'x'); board[i]=''; if(s>best){best=s;move=i;} } });
+    play(move);
+}
+
+function minimax(b, t) {
+    const w=WINS.find(w=>b[w[0]]&&b[w[0]]===b[w[1]]&&b[w[1]]===b[w[2]]);
+    if(w) return b[w[0]]==='o'?10:-10;
+    if(b.every(v=>v)) return 0;
+    let scores=[];
+    b.forEach((v,i)=>{ if(!v){ b[i]=t; scores.push(minimax(b,t==='x'?'o':'x')); b[i]=''; } });
+    return t==='o'?Math.max(...scores):Math.min(...scores);
+}
+
+reset();
+</script>
+</body>
+</html>

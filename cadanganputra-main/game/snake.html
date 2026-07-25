@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Classic – PufutaraPlay</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
+        body { background:#fff; color:#000; display:flex; flex-direction:column; align-items:center; min-height:100vh; }
+        header { width:100%; max-width:800px; padding:24px 20px 0; display:flex; justify-content:space-between; align-items:center; }
+        .back { color:#999; text-decoration:none; font-size:0.9rem; }
+        .back:hover { color:#000; }
+        .logo { font-weight:900; letter-spacing:-1px; }
+        h1 { font-size:2rem; font-weight:900; letter-spacing:-1px; margin:24px 0 4px; }
+        .score-row { display:flex; gap:32px; margin-bottom:16px; font-size:0.95rem; color:#666; }
+        .score-row span { font-weight:700; color:#000; }
+        canvas { border:2px solid #000; border-radius:16px; display:block; }
+        .controls { margin-top:16px; display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+        .btn { padding:10px 24px; border:2px solid #000; border-radius:12px; font-weight:700; font-size:0.9rem; cursor:pointer; background:#fff; transition:.2s; }
+        .btn:hover, .btn.active { background:#000; color:#fff; }
+        .hint { margin-top:12px; font-size:0.8rem; color:#aaa; text-align:center; }
+        #msg { position:absolute; background:#000; color:#fff; padding:16px 32px; border-radius:16px; font-weight:900; font-size:1.1rem; display:none; }
+        .wrap { position:relative; }
+    </style>
+</head>
+<body>
+<header>
+    <a href="index.html" class="back">← Kembali</a>
+    <div class="logo">PUFUTARA.</div>
+</header>
+<h1>Snake Classic</h1>
+<div class="score-row">Skor: <span id="score">0</span> &nbsp;|&nbsp; Rekor: <span id="best">0</span></div>
+<div class="wrap">
+    <canvas id="c" width="400" height="400"></canvas>
+    <div id="msg">GAME OVER – Tekan SPACE</div>
+</div>
+<div class="controls">
+    <button class="btn" onclick="startGame()">▶ Mulai</button>
+    <button class="btn" id="btnPause" onclick="togglePause()">⏸ Pause</button>
+</div>
+<div class="hint">Kontrol: ← ↑ → ↓ atau WASD &nbsp;|&nbsp; SPACE = mulai/pause</div>
+<script>
+const cv = document.getElementById('c'), cx = cv.getContext('2d');
+const SZ = 20, COLS = 20, ROWS = 20;
+let snake, dir, next, food, score, best = 0, timer, paused, running;
+
+function startGame() {
+    snake = [{x:10,y:10},{x:9,y:10},{x:8,y:10}];
+    dir = {x:1,y:0}; next = {x:1,y:0};
+    score = 0; paused = false; running = true;
+    document.getElementById('msg').style.display='none';
+    document.getElementById('score').textContent = 0;
+    placeFood();
+    clearInterval(timer);
+    timer = setInterval(tick, 120);
+    document.getElementById('btnPause').textContent = '⏸ Pause';
+}
+
+function placeFood() {
+    let pos;
+    do { pos = {x:Math.floor(Math.random()*COLS), y:Math.floor(Math.random()*ROWS)}; }
+    while (snake.some(s => s.x===pos.x && s.y===pos.y));
+    food = pos;
+}
+
+function tick() {
+    dir = next;
+    const head = {x: snake[0].x+dir.x, y: snake[0].y+dir.y};
+    if (head.x<0||head.x>=COLS||head.y<0||head.y>=ROWS||snake.some(s=>s.x===head.x&&s.y===head.y)) {
+        gameOver(); return;
+    }
+    snake.unshift(head);
+    if (head.x===food.x && head.y===food.y) {
+        score++; if(score>best){best=score; document.getElementById('best').textContent=best;}
+        document.getElementById('score').textContent=score;
+        placeFood();
+    } else { snake.pop(); }
+    draw();
+}
+
+function gameOver() {
+    clearInterval(timer); running=false;
+    document.getElementById('msg').style.display='block';
+}
+
+function togglePause() {
+    if (!running) return;
+    paused = !paused;
+    if (paused) { clearInterval(timer); document.getElementById('btnPause').textContent='▶ Lanjut'; }
+    else { timer=setInterval(tick,120); document.getElementById('btnPause').textContent='⏸ Pause'; }
+}
+
+function draw() {
+    cx.fillStyle='#fff'; cx.fillRect(0,0,cv.width,cv.height);
+    // grid
+    cx.strokeStyle='#f5f5f5';
+    for(let i=0;i<COLS;i++){cx.beginPath();cx.moveTo(i*SZ,0);cx.lineTo(i*SZ,cv.height);cx.stroke();}
+    for(let j=0;j<ROWS;j++){cx.beginPath();cx.moveTo(0,j*SZ);cx.lineTo(cv.width,j*SZ);cx.stroke();}
+    // snake
+    snake.forEach((s,i) => {
+        cx.fillStyle = i===0 ? '#000' : '#333';
+        cx.beginPath(); cx.roundRect(s.x*SZ+1, s.y*SZ+1, SZ-2, SZ-2, 4); cx.fill();
+    });
+    // food
+    cx.fillStyle='#000';
+    cx.beginPath(); cx.arc(food.x*SZ+SZ/2, food.y*SZ+SZ/2, SZ/2-3, 0, Math.PI*2); cx.fill();
+}
+
+document.addEventListener('keydown', e => {
+    const map = { ArrowUp:{x:0,y:-1}, ArrowDown:{x:0,y:1}, ArrowLeft:{x:-1,y:0}, ArrowRight:{x:1,y:0}, w:{x:0,y:-1}, s:{x:0,y:1}, a:{x:-1,y:0}, d:{x:1,y:0} };
+    const k = map[e.key];
+    if(k && !(k.x===-dir.x && k.y===-dir.y)) { next=k; e.preventDefault(); }
+    if(e.key===' ') { e.preventDefault(); running ? togglePause() : startGame(); }
+});
+
+draw();
+</script>
+</body>
+</html>
