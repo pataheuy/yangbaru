@@ -38,6 +38,15 @@
         ::-webkit-scrollbar {
             width: 8px;
         }
+        /* Cegah horizontal scroll di semua breakpoint */
+        html, body {
+            overflow-x: hidden;
+            max-width: 100vw;
+        }
+        /* Pastikan header tidak menyebabkan overflow */
+        header {
+            max-width: 100vw;
+        }
         ::-webkit-scrollbar-track {
             background: #ffffff;
         }
@@ -204,12 +213,12 @@
 
     <!-- Header / Navbar -->
     <header class="fixed top-0 left-0 w-full z-40 bg-white/80 backdrop-blur-md border-b border-slate-200">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-            <a href="#" class="flex items-center space-x-2 group">
-                <span class="text-2xl font-extrabold bg-gradient-to-r from-primary via-secondary to-accentGray bg-clip-text text-transparent group-hover:opacity-80 transition-opacity">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 md:h-20 flex items-center justify-between">
+            <a href="#" class="flex items-center space-x-1.5 sm:space-x-2 group">
+                <span class="text-lg sm:text-xl md:text-2xl font-extrabold bg-gradient-to-r from-primary via-secondary to-accentGray bg-clip-text text-transparent group-hover:opacity-80 transition-opacity">
                     PUFUTARA.DEV
                 </span>
-                <span class="bg-slate-100 text-slate-800 text-[10px] font-bold px-2 py-0.5 rounded-full border border-slate-300">
+                <span class="bg-slate-100 text-slate-800 text-[9px] sm:text-[10px] font-bold px-1.5 sm:px-2 py-0.5 rounded-full border border-slate-300">
                     SANTRI
                 </span>
             </a>
@@ -228,29 +237,55 @@
             </nav>
 
             <!-- Mobile Menu Button -->
-            <button id="menu-btn" class="md:hidden text-slate-700 hover:text-black focus:outline-none w-8 h-8 flex flex-col justify-center items-center gap-[5px]" aria-label="Toggle menu">
-                <span class="hamburger-line block w-6 h-[2px] bg-slate-700 rounded-full transition-all duration-300 origin-center"></span>
-                <span class="hamburger-line block w-6 h-[2px] bg-slate-700 rounded-full transition-all duration-300"></span>
-                <span class="hamburger-line block w-6 h-[2px] bg-slate-700 rounded-full transition-all duration-300 origin-center"></span>
+            <button id="menu-btn" class="md:hidden text-slate-700 hover:text-black focus:outline-none w-10 h-10 flex flex-col justify-center items-center gap-[5px] -mr-1 rounded-lg hover:bg-slate-100 transition-colors" aria-label="Toggle menu" aria-expanded="false" aria-controls="mobile-menu">
+                <span class="hamburger-line block w-5 h-[2px] bg-slate-700 rounded-full transition-all duration-300 origin-center"></span>
+                <span class="hamburger-line block w-5 h-[2px] bg-slate-700 rounded-full transition-all duration-300"></span>
+                <span class="hamburger-line block w-5 h-[2px] bg-slate-700 rounded-full transition-all duration-300 origin-center"></span>
             </button>
         </div>
 
         <!-- Mobile Nav Menu -->
-        <div id="mobile-menu" class="md:hidden bg-white/95 backdrop-blur-md px-4 pb-3 overflow-hidden transition-all duration-300 ease-in-out max-h-0 opacity-0">
-            <a href="#tentang" class="block text-slate-600 hover:text-primary font-medium py-1.5 text-sm transition-colors">Tentang</a>
-            <a href="#keahlian" class="block text-slate-600 hover:text-primary font-medium py-1.5 text-sm transition-colors">Keahlian</a>
-            <a href="#proyek" class="block text-slate-600 hover:text-primary font-medium py-1.5 text-sm transition-colors">Proyek</a>
-            <a href="#prestasi" class="block text-slate-600 hover:text-primary font-medium py-1.5 text-sm transition-colors">Prestasi</a>
-            <a href="#galeri" class="block text-slate-600 hover:text-primary font-medium py-1.5 text-sm transition-colors">Galeri</a>
-            <a href="#kontak" class="block mt-2 px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-secondary text-white text-center text-sm font-semibold">Hubungi Saya</a>
+        <div id="mobile-menu" class="md:hidden bg-white/98 backdrop-blur-md overflow-hidden transition-all duration-300 ease-in-out max-h-0 opacity-0" role="navigation" aria-label="Mobile navigation">
+            <div class="px-4 pt-1 pb-4 space-y-0.5">
+                <a href="#tentang" class="flex items-center gap-3 text-slate-600 hover:text-primary hover:bg-slate-50 font-medium py-3 px-3 rounded-xl text-sm transition-all">
+                    <i class="fa-solid fa-user w-4 text-slate-400 text-xs"></i>
+                    Tentang
+                </a>
+                <a href="#keahlian" class="flex items-center gap-3 text-slate-600 hover:text-primary hover:bg-slate-50 font-medium py-3 px-3 rounded-xl text-sm transition-all">
+                    <i class="fa-solid fa-code w-4 text-slate-400 text-xs"></i>
+                    Keahlian
+                </a>
+                <a href="#proyek" class="flex items-center gap-3 text-slate-600 hover:text-primary hover:bg-slate-50 font-medium py-3 px-3 rounded-xl text-sm transition-all">
+                    <i class="fa-solid fa-folder w-4 text-slate-400 text-xs"></i>
+                    Proyek
+                </a>
+                <a href="#prestasi" class="flex items-center gap-3 text-slate-600 hover:text-primary hover:bg-slate-50 font-medium py-3 px-3 rounded-xl text-sm transition-all">
+                    <i class="fa-solid fa-trophy w-4 text-slate-400 text-xs"></i>
+                    Prestasi
+                </a>
+                <a href="#pesantren" class="flex items-center gap-3 text-slate-600 hover:text-primary hover:bg-slate-50 font-medium py-3 px-3 rounded-xl text-sm transition-all">
+                    <i class="fa-solid fa-mosque w-4 text-slate-400 text-xs"></i>
+                    Kisah Santri
+                </a>
+                <a href="#galeri" class="flex items-center gap-3 text-slate-600 hover:text-primary hover:bg-slate-50 font-medium py-3 px-3 rounded-xl text-sm transition-all">
+                    <i class="fa-solid fa-images w-4 text-slate-400 text-xs"></i>
+                    Galeri
+                </a>
+                <div class="pt-2 pb-1">
+                    <a href="#kontak" class="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-xl bg-gradient-to-r from-primary to-secondary text-white text-sm font-semibold hover:opacity-90 transition-opacity shadow-md">
+                        <i class="fa-solid fa-envelope text-xs"></i>
+                        Hubungi Saya
+                    </a>
+                </div>
+            </div>
         </div>
     </header>
 
     <!-- Hero Section -->
-    <section id="hero" class="pt-32 pb-20 relative overflow-hidden bg-gradient-to-b from-slate-50 to-white">
+    <section id="hero" class="pt-24 sm:pt-28 md:pt-32 pb-20 relative overflow-hidden bg-gradient-to-b from-slate-50 to-white">
         <!-- Background Ornaments (Soft Grays) -->
-        <div class="absolute top-1/4 left-1/10 w-72 h-72 bg-slate-200/50 rounded-full blur-3xl -z-10"></div>
-        <div class="absolute bottom-1/4 right-1/10 w-96 h-96 bg-slate-100/60 rounded-full blur-3xl -z-10"></div>
+        <div class="absolute top-1/4 -left-20 w-72 h-72 bg-slate-200/50 rounded-full blur-3xl -z-10 pointer-events-none"></div>
+        <div class="absolute bottom-1/4 -right-20 w-96 h-96 bg-slate-100/60 rounded-full blur-3xl -z-10 pointer-events-none"></div>
 
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-12">
             <!-- Left Content -->
@@ -1004,18 +1039,28 @@
     }
     #mobile-menu a {
         opacity: 0;
-        transform: translateX(-10px);
-        transition: opacity 0.28s ease, transform 0.28s ease, color 0.2s ease;
+        transform: translateX(-8px);
+        transition: opacity 0.25s ease, transform 0.25s ease, color 0.2s ease, background-color 0.2s ease;
     }
     #mobile-menu.menu-open a {
         opacity: 1;
         transform: translateX(0);
     }
-    #mobile-menu.menu-open a:nth-child(1) { transition-delay: 0.06s; }
-    #mobile-menu.menu-open a:nth-child(2) { transition-delay: 0.12s; }
-    #mobile-menu.menu-open a:nth-child(3) { transition-delay: 0.18s; }
-    #mobile-menu.menu-open a:nth-child(4) { transition-delay: 0.24s; }
-    #mobile-menu.menu-open a:nth-child(5) { transition-delay: 0.30s; }
+    /* Stagger: target semua <a> dalam #mobile-menu dengan nth-child di parent div */
+    #mobile-menu .space-y-0\.5 > a:nth-child(1),
+    #mobile-menu .space-y-0\.5 > div:nth-child(1) a { transition-delay: 0.05s; }
+    #mobile-menu .space-y-0\.5 > a:nth-child(2),
+    #mobile-menu .space-y-0\.5 > div:nth-child(2) a { transition-delay: 0.10s; }
+    #mobile-menu .space-y-0\.5 > a:nth-child(3),
+    #mobile-menu .space-y-0\.5 > div:nth-child(3) a { transition-delay: 0.15s; }
+    #mobile-menu .space-y-0\.5 > a:nth-child(4),
+    #mobile-menu .space-y-0\.5 > div:nth-child(4) a { transition-delay: 0.20s; }
+    #mobile-menu .space-y-0\.5 > a:nth-child(5),
+    #mobile-menu .space-y-0\.5 > div:nth-child(5) a { transition-delay: 0.25s; }
+    #mobile-menu .space-y-0\.5 > a:nth-child(6),
+    #mobile-menu .space-y-0\.5 > div:nth-child(6) a { transition-delay: 0.30s; }
+    #mobile-menu .space-y-0\.5 > a:nth-child(7),
+    #mobile-menu .space-y-0\.5 > div:nth-child(7) a { transition-delay: 0.35s; }
 
     /* ============================================
        HOVER ANIMATIONS — LEBIH BANYAK & ESTETIK

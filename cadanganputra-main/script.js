@@ -90,6 +90,7 @@ let menuOpen = false;
 
 if (menuBtn) menuBtn.addEventListener('click', () => {
     menuOpen = !menuOpen;
+    menuBtn.setAttribute('aria-expanded', menuOpen ? 'true' : 'false');
     if (menuOpen) {
         mobileMenu.style.maxHeight = mobileMenu.scrollHeight + 'px';
         mobileMenu.style.opacity = '1';
@@ -115,6 +116,7 @@ const mobileLinks = mobileMenu ? mobileMenu.querySelectorAll('a') : [];
 mobileLinks.forEach(link => {
     link.addEventListener('click', () => {
         menuOpen = false;
+        menuBtn && menuBtn.setAttribute('aria-expanded', 'false');
         mobileMenu.style.maxHeight = '0';
         mobileMenu.style.opacity = '0';
         mobileMenu.classList.remove('menu-open');
