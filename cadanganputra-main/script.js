@@ -16,7 +16,7 @@
 const proyekData = [
     // --- Web Apps ---
     { no: 1,  title: 'PufutaraOS',           titlePrefix: 'Pufutara', kategori: 'OS',                     cover: '/foto/os.png',          link: '/os/index.html',                                          category: 'web',     desc: 'Sistem operasi modern berbasis web. Cita-cita Putra waktu kecil akhirnya terwujud di PC Labkom!' },
-    { no: 2,  title: 'PufutaraArchive',       titlePrefix: 'Pufutara', kategori: 'Web App',                cover: '/foto/archive.png',      link: 'indexlama.html',                                          category: 'web',     desc: 'Platform pusat proyek web dengan desain modern, rounded, dan minimalis.' },
+    { no: 2,  title: 'PufutaraArchive',       titlePrefix: 'Pufutara', kategori: 'Web App',                cover: '/foto/archive.png',      link: '/archive/index.html',                                     category: 'web',     desc: 'Platform pusat proyek web dengan desain modern, rounded, dan minimalis.' },
     { no: 3,  title: 'MutabaahOS',                                     kategori: 'Startup',                cover: '/foto/mutabaahos.png',   link: 'https://mutabaahos.vercel.app',                           category: 'desktop', desc: 'Landing page proyek full stack dan full keren. InsyaAllah jadi startup baru di Indo.' },
     { no: 4,  title: 'PufutaraTube',          titlePrefix: 'Pufutara', kategori: 'Media',                  cover: '/foto/tube.png',         link: '/tube/index.html',                                        category: 'web',     desc: 'Tempat nonton video favorit tanpa iklan yang mengganggu fokus koding kamu.' },
     { no: 5,  title: 'PufutaraChat',          titlePrefix: 'Pufutara', kategori: 'Comm',                   cover: '/foto/chat.png',         link: '/chat/index.html',                                        category: 'web',     desc: 'Obrolan Simple, tambah akun, login, langsung chat ke semua orang secara real-time.' },
@@ -249,7 +249,7 @@ let galleryData = [
         type: 'video',
         title: 'Pak Ulil diwawancara',
         desc: 'video sus yang daya temukan di google drive',
-        fileUrl: 'paulil.mp4'
+        fileUrl: 'media/paulil.mp4'
     },
     {
         id: 3,
