@@ -15,12 +15,12 @@
 // ---------------------------------------------------------------
 const proyekData = [
     // --- Web Apps ---
-    { no: 1,  title: 'PufutaraOS',           titlePrefix: 'Pufutara', kategori: 'OS',                     cover: '/foto/os.png',          link: '/os/index.html',                                          category: 'web',     desc: 'Sistem operasi modern berbasis web. Cita-cita Putra waktu kecil akhirnya terwujud di PC Labkom!' },
+    { no: 1,  title: 'PufutaraOS',           titlePrefix: 'Pufutara', kategori: 'OS',                     cover: '/foto/os.png',          link: '/os/index.html',                                          category: 'web',     best: true,  desc: 'Sistem operasi modern berbasis web. Cita-cita Putra waktu kecil akhirnya terwujud di PC Labkom!' },
     { no: 2,  title: 'PufutaraArchive',       titlePrefix: 'Pufutara', kategori: 'Web App',                cover: '/foto/archive.png',      link: '/archive/index.html',                                     category: 'web',     desc: 'Platform pusat proyek web dengan desain modern, rounded, dan minimalis.' },
     { no: 3,  title: 'MutabaahOS',                                     kategori: 'Startup',                cover: '/foto/mutabaahos.png',   link: 'https://mutabaahos.vercel.app',                           category: 'desktop', desc: 'Landing page proyek full stack dan full keren. InsyaAllah jadi startup baru di Indo.' },
     { no: 4,  title: 'PufutaraTube',          titlePrefix: 'Pufutara', kategori: 'Media',                  cover: '/foto/tube.png',         link: '/tube/index.html',                                        category: 'web',     desc: 'Tempat nonton video favorit tanpa iklan yang mengganggu fokus koding kamu.' },
-    { no: 5,  title: 'PufutaraChat',          titlePrefix: 'Pufutara', kategori: 'Comm',                   cover: '/foto/chat.png',         link: '/chat/index.html',                                        category: 'web',     desc: 'Obrolan Simple, tambah akun, login, langsung chat ke semua orang secara real-time.' },
-    { no: 6,  title: 'PufutaraDrive',         titlePrefix: 'Pufutara', kategori: 'Cloud',                  cover: '/foto/cloud.png',        link: '/drive/index.html',                                       category: 'web',     desc: 'Simpan file-file penting proyek kodingan kamu dengan aman dan mudah diakses di mana saja.' },
+    { no: 5,  title: 'PufutaraChat',          titlePrefix: 'Pufutara', kategori: 'Comm',                   cover: '/foto/chat.png',         link: '/chat/index.html',                                        category: 'web',     best: true,  desc: 'Obrolan Simple, tambah akun, login, langsung chat ke semua orang secara real-time.' },
+    { no: 6,  title: 'PufutaraDrive',         titlePrefix: 'Pufutara', kategori: 'Cloud',                  cover: '/foto/cloud.png',        link: '/drive/index.html',                                       category: 'web',     best: true,  desc: 'Simpan file-file penting proyek kodingan kamu dengan aman dan mudah diakses di mana saja.' },
     { no: 7,  title: 'PufutaraGallery',       titlePrefix: 'Pufutara', kategori: 'Fullstack',              cover: '/foto/image.png',        link: '/gallery/index.html',                                     category: 'web',     desc: 'Proyek Full Stack pertama Putra! Upload foto otomatis tersimpan ke server untuk dilihat semua orang.' },
     { no: 8,  title: 'PufutaraAudio',         titlePrefix: 'Pufutara', kategori: 'Audio',                  cover: '/foto/mp3music.png',     link: '/audio/index.html',                                       category: 'web',     desc: 'Dengerin lo-fi beat dan ambience alam biar koding makin chill dan nggak spaneng.' },
     { no: 9,  title: 'Pufutara MiniGames',    titlePrefix: 'Pufutara', kategori: 'Fun',                    cover: '/foto/game.png',         link: '/game/index.html',                                        category: 'web',     desc: 'Kumpulan game ringan buat refreshing otak setelah pusing ngurusin bug di HTML.' },
@@ -46,7 +46,7 @@ const proyekData = [
     { no: 29, title: 'KLS WEB',                                         kategori: 'Pro',                   cover: '/foto/klsweb.png',       link: '/kls/index.html',                                         category: 'web',     desc: 'Landing page website organisasi authot pufutara. Kece banget kek profesional.' },
     { no: 30, title: 'Pufutara AI 2.0',       titlePrefix: 'Pufutara', kategori: 'AI',                     cover: '/foto/ai2.png',          link: 'https://pufutara-ai--putraazzam2110.replit.app/',         category: 'web',     desc: 'AI chatbot generasi terbaru, lebih mantap dan berkualitas tinggi.' },
     { no: 31, title: 'DepDik Putra Web',                                kategori: 'Our lovely Departement', cover: '/foto/depdikweb.png',   link: '/depdikweb/index.html',                                   category: 'web',     desc: 'Web departmen pendidikan bem asbosch. dibuat dengan alasan untuk menyaingi web bapuk S.id depdik putri yg bayi pun bisa bikin' },
-    { no: 32, title: 'PufutaraCBT',                                     kategori: 'Concept',               cover: '/foto/sarankritik.png',  link: 'cbt/index.html',                                          category: 'web',     desc: 'CBT bersih dan aman! gaperlu pakai exam browser lagi! otoamtis fullscreen! dan kalo keluar otomatis di Ban.' },
+    { no: 32, title: 'PufutaraCBT',                                     kategori: 'Concept',               cover: '/foto/sarankritik.png',  link: 'cbt/index.html',                                          category: 'web',     best: true,  desc: 'CBT bersih dan aman! gaperlu pakai exam browser lagi! otoamtis fullscreen! dan kalo keluar otomatis di Ban.' },
 ];
 
 // ===== RENDER PROYEK =====
@@ -55,6 +55,9 @@ function renderProyek() {
     if (!grid) return;
 
     grid.innerHTML = proyekData.map((p, idx) => {
+        // Skip proyek terbaik — sudah tampil di section tersendiri
+        if (p.best) return '';
+
         const titleHTML = p.titlePrefix 
             ? `<span class="bg-gradient-to-r from-slate-500 to-slate-400 bg-clip-text text-transparent">${p.titlePrefix}</span>${p.title.replace(p.titlePrefix, '')}`
             : p.title;
@@ -64,7 +67,7 @@ function renderProyek() {
         return `
             <a href="${p.link}" target="_blank" class="group block no-underline reveal-on-scroll" data-delay="${delay}" data-category="${p.category}">
                 <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-slate-200 transition-all duration-300 h-full flex flex-col">
-                    <div class="card-image-container relative" style="--card-cover: url('${p.cover}');"></div>
+                    <div class="card-image-container relative lazy-cover" data-cover="${p.cover}" role="img" aria-label="Cover proyek ${p.title}"></div>
                     <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
                         <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-slate-500 uppercase tracking-widest">${String(p.no).padStart(2, '0')}</span>
                         <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
@@ -155,6 +158,19 @@ renderProyek();
 document.querySelectorAll('#projects-grid .reveal-on-scroll').forEach(el => {
     revealObserver.observe(el);
 });
+
+// ===== LAZY LOAD COVER IMAGES =====
+const lazyCoverObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            const el = entry.target;
+            const cover = el.dataset.cover;
+            if (cover) el.style.setProperty('--card-cover', `url('${cover}')`);
+            lazyCoverObserver.unobserve(el);
+        }
+    });
+}, { rootMargin: '200px 0px' });
+document.querySelectorAll('#projects-grid .lazy-cover').forEach(el => lazyCoverObserver.observe(el));
 
 // ===== FILTER & SEARCH PROYEK =====
 const filterBtns = document.querySelectorAll('.filter-btn');
@@ -434,17 +450,23 @@ renderGallery('semua');
 
 // Untuk nambah: copy salah satu baris, isi nama/periode/peran
 const organisasiData = [
-    { nama: 'Staff Humas dan ASFERA 2026',                    periode: 'Bertanggung jawab mendokumentasikan acara dengan baik',          peran: '2025-2026' },
     { nama: 'Ketua Komunitas Literasi Sekolah',               periode: 'SMPIT Assyifa Boarding School Jalancagak',                       peran: '2025-2026' },
-    { nama: 'Anggota BEM Departemen Pendidikan',              periode: 'Organisasi tertinggi setara OSIS negri, di Assyifa',              peran: '2025-2026' },
+    { nama: 'Sekretaris Halaqoh BPA Hamas',                   periode: 'Kelompok Bina Pribadi Assyifa — Ust. Syaiful Anwar',   peran: '2025-2026' },
     { nama: 'Sekretaris Org. Mitra Duta Kesehatan Asrama',    periode: 'Organisasi asrama dari pembinaan',                               peran: '2025-2026' },
-    { nama: 'Sekretaris Halaqoh BPA',                         periode: 'Kelompok Bina Pribadi Assyifa — Ust. Syaiful Anwar',             peran: '2025-2026' },
+    { nama: 'Pengurus BEM Departemen Pendidikan',             periode: 'Organisasi tertinggi setara OSIS negri, di Assyifa',             peran: '2025-2026' },
+    { nama: 'Pengurus divisi Humas dan ASFERA 2026',          periode: 'Bertanggung jawab mendokumentasikan acara dengan baik',          peran: '2025-2026' },
     { nama: 'Anggota Organisasi Angkatan — Keagamaan',        periode: 'Organisasi angkatan 17 "Revourner" di Assyifa',                  peran: '2025-2026' },
     { nama: 'Anggota Komunitas Literasi Sekolah',             periode: 'Sebelum jadi ketua — kabinet Ki Hadjar Dewantara',               peran: '2025-2026' },
 ];
 
 // Untuk nambah: copy salah satu baris, isi tahun/judul/desc
 const prestasiData = [
+    { tahun: '2026',        judul: 'Medali Emas ISSC Bidang IPS',    desc: 'Lomba online resmi dari Pusat kejuaraan Sains Nasional ( PUSKANAS )' },
+    { tahun: '2026',        judul: 'Medali Emas OLIMNUS Bidang IPS',    desc: 'Lomba online resmi dari Pusat kejuaraan Sains Nasional ( PUSKANAS )' },
+    { tahun: '2026',        judul: 'Medali Emas OLIMNUS Bidang B.Indo',    desc: 'Lomba online resmi dari Pusat kejuaraan Sains Nasional ( PUSKANAS )' },
+    { tahun: '2026',        judul: 'Medali Perunggu OLIMNUS Bidang IPA',    desc: 'Lomba online resmi dari Pusat kejuaraan Sains Nasional ( PUSKANAS )' },
+    { tahun: '2026',        judul: 'Medali Emas KSPI Bidang IPS',    desc: 'Lomba online resmi dari Pusat kejuaraan Sains Nasional ( PUSKANAS )' },
+    { tahun: '2026',        judul: 'Medali perunggu KSPI Bidang IPA',    desc: 'Lomba online resmi dari Pusat kejuaraan Sains Nasional ( PUSKANAS )' },
     { tahun: '2026',        judul: 'Juara 2 Santri Cinta Lingkungan',    desc: 'Juara 2 konsisten membantu membersihkan lingkungan sekolah Assyifa.' },
     { tahun: '2026',        judul: 'Dormitory Award — Hafalan Terbanyak', desc: 'Kategori reguler pembinaan: 2 Juz 10 Halaman dalam satu semester.' },
     { tahun: '2026',        judul: 'Klub OSN SMPIT Assyifa (Tahap 3)',    desc: 'Pelatihan Olimpiade Sains Nasional tingkat sekolah tahap lanjut.' },
@@ -471,7 +493,7 @@ function renderPrestasi() {
     const container = document.getElementById('prestasi-list');
     if (!container) return;
     container.innerHTML = prestasiData.map(item => `
-        <div class="bg-slate-50 border border-slate-200 rounded-2xl px-5 py-4 hover:border-primary hover:bg-white hover:shadow-md transition-all duration-200">
+        <div class="bg-slate-50 border border-slate-200 rounded-2xl px-4 py-4 hover:border-primary hover:bg-white hover:shadow-md transition-all duration-200">
             <span class="text-[11px] font-bold text-amber-600 uppercase tracking-wider">${item.tahun}</span>
             <p class="font-bold text-sm text-primary mt-1">${item.judul}</p>
             <p class="text-xs text-slate-500 mt-1 leading-relaxed">${item.desc}</p>
@@ -498,3 +520,122 @@ function sosmedComingSoon(e) {
 
 
 // (Logika Supabase form kolaborasi ada di inline script di index.html)
+
+// ============================================================
+// HERO ENTRANCE ANIMATION (sync dengan opening intro)
+// ============================================================
+(function () {
+    const heroLeft  = document.getElementById('hero-left');
+    const heroRight = document.getElementById('hero-right');
+
+    function triggerHero() {
+        if (heroLeft)  { setTimeout(() => heroLeft.classList.add('hero-visible'),  0);   }
+        if (heroRight) { setTimeout(() => heroRight.classList.add('hero-visible'), 200); }
+    }
+
+    // Kalau intro sudah pernah ditampilkan di sesi ini, langsung tampilkan hero
+    if (sessionStorage.getItem('pufutara_intro_shown')) {
+        triggerHero();
+    } else {
+        // Sync dengan waktu opening fade-out: 1900ms + sedikit overlap 200ms
+        setTimeout(triggerHero, 2100);
+    }
+})();
+
+// ============================================================
+// ACTIVE NAV HIGHLIGHT ON SCROLL
+// ============================================================
+const navLinks = document.querySelectorAll('header nav a[href^="#"]');
+const pageSections = document.querySelectorAll('section[id]');
+
+const navObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            navLinks.forEach(link => {
+                link.classList.remove('nav-active');
+                if (link.getAttribute('href') === '#' + entry.target.id) {
+                    link.classList.add('nav-active');
+                }
+            });
+        }
+    });
+}, { threshold: 0.25, rootMargin: '-56px 0px -40% 0px' });
+
+pageSections.forEach(section => navObserver.observe(section));
+
+// ============================================================
+// BACK TO TOP BUTTON
+// ============================================================
+const backToTop = document.getElementById('back-to-top');
+if (backToTop) {
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 400) {
+            backToTop.classList.add('visible');
+        } else {
+            backToTop.classList.remove('visible');
+        }
+    }, { passive: true });
+    backToTop.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+}
+
+// ============================================================
+// TYPING ANIMATION (HERO)
+// ============================================================
+const typingWords = ['Santri Developer', 'Web Developer', 'Electron.js Enthusiast', 'Next.js Learner', 'Pufutara Creator'];
+let wordIdx = 0, charIdx = 0, isDeleting = false;
+const typingEl = document.getElementById('typing-text');
+
+function typeEffect() {
+    if (!typingEl) return;
+    const currentWord = typingWords[wordIdx];
+    if (isDeleting) {
+        typingEl.textContent = currentWord.substring(0, charIdx - 1);
+        charIdx--;
+    } else {
+        typingEl.textContent = currentWord.substring(0, charIdx + 1);
+        charIdx++;
+    }
+    let speed = isDeleting ? 60 : 110;
+    if (!isDeleting && charIdx === currentWord.length) {
+        speed = 1800;
+        isDeleting = true;
+    } else if (isDeleting && charIdx === 0) {
+        isDeleting = false;
+        wordIdx = (wordIdx + 1) % typingWords.length;
+        speed = 300;
+    }
+    setTimeout(typeEffect, speed);
+}
+// Mulai setelah intro opening selesai
+setTimeout(typeEffect, 2200);
+
+// ============================================================
+// STATS COUNTER ANIMATION
+// ============================================================
+function animateCounter(el, target, duration = 1500) {
+    let start = 0;
+    const step = target / (duration / 16);
+    const timer = setInterval(() => {
+        start += step;
+        if (start >= target) {
+            el.textContent = target + '+';
+            clearInterval(timer);
+        } else {
+            el.textContent = Math.floor(start) + '+';
+        }
+    }, 16);
+}
+
+const statsObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            const el = entry.target;
+            animateCounter(el, parseInt(el.dataset.count));
+            statsObserver.unobserve(el);
+        }
+    });
+}, { threshold: 0.5 });
+
+document.querySelectorAll('[data-count]').forEach(el => statsObserver.observe(el));
