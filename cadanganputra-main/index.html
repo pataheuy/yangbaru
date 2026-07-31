@@ -285,6 +285,7 @@
                 grid-template-columns: repeat(2, 1fr);
             }
         }
+
         /* Prestasi list 2 kolom */
         #prestasi-list {
             display: grid;
@@ -405,7 +406,7 @@
 <body class="bg-lightBg text-primary font-sans min-h-screen antialiased overflow-x-hidden">
 
     <!-- Header / Navbar -->
-    <header class="fixed top-0 left-0 w-full z-40 bg-white/80 backdrop-blur-md border-b border-slate-200" id="site-header" style="opacity:0; transition: opacity 0.5s ease;">
+    <header class="fixed top-0 left-0 w-full z-40 bg-white/80 backdrop-blur-md border-b border-slate-200 hero-line" id="site-header" style="animation-delay:3200ms">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 md:h-20 flex items-center justify-between">
             <a href="#" class="flex items-center space-x-1.5 sm:space-x-2 group">
                 <span class="text-lg sm:text-xl md:text-2xl font-extrabold bg-gradient-to-r from-primary via-secondary to-accentGray bg-clip-text text-transparent group-hover:opacity-80 transition-opacity">
@@ -622,10 +623,10 @@
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-2xl mx-auto mb-12 reveal-on-scroll" data-delay="0">
                 <h2 class="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent inline-block">Proyek Terbaik</h2>
-                <p class="text-slate-500 mt-2">Empat karya yang paling Putra banggakan dari semua yang pernah dibuat.</p>
+                <p class="text-slate-500 mt-2">Enam karya yang paling Putra banggakan dari semua yang pernah dibuat.</p>
             </div>
 
-            <div id="proyek-terbaik-grid" style="display:grid; grid-template-columns:repeat(4,1fr); gap:1rem;">
+            <div id="proyek-terbaik-grid" style="display:grid; grid-template-columns:repeat(6,1fr); gap:1rem;">
                 <!-- PufutaraOS -->
                 <a href="/os/index.html" target="_blank" class="group block reveal-on-scroll" data-delay="0">
                     <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-slate-200 transition-all duration-300 h-full flex flex-col">
@@ -686,6 +687,35 @@
                     </div>
                 </a>
 
+                <!-- Pufutara ProPaint -->
+                <a href="/paint/index.html" target="_blank" class="group block reveal-on-scroll" data-delay="240">
+                    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-slate-200 transition-all duration-300 h-full flex flex-col">
+                        <div class="aspect-video w-full overflow-hidden">
+                            <div class="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105" style="background-image:url('/foto/paint.png');"></div>
+                        </div>
+                        <div class="p-4 flex flex-col flex-1">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Design</span>
+                            <h3 class="font-bold text-base tracking-tight mb-1"><span class="text-slate-400">Pufutara</span> ProPaint</h3>
+                            <p class="text-slate-500 text-xs leading-relaxed flex-1">Gambar dan sketsa apa saja dengan mudah. Aplikasi simpel, tapi tools-nya profesional.</p>
+                            <span class="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary group-hover:gap-2 transition-all">Lihat Proyek <i class="fa-solid fa-arrow-right text-[10px]"></i></span>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- Pufutara MiniGames -->
+                <a href="/game/index.html" target="_blank" class="group block reveal-on-scroll" data-delay="300">
+                    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-slate-200 transition-all duration-300 h-full flex flex-col">
+                        <div class="aspect-video w-full overflow-hidden">
+                            <div class="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105" style="background-image:url('/foto/game.png');"></div>
+                        </div>
+                        <div class="p-4 flex flex-col flex-1">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Fun</span>
+                            <h3 class="font-bold text-base tracking-tight mb-1"><span class="text-slate-400">Pufutara</span> MiniGames</h3>
+                            <p class="text-slate-500 text-xs leading-relaxed flex-1">Kumpulan game ringan buat refreshing otak setelah pusing ngurusin bug di HTML.</p>
+                            <span class="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary group-hover:gap-2 transition-all">Lihat Proyek <i class="fa-solid fa-arrow-right text-[10px]"></i></span>
+                        </div>
+                    </div>
+                </a>
             </div>
 
             <!-- Tombol ke semua proyek -->
