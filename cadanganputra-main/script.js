@@ -620,7 +620,7 @@ function typeEffect() {
             header.style.display = 'block';
             // Paksa browser repaint sebelum memulai transisi
             header.getBoundingClientRect();
-            header.style.transition    = 'opacity 0.6s ease, transform 0.6s cubic-bezier(0.16,1,0.3,1)';
+            header.style.transition    = 'opacity 0.6s ease, transform 0.6s cubic-bezier(0.16,1,0.3,1), background 0.4s ease, border-color 0.4s ease';
             header.style.backdropFilter = 'blur(12px)';
             header.style.webkitBackdropFilter = 'blur(12px)';
             header.style.opacity       = '1';

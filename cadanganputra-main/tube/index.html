@@ -25,15 +25,28 @@
         body { background:var(--bg); color:var(--text); min-height:100vh; }
 
         /* ── AUTH ── */
-        #authScreen { position:fixed; inset:0; background:#fff; display:flex; align-items:center; justify-content:center; z-index:9999; padding:20px; }
-        .auth-box { width:100%; max-width:420px; padding:50px 40px; border-radius:24px; border:1px solid var(--border); text-align:center; box-shadow:0 20px 40px rgba(0,0,0,0.03); }
-        .auth-logo { font-size:28px; font-weight:900; letter-spacing:-1.5px; margin-bottom:6px; }
+        #authScreen { position:fixed; inset:0; background:#fff; display:flex; align-items:center; justify-content:center; z-index:9999; padding:20px; transition: opacity 0.5s ease, transform 0.5s ease; }
+        #authScreen.hiding { opacity:0; transform:scale(1.04); pointer-events:none; }
+        .auth-box { width:100%; max-width:420px; padding:50px 40px; border-radius:24px; border:1px solid var(--border); text-align:center; box-shadow:0 20px 40px rgba(0,0,0,0.03); animation: authBoxIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; }
+        .auth-logo { font-size:28px; font-weight:900; letter-spacing:-1.5px; margin-bottom:6px; animation: spinIn 0.6s 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; }
         .auth-logo span { background:#000; color:#fff; padding:2px 10px; border-radius:8px; margin-left:2px; }
-        .auth-box h1 { font-size:1.2rem; font-weight:600; margin-bottom:6px; }
-        .auth-box p { color:var(--text-muted); font-size:0.9rem; margin-bottom:28px; }
+        .auth-box h1 { font-size:1.2rem; font-weight:600; margin-bottom:6px; animation: fadeInUp 0.5s 0.2s both; }
+        .auth-box > p:first-of-type { color:var(--text-muted); font-size:0.9rem; margin-bottom:28px; animation: fadeInUp 0.5s 0.3s both; }
+        .auth-box input:nth-of-type(1) { animation: fadeInUp 0.5s 0.35s both; }
+        .auth-box input:nth-of-type(2) { animation: fadeInUp 0.5s 0.42s both; }
+        .auth-box .btn-black { animation: fadeInUp 0.5s 0.5s both; }
         .auth-box input { width:100%; padding:14px 16px; margin-bottom:14px; border:1px solid var(--border); border-radius:12px; font-size:0.95rem; outline:none; background:var(--surface-2); transition:.2s; }
         .auth-box input:focus { border-color:#000; background:#fff; }
         #authErr { color:var(--red); font-size:0.85rem; min-height:20px; margin-bottom:10px; font-weight:500; }
+
+        @keyframes authBoxIn { from { opacity:0; transform:scale(0.92); } to { opacity:1; transform:scale(1); } }
+        @keyframes spinIn { from { opacity:0; transform:rotate(-15deg) scale(0.8); } to { opacity:1; transform:rotate(0deg) scale(1); } }
+        @keyframes fadeInUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+
+        /* ── HEADER & APP ANIMATION ── */
+        #appHeader { animation: slideInDown 0.4s 0.1s both; }
+        #appBody { animation: fadeInUp 0.4s 0.2s both; }
+        @keyframes slideInDown { from { opacity:0; transform:translateY(-30px); } to { opacity:1; transform:translateY(0); } }
 
         /* ── BUTTONS ── */
         .btn-black { background:#000; color:#fff; border:none; padding:12px 28px; border-radius:12px; font-size:0.9rem; font-weight:600; cursor:pointer; transition:.2s; }
@@ -195,7 +208,7 @@
     <div class="auth-box">
         <div class="auth-logo">Pufutara<span>Tube</span></div>
         <h1>Masuk ke PufutaraTube</h1>
-        <p>Tonton, upload, dan bagikan video bersama komunitas</p>
+        <p>Masukkan email & password. Akun baru akan dibuat otomatis jika belum ada.</p>
         <input type="email" id="authEmail" placeholder="Alamat email" autocomplete="off">
         <input type="password" id="authPass" placeholder="Kata sandi">
         <p id="authErr"></p>
