@@ -331,16 +331,17 @@
             pointer-events: all;
         }
 
-        /* Proyek terbaik: 4 kolom 2 baris di desktop, 2 kolom di mobile */
-        #proyek-terbaik-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 1rem;
+        /* Proyek terbaik — fully responsive, identik dengan proyek biasa */
+        #proyek-terbaik-grid .card-image-container {
+            margin: 0;
+            width: 100%;
         }
-        @media (max-width: 767px) {
-            #proyek-terbaik-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
+        #proyek-terbaik-grid .card-image-container ~ * {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        #proyek-terbaik-grid a > div > p:last-child {
+            padding-bottom: 1rem;
         }
 
         /* Prestasi list 2 kolom */
@@ -693,124 +694,116 @@
                 <p class="text-slate-500 mt-2">Delapan karya yang paling Putra banggakan dari semua yang pernah dibuat.</p>
             </div>
 
-            <div id="proyek-terbaik-grid" style="display:grid; grid-template-columns:repeat(4,1fr); gap:1rem;">
+            <div id="proyek-terbaik-grid" class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
                 <!-- PufutaraOS -->
-                <a href="/os/index.html" target="_blank" class="group block reveal-on-scroll" data-delay="0">
+                <a href="/os/index.html" target="_blank" class="group block no-underline reveal-on-scroll" data-delay="0">
                     <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-slate-200 transition-all duration-300 h-full flex flex-col">
-                        <div class="aspect-video w-full overflow-hidden">
-                            <div class="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105" style="background-image:url('/foto/os.png');"></div>
+                        <div class="card-image-container relative lazy-cover" data-cover="/foto/os.png" role="img" aria-label="Cover PufutaraOS"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-slate-500 uppercase tracking-widest">01</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">OS</span>
                         </div>
-                        <div class="p-4 flex flex-col flex-1">
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">OS</span>
-                            <h3 class="font-bold text-base tracking-tight mb-1"><span class="text-slate-400">Pufutara</span>OS</h3>
-                            <p class="text-slate-500 text-xs leading-relaxed flex-1">Sistem operasi modern berbasis web. Cita-cita Putra waktu kecil akhirnya terwujud di PC Labkom!</p>
-                            <span class="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary group-hover:gap-2 transition-all">Lihat Proyek <i class="fa-solid fa-arrow-right text-[10px]"></i></span>
-                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal"><span class="text-slate-400">Pufutara</span>OS</h3>
+                        <p class="text-slate-500 text-[0.65rem] sm:text-[0.75rem] leading-relaxed line-clamp-2">Sistem operasi modern berbasis web. Cita-cita Putra waktu kecil akhirnya terwujud di PC Labkom!</p>
                     </div>
                 </a>
 
                 <!-- PufutaraCBT -->
-                <a href="cbt/index.html" target="_blank" class="group block reveal-on-scroll" data-delay="60">
+                <a href="cbt/index.html" target="_blank" class="group block no-underline reveal-on-scroll" data-delay="60">
                     <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-slate-200 transition-all duration-300 h-full flex flex-col">
-                        <div class="aspect-video w-full overflow-hidden">
-                            <div class="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105" style="background-image:url('/foto/sarankritik.png');"></div>
+                        <div class="card-image-container relative lazy-cover" data-cover="/foto/sarankritik.png" role="img" aria-label="Cover PufutaraCBT"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-slate-500 uppercase tracking-widest">02</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Concept</span>
                         </div>
-                        <div class="p-4 flex flex-col flex-1">
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Concept</span>
-                            <h3 class="font-bold text-base tracking-tight mb-1">PufutaraCBT</h3>
-                            <p class="text-slate-500 text-xs leading-relaxed flex-1">CBT bersih dan aman! Otomatis fullscreen, dan kalau keluar otomatis di ban.</p>
-                            <span class="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary group-hover:gap-2 transition-all">Lihat Proyek <i class="fa-solid fa-arrow-right text-[10px]"></i></span>
-                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">PufutaraCBT</h3>
+                        <p class="text-slate-500 text-[0.65rem] sm:text-[0.75rem] leading-relaxed line-clamp-2">CBT bersih dan aman! Otomatis fullscreen, dan kalau keluar otomatis di ban.</p>
                     </div>
                 </a>
 
                 <!-- PufutaraChat -->
-                <a href="/chat/index.html" target="_blank" class="group block reveal-on-scroll" data-delay="120">
+                <a href="/chat/index.html" target="_blank" class="group block no-underline reveal-on-scroll" data-delay="80">
                     <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-slate-200 transition-all duration-300 h-full flex flex-col">
-                        <div class="aspect-video w-full overflow-hidden">
-                            <div class="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105" style="background-image:url('/foto/chat.png');"></div>
+                        <div class="card-image-container relative lazy-cover" data-cover="/foto/chat.png" role="img" aria-label="Cover PufutaraChat"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-slate-500 uppercase tracking-widest">03</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Comm</span>
                         </div>
-                        <div class="p-4 flex flex-col flex-1">
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Comm</span>
-                            <h3 class="font-bold text-base tracking-tight mb-1"><span class="text-slate-400">Pufutara</span>Chat</h3>
-                            <p class="text-slate-500 text-xs leading-relaxed flex-1">Obrolan simple, tambah akun, login, langsung chat ke semua orang secara real-time.</p>
-                            <span class="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary group-hover:gap-2 transition-all">Lihat Proyek <i class="fa-solid fa-arrow-right text-[10px]"></i></span>
-                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal"><span class="text-slate-400">Pufutara</span>Chat</h3>
+                        <p class="text-slate-500 text-[0.65rem] sm:text-[0.75rem] leading-relaxed line-clamp-2">Obrolan simple, tambah akun, login, langsung chat ke semua orang secara real-time.</p>
                     </div>
                 </a>
 
                 <!-- PufutaraDrive -->
-                <a href="/drive/index.html" target="_blank" class="group block reveal-on-scroll" data-delay="180">
+                <a href="/drive/index.html" target="_blank" class="group block no-underline reveal-on-scroll" data-delay="100">
                     <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-slate-200 transition-all duration-300 h-full flex flex-col">
-                        <div class="aspect-video w-full overflow-hidden">
-                            <div class="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105" style="background-image:url('/foto/cloud.png');"></div>
+                        <div class="card-image-container relative lazy-cover" data-cover="/foto/cloud.png" role="img" aria-label="Cover PufutaraDrive"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-slate-500 uppercase tracking-widest">04</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Cloud</span>
                         </div>
-                        <div class="p-4 flex flex-col flex-1">
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Cloud</span>
-                            <h3 class="font-bold text-base tracking-tight mb-1"><span class="text-slate-400">Pufutara</span>Drive</h3>
-                            <p class="text-slate-500 text-xs leading-relaxed flex-1">Simpan file-file penting proyek kodingan kamu dengan aman dan mudah diakses di mana saja.</p>
-                            <span class="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary group-hover:gap-2 transition-all">Lihat Proyek <i class="fa-solid fa-arrow-right text-[10px]"></i></span>
-                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal"><span class="text-slate-400">Pufutara</span>Drive</h3>
+                        <p class="text-slate-500 text-[0.65rem] sm:text-[0.75rem] leading-relaxed line-clamp-2">Simpan file-file penting proyek kodingan kamu dengan aman dan mudah diakses di mana saja.</p>
                     </div>
                 </a>
 
                 <!-- PufutaraTube -->
-                <a href="/tube/index.html" target="_blank" class="group block reveal-on-scroll" data-delay="240">
+                <a href="/tube/index.html" target="_blank" class="group block no-underline reveal-on-scroll" data-delay="0">
                     <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-slate-200 transition-all duration-300 h-full flex flex-col">
-                        <div class="aspect-video w-full overflow-hidden">
-                            <div class="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105" style="background-image:url('/foto/tube.png');"></div>
+                        <div class="card-image-container relative lazy-cover" data-cover="/foto/tube.png" role="img" aria-label="Cover PufutaraTube"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-slate-500 uppercase tracking-widest">05</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Media</span>
                         </div>
-                        <div class="p-4 flex flex-col flex-1">
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Media</span>
-                            <h3 class="font-bold text-base tracking-tight mb-1"><span class="text-slate-400">Pufutara</span>Tube</h3>
-                            <p class="text-slate-500 text-xs leading-relaxed flex-1">Tempat nonton video favorit tanpa iklan yang mengganggu fokus koding kamu.</p>
-                            <span class="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary group-hover:gap-2 transition-all">Lihat Proyek <i class="fa-solid fa-arrow-right text-[10px]"></i></span>
-                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal"><span class="text-slate-400">Pufutara</span>Tube</h3>
+                        <p class="text-slate-500 text-[0.65rem] sm:text-[0.75rem] leading-relaxed line-clamp-2">Tempat nonton video favorit tanpa iklan yang mengganggu fokus koding kamu.</p>
                     </div>
                 </a>
 
                 <!-- PufutaraGallery -->
-                <a href="/gallery/index.html" target="_blank" class="group block reveal-on-scroll" data-delay="300">
+                <a href="/gallery/index.html" target="_blank" class="group block no-underline reveal-on-scroll" data-delay="60">
                     <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-slate-200 transition-all duration-300 h-full flex flex-col">
-                        <div class="aspect-video w-full overflow-hidden">
-                            <div class="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105" style="background-image:url('/foto/image.png');"></div>
+                        <div class="card-image-container relative lazy-cover" data-cover="/foto/image.png" role="img" aria-label="Cover PufutaraGallery"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-slate-500 uppercase tracking-widest">06</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Fullstack</span>
                         </div>
-                        <div class="p-4 flex flex-col flex-1">
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Fullstack</span>
-                            <h3 class="font-bold text-base tracking-tight mb-1"><span class="text-slate-400">Pufutara</span>Gallery</h3>
-                            <p class="text-slate-500 text-xs leading-relaxed flex-1">Proyek Full Stack pertama Putra! Upload foto otomatis tersimpan ke server untuk dilihat semua orang.</p>
-                            <span class="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary group-hover:gap-2 transition-all">Lihat Proyek <i class="fa-solid fa-arrow-right text-[10px]"></i></span>
-                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal"><span class="text-slate-400">Pufutara</span>Gallery</h3>
+                        <p class="text-slate-500 text-[0.65rem] sm:text-[0.75rem] leading-relaxed line-clamp-2">Proyek Full Stack pertama Putra! Upload foto otomatis tersimpan ke server untuk dilihat semua orang.</p>
                     </div>
                 </a>
 
                 <!-- Pufutara ProPaint -->
-                <a href="/paint/index.html" target="_blank" class="group block reveal-on-scroll" data-delay="360">
+                <a href="/paint/index.html" target="_blank" class="group block no-underline reveal-on-scroll" data-delay="80">
                     <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-slate-200 transition-all duration-300 h-full flex flex-col">
-                        <div class="aspect-video w-full overflow-hidden">
-                            <div class="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105" style="background-image:url('/foto/paint.png');"></div>
+                        <div class="card-image-container relative lazy-cover" data-cover="/foto/paint.png" role="img" aria-label="Cover ProPaint"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-slate-500 uppercase tracking-widest">07</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Design</span>
                         </div>
-                        <div class="p-4 flex flex-col flex-1">
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Design</span>
-                            <h3 class="font-bold text-base tracking-tight mb-1"><span class="text-slate-400">Pufutara</span> ProPaint</h3>
-                            <p class="text-slate-500 text-xs leading-relaxed flex-1">Gambar dan sketsa apa saja dengan mudah. Aplikasi simpel, tapi tools-nya profesional.</p>
-                            <span class="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary group-hover:gap-2 transition-all">Lihat Proyek <i class="fa-solid fa-arrow-right text-[10px]"></i></span>
-                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal"><span class="text-slate-400">Pufutara</span> ProPaint</h3>
+                        <p class="text-slate-500 text-[0.65rem] sm:text-[0.75rem] leading-relaxed line-clamp-2">Gambar dan sketsa apa saja dengan mudah. Aplikasi simpel, tapi tools-nya profesional.</p>
                     </div>
                 </a>
 
                 <!-- Pufutara MiniGames -->
-                <a href="/game/index.html" target="_blank" class="group block reveal-on-scroll" data-delay="420">
+                <a href="/game/index.html" target="_blank" class="group block no-underline reveal-on-scroll" data-delay="100">
                     <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-slate-200 transition-all duration-300 h-full flex flex-col">
-                        <div class="aspect-video w-full overflow-hidden">
-                            <div class="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105" style="background-image:url('/foto/game.png');"></div>
+                        <div class="card-image-container relative lazy-cover" data-cover="/foto/game.png" role="img" aria-label="Cover MiniGames"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-slate-500 uppercase tracking-widest">08</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Fun</span>
                         </div>
-                        <div class="p-4 flex flex-col flex-1">
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Fun</span>
-                            <h3 class="font-bold text-base tracking-tight mb-1"><span class="text-slate-400">Pufutara</span> MiniGames</h3>
-                            <p class="text-slate-500 text-xs leading-relaxed flex-1">Kumpulan game ringan buat refreshing otak setelah pusing ngurusin bug di HTML.</p>
-                            <span class="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary group-hover:gap-2 transition-all">Lihat Proyek <i class="fa-solid fa-arrow-right text-[10px]"></i></span>
-                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal"><span class="text-slate-400">Pufutara</span> MiniGames</h3>
+                        <p class="text-slate-500 text-[0.65rem] sm:text-[0.75rem] leading-relaxed line-clamp-2">Kumpulan game ringan buat refreshing otak setelah pusing ngurusin bug di HTML.</p>
                     </div>
                 </a>
             </div>

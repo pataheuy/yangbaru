@@ -171,6 +171,8 @@ const lazyCoverObserver = new IntersectionObserver((entries) => {
     });
 }, { rootMargin: '200px 0px' });
 document.querySelectorAll('#projects-grid .lazy-cover').forEach(el => lazyCoverObserver.observe(el));
+// Juga observe kartu proyek terbaik
+document.querySelectorAll('#proyek-terbaik-grid .lazy-cover').forEach(el => lazyCoverObserver.observe(el));
 
 // ===== FILTER & SEARCH PROYEK =====
 const filterBtns = document.querySelectorAll('.filter-btn');
