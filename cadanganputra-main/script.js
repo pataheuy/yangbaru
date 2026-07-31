@@ -611,28 +611,33 @@ function typeEffect() {
 // ── Navbar: muncul setelah animasi "Elfathin" selesai ──
 // Elfathin: delay 2200ms dari triggerLines + ~700ms animasi masuk = 2900ms
 (function () {
-    function showNavbar() {
+    // showNavbar dipanggil dari stats chain setelah semua counter selesai
+    // Saat returning (session lama), langsung tampil
+    var isReturning = sessionStorage.getItem('pufutara_intro_shown');
+    if (isReturning) {
         var header = document.getElementById('site-header');
-        if (!header) return;
-        // Elfathin selesai di ~2900ms dari triggerLines, navbar muncul di 3200ms (300ms buffer)
-        setTimeout(function () {
-            // Tampilkan dulu (tanpa transisi), lalu set transisi dan animasikan
+        if (header) {
             header.style.display = 'block';
-            // Paksa browser repaint sebelum memulai transisi
             header.getBoundingClientRect();
             header.style.transition    = 'opacity 0.6s ease, transform 0.6s cubic-bezier(0.16,1,0.3,1), background 0.4s ease, border-color 0.4s ease';
-            header.style.backdropFilter = 'blur(12px)';
-            header.style.webkitBackdropFilter = 'blur(12px)';
             header.style.opacity       = '1';
             header.style.transform     = 'translateY(0)';
             header.style.pointerEvents = 'all';
-        }, 3200);
+        }
     }
-
-    var isReturning = sessionStorage.getItem('pufutara_intro_shown');
-    // sesi baru: triggerLines dipanggil setelah 2650ms
-    // sesi lama: triggerLines dipanggil setelah 50ms
-    setTimeout(showNavbar, isReturning ? 50 : 2650);
+    // First visit: navbar dikendalikan window.showNavbar() dari stats chain
+    window._showNavbar = function() {
+        var header = document.getElementById('site-header');
+        if (!header) return;
+        header.style.display = 'block';
+        header.getBoundingClientRect();
+        header.style.transition    = 'opacity 0.6s ease, transform 0.6s cubic-bezier(0.16,1,0.3,1), background 0.4s ease, border-color 0.4s ease';
+        header.style.backdropFilter = 'blur(12px)';
+        header.style.webkitBackdropFilter = 'blur(12px)';
+        header.style.opacity       = '1';
+        header.style.transform     = 'translateY(0)';
+        header.style.pointerEvents = 'all';
+    };
 })();
 
 // ============================================================
@@ -690,7 +695,11 @@ function animateCounter(el, target, duration, onDone) {
 
         // Tunggu 150ms (stat mulai kelihatan), lalu jalankan counter
         setTimeout(function () {
-            animateCounter(counter, s.target, 1200, function () {
+            // Durasi counter: org=500ms, tahun=400ms, lainnya=1200ms
+            var duration = s.itemId === 'stat-item-org' ? 500
+                         : s.itemId === 'stat-item-tahun' ? 400
+                         : 1200;
+            animateCounter(counter, s.target, duration, function () {
                 // Counter selesai → jeda 200ms → lanjut stat berikutnya
                 setTimeout(function () {
                     showStat(index + 1, onAllDone);
@@ -700,35 +709,78 @@ function animateCounter(el, target, duration, onDone) {
     }
 
     function startStatChain() {
-        // Elfathin delay = 2200ms dari triggerLines
-        // Tambah 700ms agar animasi masuk Elfathin selesai dulu
-        // Lalu tunggu 300ms sebelum stat pertama muncul
         setTimeout(function () {
+            var statsEl = document.getElementById('hero-stats');
+            var descEl  = document.getElementById('hero-desc');
+
+            // Hitung offset: seberapa jauh stats harus naik ke posisi desc
+            var offsetY = 0;
+            if (statsEl && descEl) {
+                var statsRect = statsEl.getBoundingClientRect();
+                var descRect  = descEl.getBoundingClientRect();
+                // Desc ada di atas stats dalam DOM — offset negatif (naik)
+                offsetY = descRect.top + descRect.height / 2 - (statsRect.top + statsRect.height / 2);
+            }
+
+            // STEP 1: geser stats ke posisi celah desc (tanpa transisi)
+            if (statsEl) {
+                statsEl.classList.add('stats-displaced');
+                statsEl.style.transform = 'translateY(' + offsetY + 'px)';
+            }
+
+            // STEP 2: jalankan counter satu per satu di posisi "celah" desc
             showStat(0, function () {
-                // Semua stat & counter selesai → munculkan typing + CTA + keahlian
-                const typing   = document.getElementById('hero-typing');
-                const cta      = document.getElementById('hero-cta');
-                const keahlian = document.getElementById('keahlian');
-
-                // Typing & CTA: pakai inline style transition
-                [typing, cta].forEach(function (el) {
-                    if (el) {
-                        el.style.opacity   = '1';
-                        el.style.transform = 'translateY(0)';
-                        el.style.filter    = 'blur(0)';
-                    }
-                });
-
-                // Keahlian: masih pakai hero-line, langsung trigger
-                if (keahlian) {
-                    keahlian.style.animationDelay = '0ms';
-                    keahlian.classList.add('hero-line-visible');
+                // Semua counter selesai — STEP 3: flyback ke posisi asli
+                if (statsEl) {
+                    statsEl.classList.remove('stats-displaced');
+                    statsEl.classList.add('stats-flyback');
+                    // Force repaint
+                    statsEl.getBoundingClientRect();
+                    statsEl.style.transform = 'translateY(0)';
                 }
 
-                // Mulai typing animation setelah elemen typing muncul
-                setTimeout(typeEffect, 100);
+                // Setelah flyback selesai (800ms) — muncul navbar + desc
+                setTimeout(function() {
+                    if (statsEl) {
+                        statsEl.classList.remove('stats-flyback');
+                        statsEl.style.transform = '';
+                    }
+
+                    // Navbar
+                    if (window._showNavbar) window._showNavbar();
+
+                    // Desc muncul
+                    var desc = document.getElementById('hero-desc');
+                    if (desc) {
+                        desc.style.opacity   = '1';
+                        desc.style.transform = 'translateY(0)';
+                        desc.style.filter    = 'blur(0)';
+                    }
+
+                    // Typing + CTA 400ms setelah desc
+                    setTimeout(function() {
+                        var typing   = document.getElementById('hero-typing');
+                        var cta      = document.getElementById('hero-cta');
+                        var keahlian = document.getElementById('keahlian');
+
+                        [typing, cta].forEach(function(el) {
+                            if (el) {
+                                el.style.opacity   = '1';
+                                el.style.transform = 'translateY(0)';
+                                el.style.filter    = 'blur(0)';
+                            }
+                        });
+                        if (keahlian) {
+                            keahlian.style.animationDelay = '0ms';
+                            keahlian.classList.add('hero-line-visible');
+                        }
+                        setTimeout(typeEffect, 100);
+                    }, 400);
+
+                }, 850);
             });
-        }, 2200 + 700 + 300); // = 3200ms setelah triggerLines dipanggil
+
+        }, 2200 + 700 + 300 + 500); // = 3700ms setelah triggerLines
     }
 
     // Sinkron dengan triggerLines

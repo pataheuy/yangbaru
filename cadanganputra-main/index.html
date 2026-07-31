@@ -229,6 +229,21 @@
             to   { width: 100%; }
         }
 
+        /* ===== HERO H1 — CENTERED PHASE (transform-only approach) ===== */
+        /* h1 tetap di flow normal, hanya transform yg berubah */
+        #hero h1.h1-flyback {
+            transition: transform 0.9s cubic-bezier(0.4, 0, 0.2, 1),
+                        opacity 0.6s ease !important;
+        }
+
+        /* ===== STATS FLYBACK ===== */
+        #hero-stats.stats-displaced {
+            transition: none !important;
+        }
+        #hero-stats.stats-flyback {
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+
         /* ===== HERO ENTRANCE ANIMATION (setelah opening intro) ===== */
         /* Elemen hero dimulai tersembunyi, lalu muncul setelah opening selesai */
         .hero-enter {
@@ -270,11 +285,8 @@
 
         /* Tombol Hubungi Saya — aktif saat di section kontak */
         #nav-kontak-btn.nav-kontak-active {
-            background: transparent;
-            background-image: none;
-            border: 2px solid #0f172a;
-            color: #0f172a;
-            box-shadow: none;
+            color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(15,23,42,0.15);
         }
 
         /* Navbar dark mode saat di section kontak */
@@ -534,8 +546,8 @@
                 <br>
                 <span class="inline-block hero-line" id="hero-word-putra" style="animation-delay:1200ms">Putra&nbsp;</span><span class="inline-block hero-line" id="hero-word-azzam" style="animation-delay:1700ms">Azzam&nbsp;</span><span class="inline-block bg-gradient-to-r from-primary via-secondary to-accentGray bg-clip-text text-transparent glow-text hero-line" id="hero-word-elfathin" style="animation-delay:2200ms">Elfathin</span>
             </h1>
-            <!-- Deskripsi singkat — muncul bersamaan setelah Elfathin -->
-            <p class="hero-line text-slate-500 text-sm sm:text-base leading-relaxed max-w-xl mb-6" id="hero-desc" style="animation-delay:2200ms">
+            <!-- Deskripsi singkat — dikontrol JS, muncul setelah stats selesai -->
+            <p class="text-slate-500 text-sm sm:text-base leading-relaxed max-w-xl mb-6" id="hero-desc" style="opacity:0;transform:translateY(20px);filter:blur(4px);transition:opacity 0.7s cubic-bezier(0.16,1,0.3,1),transform 0.7s cubic-bezier(0.16,1,0.3,1),filter 0.5s ease">
                 Seorang santri developer yang mendedikasikan waktu di sela-sela mengaji untuk merakit aplikasi desktop yang powerful menggunakan Electron, bereksperimen dengan Next.js, dan menguasai dasar web HTML/CSS/JS.
             </p>
             <!-- Stats muncul satu per satu setelah Elfathin selesai, dikontrol JS -->
@@ -1108,11 +1120,9 @@
 
     <script>
     (function() {
-        // Dismiss opening setelah progress bar selesai (total ~1.8s)
         var el = document.getElementById('pufutara-opening');
         if (!el) return;
 
-        // Cek sessionStorage — kalau sudah pernah buka di sesi ini, skip
         if (sessionStorage.getItem('pufutara_intro_shown')) {
             el.style.display = 'none';
             return;
@@ -1123,6 +1133,57 @@
             setTimeout(function() {
                 el.style.display = 'none';
                 sessionStorage.setItem('pufutara_intro_shown', '1');
+
+                var h1 = document.querySelector('#hero h1');
+                if (!h1) return;
+
+                // STEP 1: rekam posisi tengah h1 di flow (sebelum diapa-apain)
+                var rect = h1.getBoundingClientRect();
+                var h1CenterX = rect.left + rect.width / 2;
+                var h1CenterY = rect.top  + rect.height / 2;
+
+                // Offset yg dibutuhkan untuk geser h1 ke tengah layar
+                var offsetX = (window.innerWidth  / 2) - h1CenterX;
+                var offsetY = (window.innerHeight / 2) - h1CenterY;
+
+                // STEP 2: langsung set transform ke tengah (tanpa transisi)
+                h1.style.transition = 'none';
+                h1.style.transform  = 'translate(' + offsetX + 'px, ' + offsetY + 'px) scale(1.05)';
+                h1.style.zIndex     = '9998';
+                h1.style.position   = 'relative';
+
+                // STEP 3: jalankan animasi kata satu per satu saat h1 di tengah
+                var words = h1.querySelectorAll('.hero-line');
+                words.forEach(function(span) {
+                    var raw = span.style.animationDelay || '0ms';
+                    var delay = parseInt(raw, 10) || 0;
+                    setTimeout(function() {
+                        span.classList.add('hero-line-visible');
+                    }, delay);
+                });
+
+                // Durasi sampai kata terakhir muncul (2200ms delay + 700ms transisi)
+                var wordsDone = 2200 + 700;
+
+                // STEP 4: setelah semua kata muncul, animate transform balik ke 0
+                setTimeout(function() {
+                    // Tambah transisi, lalu reset transform ke posisi asal
+                    h1.classList.add('h1-flyback');
+                    // Force repaint dulu sebelum transisi
+                    h1.getBoundingClientRect();
+                    h1.style.transform = 'translate(0, 0) scale(1)';
+                    h1.style.opacity   = '1';
+
+                    // Cleanup setelah transisi selesai
+                    setTimeout(function() {
+                        h1.classList.remove('h1-flyback');
+                        h1.style.transform = '';
+                        h1.style.zIndex    = '';
+                        h1.style.position  = '';
+                        h1.style.opacity   = '';
+                    }, 950);
+                }, wordsDone);
+
             }, 750);
         }, 1900);
     })();
@@ -1150,11 +1211,58 @@
         }
 
         if (sessionStorage.getItem('pufutara_intro_shown')) {
-            // Intro sudah pernah tampil — tapi tetap beri sedikit jeda agar halaman render
-            setTimeout(triggerLines, 50);
+            // Refresh / returning — tampilkan semua sekaligus tanpa animasi
+            heroLines.forEach(function(el) {
+                el.style.transition = 'none';
+                el.style.animation  = 'none';
+                el.classList.add('hero-line-visible');
+            });
+            dotGrids.forEach(function(d) { d.classList.add('dot-visible'); });
+
+            // Desc
+            var desc = document.getElementById('hero-desc');
+            if (desc) { desc.style.transition = 'none'; desc.style.opacity = '1'; desc.style.transform = 'none'; desc.style.filter = 'none'; }
+
+            // Stats
+            ['stat-item-proyek','stat-item-tahun','stat-item-org','stat-item-prestasi'].forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el) { el.style.transition = 'none'; el.style.opacity = '1'; el.style.transform = 'none'; el.style.filter = 'none'; }
+            });
+            ['stat-sep-1','stat-sep-2','stat-sep-3'].forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el) { el.style.transition = 'none'; el.style.opacity = '1'; }
+            });
+            // Set angka stat langsung ke target
+            var statTargets = { 'stat-proyek': 32, 'stat-tahun': 2, 'stat-org': 7, 'stat-prestasi': 12 };
+            Object.keys(statTargets).forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el) { el.textContent = statTargets[id] + '+'; el.dataset.animated = '1'; }
+            });
+
+            // Typing + CTA
+            ['hero-typing','hero-cta'].forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el) { el.style.transition = 'none'; el.style.opacity = '1'; el.style.transform = 'none'; el.style.filter = 'none'; }
+            });
+
+            // Keahlian
+            var keahlian = document.getElementById('keahlian');
+            if (keahlian) { keahlian.style.animationDelay = '0ms'; keahlian.classList.add('hero-line-visible'); }
+
         } else {
-            // Sync tepat saat opening fade selesai (1900ms dismiss + 750ms fade = 2650ms)
-            setTimeout(triggerLines, 2650);
+            // First visit: h1 spans sudah ditrigger JS opening
+            // Trigger hero-line lainnya (desc, stats, dll) setelah h1 balik ke posisi
+            // timing: 2650ms (opening clear) + 2900ms (words) + 950ms (flyback) = ~6500ms
+            setTimeout(function() {
+                document.querySelectorAll('.hero-line:not(#hero h1 span)').forEach(function(el) {
+                    var raw = el.style.animationDelay || '0ms';
+                    var delay = parseInt(raw, 10) || 0;
+                    setTimeout(function() { el.classList.add('hero-line-visible'); }, delay);
+                });
+                setTimeout(function() {
+                    dotGrids.forEach(function(d) { d.classList.add('dot-visible'); });
+                }, 500);
+            }, 6500);
         }
     })();
     </script>
