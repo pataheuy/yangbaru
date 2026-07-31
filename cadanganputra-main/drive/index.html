@@ -509,6 +509,43 @@
         </div>
     </div>
 
+    <!-- TOAST NOTIFICATION -->
+    <div id="driveToast" style="
+        position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(20px);
+        background:#111; color:#fff; padding:12px 20px 12px 16px; border-radius:14px;
+        display:flex; align-items:center; gap:10px; font-size:0.875rem; font-weight:500;
+        box-shadow:0 8px 24px rgba(0,0,0,0.15); z-index:99999; opacity:0;
+        transition:opacity 0.25s ease, transform 0.25s cubic-bezier(0.16,1,0.3,1);
+        pointer-events:none; white-space:nowrap; max-width:90vw;">
+        <span id="driveToastIcon" class="material-symbols-outlined" style="font-size:18px;flex-shrink:0;">check_circle</span>
+        <span id="driveToastMsg">Pesan</span>
+    </div>
+
+    <!-- CONFIRM MODAL -->
+    <div id="driveConfirmOverlay" style="
+        position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:20000;
+        display:none; justify-content:center; align-items:center; backdrop-filter:blur(4px);">
+        <div style="
+            background:#fff; border-radius:20px; padding:28px; width:90%; max-width:360px;
+            box-shadow:0 24px 48px rgba(0,0,0,0.12); animation:fadeIn 0.25s ease;">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+                <span id="driveConfirmIcon" class="material-symbols-outlined" style="font-size:24px;color:#d93025;">delete</span>
+                <h3 id="driveConfirmTitle" style="font-size:1.05rem;font-weight:700;margin:0;">Konfirmasi</h3>
+            </div>
+            <p id="driveConfirmMsg" style="font-size:0.9rem;color:#666;margin:0 0 20px;line-height:1.5;"></p>
+            <div style="display:flex;gap:10px;justify-content:flex-end;">
+                <button onclick="driveConfirmResolve(false)" style="
+                    padding:10px 20px;border-radius:10px;border:1px solid #eaeaea;
+                    background:#fff;font-size:0.875rem;font-weight:600;cursor:pointer;transition:0.2s;"
+                    onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='#fff'">Batal</button>
+                <button id="driveConfirmOkBtn" onclick="driveConfirmResolve(true)" style="
+                    padding:10px 20px;border-radius:10px;border:none;
+                    background:#d93025;color:#fff;font-size:0.875rem;font-weight:600;cursor:pointer;transition:0.2s;"
+                    onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">Hapus</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Konfigurasi Supabase
         const _CONFIG = {
@@ -518,6 +555,48 @@
 
         const _client = window.supabase.createClient(_CONFIG.URL, _CONFIG.KEY);
         const BUCKET_NAME = 'pufutara_files';
+
+        // ── TOAST & CONFIRM UI ──────────────────────────────────────
+        let _toastTimer;
+        function driveToast(msg, type = 'success') {
+            const el    = document.getElementById('driveToast');
+            const icon  = document.getElementById('driveToastIcon');
+            const msgEl = document.getElementById('driveToastMsg');
+            const icons   = { success:'check_circle', error:'error', info:'info', warning:'warning' };
+            const colors  = { success:'#111', error:'#d93025', info:'#1a73e8', warning:'#e37400' };
+            icon.textContent     = icons[type] || 'info';
+            icon.style.color     = colors[type] || '#fff';
+            msgEl.textContent    = msg;
+            el.style.background  = type === 'error' ? '#d93025' : type === 'warning' ? '#e37400' : '#111';
+            icon.style.color     = '#fff';
+            el.style.opacity     = '1';
+            el.style.transform   = 'translateX(-50%) translateY(0)';
+            el.style.pointerEvents = 'auto';
+            clearTimeout(_toastTimer);
+            _toastTimer = setTimeout(() => {
+                el.style.opacity   = '0';
+                el.style.transform = 'translateX(-50%) translateY(20px)';
+                el.style.pointerEvents = 'none';
+            }, type === 'error' ? 4000 : 2800);
+        }
+
+        let driveConfirmResolve = () => {};
+        function driveConfirm(msg, title = 'Konfirmasi', icon = 'delete', okLabel = 'Hapus', okColor = '#d93025') {
+            return new Promise(resolve => {
+                document.getElementById('driveConfirmMsg').textContent   = msg;
+                document.getElementById('driveConfirmTitle').textContent = title;
+                document.getElementById('driveConfirmIcon').textContent  = icon;
+                const okBtn = document.getElementById('driveConfirmOkBtn');
+                okBtn.textContent       = okLabel;
+                okBtn.style.background  = okColor;
+                document.getElementById('driveConfirmOverlay').style.display = 'flex';
+                driveConfirmResolve = (val) => {
+                    document.getElementById('driveConfirmOverlay').style.display = 'none';
+                    resolve(val);
+                };
+            });
+        }
+        // ────────────────────────────────────────────────────────────
         
         let _userEmail = '';
         let _userFolder = '';
@@ -917,8 +996,8 @@
 
         async function processShare() {
             const emailTarget = document.getElementById('shareEmailInput').value.trim();
-            if(!emailTarget) return alert('Tolong masukkan email tujuan!'); 
-            if(emailTarget === _userEmail) return alert('Anda tidak bisa membagikan file ke diri sendiri.'); 
+            if(!emailTarget) { driveToast('Tolong masukkan email tujuan!', 'warning'); return; }
+            if(emailTarget === _userEmail) { driveToast('Anda tidak bisa membagikan file ke diri sendiri.', 'warning'); return; }
 
             const btn = document.querySelector('#shareModal .btn-black');
             const originalText = btn.innerHTML; btn.innerHTML = 'Mengirim...'; btn.disabled = true;
@@ -935,8 +1014,8 @@
                 saveSharedData(sharedMap);
                 _allFiles.find(f => f.name === _fileToShare).sharedWith = sharedMap[_fileToShare];
 
-                closeModalBtn('shareModal'); alert(`Selesai! File berhasil dibagikan ke ${emailTarget}`); applyNavFilter();
-            } catch (err) { alert('Terjadi kesalahan: ' + err.message); } 
+                closeModalBtn('shareModal'); driveToast(`File berhasil dibagikan ke ${emailTarget}`, 'success'); applyNavFilter();
+            } catch (err) { driveToast('Terjadi kesalahan: ' + err.message, 'error'); } 
             finally { btn.innerHTML = originalText; btn.disabled = false; }
         }
 
@@ -953,7 +1032,7 @@
             closeModalBtn('renameModal');
             
             const { error } = await _client.storage.from(BUCKET_NAME).move(oldPath, newPath);
-            if(error) alert("Gagal mengganti nama: " + error.message);
+            if(error) driveToast("Gagal mengganti nama: " + error.message, 'error');
             else {
                 let favs = getLocalData('favs');
                 if(favs.includes(_fileToRename)) { saveLocalData('favs', [...favs.filter(f => f !== _fileToRename), newName]); }
@@ -971,7 +1050,7 @@
             try {
                 const { error } = await _client.storage.from(BUCKET_NAME).upload(`${_userFolder}/${file.name.replace(/\s+/g, '_')}`, file, { upsert: true });
                 if (error) throw error; loadFiles();
-            } catch (err) { alert("Gagal upload: " + err.message); } 
+            } catch (err) { driveToast("Gagal upload: " + err.message, 'error'); } 
             finally { btn.innerHTML = originalHTML; btn.disabled = false; input.value = ''; }
         }
 
@@ -983,19 +1062,21 @@
                 if (error) throw error;
                 const url = URL.createObjectURL(data), a = document.createElement('a');
                 a.href = url; a.download = fileName; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-            } catch(err) { alert("Gagal mengunduh: " + err.message); } 
+            } catch(err) { driveToast("Gagal mengunduh: " + err.message, 'error'); } 
             finally { if(btn) btn.innerHTML = '<span class="material-symbols-outlined">download</span>'; }
         }
 
         async function deleteFile(fileName, event) {
-            event.stopPropagation(); 
-            if(confirm(`Hapus permanen "${fileName}"?`)) {
+            event.stopPropagation();
+            const ok = await driveConfirm(`Hapus permanen "${fileName}"? Tindakan ini tidak dapat dibatalkan.`, 'Hapus File', 'delete_forever', 'Hapus Permanen', '#d93025');
+            if(ok) {
                 const { error } = await _client.storage.from(BUCKET_NAME).remove([`${_userFolder}/${fileName}`]);
-                if (error) alert("Gagal menghapus: " + error.message);
+                if (error) driveToast("Gagal menghapus: " + error.message, 'error');
                 else {
                     let favs = getLocalData('favs'); if(favs.includes(fileName)) saveLocalData('favs', favs.filter(f => f !== fileName));
                     let shared = getSharedData(); if(shared[fileName]) { delete shared[fileName]; saveSharedData(shared); }
-                    loadFiles(); 
+                    driveToast(`"${fileName}" berhasil dihapus`, 'success');
+                    loadFiles();
                 }
             }
         }

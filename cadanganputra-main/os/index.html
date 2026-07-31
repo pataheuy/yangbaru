@@ -6911,33 +6911,31 @@ function closeWindow(winId) {
 }
 function minimizeWindow(winId) {
     const win = document.getElementById(winId);
-    if (!win || win.dataset.minimized === 'true') return;
-    const appId = getWindowAppId(win);
+    if (!win) return;
 
+    // Kalau sedang maximize, restore dulu
     if (win.classList.contains('maximized')) {
         restoreFromMaximize(win);
+        // restoreFromMaximize sudah center, cukup sampai sini
+        return;
     }
 
-    win.classList.add('minimizing');
-    win.style.transition = 'transform 0.35s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.35s ease';
-    win.style.transform = 'scale(0.08)';
-    win.style.opacity = '0';
+    // Hitung posisi tengah
+    const w = parseFloat(win.style.width) || win.offsetWidth;
+    const h = parseFloat(win.style.height) || win.offsetHeight;
+    const targetLeft = (window.innerWidth  / 2) - (w / 2);
+    const targetTop  = (window.innerHeight / 2) - (h / 2);
 
-    const finish = () => {
-        win.removeEventListener('transitionend', onEnd);
-        win.classList.remove('minimizing');
-        win.classList.add('minimized');
-        win.dataset.minimized = 'true';
-        win.style.display = 'none';
-        win.style.pointerEvents = 'none';
-        updateDockState(appId, true);
-    };
-    const onEnd = (e) => {
-        if (e.propertyName !== 'opacity') return;
-        finish();
-    };
-    win.addEventListener('transitionend', onEnd);
-    setTimeout(finish, 400);
+    // Animasi smooth pindah ke tengah
+    win.style.transition = 'left 0.4s cubic-bezier(0.16,1,0.3,1), top 0.4s cubic-bezier(0.16,1,0.3,1)';
+    win.style.left = targetLeft + 'px';
+    win.style.top  = targetTop  + 'px';
+
+    // Bersihkan transisi setelah selesai
+    setTimeout(() => {
+        win.style.transition = '';
+        bringToFront(win);
+    }, 420);
 }
 
 function hasMaximizedWindow() {
