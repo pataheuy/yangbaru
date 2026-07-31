@@ -2,8 +2,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pufutara OS v5.5 - Ultimate Edition</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Poppins:wght@600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
+<noscript>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</noscript>
 
 <style>
 :root {
@@ -169,15 +173,29 @@ body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; overflow: hidden
     background-position: center;
     background-repeat: no-repeat;
     opacity: 0; 
-    transform: scale(1.05); 
-    transition: opacity 0.45s ease, transform 0.55s cubic-bezier(0.19, 1, 0.22, 1);
+    transform: scale(1.08) translateY(16px); 
+    filter: blur(8px);
+    transition: opacity 0.6s cubic-bezier(0.16,1,0.3,1), 
+                transform 0.6s cubic-bezier(0.16,1,0.3,1),
+                filter 0.5s ease;
     pointer-events: none;
     display: none;
 }
 #desktop.loaded {
     opacity: 1; 
-    transform: scale(1); 
+    transform: scale(1) translateY(0); 
+    filter: blur(0);
     pointer-events: auto;
+}
+
+/* Lockscreen unlock animation */
+#lockscreen.unlocking {
+    animation: lockUnlock 0.55s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+@keyframes lockUnlock {
+    0%   { opacity: 1; transform: scale(1)    translateY(0);    filter: blur(0); }
+    40%  { opacity: 1; transform: scale(1.03) translateY(-8px); filter: blur(2px); }
+    100% { opacity: 0; transform: scale(1.08) translateY(-20px); filter: blur(12px); }
 }
 
 /* --- HOME CLOCK --- */
@@ -2867,12 +2885,21 @@ window.showPasswordPanel = function() {
 
 function unlockDesktop() {
     lockscreen.style.pointerEvents = 'none';
-    lockscreen.style.display = 'none';
-    lockscreen.style.opacity = '1';
-    desktop.style.display = 'block';
-    desktop.classList.add('loaded');
-    taskbarAutoHideGraceUntil = Date.now() + 10000;
-    requestAnimationFrame(() => initSystem());
+
+    // Animasi lockscreen slide up & blur out
+    lockscreen.classList.add('unlocking');
+
+    setTimeout(() => {
+        lockscreen.style.display = 'none';
+        lockscreen.classList.remove('unlocking');
+
+        desktop.style.display = 'block';
+        // Force repaint sebelum transisi
+        desktop.getBoundingClientRect();
+        desktop.classList.add('loaded');
+        taskbarAutoHideGraceUntil = Date.now() + 10000;
+        requestAnimationFrame(() => initSystem());
+    }, 500);
 }
 
 passwordInput.addEventListener('keydown', function(e) {
@@ -2888,7 +2915,10 @@ passwordInput.addEventListener('keydown', function(e) {
 });
 
 // ========== WELCOME & BOOT SEQUENCE ==========
+let _bootStarted = false;
 function startBootSequence() {
+    if (_bootStarted) return;
+    _bootStarted = true;
     const welcomeScreen = document.getElementById('welcome-screen');
     const bootScreen = document.getElementById('boot-screen');
     const welcomeBar = document.getElementById('welcome-bar');
@@ -2926,11 +2956,32 @@ function startBootSequence() {
     }, 3200);
 }
 
-if (document.readyState === 'complete') {
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
     startBootSequence();
 } else {
-    window.addEventListener('load', startBootSequence);
+    document.addEventListener('DOMContentLoaded', startBootSequence);
+    setTimeout(startBootSequence, 5000);
 }
+
+// ========== AUTO FULLSCREEN ==========
+(function() {
+    function requestFS() {
+        const el = document.documentElement;
+        const req = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
+        if (req) req.call(el).catch(function(){});
+    }
+    // Coba langsung (kalau dari klik link = user gesture tersedia)
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        requestFS();
+    } else {
+        document.addEventListener('DOMContentLoaded', requestFS);
+    }
+    // Fallback: minta fullscreen saat user pertama kali klik/tap
+    document.addEventListener('click', function onFirstClick() {
+        if (!document.fullscreenElement) requestFS();
+        document.removeEventListener('click', onFirstClick);
+    }, { once: true });
+})();
 
 // ========== FUNGSI INISIALISASI DESKTOP ==========
 function initSystem() {
@@ -6867,15 +6918,8 @@ function minimizeWindow(winId) {
         restoreFromMaximize(win);
     }
 
-    const w = parseFloat(win.style.width) || win.offsetWidth;
-    const h = parseFloat(win.style.height) || win.offsetHeight;
-    const targetLeft = (window.innerWidth / 2) - (w / 2);
-    const targetTop = (window.innerHeight / 2) - (h / 2);
-
     win.classList.add('minimizing');
-    win.style.transition = 'left 0.35s cubic-bezier(0.19, 1, 0.22, 1), top 0.35s cubic-bezier(0.19, 1, 0.22, 1), transform 0.35s ease, opacity 0.35s ease';
-    win.style.left = targetLeft + 'px';
-    win.style.top = targetTop + 'px';
+    win.style.transition = 'transform 0.35s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.35s ease';
     win.style.transform = 'scale(0.08)';
     win.style.opacity = '0';
 
