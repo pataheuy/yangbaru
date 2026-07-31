@@ -226,6 +226,29 @@
         .empty-state p { font-size: 0.9rem; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInScale { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
+        @keyframes slideInDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideInLeft { from { opacity: 0; transform: translateX(-40px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes spinIn { from { opacity: 0; transform: rotate(-15deg) scale(0.8); } to { opacity: 1; transform: rotate(0deg) scale(1); } }
+
+        /* --- AUTH ANIMATIONS --- */
+        #authScreen { transition: opacity 0.5s ease, transform 0.5s ease; }
+        #authScreen.hiding { opacity: 0; transform: scale(1.04); pointer-events: none; }
+        .auth-container { animation: fadeInScale 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; }
+        .auth-logo { animation: spinIn 0.6s 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; }
+        .auth-container h1 { animation: fadeInUp 0.5s 0.2s both; }
+        .auth-container p.subtitle { animation: fadeInUp 0.5s 0.3s both; }
+        .auth-container input:nth-of-type(1) { animation: fadeInUp 0.5s 0.35s both; }
+        .auth-container input:nth-of-type(2) { animation: fadeInUp 0.5s 0.42s both; }
+        .auth-container .btn-black,
+        .auth-container > div:last-child { animation: fadeInUp 0.5s 0.5s both; }
+
+        /* --- DRIVE SCREEN ANIMATIONS --- */
+        .top-header { animation: slideInDown 0.4s 0.1s both; }
+        .sidebar { animation: slideInLeft 0.4s 0.15s both; }
+        .main-content-wrapper { animation: slideInRight 0.4s 0.15s both; }
 
         /* --- MODALS --- */
         .modal-overlay {
@@ -245,6 +268,21 @@
         .modal-box input:focus { border-color: var(--primary); background: var(--surface); }
         .modal-close { position: absolute; top: 24px; right: 24px; background: none; border: none; cursor: pointer; color: var(--text-muted); }
         .modal-close:hover { color: var(--primary); }
+
+        /* --- USER LIST IN SHARE MODAL --- */
+        .user-list-item {
+            display: flex; align-items: center; gap: 12px; padding: 10px 12px;
+            border-radius: 12px; cursor: pointer; transition: 0.2s; border: 1px solid transparent;
+        }
+        .user-list-item:hover { background: var(--hover-bg); border-color: var(--border); }
+        .user-list-avatar {
+            width: 38px; height: 38px; border-radius: 12px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center; font-size: 0.95rem; font-weight: 700; border: 1px solid;
+        }
+        .user-list-item .user-info { flex: 1; overflow: hidden; }
+        .user-list-item .user-name { font-size: 0.9rem; font-weight: 600; color: var(--text-main); }
+        .user-list-item .user-email { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .user-list-empty { text-align: center; padding: 24px; color: var(--text-muted); font-size: 0.875rem; }
 
         /* PREVIEW MODAL */
         .preview-box {
@@ -323,7 +361,7 @@
         <div class="auth-container">
             <div class="auth-logo">PUFUTARA.</div>
             <h1>Akses Pufutara Cloud</h1>
-            <p class="subtitle">Secure minimal storage platform</p>
+            <p class="subtitle">Masukkan email & password. Akun baru akan dibuat otomatis jika belum ada.</p>
             <input type="email" id="emailIn" placeholder="Email Address" autocomplete="off">
             <input type="password" id="passIn" placeholder="Password">
             
@@ -428,12 +466,15 @@
 
     <!-- Modal Bagikan -->
     <div class="modal-overlay" id="shareModal" onclick="closeModal(event, 'shareModal')">
-        <div class="modal-box">
+        <div class="modal-box" onclick="event.stopPropagation()" style="max-width:440px;">
             <button class="modal-close" onclick="closeModalBtn('shareModal')"><span class="material-symbols-outlined">close</span></button>
             <h3>Bagikan File</h3>
             <p class="modal-sub" id="shareFileName">file_name.jpg</p>
-            <input type="email" id="shareEmailInput" autocomplete="off" placeholder="Ketik email tujuan (cth: budi@gmail.com)">
-            <button class="btn-black" style="width: 100%; margin-top: 8px;" onclick="processShare()">Kirim Undangan</button>
+            <input type="text" id="shareEmailInput" autocomplete="off" placeholder="Cari email atau username..." oninput="filterShareUserList(this.value)">
+            <div id="shareUserListContainer" style="margin-top:8px; max-height:260px; overflow-y:auto; display:flex; flex-direction:column; gap:4px;">
+                <div id="shareUserListLoading" style="text-align:center; padding:20px; color:var(--text-muted); font-size:0.875rem;">Memuat daftar pengguna...</div>
+            </div>
+            <button class="btn-black" style="width: 100%; margin-top: 12px;" onclick="processShare()">Bagikan ke Email di Atas</button>
         </div>
     </div>
 
@@ -550,8 +591,13 @@
         async function logout() { await _client.auth.signOut(); location.reload(); }
 
         async function enterDrive() {
-            document.getElementById('authScreen').style.display = 'none';
-            document.getElementById('driveScreen').style.display = 'flex';
+            const auth = document.getElementById('authScreen');
+            auth.classList.add('hiding');
+            setTimeout(() => {
+                auth.style.display = 'none';
+                auth.classList.remove('hiding');
+                document.getElementById('driveScreen').style.display = 'flex';
+            }, 500);
             
             _userFolder = _userEmail.split('@')[0]; 
             document.getElementById('userAvatar').innerText = _userEmail.charAt(0).toUpperCase();
@@ -774,7 +820,99 @@
             event.stopPropagation(); _fileToShare = fileName;
             document.getElementById('shareFileName').innerText = fileName;
             document.getElementById('shareEmailInput').value = '';
-            openModal('shareModal'); setTimeout(() => document.getElementById('shareEmailInput').focus(), 100);
+            openModal('shareModal'); 
+            setTimeout(() => document.getElementById('shareEmailInput').focus(), 100);
+            loadShareUserList();
+        }
+
+        // --- WARNA UNIK PER USER ---
+        function getUserColor(email) {
+            let hash = 0;
+            for (let i = 0; i < email.length; i++) hash = email.charCodeAt(i) + ((hash << 5) - hash);
+            const hue = Math.abs(hash) % 360;
+            return `hsl(${hue}, 70%, 42%)`;
+        }
+        function getUserBgColor(email) {
+            let hash = 0;
+            for (let i = 0; i < email.length; i++) hash = email.charCodeAt(i) + ((hash << 5) - hash);
+            const hue = Math.abs(hash) % 360;
+            return `hsl(${hue}, 60%, 92%)`;
+        }
+
+        // --- USER LIST UNTUK SHARE MODAL ---
+        let _driveAllUsers = [];
+
+        async function loadShareUserList() {
+            const container = document.getElementById('shareUserListContainer');
+            document.getElementById('shareUserListLoading').style.display = 'block';
+            // Hapus item lama
+            Array.from(container.children).forEach(c => { if(c.id !== 'shareUserListLoading') c.remove(); });
+
+            // Ambil dari user_profiles
+            const { data: profiles } = await _client.from('user_profiles').select('email, username, display_name').order('username', { ascending: true });
+
+            // Ambil juga email aktif dari shared_files
+            const { data: sharedData } = await _client.from('shared_files').select('shared_to_email, owner_email').limit(200);
+
+            const emailSet = new Set();
+            (profiles || []).forEach(p => emailSet.add(p.email));
+            (sharedData || []).forEach(r => { emailSet.add(r.shared_to_email); emailSet.add(r.owner_email); });
+            emailSet.delete(_userEmail);
+
+            const profileMap = {};
+            (profiles || []).forEach(p => profileMap[p.email] = p);
+
+            _driveAllUsers = Array.from(emailSet).map(email => ({
+                email,
+                username: profileMap[email]?.username || '',
+                display_name: profileMap[email]?.display_name || email.split('@')[0]
+            })).sort((a, b) => a.display_name.localeCompare(b.display_name));
+
+            renderShareUserList(_driveAllUsers);
+        }
+
+        function renderShareUserList(users) {
+            const container = document.getElementById('shareUserListContainer');
+            const loading = document.getElementById('shareUserListLoading');
+            loading.style.display = 'none';
+            Array.from(container.children).forEach(c => { if(c.id !== 'shareUserListLoading') c.remove(); });
+
+            if (!users.length) {
+                container.insertAdjacentHTML('beforeend', '<div class="user-list-empty">Tidak ada pengguna ditemukan.</div>');
+                return;
+            }
+            users.forEach(user => {
+                const color = getUserColor(user.email);
+                const bg = getUserBgColor(user.email);
+                const item = document.createElement('div');
+                item.className = 'user-list-item';
+                item.onclick = () => {
+                    document.getElementById('shareEmailInput').value = user.email;
+                    // Highlight item terpilih
+                    document.querySelectorAll('.user-list-item').forEach(i => i.style.background = '');
+                    item.style.background = 'var(--primary-container)';
+                };
+                item.innerHTML = `
+                    <div class="user-list-avatar" style="background:${bg}; border-color:${color}; color:${color};">${user.display_name[0].toUpperCase()}</div>
+                    <div class="user-info">
+                        <div class="user-name">${user.display_name}${user.username ? ` <span style="font-weight:400;color:var(--text-muted);">@${user.username}</span>` : ''}</div>
+                        <div class="user-email">${user.email}</div>
+                    </div>
+                    <span class="material-symbols-outlined" style="font-size:18px; color:var(--text-muted);">person_add</span>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function filterShareUserList(query) {
+            if (!query.trim()) { renderShareUserList(_driveAllUsers); return; }
+            const q = query.toLowerCase();
+            const filtered = _driveAllUsers.filter(u =>
+                u.email.toLowerCase().includes(q) ||
+                u.username.toLowerCase().includes(q) ||
+                u.display_name.toLowerCase().includes(q)
+            );
+            renderShareUserList(filtered);
         }
 
         async function processShare() {
@@ -869,8 +1007,18 @@
 
         // Cek Session Awal
         _client.auth.getSession().then(({data}) => {
-            if(data.session) { _userEmail = data.session.user.email; enterDrive(); } 
-            else document.getElementById('authScreen').style.display = 'flex';
+            if(data.session) { 
+                _userEmail = data.session.user.email; 
+                // Jika sudah login, skip animasi login, langsung masuk
+                document.getElementById('authScreen').style.display = 'none';
+                document.getElementById('driveScreen').style.display = 'flex';
+                _userFolder = _userEmail.split('@')[0];
+                document.getElementById('userAvatar').innerText = _userEmail.charAt(0).toUpperCase();
+                document.getElementById('dropdownEmail').innerText = _userEmail;
+                loadFilesSharedWithMe().then(() => loadFiles());
+            } else {
+                document.getElementById('authScreen').style.display = 'flex';
+            }
         });
 
         const styleSheet = document.createElement("style");

@@ -67,7 +67,7 @@
         /* --- TOP HEADER --- */
         .top-header {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 12px 24px; min-height: 72px; background: var(--bg-color); border-bottom: 1px solid var(--border);
+            padding: 8px 24px; min-height: 58px; background: var(--bg-color); border-bottom: 1px solid var(--border);
             z-index: 200; position: relative;
         }
         .header-left { display: flex; align-items: center; gap: 12px; }
@@ -247,12 +247,146 @@
         .modal-close { position: absolute; top: 24px; right: 24px; background: none; border: none; cursor: pointer; color: var(--text-muted); }
         .modal-close:hover { color: var(--primary); }
 
+        /* --- USER LIST IN MODAL --- */
+        .user-list-item {
+            display: flex; align-items: center; gap: 12px; padding: 10px 12px;
+            border-radius: 12px; cursor: pointer; transition: 0.2s; border: 1px solid transparent;
+        }
+        .user-list-item:hover { background: var(--hover-bg); border-color: var(--border); }
+        .user-list-item .avatar-circle { width: 38px; height: 38px; flex-shrink: 0; font-size: 0.95rem; }
+        .user-list-item .user-info { flex: 1; overflow: hidden; }
+        .user-list-item .user-name { font-size: 0.9rem; font-weight: 600; color: var(--text-main); }
+        .user-list-item .user-email { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .user-list-empty { text-align: center; padding: 24px; color: var(--text-muted); font-size: 0.875rem; }
+
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInScale { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
+        @keyframes slideInLeft { from { opacity: 0; transform: translateX(-40px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes pulseGlow { 0%,100% { box-shadow: 0 0 0 0 rgba(0,0,0,0.1); } 50% { box-shadow: 0 0 0 8px rgba(0,0,0,0.04); } }
+        @keyframes spinIn { from { opacity: 0; transform: rotate(-15deg) scale(0.8); } to { opacity: 1; transform: rotate(0deg) scale(1); } }
+        @keyframes msgSlideIn { from { opacity: 0; transform: translateY(12px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+        /* --- AUTH ANIMATIONS --- */
+        #authScreen { transition: opacity 0.5s ease, transform 0.5s ease; }
+        #authScreen.hiding { opacity: 0; transform: scale(1.04); pointer-events: none; }
+        .auth-container { animation: fadeInScale 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; }
+        .auth-logo { animation: spinIn 0.6s 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275) both; }
+        .auth-container h1 { animation: fadeInUp 0.5s 0.2s both; }
+        .auth-container p.subtitle { animation: fadeInUp 0.5s 0.3s both; }
+        .auth-container input:nth-of-type(1) { animation: fadeInUp 0.5s 0.35s both; }
+        .auth-container input:nth-of-type(2) { animation: fadeInUp 0.5s 0.42s both; }
+        .auth-container .btn-black, .auth-container > div { animation: fadeInUp 0.5s 0.5s both; }
+
+        /* --- MAIN LAYOUT ANIMATION --- */
+        .top-header { animation: fadeInUp 0.4s 0.1s both; }
+        .sidebar { animation: slideInLeft 0.4s 0.15s both; }
+        .chat-view { animation: slideInRight 0.4s 0.15s both; }
+
+        /* --- MSG ANIMATION --- */
+        .msg-group { animation: msgSlideIn 0.3s ease both; }
+
+        /* --- EMOJI PICKER --- */
+        .emoji-picker {
+            position: absolute; bottom: 60px; left: 32px; width: 320px; max-height: 260px;
+            background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.1); display: none; flex-direction: column;
+            z-index: 600; overflow: hidden; animation: fadeInUp 0.25s ease;
+        }
+        .emoji-picker.open { display: flex; }
+        .emoji-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); padding: 8px 12px 0; }
+        .emoji-tab-btn {
+            padding: 6px 10px; border: none; background: none; cursor: pointer; font-size: 0.75rem;
+            font-weight: 600; color: var(--text-muted); border-bottom: 2px solid transparent; margin-bottom: -1px; transition: 0.2s;
+        }
+        .emoji-tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+        .emoji-grid {
+            display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px;
+            padding: 10px; overflow-y: auto; flex: 1;
+        }
+        .emoji-btn { font-size: 1.3rem; cursor: pointer; padding: 5px; border-radius: 8px; border: none; background: none; text-align: center; transition: 0.15s; }
+        .emoji-btn:hover { background: var(--hover-bg); transform: scale(1.2); }
+
+        /* --- GIF PICKER --- */
+        .gif-picker {
+            position: absolute; bottom: 60px; left: 32px; width: 320px; max-height: 340px;
+            background: var(--surface); border: 1px solid var(--border); border-radius: 20px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.1); display: none; flex-direction: column;
+            z-index: 600; overflow: hidden; animation: fadeInUp 0.25s ease;
+        }
+        .gif-picker.open { display: flex; }
+        .gif-search { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+        .gif-search input {
+            width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 10px;
+            font-size: 0.85rem; outline: none; background: var(--surface-container);
+        }
+        .gif-search input:focus { border-color: var(--primary); background: var(--surface); }
+        .gif-grid {
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px;
+            padding: 10px; overflow-y: auto; flex: 1;
+        }
+        .gif-item { border-radius: 10px; overflow: hidden; cursor: pointer; aspect-ratio: 16/9; background: var(--surface-container); transition: 0.2s; }
+        .gif-item:hover { transform: scale(1.03); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .gif-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .gif-loading { text-align: center; padding: 24px; color: var(--text-muted); font-size: 0.85rem; }
+
+        /* --- FILE UPLOAD BUBBLE --- */
+        .msg-file {
+            display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+            background: var(--surface-container); border: 1px solid var(--border); border-radius: 14px;
+            cursor: pointer; transition: 0.2s; text-decoration: none; color: var(--text-main); max-width: 280px;
+        }
+        .msg-file:hover { background: var(--hover-bg); }
+        .msg-row.me .msg-file { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.2); color: var(--on-primary); }
+        .msg-row.me .msg-file:hover { background: rgba(255,255,255,0.25); }
+        .msg-file-icon { font-size: 28px; flex-shrink: 0; }
+        .msg-file-info { overflow: hidden; }
+        .msg-file-name { font-size: 0.88rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .msg-file-size { font-size: 0.75rem; opacity: 0.7; margin-top: 2px; }
+
+        /* --- IMAGE BUBBLE ADAPTIVE --- */
+        .msg-img-wrap { display: inline-block; max-width: min(320px, 80vw); border-radius: 14px; overflow: hidden; border: 1px solid var(--border); cursor: zoom-in; }
+        .msg-row.me .msg-img-wrap { border-color: #333; }
+        .msg-img-adaptive { display: block; max-width: 100%; max-height: 320px; width: auto; height: auto; object-fit: contain; border-radius: 12px; }
+
+        /* --- PICKER BACKDROP --- */
+        .picker-backdrop { position: fixed; inset: 0; z-index: 599; display: none; }
+        .picker-backdrop.open { display: block; }
+
+        /* --- IMAGE PREVIEW MODAL --- */
+        .image-preview-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 10001;
+            display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px);
+            padding: 20px; animation: fadeIn 0.25s ease;
+        }
+        .image-preview-overlay.open { display: flex; }
+        .image-preview-container { 
+            max-width: 90vw; max-height: 90vh; position: relative; 
+            display: flex; align-items: center; justify-content: center;
+        }
+        .image-preview-img { 
+            max-width: 100%; max-height: 90vh; object-fit: contain; border-radius: 16px;
+            box-shadow: 0 24px 48px rgba(0,0,0,0.5); animation: fadeInScale 0.3s ease;
+        }
+        .image-preview-close {
+            position: absolute; top: -50px; right: 0; background: rgba(255,255,255,0.15); color: #fff;
+            border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; transition: 0.2s; backdrop-filter: blur(8px);
+        }
+        .image-preview-close:hover { background: rgba(255,255,255,0.25); transform: scale(1.1); }
+        .image-preview-download {
+            position: absolute; bottom: -50px; left: 50%; transform: translateX(-50%);
+            background: rgba(255,255,255,0.15); color: #fff; border: none;
+            padding: 10px 20px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; gap: 8px;
+            font-weight: 600; font-size: 0.9rem; transition: 0.2s; backdrop-filter: blur(8px);
+        }
+        .image-preview-download:hover { background: rgba(255,255,255,0.25); }
 
         /* --- RESPONSIVE MOBILE --- */
         @media (max-width: 768px) {
             .auth-container { padding: 40px 24px; border-radius: 16px; border: none; }
-            .top-header { padding: 12px 16px; height: auto; }
+            .top-header { padding: 8px 16px; min-height: 58px; }
             .hamburger-btn { display: flex; }
             .logo-area { font-size: 18px; }
             
@@ -269,9 +403,11 @@
             .reply-bar { margin: 0 16px 12px 16px; }
             
             .msg-row { max-width: 95%; }
-            .msg-img { width: 70%; }
+            .msg-img-adaptive { max-width: 100%; }
             .modal-box { padding: 24px; width: 92%; }
             .input-field, .auth-container input, .modal-box input { font-size: 16px; } /* Mencegah zoom iOS */
+
+            .emoji-picker, .gif-picker { left: 8px; right: 8px; width: auto; bottom: 68px; }
         }
     </style>
 </head>
@@ -281,8 +417,8 @@
         <div class="auth-container">
             <div class="auth-logo">PUFUTARA.</div>
             <h1>Akses Pufutara Chat</h1>
-            <p class="subtitle">Secure minimal messaging platform</p>
-            <input type="email" id="emailIn" placeholder="Alamat Email" autocomplete="off">
+            <p class="subtitle">Masukkan email & password. Akun baru akan dibuat otomatis jika belum ada.</p>
+            <input type="text" id="emailIn" placeholder="Email atau Username" autocomplete="off">
             <input type="password" id="passIn" placeholder="Kata Sandi">
             
             <div style="display: flex; align-items: center; min-height: 44px; margin-top: 8px;">
@@ -301,9 +437,34 @@
         <div id="newChatModal" class="modal-box" onclick="event.stopPropagation()" style="display: none;">
             <button class="modal-close" onclick="closeModals()"><span class="material-symbols-outlined">close</span></button>
             <h3>Chat Baru</h3>
-            <p class="modal-sub">Mulai obrolan pribadi yang terenkripsi.</p>
-            <input type="email" id="newChatTarget" placeholder="Ketik email pengguna lain (cth: budi@gmail.com)" autocomplete="off">
-            <button class="btn-black" style="width: 100%; margin-top: 8px;" onclick="startPrivateChatFromInput()">Mulai Obrolan</button>
+            <p class="modal-sub">Pilih pengguna untuk mulai obrolan.</p>
+            <input type="text" id="newChatTarget" placeholder="Cari email atau username..." autocomplete="off" oninput="filterUserList(this.value)">
+            <div id="userListContainer" style="margin-top:8px; max-height:280px; overflow-y:auto; display:flex; flex-direction:column; gap:4px;">
+                <div id="userListLoading" style="text-align:center; padding:20px; color:var(--text-muted); font-size:0.875rem;">Memuat daftar pengguna...</div>
+            </div>
+            <button class="btn-black" style="width:100%; margin-top:12px;" onclick="startPrivateChatFromInput()">Mulai dengan Email di Atas</button>
+        </div>
+
+        <div id="usernameModal" class="modal-box" onclick="event.stopPropagation()" style="display: none;">
+            <h3>Selamat Datang! 🎉</h3>
+            <p class="modal-sub">Akun berhasil dibuat. Pilih username unik untuk profil Anda.</p>
+            <input type="text" id="usernameIn" placeholder="Pilih username (contoh: budi123)" autocomplete="off" maxlength="20">
+            <p style="font-size:0.8rem; color:var(--text-muted); margin:-8px 0 12px;">Username hanya huruf, angka, underscore. Min 3 karakter.</p>
+            <button class="btn-black" style="width: 100%; margin-top: 0;" onclick="saveUsername()">Simpan & Lanjutkan</button>
+        </div>
+    </div>
+
+    <!-- Image Preview Modal -->
+    <div id="imagePreviewOverlay" class="image-preview-overlay" onclick="closeImagePreview()">
+        <div class="image-preview-container" onclick="event.stopPropagation()">
+            <button class="image-preview-close" onclick="closeImagePreview()">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            <img id="imagePreviewImg" class="image-preview-img" src="" alt="Preview">
+            <button class="image-preview-download" onclick="downloadImage()">
+                <span class="material-symbols-outlined">download</span>
+                Download
+            </button>
         </div>
     </div>
 
@@ -362,11 +523,47 @@
                 <button onclick="cancelReply()"><span class="material-symbols-outlined">close</span></button>
             </div>
             
+            <!-- Emoji Picker -->
+            <div id="emojiPicker" class="emoji-picker">
+                <div class="emoji-tabs">
+                    <button class="emoji-tab-btn active" onclick="switchEmojiTab('smileys',this)">😀 Smiley</button>
+                    <button class="emoji-tab-btn" onclick="switchEmojiTab('people',this)">🧑 Orang</button>
+                    <button class="emoji-tab-btn" onclick="switchEmojiTab('nature',this)">🌿 Alam</button>
+                    <button class="emoji-tab-btn" onclick="switchEmojiTab('food',this)">🍕 Makanan</button>
+                    <button class="emoji-tab-btn" onclick="switchEmojiTab('symbols',this)">❤️ Simbol</button>
+                </div>
+                <div class="emoji-grid" id="emojiGrid"></div>
+            </div>
+
+            <!-- GIF Picker -->
+            <div id="gifPicker" class="gif-picker">
+                <div class="gif-search">
+                    <input type="text" id="gifSearchIn" placeholder="Cari GIF..." oninput="searchGif(this.value)">
+                </div>
+                <div class="gif-grid" id="gifGrid">
+                    <div class="gif-loading">Ketik untuk mencari GIF...</div>
+                </div>
+            </div>
+
+            <!-- Backdrop to close pickers -->
+            <div class="picker-backdrop" id="pickerBackdrop" onclick="closeAllPickers()"></div>
+
             <div class="input-container">
                 <div class="input-wrapper">
-                    <input type="file" id="imgUpload" accept="image/*" style="display:none;" onchange="handleImageUpload()">
+                    <input type="file" id="imgUpload" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
+                    <input type="file" id="fileUpload" style="display:none;" onchange="handleFileUpload(event)">
+
                     <button class="btn-action" title="Kirim Gambar" onclick="document.getElementById('imgUpload').click()">
                         <span class="material-symbols-outlined">image</span>
+                    </button>
+                    <button class="btn-action" title="Kirim File" onclick="document.getElementById('fileUpload').click()">
+                        <span class="material-symbols-outlined">attach_file</span>
+                    </button>
+                    <button class="btn-action" title="GIF" onclick="toggleGifPicker(event)">
+                        <span style="font-size:0.75rem; font-weight:800; letter-spacing:-0.5px;">GIF</span>
+                    </button>
+                    <button class="btn-action" title="Emoji" onclick="toggleEmojiPicker(event)">
+                        <span class="material-symbols-outlined">emoji_emotions</span>
                     </button>
                     
                     <input type="text" id="msgIn" class="input-field" placeholder="Ketik pesan..." onkeypress="if(event.key==='Enter')sendMessage()">
@@ -387,6 +584,8 @@
 
         const _client = window.supabase.createClient(_CONFIG.URL, _CONFIG.KEY);
         let _userEmail = '';
+        let _userUsername = '';
+        let _userDisplayName = '';
         let currentChatType = 'global'; 
         let currentTargetEmail = null;  
         let privateContacts = {}; 
@@ -396,13 +595,24 @@
         // Akun otomatis yang akan muncul di sidebar setiap user
         const OFFICIAL_ACCOUNTS = ['admin@g', 'pufutara@g'];
 
-        // Pertahankan warna untuk bubble jika dibutuhkan, tapi desain minimalis ini lebih fokus ke bentuk.
-        const userColors = ['#000000', '#333333', '#444444', '#555555', '#111111']; 
-        
+        // Warna unik per user — hash email → HSL dengan saturation & lightness yang enak dibaca
         function getColorForUser(email) {
             let hash = 0;
-            for (let i = 0; i < email.length; i++) hash = email.charCodeAt(i) + ((hash << 5) - hash);
-            return userColors[Math.abs(hash) % userColors.length];
+            for (let i = 0; i < email.length; i++) {
+                hash = email.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            const hue = Math.abs(hash) % 360;
+            return `hsl(${hue}, 70%, 42%)`;
+        }
+
+        // Versi lebih terang untuk background avatar
+        function getBgColorForUser(email) {
+            let hash = 0;
+            for (let i = 0; i < email.length; i++) {
+                hash = email.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            const hue = Math.abs(hash) % 360;
+            return `hsl(${hue}, 60%, 92%)`;
         }
 
         // --- Logika Sidebar HP ---
@@ -412,35 +622,108 @@
         }
 
         async function handleAuth() {
-            const email = document.getElementById('emailIn').value;
+            const input = document.getElementById('emailIn').value.trim();
             const password = document.getElementById('passIn').value;
             const errBox = document.getElementById('authErr');
             
-            if (!email || !password) {
+            if (!input || !password) {
                 errBox.style.color = 'var(--danger)';
-                errBox.innerText = "Email dan password wajib diisi!";
+                errBox.innerText = "Email/username dan password wajib diisi!";
                 return;
             }
 
             errBox.style.color = '#000';
             errBox.innerText = "Memeriksa...";
 
+            // Cek apakah input adalah username (tidak mengandung @)
+            let email = input;
+            if (!input.includes('@')) {
+                // Cari email yang terhubung dengan username ini di tabel profiles
+                const { data: profileData, error: profileErr } = await _client
+                    .from('user_profiles')
+                    .select('email')
+                    .eq('username', input.toLowerCase())
+                    .maybeSingle();
+                
+                if (profileErr || !profileData) {
+                    errBox.style.color = 'var(--danger)';
+                    errBox.innerText = "Username tidak ditemukan.";
+                    return;
+                }
+                email = profileData.email;
+            }
+
             const { data, error } = await _client.auth.signInWithPassword({ email, password });
             if (error) {
-                const { error: upErr } = await _client.auth.signUp({ email, password });
-                errBox.style.color = 'var(--danger)';
-                if (upErr) errBox.innerText = upErr.message;
-                else {
-                    errBox.style.color = '#0f9d58';
-                    errBox.innerText = "Akun dibuat! Klik Sign In lagi.";
+                // Jika login gagal dan input adalah email, coba buat akun baru
+                if (input.includes('@')) {
+                    const { data: upData, error: upErr } = await _client.auth.signUp({ email, password });
+                    if (upErr) {
+                        errBox.style.color = 'var(--danger)';
+                        errBox.innerText = upErr.message;
+                    } else {
+                        // Akun baru dibuat, minta username
+                        _userEmail = email;
+                        errBox.style.color = '#0f9d58';
+                        errBox.innerText = "Akun dibuat! Pilih username Anda.";
+                        setTimeout(() => showUsernameModal(), 600);
+                    }
+                } else {
+                    errBox.style.color = 'var(--danger)';
+                    errBox.innerText = "Password salah.";
                 }
-            } else { _userEmail = data.user.email; enterDashboard(); }
+            } else { 
+                _userEmail = data.user.email;
+                // Cek apakah sudah punya username
+                const { data: prof } = await _client.from('user_profiles').select('username, display_name').eq('email', _userEmail).maybeSingle();
+                _userUsername = prof?.username || '';
+                _userDisplayName = prof?.display_name || _userEmail.split('@')[0];
+                enterDashboard();
+            }
+        }
+
+        function showUsernameModal() {
+            document.getElementById('modalOverlay').style.display = 'flex';
+            document.getElementById('usernameModal').style.display = 'flex';
+            setTimeout(() => document.getElementById('usernameIn').focus(), 100);
+        }
+
+        async function saveUsername() {
+            const username = document.getElementById('usernameIn').value.trim().toLowerCase();
+            if (!/^[a-z0-9_]{3,20}$/.test(username)) {
+                alert('Username tidak valid. Gunakan huruf kecil, angka, underscore. Min 3 karakter.');
+                return;
+            }
+            // Cek apakah username sudah dipakai
+            const { data: existing } = await _client.from('user_profiles').select('username').eq('username', username).maybeSingle();
+            if (existing) { alert('Username sudah dipakai, coba yang lain.'); return; }
+
+            // Simpan username ke tabel user_profiles
+            const { error } = await _client.from('user_profiles').upsert({ email: _userEmail, username, display_name: username }, { onConflict: 'email' });
+            if (error) { alert('Gagal menyimpan username: ' + error.message); return; }
+            
+            _userUsername = username;
+            _userDisplayName = username;
+            closeModals();
+            // Coba login ulang (akun Supabase memerlukan verifikasi, coba auto sign in)
+            const { data } = await _client.auth.getSession();
+            if (data.session) {
+                enterDashboard();
+            } else {
+                errBox.innerText = "Akun dibuat! Silakan Sign In sekarang.";
+            }
         }
 
         function enterDashboard() {
-            document.getElementById('authScreen').style.display = 'none';
+            const auth = document.getElementById('authScreen');
+            auth.classList.add('hiding');
+            setTimeout(() => {
+                auth.style.display = 'none';
+                auth.classList.remove('hiding');
+            }, 500);
             document.getElementById('logoutBtn').style.display = 'block';
-            document.getElementById('headerGreeting').innerText = `Halo, ${_userEmail.split('@')[0]}`;
+            const displayName = _userDisplayName || _userUsername || _userEmail.split('@')[0];
+            document.getElementById('headerGreeting').innerText = `Halo, ${displayName}`;
             document.getElementById('headerGreeting').style.display = 'inline';
             loadSidebarList(); switchChat('global'); listenRealtime();
         }
@@ -450,14 +733,99 @@
             location.reload(); 
         }
         
+        let _allUsers = []; // cache daftar user
+
         function openNewChatModal() { 
             document.getElementById('modalOverlay').style.display = 'flex'; 
             document.getElementById('newChatModal').style.display = 'flex';
+            document.getElementById('newChatTarget').value = '';
             setTimeout(() => document.getElementById('newChatTarget').focus(), 100);
-            if(window.innerWidth <= 768) toggleSidebar(); 
+            if(window.innerWidth <= 768) toggleSidebar();
+            loadUserList();
+        }
+
+        async function loadUserList() {
+            const container = document.getElementById('userListContainer');
+            document.getElementById('userListLoading').style.display = 'block';
+
+            // Ambil semua user dari user_profiles
+            const { data: profiles } = await _client.from('user_profiles').select('email, username, display_name').order('username', { ascending: true });
+
+            // Ambil juga semua email unik dari global_chat & private_chat yang belum ada di profiles
+            const { data: gcEmails } = await _client.from('global_chat').select('sender').limit(200);
+            const { data: pcEmails } = await _client.from('private_chat').select('sender, receiver').limit(200);
+
+            const emailSet = new Set();
+            (profiles || []).forEach(p => emailSet.add(p.email));
+            (gcEmails || []).forEach(r => emailSet.add(r.sender));
+            (pcEmails || []).forEach(r => { emailSet.add(r.sender); emailSet.add(r.receiver); });
+            emailSet.delete(_userEmail); // hapus diri sendiri
+
+            // Gabungkan: profil punya data lengkap, sisanya hanya email
+            const profileMap = {};
+            (profiles || []).forEach(p => profileMap[p.email] = p);
+
+            _allUsers = Array.from(emailSet).map(email => ({
+                email,
+                username: profileMap[email]?.username || '',
+                display_name: profileMap[email]?.display_name || email.split('@')[0]
+            })).sort((a, b) => a.display_name.localeCompare(b.display_name));
+
+            renderUserList(_allUsers);
+        }
+
+        function renderUserList(users) {
+            const container = document.getElementById('userListContainer');
+            const loading = document.getElementById('userListLoading');
+            loading.style.display = 'none';
+
+            // Hapus item lama (selain loading)
+            Array.from(container.children).forEach(c => { if(c.id !== 'userListLoading') c.remove(); });
+
+            if (!users.length) {
+                container.insertAdjacentHTML('beforeend', '<div class="user-list-empty">Tidak ada pengguna ditemukan.</div>');
+                return;
+            }
+
+            users.forEach(user => {
+                const color = getColorForUser(user.email);
+                const bg = getBgColorForUser(user.email);
+                const item = document.createElement('div');
+                item.className = 'user-list-item';
+                item.onclick = () => {
+                    closeModals();
+                    if(!privateContacts[user.email]) privateContacts[user.email] = { lastMsg: '...', time: new Date().toISOString() };
+                    renderSidebar();
+                    switchChat('private', user.email);
+                };
+                item.innerHTML = `
+                    <div class="avatar-circle" style="background:${bg}; border-color:${color}; color:${color};">${user.display_name[0].toUpperCase()}</div>
+                    <div class="user-info">
+                        <div class="user-name">${user.display_name}${user.username ? ` <span style="font-weight:400;color:var(--text-muted);">@${user.username}</span>` : ''}</div>
+                        <div class="user-email">${user.email}</div>
+                    </div>
+                    <span class="material-symbols-outlined" style="font-size:18px; color:var(--text-muted);">chevron_right</span>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function filterUserList(query) {
+            if (!query.trim()) { renderUserList(_allUsers); return; }
+            const q = query.toLowerCase();
+            const filtered = _allUsers.filter(u =>
+                u.email.toLowerCase().includes(q) ||
+                u.username.toLowerCase().includes(q) ||
+                u.display_name.toLowerCase().includes(q)
+            );
+            renderUserList(filtered);
         }
         
-        function closeModals() { document.getElementById('modalOverlay').style.display = 'none'; document.getElementById('newChatModal').style.display = 'none'; }
+        function closeModals() { 
+            document.getElementById('modalOverlay').style.display = 'none'; 
+            document.getElementById('newChatModal').style.display = 'none';
+            document.getElementById('usernameModal').style.display = 'none';
+        }
 
         function startPrivateChatFromInput() {
             const target = document.getElementById('newChatTarget').value.trim();
@@ -507,10 +875,16 @@
                 
                 let preview = data.lastMsg;
                 if(preview.startsWith('|URLIMG|')) preview = "📷 Gambar";
+                else if(preview.startsWith('|URLGIF|')) preview = "🎞️ GIF";
+                else if(preview.startsWith('|URLFILE|')) { const p = preview.replace('|URLFILE|','').split('|'); preview = `📎 ${p[1] || 'File'}`; }
                 else if(preview.startsWith('|RPLY|')) preview = preview.split('|').pop();
 
+                const userColor = getColorForUser(email);
+                const userBg = getBgColorForUser(email);
+                const avatarStyle = isActive ? '' : `style="background:${userBg}; border-color:${userColor}; color:${userColor};"`;
+
                 item.innerHTML = `
-                    <div class="avatar-circle">${email[0].toUpperCase()}</div>
+                    <div class="avatar-circle" ${avatarStyle}>${email[0].toUpperCase()}</div>
                     <div class="chat-info">
                         <span class="chat-name">${email.split('@')[0]}</span>
                         <span class="chat-preview">${preview}</span>
@@ -556,7 +930,7 @@
                 : _client.from('private_chat').select('*').or(`and(sender.eq.${_userEmail},receiver.eq.${currentTargetEmail}),and(sender.eq.${currentTargetEmail},receiver.eq.${_userEmail})`).order('created_at', { ascending: false }).limit(50);
             const { data } = await query;
             if (data) data.reverse().forEach(m => renderMessage(m));
-            box.scrollTop = box.scrollHeight;
+            scrollToBottom();
         }
 
         function renderMessage(m) {
@@ -570,8 +944,20 @@
 
             if (displayTxt.startsWith('|URLIMG|')) {
                 const url = displayTxt.replace('|URLIMG|', '');
-                displayTxt = `<img src="${url}" class="msg-img" onclick="window.open('${url}', 'pufutarachat')">`;
+                displayTxt = `<div class="msg-img-wrap" onclick="openImagePreview('${url}')"><img src="${url}" class="msg-img-adaptive" onload="this.parentElement.parentElement.parentElement.scrollIntoView({block:'end'})"></div>`;
                 rawText = "[Gambar]";
+            } else if (displayTxt.startsWith('|URLGIF|')) {
+                const url = displayTxt.replace('|URLGIF|', '');
+                displayTxt = `<div class="msg-img-wrap" onclick="openImagePreview('${url}')"><img src="${url}" class="msg-img-adaptive" style="max-height:200px;"></div>`;
+                rawText = "[GIF]";
+            } else if (displayTxt.startsWith('|URLFILE|')) {
+                const parts = displayTxt.replace('|URLFILE|', '').split('|');
+                const url = parts[0]; const fname = parts[1] || 'File'; const fsize = parts[2] || '';
+                const ext = fname.split('.').pop().toLowerCase();
+                const icons = { pdf:'picture_as_pdf', doc:'description', docx:'description', xls:'table_chart', xlsx:'table_chart', ppt:'slideshow', pptx:'slideshow', zip:'folder_zip', rar:'folder_zip', mp3:'audio_file', mp4:'video_file', txt:'text_snippet' };
+                const icon = icons[ext] || 'insert_drive_file';
+                displayTxt = `<a href="${url}" target="_blank" class="msg-file"><span class="material-symbols-outlined msg-file-icon">${icon}</span><div class="msg-file-info"><div class="msg-file-name">${fname}</div><div class="msg-file-size">${fsize}</div></div><span class="material-symbols-outlined" style="font-size:18px;opacity:0.6;">download</span></a>`;
+                rawText = `[File: ${fname}]`;
             } else if (displayTxt.startsWith('|RPLY|')) {
                 const parts = displayTxt.split('|');
                 quoteHtml = `<div class="msg-quote"><strong>${parts[2].split('@')[0]}</strong>: ${parts[3]}</div>`;
@@ -588,17 +974,19 @@
                         </div>
                     </div>`;
             } else {
+                const userColor = getColorForUser(m.sender);
+                const userBg = getBgColorForUser(m.sender);
                 group.innerHTML = `
                     <div class="msg-row other">
-                        <div class="avatar-circle">${m.sender[0].toUpperCase()}</div>
+                        <div class="avatar-circle" style="background:${userBg}; border-color:${userColor}; color:${userColor};">${m.sender[0].toUpperCase()}</div>
                         <div class="msg-content-wrapper">
-                            <div class="msg-name">${m.sender.split('@')[0]}</div>
-                            <div class="msg-bubble" onclick="showActionMenu(event, '${m.id}', '${m.sender}', \`${rawText.replace(/`/g, '\\`')}\`, false)">${quoteHtml}${displayTxt}</div>
+                            <div class="msg-name" style="color:${userColor};">${m.sender.split('@')[0]}</div>
+                            <div class="msg-bubble" style="border-left: 3px solid ${userColor};" onclick="showActionMenu(event, '${m.id}', '${m.sender}', \`${rawText.replace(/`/g, '\\`')}\`, false)">${quoteHtml}${displayTxt}</div>
                             <div class="msg-time">${time}</div>
                         </div>
                     </div>`;
             }
-            box.appendChild(group); box.scrollTop = box.scrollHeight;
+            box.appendChild(group); scrollToBottom(true);
         }
 
         function showActionMenu(e, id, sender, text, isMe) {
@@ -646,12 +1034,26 @@
             else { payload.receiver = currentTargetEmail; await _client.from('private_chat').insert([payload]); }
         }
 
-        async function handleImageUpload() {
-            const file = document.getElementById('imgUpload').files[0]; if (!file) return;
+        async function handleImageUpload(event) {
+            const file = event.target.files[0]; if (!file) return;
+            event.target.value = '';
             const path = `public/${Date.now()}_${file.name}`;
             await _client.storage.from('chat_images').upload(path, file);
             const { data } = _client.storage.from('chat_images').getPublicUrl(path);
             const payload = { sender: _userEmail, message: `|URLIMG|${data.publicUrl}` };
+            if (currentChatType === 'global') await _client.from('global_chat').insert([payload]);
+            else { payload.receiver = currentTargetEmail; await _client.from('private_chat').insert([payload]); }
+        }
+
+        async function handleFileUpload(event) {
+            const file = event.target.files[0]; if (!file) return;
+            event.target.value = '';
+            const path = `public/files/${Date.now()}_${file.name}`;
+            const sizeStr = file.size < 1024*1024 ? `${(file.size/1024).toFixed(1)} KB` : `${(file.size/1024/1024).toFixed(1)} MB`;
+            const { error } = await _client.storage.from('chat_images').upload(path, file);
+            if (error) { alert('Gagal upload file: ' + error.message); return; }
+            const { data } = _client.storage.from('chat_images').getPublicUrl(path);
+            const payload = { sender: _userEmail, message: `|URLFILE|${data.publicUrl}|${file.name}|${sizeStr}` };
             if (currentChatType === 'global') await _client.from('global_chat').insert([payload]);
             else { payload.receiver = currentTargetEmail; await _client.from('private_chat').insert([payload]); }
         }
@@ -679,6 +1081,146 @@
             }).subscribe();
         }
 
+        function scrollToBottom(smooth = false) {
+            const box = document.getElementById('chatMessages');
+            box.scrollTo({ top: box.scrollHeight, behavior: smooth ? 'smooth' : 'instant' });
+        }
+        // =============================================
+        let _previewUrl = '';
+        function openImagePreview(url) {
+            _previewUrl = url;
+            document.getElementById('imagePreviewImg').src = url;
+            document.getElementById('imagePreviewOverlay').classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeImagePreview() {
+            document.getElementById('imagePreviewOverlay').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+        function downloadImage() {
+            const a = document.createElement('a');
+            a.href = _previewUrl;
+            a.download = 'pufutara_' + Date.now() + '.jpg';
+            a.target = '_blank';
+            a.click();
+        }
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') { closeImagePreview(); closeAllPickers(); }
+        });
+
+        // =============================================
+        // EMOJI PICKER
+        // =============================================
+        const EMOJI_DATA = {
+            smileys: ['😀','😁','😂','🤣','😃','😄','😅','😆','😇','😈','😉','😊','😋','😌','😍','🥰','😎','🤩','😏','😐','😑','😒','😓','😔','😕','🙃','🤑','😖','😗','😘','😙','😚','😛','😜','🤪','😝','🤔','🤭','🤫','🤥','🤗','😞','😟','😠','😡','🤬','😢','😤','😥','😦','😧','😨','😩','🤯','😪','😫','😬','😭','😮','😯','😰','😱','😲','😳','🥺','😴','😵','😶','😷','🤒','🤕','🤢','🤧','🥵','🥶','😹','😻','😼','😽','🙈','🙉','🙊','💀','☠️','👻','👽','🤖','🎃','😺','😸','😸'],
+            people: ['👋','🤚','✋','🖐','👌','✌','🤞','🖖','🤙','💪','🦾','👏','🙌','👐','🤲','🤝','🙏','✍','💅','🤳','💪','🦵','🦶','👂','🦻','👃','🫀','🫁','🧠','🦷','🦴','👀','👁','👅','👄','🫦','👶','🧒','👦','👧','🧑','👱','👨','🧔','👩','🧓','👴','👵','🙅','🙆','💁','🙋','🧏','🙇','🤦','🤷','💆','💇','🚶','🧍','🧎','🏃','💃','🕺','👫','👬','👭'],
+            nature: ['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🐔','🐧','🐦','🦆','🦅','🦉','🦇','🐺','🐗','🐴','🦄','🐝','🐛','🦋','🐌','🐞','🐜','🦟','🦗','🌸','🌼','🌻','🌺','🌹','🥀','🌷','🌱','🌲','🌳','🌴','🌵','🌾','🍀','🍁','🍂','🍃','🌍','🌎','🌏','🌕','🌑','⭐','🌟','💫','✨','🌈','☁️','⛅','🌤','🌥','🌦','🌧','⛈','🌩','🌨','❄️','🌊','🌀','🌈','☂️','⚡'],
+            food: ['🍎','🍊','🍋','🍇','🍓','🫐','🍈','🍑','🍒','🍍','🥭','🍌','🍉','🍏','🍐','🫒','🍆','🥑','🥝','🍅','🫑','🥥','🌽','🥕','🫚','🥒','🫛','🧅','🧄','🥔','🍠','🌰','🥜','🍞','🥐','🥖','🫓','🥨','🥯','🧀','🍳','🥚','🧈','🥞','🧇','🥓','🥩','🍗','🍖','🍔','🌮','🌯','🫔','🥙','🧆','🍝','🍜','🍛','🍲','🫕','🍣','🍱','🥟','🦪','🍤','🍙','🍘','🍥','🍦','🍧','🍨','🍩','🍪','🎂','🍰','🧁','🥧','🍫','🍬','🍭','🍮','🍯','🫖','☕','🍵','🧃','🥤','🧋','🍺','🍻','🥂','🍷'],
+            symbols: ['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','❣️','💕','💞','💓','💗','💖','💘','💝','💟','☮️','✝️','☪️','🔥','💯','✅','❌','⭕','🔴','🟠','🟡','🟢','🔵','🟣','⚫','⚪','🟤','🔶','🔷','🔸','🔹','🔺','🔻','💠','🔘','🔲','🔳','⬛','⬜','▪️','▫️','◾','◽','◼️','◻️','🌀','💤','♻️','🔞','📵','🔰','⚠️','♠️','♥️','♦️','♣️','🎴','🀄','🎲','🃏','🎯','🎱','🏆','🥇','🥈','🥉','🎁','🎀','🎊','🎉','🎈','🎃','🎄','🎆','🎇']
+        };
+
+        let currentEmojiTab = 'smileys';
+
+        function switchEmojiTab(tab, btn) {
+            currentEmojiTab = tab;
+            document.querySelectorAll('.emoji-tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderEmojiGrid();
+        }
+
+        function renderEmojiGrid() {
+            const grid = document.getElementById('emojiGrid');
+            grid.innerHTML = EMOJI_DATA[currentEmojiTab].map(e => 
+                `<button class="emoji-btn" onclick="insertEmoji('${e}')">${e}</button>`
+            ).join('');
+        }
+
+        function insertEmoji(emoji) {
+            const inp = document.getElementById('msgIn');
+            const pos = inp.selectionStart;
+            inp.value = inp.value.slice(0, pos) + emoji + inp.value.slice(inp.selectionEnd);
+            inp.focus();
+            inp.setSelectionRange(pos + emoji.length, pos + emoji.length);
+        }
+
+        function toggleEmojiPicker(e) {
+            e.stopPropagation();
+            const picker = document.getElementById('emojiPicker');
+            const gifPicker = document.getElementById('gifPicker');
+            const backdrop = document.getElementById('pickerBackdrop');
+            gifPicker.classList.remove('open');
+            const isOpen = picker.classList.toggle('open');
+            backdrop.classList.toggle('open', isOpen);
+            if (isOpen) renderEmojiGrid();
+        }
+
+        // =============================================
+        // GIF PICKER (Tenor API)
+        // =============================================
+        const TENOR_KEY = 'AIzaSyD7j7mfVLqKMnHsMRMuMq8ELdX1YvJq6bA'; // free public key
+        let gifTimeout;
+
+        function toggleGifPicker(e) {
+            e.stopPropagation();
+            const picker = document.getElementById('gifPicker');
+            const emojiPicker = document.getElementById('emojiPicker');
+            const backdrop = document.getElementById('pickerBackdrop');
+            emojiPicker.classList.remove('open');
+            const isOpen = picker.classList.toggle('open');
+            backdrop.classList.toggle('open', isOpen);
+            if (isOpen) loadTrendingGifs();
+        }
+
+        async function loadTrendingGifs() {
+            const grid = document.getElementById('gifGrid');
+            grid.innerHTML = '<div class="gif-loading">Memuat GIF trending...</div>';
+            try {
+                const res = await fetch(`https://tenor.googleapis.com/v2/featured?key=${TENOR_KEY}&limit=12&media_filter=gif`);
+                const json = await res.json();
+                renderGifs(json.results || []);
+            } catch(err) {
+                grid.innerHTML = '<div class="gif-loading">Gagal memuat GIF.</div>';
+            }
+        }
+
+        function searchGif(query) {
+            clearTimeout(gifTimeout);
+            if (!query.trim()) { loadTrendingGifs(); return; }
+            gifTimeout = setTimeout(async () => {
+                const grid = document.getElementById('gifGrid');
+                grid.innerHTML = '<div class="gif-loading">Mencari...</div>';
+                try {
+                    const res = await fetch(`https://tenor.googleapis.com/v2/search?key=${TENOR_KEY}&q=${encodeURIComponent(query)}&limit=12&media_filter=gif`);
+                    const json = await res.json();
+                    renderGifs(json.results || []);
+                } catch(err) {
+                    grid.innerHTML = '<div class="gif-loading">Gagal mencari GIF.</div>';
+                }
+            }, 400);
+        }
+
+        function renderGifs(results) {
+            const grid = document.getElementById('gifGrid');
+            if (!results.length) { grid.innerHTML = '<div class="gif-loading">Tidak ditemukan.</div>'; return; }
+            grid.innerHTML = results.map(r => {
+                const url = r.media_formats?.tinygif?.url || r.media_formats?.gif?.url || '';
+                return `<div class="gif-item" onclick="sendGif('${url}')"><img src="${url}" loading="lazy" alt="gif"></div>`;
+            }).join('');
+        }
+
+        async function sendGif(url) {
+            closeAllPickers();
+            const payload = { sender: _userEmail, message: `|URLGIF|${url}` };
+            if (currentChatType === 'global') await _client.from('global_chat').insert([payload]);
+            else { payload.receiver = currentTargetEmail; await _client.from('private_chat').insert([payload]); }
+        }
+
+        function closeAllPickers() {
+            document.getElementById('emojiPicker').classList.remove('open');
+            document.getElementById('gifPicker').classList.remove('open');
+            document.getElementById('pickerBackdrop').classList.remove('open');
+        }
+
         document.addEventListener('click', (e) => {
             const menu = document.getElementById('actionMenu');
             if(e.target !== menu && !menu.contains(e.target)) {
@@ -687,8 +1229,14 @@
         });
         
         // Auto-Check Session
-        _client.auth.getSession().then(({data}) => { 
-            if(data.session) { _userEmail = data.session.user.email; enterDashboard(); } 
+        _client.auth.getSession().then(async ({data}) => { 
+            if(data.session) { 
+                _userEmail = data.session.user.email;
+                const { data: prof } = await _client.from('user_profiles').select('username, display_name').eq('email', _userEmail).maybeSingle();
+                _userUsername = prof?.username || '';
+                _userDisplayName = prof?.display_name || _userEmail.split('@')[0];
+                enterDashboard(); 
+            } 
         });
     </script>
 </body>

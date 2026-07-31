@@ -608,13 +608,41 @@ function typeEffect() {
     }
     setTimeout(typeEffect, speed);
 }
-// Mulai setelah intro opening selesai
-setTimeout(typeEffect, 2200);
+// ── Navbar: muncul setelah animasi "Elfathin" selesai ──
+// Elfathin: delay 2200ms dari triggerLines + ~700ms animasi masuk = 2900ms
+(function () {
+    function showNavbar() {
+        var header = document.getElementById('site-header');
+        if (!header) return;
+        // Elfathin selesai di ~2900ms dari triggerLines, navbar muncul di 3200ms (300ms buffer)
+        setTimeout(function () {
+            // Tampilkan dulu (tanpa transisi), lalu set transisi dan animasikan
+            header.style.display = 'block';
+            // Paksa browser repaint sebelum memulai transisi
+            header.getBoundingClientRect();
+            header.style.transition    = 'opacity 0.6s ease, transform 0.6s cubic-bezier(0.16,1,0.3,1)';
+            header.style.backdropFilter = 'blur(12px)';
+            header.style.webkitBackdropFilter = 'blur(12px)';
+            header.style.opacity       = '1';
+            header.style.transform     = 'translateY(0)';
+            header.style.pointerEvents = 'all';
+        }, 3200);
+    }
+
+    var isReturning = sessionStorage.getItem('pufutara_intro_shown');
+    // sesi baru: triggerLines dipanggil setelah 2650ms
+    // sesi lama: triggerLines dipanggil setelah 50ms
+    setTimeout(showNavbar, isReturning ? 50 : 2650);
+})();
 
 // ============================================================
 // STATS COUNTER ANIMATION
 // ============================================================
-function animateCounter(el, target, duration = 1500) {
+function animateCounter(el, target, duration, onDone) {
+    if (el.dataset.animated) { if (onDone) onDone(); return; }
+    el.dataset.animated = '1';
+    duration = duration || 1200;
+
     let start = 0;
     const step = target / (duration / 16);
     const timer = setInterval(() => {
@@ -622,17 +650,101 @@ function animateCounter(el, target, duration = 1500) {
         if (start >= target) {
             el.textContent = target + '+';
             clearInterval(timer);
+            if (onDone) onDone();
         } else {
             el.textContent = Math.floor(start) + '+';
         }
     }, 16);
 }
 
+// ── Hero stats: muncul satu per satu, counter tuntas dulu baru lanjut ──
+(function () {
+    const stats = [
+        { itemId: 'stat-item-proyek',  sepId: null,       counterId: 'stat-proyek',  target: 32 },
+        { itemId: 'stat-item-tahun',   sepId: 'stat-sep-1', counterId: 'stat-tahun',   target: 2  },
+        { itemId: 'stat-item-org',     sepId: 'stat-sep-2', counterId: 'stat-org',     target: 7  },
+        { itemId: 'stat-item-prestasi',sepId: 'stat-sep-3', counterId: 'stat-prestasi',target: 12 },
+    ];
+
+    function showStat(index, onAllDone) {
+        if (index >= stats.length) {
+            if (onAllDone) onAllDone();
+            return;
+        }
+        const s = stats[index];
+        const item = document.getElementById(s.itemId);
+        const sep  = s.sepId ? document.getElementById(s.sepId) : null;
+        const counter = document.getElementById(s.counterId);
+
+        // Munculkan separator terlebih dahulu (kecuali stat pertama)
+        if (sep) {
+            sep.style.opacity = '1';
+        }
+
+        // Munculkan stat item dengan animasi
+        if (item) {
+            item.style.opacity = '1';
+            item.style.transform = 'translateY(0)';
+            item.style.filter = 'blur(0)';
+        }
+
+        // Tunggu 150ms (stat mulai kelihatan), lalu jalankan counter
+        setTimeout(function () {
+            animateCounter(counter, s.target, 1200, function () {
+                // Counter selesai → jeda 200ms → lanjut stat berikutnya
+                setTimeout(function () {
+                    showStat(index + 1, onAllDone);
+                }, 200);
+            });
+        }, 150);
+    }
+
+    function startStatChain() {
+        // Elfathin delay = 2200ms dari triggerLines
+        // Tambah 700ms agar animasi masuk Elfathin selesai dulu
+        // Lalu tunggu 300ms sebelum stat pertama muncul
+        setTimeout(function () {
+            showStat(0, function () {
+                // Semua stat & counter selesai → munculkan typing + CTA + keahlian
+                const typing   = document.getElementById('hero-typing');
+                const cta      = document.getElementById('hero-cta');
+                const keahlian = document.getElementById('keahlian');
+
+                // Typing & CTA: pakai inline style transition
+                [typing, cta].forEach(function (el) {
+                    if (el) {
+                        el.style.opacity   = '1';
+                        el.style.transform = 'translateY(0)';
+                        el.style.filter    = 'blur(0)';
+                    }
+                });
+
+                // Keahlian: masih pakai hero-line, langsung trigger
+                if (keahlian) {
+                    keahlian.style.animationDelay = '0ms';
+                    keahlian.classList.add('hero-line-visible');
+                }
+
+                // Mulai typing animation setelah elemen typing muncul
+                setTimeout(typeEffect, 100);
+            });
+        }, 2200 + 700 + 300); // = 3200ms setelah triggerLines dipanggil
+    }
+
+    // Sinkron dengan triggerLines
+    const isReturning = sessionStorage.getItem('pufutara_intro_shown');
+    const triggerBase = isReturning ? 50 : 2650;
+    setTimeout(startStatChain, triggerBase);
+})();
+
+// ── Counter di luar hero: IntersectionObserver ──
 const statsObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
             const el = entry.target;
-            animateCounter(el, parseInt(el.dataset.count));
+            if (!el.classList.contains('hero-counter')) {
+                animateCounter(el, parseInt(el.dataset.count), 1500, null);
+            }
             statsObserver.unobserve(el);
         }
     });
