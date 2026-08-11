@@ -136,6 +136,38 @@
             setTimeout(() => { t.style.opacity = '0'; t.style.bottom = '10px'; }, 2500);
         }
 
+        // ===== URL ROUTING =====
+        function updateURL(view) {
+            const url = new URL(window.location);
+            url.searchParams.set('view', view);
+            history.pushState({ view }, '', url);
+        }
+
+        function getURLView() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('view') || 'setup';
+        }
+
+        function handleURLChange() {
+            const view = getURLView();
+            if (view === 'ready') {
+                document.getElementById('setup-overlay').style.display = 'none';
+                document.getElementById('app-ui').style.opacity = '1';
+            } else {
+                document.getElementById('setup-overlay').style.display = 'flex';
+                document.getElementById('app-ui').style.opacity = '0';
+            }
+        }
+
+        window.addEventListener('popstate', () => {
+            handleURLChange();
+        });
+
+        // On page load, check URL
+        window.addEventListener('DOMContentLoaded', () => {
+            handleURLChange();
+        });
+
         async function startSetupSequence() {
             const btn = document.getElementById('permission-btn');
             const log = document.getElementById('error-log');
@@ -174,7 +206,8 @@
                 sound.pause();
                 sound.currentTime = 0;
 
-                // 4. Masuk ke UI Utama
+                // 4. Masuk ke UI Utama dengan URL update
+                updateURL('ready');
                 document.getElementById('setup-overlay').style.display = 'none';
                 document.getElementById('app-ui').style.opacity = '1';
                 initApp();
@@ -182,6 +215,7 @@
             } catch (err) {
                 console.error("Audio Setup Error:", err);
                 // Tetap biarkan masuk meski mic gagal, agar speaker bisa bunyi
+                updateURL('ready');
                 document.getElementById('setup-overlay').style.display = 'none';
                 document.getElementById('app-ui').style.opacity = '1';
                 initApp();

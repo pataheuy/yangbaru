@@ -453,10 +453,47 @@
             }
         }
 
+        // ===== URL ROUTING =====
+        function updateURL(view, params = {}) {
+            const url = new URL(window.location);
+            url.searchParams.set('view', view);
+            Object.keys(params).forEach(key => {
+                url.searchParams.set(key, params[key]);
+            });
+            history.pushState({ view, ...params }, '', url);
+        }
+
+        function getURLParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                view: params.get('view') || 'welcome',
+                class: params.get('class')
+            };
+        }
+
+        function handleURLChange() {
+            const { view, class: className } = getURLParams();
+            
+            if (view === 'admin') {
+                showPage('admin');
+            } else if (view === 'home' && className) {
+                currentSelectedClass = className;
+                document.getElementById('welcomeScreen').classList.add('hidden');
+                document.getElementById('homePage').classList.remove('hidden');
+                document.getElementById('changeClassNavBtn').classList.remove('hidden');
+                document.getElementById('homeNavBtn').classList.remove('hidden');
+                renderCandidatesHome();
+            } else {
+                showWelcomeScreen();
+            }
+        }
+
+        window.addEventListener('popstate', handleURLChange);
+
         // Initialize App
         window.addEventListener('DOMContentLoaded', () => {
             loadData();
-            renderWelcomeClasses();
+            handleURLChange();
         });
 
         // Load data from LocalStorage
@@ -514,6 +551,9 @@
         function selectClassAndProceed(className) {
             currentSelectedClass = className;
             
+            // Update URL
+            updateURL('home', { class: className });
+            
             // Show Home & Nav buttons
             document.getElementById('welcomeScreen').classList.add('hidden');
             document.getElementById('homePage').classList.remove('hidden');
@@ -524,6 +564,9 @@
         }
 
         function showWelcomeScreen() {
+            // Update URL
+            updateURL('welcome');
+            
             document.getElementById('welcomeScreen').classList.remove('hidden');
             document.getElementById('homePage').classList.add('hidden');
             document.getElementById('adminPage').classList.add('hidden');
@@ -541,6 +584,32 @@
 
             if (page === 'admin') {
                 if (!isAdminLoggedIn) {
+                    openAdminLoginModal();
+                    return;
+                }
+                // Update URL
+                updateURL('admin');
+                
+                welcomeScreen.classList.add('hidden');
+                homePage.classList.add('hidden');
+                adminPage.classList.remove('hidden');
+                document.getElementById('changeClassNavBtn').classList.remove('hidden');
+                document.getElementById('homeNavBtn').classList.remove('hidden');
+                renderAdminDashboard();
+            } else {
+                if (!currentSelectedClass) {
+                    showWelcomeScreen();
+                    return;
+                }
+                // Update URL
+                updateURL('home', { class: currentSelectedClass });
+                
+                welcomeScreen.classList.add('hidden');
+                homePage.classList.remove('hidden');
+                adminPage.classList.add('hidden');
+                renderCandidatesHome();
+            }
+        }
                     openAdminLoginModal();
                     return;
                 }

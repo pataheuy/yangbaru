@@ -476,7 +476,34 @@
             `
         };
 
-        function setMode(mode) {
+        // ===== URL ROUTING =====
+        function updateURL(mode) {
+            const url = new URL(window.location);
+            url.searchParams.set('mode', mode);
+            history.pushState({ mode }, '', url);
+        }
+
+        function getURLMode() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('mode') || 'normal';
+        }
+
+        function handleURLChange() {
+            const mode = getURLMode();
+            if (['saintis', 'normal', 'simpel', 'konversi'].includes(mode)) {
+                setModeWithoutURL(mode);
+            }
+        }
+
+        window.addEventListener('popstate', (e) => {
+            if (e.state && e.state.mode) {
+                setModeWithoutURL(e.state.mode);
+            } else {
+                handleURLChange();
+            }
+        });
+
+        function setModeWithoutURL(mode) {
             currentMode = mode;
             ['saintis', 'normal', 'simpel', 'konversi'].forEach(m => {
                 const btn = document.getElementById(`btn-${m}`);
@@ -496,8 +523,13 @@
             }
         }
 
+        function setMode(mode) {
+            updateURL(mode);
+            setModeWithoutURL(mode);
+        }
+
         // inisialisasi
-        setMode('normal');
+        handleURLChange();
 
         // Keyboard support
         document.addEventListener('keydown', (e) => {
