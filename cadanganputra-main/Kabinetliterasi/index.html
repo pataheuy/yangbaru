@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kabinet Satria Dharma - Komunitas Literasi Sekolah SMPIT As-Syifa</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        kls: {
+                            brown: '#5D4037',
+                            dark: '#3E2723',
+                            cream: '#EFEBE9',
+                            yellow: '#FBC02D',
+                            black: '#1A1A1A',
+                            white: '#FFFFFF'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Merriweather', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        @keyframes borderPulse {
+            0%, 100% { border-color: #FBC02D; box-shadow: 0 0 10px rgba(251, 192, 45, 0.5); }
+            50% { border-color: #5D4037; box-shadow: 0 0 20px rgba(93, 64, 55, 0.8); }
+        }
+        
+        .gold-border {
+            animation: borderPulse 3s infinite;
+        }
+
+        .glow-photo:hover {
+            box-shadow: 0 0 15px rgba(251, 192, 45, 0.6);
+        }
+
+        .glass-nav {
+            background: rgba(62, 39, 35, 0.98);
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-bg {
+            background: linear-gradient(rgba(26, 26, 26, 0.85), rgba(62, 39, 35, 0.9)), url('https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .cert-border {
+            border: 12px double #5D4037;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printableCertCard, #printableCertCard * {
+                visibility: visible;
+            }
+            #printableCertCard {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body class="font-sans bg-kls-cream text-kls-black antialiased flex flex-col min-h-screen page-fade selection:bg-kls-yellow selection:text-kls-dark">
+
+    <!-- Header / Navbar Statis -->
+    <header class="fixed w-full z-40 glass-nav border-b-4 border-kls-yellow shadow-md" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo & Tulisan Lengkap -->
+                <a href="javascript:void(0)" onclick="showMainHome()" class="flex items-center space-x-3 group">
+                    <div class="w-10 h-10 rounded-full bg-kls-yellow text-kls-dark flex items-center justify-center font-bold text-lg shadow border border-white group-hover:scale-105 transition">
+                        <i class="fa-solid fa-book-open"></i>
+                    </div>
+                    <div>
+                        <span class="text-sm sm:text-lg font-bold font-serif text-white block leading-tight tracking-wide">Komunitas Literasi Sekolah</span>
+                        <span class="text-[10px] sm:text-[11px] text-kls-yellow font-medium tracking-wider uppercase">SMPIT As-Syifa Boarding School</span>
+                    </div>
+                </a>
+
+                <!-- Navigasi Desktop -->
+                <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-gray-200">
+                    <a href="javascript:void(0)" onclick="showMainHome()" class="hover:text-kls-yellow transition">Beranda</a>
+                    <a href="javascript:void(0)" onclick="navigateToSection('prakata')" class="hover:text-kls-yellow transition">Prakata</a>
+                    <a href="javascript:void(0)" onclick="navigateToSection('pesan-ketua')" class="hover:text-kls-yellow transition">Amanat Ketua</a>
+                    <a href="javascript:void(0)" onclick="navigateToSection('struktur-kabinet')" class="hover:text-kls-yellow transition">Struktur Pengurus</a>
+                    <a href="javascript:void(0)" onclick="navigateToSection('tentang-kls')" class="hover:text-kls-yellow transition">Profil KLS</a>
+                </nav>
+
+                <!-- Tombol CTA Navigasi -->
+                <div class="hidden md:flex items-center space-x-3">
+                    <button onclick="navigateToSection('struktur-kabinet')" class="bg-kls-yellow hover:bg-yellow-500 text-kls-dark font-bold px-5 py-2 rounded-full shadow transition transform hover:-translate-y-0.5 text-xs flex items-center gap-2">
+                        <i class="fa-solid fa-users"></i> Daftar Pengurus
+                    </button>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" aria-label="Buka Menu Navigasi" class="text-white p-2.5 rounded-md hover:text-kls-yellow focus:outline-none focus:ring-2 focus:ring-kls-yellow">
+                        <i class="fa-solid fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menu Seluler -->
+        <div id="mobile-menu" class="hidden md:hidden bg-kls-dark border-b-2 border-kls-yellow px-4 pt-3 pb-6 space-y-3 shadow-lg">
+            <a href="javascript:void(0)" onclick="showMainHome(); closeMobileMenu();" class="block text-white font-medium py-2 hover:text-kls-yellow border-b border-gray-800">Beranda</a>
+            <a href="javascript:void(0)" onclick="navigateToSection('prakata'); closeMobileMenu();" class="block text-white font-medium py-2 hover:text-kls-yellow border-b border-gray-800">Prakata Pustakawan</a>
+            <a href="javascript:void(0)" onclick="navigateToSection('pesan-ketua'); closeMobileMenu();" class="block text-white font-medium py-2 hover:text-kls-yellow border-b border-gray-800">Pesan Ketua Umum</a>
+            <a href="javascript:void(0)" onclick="navigateToSection('struktur-kabinet'); closeMobileMenu();" class="block text-white font-medium py-2 hover:text-kls-yellow border-b border-gray-800">Struktur Pengurus</a>
+            <a href="javascript:void(0)" onclick="navigateToSection('tentang-kls'); closeMobileMenu();" class="block text-white font-medium py-2 hover:text-kls-yellow">Profil KLS</a>
+            <button onclick="navigateToSection('struktur-kabinet'); closeMobileMenu();" class="block bg-kls-yellow text-kls-dark font-bold px-5 py-2.5 rounded-full w-full text-center mt-2 shadow">
+                <i class="fa-solid fa-users mr-1.5"></i> Lihat Seluruh Pengurus
+            </button>
+        </div>
+    </header>
+
+    <!-- CONTAINER UTAMA: TAMPILAN BERANDA UTAMA WEB -->
+    <main id="mainHomeView" class="flex-grow pt-20">
+        <!-- Hero Section Utama -->
+        <section id="beranda" class="hero-bg min-h-[85vh] flex items-center justify-center text-white text-center px-4 relative">
+            <div class="max-w-4xl mx-auto py-12 sm:py-16 relative z-10" data-aos="fade-up" data-aos-duration="1000">
+                <span class="inline-block bg-kls-yellow/20 text-kls-yellow border border-kls-yellow/50 px-4 py-1.5 rounded-full text-xs font-bold tracking-wider uppercase mb-5 backdrop-blur-sm">
+                    <i class="fa-solid fa-shield-halved mr-1.5"></i> Masa Bakti 2025/2026
+                </span>
+                
+                <h1 class="text-3xl sm:text-5xl md:text-6xl font-serif font-bold mb-4 leading-tight">
+                    Kabinet <span class="text-kls-yellow italic">Satria Dharma</span>
+                </h1>
+                
+                <p class="text-sm sm:text-base md:text-lg text-gray-200 mb-6 max-w-2xl mx-auto font-light leading-relaxed">
+                    Portal Resmi Kepengurusan & Halaman Sertifikat Digital Komunitas Literasi Sekolah SMPIT As-Syifa Boarding School Subang • Sinergi <strong class="text-kls-yellow font-semibold">Revourner 17 & Ervinza 18</strong>
+                </p>
+
+                <!-- HERO SEARCHBAR PENCARIAN ANGGOTA DENGAN TOMBOL CLEAR 'X' -->
+                <div class="max-w-2xl mx-auto mb-8">
+                    <form onsubmit="handleHeroSearch(event)" class="relative flex items-center bg-white/95 backdrop-blur-md rounded-2xl p-1.5 shadow-2xl border-2 border-kls-yellow">
+                        <i class="fa-solid fa-magnifying-glass text-kls-brown text-lg ml-3.5 mr-2"></i>
+                        <input id="heroSearchInput" oninput="syncFromHero()" type="text" placeholder="Masukkan nama anggota / pengurus..." class="w-full py-2.5 px-2 bg-transparent text-kls-dark text-xs sm:text-sm font-medium focus:outline-none placeholder-gray-500">
+                        
+                        <!-- Tombol Clear 'X' Hero Searchbar -->
+                        <button type="button" id="clearHeroSearch" onclick="clearAllSearch()" title="Hapus Pencarian" class="hidden text-gray-400 hover:text-kls-brown px-2 py-1 transition text-sm mr-1">
+                            <i class="fa-solid fa-circle-xmark"></i>
+                        </button>
+
+                        <button type="submit" class="bg-kls-brown hover:bg-kls-dark text-kls-yellow font-bold text-xs sm:text-sm px-5 py-2.5 rounded-xl transition shadow flex items-center gap-1.5 shrink-0">
+                            <span>Cari Pengurus</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </form>
+
+                    <!-- Quick Suggestions Tag -->
+                    <div class="flex flex-wrap items-center justify-center gap-1.5 mt-2.5 text-[11px] text-gray-300">
+                        <span class="text-gray-400">Pencarian cepat:</span>
+                        <button type="button" onclick="quickHeroSearch('Putra Azzam')" class="bg-black/40 hover:bg-kls-yellow hover:text-kls-dark px-2.5 py-0.5 rounded-full border border-gray-600 transition">Putra Azzam</button>
+                        <button type="button" onclick="quickHeroSearch('Rangga Almera')" class="bg-black/40 hover:bg-kls-yellow hover:text-kls-dark px-2.5 py-0.5 rounded-full border border-gray-600 transition">Rangga Almera</button>
+                        <button type="button" onclick="quickHeroSearch('M. Habibie')" class="bg-black/40 hover:bg-kls-yellow hover:text-kls-dark px-2.5 py-0.5 rounded-full border border-gray-600 transition">M. Habibie</button>
+                        <button type="button" onclick="quickHeroSearch('Rubian')" class="bg-black/40 hover:bg-kls-yellow hover:text-kls-dark px-2.5 py-0.5 rounded-full border border-gray-600 transition">Rubian</button>
+                        <button type="button" onclick="quickHeroSearch('Faeyza')" class="bg-black/40 hover:bg-kls-yellow hover:text-kls-dark px-2.5 py-0.5 rounded-full border border-gray-600 transition">Faeyza</button>
+                    </div>
+                </div>
+
+                <!-- Ringkasan Kabinet Card -->
+                <div class="bg-kls-dark/95 p-5 sm:p-7 rounded-2xl border-2 border-kls-yellow shadow-2xl max-w-xl mx-auto mb-8 backdrop-blur-md">
+                    <div class="flex flex-col sm:flex-row items-center justify-between border-b border-gray-700 pb-3 mb-4 gap-2">
+                        <div class="text-center sm:text-left">
+                            <span class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block">Kolaborasi Angkatan</span>
+                            <h3 class="text-base sm:text-lg font-serif font-bold text-kls-yellow">Revourner 17 & Ervinza 18</h3>
+                        </div>
+                        <span class="bg-kls-yellow text-kls-dark text-xs font-bold px-3 py-1 rounded-full">20 Santri Pengurus</span>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2 sm:gap-4 text-left">
+                        <div class="bg-kls-brown/60 p-2.5 sm:p-3 rounded-xl border border-kls-yellow/30 text-center sm:text-left">
+                            <span class="text-[10px] sm:text-xs text-gray-300 block">Ketua Umum</span>
+                            <strong class="text-xs sm:text-sm text-kls-yellow font-serif block truncate">Putra Azzam E.</strong>
+                        </div>
+                        <div class="bg-kls-brown/60 p-2.5 sm:p-3 rounded-xl border border-kls-yellow/30 text-center sm:text-left">
+                            <span class="text-[10px] sm:text-xs text-gray-300 block">Sekretaris</span>
+                            <strong class="text-xs sm:text-sm text-white font-serif block truncate">Rangga Almera F.</strong>
+                        </div>
+                        <div class="bg-kls-brown/60 p-2.5 sm:p-3 rounded-xl border border-kls-yellow/30 text-center sm:text-left">
+                            <span class="text-[10px] sm:text-xs text-gray-300 block">Bendahara</span>
+                            <strong class="text-xs sm:text-sm text-white font-serif block truncate">Faqih Myassar</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tombol CTA -->
+                <div class="flex flex-wrap justify-center gap-3">
+                    <a href="#pesan-ketua" class="bg-kls-yellow hover:bg-yellow-500 text-kls-dark font-bold px-7 py-3 rounded-full shadow-lg transition duration-300 text-xs sm:text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-comment-dots"></i> Pesan Ketua Umum
+                    </a>
+                    <a href="#struktur-kabinet" class="bg-kls-brown/80 hover:bg-kls-brown text-white border border-kls-yellow font-bold px-7 py-3 rounded-full shadow-lg transition duration-300 text-xs sm:text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-users"></i> Lihat Anggota Pengurus
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION PRAKATA PUSTAKAWAN -->
+        <section id="prakata" class="py-16 sm:py-24 bg-white relative overflow-hidden">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="text-center mb-12 sm:mb-16" data-aos="fade-up">
+                    <span class="inline-block bg-kls-cream text-kls-brown border border-kls-yellow/60 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-2">
+                        Amanat & Orientasi
+                    </span>
+                    <h2 class="text-2xl sm:text-4xl font-serif font-bold text-kls-dark mb-3">Prakata dari Pustakawan</h2>
+                    <div class="w-20 sm:w-24 h-1 bg-kls-yellow mx-auto mb-4"></div>
+                    <p class="text-gray-600 max-w-xl mx-auto text-xs sm:text-sm">
+                        Sambutan hangat dan arahan dari Penanggung Jawab Perpustakaan & Pembina Literasi SMPIT As-Syifa Boarding School.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center bg-kls-cream/60 rounded-3xl p-6 sm:p-10 border border-gray-200/80 shadow-md">
+                    <!-- Foto Pustakawan / Pembina -->
+                    <div class="lg:col-span-5 flex flex-col items-center" data-aos="fade-right">
+                        <div class="relative mb-4">
+                            <div class="w-44 h-44 sm:w-56 sm:h-56 rounded-2xl overflow-hidden gold-border border-4 border-kls-yellow shadow-xl">
+                                <img src="https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=600&q=80" onerror="handleImgError(this)" alt="Pustakawan SMPIT As-Syifa" class="w-full h-full object-cover">
+                            </div>
+                            <div class="absolute -bottom-3 -right-3 bg-kls-brown text-kls-yellow p-3 rounded-xl shadow-lg border border-kls-yellow">
+                                <i class="fa-solid fa-quote-right text-xl"></i>
+                            </div>
+                        </div>
+                        <h3 class="font-serif font-bold text-lg text-kls-dark mt-2">Ust. Heri Subagja, M.Pd.</h3>
+                        <p class="text-xs text-kls-brown font-semibold">Kepala Perpustakaan & Pembina KLS</p>
+                        <span class="text-[10px] text-gray-500 mt-0.5">SMPIT As-Syifa Boarding School Subang</span>
+                    </div>
+
+                    <!-- Pesan & Narasi Prakata -->
+                    <div class="lg:col-span-7 space-y-4 text-xs sm:text-sm leading-relaxed text-gray-700" data-aos="fade-left">
+                        <div class="bg-white p-4 sm:p-5 rounded-2xl border-l-4 border-kls-yellow shadow-sm italic font-serif text-kls-dark">
+                            "Iqra' — Bacalah dengan menyebut nama Tuhanmu yang menciptakan. Literasi bukan sekadar membaca kata, melainkan membaca kehidupan, menempa peradaban, dan melahirkan karya bernilai Rabbani."
+                        </div>
+
+                        <p>
+                            <strong class="font-serif text-kls-dark text-sm">Assalamu’alaikum Warahmatullahi Wabarakatuh,</strong>
+                        </p>
+
+                        <p>
+                            Puji dan syukur senantiasa kita panjatkan ke hadirat Allah SWT yang telah melimpahkan karunia ilmu pengetahuan. Shalawat serta salam semoga tercurah kepada Uswah Hasanah kita, Nabi Muhammad SAW, penyampai risalah ilmu dan penerang kegelapan jahiliyah.
+                        </p>
+
+                        <p>
+                            Atas nama Perpustakaan dan Tim Pembina Literasi SMPIT As-Syifa Boarding School, kami menyambut hangat hadirnya kepengurusan <strong class="text-kls-dark font-semibold">Kabinet Satria Dharma</strong> untuk masa bakti 2025/2026. Sinergi antara santri <strong class="text-kls-brown font-semibold">Revourner 17</strong> dan <strong class="text-kls-brown font-semibold">Ervinza 18</strong> ini merupakan manifestasi semangat juang dalam merawat tradisi literasi di lingkungan pesantren.
+                        </p>
+
+                        <p>
+                            Perpustakaan bukan sekadar jajaran rak yang menyimpan ribuan jilid buku, melainkan jantung peradaban sekolah. Melalui wadah Komunitas Literasi Sekolah (KLS), kami berharap seluruh pengurus mampu menjadi teladan, menggerakkan minat baca, mengasah nalar kritis, serta mendampingi santri dalam menghasilkan karya-karya terbaik.
+                        </p>
+
+                        <p class="pt-2">
+                            Selamat berjuang kepada pengurus Kabinet Satria Dharma. Jadikanlah pena dan buku sebagai senjata utama dalam menegakkan syiar ilmu pengetahuan!
+                        </p>
+
+                        <div class="pt-4 border-t border-gray-300 flex items-center justify-between">
+                            <span class="text-xs font-serif font-bold text-kls-brown">Subang, Jawa Barat</span>
+                            <span class="text-[11px] text-gray-500 italic">Perpustakaan SMPIT As-Syifa</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION PESAN KETUA UMUM -->
+        <section id="pesan-ketua" class="py-16 sm:py-24 bg-kls-dark text-white relative">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="text-center mb-12 sm:mb-16" data-aos="fade-up">
+                    <span class="inline-block bg-kls-yellow/20 text-kls-yellow border border-kls-yellow/50 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-2">
+                        Amanah Kepemimpinan
+                    </span>
+                    <h2 class="text-2xl sm:text-4xl font-serif font-bold text-white mb-3">Pesan dari Ketua Umum</h2>
+                    <div class="w-20 sm:w-24 h-1 bg-kls-yellow mx-auto mb-4"></div>
+                    <p class="text-gray-300 max-w-xl mx-auto text-xs sm:text-sm">
+                        Arahan & Apresiasi Resmi dari Ketua Umum Kabinet Satria Dharma untuk Seluruh Pengurus & Santri KLS.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-kls-brown/60 p-6 sm:p-10 rounded-3xl border border-kls-yellow/40 backdrop-blur-md shadow-2xl">
+                    <!-- Foto Ketua Umum -->
+                    <div class="lg:col-span-5 flex flex-col items-center" data-aos="zoom-in">
+                        <div class="relative mb-4">
+                            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80" onerror="handleImgError(this)" alt="Putra Azzam Elfathin" class="w-44 h-44 sm:w-56 sm:h-56 rounded-full object-cover gold-border border-4 border-kls-yellow shadow-2xl">
+                            <span class="absolute bottom-2 right-2 bg-kls-yellow text-kls-dark text-[10px] font-bold px-3 py-1 rounded-full shadow">
+                                Ketua Umum
+                            </span>
+                        </div>
+                        <h3 class="font-serif font-bold text-xl text-kls-yellow mt-1">Putra Azzam Elfathin</h3>
+                        <p class="text-xs text-gray-300 font-medium">Ketua Umum Kabinet Satria Dharma</p>
+                        <span class="text-[11px] text-gray-400">Revourner 17 • SMPIT As-Syifa Boarding School</span>
+                    </div>
+
+                    <!-- Isi Pesan Ketua -->
+                    <div class="lg:col-span-7 space-y-4 text-xs sm:text-sm text-gray-200 leading-relaxed" data-aos="fade-left">
+                        <div class="bg-black/30 p-4 rounded-xl border border-kls-yellow/30 font-serif italic text-kls-yellow">
+                            "Kepemimpinan di Komunitas Literasi Sekolah bukan tentang jabatan, melainkan tentang keteladanan dalam membumikan budaya membaca dan melangitkan karya santri Rabbani."
+                        </div>
+
+                        <p>
+                            <strong>Bismillah, Assalamu’alaikum Warahmatullahi Wabarakatuh.</strong>
+                        </p>
+
+                        <p>
+                            Segala puji bagi Allah SWT yang telah mengizinkan kita melangkah bersama dalam kepengurusan <strong class="text-kls-yellow">Kabinet Satria Dharma</strong>. Rekan-rekan pengurus dari angkatan <strong class="text-white">Revourner 17</strong> dan adik-adik pengurus <strong class="text-white">Ervinza 18</strong>, keberadaan kita di KLS adalah amanah mulia untuk membangun ekosistem membaca dan menulis yang hidup di lingkungan sekolah dan asrama.
+                        </p>
+
+                        <p>
+                            Melalui portal resmi ini, setiap kontribusi dan dedikasi rekan-rekan dicatat dan diapresiasi secara resmi. Halaman khusus anggota beserta sertifikat digital yang diterbitkan adalah bukti keaktifan, kedisiplinan, serta tanggung jawab kalian selama mengemban amanah di BPH, Divisi Danus, Divisi Kebersihan, maupun Divisi Kedisiplinan.
+                        </p>
+
+                        <p>
+                            Mari kita jaga terus kekompakan, jalankan program kerja dengan penuh keikhlasan, dan jadikan periode 2025/2026 ini sebagai warisan kebaikan bagi generasi penerus di SMPIT As-Syifa Boarding School.
+                        </p>
+
+                        <div class="pt-3 border-t border-gray-600 flex justify-between items-center text-xs">
+                            <span class="font-serif font-bold text-kls-yellow">Satria Dharma • Uniting Words, Inspiring Actions</span>
+                            <a href="#struktur-kabinet" class="text-kls-yellow underline hover:text-white font-medium">Jelajahi Anggota Pengurus &rarr;</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Structure & Anggota Section -->
+        <section id="struktur-kabinet" class="py-12 sm:py-20 bg-kls-cream border-t border-gray-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div class="text-center mb-8 sm:mb-12" data-aos="fade-up">
+                    <span class="inline-block bg-kls-yellow/30 text-kls-dark border border-kls-yellow px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-2">
+                        Kabinet Satria Dharma (2025/2026)
+                    </span>
+                    <h2 class="text-2xl sm:text-4xl font-serif font-bold text-kls-dark mb-3">Daftar Anggota Pengurus</h2>
+                    <div class="w-20 sm:w-24 h-1 bg-kls-yellow mx-auto mb-4"></div>
+                    <p class="text-gray-600 max-w-xl mx-auto text-xs sm:text-sm">
+                        Klik pada kartu pengurus untuk membuka halaman khusus anggota yang berisi profil, foto, pesan pribadi ketua umum, dan sertifikat digital resmi.
+                    </p>
+                </div>
+
+                <!-- Controls: Filter Divisi & Search Member -->
+                <div class="bg-white p-4 sm:p-6 rounded-2xl border border-gray-200 shadow-sm mb-8 sm:mb-10 flex flex-col md:flex-row items-center justify-between gap-4">
+                    <!-- Filter Buttons Divisi -->
+                    <div class="flex flex-wrap items-center justify-center sm:justify-start gap-1.5 sm:gap-2 w-full md:w-auto">
+                        <button onclick="filterDivision('all')" class="div-filter-btn active bg-kls-brown text-kls-yellow px-3.5 py-2 rounded-xl text-xs font-bold shadow transition">Semua (20)</button>
+                        <button onclick="filterDivision('BPH')" class="div-filter-btn bg-kls-cream hover:bg-kls-yellow/30 text-kls-dark border border-gray-300 px-3.5 py-2 rounded-xl text-xs font-medium transition">BPH (3)</button>
+                        <button onclick="filterDivision('Danus')" class="div-filter-btn bg-kls-cream hover:bg-kls-yellow/30 text-kls-dark border border-gray-300 px-3.5 py-2 rounded-xl text-xs font-medium transition">Danus (6)</button>
+                        <button onclick="filterDivision('Kebersihan')" class="div-filter-btn bg-kls-cream hover:bg-kls-yellow/30 text-kls-dark border border-gray-300 px-3.5 py-2 rounded-xl text-xs font-medium transition">Kebersihan (6)</button>
+                        <button onclick="filterDivision('Kedisiplinan')" class="div-filter-btn bg-kls-cream hover:bg-kls-yellow/30 text-kls-dark border border-gray-300 px-3.5 py-2 rounded-xl text-xs font-medium transition">Kedisiplinan (5)</button>
+                    </div>
+
+                    <!-- Search Member Input DENGAN TOMBOL CLEAR 'X' -->
+                    <div class="relative w-full md:w-72">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 transform -translate-y-1/2 text-gray-400 text-xs"></i>
+                        <input id="searchMemberInput" oninput="syncFromSection()" type="text" placeholder="Cari nama pengurus..." class="w-full pl-9 pr-8 py-2.5 rounded-xl bg-kls-cream border border-gray-300 text-xs focus:outline-none focus:border-kls-brown font-medium">
+                        
+                        <!-- Tombol Clear 'X' Section Searchbar -->
+                        <button type="button" id="clearSectionSearch" onclick="clearAllSearch()" title="Hapus Pencarian" class="hidden absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-kls-brown transition text-xs">
+                            <i class="fa-solid fa-circle-xmark"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Grid Member Cards -->
+                <div id="memberGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                    <!-- Cards populated by JS -->
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Section Informasi Singkat KLS -->
+        <section id="tentang-kls" class="py-12 sm:py-20 bg-white">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center" data-aos="fade-up">
+                <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-kls-brown text-kls-yellow flex items-center justify-center mx-auto text-2xl mb-5 shadow-md border-2 border-kls-yellow">
+                    <i class="fa-solid fa-book-open-reader"></i>
+                </div>
+                <h3 class="text-xl sm:text-3xl font-serif font-bold text-kls-dark mb-3">Komunitas Literasi Sekolah (KLS)</h3>
+                <p class="text-gray-600 text-xs sm:text-sm max-w-2xl mx-auto leading-relaxed mb-6">
+                    Wadah resmi santri SMPIT As-Syifa Boarding School Subang dalam mengembangkan minat membaca, kemampuan menulis karya fiksi/non-fiksi, serta kepemimpinan organisasi berbasis nilai-nilai Rabbani.
+                </p>
+                <div class="inline-flex items-center gap-2 bg-kls-cream text-kls-brown font-bold px-5 py-2.5 rounded-full text-xs border border-kls-yellow shadow-sm">
+                    <i class="fa-solid fa-location-dot text-kls-yellow"></i>
+                    <span>SMPIT As-Syifa Boarding School, Subang, Jawa Barat</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- CONTAINER KHUSUS: HALAMAN PROFILE TIAP ANGGOTA (DEDICATED MEMBER PAGE VIEW) -->
+    <main id="memberProfilePage" class="flex-grow pt-24 hidden pb-16">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <!-- Tombol Navigasi Kembali ke Daftar -->
+            <div class="mb-6 flex justify-between items-center">
+                <button onclick="showMainHome('struktur-kabinet')" class="bg-kls-brown hover:bg-kls-dark text-kls-yellow font-bold text-xs px-5 py-2.5 rounded-full transition flex items-center gap-2 shadow-md">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Kembali ke Daftar Pengurus</span>
+                </button>
+                <span class="text-xs font-semibold text-gray-500">Profil Anggota KLS Satria Dharma</span>
+            </div>
+
+            <!-- TAMPILAN FULL PAGE PROFIL ANGGOTA -->
+            <div class="bg-white rounded-3xl border-2 border-kls-yellow shadow-2xl p-6 sm:p-10 space-y-8">
+                
+                <!-- Header Profil Anggota -->
+                <div class="flex flex-col md:flex-row items-center md:items-start gap-6 sm:gap-8 pb-8 border-b border-gray-200">
+                    <!-- Foto Pengurus Ukuran Besar -->
+                    <div class="relative shrink-0">
+                        <img id="pageMemberAvatar" src="" onerror="handleImgError(this)" class="w-36 h-36 sm:w-44 sm:h-44 rounded-2xl object-cover gold-border border-4 border-kls-yellow shadow-xl">
+                        <span id="pageMemberDivTag" class="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-kls-yellow text-kls-dark font-bold text-[10px] uppercase px-3 py-1 rounded-full shadow border border-white whitespace-nowrap"></span>
+                    </div>
+
+                    <!-- Informasi Pengurus -->
+                    <div class="text-center md:text-left flex-grow space-y-2">
+                        <div class="flex flex-wrap items-center justify-center md:justify-start gap-2">
+                            <span id="pageMemberAngkatanBadge" class="bg-kls-brown text-kls-yellow text-xs font-bold px-3 py-1 rounded-full"></span>
+                            <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1">
+                                <i class="fa-solid fa-circle-check"></i> Pengurus Resmi
+                            </span>
+                        </div>
+                        
+                        <h2 id="pageMemberName" class="font-serif font-bold text-2xl sm:text-4xl text-kls-dark pt-1"></h2>
+                        <p id="pageMemberRole" class="text-sm sm:text-base font-bold text-kls-brown"></p>
+
+                        <!-- Tabel Ringkas Metadata -->
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 bg-kls-cream p-4 rounded-2xl border border-gray-300 text-xs mt-4">
+                            <div>
+                                <span class="text-gray-500 block">Kabinet:</span>
+                                <strong class="text-kls-dark font-serif">Satria Dharma</strong>
+                            </div>
+                            <div>
+                                <span class="text-gray-500 block">Masa Bakti:</span>
+                                <strong class="text-kls-dark">2025 / 2026</strong>
+                            </div>
+                            <div class="col-span-2 sm:col-span-1">
+                                <span class="text-gray-500 block">ID Sertifikat:</span>
+                                <strong id="pageMemberCertId" class="text-kls-brown font-mono"></strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section Pesan Khusus dari Ketua Umum -->
+                <div class="bg-kls-dark text-white p-6 rounded-2xl border-2 border-kls-yellow/50 shadow-lg relative overflow-hidden">
+                    <div class="flex items-center gap-3 mb-3 text-kls-yellow font-serif font-bold text-sm border-b border-gray-700 pb-2">
+                        <i class="fa-solid fa-comment-dots text-lg"></i>
+                        <span>Apresiasi & Pesan dari Ketua Umum (Putra Azzam Elfathin)</span>
+                    </div>
+                    <p id="pageMemberPesanKetua" class="italic text-xs sm:text-sm text-gray-200 leading-relaxed font-serif"></p>
+                </div>
+
+                <!-- TEMPAT SERTIFIKAT DIGITAL RESMI (E-CERTIFICATE FRAME) -->
+                <div class="space-y-4">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                        <div>
+                            <h3 class="font-serif font-bold text-lg text-kls-dark flex items-center gap-2">
+                                <i class="fa-solid fa-certificate text-kls-yellow text-xl"></i>
+                                <span>Sertifikat Digital Kepengurusan Resmi</span>
+                            </h3>
+                            <p class="text-xs text-gray-500">Dokumen pengesahan partisipasi aktif dalam Komunitas Literasi Sekolah SMPIT As-Syifa.</p>
+                        </div>
+                        <button onclick="window.print()" class="bg-kls-yellow hover:bg-yellow-500 text-kls-dark font-bold text-xs px-5 py-2.5 rounded-xl shadow transition flex items-center gap-2">
+                            <i class="fa-solid fa-print"></i> Cetak / Simpan PDF
+                        </button>
+                    </div>
+
+                    <!-- Kartu Sertifikat Digital yang Bisa Dicetak -->
+                    <div id="printableCertCard" class="bg-white p-6 sm:p-10 rounded-2xl cert-border text-center relative shadow-inner space-y-6">
+                        <!-- Header Sertifikat -->
+                        <div class="border-b-2 border-kls-brown/20 pb-4 flex flex-col sm:flex-row justify-between items-center gap-2">
+                            <div class="text-left text-center sm:text-left">
+                                <h4 class="font-serif font-bold text-kls-dark text-sm sm:text-base">SMPIT AS-SYIFA BOARDING SCHOOL</h4>
+                                <p class="text-[10px] text-kls-brown uppercase tracking-wider font-semibold">Komunitas Literasi Sekolah • Kabinet Satria Dharma</p>
+                            </div>
+                            <span id="certCardIdDisplay" class="font-mono text-xs font-bold bg-kls-cream px-3 py-1 rounded-full text-kls-brown border border-kls-yellow"></span>
+                        </div>
+
+                        <!-- Isi Sertifikat -->
+                        <div class="py-4 space-y-3">
+                            <span class="text-xs text-gray-500 uppercase tracking-widest font-semibold block">E-CERTIFICATE OF APPRECIATION</span>
+                            <p class="text-xs text-gray-600">Sertifikat ini diberikan secara resmi kepada:</p>
+                            <h2 id="certCardNameDisplay" class="font-serif text-2xl sm:text-4xl font-extrabold text-kls-dark text-transparent bg-clip-text bg-gradient-to-r from-kls-brown via-kls-dark to-kls-brown py-1"></h2>
+                            <p class="text-xs sm:text-sm text-gray-700 max-w-xl mx-auto font-serif italic leading-relaxed">
+                                Dinyatakan terdaftar dan aktif secara sah sebagai <strong id="certCardRoleDisplay" class="text-kls-brown not-italic font-sans"></strong> pada Komunitas Literasi Sekolah SMPIT As-Syifa Boarding School Subang Masa Bakti 2025/2026.
+                            </p>
+                        </div>
+
+                        <!-- Tanda Tangan & Pengesahan -->
+                        <div class="grid grid-cols-2 gap-4 pt-6 border-t-2 border-kls-brown/20 text-xs">
+                            <div class="text-center">
+                                <p class="text-gray-400 text-[10px] mb-8">Pembina Literasi / Kepala Perpustakaan</p>
+                                <p class="font-serif font-bold text-kls-dark border-b border-gray-400 inline-block px-4 pb-0.5">Ust. Heri Subagja, M.Pd.</p>
+                                <p class="text-[9px] text-gray-500 mt-0.5">NIP. 198504122010</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-gray-400 text-[10px] mb-8">Ketua Umum Kabinet Satria Dharma</p>
+                                <p class="font-serif font-bold text-kls-dark border-b border-gray-400 inline-block px-4 pb-0.5">Putra Azzam Elfathin</p>
+                                <p class="text-[9px] text-gray-500 mt-0.5">Ketua Umum KLS 2025/2026</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-kls-dark text-gray-300 py-8 border-t-4 border-kls-yellow text-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 rounded-full bg-kls-yellow text-kls-dark flex items-center justify-center font-serif font-bold text-sm">
+                    <i class="fa-solid fa-book-open"></i>
+                </div>
+                <div>
+                    <span class="font-serif font-bold text-white text-xs sm:text-sm block">Komunitas Literasi Sekolah</span>
+                    <span class="text-kls-yellow text-[10px] sm:text-[11px]">SMPIT As-Syifa Boarding School Subang</span>
+                </div>
+            </div>
+            
+            <p class="text-gray-400 text-center md:text-left text-[11px]">
+                &copy; 2026 Komunitas Literasi Sekolah. All Rights Reserved.
+            </p>
+
+            <div class="flex space-x-4 text-base text-kls-yellow">
+                <a href="#" class="hover:text-white transition"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#" class="hover:text-white transition"><i class="fa-brands fa-youtube"></i></a>
+                <a href="#" class="hover:text-white transition"><i class="fa-solid fa-globe"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- AOS JS -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    
+    <!-- JavaScript Data & Logic -->
+    <script>
+        AOS.init({ duration: 600, once: true });
+
+        // Mobile Menu Toggle
+        const menuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        menuBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+
+        function closeMobileMenu() {
+            mobileMenu.classList.add('hidden');
+        }
+
+        // FUNGSI FALLBACK FOTO APABILA FOTO ASLI/LOKAL BELUM TERSEDIA ATAU ERRORED
+        function handleImgError(imgElement) {
+            imgElement.onerror = null;
+            imgElement.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'><rect width='100%' height='100%' fill='%235D4037'/><circle cx='50' cy='38' r='20' fill='%23FBC02D'/><path d='M20 85 C 20 60, 80 60, 80 85 Z' fill='%23FBC02D'/></svg>";
+        }
+
+        // DATA ANGGOTA LENGKAP KABINET SATRIA DHARMA (20 ORANG DENGAN SERTIFIKAT & PESAN KETUA)
+        const cabinetMembers = [
+            // BPH
+            { certId: "KLS-2025-001", name: "Putra Azzam Elfathin", role: "Ketua Umum", div: "BPH", angkatan: "Revourner 17", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80", pesan: "Terima kasih atas kepemimpinan dan arahan terbaik untuk menjaga keutuhan serta semangat pergerakan literasi Kabinet Satria Dharma." },
+            { certId: "KLS-2025-002", name: "Rangga Almera Ferdinand", role: "Sekretaris Umum", div: "BPH", angkatan: "Revourner 17", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80", pesan: "Terima kasih atas kerapian administrasi dan kesetiaan mendampingi seluruh agenda penting pengurus sepanjang periode ini." },
+            { certId: "KLS-2025-003", name: "Faqih Myassar", role: "Bendahara Umum", div: "BPH", angkatan: "Revourner 17", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80", pesan: "Terima kasih atas ketelitian dan akuntabilitas keuangan yang luar biasa dalam menopang kegiatan literasi." },
+            
+            // Divisi Danus
+            { certId: "KLS-2025-004", name: "M. Habibie Abdurrachman", role: "Ketua Divisi Danus", div: "Danus", angkatan: "Revourner 17", avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=300&q=80", pesan: "Apresiasi tinggi atas kreativitas pendanaan usaha mandiri yang menyokong keberlangsungkan acara KLS." },
+            { certId: "KLS-2025-005", name: "Darrel Rajawali Mulyadi", role: "Staff Danus", div: "Danus", angkatan: "Revourner 17", avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&q=80", pesan: "Terima kasih atas kerja keras dan inisiatif aktif dalam setiap penjualan produk dan bazar literasi." },
+            { certId: "KLS-2025-006", name: "Muhammad Althaf Firdaus", role: "Staff Danus", div: "Danus", angkatan: "Revourner 17", avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=300&q=80", pesan: "Dedikasi dan kerja sama timmu sangat membantu kelancaran penggalangan dana program KLS." },
+            { certId: "KLS-2025-007", name: "Figo Satya Hambali", role: "Staff Danus", div: "Danus", angkatan: "Revourner 17", avatar: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=300&q=80", pesan: "Terima kasih atas kedisiplinan dan semangat wirausaha dalam tim Dana Usaha KLS." },
+            { certId: "KLS-2025-008", name: "Azzam Hafidz Murobbi", role: "Staff Danus", div: "Danus", angkatan: "Revourner 17", avatar: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=300&q=80", pesan: "Apresiasi atas ketelitian pencatatan dan keaktifan mendukung unit usaha KLS." },
+            { certId: "KLS-2025-009", name: "Muhammad Gentza Abyaz", role: "Staff Danus", div: "Danus", angkatan: "Ervinza 18", avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=300&q=80", pesan: "Semangat penerus di Angkatan 18 yang sangat membanggakan dalam memperkuat tim Danus." },
+
+            // Divisi Kebersihan
+            { certId: "KLS-2025-010", name: "Rubian Thoriq Almughni", role: "Ketua Divisi Kebersihan", div: "Kebersihan", angkatan: "Revourner 17", avatar: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=300&q=80", pesan: "Terima kasih telah memimpin penjagaan kenyamanan, kerapian, dan kebersihan sudut literasi sekolah." },
+            { certId: "KLS-2025-011", name: "Luqman Azkiya Athaillah", role: "Staff Kebersihan", div: "Kebersihan", angkatan: "Ervinza 18", avatar: "https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=crop&w=300&q=80", pesan: "Apresiasi atas ketulusan dan keaktifan menjaga lingkungan perpustakaan tetap nyaman untuk santri." },
+            { certId: "KLS-2025-012", name: "M. Syazani Altaftazani", role: "Staff Kebersihan", div: "Kebersihan", angkatan: "Ervinza 18", avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80", pesan: "Kerja kerasmu dalam merawat kebersihan fasilitas KLS sangat bernilai bagi kenyamanan bersama." },
+            { certId: "KLS-2025-013", name: "Jiyad Sayyid A.", role: "Staff Kebersihan", div: "Kebersihan", angkatan: "Ervinza 18", avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=300&q=80", pesan: "Terima kasih atas kedisiplinan dan tanggung jawab dalam piket perawatan ruang mading dan baca." },
+            { certId: "KLS-2025-014", name: "Hanif Nazhimi Rafiki", role: "Staff Kebersihan", div: "Kebersihan", angkatan: "Ervinza 18", avatar: "https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?auto=format&fit=crop&w=300&q=80", pesan: "Apresiasi atas keaktifan dan semangat kerja sama dalam menjaga aset kebersihan KLS." },
+            { certId: "KLS-2025-015", name: "Langit Sayyidina Sastranegara", role: "Staff Kebersihan", div: "Kebersihan", angkatan: "Revourner 17", avatar: "https://images.unsplash.com/photo-1463453091185-61582044d556?auto=format&fit=crop&w=300&q=80", pesan: "Keteladanan senior Revourner 17 dalam mendampingi kebersihan fasilitas literasi sangat menginspirasi." },
+
+            // Divisi Kedisiplinan
+            { certId: "KLS-2025-016", name: "Faeyza Muhammad Arfi", role: "Ketua Divisi Kedisiplinan", div: "Kedisiplinan", angkatan: "Revourner 17", avatar: "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=300&q=80", pesan: "Terima kasih atas ketegasan dan kepemimpinan dalam menegakkan aturan serta tata tertib KLS." },
+            { certId: "KLS-2025-017", name: "Bintang Satria Mugiswara", role: "Staff Kedisiplinan", div: "Kedisiplinan", angkatan: "Ervinza 18", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80", pesan: "Apresiasi tinggi atas ketertiban dan keteladanan yang dijaga dalam setiap agenda KLS." },
+            { certId: "KLS-2025-018", name: "Muhammad Arkanu Dzikri", role: "Staff Kedisiplinan", div: "Kedisiplinan", angkatan: "Ervinza 18", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80", pesan: "Terima kasih atas konsistensi dan kewaspadaan dalam menjaga kelancaran kegiatan santri." },
+            { certId: "KLS-2025-019", name: "Kenzie Arsya Zidan Arrosyid", role: "Staff Kedisiplinan", div: "Kedisiplinan", angkatan: "Ervinza 18", avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80", pesan: "Kerja keras dan sikap disiplinmu memberikan teladan positif bagi seluruh anggota KLS." },
+            { certId: "KLS-2025-020", name: "Muhammad Kaisan Mahardika", role: "Staff Kedisiplinan", div: "Kedisiplinan", angkatan: "Ervinza 18", avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=300&q=80", pesan: "Apresiasi atas dedikasi menjaga ketertiban perpustakaan dan zona literasi asrama." }
+        ];
+
+        let currentDivisionFilter = "all";
+
+        // SINKRONISASI PENCARIAN DUA ARAH (HERO <-> SECTION DAFTAR ANGGOTA)
+        function syncFromHero() {
+            const query = document.getElementById('heroSearchInput').value;
+            document.getElementById('searchMemberInput').value = query;
+            toggleClearButtons(query);
+            renderGrid();
+        }
+
+        function syncFromSection() {
+            const query = document.getElementById('searchMemberInput').value;
+            document.getElementById('heroSearchInput').value = query;
+            toggleClearButtons(query);
+            renderGrid();
+        }
+
+        // TAMPILKAN / SEMBUNYIKAN TOMBOL CLEAR 'X'
+        function toggleClearButtons(query) {
+            const btnHero = document.getElementById('clearHeroSearch');
+            const btnSection = document.getElementById('clearSectionSearch');
+            if (query && query.trim() !== "") {
+                if (btnHero) btnHero.classList.remove('hidden');
+                if (btnSection) btnSection.classList.remove('hidden');
+            } else {
+                if (btnHero) btnHero.classList.add('hidden');
+                if (btnSection) btnSection.classList.add('hidden');
+            }
+        }
+
+        // HAPUS SEMUA ISIAN PENCARIAN
+        function clearAllSearch() {
+            document.getElementById('heroSearchInput').value = '';
+            document.getElementById('searchMemberInput').value = '';
+            toggleClearButtons('');
+            renderGrid();
+        }
+
+        // Render Anggota ke Grid
+        function renderGrid() {
+            const grid = document.getElementById('memberGrid');
+            grid.innerHTML = '';
+
+            const searchVal = document.getElementById('searchMemberInput').value.toLowerCase().trim();
+            const filtered = cabinetMembers.filter(m => {
+                const matchDiv = currentDivisionFilter === 'all' || m.div === currentDivisionFilter;
+                const matchSearch = m.name.toLowerCase().includes(searchVal) || m.role.toLowerCase().includes(searchVal);
+                return matchDiv && matchSearch;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-12 bg-white rounded-2xl border border-gray-300">
+                        <i class="fa-solid fa-user-slash text-3xl text-kls-brown mb-2"></i>
+                        <p class="text-sm font-bold font-serif text-kls-dark">Anggota Tidak Ditemukan</p>
+                        <p class="text-xs text-gray-500 mt-1">Coba gunakan kata kunci pencarian lain.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filtered.forEach(m => {
+                const isLeader = m.role.includes('Ketua');
+                const card = document.createElement('div');
+                card.className = "bg-white rounded-2xl p-4 sm:p-5 border border-gray-200/80 hover:border-kls-yellow hover:shadow-xl transition duration-300 flex flex-col justify-between group cursor-pointer";
+                card.onclick = () => openMemberPage(m.certId);
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center gap-3.5 mb-3.5">
+                            <img src="${m.avatar}" onerror="handleImgError(this)" alt="${m.name}" class="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border-2 glow-photo ${isLeader ? 'gold-border border-kls-yellow' : 'border-kls-brown'}">
+                            <div>
+                                <h4 class="font-serif font-bold text-kls-dark text-sm sm:text-base leading-tight group-hover:text-kls-brown transition">${m.name}</h4>
+                                <p class="text-[11px] text-gray-500 font-medium mt-0.5">${m.angkatan}</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-kls-cream p-3 rounded-xl border border-gray-200/80 mb-3.5 space-y-1">
+                            <div class="flex justify-between items-center">
+                                <span class="text-[10px] font-bold text-kls-brown uppercase">Divisi</span>
+                                <span class="text-[10px] ${isLeader ? 'bg-kls-yellow text-kls-dark' : 'bg-gray-200 text-gray-800'} px-2.5 py-0.5 rounded-full font-bold">${m.div}</span>
+                            </div>
+                            <p class="text-xs font-bold ${isLeader ? 'text-kls-dark font-serif' : 'text-gray-700'}">${m.role}</p>
+                        </div>
+                    </div>
+
+                    <button type="button" class="w-full bg-kls-brown hover:bg-kls-dark text-kls-yellow font-bold py-2 rounded-xl transition text-xs flex items-center justify-center gap-2 shadow-sm">
+                        <i class="fa-solid fa-address-card"></i>
+                        <span>Buka Halaman Profil & Sertifikat</span>
+                    </button>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // FUNGSI PENCARIAN HERO SECTION
+        function handleHeroSearch(e) {
+            e.preventDefault();
+            const query = document.getElementById('heroSearchInput').value.trim();
+            document.getElementById('searchMemberInput').value = query;
+            toggleClearButtons(query);
+            renderGrid();
+            const section = document.getElementById('struktur-kabinet');
+            if (section) section.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function quickHeroSearch(name) {
+            document.getElementById('heroSearchInput').value = name;
+            document.getElementById('searchMemberInput').value = name;
+            toggleClearButtons(name);
+            renderGrid();
+            const section = document.getElementById('struktur-kabinet');
+            if (section) section.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // BUKA HALAMAN PROFIL ANGGOTA TERPISAH (SINGLE PAGE APPLICATION NAVIGATION)
+        function openMemberPage(certId) {
+            const member = cabinetMembers.find(m => m.certId === certId);
+            if (!member) return;
+
+            // Sembunyikan Beranda Utama, Tampilkan Halaman Anggota
+            document.getElementById('mainHomeView').classList.add('hidden');
+            document.getElementById('memberProfilePage').classList.remove('hidden');
+
+            // Isi Data Halaman Anggota
+            document.getElementById('pageMemberAvatar').src = member.avatar;
+            document.getElementById('pageMemberName').innerText = member.name;
+            document.getElementById('pageMemberRole').innerText = member.role;
+            document.getElementById('pageMemberDivTag').innerText = "Divisi: " + member.div;
+            document.getElementById('pageMemberAngkatanBadge').innerText = member.angkatan;
+            document.getElementById('pageMemberCertId').innerText = member.certId;
+            document.getElementById('pageMemberPesanKetua').innerText = `"${member.pesan}"`;
+
+            // Data Sertifikat Digital Card
+            document.getElementById('certCardIdDisplay').innerText = "ID: " + member.certId;
+            document.getElementById('certCardNameDisplay').innerText = member.name;
+            document.getElementById('certCardRoleDisplay').innerText = member.role;
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // KEMBALI KE TAMPILAN BERANDA UTAMA
+        function showMainHome(sectionId) {
+            document.getElementById('memberProfilePage').classList.add('hidden');
+            document.getElementById('mainHomeView').classList.remove('hidden');
+
+            if (sectionId) {
+                setTimeout(() => {
+                    const el = document.getElementById(sectionId);
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }, 50);
+            } else {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function navigateToSection(sectionId) {
+            showMainHome(sectionId);
+        }
+
+        // Filter Divisi
+        function filterDivision(div) {
+            currentDivisionFilter = div;
+            document.querySelectorAll('.div-filter-btn').forEach(btn => {
+                btn.classList.remove('bg-kls-brown', 'text-kls-yellow', 'shadow');
+                btn.classList.add('bg-kls-cream', 'text-kls-dark', 'border', 'border-gray-300');
+            });
+            event.target.classList.remove('bg-kls-cream', 'text-kls-dark', 'border', 'border-gray-300');
+            event.target.classList.add('bg-kls-brown', 'text-kls-yellow', 'shadow');
+
+            renderGrid();
+        }
+
+        // Live Search
+        function searchMember() {
+            renderGrid();
+        }
+
+        // Init load
+        document.addEventListener('DOMContentLoaded', () => {
+            renderGrid();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dino Runner – PufutaraPlay</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
+        body { background:#fff; color:#000; display:flex; flex-direction:column; align-items:center; min-height:100vh; }
+        header { width:100%; max-width:800px; padding:24px 20px 0; display:flex; justify-content:space-between; align-items:center; }
+        .back { color:#999; text-decoration:none; font-size:0.9rem; }
+        .back:hover { color:#000; }
+        .logo { font-weight:900; letter-spacing:-1px; }
+        h1 { font-size:2rem; font-weight:900; letter-spacing:-1px; margin:24px 0 4px; }
+        .score-row { display:flex; gap:32px; margin-bottom:16px; font-size:0.95rem; color:#666; }
+        .score-row span { font-weight:700; color:#000; }
+        canvas { border:2px solid #000; border-radius:16px; display:block; }
+        .controls { margin-top:16px; display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+        .btn { padding:10px 24px; border:2px solid #000; border-radius:12px; font-weight:700; font-size:0.9rem; cursor:pointer; background:#fff; transition:.2s; }
+        .btn:hover, .btn.active { background:#000; color:#fff; }
+        .hint { margin-top:12px; font-size:0.8rem; color:#aaa; text-align:center; }
+        #msg { position:absolute; background:#000; color:#fff; padding:16px 32px; border-radius:16px; font-weight:900; font-size:1.1rem; display:none; top:50%; left:50%; transform:translate(-50%,-50%); }
+        .wrap { position:relative; }
+    </style>
+</head>
+<body>
+<header>
+    <a href="index.html" class="back">← Kembali</a>
+    <div class="logo">PUFUTARA.</div>
+</header>
+<h1>Dino Runner</h1>
+<div class="score-row">Skor: <span id="score">0</span> &nbsp;|&nbsp; Rekor: <span id="best">0</span></div>
+<div class="wrap">
+    <canvas id="c" width="700" height="300"></canvas>
+    <div id="msg">TEKAN SPACE UNTUK LOMPAT!</div>
+</div>
+<div class="controls">
+    <button class="btn" onclick="startGame()">▶ Mulai</button>
+</div>
+<div class="hint">Kontrol: SPACE atau ↑ untuk lompat &nbsp;|&nbsp; Hindari kaktus!</div>
+<script>
+const cv = document.getElementById('c'), cx = cv.getContext('2d');
+let dino, obstacles, ground, score, best = 0, running, started, jumpPower, gravity, gameSpeed;
+
+function startGame() {
+    const groundY = cv.height - 50;
+    dino = {x:50, y:groundY, w:30, h:40, vy:0, grounded:true};
+    obstacles = [];
+    ground = groundY;
+    score = 0;
+    running = false;
+    started = false;
+    jumpPower = -12;
+    gravity = 0.6;
+    gameSpeed = 5;
+    
+    document.getElementById('msg').style.display='block';
+    document.getElementById('msg').textContent='TEKAN SPACE UNTUK LOMPAT!';
+    document.getElementById('score').textContent = 0;
+    
+    draw();
+}
+
+function tick() {
+    // Gravity
+    if(!dino.grounded) {
+        dino.vy += gravity;
+        dino.y += dino.vy;
+        
+        if(dino.y >= ground) {
+            dino.y = ground;
+            dino.vy = 0;
+            dino.grounded = true;
+        }
+    }
+    
+    // Spawn obstacles
+    if(obstacles.length === 0 || obstacles[obstacles.length-1].x < cv.width - 300) {
+        const type = Math.random() < 0.5 ? 'cactus' : 'bird';
+        const h = type === 'cactus' ? 30 + Math.random()*20 : 20;
+        const y = type === 'cactus' ? ground - h : ground - 60 - Math.random()*40;
+        obstacles.push({x:cv.width, y:y, w:20, h:h, type:type});
+    }
+    
+    // Move obstacles
+    obstacles.forEach(o => o.x -= gameSpeed);
+    obstacles = obstacles.filter(o => o.x > -50);
+    
+    // Score
+    score++;
+    if(score % 100 === 0) gameSpeed += 0.5;
+    document.getElementById('score').textContent = Math.floor(score/10);
+    
+    // Collision
+    for(let o of obstacles) {
+        if(dino.x < o.x + o.w && dino.x + dino.w > o.x &&
+           dino.y < o.y + o.h && dino.y + dino.h > o.y) {
+            gameOver();
+            return;
+        }
+    }
+    
+    draw();
+}
+
+function gameOver() {
+    running = false;
+    const finalScore = Math.floor(score/10);
+    if(finalScore > best) {
+        best = finalScore;
+        document.getElementById('best').textContent = best;
+    }
+    document.getElementById('msg').style.display='block';
+    document.getElementById('msg').textContent='GAME OVER – TEKAN SPACE';
+}
+
+function jump() {
+    if(!started) {
+        started = true;
+        running = true;
+        document.getElementById('msg').style.display='none';
+        requestAnimationFrame(loop);
+    } else if(!running) {
+        startGame();
+    } else if(dino.grounded) {
+        dino.vy = jumpPower;
+        dino.grounded = false;
+    }
+}
+
+function draw() {
+    cx.fillStyle='#f5f5f5'; cx.fillRect(0,0,cv.width,cv.height);
+    
+    // Ground
+    cx.strokeStyle='#000';
+    cx.lineWidth = 2;
+    cx.beginPath();
+    cx.moveTo(0, ground+dino.h);
+    cx.lineTo(cv.width, ground+dino.h);
+    cx.stroke();
+    
+    // Ground pattern
+    for(let i=0; i<cv.width; i+=40) {
+        const offset = running ? (score * gameSpeed / 5) % 40 : 0;
+        cx.fillStyle='#ddd';
+        cx.fillRect(i-offset, ground+dino.h+2, 20, 2);
+    }
+    
+    // Dino
+    cx.fillStyle='#000';
+    cx.fillRect(dino.x, dino.y, dino.w, dino.h);
+    
+    // Dino eye
+    cx.fillStyle='#fff';
+    cx.fillRect(dino.x+20, dino.y+5, 5, 5);
+    
+    // Dino legs (animated)
+    if(dino.grounded && running) {
+        const legPos = Math.floor(score/5) % 2;
+        cx.fillStyle='#000';
+        if(legPos === 0) {
+            cx.fillRect(dino.x+5, dino.y+dino.h, 8, 8);
+            cx.fillRect(dino.x+17, dino.y+dino.h, 8, 8);
+        } else {
+            cx.fillRect(dino.x+2, dino.y+dino.h, 8, 8);
+            cx.fillRect(dino.x+20, dino.y+dino.h, 8, 8);
+        }
+    }
+    
+    // Obstacles
+    obstacles.forEach(o => {
+        if(o.type === 'cactus') {
+            cx.fillStyle='#0a0';
+            cx.fillRect(o.x, o.y, o.w, o.h);
+            // Cactus arms
+            cx.fillRect(o.x-5, o.y+10, 5, 8);
+            cx.fillRect(o.x+o.w, o.y+10, 5, 8);
+        } else {
+            // Bird
+            cx.fillStyle='#333';
+            cx.beginPath();
+            const wingFlap = Math.floor(score/5) % 2;
+            cx.moveTo(o.x+o.w/2, o.y);
+            cx.lineTo(o.x, o.y+o.h/2);
+            cx.lineTo(o.x+o.w/2, o.y+o.h);
+            cx.lineTo(o.x+o.w, o.y+o.h/2);
+            cx.closePath();
+            cx.fill();
+        }
+    });
+    
+    // Clouds
+    for(let i=0; i<3; i++) {
+        const cloudX = (i*250 + (running ? score*0.5 : 0)) % cv.width;
+        cx.fillStyle='#ddd';
+        cx.beginPath();
+        cx.arc(cloudX, 40+i*30, 20, 0, Math.PI*2);
+        cx.arc(cloudX+20, 40+i*30, 25, 0, Math.PI*2);
+        cx.arc(cloudX+40, 40+i*30, 20, 0, Math.PI*2);
+        cx.fill();
+    }
+}
+
+function loop() {
+    if(running) {
+        tick();
+        requestAnimationFrame(loop);
+    }
+}
+
+document.addEventListener('keydown', e => {
+    if(e.key===' ' || e.key==='ArrowUp') {
+        e.preventDefault();
+        jump();
+    }
+});
+
+cv.addEventListener('click', jump);
+
+startGame();
+</script>
+</body>
+</html>

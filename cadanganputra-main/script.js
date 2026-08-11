@@ -44,9 +44,11 @@ const proyekData = [
     { no: 27, title: 'Pufutara Browser',      titlePrefix: 'Pufutara', kategori: 'Tools',                  cover: '/foto/browser.png',      link: '/browser/index.html',                                     category: 'desktop', desc: 'Browser cepat, ringan dan modern! dibuat dari framework electron.' },
     { no: 28, title: 'Mang Pey',                                        kategori: 'Client',                cover: '/foto/mangpey.png',      link: '/dapurmangpey/index.html',                                category: 'web',     desc: 'Web buat temen pertama putra. dibuat saat gabut di hari minggu di ruang BEM.' },
     { no: 29, title: 'KLS WEB',                                         kategori: 'Pro',                   cover: '/foto/klsweb.png',       link: '/kls/index.html',                                         category: 'web',     desc: 'Landing page website organisasi authot pufutara. Kece banget kek profesional.' },
-    { no: 30, title: 'Pufutara AI 2.0',       titlePrefix: 'Pufutara', kategori: 'AI',                     cover: '/foto/ai2.png',          link: 'https://pufutara-ai--putraazzam2110.replit.app/',         category: 'web',     desc: 'AI chatbot generasi terbaru, lebih mantap dan berkualitas tinggi.' },
-    { no: 31, title: 'DepDik Putra Web',                                kategori: 'Our lovely Departement', cover: '/foto/depdikweb.png',   link: '/depdikweb/index.html',                                   category: 'web',     desc: 'Web departmen pendidikan bem asbosch. dibuat dengan alasan untuk menyaingi web bapuk S.id depdik putri yg bayi pun bisa bikin' },
-    { no: 32, title: 'PufutaraCBT',                                     kategori: 'Concept',               cover: '/foto/sarankritik.png',  link: 'cbt/index.html',                                          category: 'web',     best: true,  desc: 'CBT bersih dan aman! gaperlu pakai exam browser lagi! otoamtis fullscreen! dan kalo keluar otomatis di Ban.' },
+    { no: 30, title: 'DepDik Putra Web',                                kategori: 'Our lovely Departement', cover: '/foto/depdikweb.png',   link: '/depdikweb/index.html',                                   category: 'web',     desc: 'Web departmen pendidikan bem asbosch. dibuat dengan alasan untuk menyaingi web bapuk S.id depdik putri yg bayi pun bisa bikin' },
+    { no: 31, title: 'PufutaraCBT',                                     kategori: 'Concept',               cover: '/foto/sarankritik.png',  link: 'cbt/index.html',                                          category: 'web',     best: true,  desc: 'CBT bersih dan aman! gaperlu pakai exam browser lagi! otoamtis fullscreen! dan kalo keluar otomatis di Ban.' },
+    { no: 32, title: 'Online Order System',                             kategori: 'E-Commerce',            cover: '/foto/shop.png',         link: '/onlineorder/index.html',                                 category: 'web',     desc: 'Sistem pemesanan online modern dan praktis. Kelola pesanan, menu, dan transaksi dengan mudah!' },
+    { no: 33, title: 'Aplikasi Pemira',                                 kategori: 'Voting',                cover: '/foto/vote.png',         link: '/aplikasipemira/index.html',                              category: 'web',     desc: 'Aplikasi pemilihan raya digital yang aman dan transparan. Real-time counting dan hasil instan!' },
+    { no: 34, title: 'Kabinet Literasi',                                kategori: 'Education',             cover: '/foto/diglib.png',       link: '/Kabinetliterasi/index.html',                             category: 'web',     desc: 'Portal edukasi dan literasi digital untuk kabinet BEM. Berbagi ilmu, artikel, dan materi pembelajaran.' },
 ];
 
 // ===== RENDER PROYEK =====
@@ -152,13 +154,6 @@ document.querySelectorAll('.reveal-on-scroll').forEach((el) => {
     revealObserver.observe(el);
 });
 
-// Init: render proyek dari data, lalu observe kartu-kartunya
-renderProyek();
-// Observe setelah render — kartu yang langsung di viewport akan muncul via observer
-document.querySelectorAll('#projects-grid .reveal-on-scroll').forEach(el => {
-    revealObserver.observe(el);
-});
-
 // ===== LAZY LOAD COVER IMAGES =====
 const lazyCoverObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
@@ -170,9 +165,22 @@ const lazyCoverObserver = new IntersectionObserver((entries) => {
         }
     });
 }, { rootMargin: '200px 0px' });
-document.querySelectorAll('#projects-grid .lazy-cover').forEach(el => lazyCoverObserver.observe(el));
-// Juga observe kartu proyek terbaik
-document.querySelectorAll('#proyek-terbaik-grid .lazy-cover').forEach(el => lazyCoverObserver.observe(el));
+
+// Fungsi untuk observe semua cover gambar
+function observeLazyCovers() {
+    document.querySelectorAll('#projects-grid .lazy-cover').forEach(el => lazyCoverObserver.observe(el));
+    // Juga observe kartu proyek terbaik
+    document.querySelectorAll('#proyek-terbaik-grid .lazy-cover').forEach(el => lazyCoverObserver.observe(el));
+}
+
+// Init: render proyek dari data, lalu observe kartu-kartunya
+renderProyek();
+// Observe setelah render — kartu yang langsung di viewport akan muncul via observer
+document.querySelectorAll('#projects-grid .reveal-on-scroll').forEach(el => {
+    revealObserver.observe(el);
+});
+// Observe gambar cover proyek
+observeLazyCovers();
 
 // ===== FILTER & SEARCH PROYEK =====
 const filterBtns = document.querySelectorAll('.filter-btn');
@@ -195,6 +203,12 @@ function updateProjectVisibility() {
         if (matchFilter && matchSearch) {
             card.style.display = '';
             visibleCount++;
+            
+            // Re-observe lazy cover untuk card yang baru ditampilkan
+            const lazyCover = card.querySelector('.lazy-cover');
+            if (lazyCover && !lazyCover.style.getPropertyValue('--card-cover')) {
+                lazyCoverObserver.observe(lazyCover);
+            }
         } else {
             card.style.display = 'none';
         }

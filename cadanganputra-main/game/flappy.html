@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flappy Jump – PufutaraPlay</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
+        body { background:#fff; color:#000; display:flex; flex-direction:column; align-items:center; min-height:100vh; }
+        header { width:100%; max-width:800px; padding:24px 20px 0; display:flex; justify-content:space-between; align-items:center; }
+        .back { color:#999; text-decoration:none; font-size:0.9rem; }
+        .back:hover { color:#000; }
+        .logo { font-weight:900; letter-spacing:-1px; }
+        h1 { font-size:2rem; font-weight:900; letter-spacing:-1px; margin:24px 0 4px; }
+        .score-row { display:flex; gap:32px; margin-bottom:16px; font-size:0.95rem; color:#666; }
+        .score-row span { font-weight:700; color:#000; }
+        canvas { border:2px solid #000; border-radius:16px; display:block; }
+        .controls { margin-top:16px; display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+        .btn { padding:10px 24px; border:2px solid #000; border-radius:12px; font-weight:700; font-size:0.9rem; cursor:pointer; background:#fff; transition:.2s; }
+        .btn:hover, .btn.active { background:#000; color:#fff; }
+        .hint { margin-top:12px; font-size:0.8rem; color:#aaa; text-align:center; }
+        #msg { position:absolute; background:#000; color:#fff; padding:16px 32px; border-radius:16px; font-weight:900; font-size:1.1rem; display:none; top:50%; left:50%; transform:translate(-50%,-50%); }
+        .wrap { position:relative; }
+    </style>
+</head>
+<body>
+<header>
+    <a href="index.html" class="back">← Kembali</a>
+    <div class="logo">PUFUTARA.</div>
+</header>
+<h1>Flappy Jump</h1>
+<div class="score-row">Skor: <span id="score">0</span> &nbsp;|&nbsp; Rekor: <span id="best">0</span></div>
+<div class="wrap">
+    <canvas id="c" width="400" height="600"></canvas>
+    <div id="msg">TEKAN SPACE UNTUK TERBANG!</div>
+</div>
+<div class="controls">
+    <button class="btn" onclick="startGame()">▶ Mulai</button>
+</div>
+<div class="hint">Kontrol: SPACE atau KLIK untuk melompat &nbsp;|&nbsp; Hindari pipa!</div>
+<script>
+const cv = document.getElementById('c'), cx = cv.getContext('2d');
+let bird, pipes, score, best = 0, timer, running, gravity, jump, started;
+
+function startGame() {
+    bird = {x:80, y:250, vy:0, r:15};
+    pipes = [];
+    score = 0; running = true; started = false;
+    gravity = 0.4; jump = -8;
+    document.getElementById('msg').style.display='block';
+    document.getElementById('msg').textContent='TEKAN SPACE UNTUK TERBANG!';
+    document.getElementById('score').textContent = 0;
+    clearInterval(timer);
+    draw();
+}
+
+function tick() {
+    // Bird physics
+    bird.vy += gravity;
+    bird.y += bird.vy;
+    
+    // Pipes
+    if(pipes.length===0 || pipes[pipes.length-1].x < cv.width-200) {
+        const gap = 140, minY = 60, maxY = cv.height-gap-60;
+        const gapY = minY + Math.random()*(maxY-minY);
+        pipes.push({x:cv.width, gapY:gapY, gap:gap, passed:false});
+    }
+    
+    pipes.forEach(p => {
+        p.x -= 2;
+        if(!p.passed && p.x+50 < bird.x) {
+            p.passed = true;
+            score++;
+            if(score>best){best=score; document.getElementById('best').textContent=best;}
+            document.getElementById('score').textContent=score;
+        }
+    });
+    
+    pipes = pipes.filter(p => p.x > -60);
+    
+    // Collision
+    if(bird.y-bird.r < 0 || bird.y+bird.r > cv.height) { gameOver(); return; }
+    
+    for(let p of pipes) {
+        if(bird.x+bird.r > p.x && bird.x-bird.r < p.x+50) {
+            if(bird.y-bird.r < p.gapY || bird.y+bird.r > p.gapY+p.gap) {
+                gameOver(); return;
+            }
+        }
+    }
+    
+    draw();
+}
+
+function gameOver() {
+    clearInterval(timer); running=false;
+    document.getElementById('msg').style.display='block';
+    document.getElementById('msg').textContent='GAME OVER – TEKAN SPACE';
+}
+
+function draw() {
+    // Background
+    cx.fillStyle='#87CEEB'; cx.fillRect(0,0,cv.width,cv.height);
+    
+    // Pipes
+    cx.fillStyle='#2d2d2d';
+    pipes.forEach(p => {
+        cx.fillRect(p.x, 0, 50, p.gapY);
+        cx.fillRect(p.x, p.gapY+p.gap, 50, cv.height-p.gapY-p.gap);
+        // Pipe caps
+        cx.fillStyle='#1a1a1a';
+        cx.fillRect(p.x-5, p.gapY-20, 60, 20);
+        cx.fillRect(p.x-5, p.gapY+p.gap, 60, 20);
+        cx.fillStyle='#2d2d2d';
+    });
+    
+    // Bird
+    cx.fillStyle='#FFD700';
+    cx.beginPath();
+    cx.arc(bird.x, bird.y, bird.r, 0, Math.PI*2);
+    cx.fill();
+    
+    // Bird eye
+    cx.fillStyle='#000';
+    cx.beginPath();
+    cx.arc(bird.x+5, bird.y-3, 3, 0, Math.PI*2);
+    cx.fill();
+}
+
+function flap() {
+    if(!started) {
+        started = true;
+        document.getElementById('msg').style.display='none';
+        timer = setInterval(tick, 1000/60);
+    }
+    if(running) {
+        bird.vy = jump;
+    } else {
+        startGame();
+    }
+}
+
+document.addEventListener('keydown', e => {
+    if(e.key===' ') { e.preventDefault(); flap(); }
+});
+
+cv.addEventListener('click', flap);
+
+startGame();
+</script>
+</body>
+</html>

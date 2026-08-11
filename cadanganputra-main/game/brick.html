@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brick Breaker – PufutaraPlay</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
+        body { background:#fff; color:#000; display:flex; flex-direction:column; align-items:center; min-height:100vh; }
+        header { width:100%; max-width:800px; padding:24px 20px 0; display:flex; justify-content:space-between; align-items:center; }
+        .back { color:#999; text-decoration:none; font-size:0.9rem; }
+        .back:hover { color:#000; }
+        .logo { font-weight:900; letter-spacing:-1px; }
+        h1 { font-size:2rem; font-weight:900; letter-spacing:-1px; margin:24px 0 4px; }
+        .score-row { display:flex; gap:32px; margin-bottom:16px; font-size:0.95rem; color:#666; }
+        .score-row span { font-weight:700; color:#000; }
+        canvas { border:2px solid #000; border-radius:16px; display:block; cursor:none; }
+        .controls { margin-top:16px; display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+        .btn { padding:10px 24px; border:2px solid #000; border-radius:12px; font-weight:700; font-size:0.9rem; cursor:pointer; background:#fff; transition:.2s; }
+        .btn:hover, .btn.active { background:#000; color:#fff; }
+        .hint { margin-top:12px; font-size:0.8rem; color:#aaa; text-align:center; }
+        #msg { position:absolute; background:#000; color:#fff; padding:16px 32px; border-radius:16px; font-weight:900; font-size:1.1rem; display:none; top:50%; left:50%; transform:translate(-50%,-50%); z-index:10; }
+        .wrap { position:relative; }
+    </style>
+</head>
+<body>
+<header>
+    <a href="index.html" class="back">← Kembali</a>
+    <div class="logo">PUFUTARA.</div>
+</header>
+<h1>Brick Breaker</h1>
+<div class="score-row">Skor: <span id="score">0</span> &nbsp;|&nbsp; Level: <span id="level">1</span></div>
+<div class="wrap">
+    <canvas id="c" width="500" height="600"></canvas>
+    <div id="msg">KLIK UNTUK MULAI!</div>
+</div>
+<div class="controls">
+    <button class="btn" onclick="startGame()">▶ Mulai</button>
+</div>
+<div class="hint">Kontrol: MOUSE atau ← → &nbsp;|&nbsp; Hancurkan semua brick!</div>
+<script>
+const cv = document.getElementById('c'), cx = cv.getContext('2d');
+let paddle, ball, bricks, score, level, running, started, mouseX;
+
+const colors = ['#FF6B6B','#4ECDC4','#45B7D1','#FFA07A','#98D8C8','#F7DC6F'];
+
+function startGame() {
+    level = 1;
+    score = 0;
+    running = true;
+    started = false;
+    document.getElementById('msg').style.display='block';
+    document.getElementById('msg').textContent='KLIK UNTUK MULAI!';
+    document.getElementById('score').textContent = 0;
+    document.getElementById('level').textContent = level;
+    initLevel();
+}
+
+function initLevel() {
+    paddle = {x:cv.width/2-50, y:cv.height-40, w:100, h:15};
+    ball = {x:cv.width/2, y:cv.height-60, vx:4, vy:-4, r:8};
+    
+    bricks = [];
+    const rows = 4+level, cols = 8, bw = 55, bh = 20, gap = 5;
+    for(let r=0; r<rows; r++) {
+        for(let c=0; c<cols; c++) {
+            bricks.push({
+                x: 10 + c*(bw+gap),
+                y: 50 + r*(bh+gap),
+                w: bw, h: bh,
+                alive: true,
+                color: colors[r % colors.length]
+            });
+        }
+    }
+    
+    started = false;
+    draw();
+}
+
+function tick() {
+    // Ball movement
+    ball.x += ball.vx;
+    ball.y += ball.vy;
+    
+    // Wall collision
+    if(ball.x-ball.r < 0 || ball.x+ball.r > cv.width) ball.vx *= -1;
+    if(ball.y-ball.r < 0) ball.vy *= -1;
+    
+    // Paddle collision
+    if(ball.y+ball.r > paddle.y && ball.y-ball.r < paddle.y+paddle.h) {
+        if(ball.x > paddle.x && ball.x < paddle.x+paddle.w) {
+            ball.vy = -Math.abs(ball.vy);
+            // Angle based on hit position
+            const hitPos = (ball.x - paddle.x) / paddle.w - 0.5;
+            ball.vx += hitPos * 3;
+        }
+    }
+    
+    // Brick collision
+    for(let b of bricks) {
+        if(!b.alive) continue;
+        if(ball.x+ball.r > b.x && ball.x-ball.r < b.x+b.w && 
+           ball.y+ball.r > b.y && ball.y-ball.r < b.y+b.h) {
+            b.alive = false;
+            ball.vy *= -1;
+            score += 10;
+            document.getElementById('score').textContent = score;
+            break;
+        }
+    }
+    
+    // Check win
+    if(bricks.every(b => !b.alive)) {
+        level++;
+        document.getElementById('level').textContent = level;
+        initLevel();
+        document.getElementById('msg').style.display='block';
+        document.getElementById('msg').textContent='LEVEL '+level+' – KLIK!';
+        running = false;
+        return;
+    }
+    
+    // Game over
+    if(ball.y > cv.height) {
+        gameOver();
+        return;
+    }
+    
+    draw();
+}
+
+function gameOver() {
+    running = false;
+    document.getElementById('msg').style.display='block';
+    document.getElementById('msg').textContent='GAME OVER – KLIK MULAI';
+}
+
+function draw() {
+    cx.fillStyle='#f8f8f8'; cx.fillRect(0,0,cv.width,cv.height);
+    
+    // Bricks
+    bricks.forEach(b => {
+        if(b.alive) {
+            cx.fillStyle = b.color;
+            cx.beginPath();
+            cx.roundRect(b.x, b.y, b.w, b.h, 4);
+            cx.fill();
+        }
+    });
+    
+    // Paddle
+    cx.fillStyle='#000';
+    cx.beginPath();
+    cx.roundRect(paddle.x, paddle.y, paddle.w, paddle.h, 8);
+    cx.fill();
+    
+    // Ball
+    cx.fillStyle='#000';
+    cx.beginPath();
+    cx.arc(ball.x, ball.y, ball.r, 0, Math.PI*2);
+    cx.fill();
+}
+
+cv.addEventListener('mousemove', e => {
+    const rect = cv.getBoundingClientRect();
+    mouseX = e.clientX - rect.left;
+    if(running) {
+        paddle.x = Math.max(0, Math.min(cv.width-paddle.w, mouseX-paddle.w/2));
+    }
+});
+
+cv.addEventListener('click', () => {
+    if(!started) {
+        started = true;
+        running = true;
+        document.getElementById('msg').style.display='none';
+        requestAnimationFrame(loop);
+    }
+});
+
+document.addEventListener('keydown', e => {
+    if(!running) return;
+    if(e.key==='ArrowLeft') paddle.x = Math.max(0, paddle.x-20);
+    if(e.key==='ArrowRight') paddle.x = Math.min(cv.width-paddle.w, paddle.x+20);
+});
+
+function loop() {
+    if(running) {
+        tick();
+        requestAnimationFrame(loop);
+    }
+}
+
+startGame();
+</script>
+</body>
+</html>

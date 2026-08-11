@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tetris Classic – PufutaraPlay</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
+        body { background:#fff; color:#000; display:flex; flex-direction:column; align-items:center; min-height:100vh; }
+        header { width:100%; max-width:800px; padding:24px 20px 0; display:flex; justify-content:space-between; align-items:center; }
+        .back { color:#999; text-decoration:none; font-size:0.9rem; }
+        .back:hover { color:#000; }
+        .logo { font-weight:900; letter-spacing:-1px; }
+        h1 { font-size:2rem; font-weight:900; letter-spacing:-1px; margin:24px 0 4px; }
+        .score-row { display:flex; gap:32px; margin-bottom:16px; font-size:0.95rem; color:#666; }
+        .score-row span { font-weight:700; color:#000; }
+        canvas { border:2px solid #000; border-radius:16px; display:block; }
+        .controls { margin-top:16px; display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+        .btn { padding:10px 24px; border:2px solid #000; border-radius:12px; font-weight:700; font-size:0.9rem; cursor:pointer; background:#fff; transition:.2s; }
+        .btn:hover, .btn.active { background:#000; color:#fff; }
+        .hint { margin-top:12px; font-size:0.8rem; color:#aaa; text-align:center; }
+        #msg { position:absolute; background:#000; color:#fff; padding:16px 32px; border-radius:16px; font-weight:900; font-size:1.1rem; display:none; top:50%; left:50%; transform:translate(-50%,-50%); }
+        .wrap { position:relative; }
+    </style>
+</head>
+<body>
+<header>
+    <a href="index.html" class="back">← Kembali</a>
+    <div class="logo">PUFUTARA.</div>
+</header>
+<h1>Tetris Classic</h1>
+<div class="score-row">Skor: <span id="score">0</span> &nbsp;|&nbsp; Lines: <span id="lines">0</span></div>
+<div class="wrap">
+    <canvas id="c" width="300" height="600"></canvas>
+    <div id="msg">GAME OVER – TEKAN SPACE</div>
+</div>
+<div class="controls">
+    <button class="btn" onclick="startGame()">▶ Mulai</button>
+    <button class="btn" id="btnPause" onclick="togglePause()">⏸ Pause</button>
+</div>
+<div class="hint">Kontrol: ← → untuk gerak, ↑ untuk putar, ↓ untuk cepat &nbsp;|&nbsp; SPACE = mulai/pause</div>
+<script>
+const cv = document.getElementById('c'), cx = cv.getContext('2d');
+const COLS = 10, ROWS = 20, SZ = 30;
+
+const shapes = [
+    [[1,1,1,1]], // I
+    [[1,1],[1,1]], // O
+    [[1,1,1],[0,1,0]], // T
+    [[1,1,1],[1,0,0]], // L
+    [[1,1,1],[0,0,1]], // J
+    [[1,1,0],[0,1,1]], // S
+    [[0,1,1],[1,1,0]]  // Z
+];
+
+const colors = ['#00F0F0','#F0F000','#A000F0','#F0A000','#0000F0','#00F000','#F00000'];
+
+let board, piece, px, py, score, lines, timer, running, paused, speed;
+
+function startGame() {
+    board = Array(ROWS).fill().map(() => Array(COLS).fill(0));
+    score = 0;
+    lines = 0;
+    speed = 500;
+    running = true;
+    paused = false;
+    document.getElementById('msg').style.display='none';
+    document.getElementById('score').textContent = 0;
+    document.getElementById('lines').textContent = 0;
+    document.getElementById('btnPause').textContent = '⏸ Pause';
+    newPiece();
+    clearInterval(timer);
+    timer = setInterval(tick, speed);
+}
+
+function newPiece() {
+    const idx = Math.floor(Math.random()*shapes.length);
+    piece = shapes[idx];
+    px = Math.floor(COLS/2) - Math.floor(piece[0].length/2);
+    py = 0;
+    
+    if(collide(px, py, piece)) {
+        gameOver();
+    }
+}
+
+function collide(x, y, shape) {
+    for(let r=0; r<shape.length; r++) {
+        for(let c=0; c<shape[r].length; c++) {
+            if(shape[r][c]) {
+                const nx = x+c, ny = y+r;
+                if(nx<0 || nx>=COLS || ny>=ROWS) return true;
+                if(ny>=0 && board[ny][nx]) return true;
+            }
+        }
+    }
+    return false;
+}
+
+function tick() {
+    if(paused) return;
+    
+    if(!collide(px, py+1, piece)) {
+        py++;
+    } else {
+        merge();
+        clearLines();
+        newPiece();
+    }
+    draw();
+}
+
+function merge() {
+    for(let r=0; r<piece.length; r++) {
+        for(let c=0; c<piece[r].length; c++) {
+            if(piece[r][c]) {
+                const ny = py+r, nx = px+c;
+                if(ny>=0 && ny<ROWS && nx>=0 && nx<COLS) {
+                    board[ny][nx] = 1;
+                }
+            }
+        }
+    }
+}
+
+function clearLines() {
+    let cleared = 0;
+    for(let r=ROWS-1; r>=0; r--) {
+        if(board[r].every(cell => cell===1)) {
+            board.splice(r, 1);
+            board.unshift(Array(COLS).fill(0));
+            cleared++;
+            r++; // check same row again
+        }
+    }
+    if(cleared > 0) {
+        lines += cleared;
+        score += cleared * 100;
+        document.getElementById('lines').textContent = lines;
+        document.getElementById('score').textContent = score;
+        
+        // Speed up
+        if(lines % 10 === 0) {
+            speed = Math.max(100, speed - 50);
+            clearInterval(timer);
+            timer = setInterval(tick, speed);
+        }
+    }
+}
+
+function rotate() {
+    const rotated = piece[0].map((_, i) => piece.map(row => row[i]).reverse());
+    if(!collide(px, py, rotated)) piece = rotated;
+}
+
+function togglePause() {
+    if(!running) return;
+    paused = !paused;
+    document.getElementById('btnPause').textContent = paused ? '▶ Lanjut' : '⏸ Pause';
+}
+
+function gameOver() {
+    clearInterval(timer);
+    running = false;
+    document.getElementById('msg').style.display='block';
+}
+
+function draw() {
+    cx.fillStyle='#f5f5f5'; cx.fillRect(0,0,cv.width,cv.height);
+    
+    // Grid
+    cx.strokeStyle='#e0e0e0';
+    for(let c=0; c<=COLS; c++) {
+        cx.beginPath();
+        cx.moveTo(c*SZ, 0);
+        cx.lineTo(c*SZ, cv.height);
+        cx.stroke();
+    }
+    for(let r=0; r<=ROWS; r++) {
+        cx.beginPath();
+        cx.moveTo(0, r*SZ);
+        cx.lineTo(cv.width, r*SZ);
+        cx.stroke();
+    }
+    
+    // Board
+    for(let r=0; r<ROWS; r++) {
+        for(let c=0; c<COLS; c++) {
+            if(board[r][c]) {
+                cx.fillStyle='#333';
+                cx.fillRect(c*SZ+1, r*SZ+1, SZ-2, SZ-2);
+            }
+        }
+    }
+    
+    // Current piece
+    cx.fillStyle='#000';
+    for(let r=0; r<piece.length; r++) {
+        for(let c=0; c<piece[r].length; c++) {
+            if(piece[r][c]) {
+                cx.fillRect((px+c)*SZ+1, (py+r)*SZ+1, SZ-2, SZ-2);
+            }
+        }
+    }
+}
+
+document.addEventListener('keydown', e => {
+    if(!running || paused) {
+        if(e.key===' ') { e.preventDefault(); running ? togglePause() : startGame(); }
+        return;
+    }
+    
+    if(e.key==='ArrowLeft' && !collide(px-1, py, piece)) { px--; draw(); }
+    if(e.key==='ArrowRight' && !collide(px+1, py, piece)) { px++; draw(); }
+    if(e.key==='ArrowDown' && !collide(px, py+1, piece)) { py++; draw(); }
+    if(e.key==='ArrowUp') { rotate(); draw(); }
+    if(e.key===' ') { e.preventDefault(); togglePause(); }
+});
+
+draw();
+</script>
+</body>
+</html>

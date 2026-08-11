@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pong Classic – PufutaraPlay</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
+        body { background:#fff; color:#000; display:flex; flex-direction:column; align-items:center; min-height:100vh; }
+        header { width:100%; max-width:800px; padding:24px 20px 0; display:flex; justify-content:space-between; align-items:center; }
+        .back { color:#999; text-decoration:none; font-size:0.9rem; }
+        .back:hover { color:#000; }
+        .logo { font-weight:900; letter-spacing:-1px; }
+        h1 { font-size:2rem; font-weight:900; letter-spacing:-1px; margin:24px 0 4px; }
+        .score-row { display:flex; gap:32px; margin-bottom:16px; font-size:0.95rem; color:#666; }
+        .score-row span { font-weight:700; color:#000; }
+        canvas { border:2px solid #000; border-radius:16px; display:block; background:#000; }
+        .controls { margin-top:16px; display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+        .btn { padding:10px 24px; border:2px solid #000; border-radius:12px; font-weight:700; font-size:0.9rem; cursor:pointer; background:#fff; transition:.2s; }
+        .btn:hover, .btn.active { background:#000; color:#fff; }
+        .hint { margin-top:12px; font-size:0.8rem; color:#aaa; text-align:center; }
+        #msg { position:absolute; background:#fff; color:#000; padding:16px 32px; border-radius:16px; font-weight:900; font-size:1.1rem; display:none; top:50%; left:50%; transform:translate(-50%,-50%); border:2px solid #000; }
+        .wrap { position:relative; }
+    </style>
+</head>
+<body>
+<header>
+    <a href="index.html" class="back">← Kembali</a>
+    <div class="logo">PUFUTARA.</div>
+</header>
+<h1>Pong Classic</h1>
+<div class="score-row">Player 1: <span id="p1">0</span> &nbsp;|&nbsp; Player 2: <span id="p2">0</span></div>
+<div class="wrap">
+    <canvas id="c" width="600" height="400"></canvas>
+    <div id="msg">TEKAN SPACE UNTUK MULAI!</div>
+</div>
+<div class="controls">
+    <button class="btn" onclick="startGame()">▶ Mulai</button>
+</div>
+<div class="hint">Player 1: W/S &nbsp;|&nbsp; Player 2: ↑/↓ &nbsp;|&nbsp; First to 5 wins!</div>
+<script>
+const cv = document.getElementById('c'), cx = cv.getContext('2d');
+let p1, p2, ball, scoreP1, scoreP2, running, started, timer;
+
+const keys = {};
+
+function startGame() {
+    p1 = {x:20, y:cv.height/2-50, w:10, h:100, speed:6};
+    p2 = {x:cv.width-30, y:cv.height/2-50, w:10, h:100, speed:6};
+    ball = {x:cv.width/2, y:cv.height/2, vx:0, vy:0, r:8};
+    scoreP1 = 0;
+    scoreP2 = 0;
+    running = false;
+    started = false;
+    
+    document.getElementById('msg').style.display='block';
+    document.getElementById('msg').textContent='TEKAN SPACE UNTUK MULAI!';
+    document.getElementById('p1').textContent = 0;
+    document.getElementById('p2').textContent = 0;
+    
+    draw();
+}
+
+function resetBall() {
+    ball.x = cv.width/2;
+    ball.y = cv.height/2;
+    const angle = (Math.random()-0.5) * Math.PI/3;
+    const dir = Math.random() < 0.5 ? 1 : -1;
+    ball.vx = dir * 5 * Math.cos(angle);
+    ball.vy = 5 * Math.sin(angle);
+}
+
+function tick() {
+    // Move paddles
+    if(keys['w'] || keys['W']) p1.y = Math.max(0, p1.y - p1.speed);
+    if(keys['s'] || keys['S']) p1.y = Math.min(cv.height-p1.h, p1.y + p1.speed);
+    if(keys['ArrowUp']) p2.y = Math.max(0, p2.y - p2.speed);
+    if(keys['ArrowDown']) p2.y = Math.min(cv.height-p2.h, p2.y + p2.speed);
+    
+    // Move ball
+    ball.x += ball.vx;
+    ball.y += ball.vy;
+    
+    // Wall collision
+    if(ball.y-ball.r < 0 || ball.y+ball.r > cv.height) ball.vy *= -1;
+    
+    // Paddle collision
+    if(ball.x-ball.r < p1.x+p1.w && ball.y > p1.y && ball.y < p1.y+p1.h) {
+        ball.vx = Math.abs(ball.vx) * 1.05;
+        const hitPos = (ball.y - (p1.y+p1.h/2)) / (p1.h/2);
+        ball.vy += hitPos * 3;
+    }
+    
+    if(ball.x+ball.r > p2.x && ball.y > p2.y && ball.y < p2.y+p2.h) {
+        ball.vx = -Math.abs(ball.vx) * 1.05;
+        const hitPos = (ball.y - (p2.y+p2.h/2)) / (p2.h/2);
+        ball.vy += hitPos * 3;
+    }
+    
+    // Score
+    if(ball.x < 0) {
+        scoreP2++;
+        document.getElementById('p2').textContent = scoreP2;
+        if(scoreP2 >= 5) { endGame('PLAYER 2 WINS!'); return; }
+        resetBall();
+    }
+    
+    if(ball.x > cv.width) {
+        scoreP1++;
+        document.getElementById('p1').textContent = scoreP1;
+        if(scoreP1 >= 5) { endGame('PLAYER 1 WINS!'); return; }
+        resetBall();
+    }
+    
+    draw();
+}
+
+function endGame(msg) {
+    clearInterval(timer);
+    running = false;
+    document.getElementById('msg').style.display='block';
+    document.getElementById('msg').textContent=msg+' – SPACE';
+}
+
+function draw() {
+    cx.fillStyle='#000'; cx.fillRect(0,0,cv.width,cv.height);
+    
+    // Center line
+    cx.strokeStyle='#333';
+    cx.setLineDash([10,10]);
+    cx.beginPath();
+    cx.moveTo(cv.width/2, 0);
+    cx.lineTo(cv.width/2, cv.height);
+    cx.stroke();
+    cx.setLineDash([]);
+    
+    // Paddles
+    cx.fillStyle='#fff';
+    cx.fillRect(p1.x, p1.y, p1.w, p1.h);
+    cx.fillRect(p2.x, p2.y, p2.w, p2.h);
+    
+    // Ball
+    cx.beginPath();
+    cx.arc(ball.x, ball.y, ball.r, 0, Math.PI*2);
+    cx.fill();
+}
+
+document.addEventListener('keydown', e => {
+    keys[e.key] = true;
+    
+    if(e.key===' ') {
+        e.preventDefault();
+        if(!started) {
+            started = true;
+            running = true;
+            document.getElementById('msg').style.display='none';
+            resetBall();
+            clearInterval(timer);
+            timer = setInterval(tick, 1000/60);
+        } else if(!running) {
+            startGame();
+        }
+    }
+});
+
+document.addEventListener('keyup', e => { keys[e.key] = false; });
+
+startGame();
+</script>
+</body>
+</html>
