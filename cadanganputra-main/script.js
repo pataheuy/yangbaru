@@ -56,7 +56,10 @@ function renderProyek() {
     const grid = document.getElementById('projects-grid');
     if (!grid) return;
 
-    grid.innerHTML = proyekData.map((p, idx) => {
+    // Reverse array agar urutan terbalik (no. besar ke kecil)
+    const reversedProyekData = [...proyekData].reverse();
+
+    grid.innerHTML = reversedProyekData.map((p, idx) => {
         // Skip proyek terbaik — sudah tampil di section tersendiri
         if (p.best) return '';
 
