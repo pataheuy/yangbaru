@@ -8,7 +8,15 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Supabase JS Client CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        body {
+            zoom: 0.9;
+        }
+
         .gradient-bg {
             background: linear-gradient(135deg, #2563eb 0%, #0284c7 50%, #0d9488 100%);
         }
@@ -62,21 +70,24 @@
 </head>
 <body class="bg-slate-50 font-sans min-h-screen flex flex-col text-slate-800">
 
-    <!-- Header / Navigation Bar (Navbar Ramping & Menempel) -->
+    <!-- Header / Navigation Bar -->
     <header class="gradient-bg text-white shadow-md border-b border-sky-700/30 w-full">
-        <div class="max-w-6xl mx-auto px-4 py-2 flex justify-between items-center">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center space-x-2.5 cursor-pointer group" onclick="showWelcomeScreen()">
-                <div class="bg-white/20 p-1.5 rounded-lg group-hover:scale-110 transition duration-300">
-                    <i class="fa-solid font-bold fa-graduation-cap text-xl text-sky-200"></i>
+                <div class="bg-white/20 p-2 rounded-xl group-hover:scale-110 transition duration-300">
+                    <i class="fa-solid font-bold fa-graduation-cap text-2xl text-sky-200"></i>
                 </div>
-                <span class="font-extrabold text-lg tracking-wider text-white">pufutaraPemira</span>
+                <div>
+                    <span class="font-extrabold text-xl tracking-wider text-white block leading-tight">pufutaraPemira</span>
+                    <span class="text-[10px] text-sky-200 font-medium tracking-wide block">SMP Pemira Digital System</span>
+                </div>
             </div>
-            <div class="flex space-x-1.5">
-                <button id="changeClassNavBtn" onclick="showWelcomeScreen()" class="hidden px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold hover:bg-white/15 transition flex items-center">
-                    <i class="fa-solid fa-arrows-rotate mr-1.5"></i> Ganti Kelas
+            <div class="flex items-center space-x-2">
+                <button id="changeClassNavBtn" onclick="showWelcomeScreen()" class="hidden px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold bg-white/10 hover:bg-white/20 transition flex items-center border border-white/10">
+                    <i class="fa-solid fa-arrows-rotate mr-2"></i> Ganti Kelas
                 </button>
-                <button onclick="showPage('home')" id="homeNavBtn" class="hidden px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold hover:bg-white/15 transition flex items-center">
-                    <i class="fa-solid fa-house mr-1.5"></i> Beranda
+                <button onclick="showPage('home')" id="homeNavBtn" class="hidden px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold bg-white/10 hover:bg-white/20 transition flex items-center border border-white/10">
+                    <i class="fa-solid fa-house mr-2"></i> Beranda
                 </button>
             </div>
         </div>
@@ -98,19 +109,17 @@
                 <p class="text-slate-600 max-w-xl mx-auto text-sm md:text-base">Silakan pilih kelas Anda terlebih dahulu untuk memberikan suara pada Pemilihan Presiden BEM SMP.</p>
             </div>
 
-            <!-- 3 Class Cards Grid -->
+            <!-- Class Cards Grid (Default: Kelas 7, Kelas 8, Kelas 9) -->
             <div>
                 <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">Pilih Kelas Pemilih</h2>
                 <div id="classCardGrid" class="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
-                    <!-- Dynamic Class Cards -->
+                    <!-- Dynamic Class Cards Loaded Here -->
                 </div>
             </div>
         </section>
 
-
         <!-- ================= HOME PAGE ================= -->
         <section id="homePage" class="w-full space-y-6 animate-fade-in-up hidden">
-
             <!-- Candidate Grid -->
             <div class="text-center pt-2">
                 <div class="mb-6 flex flex-col items-center justify-center space-y-1">
@@ -126,97 +135,115 @@
             </div>
         </section>
 
-
         <!-- ================= ADMIN DASHBOARD PAGE ================= -->
-        <section id="adminPage" class="w-full hidden space-y-6 animate-fade-in-up">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-5 rounded-2xl shadow-sm border border-slate-100 gap-4">
-                <div>
-                    <h1 class="text-2xl font-bold text-slate-800">Panel Kelola Admin BEM SMP</h1>
-                    <p class="text-xs text-slate-500">Kelola daftar kelas, kandidat Presiden BEM, dan pantau hasil suara real-time</p>
-                </div>
-                <div class="flex flex-wrap gap-2 w-full sm:w-auto">
-                    <button onclick="openAddClassModal()" class="flex-1 sm:flex-none bg-sky-50 hover:bg-sky-100 text-sky-700 px-4 py-2.5 rounded-xl text-sm font-semibold transition flex items-center justify-center">
-                        <i class="fa-solid fa-folder-plus mr-1.5"></i> Kelola Kelas
-                    </button>
-                    <button onclick="openAddCandidateModal()" class="flex-1 sm:flex-none gradient-btn text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition flex items-center justify-center shadow-md">
-                        <i class="fa-solid fa-user-plus mr-1.5"></i> Tambah Kandidat
-                    </button>
-                    <button onclick="logoutAdmin()" class="bg-rose-50 text-rose-600 hover:bg-rose-100 px-3 py-2.5 rounded-xl text-sm font-semibold transition">
-                        <i class="fa-solid fa-right-from-bracket"></i> Keluar Admin
-                    </button>
-                </div>
-            </div>
+        <section id="adminPage" class="w-full hidden animate-fade-in-up">
+            <div class="flex flex-col md:flex-row gap-6 items-start">
+                
+                <!-- Left Sidebar -->
+                <aside class="w-full md:w-64 bg-white p-5 rounded-3xl shadow-sm border border-slate-100 flex flex-col space-y-4 shrink-0">
+                    <div class="pb-3 border-b border-slate-100">
+                        <h2 class="text-lg font-bold text-slate-800 flex items-center">
+                            <i class="fa-solid fa-user-shield text-blue-600 mr-2"></i> Menu Admin
+                        </h2>
+                        <p class="text-[11px] text-slate-400">SMP Pemira Dashboard</p>
+                    </div>
 
-            <!-- Admin Stats Overview -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center space-x-4">
-                    <div class="p-3 bg-blue-50 text-blue-600 rounded-xl">
-                        <i class="fa-solid fa-user-tie text-2xl"></i>
+                    <nav class="space-y-2">
+                        <button onclick="openAddCandidateModal()" class="w-full gradient-btn text-white px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center shadow-md">
+                            <i class="fa-solid fa-user-plus mr-2 text-sm"></i> Tambah Kandidat
+                        </button>
+                        <button onclick="openAddClassModal()" class="w-full bg-sky-50 hover:bg-sky-100 text-sky-700 px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center">
+                            <i class="fa-solid fa-folder-plus mr-2 text-sm"></i> Kelola Daftar Kelas
+                        </button>
+                        <button onclick="resetVotesConfirm()" class="w-full bg-rose-50 hover:bg-rose-100 text-rose-600 px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center">
+                            <i class="fa-solid fa-rotate-left mr-2 text-sm"></i> Reset Suara
+                        </button>
+                    </nav>
+
+                    <div class="pt-4 border-t border-slate-100 mt-auto">
+                        <button onclick="logoutAdmin()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-2 rounded-xl text-xs font-semibold transition flex items-center justify-center">
+                            <i class="fa-solid fa-right-from-bracket mr-1.5"></i> Keluar Admin
+                        </button>
                     </div>
-                    <div>
-                        <p class="text-xs font-semibold text-slate-400">Total Kandidat</p>
-                        <p id="statTotalCandidates" class="text-2xl font-bold text-slate-800">0</p>
-                    </div>
-                </div>
-                <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center space-x-4">
-                    <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
-                        <i class="fa-solid fa-check-double text-2xl"></i>
-                    </div>
-                    <div>
-                        <p class="text-xs font-semibold text-slate-400">Total Suara Masuk</p>
-                        <p id="statTotalVotes" class="text-2xl font-bold text-slate-800">0</p>
-                    </div>
-                </div>
-                <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center space-x-4">
-                    <button onclick="resetVotesConfirm()" class="w-full h-full text-left text-rose-600 hover:bg-rose-50/50 p-1 rounded-xl transition flex items-center space-x-3">
-                        <div class="p-3 bg-rose-50 text-rose-600 rounded-xl">
-                            <i class="fa-solid fa-rotate-left text-2xl"></i>
+                </aside>
+
+                <!-- Right Dashboard Main Content -->
+                <div class="flex-grow w-full space-y-6">
+                    <!-- Top Stat Overview Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center space-x-4">
+                            <div class="p-3 bg-blue-50 text-blue-600 rounded-xl">
+                                <i class="fa-solid fa-user-tie text-2xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-semibold text-slate-400">Total Kandidat</p>
+                                <p id="statTotalCandidates" class="text-2xl font-bold text-slate-800">0</p>
+                            </div>
                         </div>
-                        <div>
-                            <p class="text-xs font-bold text-rose-500">Tindakan Bahaya</p>
-                            <p class="text-sm font-bold text-slate-800">Reset Seluruh Suara</p>
+                        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center space-x-4">
+                            <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
+                                <i class="fa-solid fa-check-double text-2xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-semibold text-slate-400">Total Suara Masuk</p>
+                                <p id="statTotalVotes" class="text-2xl font-bold text-slate-800">0</p>
+                            </div>
                         </div>
-                    </button>
-                </div>
-            </div>
+                    </div>
 
-            <!-- Live Voting Results Section (Exclusively for Admin) -->
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                <h2 class="text-lg font-bold text-slate-800 mb-4 flex items-center">
-                    <i class="fa-solid fa-chart-column text-blue-600 mr-2"></i> Perolehan Suara Presiden BEM (Privat Admin)
-                </h2>
-                <div id="adminResultsContainer" class="space-y-4">
-                    <!-- Progress bars will be rendered here -->
-                </div>
-            </div>
+                    <!-- Charts Grid: Pie Chart & Bar Chart -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Pie Chart: Partisipasi Pemilih Per Kelas -->
+                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between">
+                            <h2 class="text-sm font-bold text-slate-800 mb-3 flex items-center">
+                                <i class="fa-solid fa-chart-pie text-blue-600 mr-2"></i> Partisipasi Pemilih per Kelas
+                            </h2>
+                            <div class="relative h-64 w-full flex items-center justify-center">
+                                <canvas id="voterPieChart"></canvas>
+                            </div>
+                        </div>
 
-            <!-- Admin Candidates Table -->
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                <div class="p-5 border-b border-slate-100">
-                    <h2 class="font-bold text-slate-800">Daftar Kandidat Presiden BEM</h2>
+                        <!-- Bar Chart: Perolehan Suara Kandidat -->
+                        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between">
+                            <h2 class="text-sm font-bold text-slate-800 mb-3 flex items-center">
+                                <i class="fa-solid fa-chart-simple text-blue-600 mr-2"></i> Perolehan Suara Kandidat
+                            </h2>
+                            <div class="relative h-64 w-full flex items-center justify-center">
+                                <canvas id="candidateBarChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Admin Candidates Table -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                        <div class="p-5 border-b border-slate-100">
+                            <h2 class="font-bold text-slate-800">Daftar Kandidat Presiden BEM</h2>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-50 text-slate-400 text-xs uppercase tracking-wider">
+                                        <th class="p-4">Kandidat</th>
+                                        <th class="p-4">No. Urut</th>
+                                        <th class="p-4">Perolehan Suara Total</th>
+                                        <th class="p-4 text-right">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="adminCandidateTable" class="divide-y divide-slate-100 text-sm">
+                                    <!-- Table rows inserted dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-slate-50 text-slate-400 text-xs uppercase tracking-wider">
-                                <th class="p-4">Kandidat</th>
-                                <th class="p-4">No. Urut</th>
-                                <th class="p-4">Perolehan Suara Total</th>
-                                <th class="p-4 text-right">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="adminCandidateTable" class="divide-y divide-slate-100 text-sm">
-                            <!-- Table rows will be inserted dynamically -->
-                        </tbody>
-                    </table>
-                </div>
+
             </div>
         </section>
 
     </main>
 
-    <!-- Footer (Diklik 5x secara cepat untuk masuk ke Login Admin) -->
-    <footer onclick="handleFooterClick()" class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500 mt-auto select-none cursor-pointer hover:bg-slate-50 transition-colors">
+    <!-- Footer (Klik 5x untuk masuk ke Login Admin) -->
+    <footer onclick="handleFooterClick()" class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500 mt-auto select-none cursor-pointer">
         <p>&copy; 2026 pufutaraPemira. Sistem Pemilihan Presiden BEM SMP Digital.</p>
     </footer>
 
@@ -305,7 +332,7 @@
             <form onsubmit="handleAdminLogin(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Kata Sandi Admin</label>
-                    <input type="password" id="adminPasswordInput" placeholder="Password (admin)" class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
+                    <input type="password" id="adminPasswordInput" placeholder="Password Admin" class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
                 </div>
                 <div id="loginError" class="text-rose-500 text-xs hidden">Kata sandi salah. Coba lagi!</div>
                 <button type="submit" class="w-full gradient-btn text-white font-semibold py-2.5 rounded-xl text-sm transition">
@@ -394,10 +421,20 @@
 
     <!-- JavaScript App Logic -->
     <script>
-        // Initial state data with 3 default SMP classes
-        const defaultClasses = ["Kelas 7", "Kelas 8", "Kelas 9"];
+        // Konfigurasi Supabase (Bisa diisi URL & Key Supabase Anda)
+        const SUPABASE_URL = "https://puywjdopumlzvmzbcudr.supabase.co"; 
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1eXdqZG9wdW1senZtemJjdWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDE3MTksImV4cCI6MjA4NzkxNzcxOX0.vvThyjtK2SlA9oA9Mr_XOmt1R_tNZk-ib3PO9XpiiSc"; 
 
-        // Candidates are global and shown across all classes
+        let supabaseClient = null;
+        let isSupabaseActive = false;
+
+        let voterPieChartInstance = null;
+        let candidateBarChartInstance = null;
+
+        // Data Default 3 Kelas SMP
+        const defaultClasses = ["Kelas 7", "Kelas 8", "Kelas 9"];
+        
+        // Data Default Candidates
         const defaultCandidates = [
             {
                 id: "c1",
@@ -410,7 +447,8 @@
                     "Mengelola kas kegiatan BEM secara transparan.",
                     "Menciptakan lingkungan sekolah yang bersih, sehat, dan kreatif."
                 ],
-                votes: 0
+                votes: 0,
+                votes_by_class: {}
             },
             {
                 id: "c2",
@@ -423,13 +461,15 @@
                     "Mendorong aktifnya kegiatan minat dan bakat siswa.",
                     "Menjalin komunikasi positif antara siswa, guru, dan pengurus sekolah."
                 ],
-                votes: 0
+                votes: 0,
+                votes_by_class: {}
             }
         ];
 
-        // State variables
+        // State Global Variables
         let classes = [];
         let candidates = [];
+        let voterStats = {};
         let currentSelectedClass = "";
         let isAdminLoggedIn = false;
         let selectedCandidateId = null;
@@ -449,81 +489,118 @@
             } else {
                 footerClickTimer = setTimeout(() => {
                     footerClickCount = 0;
-                }, 1500); // Reset hitungan jika jeda lebih dari 1.5 detik
+                }, 1500);
             }
         }
-
-        // ===== URL ROUTING =====
-        function updateURL(view, params = {}) {
-            const url = new URL(window.location);
-            url.searchParams.set('view', view);
-            Object.keys(params).forEach(key => {
-                url.searchParams.set(key, params[key]);
-            });
-            history.pushState({ view, ...params }, '', url);
-        }
-
-        function getURLParams() {
-            const params = new URLSearchParams(window.location.search);
-            return {
-                view: params.get('view') || 'welcome',
-                class: params.get('class')
-            };
-        }
-
-        function handleURLChange() {
-            const { view, class: className } = getURLParams();
-            
-            if (view === 'admin') {
-                showPage('admin');
-            } else if (view === 'home' && className) {
-                currentSelectedClass = className;
-                document.getElementById('welcomeScreen').classList.add('hidden');
-                document.getElementById('homePage').classList.remove('hidden');
-                document.getElementById('changeClassNavBtn').classList.remove('hidden');
-                document.getElementById('homeNavBtn').classList.remove('hidden');
-                renderCandidatesHome();
-            } else {
-                showWelcomeScreen();
-            }
-        }
-
-        window.addEventListener('popstate', handleURLChange);
 
         // Initialize App
-        window.addEventListener('DOMContentLoaded', () => {
-            loadData();
-            handleURLChange();
+        window.addEventListener('DOMContentLoaded', async () => {
+            initSupabaseClient();
+            await loadData();
+            renderWelcomeClasses();
         });
 
-        // Load data from LocalStorage
-        function loadData() {
+        function initSupabaseClient() {
+            if (SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase) {
+                try {
+                    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                    isSupabaseActive = true;
+                } catch (err) {
+                    isSupabaseActive = false;
+                }
+            } else {
+                isSupabaseActive = false;
+            }
+        }
+
+        async function loadData() {
+            if (isSupabaseActive && supabaseClient) {
+                try {
+                    // Fetch Classes
+                    const { data: classData, error: classErr } = await supabaseClient.from('classes').select('*');
+                    if (!classErr && classData && classData.length > 0) {
+                        classes = classData.map(c => c.name);
+                    } else {
+                        classes = [...defaultClasses];
+                    }
+
+                    // Fetch Candidates
+                    const { data: candData, error: candErr } = await supabaseClient.from('candidates').select('*').order('no', { ascending: true });
+                    if (!candErr && candData && candData.length > 0) {
+                        candidates = candData.map(c => ({
+                            id: c.id,
+                            no: c.no,
+                            name: c.name,
+                            image: c.image,
+                            visi: c.visi,
+                            misi: Array.isArray(c.misi) ? c.misi : (typeof c.misi === 'string' ? JSON.parse(c.misi) : []),
+                            votes: c.votes || 0,
+                            votes_by_class: c.votes_by_class || {}
+                        }));
+                    } else {
+                        candidates = [...defaultCandidates];
+                    }
+
+                    // Fetch Voter Stats
+                    const { data: statData, error: statErr } = await supabaseClient.from('voter_stats').select('*');
+                    if (!statErr && statData) {
+                        voterStats = {};
+                        statData.forEach(s => { voterStats[s.class_name] = s.votes_count; });
+                    } else {
+                        voterStats = {};
+                    }
+
+                    return;
+                } catch (e) {
+                    isSupabaseActive = false;
+                }
+            }
+
+            // LocalStorage Backup Handling
             const storedClasses = localStorage.getItem('pemira_classes');
             if (storedClasses) {
-                try { classes = JSON.parse(storedClasses); } catch (e) { classes = defaultClasses; }
+                try { 
+                    classes = JSON.parse(storedClasses); 
+                    if (!Array.isArray(classes) || classes.length === 0) {
+                        classes = [...defaultClasses];
+                    }
+                } catch (e) { 
+                    classes = [...defaultClasses]; 
+                }
             } else {
-                classes = defaultClasses;
-                saveClasses();
+                classes = [...defaultClasses];
+                saveClassesLocal();
             }
 
             const storedCandidates = localStorage.getItem('pemira_candidates');
             if (storedCandidates) {
-                try { candidates = JSON.parse(storedCandidates); } catch (e) { candidates = defaultCandidates; }
+                try { candidates = JSON.parse(storedCandidates); } catch (e) { candidates = [...defaultCandidates]; }
             } else {
-                candidates = defaultCandidates;
-                saveCandidates();
+                candidates = [...defaultCandidates];
+                saveCandidatesLocal();
+            }
+
+            const storedStats = localStorage.getItem('pemira_voter_stats');
+            if (storedStats) {
+                try { voterStats = JSON.parse(storedStats); } catch (e) { voterStats = {}; }
+            } else {
+                voterStats = {};
+                saveVoterStatsLocal();
             }
         }
 
-        function saveClasses() {
+        function saveClassesLocal() {
             localStorage.setItem('pemira_classes', JSON.stringify(classes));
         }
 
-        function saveCandidates() {
+        function saveCandidatesLocal() {
             localStorage.setItem('pemira_candidates', JSON.stringify(candidates));
         }
 
-        // Render Welcome Screen Class Cards
+        function saveVoterStatsLocal() {
+            localStorage.setItem('pemira_voter_stats', JSON.stringify(voterStats));
+        }
+
         function renderWelcomeClasses() {
             const container = document.getElementById('classCardGrid');
             container.innerHTML = '';
@@ -547,14 +624,9 @@
             });
         }
 
-        // Action when user clicks a class card on welcome screen
         function selectClassAndProceed(className) {
             currentSelectedClass = className;
             
-            // Update URL
-            updateURL('home', { class: className });
-            
-            // Show Home & Nav buttons
             document.getElementById('welcomeScreen').classList.add('hidden');
             document.getElementById('homePage').classList.remove('hidden');
             document.getElementById('changeClassNavBtn').classList.remove('hidden');
@@ -564,9 +636,6 @@
         }
 
         function showWelcomeScreen() {
-            // Update URL
-            updateURL('welcome');
-            
             document.getElementById('welcomeScreen').classList.remove('hidden');
             document.getElementById('homePage').classList.add('hidden');
             document.getElementById('adminPage').classList.add('hidden');
@@ -576,7 +645,6 @@
             renderWelcomeClasses();
         }
 
-        // Navigation Switcher
         function showPage(page) {
             const homePage = document.getElementById('homePage');
             const adminPage = document.getElementById('adminPage');
@@ -587,32 +655,6 @@
                     openAdminLoginModal();
                     return;
                 }
-                // Update URL
-                updateURL('admin');
-                
-                welcomeScreen.classList.add('hidden');
-                homePage.classList.add('hidden');
-                adminPage.classList.remove('hidden');
-                document.getElementById('changeClassNavBtn').classList.remove('hidden');
-                document.getElementById('homeNavBtn').classList.remove('hidden');
-                renderAdminDashboard();
-            } else {
-                if (!currentSelectedClass) {
-                    showWelcomeScreen();
-                    return;
-                }
-                // Update URL
-                updateURL('home', { class: currentSelectedClass });
-                
-                welcomeScreen.classList.add('hidden');
-                homePage.classList.remove('hidden');
-                adminPage.classList.add('hidden');
-                renderCandidatesHome();
-            }
-        }
-                    openAdminLoginModal();
-                    return;
-                }
                 welcomeScreen.classList.add('hidden');
                 homePage.classList.add('hidden');
                 adminPage.classList.remove('hidden');
@@ -631,7 +673,6 @@
             }
         }
 
-        // Render Candidate Cards on Home
         function renderCandidatesHome() {
             const container = document.getElementById('candidateList');
             container.innerHTML = '';
@@ -677,7 +718,6 @@
             });
         }
 
-        // Candidate Detail Modal
         function openCandidateModal(id) {
             const candidate = candidates.find(c => c.id === id);
             if (!candidate) return;
@@ -707,7 +747,6 @@
             modal.classList.remove('flex');
         }
 
-        // Open Confirmation Voting Modal with 3s Timer
         function openVoteConfirmation() {
             const candidate = candidates.find(c => c.id === selectedCandidateId);
             if (!candidate) return;
@@ -719,7 +758,6 @@
             modal.classList.remove('hidden');
             modal.classList.add('flex');
 
-            // Timer Setup
             let timeLeft = 3;
             const timerDisplay = document.getElementById('countdownTimer');
             const finalBtn = document.getElementById('finalVoteBtn');
@@ -753,22 +791,39 @@
             modal.classList.remove('flex');
         }
 
-        // Execute Vote & Return to Welcome Screen automatically
-        function executeVote() {
+        async function executeVote() {
             const candidate = candidates.find(c => c.id === selectedCandidateId);
             if (!candidate) return;
 
+            if (!candidate.votes_by_class) {
+                candidate.votes_by_class = {};
+            }
+
             candidate.votes += 1;
-            saveCandidates();
+            candidate.votes_by_class[currentSelectedClass] = (candidate.votes_by_class[currentSelectedClass] || 0) + 1;
+            voterStats[currentSelectedClass] = (voterStats[currentSelectedClass] || 0) + 1;
+
+            if (isSupabaseActive && supabaseClient) {
+                try {
+                    await supabaseClient.from('candidates').update({ 
+                        votes: candidate.votes,
+                        votes_by_class: candidate.votes_by_class
+                    }).eq('id', candidate.id);
+                    await supabaseClient.from('voter_stats').upsert({ class_name: currentSelectedClass, votes_count: voterStats[currentSelectedClass] });
+                } catch (err) {
+                    console.error("Error updating Supabase votes:", err);
+                }
+            }
+
+            saveCandidatesLocal();
+            saveVoterStatsLocal();
 
             closeConfirmVoteModal();
             showAlertModal('Berhasil Memilih!', `Terima kasih, suara Anda dari ${currentSelectedClass} untuk ${candidate.name} telah tersimpan.`, 'success');
             
-            // Otomatis mengembalikan tampilan ke halaman pemilihan kelas
             showWelcomeScreen();
         }
 
-        // Admin Auth Handlers
         function openAdminAuth() {
             if (isAdminLoggedIn) {
                 showPage('admin');
@@ -795,8 +850,7 @@
             event.preventDefault();
             const pass = document.getElementById('adminPasswordInput').value;
             
-            // Password Check (Password: admin)
-            if (pass === 'admin') {
+            if (pass === 'raisarfaketuampm') {
                 isAdminLoggedIn = true;
                 closeAdminLoginModal();
                 showPage('admin');
@@ -812,42 +866,17 @@
             showAlertModal('Selesai', 'Anda telah keluar dari mode admin.', 'info');
         }
 
-        // Admin Dashboard Render
         function renderAdminDashboard() {
             document.getElementById('statTotalCandidates').innerText = candidates.length;
             
             const totalVotes = candidates.reduce((sum, c) => sum + c.votes, 0);
             document.getElementById('statTotalVotes').innerText = totalVotes;
 
-            // Render Results Bar Progress (Admin Only)
-            const resultsContainer = document.getElementById('adminResultsContainer');
-            resultsContainer.innerHTML = '';
-
-            const sorted = [...candidates].sort((a, b) => a.no - b.no);
-
-            if (sorted.length === 0) {
-                resultsContainer.innerHTML = `<p class="text-xs text-slate-400 text-center py-2">Belum ada kandidat yang terdaftar.</p>`;
-            } else {
-                sorted.forEach(c => {
-                    const percentage = totalVotes === 0 ? 0 : Math.round((c.votes / totalVotes) * 100);
-                    const resultItem = document.createElement('div');
-                    resultItem.className = "space-y-1.5";
-                    resultItem.innerHTML = `
-                        <div class="flex justify-between items-center text-sm font-semibold">
-                            <span class="text-slate-700">No. ${c.no} - ${c.name}</span>
-                            <span class="text-slate-500 text-xs">${c.votes} Suara (${percentage}%)</span>
-                        </div>
-                        <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
-                            <div class="bg-blue-600 h-full transition-all duration-500" style="width: ${percentage}%"></div>
-                        </div>
-                    `;
-                    resultsContainer.appendChild(resultItem);
-                });
-            }
-
             // Render Candidates Table
             const tableBody = document.getElementById('adminCandidateTable');
             tableBody.innerHTML = '';
+
+            const sorted = [...candidates].sort((a, b) => a.no - b.no);
 
             if (sorted.length === 0) {
                 tableBody.innerHTML = `
@@ -855,32 +884,139 @@
                         <td colspan="4" class="p-6 text-center text-slate-400 text-xs">Belum ada kandidat. Silakan tambah kandidat baru.</td>
                     </tr>
                 `;
-                return;
+            } else {
+                sorted.forEach(c => {
+                    const votesByClass = c.votes_by_class || {};
+                    let classBreakdownHtml = '';
+                    
+                    classes.forEach(cls => {
+                        const count = votesByClass[cls] || 0;
+                        classBreakdownHtml += `<span class="inline-flex items-center bg-slate-100 text-slate-700 border border-slate-200 text-[11px] font-semibold px-2 py-0.5 rounded-md mr-1 mt-1">${cls}: <strong class="text-blue-600 ml-1">${count}</strong></span>`;
+                    });
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="p-4 flex items-center space-x-3">
+                            <img src="${c.image}" alt="${c.name}" class="w-10 h-10 object-cover rounded-full shadow-sm">
+                            <div>
+                                <span class="font-bold text-slate-800 block">${c.name}</span>
+                                <div class="flex flex-wrap items-center mt-1">
+                                    ${classBreakdownHtml}
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-4 font-bold text-blue-600">No. ${c.no}</td>
+                        <td class="p-4">
+                            <span class="text-base font-extrabold text-slate-800">${c.votes}</span> <span class="text-xs text-slate-500">Suara Total</span>
+                        </td>
+                        <td class="p-4 text-right space-x-2">
+                            <button onclick="editCandidate('${c.id}')" class="text-blue-600 hover:text-blue-800 font-semibold px-2 py-1 text-xs">
+                                <i class="fa-solid fa-pen-to-square"></i> Edit
+                            </button>
+                            <button onclick="deleteCandidateConfirm('${c.id}')" class="text-rose-600 hover:text-rose-800 font-semibold px-2 py-1 text-xs">
+                                <i class="fa-solid fa-trash"></i> Hapus
+                            </button>
+                        </td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
             }
 
-            sorted.forEach(c => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="p-4 flex items-center space-x-3">
-                        <img src="${c.image}" alt="${c.name}" class="w-10 h-10 object-cover rounded-full shadow-sm">
-                        <span class="font-bold text-slate-800">${c.name}</span>
-                    </td>
-                    <td class="p-4 font-bold text-blue-600">No. ${c.no}</td>
-                    <td class="p-4">${c.votes} Suara Total</td>
-                    <td class="p-4 text-right space-x-2">
-                        <button onclick="editCandidate('${c.id}')" class="text-blue-600 hover:text-blue-800 font-semibold px-2 py-1 text-xs">
-                            <i class="fa-solid fa-pen-to-square"></i> Edit
-                        </button>
-                        <button onclick="deleteCandidateConfirm('${c.id}')" class="text-rose-600 hover:text-rose-800 font-semibold px-2 py-1 text-xs">
-                            <i class="fa-solid fa-trash"></i> Hapus
-                        </button>
-                    </td>
-                `;
-                tableBody.appendChild(tr);
+            // Render Charts
+            renderPieChart();
+            renderBarChart(sorted);
+        }
+
+        function renderPieChart() {
+            const ctx = document.getElementById('voterPieChart').getContext('2d');
+            
+            const labels = classes;
+            const data = classes.map(cls => voterStats[cls] || 0);
+
+            if (voterPieChartInstance) {
+                voterPieChartInstance.destroy();
+            }
+
+            voterPieChartInstance = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: [
+                            '#0284c7', // Sky Blue
+                            '#0d9488', // Teal
+                            '#2563eb', // Royal Blue
+                            '#f59e0b', // Amber
+                            '#10b981', // Emerald
+                            '#8b5cf6'  // Purple
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: { size: 11, family: 'sans-serif' },
+                                padding: 15
+                            }
+                        }
+                    }
+                }
             });
         }
 
-        // Class Management Modal
+        function renderBarChart(sortedCandidates) {
+            const ctx = document.getElementById('candidateBarChart').getContext('2d');
+            
+            const labels = sortedCandidates.map(c => `No. ${c.no} ${c.name.split(' ')[0]}`);
+            const data = sortedCandidates.map(c => c.votes);
+
+            if (candidateBarChartInstance) {
+                candidateBarChartInstance.destroy();
+            }
+
+            candidateBarChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Jumlah Suara',
+                        data: data,
+                        backgroundColor: '#2563eb',
+                        borderRadius: 8,
+                        hoverBackgroundColor: '#1d4ed8'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0,
+                                font: { size: 10 }
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: { size: 11 }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
         function openAddClassModal() {
             renderClassList();
             const modal = document.getElementById('classManageModal');
@@ -909,14 +1045,23 @@
             });
         }
 
-        function handleAddClass(e) {
+        async function handleAddClass(e) {
             e.preventDefault();
             const input = document.getElementById('newClassNameInput');
             const name = input.value.trim();
 
             if (name && !classes.includes(name)) {
                 classes.push(name);
-                saveClasses();
+
+                if (isSupabaseActive && supabaseClient) {
+                    try {
+                        await supabaseClient.from('classes').insert({ name: name });
+                    } catch (err) {
+                        console.error("Supabase insert class error:", err);
+                    }
+                }
+
+                saveClassesLocal();
                 renderClassList();
                 renderWelcomeClasses();
                 input.value = '';
@@ -924,13 +1069,21 @@
             }
         }
 
-        function deleteClass(className) {
+        async function deleteClass(className) {
             if (confirm(`Hapus kelas "${className}"?`)) {
                 classes = classes.filter(c => c !== className);
                 
                 if (currentSelectedClass === className) currentSelectedClass = classes[0] || "";
 
-                saveClasses();
+                if (isSupabaseActive && supabaseClient) {
+                    try {
+                        await supabaseClient.from('classes').delete().eq('name', className);
+                    } catch (err) {
+                        console.error("Supabase delete class error:", err);
+                    }
+                }
+
+                saveClassesLocal();
                 renderClassList();
                 renderWelcomeClasses();
                 renderAdminDashboard();
@@ -938,7 +1091,6 @@
             }
         }
 
-        // Add / Edit Candidate Handlers
         function openAddCandidateModal() {
             document.getElementById('candidateFormId').value = '';
             document.getElementById('formNo').value = candidates.length + 1;
@@ -988,7 +1140,7 @@
 
             const misiList = misiRaw.split('\n').filter(m => m.trim() !== '');
 
-            const processSave = (imageUrl) => {
+            const processSave = async (imageUrl) => {
                 if (id) {
                     const candidate = candidates.find(c => c.id === id);
                     if (candidate) {
@@ -997,6 +1149,12 @@
                         candidate.visi = visi;
                         candidate.misi = misiList;
                         if (imageUrl) candidate.image = imageUrl;
+
+                        if (isSupabaseActive && supabaseClient) {
+                            const payload = { no, name, visi, misi: misiList };
+                            if (imageUrl) payload.image = imageUrl;
+                            await supabaseClient.from('candidates').update(payload).eq('id', id);
+                        }
                     }
                 } else {
                     const newCandidate = {
@@ -1006,12 +1164,17 @@
                         image: imageUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=400',
                         visi: visi,
                         misi: misiList,
-                        votes: 0
+                        votes: 0,
+                        votes_by_class: {}
                     };
                     candidates.push(newCandidate);
+
+                    if (isSupabaseActive && supabaseClient) {
+                        await supabaseClient.from('candidates').insert(newCandidate);
+                    }
                 }
 
-                saveCandidates();
+                saveCandidatesLocal();
                 closeCandidateFormModal();
                 renderAdminDashboard();
                 renderCandidatesHome();
@@ -1029,29 +1192,47 @@
             }
         }
 
-        function deleteCandidateConfirm(id) {
+        async function deleteCandidateConfirm(id) {
             const candidate = candidates.find(c => c.id === id);
             if (!candidate) return;
 
             if (confirm(`Apakah Anda yakin ingin menghapus kandidat "${candidate.name}"?`)) {
                 candidates = candidates.filter(c => c.id !== id);
-                saveCandidates();
+
+                if (isSupabaseActive && supabaseClient) {
+                    await supabaseClient.from('candidates').delete().eq('id', id);
+                }
+
+                saveCandidatesLocal();
                 renderAdminDashboard();
                 renderCandidatesHome();
                 showAlertModal('Terhapus', 'Kandidat telah berhasil dihapus.', 'info');
             }
         }
 
-        function resetVotesConfirm() {
+        async function resetVotesConfirm() {
             if (confirm(`PERINGATAN: Apakah Anda yakin ingin mereset seluruh perolehan suara menjadi 0?`)) {
-                candidates.forEach(c => c.votes = 0);
-                saveCandidates();
+                candidates.forEach(c => {
+                    c.votes = 0;
+                    c.votes_by_class = {};
+                });
+                voterStats = {};
+                classes = [...defaultClasses];
+
+                if (isSupabaseActive && supabaseClient) {
+                    await supabaseClient.from('candidates').update({ votes: 0, votes_by_class: {} }).neq('id', 'null');
+                    await supabaseClient.from('voter_stats').delete().neq('class_name', 'null');
+                }
+
+                saveClassesLocal();
+                saveCandidatesLocal();
+                saveVoterStatsLocal();
+                renderWelcomeClasses();
                 renderAdminDashboard();
-                showAlertModal('Berhasil Reset', 'Seluruh hasil perolehan suara telah direset ke Nol.', 'info');
+                showAlertModal('Berhasil Reset', 'Seluruh hasil perolehan suara telah direset ke nol dan kelas dikembalikan ke default (Kelas 7, 8, 9).', 'info');
             }
         }
 
-        // Generic Alert Modal Helper
         function showAlertModal(title, message, type = 'info') {
             const alertModal = document.getElementById('alertModal');
             const alertIcon = document.getElementById('alertIcon');
