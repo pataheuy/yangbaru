@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Martabak Mertua - Pelopor Martabak Mozzarella Bandung</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#fff1f1',
+                            100: '#ffdfdf',
+                            500: '#ef4444',
+                            600: '#dc2626',
+                            700: '#b91c1c',
+                            800: '#991b1b',
+                            900: '#7f1d1d',
+                            950: '#2a0808',
+                            dark: '#450a0a'
+                        },
+                        amberGold: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+                        display: ['Outfit', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* Custom animations & keyframes */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(1deg); }
+        }
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.4; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+        }
+        @keyframes shimmer {
+            100% { transform: translateX(100%); }
+        }
+
+        .animate-float {
+            animation: float 5s ease-in-out infinite;
+        }
+        .animate-glow {
+            animation: pulseGlow 3s ease-in-out infinite;
+        }
+
+        /* Scroll Reveal Animation Classes */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal-left {
+            opacity: 0;
+            transform: translateX(-40px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal-left.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .reveal-right {
+            opacity: 0;
+            transform: translateX(40px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal-right.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* Glassmorphism Effect */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .glass-dark {
+            background: rgba(45, 10, 10, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #fff1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #dc2626;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #991b1b;
+        }
+
+        /* Hide scrollbar for clean horizontal scroll on mobile */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Cheese Torch Flame Effect */
+        .flame-glow {
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.6);
+        }
+    </style>
+</head>
+<body class="bg-amber-50/40 text-gray-800 antialiased selection:bg-brand-600 selection:text-white font-sans overflow-x-hidden">
+
+    <!-- NAVIGATION BAR -->
+    <header id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 py-4">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div id="nav-container" class="flex items-center justify-between px-6 py-3 rounded-full transition-all duration-300">
+                <!-- Logo -->
+                <a href="#" class="flex items-center gap-3 group">
+                    <div class="w-10 h-10 rounded-full bg-brand-700 flex items-center justify-center text-amberGold-400 font-extrabold text-xl shadow-lg group-hover:rotate-12 transition-transform duration-300">
+                        <i class="fa-solid fa-crown"></i>
+                    </div>
+                    <div>
+                        <span class="font-display font-extrabold text-xl md:text-2xl tracking-tight text-white group-hover:text-amberGold-400 transition-colors">
+                            MARTABAK<span class="text-amberGold-400 group-hover:text-white">MERTUA</span>
+                        </span>
+                        <span class="block text-[10px] font-semibold text-amber-200 tracking-wider uppercase -mt-1">Pelopor Mozzarella Bandung</span>
+                    </div>
+                </a>
+
+                <!-- Desktop Menu -->
+                <nav class="hidden md:flex items-center gap-8 font-semibold text-sm text-white">
+                    <a href="#about" class="hover:text-amberGold-400 transition-colors relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-amberGold-400 hover:after:w-full after:transition-all">Tentang Kami</a>
+                    <a href="#menu" class="hover:text-amberGold-400 transition-colors relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-amberGold-400 hover:after:w-full after:transition-all">Katalog Menu</a>
+                    <a href="#builder" class="hover:text-amberGold-400 transition-colors relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-amberGold-400 hover:after:w-full after:transition-all">Customizer <span class="bg-amberGold-500 text-brand-900 text-[10px] px-1.5 py-0.5 rounded-full font-bold ml-1">HOT</span></a>
+                    <a href="#lokasi" class="hover:text-amberGold-400 transition-colors relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-amberGold-400 hover:after:w-full after:transition-all">Lokasi Cabang</a>
+                    <a href="#kemitraan" class="hover:text-amberGold-400 transition-colors relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-amberGold-400 hover:after:w-full after:transition-all">Kemitraan</a>
+                </nav>
+
+                <!-- Order CTA Button -->
+                <div class="hidden sm:flex items-center gap-3">
+                    <button onclick="openOrderModal()" class="bg-gradient-to-r from-amberGold-500 to-amberGold-400 hover:from-amberGold-400 hover:to-amberGold-500 text-brand-900 font-extrabold px-6 py-2.5 rounded-full shadow-lg hover:shadow-amberGold-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center gap-2 text-sm">
+                        <i class="fa-solid fa-motorcycle text-base"></i>
+                        <span>Pesan Sekarang</span>
+                    </button>
+                </div>
+
+                <!-- Mobile Hamburger Button -->
+                <button id="mobile-menu-btn" class="md:hidden text-white hover:text-amberGold-400 text-2xl focus:outline-none p-2">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Dropdown -->
+        <div id="mobile-menu" class="hidden md:hidden bg-brand-900/95 backdrop-blur-xl border-b border-brand-700/50 px-6 py-6 transition-all">
+            <div class="flex flex-col gap-4 font-semibold text-white">
+                <a href="#about" class="hover:text-amberGold-400 transition-colors text-lg py-2 border-b border-brand-800">Tentang Kami</a>
+                <a href="#menu" class="hover:text-amberGold-400 transition-colors text-lg py-2 border-b border-brand-800">Katalog Menu</a>
+                <a href="#builder" class="hover:text-amberGold-400 transition-colors text-lg py-2 border-b border-brand-800 flex justify-between items-center">
+                    <span>Custom Martabak</span>
+                    <span class="bg-amberGold-500 text-brand-900 text-xs px-2 py-0.5 rounded-full font-bold">Interaktif</span>
+                </a>
+                <a href="#lokasi" class="hover:text-amberGold-400 transition-colors text-lg py-2 border-b border-brand-800">Lokasi Cabang</a>
+                <a href="#kemitraan" class="hover:text-amberGold-400 transition-colors text-lg py-2 border-b border-brand-800">Kemitraan (Franchise)</a>
+                <button onclick="openOrderModal()" class="mt-4 w-full bg-amberGold-500 text-brand-900 font-extrabold py-3 rounded-xl shadow-lg hover:bg-amberGold-400 text-center flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-motorcycle"></i>
+                    <span>Pesan Sekarang</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section class="relative min-h-screen bg-gradient-to-br from-brand-900 via-brand-800 to-brand-950 text-white pt-28 sm:pt-32 pb-16 sm:pb-20 overflow-hidden flex items-center">
+        <!-- Dynamic Background Light Orbs -->
+        <div class="absolute top-1/4 left-10 w-72 sm:w-96 h-72 sm:h-96 bg-amberGold-500/20 rounded-full blur-3xl animate-glow pointer-events-none"></div>
+        <div class="absolute bottom-10 right-10 w-72 sm:w-[30rem] h-72 sm:h-[30rem] bg-brand-600/30 rounded-full blur-3xl animate-glow pointer-events-none" style="animation-delay: 1.5s;"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
+                
+                <!-- Left Text Content -->
+                <div class="lg:col-span-7 text-center lg:text-left reveal-left active">
+                    <div class="inline-flex items-center gap-2 bg-brand-700/80 border border-amberGold-500/40 text-amberGold-400 font-bold px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm mb-5 sm:mb-6 shadow-md backdrop-blur-md">
+                        <span class="flex h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full bg-amberGold-400 animate-ping"></span>
+                        <i class="fa-solid fa-fire text-amberGold-400"></i>
+                        <span>Pelopor Martabak Mozzarella Pertama</span>
+                    </div>
+
+                    <h1 class="font-display text-3xl xs:text-4xl sm:text-6xl xl:text-7xl font-extrabold tracking-tight leading-tight sm:leading-none mb-5 sm:mb-6">
+                        Solusi Melumerkan <br class="hidden sm:inline">
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-amberGold-400 via-amber-300 to-amberGold-500">Hati Calon Mertua</span>
+                    </h1>
+
+                    <p class="text-amber-100/90 text-base sm:text-xl font-normal max-w-2xl mb-8 leading-relaxed mx-auto lg:mx-0">
+                        Perpaduan renyahnya martabak telur dengan lelehan keju mozzarella gurih khas Bandung, serta kelembutan martabak manis melimpah. Sekali antar, auto jadi menantu idaman!
+                    </p>
+
+                    <!-- CTA Buttons -->
+                    <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5 sm:gap-4 mb-10 sm:mb-12">
+                        <button onclick="openOrderModal()" class="w-full sm:w-auto bg-gradient-to-r from-amberGold-500 to-amberGold-400 hover:from-amberGold-400 hover:to-amberGold-500 text-brand-900 font-extrabold px-7 py-3.5 sm:px-8 sm:py-4 rounded-2xl shadow-xl hover:shadow-amberGold-500/30 hover:-translate-y-1 transition-all text-base sm:text-lg flex items-center justify-center gap-2.5 group">
+                            <i class="fa-solid fa-bag-shopping text-lg sm:text-xl group-hover:scale-110 transition-transform"></i>
+                            <span>Pesan Kirim Sekarang</span>
+                        </button>
+                        <a href="#menu" class="w-full sm:w-auto border-2 border-white/30 hover:border-amberGold-400 hover:bg-white/10 text-white font-bold px-7 py-3.5 sm:px-8 sm:py-4 rounded-2xl backdrop-blur-sm transition-all text-base sm:text-lg text-center flex items-center justify-center gap-2">
+                            <span>Jelajahi Menu</span>
+                            <i class="fa-solid fa-arrow-down text-xs sm:text-sm"></i>
+                        </a>
+                    </div>
+
+                    <!-- Social Proof Badges -->
+                    <div class="grid grid-cols-3 gap-4 border-t border-brand-700/60 pt-8 max-w-lg mx-auto lg:mx-0">
+                        <div>
+                            <div class="font-display font-extrabold text-2xl sm:text-3xl text-amberGold-400">10+</div>
+                            <div class="text-xs text-amber-200/80 mt-1 font-medium">Tahun Mengabdi</div>
+                        </div>
+                        <div>
+                            <div class="font-display font-extrabold text-2xl sm:text-3xl text-amberGold-400">15+</div>
+                            <div class="text-xs text-amber-200/80 mt-1 font-medium">Cabang Outlets</div>
+                        </div>
+                        <div>
+                            <div class="font-display font-extrabold text-2xl sm:text-3xl text-amberGold-400">4.9★</div>
+                            <div class="text-xs text-amber-200/80 mt-1 font-medium">Rating Ribuan Ulasan</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Visual Floating Mockup -->
+                <div class="lg:col-span-5 relative reveal-right active">
+                    <div class="relative mx-auto max-w-md lg:max-w-none">
+                        <!-- Glow behind card -->
+                        <div class="absolute -inset-4 bg-gradient-to-r from-amberGold-500 to-brand-600 rounded-3xl blur-2xl opacity-50 animate-glow"></div>
+                        
+                        <!-- Main Card -->
+                        <div class="relative bg-brand-950/80 border border-amberGold-500/30 rounded-3xl p-6 shadow-2xl backdrop-blur-xl animate-float">
+                            <div class="relative rounded-2xl overflow-hidden mb-6 group">
+                                <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=800&q=80" 
+                                     alt="Martabak Mozzarella Signature" 
+                                     class="w-full h-72 sm:h-80 object-cover group-hover:scale-105 transition-transform duration-700">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                                <div class="absolute bottom-4 left-4 right-4 flex justify-between items-end">
+                                    <div>
+                                        <span class="bg-brand-600 text-white font-bold text-xs px-2.5 py-1 rounded-full uppercase tracking-wider">Signature #1</span>
+                                        <h3 class="text-xl font-bold text-white mt-1">Martabak Telur Mozzarella</h3>
+                                    </div>
+                                    <span class="bg-amberGold-500 text-brand-900 font-extrabold text-sm px-3 py-1 rounded-xl shadow">
+                                        Torch Cheese 🧀
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Highlights List -->
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between text-sm p-3 rounded-xl bg-brand-900/60 border border-brand-700/50">
+                                    <span class="flex items-center gap-2 text-amber-100">
+                                        <i class="fa-solid fa-check text-amberGold-400"></i> Daging Sapi Super & Bumbu Rempah
+                                    </span>
+                                    <span class="font-bold text-amberGold-400">100% Halal</span>
+                                </div>
+                                <div class="flex items-center justify-between text-sm p-3 rounded-xl bg-brand-900/60 border border-brand-700/50">
+                                    <span class="flex items-center gap-2 text-amber-100">
+                                        <i class="fa-solid fa-check text-amberGold-400"></i> Double Mozzarella Melt Layer
+                                    </span>
+                                    <span class="font-bold text-amberGold-400">Super Gurih</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Floating Badge Decorative -->
+                        <div class="absolute -bottom-6 -left-6 bg-white text-gray-900 p-4 rounded-2xl shadow-2xl border border-amber-200 hidden sm:flex items-center gap-3 animate-bounce" style="animation-duration: 3s;">
+                            <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center text-amberGold-600 font-bold text-2xl">
+                                🎁
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-500 font-semibold">Kemasan Elegan</div>
+                                <div class="font-bold text-sm text-brand-900">Siap Kirim Camer</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- BRAND PHILOSOPHY & STORY -->
+    <section id="about" class="py-24 relative bg-white overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                
+                <!-- Graphic Image Grid -->
+                <div class="lg:col-span-5 reveal-left">
+                    <div class="relative grid grid-cols-2 gap-4">
+                        <div class="space-y-4">
+                            <img src="https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=600&q=80" 
+                                 alt="Martabak Crafting" 
+                                 class="rounded-3xl shadow-lg object-cover h-64 w-full hover:scale-105 transition-transform duration-500">
+                            <div class="bg-amber-100 p-6 rounded-3xl border border-amber-200">
+                                <i class="fa-solid fa-heart text-brand-600 text-3xl mb-2"></i>
+                                <h4 class="font-bold text-brand-900 text-lg">Resep Tradisi</h4>
+                                <p class="text-xs text-gray-600 mt-1">Dibuat dengan kasih sayang sejak 2015 di gerai 2,5 m² Bandung.</p>
+                            </div>
+                        </div>
+                        <div class="space-y-4 pt-8">
+                            <div class="bg-brand-900 text-white p-6 rounded-3xl shadow-xl">
+                                <div class="text-3xl font-extrabold text-amberGold-400 mb-1">2015</div>
+                                <div class="text-xs text-amber-200">Awal Perjalanan di Bandung</div>
+                            </div>
+                            <img src="https://images.unsplash.com/photo-1509722747041-616f39b57569?auto=format&fit=crop&w=600&q=80" 
+                                 alt="Martabak Sweet Toppings" 
+                                 class="rounded-3xl shadow-lg object-cover h-64 w-full hover:scale-105 transition-transform duration-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Story Text Content -->
+                <div class="lg:col-span-7 reveal-right">
+                    <div class="inline-flex items-center gap-2 text-brand-700 font-bold text-sm tracking-widest uppercase mb-3">
+                        <i class="fa-solid fa-book-open"></i> Filosofi & Cerita
+                    </div>
+                    <h2 class="font-display text-3xl sm:text-5xl font-extrabold text-gray-900 mb-6 leading-tight">
+                        Mengapa Harus <span class="text-brand-700">"Martabak Mertua"?</span>
+                    </h2>
+
+                    <p class="text-gray-600 text-lg mb-6 leading-relaxed">
+                        Di Indonesia, membawa buah tangan saat berkunjung ke rumah kekasih adalah gestur wajib untuk mengambil hati calon mertua. Martabak sejak lama menjadi pilihan utama "upeti" pelumer suasana.
+                    </p>
+
+                    <p class="text-gray-600 text-base mb-8 leading-relaxed">
+                        Berawal dari lapak sangat sederhana di Bandung pada tahun 2015, kami ingin mengubah martabak biasa menjadi **karya kuliner spektakuler**. Dengan menjadi pelopor **Martabak Mozzarella** yang dilelehkan menggunakan *flame torch*, kami menghadirkan sensasi gurih, harum, dan mewah yang tak terlupakan.
+                    </p>
+
+                    <!-- Feature Points -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div class="flex gap-4 p-4 rounded-2xl bg-amber-50/60 border border-amber-200/60 hover:bg-amber-100/50 transition-colors">
+                            <div class="w-12 h-12 rounded-xl bg-brand-700 text-white flex items-center justify-center font-bold text-xl flex-shrink-0">
+                                🧀
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-900">Keju Mozzarella Melimpah</h4>
+                                <p class="text-xs text-gray-600 mt-1">Torch keju impor berkualitas sampai keemasan dan wangi harum.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-4 p-4 rounded-2xl bg-amber-50/60 border border-amber-200/60 hover:bg-amber-100/50 transition-colors">
+                            <div class="w-12 h-12 rounded-xl bg-brand-700 text-white flex items-center justify-center font-bold text-xl flex-shrink-0">
+                                🧈
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-900">Mentega Premium Wijsman</h4>
+                                <p class="text-xs text-gray-600 mt-1">Martabak manis lembut, bersarang sempurna, dan harum mentega asli.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- INTERACTIVE MARTABAK BUILDER -->
+    <section id="builder" class="py-24 bg-gradient-to-br from-brand-950 via-brand-900 to-gray-950 text-white relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center max-w-3xl mx-auto mb-16 reveal">
+                <span class="bg-amberGold-500/20 text-amberGold-400 border border-amberGold-500/30 text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-widest inline-block mb-3">
+                    Fitur Interaktif
+                </span>
+                <h2 class="font-display text-3xl sm:text-5xl font-extrabold text-white">
+                    Rancang Martabak Impianmu
+                </h2>
+                <p class="text-amber-100/80 mt-4 text-base sm:text-lg">
+                    Pilih tipe, adonan, isian, dan tingkat keju sesuai selera calon mertua. Hitung harga estimasi secara real-time!
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                <!-- Configurator Panel -->
+                <div class="lg:col-span-7 bg-brand-900/60 border border-brand-700/60 p-6 sm:p-8 rounded-3xl backdrop-blur-xl reveal-left">
+                    
+                    <!-- Step 1: Category -->
+                    <div class="mb-8">
+                        <label class="block text-amberGold-400 font-bold text-xs sm:text-sm uppercase tracking-wider mb-3">
+                            1. Pilih Tipe Martabak
+                        </label>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <button onclick="setBuilderCategory('asin')" id="btn-cat-asin" class="builder-cat-btn py-3.5 px-4 rounded-2xl font-bold text-sm border-2 transition-all flex items-center justify-center gap-2 border-amberGold-500 bg-amberGold-500/20 text-amberGold-400">
+                                🍳 Martabak Telur (Asin)
+                            </button>
+                            <button onclick="setBuilderCategory('manis')" id="btn-cat-manis" class="builder-cat-btn py-3.5 px-4 rounded-2xl font-bold text-sm border-2 transition-all flex items-center justify-center gap-2 border-brand-700 bg-brand-950/50 text-gray-400">
+                                🍫 Martabak Manis
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Base Selection -->
+                    <div class="mb-8">
+                        <label class="block text-amberGold-400 font-bold text-xs sm:text-sm uppercase tracking-wider mb-3">
+                            2. Pilih Base / Isian Utama
+                        </label>
+                        <div id="base-options" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3">
+                            <!-- Dynamic Content Inserted by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Toppings / Extras -->
+                    <div class="mb-8">
+                        <label class="block text-amberGold-400 font-bold text-xs sm:text-sm uppercase tracking-wider mb-3">
+                            3. Tambahan Topping Spesial
+                        </label>
+                        <div id="topping-options" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3">
+                            <!-- Dynamic Content Inserted by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Size -->
+                    <div>
+                        <label class="block text-amberGold-400 font-bold text-xs sm:text-sm uppercase tracking-wider mb-3">
+                            4. Ukuran Porsi
+                        </label>
+                        <div class="grid grid-cols-3 gap-2 sm:gap-3">
+                            <button onclick="setBuilderSize('M', 0)" id="btn-size-M" class="builder-size-btn py-2.5 px-2 sm:px-3 rounded-xl border border-brand-700 bg-brand-950/50 text-center hover:border-amberGold-400 transition">
+                                <div class="font-bold text-xs sm:text-sm">Medium</div>
+                                <div class="text-[10px] text-gray-400">8 Potong</div>
+                            </button>
+                            <button onclick="setBuilderSize('L', 15000)" id="btn-size-L" class="builder-size-btn py-2.5 px-2 sm:px-3 rounded-xl border border-amberGold-500 bg-amberGold-500/20 text-center font-bold text-amberGold-400 transition">
+                                <div class="font-bold text-xs sm:text-sm">Large</div>
+                                <div class="text-[10px] text-amber-200">12 Potong</div>
+                            </button>
+                            <button onclick="setBuilderSize('XL', 30000)" id="btn-size-XL" class="builder-size-btn py-2.5 px-2 sm:px-3 rounded-xl border border-brand-700 bg-brand-950/50 text-center hover:border-amberGold-400 transition">
+                                <div class="font-bold text-xs sm:text-sm">X-Large</div>
+                                <div class="text-[10px] text-gray-400">16 Potong</div>
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Preview Card & Mobile Sticky Bar -->
+                <div class="lg:col-span-5 reveal-right">
+                    <!-- Mobile Quick Bar (Visible only on small screens) -->
+                    <div class="lg:hidden bg-brand-900 border border-amberGold-500/40 rounded-2xl p-4 mb-4 flex items-center justify-between shadow-xl">
+                        <div>
+                            <span class="text-[11px] text-gray-400 block font-medium">Total Racikan Kamu:</span>
+                            <span id="mobile-price-total" class="font-display font-extrabold text-xl text-amberGold-400">Rp 100.000</span>
+                        </div>
+                        <button onclick="orderCustomMartabak()" class="bg-amberGold-500 hover:bg-amberGold-400 text-brand-900 font-extrabold px-4 py-2.5 rounded-xl text-xs shadow flex items-center gap-1.5">
+                            <i class="fa-solid fa-paper-plane"></i> Pesan
+                        </button>
+                    </div>
+
+                    <div class="bg-gradient-to-b from-brand-900 to-brand-950 border border-amberGold-500/40 rounded-3xl p-5 sm:p-6 shadow-2xl sticky top-28">
+                        <!-- Preview Card Header -->
+                        <div class="flex items-center gap-3 border-b border-brand-800 pb-4 mb-4">
+                            <div id="preview-icon" class="w-12 h-12 rounded-2xl bg-amberGold-500/20 border border-amberGold-500/40 flex items-center justify-center text-2xl">🍳</div>
+                            <div>
+                                <span class="text-[10px] uppercase font-bold tracking-wider text-amberGold-400">Pratinjau Pesanan</span>
+                                <h3 id="preview-title" class="font-display text-lg font-bold text-white">Daging Sapi Super</h3>
+                            </div>
+                        </div>
+                        <p id="preview-desc" class="text-xs text-amber-100/70 mb-4">Ukuran Large (12 Potong) dengan Keju Mozzarella Torch</p>
+
+                        <!-- Price Breakdown -->
+                        <div class="py-4 space-y-2 text-sm border-b border-brand-800">
+                            <div class="flex justify-between text-gray-300">
+                                <span>Item Utama:</span>
+                                <span id="price-base" class="font-semibold text-white">Rp 65.000</span>
+                            </div>
+                            <div class="flex justify-between text-gray-300">
+                                <span>Extra Topping:</span>
+                                <span id="price-topping" class="font-semibold text-white">Rp 20.000</span>
+                            </div>
+                            <div class="flex justify-between text-gray-300">
+                                <span>Ukuran Porsi:</span>
+                                <span id="price-size" class="font-semibold text-white">+Rp 15.000</span>
+                            </div>
+                        </div>
+
+                        <!-- Total Price -->
+                        <div class="pt-4 flex items-center justify-between mb-6">
+                            <div>
+                                <span class="text-xs text-gray-400 block">Estimasi Total:</span>
+                                <span id="price-total" class="font-display text-3xl font-extrabold text-amberGold-400">Rp 100.000</span>
+                            </div>
+                            <span class="text-[10px] text-amber-200 bg-brand-800 px-2.5 py-1 rounded-lg">Harga Dapat Bervariasi</span>
+                        </div>
+
+                        <button onclick="orderCustomMartabak()" class="w-full bg-gradient-to-r from-amberGold-500 to-amberGold-400 hover:from-amberGold-400 hover:to-amberGold-500 text-brand-900 font-extrabold py-4 rounded-2xl shadow-xl transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            <span>Pesan Racikan Ini Sekarang</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MENU CATALOGUE SECTION -->
+    <section id="menu" class="py-24 bg-amber-50/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <div class="text-center max-w-3xl mx-auto mb-12 reveal">
+                <span class="text-brand-700 font-bold text-xs uppercase tracking-widest inline-block mb-2">
+                    <i class="fa-solid fa-utensils mr-1"></i> Pilihan Terbaik
+                </span>
+                <h2 class="font-display text-3xl sm:text-5xl font-extrabold text-gray-900">
+                    Katalog Menu Mertua
+                </h2>
+                <p class="text-gray-600 mt-3 text-base sm:text-lg">
+                    Dari varian mozzarella lumer yang gurih hingga kelezatan manis pandan melimpah.
+                </p>
+            </div>
+
+            <!-- Search & Filter Controls -->
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-12 reveal">
+                
+                <!-- Category Tabs (Horizontal Scroll on Mobile) -->
+                <div class="flex items-center gap-2 w-full md:w-auto overflow-x-auto no-scrollbar pb-2 md:pb-0 whitespace-nowrap -mx-4 px-4 sm:mx-0 sm:px-0">
+                    <button onclick="filterMenu('all')" class="menu-tab active-tab px-5 py-2.5 rounded-full text-sm font-bold transition-all shadow-sm bg-brand-700 text-white flex-shrink-0">
+                        Semua Menu
+                    </button>
+                    <button onclick="filterMenu('mozzarella')" class="menu-tab px-5 py-2.5 rounded-full text-sm font-bold transition-all shadow-sm bg-white text-gray-700 hover:bg-brand-100 border border-gray-200 flex-shrink-0">
+                        🧀 Mozzarella Series
+                    </button>
+                    <button onclick="filterMenu('fusion')" class="menu-tab px-5 py-2.5 rounded-full text-sm font-bold transition-all shadow-sm bg-white text-gray-700 hover:bg-brand-100 border border-gray-200 flex-shrink-0">
+                        🍣 Fusion & Unik
+                    </button>
+                    <button onclick="filterMenu('manis')" class="menu-tab px-5 py-2.5 rounded-full text-sm font-bold transition-all shadow-sm bg-white text-gray-700 hover:bg-brand-100 border border-gray-200 flex-shrink-0">
+                        🥞 Manis Melimpah
+                    </button>
+                    <button onclick="filterMenu('tipker')" class="menu-tab px-5 py-2.5 rounded-full text-sm font-bold transition-all shadow-sm bg-white text-gray-700 hover:bg-brand-100 border border-gray-200 flex-shrink-0">
+                        ⚡ Tipker (Kriuk)
+                    </button>
+                </div>
+
+                <!-- Quick Search Input -->
+                <div class="relative w-full md:w-72">
+                    <input type="text" id="menu-search" oninput="searchMenu()" placeholder="Cari nama menu..." 
+                           class="w-full pl-10 pr-4 py-2.5 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-600 bg-white text-sm shadow-sm">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-gray-400 text-sm"></i>
+                </div>
+
+            </div>
+
+            <!-- Menu Grid Container -->
+            <div id="menu-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Dynamic Menu Cards Loaded via JS -->
+            </div>
+
+        </div>
+    </section>
+
+    <!-- STORE LOCATOR SECTION -->
+    <section id="lokasi" class="py-24 bg-white relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16 reveal">
+                <span class="text-brand-700 font-bold text-xs uppercase tracking-widest inline-block mb-2">
+                    <i class="fa-solid fa-location-dot mr-1"></i> Cabang Resmi
+                </span>
+                <h2 class="font-display text-3xl sm:text-5xl font-extrabold text-gray-900">
+                    Temukan Gerai Terdekat
+                </h2>
+                <p class="text-gray-600 mt-3 text-base sm:text-lg">
+                    Hadir di berbagai titik strategis Bandung dan Jabodetabek untuk melayani pesanan Anda.
+                </p>
+            </div>
+
+            <!-- City Filter (Horizontal Scroll on Mobile) -->
+            <div class="flex items-center gap-2.5 mb-10 overflow-x-auto no-scrollbar pb-2 whitespace-nowrap -mx-4 px-4 sm:mx-0 sm:px-0 md:justify-center reveal">
+                <button onclick="filterStore('bandung')" class="store-tab bg-brand-700 text-white px-6 py-2.5 rounded-2xl font-bold text-sm shadow flex-shrink-0">
+                    Bandung & Cimahi
+                </button>
+                <button onclick="filterStore('jakarta')" class="store-tab bg-gray-100 text-gray-700 hover:bg-gray-200 px-6 py-2.5 rounded-2xl font-bold text-sm transition flex-shrink-0">
+                    Jakarta
+                </button>
+                <button onclick="filterStore('depok')" class="store-tab bg-gray-100 text-gray-700 hover:bg-gray-200 px-6 py-2.5 rounded-2xl font-bold text-sm transition flex-shrink-0">
+                    Depok & Tangerang
+                </button>
+                <button onclick="filterStore('bekasi')" class="store-tab bg-gray-100 text-gray-700 hover:bg-gray-200 px-6 py-2.5 rounded-2xl font-bold text-sm transition flex-shrink-0">
+                    Bekasi
+                </button>
+            </div>
+
+            <!-- Store Cards Grid -->
+            <div id="store-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Store cards injected via JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- FRANCHISE & PARTNERSHIP SECTION -->
+    <section id="kemitraan" class="py-24 bg-gradient-to-br from-brand-900 via-brand-800 to-brand-950 text-white relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                
+                <!-- Text & Benefits -->
+                <div class="lg:col-span-6 reveal-left">
+                    <span class="bg-amberGold-500/20 text-amberGold-400 border border-amberGold-500/30 text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-widest inline-block mb-4">
+                        Peluang Bisnis Kuliner
+                    </span>
+                    <h2 class="font-display text-3xl sm:text-5xl font-extrabold text-white mb-6 leading-tight">
+                        Gabung Mitra <br>
+                        <span class="text-amberGold-400">Martabak Mertua</span>
+                    </h2>
+                    <p class="text-amber-100/80 text-lg mb-8 leading-relaxed">
+                        Manfaatkan reputasi brand yang sudah dikenal luas selama lebih dari 10 tahun dengan sistem kemitraan teruji, bahan baku terstandar, dan dukungan marketing nasional.
+                    </p>
+
+                    <div class="space-y-4 mb-8">
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 h-8 rounded-full bg-amberGold-500/20 border border-amberGold-500 flex items-center justify-center text-amberGold-400 font-bold flex-shrink-0 mt-0.5">✓</div>
+                            <div>
+                                <h4 class="font-bold text-white">Brand Equity Tinggi & Viral</h4>
+                                <p class="text-xs text-amber-200/70 mt-0.5">Sudah diliput berbagai media nasional dan disukai jutaan pembeli.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 h-8 rounded-full bg-amberGold-500/20 border border-amberGold-500 flex items-center justify-center text-amberGold-400 font-bold flex-shrink-0 mt-0.5">✓</div>
+                            <div>
+                                <h4 class="font-bold text-white">Supply Chain Terpusat</h4>
+                                <p class="text-xs text-amber-200/70 mt-0.5">Bumbu dan bahan racikan dipasok langsung demi menjaga konsistensi rasa.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 h-8 rounded-full bg-amberGold-500/20 border border-amberGold-500 flex items-center justify-center text-amberGold-400 font-bold flex-shrink-0 mt-0.5">✓</div>
+                            <div>
+                                <h4 class="font-bold text-white">Pendampingan Training & SOP</h4>
+                                <p class="text-xs text-amber-200/70 mt-0.5">Sistem operasional dapur & layanan siap pakai.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Partnership Form Card -->
+                <div class="lg:col-span-6 reveal-right">
+                    <div class="bg-white text-gray-900 rounded-3xl p-8 shadow-2xl">
+                        <h3 class="font-display text-2xl font-bold text-brand-900 mb-2">Form Formulir Kemitraan</h3>
+                        <p class="text-xs text-gray-500 mb-6">Isi data di bawah ini, tim Franchise Development kami akan segera menghubungi Anda.</p>
+
+                        <form onsubmit="submitFranchiseForm(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Nama Lengkap</label>
+                                <input type="text" required placeholder="Contoh: Budi Santoso" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-brand-600 focus:outline-none text-sm">
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Nomor WhatsApp</label>
+                                    <input type="tel" required placeholder="08123456789" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-brand-600 focus:outline-none text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Kota Rencana Outlet</label>
+                                    <input type="text" required placeholder="Contoh: Bandung Barat" class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-brand-600 focus:outline-none text-sm">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Kesiapan Budget Investasi</label>
+                                <select class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-brand-600 focus:outline-none text-sm">
+                                    <option>Rp 100 Juta - Rp 200 Juta</option>
+                                    <option>Rp 200 Juta - Rp 350 Juta</option>
+                                    <option>> Rp 350 Juta</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="w-full bg-brand-700 hover:bg-brand-800 text-white font-extrabold py-4 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 text-base">
+                                <i class="fa-solid fa-paper-plane"></i>
+                                <span>Kirim Pengajuan Kemitraan</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- TESTIMONIALS & REVIEWS -->
+    <section class="py-24 bg-amber-50/40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16 reveal">
+                <span class="text-brand-700 font-bold text-xs uppercase tracking-widest inline-block mb-2">
+                    <i class="fa-solid fa-star text-amberGold-500 mr-1"></i> Apa Kata Mereka?
+                </span>
+                <h2 class="font-display text-3xl sm:text-5xl font-extrabold text-gray-900">
+                    Cerita Camer & Menantu
+                </h2>
+                <p class="text-gray-600 mt-3 text-base sm:text-lg">
+                    Pengalaman nyata dari para pelanggan setia Martabak Mertua.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Testimonial 1 -->
+                <div class="bg-white p-8 rounded-3xl shadow-lg border border-amber-100 flex flex-col justify-between hover:-translate-y-2 transition-transform duration-300 reveal">
+                    <div>
+                        <div class="flex text-amberGold-400 mb-4 gap-1">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                        <p class="text-gray-700 italic text-sm leading-relaxed mb-6">
+                            "Bawa Martabak Mozzarella pas main pertama kali ke rumah pacar. Calon bapak mertua langsung kepo dan doyan banget sama lelehan kejunya. Sukses dapet restu!"
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-4 pt-4 border-t border-gray-100">
+                        <div class="w-12 h-12 rounded-full bg-brand-100 text-brand-700 font-bold flex items-center justify-center text-lg">
+                            RF
+                        </div>
+                        <div>
+                            <div class="font-bold text-gray-900 text-sm">Rian Febrian</div>
+                            <div class="text-xs text-gray-500">Pelanggan Dipatiukur</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 2 -->
+                <div class="bg-white p-8 rounded-3xl shadow-lg border border-amber-100 flex flex-col justify-between hover:-translate-y-2 transition-transform duration-300 reveal">
+                    <div>
+                        <div class="flex text-amberGold-400 mb-4 gap-1">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                        <p class="text-gray-700 italic text-sm leading-relaxed mb-6">
+                            "Martabak manis pandan jagung kejunya beneran melimpah! Adonannya kenyal dan bersarang sempurna. Menteganya harum Wijsman asli."
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-4 pt-4 border-t border-gray-100">
+                        <div class="w-12 h-12 rounded-full bg-amber-100 text-amber-700 font-bold flex items-center justify-center text-lg">
+                            SD
+                        </div>
+                        <div>
+                            <div class="font-bold text-gray-900 text-sm">Siti Nurhaliza</div>
+                            <div class="text-xs text-gray-500">Pelanggan Margahayu</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Testimonial 3 -->
+                <div class="bg-white p-8 rounded-3xl shadow-lg border border-amber-100 flex flex-col justify-between hover:-translate-y-2 transition-transform duration-300 reveal">
+                    <div>
+                        <div class="flex text-amberGold-400 mb-4 gap-1">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                        <p class="text-gray-700 italic text-sm leading-relaxed mb-6">
+                            "Menu Markoyaki unik banget! Cita rasa Takoyaki Jepang disajikan dalam wujud martabak telur renyah. Anak-anak dan keluarga di rumah suka banget."
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-4 pt-4 border-t border-gray-100">
+                        <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 font-bold flex items-center justify-center text-lg">
+                            AH
+                        </div>
+                        <div>
+                            <div class="font-bold text-gray-900 text-sm">Aditya Hermawan</div>
+                            <div class="text-xs text-gray-500">Pelanggan Margonda Depok</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ ACCORDION SECTION -->
+    <section class="py-20 bg-white border-t border-gray-100">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12 reveal">
+                <h2 class="font-display text-3xl font-extrabold text-gray-900">Pertanyaan Sering Diajukan (FAQ)</h2>
+                <p class="text-gray-500 text-sm mt-2">Segala hal yang perlu kamu ketahui tentang Martabak Mertua</p>
+            </div>
+
+            <div class="space-y-4 reveal">
+                <div class="border border-gray-200 rounded-2xl overflow-hidden">
+                    <button onclick="toggleFaq(this)" class="w-full text-left px-6 py-4 font-bold text-gray-900 flex justify-between items-center bg-gray-50 hover:bg-gray-100 transition">
+                        <span>Apakah seluruh menu Martabak Mertua Halal?</span>
+                        <i class="fa-solid fa-chevron-down text-sm transition-transform"></i>
+                    </button>
+                    <div class="faq-answer hidden px-6 py-4 text-sm text-gray-600 bg-white border-t border-gray-100">
+                        Ya, 100% Halal. Semua bahan baku daging sapi, ayam, keju, hingga mentega bersertifikasi halal resmi.
+                    </div>
+                </div>
+
+                <div class="border border-gray-200 rounded-2xl overflow-hidden">
+                    <button onclick="toggleFaq(this)" class="w-full text-left px-6 py-4 font-bold text-gray-900 flex justify-between items-center bg-gray-50 hover:bg-gray-100 transition">
+                        <span>Bagaimana cara pesan antar online paling praktis?</span>
+                        <i class="fa-solid fa-chevron-down text-sm transition-transform"></i>
+                    </button>
+                    <div class="faq-answer hidden px-6 py-4 text-sm text-gray-600 bg-white border-t border-gray-100">
+                        Kamu bisa memesan langsung melalui aplikasi GoFood, GrabFood, maupun ShopeeFood dengan mencari outlet "Martabak Mertua" terdekat di kotamu.
+                    </div>
+                </div>
+
+                <div class="border border-gray-200 rounded-2xl overflow-hidden">
+                    <button onclick="toggleFaq(this)" class="w-full text-left px-6 py-4 font-bold text-gray-900 flex justify-between items-center bg-gray-50 hover:bg-gray-100 transition">
+                        <span>Berapa lama martabak mozzarella tahan hangat?</span>
+                        <i class="fa-solid fa-chevron-down text-sm transition-transform"></i>
+                    </button>
+                    <div class="faq-answer hidden px-6 py-4 text-sm text-gray-600 bg-white border-t border-gray-100">
+                        Martabak dikemas dalam kotak ramah lingkungan khusus yang menjaga kehangatan hingga 45-60 menit perjalanan delivery. Jika keju mengeras, cukup dipanaskan di teflon tanpa minyak selama 2-3 menit.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-brand-950 text-white pt-16 pb-8 border-t border-brand-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 mb-12">
+                
+                <!-- Brand Info -->
+                <div class="lg:col-span-2">
+                    <a href="#" class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-full bg-brand-700 flex items-center justify-center text-amberGold-400 font-extrabold text-xl">
+                            <i class="fa-solid fa-crown"></i>
+                        </div>
+                        <span class="font-display font-extrabold text-2xl text-white">MARTABAK<span class="text-amberGold-400">MERTUA</span></span>
+                    </a>
+                    <p class="text-amber-100/70 text-sm max-w-sm mb-6 leading-relaxed">
+                        Pelopor Martabak Mozzarella Pertama dari Bandung. Menghadirkan sajian istimewa berkelas untuk momen hangat bersama keluarga dan calon mertua.
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="https://www.instagram.com/martabakmertua/?hl=en" target="_blank" rel="noopener noreferrer" class="w-10 h-10 rounded-full bg-brand-900 border border-brand-700 flex items-center justify-center text-amberGold-400 hover:bg-amberGold-500 hover:text-brand-900 transition-colors">
+                            <i class="fa-brands fa-instagram text-lg"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-brand-900 border border-brand-700 flex items-center justify-center text-amberGold-400 hover:bg-amberGold-500 hover:text-brand-900 transition-colors">
+                            <i class="fa-brands fa-tiktok text-lg"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-brand-900 border border-brand-700 flex items-center justify-center text-amberGold-400 hover:bg-amberGold-500 hover:text-brand-900 transition-colors">
+                            <i class="fa-brands fa-whatsapp text-lg"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Nav Column 1 -->
+                <div>
+                    <h4 class="font-bold text-amberGold-400 text-sm uppercase tracking-wider mb-4">Navigasi</h4>
+                    <ul class="space-y-2.5 text-sm text-amber-100/70">
+                        <li><a href="#about" class="hover:text-white transition">Tentang Kami</a></li>
+                        <li><a href="#menu" class="hover:text-white transition">Katalog Menu</a></li>
+                        <li><a href="#builder" class="hover:text-white transition">Custom Martabak</a></li>
+                        <li><a href="#lokasi" class="hover:text-white transition">Lokasi Cabang</a></li>
+                    </ul>
+                </div>
+
+                <!-- Nav Column 2 -->
+                <div>
+                    <h4 class="font-bold text-amberGold-400 text-sm uppercase tracking-wider mb-4">Menu Populer</h4>
+                    <ul class="space-y-2.5 text-sm text-amber-100/70">
+                        <li><a href="#menu" class="hover:text-white transition">Mozzarella Sapi Super</a></li>
+                        <li><a href="#menu" class="hover:text-white transition">Markoyaki Takoyaki</a></li>
+                        <li><a href="#menu" class="hover:text-white transition">Pandan Jagung Keju</a></li>
+                        <li><a href="#menu" class="hover:text-white transition">Tipker Cokelat Keju</a></li>
+                    </ul>
+                </div>
+
+                <!-- Jam Operasional -->
+                <div>
+                    <h4 class="font-bold text-amberGold-400 text-sm uppercase tracking-wider mb-4">Jam Operasional</h4>
+                    <p class="text-sm text-amber-100/80 mb-2 font-medium">Buka Setiap Hari</p>
+                    <p class="text-xs text-amber-200/60 mb-4">13.00 WIB - 22.30 WIB</p>
+                    <span class="inline-block bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 text-xs font-bold px-3 py-1 rounded-full">
+                        🟢 Melayani Delivery
+                    </span>
+                </div>
+
+            </div>
+
+            <div class="border-t border-brand-800 pt-8 text-center text-xs text-amber-200/50 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <p>&copy; 2026 Martabak Mertua. All rights reserved.</p>
+                <p class="text-[11px]">Dibuat dengan ❤️ untuk Pencinta Kuliner Bandung & Indonesia</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ORDER DELIVERY MODAL -->
+    <div id="orderModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/70 backdrop-blur-md transition-all">
+        <div class="bg-white rounded-3xl max-w-md w-full p-5 sm:p-8 shadow-2xl border border-amber-200 transform transition-all scale-95 opacity-0 max-h-[90vh] overflow-y-auto no-scrollbar" id="modalCard">
+            
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h3 class="font-display font-extrabold text-2xl text-brand-900">Pilih Platform Pesan</h3>
+                    <p class="text-xs text-gray-500">Pesan makanan online terdekat dengan promo terbaik</p>
+                </div>
+                <button onclick="closeOrderModal()" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Apps Button List -->
+            <div class="space-y-3 mb-6">
+                <a href="https://gofood.co.id" target="_blank" class="flex items-center justify-between p-4 rounded-2xl bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition group">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white font-bold flex items-center justify-center">
+                            GF
+                        </div>
+                        <div>
+                            <div class="font-bold text-gray-900 group-hover:text-emerald-800">GoFood Indonesia</div>
+                            <div class="text-xs text-emerald-700">Promo Diskon Ongkir & Promo Bundling</div>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-emerald-600"></i>
+                </a>
+
+                <a href="https://food.grab.com" target="_blank" class="flex items-center justify-between p-4 rounded-2xl bg-green-50 border border-green-200 hover:bg-green-100 transition group">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-green-600 text-white font-bold flex items-center justify-center">
+                            GR
+                        </div>
+                        <div>
+                            <div class="font-bold text-gray-900 group-hover:text-green-800">GrabFood</div>
+                            <div class="text-xs text-green-700">Layanan Antar Cepat & GrabUnlimited</div>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-green-600"></i>
+                </a>
+
+                <a href="https://shopee.co.id/shopeefood" target="_blank" class="flex items-center justify-between p-4 rounded-2xl bg-orange-50 border border-orange-200 hover:bg-orange-100 transition group">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-orange-600 text-white font-bold flex items-center justify-center">
+                            SF
+                        </div>
+                        <div>
+                            <div class="font-bold text-gray-900 group-hover:text-orange-800">ShopeeFood</div>
+                            <div class="text-xs text-orange-700">Voucher Cashback & Gratis Ongkir</div>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-orange-600"></i>
+                </a>
+            </div>
+
+            <p class="text-center text-[11px] text-gray-400">
+                Atau hubungi admin cabang kami langsung via WhatsApp untuk pemesanan rombongan / event.
+            </p>
+
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 hidden bg-brand-900 text-white px-6 py-4 rounded-2xl shadow-2xl border border-amberGold-500/40 flex items-center gap-3 transition-all duration-300 transform translate-y-10">
+        <div class="w-8 h-8 rounded-full bg-amberGold-500 text-brand-900 font-bold flex items-center justify-center">
+            ✓
+        </div>
+        <div>
+            <div id="toast-title" class="font-bold text-sm">Berhasil!</div>
+            <div id="toast-msg" class="text-xs text-amber-100">Pesan kamu telah diproses.</div>
+        </div>
+    </div>
+
+    <script>
+        /* -------------------------------------------------------------
+           DATA MENU & CABANG MARTABAK MERTUA
+        ------------------------------------------------------------- */
+        const MENU_DATA = [
+            {
+                id: 'm1',
+                name: 'Martabak Mozzarella Daging Sapi',
+                category: 'mozzarella',
+                price: 'Rp 75.000',
+                image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=600&q=80',
+                desc: 'Martabak telur daging sapi super dengan lelehan keju mozzarella di-torch keemasan.',
+                badge: 'Best Seller 🏆'
+            },
+            {
+                id: 'm2',
+                name: 'Markoyaki (Martabak Takoyaki)',
+                category: 'fusion',
+                price: 'Rp 68.000',
+                image: 'https://images.unsplash.com/photo-1541544741938-0af808871cc0?auto=format&fit=crop&w=600&q=80',
+                desc: 'Paduan unik martabak telur renyah dengan saus takoyaki, mayones, dan katsuobushi melimpah.',
+                badge: 'Fusion Hits 🔥'
+            },
+            {
+                id: 'm3',
+                name: 'Pandan Jagung Keju Melimpah',
+                category: 'manis',
+                price: 'Rp 62.000',
+                image: 'https://images.unsplash.com/photo-1509722747041-616f39b57569?auto=format&fit=crop&w=600&q=80',
+                desc: 'Adonan pandan wangi bersarang dengan isian manis jagung pipil segar dan parutan keju melimpah.',
+                badge: 'Favorit Mertua 💚'
+            },
+            {
+                id: 'm4',
+                name: 'Tuna Kani Mentai Mozzarella',
+                category: 'fusion',
+                price: 'Rp 82.000',
+                image: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?auto=format&fit=crop&w=600&q=80',
+                desc: 'Martabak telur tuna segar dengan saus mentai ala Jepang dan mozzarella bakar.',
+                badge: 'Baru 🌟'
+            },
+            {
+                id: 'm5',
+                name: 'Red Velvet Cream Cheese Ovomaltine',
+                category: 'manis',
+                price: 'Rp 78.000',
+                image: 'https://images.unsplash.com/photo-1587314168485-3236d6710814?auto=format&fit=crop&w=600&q=80',
+                desc: 'Base adonan red velvet lembut dengan cream cheese gurih dan crunchy ovomaltine.',
+                badge: 'Sweet Luxury 🍫'
+            },
+            {
+                id: 'm6',
+                name: 'Tipker (Tipis Kering) Cokelat Keju',
+                category: 'tipker',
+                price: 'Rp 45.000',
+                image: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=600&q=80',
+                desc: 'Martabak manis versi kriuk renyah dengan rasa cokelat meises dan parutan keju manis.',
+                badge: 'Kriuk Nagih ✨'
+            }
+        ];
+
+        const STORES_DATA = [
+            {
+                city: 'bandung',
+                name: 'Martabak Mertua - Dipatiukur',
+                address: 'Jl. Dipati Ukur No. 84, Lebakgede, Bandung',
+                hours: '13:00 - 22:30 WIB',
+                link: 'https://maps.google.com'
+            },
+            {
+                city: 'bandung',
+                name: 'Martabak Mertua - Margahayu (Pusat)',
+                address: 'Jl. Tata Surya No. 9, Margahayu, Bandung',
+                hours: '13:00 - 22:30 WIB',
+                link: 'https://maps.google.com'
+            },
+            {
+                city: 'bandung',
+                name: 'Martabak Mertua - Cijagra / Buah Batu',
+                address: 'Jl. Cijagra No. 22B, Lengkong, Bandung',
+                hours: '13:00 - 22:30 WIB',
+                link: 'https://maps.google.com'
+            },
+            {
+                city: 'jakarta',
+                name: 'Martabak Mertua - Menteng',
+                address: 'Jl. Sabang No. 45, Menteng, Jakarta Pusat',
+                hours: '14:00 - 23:00 WIB',
+                link: 'https://maps.google.com'
+            },
+            {
+                city: 'depok',
+                name: 'Martabak Mertua - Margonda Depok',
+                address: 'Jl. Margonda Raya No. 320, Beji, Depok',
+                hours: '13:00 - 22:30 WIB',
+                link: 'https://maps.google.com'
+            },
+            {
+                city: 'bekasi',
+                name: 'Martabak Mertua - Summarecon Bekasi',
+                address: 'Ruko Sinpasa, Jl. Bulevar Ahmad Yani, Bekasi',
+                hours: '13:00 - 22:30 WIB',
+                link: 'https://maps.google.com'
+            }
+        ];
+
+        /* -------------------------------------------------------------
+           BUILDER INTERACTIVE STATE
+        ------------------------------------------------------------- */
+        let builderState = {
+            category: 'asin', // 'asin' or 'manis'
+            base: { name: 'Daging Sapi Super', price: 65000, icon: '🥩' },
+            topping: { name: 'Keju Mozzarella Torch', price: 20000, icon: '🧀' },
+            size: { name: 'L', price: 15000, desc: 'Large (12 Potong)' }
+        };
+
+        const BUILDER_OPTIONS = {
+            asin: {
+                bases: [
+                    { id: 'b1', name: 'Daging Sapi Super', price: 65000, icon: '🥩' },
+                    { id: 'b2', name: 'Daging Ayam Bumbu', price: 55000, icon: '🍗' },
+                    { id: 'b3', name: 'Se\'i Sapi Sambal Ijo', price: 72000, icon: '🌶️' },
+                    { id: 'b4', name: 'Tuna Melt Special', price: 68000, icon: '🐟' }
+                ],
+                toppings: [
+                    { id: 't1', name: 'Keju Mozzarella Torch', price: 20000, icon: '🧀' },
+                    { id: 't2', name: 'Saus Takoyaki & Katsuobushi', price: 15000, icon: '🐙' },
+                    { id: 't3', name: 'Double Cheese Crust', price: 25000, icon: '🍕' },
+                    { id: 't4', name: 'Tanpa Extra Topping', price: 0, icon: '❌' }
+                ]
+            },
+            manis: {
+                bases: [
+                    { id: 'bm1', name: 'Base Original Butter', price: 50000, icon: '🧈' },
+                    { id: 'bm2', name: 'Base Pandan Aromatik', price: 55000, icon: '🍃' },
+                    { id: 'bm3', name: 'Base Red Velvet Velvet', price: 58000, icon: '🔴' },
+                    { id: 'bm4', name: 'Base Black Charcoal', price: 58000, icon: '🖤' }
+                ],
+                toppings: [
+                    { id: 'tm1', name: 'Ovomaltine & Keju Parut', price: 22000, icon: '🍫' },
+                    { id: 'tm2', name: 'Jagung Pipil & Keju Parut', price: 18000, icon: '🌽' },
+                    { id: 'tm3', name: 'Nutella & Toblerone', price: 25000, icon: '🌰' },
+                    { id: 'tm4', name: 'Keju Cokelat Kacang Klasik', price: 18000, icon: '🥜' }
+                ]
+            }
+        };
+
+        /* -------------------------------------------------------------
+           INITIALIZATION ON DOM LOAD
+        ------------------------------------------------------------- */
+        document.addEventListener('DOMContentLoaded', () => {
+            renderMenuCatalogue(MENU_DATA);
+            renderStoreGrid('bandung');
+            initBuilderUI();
+            initScrollReveal();
+            initNavbarScroll();
+            initMobileMenu();
+        });
+
+        /* -------------------------------------------------------------
+           NAVBAR SCROLL EFFECT
+        ------------------------------------------------------------- */
+        function initNavbarScroll() {
+            const navbar = document.getElementById('navbar');
+            const navContainer = document.getElementById('nav-container');
+
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 50) {
+                    navbar.classList.add('py-2');
+                    navbar.classList.remove('py-4');
+                    navContainer.classList.add('glass-dark', 'shadow-2xl');
+                } else {
+                    navbar.classList.add('py-4');
+                    navbar.classList.remove('py-2');
+                    navContainer.classList.remove('glass-dark', 'shadow-2xl');
+                }
+            });
+        }
+
+        function initMobileMenu() {
+            const btn = document.getElementById('mobile-menu-btn');
+            const menu = document.getElementById('mobile-menu');
+
+            btn.addEventListener('click', () => {
+                menu.classList.toggle('hidden');
+            });
+        }
+
+        /* -------------------------------------------------------------
+           SCROLL REVEAL ANIMATION ENGINE
+        ------------------------------------------------------------- */
+        function initScrollReveal() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                    }
+                });
+            }, { threshold: 0.15 });
+
+            document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => {
+                observer.observe(el);
+            });
+        }
+
+        /* -------------------------------------------------------------
+           MENU CATALOGUE RENDER & FILTER
+        ------------------------------------------------------------- */
+        function renderMenuCatalogue(data) {
+            const container = document.getElementById('menu-grid');
+            if (!container) return;
+
+            if (data.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-12 text-gray-500">
+                        <i class="fa-solid fa-utensils text-4xl mb-3 text-brand-300"></i>
+                        <p class="font-bold">Menu tidak ditemukan</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = data.map(item => `
+                <div class="bg-white rounded-3xl shadow-lg hover:shadow-2xl border border-amber-100 overflow-hidden transition-all duration-300 hover:-translate-y-2 group flex flex-col justify-between">
+                    <div>
+                        <div class="relative h-56 overflow-hidden">
+                            <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                            <span class="absolute top-4 left-4 bg-brand-700 text-amberGold-400 font-extrabold text-xs px-3 py-1 rounded-full shadow">
+                                ${item.badge}
+                            </span>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="font-display font-bold text-xl text-gray-900 group-hover:text-brand-700 transition-colors mb-2">${item.name}</h3>
+                            <p class="text-xs text-gray-600 leading-relaxed mb-4">${item.desc}</p>
+                        </div>
+                    </div>
+                    <div class="px-6 pb-6 pt-0 flex items-center justify-between border-t border-gray-100 mt-2">
+                        <div>
+                            <span class="text-[10px] text-gray-400 block font-semibold">Harga Porsi Large</span>
+                            <span class="font-display font-extrabold text-lg text-brand-800">${item.price}</span>
+                        </div>
+                        <button onclick="openOrderModal()" class="bg-amberGold-500 hover:bg-amberGold-400 text-brand-900 font-extrabold px-4 py-2 rounded-xl text-xs shadow transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-cart-shopping"></i> Pesan
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterMenu(category) {
+            // Update Tab UI
+            const tabs = document.querySelectorAll('.menu-tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('bg-brand-700', 'text-white');
+                tab.classList.add('bg-white', 'text-gray-700');
+            });
+            event.target.classList.remove('bg-white', 'text-gray-700');
+            event.target.classList.add('bg-brand-700', 'text-white');
+
+            if (category === 'all') {
+                renderMenuCatalogue(MENU_DATA);
+            } else {
+                const filtered = MENU_DATA.filter(item => item.category === category);
+                renderMenuCatalogue(filtered);
+            }
+        }
+
+        function searchMenu() {
+            const query = document.getElementById('menu-search').value.toLowerCase();
+            const filtered = MENU_DATA.filter(item => 
+                item.name.toLowerCase().includes(query) || 
+                item.desc.toLowerCase().includes(query)
+            );
+            renderMenuCatalogue(filtered);
+        }
+
+        /* -------------------------------------------------------------
+           STORE LOCATOR RENDER & FILTER
+        ------------------------------------------------------------- */
+        function renderStoreGrid(city) {
+            const container = document.getElementById('store-grid');
+            const stores = STORES_DATA.filter(s => s.city === city);
+
+            container.innerHTML = stores.map(store => `
+                <div class="bg-amber-50/60 border border-amber-200/80 p-6 rounded-3xl shadow-sm hover:shadow-md transition flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-2 text-brand-700 font-extrabold text-sm mb-2">
+                            <i class="fa-solid fa-store"></i> ${store.name}
+                        </div>
+                        <p class="text-xs text-gray-600 mb-4 leading-relaxed">${store.address}</p>
+                        <div class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-gray-500 bg-white px-3 py-1 rounded-full border border-gray-200 mb-6">
+                            <i class="fa-regular fa-clock text-amberGold-600"></i> Buka ${store.hours}
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <a href="${store.link}" target="_blank" class="flex-1 text-center bg-white border border-brand-700 text-brand-700 hover:bg-brand-50 font-bold py-2.5 rounded-xl text-xs transition">
+                            <i class="fa-solid fa-map-location-dot"></i> Petunjuk Arah
+                        </a>
+                        <button onclick="openOrderModal()" class="flex-1 bg-brand-700 hover:bg-brand-800 text-white font-bold py-2.5 rounded-xl text-xs shadow transition">
+                            🛵 Pesan Disini
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterStore(city) {
+            const tabs = document.querySelectorAll('.store-tab');
+            tabs.forEach(t => {
+                t.classList.remove('bg-brand-700', 'text-white');
+                t.classList.add('bg-gray-100', 'text-gray-700');
+            });
+            event.target.classList.remove('bg-gray-100', 'text-gray-700');
+            event.target.classList.add('bg-brand-700', 'text-white');
+
+            renderStoreGrid(city);
+        }
+
+        /* -------------------------------------------------------------
+           MARTABAK BUILDER LOGIC
+        ------------------------------------------------------------- */
+        function initBuilderUI() {
+            renderBuilderOptions();
+            updateBuilderPreview();
+        }
+
+        function setBuilderCategory(cat) {
+            builderState.category = cat;
+
+            // Toggle category buttons
+            const btnAsin = document.getElementById('btn-cat-asin');
+            const btnManis = document.getElementById('btn-cat-manis');
+
+            if (cat === 'asin') {
+                btnAsin.className = 'builder-cat-btn py-3.5 px-4 rounded-2xl font-bold border-2 transition-all flex items-center justify-center gap-2 border-amberGold-500 bg-amberGold-500/20 text-amberGold-400';
+                btnManis.className = 'builder-cat-btn py-3.5 px-4 rounded-2xl font-bold border-2 transition-all flex items-center justify-center gap-2 border-brand-700 bg-brand-950/50 text-gray-400';
+            } else {
+                btnManis.className = 'builder-cat-btn py-3.5 px-4 rounded-2xl font-bold border-2 transition-all flex items-center justify-center gap-2 border-amberGold-500 bg-amberGold-500/20 text-amberGold-400';
+                btnAsin.className = 'builder-cat-btn py-3.5 px-4 rounded-2xl font-bold border-2 transition-all flex items-center justify-center gap-2 border-brand-700 bg-brand-950/50 text-gray-400';
+            }
+
+            // Reset defaults for selected category
+            const opts = BUILDER_OPTIONS[cat];
+            builderState.base = opts.bases[0];
+            builderState.topping = opts.toppings[0];
+
+            renderBuilderOptions();
+            updateBuilderPreview();
+        }
+
+        function renderBuilderOptions() {
+            const opts = BUILDER_OPTIONS[builderState.category];
+            const baseContainer = document.getElementById('base-options');
+            const toppingContainer = document.getElementById('topping-options');
+
+            baseContainer.innerHTML = opts.bases.map((b, idx) => `
+                <button onclick="selectBuilderBase(${idx})" class="p-3 rounded-xl border text-left transition flex flex-col justify-between ${builderState.base.name === b.name ? 'border-amberGold-500 bg-amberGold-500/20 text-white' : 'border-brand-700 bg-brand-950/40 text-gray-300 hover:border-amberGold-400'}">
+                    <span class="text-xl mb-1">${b.icon}</span>
+                    <div>
+                        <div class="font-bold text-xs">${b.name}</div>
+                        <div class="text-[10px] text-amberGold-400 font-semibold mt-0.5">Rp ${b.price.toLocaleString('id-ID')}</div>
+                    </div>
+                </button>
+            `).join('');
+
+            toppingContainer.innerHTML = opts.toppings.map((t, idx) => `
+                <button onclick="selectBuilderTopping(${idx})" class="p-3 rounded-xl border text-left transition flex flex-col justify-between ${builderState.topping.name === t.name ? 'border-amberGold-500 bg-amberGold-500/20 text-white' : 'border-brand-700 bg-brand-950/40 text-gray-300 hover:border-amberGold-400'}">
+                    <span class="text-xl mb-1">${t.icon}</span>
+                    <div>
+                        <div class="font-bold text-xs">${t.name}</div>
+                        <div class="text-[10px] text-amberGold-400 font-semibold mt-0.5">${t.price > 0 ? 'Rp ' + t.price.toLocaleString('id-ID') : 'Gratis'}</div>
+                    </div>
+                </button>
+            `).join('');
+        }
+
+        function selectBuilderBase(index) {
+            builderState.base = BUILDER_OPTIONS[builderState.category].bases[index];
+            renderBuilderOptions();
+            updateBuilderPreview();
+        }
+
+        function selectBuilderTopping(index) {
+            builderState.topping = BUILDER_OPTIONS[builderState.category].toppings[index];
+            renderBuilderOptions();
+            updateBuilderPreview();
+        }
+
+        function setBuilderSize(sizeName, addPrice) {
+            builderState.size = {
+                name: sizeName,
+                price: addPrice,
+                desc: sizeName === 'M' ? 'Medium (8 Potong)' : (sizeName === 'L' ? 'Large (12 Potong)' : 'Extra Large (16 Potong)')
+            };
+
+            const btnM = document.getElementById('btn-size-M');
+            const btnL = document.getElementById('btn-size-L');
+            const btnXL = document.getElementById('btn-size-XL');
+
+            [btnM, btnL, btnXL].forEach(b => {
+                b.className = 'builder-size-btn py-2.5 px-3 rounded-xl border border-brand-700 bg-brand-950/50 text-center hover:border-amberGold-400 transition';
+            });
+
+            const activeBtn = document.getElementById(`btn-size-${sizeName}`);
+            activeBtn.className = 'builder-size-btn py-2.5 px-3 rounded-xl border border-amberGold-500 bg-amberGold-500/20 text-center font-bold text-amberGold-400 transition';
+
+            updateBuilderPreview();
+        }
+
+        function updateBuilderPreview() {
+            const titleEl = document.getElementById('preview-title');
+            const descEl = document.getElementById('preview-desc');
+            const iconEl = document.getElementById('preview-icon');
+
+            const priceBaseEl = document.getElementById('price-base');
+            const priceToppingEl = document.getElementById('price-topping');
+            const priceSizeEl = document.getElementById('price-size');
+            const priceTotalEl = document.getElementById('price-total');
+            const mobilePriceTotalEl = document.getElementById('mobile-price-total');
+
+            if (titleEl) titleEl.textContent = `${builderState.base.name}`;
+            if (descEl) descEl.textContent = `Ukuran ${builderState.size.desc} dengan topping ${builderState.topping.name}`;
+            if (iconEl) iconEl.textContent = builderState.category === 'asin' ? '🍳' : '🥞';
+
+            const total = builderState.base.price + builderState.topping.price + builderState.size.price;
+
+            if (priceBaseEl) priceBaseEl.textContent = `Rp ${builderState.base.price.toLocaleString('id-ID')}`;
+            if (priceToppingEl) priceToppingEl.textContent = builderState.topping.price > 0 ? `Rp ${builderState.topping.price.toLocaleString('id-ID')}` : 'Gratis';
+            if (priceSizeEl) priceSizeEl.textContent = builderState.size.price > 0 ? `+Rp ${builderState.size.price.toLocaleString('id-ID')}` : 'Base';
+            if (priceTotalEl) priceTotalEl.textContent = `Rp ${total.toLocaleString('id-ID')}`;
+            
+            if (mobilePriceTotalEl) {
+                mobilePriceTotalEl.textContent = `Rp ${total.toLocaleString('id-ID')}`;
+            }
+        }
+
+        function orderCustomMartabak() {
+            openOrderModal();
+            showToast('Racikan Custom Siap!', `Resep ${builderState.base.name} telah disimpan. Pilih aplikasi pemesanan.`);
+        }
+
+        /* -------------------------------------------------------------
+           MODAL & FAQ INTERACTIVITY
+        ------------------------------------------------------------- */
+        function openOrderModal() {
+            const modal = document.getElementById('orderModal');
+            const card = document.getElementById('modalCard');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                card.classList.remove('scale-95', 'opacity-0');
+                card.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeOrderModal() {
+            const modal = document.getElementById('orderModal');
+            const card = document.getElementById('modalCard');
+            card.classList.remove('scale-100', 'opacity-100');
+            card.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200);
+        }
+
+        function toggleFaq(button) {
+            const answer = button.nextElementSibling;
+            const icon = button.querySelector('i');
+            answer.classList.toggle('hidden');
+            icon.classList.toggle('rotate-180');
+        }
+
+        function submitFranchiseForm(e) {
+            e.preventDefault();
+            showToast('Pengajuan Terkirim!', 'Tim Partnership Martabak Mertua akan menghubungi Anda via WA.');
+            e.target.reset();
+        }
+
+        function showToast(title, msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-title').textContent = title;
+            document.getElementById('toast-msg').textContent = msg;
+
+            toast.classList.remove('hidden', 'translate-y-10');
+            toast.classList.add('translate-y-0');
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-10');
+                setTimeout(() => toast.classList.add('hidden'), 300);
+            }, 3500);
+        }
+    </script>
+</body>
+</html>

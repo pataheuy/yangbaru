@@ -49,6 +49,10 @@ const proyekData = [
     { no: 32, title: 'Online Order System',                             kategori: 'E-Commerce',            cover: '/foto/onlineorder.png',  link: '/onlineorder/index.html',                                 category: 'web',     desc: 'Sistem pemesanan online modern dan praktis. Kelola pesanan, menu, dan transaksi dengan mudah!' },
     { no: 33, title: 'Aplikasi Pemira',                                 kategori: 'Voting',                cover: '/foto/pemira.png',       link: '/aplikasipemira/index.html',                              category: 'web',     desc: 'Aplikasi pemilihan raya digital yang aman dan transparan. Real-time counting dan hasil instan!' },
     { no: 34, title: 'Kabinet Literasi',                                kategori: 'Education',             cover: '/foto/kabinetliterasi.png', link: '/Kabinetliterasi/index.html',                          category: 'web',     desc: 'Portal edukasi dan literasi digital untuk kabinet BEM. Berbagi ilmu, artikel, dan materi pembelajaran.' },
+    { no: 35, title: 'Revourner 17',                                    kategori: 'Event',                 cover: '/foto/revourner.png',         link: '/revourner17/index.html',      category: 'web',     desc: 'Landing page acara tahunan SMPIT As-Syifa. Didesain penuh semangat untuk menyambut angkatan ke-17.' },
+    { no: 36, title: 'Martabak Mertua',                                 kategori: 'Client',                cover: '/foto/martabakmertua.png',     link: '/martabakmertua/index.html',   category: 'web',     desc: 'Website UMKM martabak homemade. Dibuat dengan cinta buat usaha kuliner yang makin go-digital.' },
+    { no: 37, title: 'DepDik Putra Web V2',                             kategori: 'Departement',           cover: '/foto/depdikputrawebv2.png',   link: '/depdikputrawebv2/index.html', category: 'web',     desc: 'Versi kedua web Departemen Pendidikan BEM As-Syifa 2025/2026. Lebih modern, lebih lengkap.' },
+    { no: 38, title: 'KCP Land',                                        kategori: 'Client',                cover: '/foto/kcpland.png',            link: '/kcpland/index.html',          category: 'web',     desc: 'Landing page properti PT Kinarya Cipta Pesona. Smart eco design untuk hunian modern dan asri.' },
 ];
 
 // ===== RENDER PROYEK =====
@@ -610,7 +614,7 @@ function animateCounter(el, target, duration, onDone) {
 // ── Hero stats: muncul satu per satu, counter tuntas dulu baru lanjut ──
 (function () {
     const stats = [
-        { itemId: 'stat-item-proyek',  sepId: null,       counterId: 'stat-proyek',  target: 32 },
+        { itemId: 'stat-item-proyek',  sepId: null,       counterId: 'stat-proyek',  target: 38 },
         { itemId: 'stat-item-tahun',   sepId: 'stat-sep-1', counterId: 'stat-tahun',   target: 2  },
         { itemId: 'stat-item-org',     sepId: 'stat-sep-2', counterId: 'stat-org',     target: 7  },
         { itemId: 'stat-item-prestasi',sepId: 'stat-sep-3', counterId: 'stat-prestasi',target: 12 },

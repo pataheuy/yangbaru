@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KCP Land - Smart Eco Design for Living | PT Kinarya Cipta Pesona</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Plus Jakarta Sans & Cinzel -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Cinzel:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            100: '#fdf8e6',
+                            200: '#f9ebb8',
+                            300: '#f5dc8a',
+                            400: '#efc95c',
+                            500: '#d4af37', // Classic Metallic Gold
+                            600: '#b89228',
+                            700: '#92701b',
+                            800: '#6d5113',
+                            900: '#48340b'
+                        },
+                        luxury: {
+                            black: '#09090b',
+                            dark: '#121215',
+                            card: '#18181b',
+                            surface: '#27272a',
+                            cream: '#fcfbf7'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        serif: ['Cinzel', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #09090b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d4af37;
+            border-radius: 4px;
+        }
+        .glass-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #f5dc8a 0%, #d4af37 50%, #92701b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .gold-button-gradient {
+            background: linear-gradient(135deg, #d4af37 0%, #b89228 100%);
+        }
+        .gold-button-gradient:hover {
+            background: linear-gradient(135deg, #efc95c 0%, #d4af37 100%);
+        }
+        .luxury-border-glow {
+            box-shadow: 0 10px 30px -5px rgba(212, 175, 55, 0.18);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(32px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .animate-fade-in {
+            opacity: 0;
+            animation: fadeInUp 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .delay-100 { animation-delay: 0.15s; }
+        .delay-200 { animation-delay: 0.30s; }
+        .delay-300 { animation-delay: 0.45s; }
+        .delay-400 { animation-delay: 0.60s; }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6); }
+            50% { box-shadow: 0 0 0 14px rgba(34, 197, 94, 0); }
+        }
+        .pulse-wa {
+            animation: pulseGlow 2s infinite;
+        }
+    </style>
+</head>
+<body class="font-sans bg-stone-50 text-zinc-900 antialiased selection:bg-gold-500 selection:text-black">
+
+    <!-- Promo Announcement Top Bar -->
+    <div class="bg-zinc-950 text-stone-200 text-[11px] py-2 px-4 border-b border-gold-500/30">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-1 text-center sm:text-left">
+            <div class="flex items-center justify-center gap-2">
+                <span class="bg-gold-500 text-zinc-950 text-[9px] font-extrabold uppercase px-2 py-0.5 rounded font-sans">Promo Spesial Bulan Ini</span>
+                <span>Booking Fee <strong>Rp 3 Juta ALL-IN</strong> + Gratis BPHTB, AJB & Bonus AC 1 PK!</span>
+            </div>
+            <a href="https://wa.me/6281385519521?text=Halo%20KCP%20Land,%20saya%20ingin%20klaim%20Promo%20Booking%203%20Juta%20All-In" target="_blank" class="text-gold-400 hover:underline font-bold flex items-center gap-1">
+                Klaim Kuota Promo <i class="fa-solid fa-arrow-right text-[9px]"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Navigation Header -->
+    <header class="sticky top-0 z-40 glass-header border-b border-zinc-200/80 transition-all duration-300" id="mainHeader">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Brand Logo -->
+                <a href="#" class="flex items-center gap-3.5 group">
+                    <div class="w-10 h-10 rounded-lg bg-zinc-950 flex items-center justify-center text-gold-500 border border-gold-500/40 shadow-md group-hover:bg-gold-500 group-hover:text-zinc-950 transition-all duration-300">
+                        <i class="fa-solid fa-crown text-base"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-xl font-extrabold tracking-wider font-serif text-zinc-950 group-hover:text-gold-600 transition-colors">KCP LAND</span>
+                        <span class="text-[9px] font-bold text-zinc-500 tracking-[0.2em] uppercase">PT Kinarya Cipta Pesona</span>
+                    </div>
+                </a>
+
+                <!-- Desktop Navigation Links -->
+                <nav class="hidden md:flex items-center space-x-7 font-semibold text-xs uppercase tracking-wider text-zinc-700">
+                    <a href="#about" class="hover:text-gold-600 transition-colors">Tentang Kami</a>
+                    <a href="#projects" class="hover:text-gold-600 transition-colors">Proyek</a>
+                    <a href="#floorplans" class="hover:text-gold-600 transition-colors">Denah Unit</a>
+                    <a href="#amenities" class="hover:text-gold-600 transition-colors">Fasilitas & Lokasi</a>
+                    <a href="#calculator" class="hover:text-gold-600 transition-colors">Simulasi KPR</a>
+                    <a href="#testimonials" class="hover:text-gold-600 transition-colors">Testimoni</a>
+                    <a href="#faq" class="hover:text-gold-600 transition-colors">FAQ</a>
+                </nav>
+
+                <!-- Action Button -->
+                <div class="hidden md:flex items-center gap-3">
+                    <a href="https://wa.me/6281385519521?text=Halo%20KCP%20Land,%20saya%20ingin%20konsultasi%20mengenai%20unit%20perumahan" target="_blank" class="flex items-center gap-2 bg-zinc-950 hover:bg-gold-500 text-gold-400 hover:text-zinc-950 font-bold px-5 py-2.5 rounded-lg border border-gold-500/40 shadow-sm transition-all text-xs tracking-wider uppercase">
+                        <i class="fa-brands fa-whatsapp text-sm"></i>
+                        <span>Hubungi Marketing</span>
+                    </a>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button id="mobileMenuBtn" class="md:hidden p-2 rounded-lg text-zinc-800 hover:text-gold-600 focus:outline-none">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-white border-b border-zinc-200 px-4 pt-2 pb-6 space-y-3">
+            <a href="#about" class="block py-2 text-zinc-800 font-bold text-xs uppercase tracking-wider hover:text-gold-600">Tentang Kami</a>
+            <a href="#projects" class="block py-2 text-zinc-800 font-bold text-xs uppercase tracking-wider hover:text-gold-600">Proyek Perumahan</a>
+            <a href="#floorplans" class="block py-2 text-zinc-800 font-bold text-xs uppercase tracking-wider hover:text-gold-600">Denah & Tipe Rumah</a>
+            <a href="#amenities" class="block py-2 text-zinc-800 font-bold text-xs uppercase tracking-wider hover:text-gold-600">Fasilitas Sekitar</a>
+            <a href="#calculator" class="block py-2 text-zinc-800 font-bold text-xs uppercase tracking-wider hover:text-gold-600">Simulasi KPR</a>
+            <a href="#testimonials" class="block py-2 text-zinc-800 font-bold text-xs uppercase tracking-wider hover:text-gold-600">Testimoni Penghuni</a>
+            <a href="#faq" class="block py-2 text-zinc-800 font-bold text-xs uppercase tracking-wider hover:text-gold-600">FAQ</a>
+            <a href="https://wa.me/6281385519521?text=Halo%20KCP%20Land" target="_blank" class="w-full flex items-center justify-center gap-2 bg-zinc-950 text-gold-400 font-bold py-3 rounded-lg border border-gold-500/30 text-xs uppercase tracking-wider">
+                <i class="fa-brands fa-whatsapp text-base"></i>
+                <span>Konsultasi WhatsApp</span>
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <!-- HERO SECTION -->
+        <section class="relative bg-gradient-to-b from-stone-100/90 via-stone-50 to-stone-100 text-zinc-950 min-h-[calc(100vh-5rem)] flex flex-col justify-center py-10 lg:py-14 overflow-hidden border-b border-zinc-200/80 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.12)]">
+            <div class="absolute inset-0 pointer-events-none">
+                <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_30%,_rgba(24,24,27,0.06)_100%)]"></div>
+                <div class="absolute -top-32 left-1/2 -translate-x-1/2 w-[850px] h-[550px] bg-zinc-300/40 rounded-full filter blur-[150px]"></div>
+                <div class="absolute bottom-[-100px] left-[-100px] w-[500px] h-[500px] bg-zinc-400/20 rounded-full filter blur-[140px]"></div>
+                <div class="absolute bottom-[-50px] right-[-50px] w-[500px] h-[500px] bg-amber-900/5 rounded-full filter blur-[130px]"></div>
+            </div>
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full my-auto">
+                <div class="max-w-4xl mx-auto text-center space-y-5">
+                    
+                    <h1 class="animate-fade-in delay-100 text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight text-zinc-950 font-serif">
+                        Smart Eco Design <br/>
+                        <span class="gold-gradient-text">Untuk Hunian Masa Depan</span>
+                    </h1>
+                    
+                    <p class="animate-fade-in delay-200 text-zinc-600 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed font-light">
+                        Mewujudkan impian hunian modern yang asri, efisien, dan eksklusif. Lebih dari <span class="font-bold text-gold-700">1.000+ unit</span> rumah siap huni telah diserahterimakan dengan konsep *High Ceiling* & tata ruang optimal di kawasan penyangga Jabodetabek & Bandung.
+                    </p>
+
+                    <div class="animate-fade-in delay-300 pt-3 grid grid-cols-3 gap-4 sm:gap-6 max-w-md mx-auto border-t border-zinc-200">
+                        <div>
+                            <p class="text-xl sm:text-3xl font-extrabold text-zinc-950 font-serif">10+ Ha</p>
+                            <p class="text-[9px] sm:text-xs text-zinc-500 uppercase font-semibold tracking-wider mt-0.5">Total Luas Lahan</p>
+                        </div>
+                        <div class="border-x border-zinc-200 px-2">
+                            <p class="text-xl sm:text-3xl font-extrabold text-gold-600 font-serif">1.000+</p>
+                            <p class="text-[9px] sm:text-xs text-zinc-500 uppercase font-semibold tracking-wider mt-0.5">Unit Terjual</p>
+                        </div>
+                        <div>
+                            <p class="text-xl sm:text-3xl font-extrabold text-zinc-950 font-serif">3 Juta</p>
+                            <p class="text-[9px] sm:text-xs text-zinc-500 uppercase font-semibold tracking-wider mt-0.5">Booking All-In</p>
+                        </div>
+                    </div>
+
+                    <div class="animate-fade-in delay-300 flex flex-col sm:flex-row items-center justify-center gap-3 pt-1">
+                        <a href="#projects" class="w-full sm:w-auto gold-button-gradient text-zinc-950 font-bold px-7 py-3.5 rounded-xl shadow-lg text-center transition-all transform hover:-translate-y-0.5 text-xs uppercase tracking-wider">
+                            Explore Proyek Hunian
+                        </a>
+                        <button onclick="openBookingModal('General')" class="w-full sm:w-auto bg-zinc-950 hover:bg-zinc-800 text-gold-400 font-semibold px-7 py-3.5 rounded-xl text-center transition-all text-xs uppercase tracking-wider border border-gold-500/30 shadow-md">
+                            <i class="fa-solid fa-calendar-check text-gold-400 mr-2"></i>Jadwalkan Survei
+                        </button>
+                    </div>
+                </div>
+
+                <div class="animate-fade-in delay-400 max-w-4xl mx-auto mt-8 lg:mt-10">
+                    <div class="bg-white text-zinc-900 rounded-2xl p-5 sm:p-7 shadow-xl border border-zinc-200/80 luxury-border-glow">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-zinc-200 pb-3 mb-4 gap-2">
+                            <div>
+                                <h3 class="text-lg sm:text-xl font-bold font-serif text-zinc-950 flex items-center gap-2">
+                                    <i class="fa-solid fa-house-circle-check text-gold-600 text-lg"></i>
+                                    <span>Cari Rumah Impian</span>
+                                </h3>
+                                <p class="text-[11px] sm:text-xs text-zinc-500">Temukan lokasi, budget, & spesifikasi unit yang sesuai dengan kebutuhan Anda</p>
+                            </div>
+                            <span class="self-start sm:self-center bg-zinc-950 text-gold-400 border border-gold-500/40 text-[10px] font-extrabold uppercase px-3.5 py-1.5 rounded-full shadow-sm">
+                                KPR Ready & Free BPHTB
+                            </span>
+                        </div>
+
+                        <form id="heroFilterForm" onsubmit="handleHeroFilter(event)" class="space-y-4">
+                            <div class="grid md:grid-cols-3 gap-4">
+                                <div class="md:col-span-1">
+                                    <label class="block text-[11px] font-bold text-zinc-700 uppercase tracking-wider mb-1.5">Pilih Lokasi Kawasan</label>
+                                    <select id="filterLocation" class="w-full bg-stone-50 border border-zinc-300 text-zinc-900 text-xs rounded-xl px-4 py-3 focus:ring-2 focus:ring-gold-500 focus:outline-none font-medium">
+                                        <option value="ALL">Semua Lokasi (Tangerang, Bandung, Bogor)</option>
+                                        <option value="Tangerang">Sepatan Timur, Kab. Tangerang (Arcadia Soetta)</option>
+                                        <option value="Bandung">Kab. Bandung (The Forest Village)</option>
+                                        <option value="Bogor">Penyangga Bogor (Arcadia Expansion)</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-[11px] font-bold text-zinc-700 uppercase tracking-wider mb-1.5">Estimasi Cicilan</label>
+                                    <select id="filterBudget" class="w-full bg-stone-50 border border-zinc-300 text-zinc-900 rounded-xl px-4 py-3 text-xs focus:ring-2 focus:ring-gold-500 focus:outline-none font-medium">
+                                        <option value="ALL">Semua Cicilan</option>
+                                        <option value="3">Rp 2 - 3 Juta/bln</option>
+                                        <option value="4">Rp 3 - 4 Juta/bln</option>
+                                        <option value="5">Di atas Rp 4 Juta</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-[11px] font-bold text-zinc-700 uppercase tracking-wider mb-1.5">Jumlah Kamar Tidur</label>
+                                    <select id="filterBeds" class="w-full bg-stone-50 border border-zinc-300 text-zinc-900 rounded-xl px-4 py-3 text-xs focus:ring-2 focus:ring-gold-500 focus:outline-none font-medium">
+                                        <option value="ALL">Semua Tipe</option>
+                                        <option value="2">2 Kamar Tidur</option>
+                                        <option value="3">3 Kamar (Mezzanine)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-col md:flex-row items-center justify-between gap-4 pt-2">
+                                <div class="p-3.5 rounded-xl bg-stone-100 border border-gold-500/20 text-zinc-900 text-xs flex items-center gap-3 w-full md:w-auto flex-1">
+                                    <i class="fa-solid fa-gift text-gold-600 text-xl"></i>
+                                    <div>
+                                        <span class="font-bold block uppercase text-[10px] text-gold-800">Promo Eksklusif KCP Land:</span>
+                                        Booking Cuma Rp 3 Juta ALL IN, Bebas BPHTB & Bonus AC!
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="w-full md:w-auto bg-zinc-950 hover:bg-gold-500 text-gold-400 hover:text-zinc-950 font-bold px-8 py-3.5 rounded-xl transition-all border border-gold-500/40 flex items-center justify-center gap-2 text-xs uppercase tracking-wider shadow-md whitespace-nowrap">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                    <span>Tampilkan Unit Tersedia</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ABOUT SECTION -->
+        <section id="about" class="py-20 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-3xl mx-auto mb-16">
+                    <span class="text-gold-600 font-bold text-xs uppercase tracking-widest">Mengenal KCP Land</span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold font-serif text-zinc-950 mt-2">
+                        Pengembang Terpercaya Berorientasi Kenyamanan & Kualitas
+                    </h2>
+                    <p class="text-zinc-600 mt-4 leading-relaxed font-light text-sm">
+                        Di bawah naungan <strong class="text-zinc-900 font-semibold">PT Kinarya Cipta Pesona</strong>, KCP Land berkomitmen menghadirkan rumah tinggal berkualitas tinggi yang fungsional, tahan lama, serta bernilai investasi prima bagi masyarakat Indonesia.
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div class="p-8 rounded-xl bg-stone-50 border border-zinc-200/80 hover:border-gold-500/50 hover:shadow-xl transition-all group">
+                        <div class="w-12 h-12 rounded-lg bg-zinc-950 text-gold-400 border border-gold-500/30 flex items-center justify-center text-xl font-bold mb-6 group-hover:bg-gold-500 group-hover:text-zinc-950 transition-colors">
+                            <i class="fa-solid fa-drafting-compass"></i>
+                        </div>
+                        <h3 class="text-base font-bold font-serif text-zinc-950 mb-2">Scandinavian & Mezzanine</h3>
+                        <p class="text-xs text-zinc-600 leading-relaxed font-light">
+                            Pemanfaatan tata ruang vertikal cerdas (*mezzanine*) yang menambah kapasitas ruang tanpa membebankan harga lahan berlebih.
+                        </p>
+                    </div>
+
+                    <div class="p-8 rounded-xl bg-stone-50 border border-zinc-200/80 hover:border-gold-500/50 hover:shadow-xl transition-all group">
+                        <div class="w-12 h-12 rounded-lg bg-zinc-950 text-gold-400 border border-gold-500/30 flex items-center justify-center text-xl font-bold mb-6 group-hover:bg-gold-500 group-hover:text-zinc-950 transition-colors">
+                            <i class="fa-solid fa-sun"></i>
+                        </div>
+                        <h3 class="text-base font-bold font-serif text-zinc-950 mb-2">Smart Eco-Living</h3>
+                        <p class="text-xs text-zinc-600 leading-relaxed font-light">
+                            Langit-langit rumah (*high ceiling*) 3,5 - 4,5 meter & jendela besar untuk pencahayaan maksimal serta hemat penggunaan energi listrik.
+                        </p>
+                    </div>
+
+                    <div class="p-8 rounded-xl bg-stone-50 border border-zinc-200/80 hover:border-gold-500/50 hover:shadow-xl transition-all group">
+                        <div class="w-12 h-12 rounded-lg bg-zinc-950 text-gold-400 border border-gold-500/30 flex items-center justify-center text-xl font-bold mb-6 group-hover:bg-gold-500 group-hover:text-zinc-950 transition-colors">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <h3 class="text-base font-bold font-serif text-zinc-950 mb-2">Akses & Keamanan 24/7</h3>
+                        <p class="text-xs text-zinc-600 leading-relaxed font-light">
+                            Dilengkapi *One Gate System*, pos penjagaan, CCTV 24 jam, row jalan 6 meter, saluran tertutup, serta area hijau komunal.
+                        </p>
+                    </div>
+
+                    <div class="p-8 rounded-xl bg-stone-50 border border-zinc-200/80 hover:border-gold-500/50 hover:shadow-xl transition-all group">
+                        <div class="w-12 h-12 rounded-lg bg-zinc-950 text-gold-400 border border-gold-500/30 flex items-center justify-center text-xl font-bold mb-6 group-hover:bg-gold-500 group-hover:text-zinc-950 transition-colors">
+                            <i class="fa-solid fa-file-signature"></i>
+                        </div>
+                        <h3 class="text-base font-bold font-serif text-zinc-950 mb-2">Legalitas SHM Aman</h3>
+                        <p class="text-xs text-zinc-600 leading-relaxed font-light">
+                            Izin PBG/IMB lengkap per kavling dengan jaminan pecah Sertifikat Hak Milik (SHM) pasca akad kredit/pelunasan.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PROJECTS SECTION -->
+        <section id="projects" class="py-20 bg-stone-100/70 border-y border-zinc-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+                    <div>
+                        <span class="text-gold-600 font-bold text-xs uppercase tracking-widest">Portofolio Unggulan</span>
+                        <h2 class="text-3xl sm:text-4xl font-extrabold font-serif text-zinc-950 mt-2">Proyek Perumahan KCP Land</h2>
+                    </div>
+                    <div class="mt-4 md:mt-0 flex flex-wrap gap-2">
+                        <button onclick="filterProjects('ALL')" class="project-tab active-tab bg-zinc-950 text-gold-400 border border-gold-500/40 font-bold px-4 py-2 rounded-lg text-xs uppercase tracking-wider transition-all">Semua Proyek</button>
+                        <button onclick="filterProjects('Tangerang')" class="project-tab bg-white text-zinc-700 hover:bg-stone-200 font-bold px-4 py-2 rounded-lg text-xs uppercase tracking-wider transition-all border border-zinc-300">Sepatan Tangerang</button>
+                        <button onclick="filterProjects('Bandung')" class="project-tab bg-white text-zinc-700 hover:bg-stone-200 font-bold px-4 py-2 rounded-lg text-xs uppercase tracking-wider transition-all border border-zinc-300">Kab. Bandung</button>
+                    </div>
+                </div>
+
+                <div id="projectsGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    
+                    <!-- Project 1: Arcadia Soetta Sepatan -->
+                    <div class="project-card bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all border border-zinc-200 flex flex-col" data-location="Tangerang" data-price="460" data-beds="2">
+                        <div class="relative h-60 bg-zinc-900">
+                            <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80" alt="Arcadia Soetta" class="w-full h-full object-cover">
+                            <div class="absolute top-4 left-4 bg-zinc-950/90 backdrop-blur-md text-gold-400 border border-gold-500/40 text-[10px] font-bold px-3 py-1.5 rounded-md uppercase tracking-wider shadow">
+                                <i class="fa-solid fa-crown text-gold-400 mr-1"></i> Flagship Project
+                            </div>
+                            <div class="absolute bottom-4 right-4 bg-white/95 text-zinc-950 text-xs font-extrabold px-3 py-1.5 rounded-md shadow">
+                                Mulai Rp 460 Jutaan
+                            </div>
+                        </div>
+                        <div class="p-6 flex-1 flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center gap-1.5 text-[10px] text-gold-700 font-bold uppercase tracking-widest mb-1.5">
+                                    <i class="fa-solid fa-location-dot"></i> Sepatan Timur, Kab. Tangerang
+                                </div>
+                                <h3 class="text-xl font-bold font-serif text-zinc-950 mb-2">Arcadia Soetta (Lebak Wangi)</h3>
+                                <p class="text-xs text-zinc-600 mb-4 leading-relaxed line-clamp-2">
+                                    Kawasan hunian Eco-Design seluas 2,8 Hektar berjarak hanya 30 menit ke Bandara Soekarno-Hatta & PIK 2.
+                                </p>
+
+                                <div class="grid grid-cols-3 gap-2 p-3 bg-stone-50 rounded-lg mb-4 text-center text-xs border border-zinc-200/60">
+                                    <div>
+                                        <span class="block text-zinc-400 text-[10px] uppercase font-medium">Luas Bgn</span>
+                                        <span class="font-bold text-zinc-900">36 - 72 m²</span>
+                                    </div>
+                                    <div>
+                                        <span class="block text-zinc-400 text-[10px] uppercase font-medium">Luas Tanah</span>
+                                        <span class="font-bold text-zinc-900">33 - 42 m²</span>
+                                    </div>
+                                    <div>
+                                        <span class="block text-zinc-400 text-[10px] uppercase font-medium">Kamar</span>
+                                        <span class="font-bold text-zinc-900">2 - 3 KT</span>
+                                    </div>
+                                </div>
+
+                                <ul class="text-xs text-zinc-600 space-y-2 mb-6">
+                                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-gold-600 text-xs"></i> High Ceiling & Pilihan Mezzanine</li>
+                                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-gold-600 text-xs"></i> One Gate System & Security 24/7</li>
+                                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-gold-600 text-xs"></i> Hanya 4 Menit ke Jl. Raya Gatot Subroto</li>
+                                </ul>
+                            </div>
+
+                            <div class="pt-4 border-t border-zinc-100 flex items-center gap-2">
+                                <button onclick="openUnitDetail('arcadia-soetta')" class="flex-1 bg-stone-100 hover:bg-stone-200 text-zinc-800 font-bold py-2.5 rounded-lg text-xs tracking-wider uppercase transition-colors">
+                                    Detail Unit
+                                </button>
+                                <button onclick="openBookingModal('Arcadia Soetta')" class="flex-1 bg-zinc-950 hover:bg-gold-500 text-gold-400 hover:text-zinc-950 border border-gold-500/30 font-bold py-2.5 rounded-lg text-xs tracking-wider uppercase transition-colors">
+                                    Booking Rp 3 Jta
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project 2: The Forest Village Bandung -->
+                    <div class="project-card bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all border border-zinc-200 flex flex-col" data-location="Bandung" data-price="380" data-beds="2">
+                        <div class="relative h-60 bg-zinc-900">
+                            <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80" alt="The Forest Village Bandung" class="w-full h-full object-cover">
+                            <div class="absolute top-4 left-4 bg-zinc-950/90 backdrop-blur-md text-gold-400 border border-gold-500/40 text-[10px] font-bold px-3 py-1.5 rounded-md uppercase tracking-wider shadow">
+                                <i class="fa-solid fa-mountain-sun text-gold-400 mr-1"></i> Asri & Sejuk
+                            </div>
+                            <div class="absolute bottom-4 right-4 bg-white/95 text-zinc-950 text-xs font-extrabold px-3 py-1.5 rounded-md shadow">
+                                Mulai Rp 380 Jutaan
+                            </div>
+                        </div>
+                        <div class="p-6 flex-1 flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center gap-1.5 text-[10px] text-gold-700 font-bold uppercase tracking-widest mb-1.5">
+                                    <i class="fa-solid fa-location-dot"></i> Kabupaten Bandung, Jawa Barat
+                                </div>
+                                <h3 class="text-xl font-bold font-serif text-zinc-950 mb-2">The Forest Village</h3>
+                                <p class="text-xs text-zinc-600 mb-4 leading-relaxed line-clamp-2">
+                                    Hunian alam bernuansa pegunungan sejuk dengan ketersediaan RTH luas, cocok untuk rumah tinggal keluarga & investasi.
+                                </p>
+
+                                <div class="grid grid-cols-3 gap-2 p-3 bg-stone-50 rounded-lg mb-4 text-center text-xs border border-zinc-200/60">
+                                    <div>
+                                        <span class="block text-zinc-400 text-[10px] uppercase font-medium">Luas Bgn</span>
+                                        <span class="font-bold text-zinc-900">36 - 54 m²</span>
+                                    </div>
+                                    <div>
+                                        <span class="block text-zinc-400 text-[10px] uppercase font-medium">Luas Tanah</span>
+                                        <span class="font-bold text-zinc-900">60 - 90 m²</span>
+                                    </div>
+                                    <div>
+                                        <span class="block text-zinc-400 text-[10px] uppercase font-medium">Kamar</span>
+                                        <span class="font-bold text-zinc-900">2 KT</span>
+                                    </div>
+                                </div>
+
+                                <ul class="text-xs text-zinc-600 space-y-2 mb-6">
+                                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-gold-600 text-xs"></i> Udara Bersih & Pemandangan Alam</li>
+                                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-gold-600 text-xs"></i> Masjid & Playground Anak internal</li>
+                                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-gold-600 text-xs"></i> Akses Tol & Transportasi Publik</li>
+                                </ul>
+                            </div>
+
+                            <div class="pt-4 border-t border-zinc-100 flex items-center gap-2">
+                                <button onclick="openUnitDetail('forest-village')" class="flex-1 bg-stone-100 hover:bg-stone-200 text-zinc-800 font-bold py-2.5 rounded-lg text-xs tracking-wider uppercase transition-colors">
+                                    Detail Unit
+                                </button>
+                                <button onclick="openBookingModal('The Forest Village')" class="flex-1 bg-zinc-950 hover:bg-gold-500 text-gold-400 hover:text-zinc-950 border border-gold-500/30 font-bold py-2.5 rounded-lg text-xs tracking-wider uppercase transition-colors">
+                                    Booking Unit
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Project 3: Arcadia Expansion Series -->
+                    <div class="project-card bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all border border-zinc-200 flex flex-col" data-location="Tangerang" data-price="500" data-beds="3">
+                        <div class="relative h-60 bg-zinc-900">
+                            <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=800&q=80" alt="Arcadia Extension" class="w-full h-full object-cover">
+                            <div class="absolute top-4 left-4 bg-zinc-950/90 backdrop-blur-md text-gold-400 border border-gold-500/40 text-[10px] font-bold px-3 py-1.5 rounded-md uppercase tracking-wider shadow">
+                                <i class="fa-solid fa-layer-group text-gold-400 mr-1"></i> New Mezzanine Cluster
+                            </div>
+                            <div class="absolute bottom-4 right-4 bg-white/95 text-zinc-950 text-xs font-extrabold px-3 py-1.5 rounded-md shadow">
+                                Mulai Rp 520 Jutaan
+                            </div>
+                        </div>
+                        <div class="p-6 flex-1 flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center gap-1.5 text-[10px] text-gold-700 font-bold uppercase tracking-widest mb-1.5">
+                                    <i class="fa-solid fa-location-dot"></i> Penyangga Bogor & Tangerang
+                                </div>
+                                <h3 class="text-xl font-bold font-serif text-zinc-950 mb-2">Arcadia Extension Series</h3>
+                                <p class="text-xs text-zinc-600 mb-4 leading-relaxed line-clamp-2">
+                                    Pengembangan kluster baru berorientasi transit, dekat stasiun KRL dan jalur Tol Kamal-Teluknaga-Rajeg.
+                                </p>
+
+                                <div class="grid grid-cols-3 gap-2 p-3 bg-stone-50 rounded-lg mb-4 text-center text-xs border border-zinc-200/60">
+                                    <div>
+                                        <span class="block text-zinc-400 text-[10px] uppercase font-medium">Luas Bgn</span>
+                                        <span class="font-bold text-zinc-900">45 - 72 m²</span>
+                                    </div>
+                                    <div>
+                                        <span class="block text-zinc-400 text-[10px] uppercase font-medium">Luas Tanah</span>
+                                        <span class="font-bold text-zinc-900">40 - 60 m²</span>
+                                    </div>
+                                    <div>
+                                        <span class="block text-zinc-400 text-[10px] uppercase font-medium">Kamar</span>
+                                        <span class="font-bold text-zinc-900">2 - 3 KT</span>
+                                    </div>
+                                </div>
+
+                                <ul class="text-xs text-zinc-600 space-y-2 mb-6">
+                                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-gold-600 text-xs"></i> Desain Scandinavian Modern 2 Lantai</li>
+                                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-gold-600 text-xs"></i> Bebas Biaya BPHTB & Akad KPR</li>
+                                    <li class="flex items-center gap-2"><i class="fa-solid fa-check text-gold-600 text-xs"></i> Potensi Capital Gain Tinggi</li>
+                                </ul>
+                            </div>
+
+                            <div class="pt-4 border-t border-zinc-100 flex items-center gap-2">
+                                <button onclick="openUnitDetail('arcadia-extension')" class="flex-1 bg-stone-100 hover:bg-stone-200 text-zinc-800 font-bold py-2.5 rounded-lg text-xs tracking-wider uppercase transition-colors">
+                                    Detail Unit
+                                </button>
+                                <button onclick="openBookingModal('Arcadia Extension')" class="flex-1 bg-zinc-950 hover:bg-gold-500 text-gold-400 hover:text-zinc-950 border border-gold-500/30 font-bold py-2.5 rounded-lg text-xs tracking-wider uppercase transition-colors">
+                                    Booking Unit
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- NEW SECTION: FLOOR PLAN & DENAH RUMAH INTERACTIVE VIEWER -->
+        <section id="floorplans" class="py-20 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-3xl mx-auto mb-12">
+                    <span class="text-gold-600 font-bold text-xs uppercase tracking-widest">Visualisasi Lay-Out</span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold font-serif text-zinc-950 mt-2">Denah & Tata Ruang Optimal</h2>
+                    <p class="text-zinc-600 mt-3 text-sm font-light">Pelajari bagaimana setiap meter persegi ruangan Anda dimaksimalkan untuk kenyamanan seluruh anggota keluarga.</p>
+                </div>
+
+                <div class="bg-stone-50 rounded-2xl p-6 lg:p-10 border border-zinc-200 shadow-lg">
+                    <div class="flex flex-wrap justify-center gap-3 mb-8">
+                        <button onclick="switchFloorPlan('tipe36')" id="planBtn-tipe36" class="plan-tab-btn active-plan bg-zinc-950 text-gold-400 border border-gold-500/40 px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all">
+                            Tipe 36/42 (1 Lantai Standard)
+                        </button>
+                        <button onclick="switchFloorPlan('tipe72')" id="planBtn-tipe72" class="plan-tab-btn bg-white text-zinc-700 hover:bg-stone-200 border border-zinc-300 px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all">
+                            Tipe 72 Mezzanine (Scandinavian 2 Tingkat)
+                        </button>
+                    </div>
+
+                    <div id="floorPlanDisplay" class="grid lg:grid-cols-12 gap-8 items-center">
+                        <!-- Dynamic Floorplan content loaded via JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- NEW SECTION: NEARBY AMENITIES & LOCATION HIGHLIGHTS -->
+        <section id="amenities" class="py-20 bg-stone-100/80 border-t border-zinc-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid lg:grid-cols-12 gap-12 items-center">
+                    <div class="lg:col-span-5 space-y-6">
+                        <span class="text-gold-600 font-bold text-xs uppercase tracking-widest">Kawasan Strategis</span>
+                        <h2 class="text-3xl sm:text-4xl font-extrabold font-serif text-zinc-950 leading-tight">
+                            Akses Cepat ke Seluruh Pusat Aktivitas Anda
+                        </h2>
+                        <p class="text-zinc-600 text-sm leading-relaxed font-light">
+                            Lokasi perumahan KCP Land dipilih secara presisi di jalur utama penyangga kota besar, mempermudah mobilitas harian menuju tempat kerja, sekolah, sarana kesehatan, dan pusat hiburan.
+                        </p>
+
+                        <div class="space-y-3 pt-2">
+                            <div class="p-4 rounded-xl bg-white border border-zinc-200 flex items-center gap-4 shadow-sm">
+                                <div class="w-11 h-11 rounded-lg bg-zinc-950 text-gold-400 flex items-center justify-center text-lg font-bold">
+                                    <i class="fa-solid fa-plane"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-xs uppercase tracking-wider text-zinc-900">Bandara Int'l Soekarno-Hatta</h4>
+                                    <p class="text-xs text-zinc-500">Hanya 25-30 Menit lewat Jalan Utama Sepatan</p>
+                                </div>
+                            </div>
+
+                            <div class="p-4 rounded-xl bg-white border border-zinc-200 flex items-center gap-4 shadow-sm">
+                                <div class="w-11 h-11 rounded-lg bg-zinc-950 text-gold-400 flex items-center justify-center text-lg font-bold">
+                                    <i class="fa-solid fa-train"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-xs uppercase tracking-wider text-zinc-900">Stasiun KRL Tangerang</h4>
+                                    <p class="text-xs text-zinc-500">Hanya 20 Menit terhubung ke Sudirman / Jakarta Kota</p>
+                                </div>
+                            </div>
+
+                            <div class="p-4 rounded-xl bg-white border border-zinc-200 flex items-center gap-4 shadow-sm">
+                                <div class="w-11 h-11 rounded-lg bg-zinc-950 text-gold-400 flex items-center justify-center text-lg font-bold">
+                                    <i class="fa-solid fa-hospital"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-xs uppercase tracking-wider text-zinc-900">Fasilitas Kesehatan & Pendidikan</h4>
+                                    <p class="text-xs text-zinc-500">10 Menit ke RSUD Pakuhaji & Sekolah Favorit</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-7">
+                        <div class="bg-zinc-950 p-6 sm:p-8 rounded-2xl border border-gold-500/40 text-white shadow-2xl relative overflow-hidden">
+                            <div class="flex items-center justify-between mb-6">
+                                <h3 class="font-serif font-bold text-lg text-gold-400 flex items-center gap-2">
+                                    <i class="fa-solid fa-map-location-dot"></i> Peta Lokasi & Masterplan
+                                </h3>
+                                <span class="text-[10px] bg-gold-500/20 text-gold-300 font-bold border border-gold-500/30 px-3 py-1 rounded-full uppercase">Kawasan Bebas Banjir</span>
+                            </div>
+
+                            <div class="relative h-72 rounded-xl overflow-hidden border border-zinc-800 bg-zinc-900 mb-6 group">
+                                <img src="https://images.unsplash.com/photo-1524813686514-a57563d77965?auto=format&fit=crop&w=1000&q=80" alt="Map Overview" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80">
+                                <div class="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent"></div>
+                                <div class="absolute bottom-4 left-4 right-4 flex justify-between items-center bg-zinc-950/80 backdrop-blur-md p-3 rounded-lg border border-zinc-800">
+                                    <span class="text-xs font-bold text-stone-200"><i class="fa-solid fa-location-pin text-gold-400 mr-2"></i>Jl. Raya Sepatan - Lebak Wangi</span>
+                                    <a href="https://maps.google.com" target="_blank" class="text-[10px] text-gold-400 hover:underline font-bold uppercase">Buka Google Maps <i class="fa-solid fa-arrow-up-right-from-square ml-1"></i></a>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center text-xs">
+                                <div class="p-3 bg-zinc-900 rounded-lg border border-zinc-800">
+                                    <p class="font-extrabold text-gold-400 text-sm">4 Min</p>
+                                    <p class="text-[10px] text-zinc-400 uppercase mt-0.5">Jl. Raya Utama</p>
+                                </div>
+                                <div class="p-3 bg-zinc-900 rounded-lg border border-zinc-800">
+                                    <p class="font-extrabold text-gold-400 text-sm">15 Min</p>
+                                    <p class="text-[10px] text-zinc-400 uppercase mt-0.5">Pintu Tol Teluknaga</p>
+                                </div>
+                                <div class="p-3 bg-zinc-900 rounded-lg border border-zinc-800">
+                                    <p class="font-extrabold text-gold-400 text-sm">25 Min</p>
+                                    <p class="text-[10px] text-zinc-400 uppercase mt-0.5">Kawasan PIK 2</p>
+                                </div>
+                                <div class="p-3 bg-zinc-900 rounded-lg border border-zinc-800">
+                                    <p class="font-extrabold text-gold-400 text-sm">30 Min</p>
+                                    <p class="text-[10px] text-zinc-400 uppercase mt-0.5">Pusat Kota Jkt</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- KPR CALCULATOR SECTION -->
+        <section id="calculator" class="py-20 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid lg:grid-cols-12 gap-12 items-center">
+                    
+                    <div class="lg:col-span-5 space-y-6">
+                        <span class="text-gold-600 font-bold text-xs uppercase tracking-widest">Perhitungan Finansial</span>
+                        <h2 class="text-3xl sm:text-4xl font-extrabold font-serif text-zinc-950 leading-tight">
+                            Simulasi KPR Mudah & Transparan
+                        </h2>
+                        <p class="text-zinc-600 leading-relaxed text-sm font-light">
+                            Hitung estimasi angsuran bulanan sesuai harga properti KCP Land. Kami telah bekerja sama resmi dengan Bank BTN, BSI, Bank Mandiri, dan BRI untuk memberikan persetujuan KPR yang cepat & fleksibel.
+                        </p>
+
+                        <div class="p-5 rounded-xl bg-stone-50 border border-gold-500/30 space-y-3">
+                            <div class="flex items-center gap-3.5">
+                                <div class="w-10 h-10 rounded-lg bg-zinc-950 text-gold-400 flex items-center justify-center font-bold text-lg border border-gold-500/30">
+                                    <i class="fa-solid fa-piggy-bank"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-bold text-zinc-950">Promo KPR Spesial Akad</p>
+                                    <p class="text-xs text-zinc-500">Booking All-In Rp 3 Juta langsung proses KPR!</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pt-2">
+                            <p class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-3">Bank Mitra Resmi KPR:</p>
+                            <div class="flex flex-wrap items-center gap-3 text-zinc-700 font-bold text-xs">
+                                <span class="px-3.5 py-2 bg-stone-100 rounded-md border border-zinc-200">BANK BTN</span>
+                                <span class="px-3.5 py-2 bg-stone-100 rounded-md border border-zinc-200">BANK BSI</span>
+                                <span class="px-3.5 py-2 bg-stone-100 rounded-md border border-zinc-200">MANDIRI</span>
+                                <span class="px-3.5 py-2 bg-stone-100 rounded-md border border-zinc-200">BRI</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Calculator Card -->
+                    <div class="lg:col-span-7">
+                        <div class="bg-zinc-950 text-white rounded-2xl p-6 sm:p-8 shadow-2xl border border-gold-500/40">
+                            <h3 class="text-xl font-bold font-serif mb-6 flex items-center gap-2 text-gold-400">
+                                <i class="fa-solid fa-calculator"></i>
+                                <span>Kalkulator Estimasi Angsuran</span>
+                            </h3>
+
+                            <div class="space-y-6">
+                                <div>
+                                    <div class="flex justify-between items-center text-xs mb-2">
+                                        <label class="text-zinc-300 font-medium uppercase tracking-wider">Harga Rumah (Rp)</label>
+                                        <span id="calcPriceDisplay" class="font-bold text-gold-400 text-base">Rp 460.000.000</span>
+                                    </div>
+                                    <input type="range" id="calcPriceInput" min="300000000" max="1000000000" step="10000000" value="460000000" oninput="updateCalculator()" class="w-full accent-gold-500 bg-zinc-800 h-2 rounded-lg cursor-pointer">
+                                </div>
+
+                                <div>
+                                    <div class="flex justify-between items-center text-xs mb-2">
+                                        <label class="text-zinc-300 font-medium uppercase tracking-wider">Uang Muka / DP (%)</label>
+                                        <span id="calcDpDisplay" class="font-bold text-gold-400 text-base">0% (Rp 0)</span>
+                                    </div>
+                                    <input type="range" id="calcDpInput" min="0" max="30" step="5" value="0" oninput="updateCalculator()" class="w-full accent-gold-500 bg-zinc-800 h-2 rounded-lg cursor-pointer">
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-zinc-400 font-bold text-[10px] uppercase tracking-wider mb-2">Jangka Waktu (Tenor)</label>
+                                        <select id="calcTenorInput" onchange="updateCalculator()" class="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg p-3 text-xs focus:ring-2 focus:ring-gold-500 focus:outline-none font-medium">
+                                            <option value="10">10 Tahun</option>
+                                            <option value="15">15 Tahun</option>
+                                            <option value="20" selected>20 Tahun</option>
+                                            <option value="25">25 Tahun</option>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-zinc-400 font-bold text-[10px] uppercase tracking-wider mb-2">Estimasi Bunga (%)</label>
+                                        <select id="calcInterestInput" onchange="updateCalculator()" class="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg p-3 text-xs focus:ring-2 focus:ring-gold-500 focus:outline-none font-medium">
+                                            <option value="3.5">3.5% (Promo Fixed 1 Thn)</option>
+                                            <option value="5.0" selected>5.0% (Fix & Soft)</option>
+                                            <option value="7.5">7.5% (Standard KPR)</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="p-5 bg-zinc-900 rounded-xl border border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                    <div>
+                                        <span class="text-[10px] text-zinc-400 uppercase font-bold tracking-widest">Estimasi Cicilan per Bulan</span>
+                                        <div id="calcMonthlyOutput" class="text-2xl sm:text-3xl font-extrabold text-gold-400 font-serif mt-1">
+                                            Rp 3.035.000 / bln
+                                        </div>
+                                    </div>
+                                    <button onclick="openBookingModal('Konsultasi KPR')" class="gold-button-gradient text-zinc-950 font-bold px-6 py-3.5 rounded-lg text-xs uppercase tracking-wider transition-all whitespace-nowrap shadow-md">
+                                        Ajukan KPR Sekarang
+                                    </button>
+                                </div>
+
+                                <p class="text-[10px] text-zinc-500 italic text-center">
+                                    *Simulasi di atas merupakan estimasi awal. Besaran suku bunga & angsuran resmi ditentukan oleh pihak perbankan penyalur.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ECO-DESIGN CONCEPT SECTION -->
+        <section id="eco-concept" class="py-20 bg-zinc-950 text-white border-t border-zinc-800">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div class="text-center max-w-3xl mx-auto mb-16">
+                    <span class="text-gold-400 font-bold text-xs uppercase tracking-widest">Inovasi Arsitektur</span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold font-serif text-white mt-2">
+                        Simulasi Konsep Smart Eco-Design
+                    </h2>
+                    <p class="text-zinc-400 mt-4 leading-relaxed text-sm font-light">
+                        KCP Land mendesain setiap rumah dengan efisiensi sirkulasi udara dan ruang vertikal untuk kenyamanan optimal keluarga.
+                    </p>
+                </div>
+
+                <div class="bg-zinc-900 rounded-2xl p-6 lg:p-8 border border-zinc-800 max-w-4xl mx-auto">
+                    <div class="flex flex-wrap justify-center gap-3 mb-8">
+                        <button onclick="toggleEcoDemo('mezzanine')" id="ecoBtn-mezzanine" class="eco-demo-btn active-eco px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider bg-gold-500 text-zinc-950 transition-all">
+                            <i class="fa-solid fa-stairs mr-2"></i>Lantai Mezzanine (Ruang Vertikal)
+                        </button>
+                        <button onclick="toggleEcoDemo('ceiling')" id="ecoBtn-ceiling" class="eco-demo-btn px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider bg-zinc-800 text-zinc-300 hover:bg-zinc-700 transition-all">
+                            <i class="fa-solid fa-arrows-up-down mr-2"></i>Plafon Tinggi (High Ceiling 4.5m)
+                        </button>
+                        <button onclick="toggleEcoDemo('ventilation')" id="ecoBtn-ventilation" class="eco-demo-btn px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider bg-zinc-800 text-zinc-300 hover:bg-zinc-700 transition-all">
+                            <i class="fa-solid fa-wind mr-2"></i>Sirkulasi Udara Alami
+                        </button>
+                    </div>
+
+                    <div id="ecoDisplayContainer" class="relative rounded-xl bg-black p-8 min-h-[240px] flex flex-col justify-center border border-zinc-800">
+                        <div id="ecoContent" class="space-y-4">
+                            <h4 class="text-xl font-bold font-serif text-gold-400 flex items-center gap-2">
+                                <i class="fa-solid fa-layer-group"></i> Ruang Ekstra Mezzanine
+                            </h4>
+                            <p class="text-xs text-zinc-300 leading-relaxed font-light">
+                                Dengan konsep Mezzanine, luas bangunan awal 36 m² dapat dimaksimalkan fungsinya menjadi 72 m² dengan tambahan area kamar tidur anak, ruang kerja (*home office*), atau ruang santai keluarga tanpa perlu membongkar struktur utama.
+                            </p>
+                            <div class="inline-flex items-center gap-2 text-xs text-gold-300 bg-gold-900/30 border border-gold-500/30 px-3.5 py-2 rounded-lg">
+                                <i class="fa-solid fa-lightbulb text-gold-400"></i>
+                                <span>Hemat Biaya Renovasi hingga Rp 50 Juta dibanding membangun lantai 2 dari awal.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- NEW SECTION: CUSTOMER TESTIMONIALS & REVIEWS -->
+        <section id="testimonials" class="py-20 bg-stone-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-3xl mx-auto mb-16">
+                    <span class="text-gold-600 font-bold text-xs uppercase tracking-widest">Pengalaman Pembeli</span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold font-serif text-zinc-950 mt-2">Apa Kata Penghuni KCP Land?</h2>
+                    <p class="text-zinc-600 text-sm font-light mt-2">Kepercayaan & kepuasan konsumen adalah prioritas utama kami dalam setiap serah terima unit.</p>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-8">
+                    <!-- Testimonial 1 -->
+                    <div class="bg-white p-8 rounded-2xl border border-zinc-200 shadow-sm hover:shadow-lg transition-all flex flex-col justify-between">
+                        <div>
+                            <div class="flex text-gold-500 mb-4 text-xs gap-1">
+                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                            </div>
+                            <p class="text-xs text-zinc-700 leading-relaxed italic mb-6 font-light">
+                                "Sangat terbantu dengan promo Booking 3 Juta All-In. Proses KPR di Bank BTN didampingi tim sales KCP Land sampai akad tanpa biaya tersembunyi. Konsep mezzanine-nya bikin rumah tipe 36 berasa luas banget!"
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-3 pt-4 border-t border-zinc-100">
+                            <div class="w-10 h-10 rounded-full bg-stone-200 flex items-center justify-center font-bold text-zinc-800 text-xs font-serif">
+                                BS
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-xs text-zinc-950">Bapak Susanto & Keluarga</h4>
+                                <p class="text-[10px] text-zinc-500">Penghuni Arcadia Soetta Sepatan</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Testimonial 2 -->
+                    <div class="bg-white p-8 rounded-2xl border border-zinc-200 shadow-sm hover:shadow-lg transition-all flex flex-col justify-between">
+                        <div>
+                            <div class="flex text-gold-500 mb-4 text-xs gap-1">
+                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                            </div>
+                            <p class="text-xs text-zinc-700 leading-relaxed italic mb-6 font-light">
+                                "Plafon rumahnya tinggi 4,5 meter jadi di dalam adem dan terang walau siang hari nggak nyalain lampu. Pengurusan Sertifikat Hak Milik (SHM) juga aman dan lancar."
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-3 pt-4 border-t border-zinc-100">
+                            <div class="w-10 h-10 rounded-full bg-stone-200 flex items-center justify-center font-bold text-zinc-800 text-xs font-serif">
+                                RA
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-xs text-zinc-950">Rina Anggraini</h4>
+                                <p class="text-[10px] text-zinc-500">Penghuni The Forest Village Bandung</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Testimonial 3 -->
+                    <div class="bg-white p-8 rounded-2xl border border-zinc-200 shadow-sm hover:shadow-lg transition-all flex flex-col justify-between">
+                        <div>
+                            <div class="flex text-gold-500 mb-4 text-xs gap-1">
+                                <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                            </div>
+                            <p class="text-xs text-zinc-700 leading-relaxed italic mb-6 font-light">
+                                "Akses ke Bandara Soetta cepat banget cuma 25 menitan. Sangat rekomendasi buat pasangan muda yang cari rumah pertama berkonsep modern scandinavian."
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-3 pt-4 border-t border-zinc-100">
+                            <div class="w-10 h-10 rounded-full bg-stone-200 flex items-center justify-center font-bold text-zinc-800 text-xs font-serif">
+                                DR
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-xs text-zinc-950">Dion & Resti</h4>
+                                <p class="text-[10px] text-zinc-500">Penghuni Arcadia Extension</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ SECTION -->
+        <section id="faq" class="py-20 bg-white border-t border-zinc-200">
+            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div class="text-center mb-16">
+                    <span class="text-gold-600 font-bold text-xs uppercase tracking-widest">Pertanyaan Populer</span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold font-serif text-zinc-950 mt-2">Pertanyaan Yang Sering Diajukan (FAQ)</h2>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="bg-stone-50 rounded-xl border border-zinc-200 overflow-hidden shadow-sm">
+                        <button onclick="toggleFaq('faq1')" class="w-full px-6 py-5 text-left font-bold text-zinc-950 text-sm flex justify-between items-center hover:bg-stone-100 transition-colors">
+                            <span>Berapa skema biaya awal untuk booking unit di KCP Land?</span>
+                            <i id="faq1-icon" class="fa-solid fa-chevron-down text-zinc-400 transition-transform"></i>
+                        </button>
+                        <div id="faq1" class="hidden px-6 pb-5 text-xs text-zinc-600 leading-relaxed border-t border-zinc-200/60 pt-3 font-light">
+                            Cukup dengan membayar <strong class="text-zinc-900">Booking Fee Rp 3 Juta ALL-IN</strong>, Anda sudah bisa mengamankan unit dan langsung memproses pengajuan KPR. Bebas biaya BPHTB, gratis biaya balik nama AJB, serta subsidi biaya akad pada promo aktif tertentu.
+                        </div>
+                    </div>
+
+                    <div class="bg-stone-50 rounded-xl border border-zinc-200 overflow-hidden shadow-sm">
+                        <button onclick="toggleFaq('faq2')" class="w-full px-6 py-5 text-left font-bold text-zinc-950 text-sm flex justify-between items-center hover:bg-stone-100 transition-colors">
+                            <span>Bagaimana legalitas sertifikat perumahan KCP Land?</span>
+                            <i id="faq2-icon" class="fa-solid fa-chevron-down text-zinc-400 transition-transform"></i>
+                        </button>
+                        <div id="faq2" class="hidden px-6 pb-5 text-xs text-zinc-600 leading-relaxed border-t border-zinc-200/60 pt-3 font-light">
+                            Seluruh unit proyek KCP Land (seperti Arcadia Soetta Sepatan & The Forest Village) dijamin legalitasnya dengan Persetujuan Bangunan Gedung (PBG/IMB) lengkap serta status Sertifikat Hak Milik (SHM) pecah per kavling.
+                        </div>
+                    </div>
+
+                    <div class="bg-stone-50 rounded-xl border border-zinc-200 overflow-hidden shadow-sm">
+                        <button onclick="toggleFaq('faq3')" class="w-full px-6 py-5 text-left font-bold text-zinc-950 text-sm flex justify-between items-center hover:bg-stone-100 transition-colors">
+                            <span>Apa saja spesifikasi material utama bangunan?</span>
+                            <i id="faq3-icon" class="fa-solid fa-chevron-down text-zinc-400 transition-transform"></i>
+                        </button>
+                        <div id="faq3" class="hidden px-6 pb-5 text-xs text-zinc-600 leading-relaxed border-t border-zinc-200/60 pt-3 font-light">
+                            Pondasi batu kali & beton bertulang, dinding hebel plester aci finishing cat, rangka atap baja ringan, genteng beton full flat coating black, lantai homogenous tiles, kusen aluminium anti-rayap, dan daun pintu engineering wood.
+                        </div>
+                    </div>
+
+                    <div class="bg-stone-50 rounded-xl border border-zinc-200 overflow-hidden shadow-sm">
+                        <button onclick="toggleFaq('faq4')" class="w-full px-6 py-5 text-left font-bold text-zinc-950 text-sm flex justify-between items-center hover:bg-stone-100 transition-colors">
+                            <span>Di mana alamat kantor pusat PT Kinarya Cipta Pesona?</span>
+                            <i id="faq4-icon" class="fa-solid fa-chevron-down text-zinc-400 transition-transform"></i>
+                        </button>
+                        <div id="faq4" class="hidden px-6 pb-5 text-xs text-zinc-600 leading-relaxed border-t border-zinc-200/60 pt-3 font-light">
+                            Kantor pusat kami berlokasi di <strong class="text-zinc-900">Maisonette Regency Kav. No. 29, Jl. Raya Joglo, Kembangan / Kebon Jeruk, Jakarta Barat</strong>. Anda juga dapat langsung berkunjung ke Marketing Gallery resmi kami di lokasi proyek Sepatan Tangerang & Bandung.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- CTA BANNER SECTION -->
+        <section class="py-16 bg-zinc-950 text-white border-t border-zinc-800">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
+                <h2 class="text-3xl sm:text-4xl font-extrabold font-serif">Siap Memiliki Rumah Impian Bersama KCP Land?</h2>
+                <p class="text-zinc-400 text-xs sm:text-sm max-w-2xl mx-auto font-light">
+                    Dapatkan penawaran unit siap huni, bonus AC, dan konsultasi kelayakan KPR secara GRATIS dari Sales In-House kami.
+                </p>
+                <div class="flex flex-wrap justify-center gap-4 pt-2">
+                    <button onclick="openBookingModal('Konsultasi Sales')" class="gold-button-gradient text-zinc-950 font-extrabold px-8 py-4 rounded-lg shadow-xl text-xs uppercase tracking-wider transition-all transform hover:-translate-y-0.5">
+                        Jadwalkan Kunjungan Lokasi
+                    </button>
+                    <button onclick="openBrochureModal()" class="bg-zinc-900 hover:bg-zinc-800 text-white font-bold px-8 py-4 rounded-lg border border-zinc-700 text-xs uppercase tracking-wider transition-colors">
+                        <i class="fa-solid fa-file-pdf text-gold-400 mr-2"></i>Download E-Brosur Lengkap
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-black text-zinc-400 text-xs py-12 border-t border-zinc-900">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+            <div class="space-y-3 md:col-span-1">
+                <div class="flex items-center gap-2 text-white font-extrabold font-serif text-lg tracking-wider">
+                    <i class="fa-solid fa-crown text-gold-400"></i> KCP LAND
+                </div>
+                <p class="text-zinc-500 leading-relaxed font-light text-[11px]">
+                    PT Kinarya Cipta Pesona <br/>
+                    Developer, Pemilik & Pengelola Real Estat Terpercaya.
+                </p>
+            </div>
+
+            <div>
+                <h4 class="text-white font-bold text-xs uppercase tracking-wider mb-3">Kantor Pusat</h4>
+                <p class="text-zinc-500 leading-relaxed font-light text-[11px]">
+                    Maisonette Regency Kav. No.29, Jl. Raya Joglo, RT 8 / RW 8, Kembangan, Jakarta Barat.
+                </p>
+            </div>
+
+            <div>
+                <h4 class="text-white font-bold text-xs uppercase tracking-wider mb-3">Lokasi Proyek</h4>
+                <ul class="space-y-1.5 text-zinc-500 text-[11px] font-light">
+                    <li>• Arcadia Soetta Sepatan (Tangerang)</li>
+                    <li>• The Forest Village (Kab. Bandung)</li>
+                    <li>• Arcadia Extension (Bogor & Penyangga)</li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="text-white font-bold text-xs uppercase tracking-wider mb-3">Kontak & Layanan</h4>
+                <p class="mb-2 text-[11px] font-light"><i class="fa-solid fa-phone text-gold-400 mr-2"></i> +62 813-8551-9521</p>
+                <p class="mb-2 text-[11px] font-light"><i class="fa-solid fa-envelope text-gold-400 mr-2"></i> info@kinaryaproperty.id</p>
+                <p class="text-[11px] font-light"><i class="fa-solid fa-globe text-gold-400 mr-2"></i> www.kinaryaproperty.id</p>
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 border-t border-zinc-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-zinc-600">
+            <p>© 2026 PT Kinarya Cipta Pesona (KCP Land). All rights reserved.</p>
+            <p class="text-[10px] tracking-widest uppercase">Smart Eco Design for Living</p>
+        </div>
+    </footer>
+
+    <!-- FLOATING WHATSAPP CTA BUTTON -->
+    <a href="https://wa.me/6281385519521?text=Halo%20KCP%20Land,%20saya%20tertarik%20tanya%20proyek%20perumahan" target="_blank" class="fixed bottom-6 right-6 z-50 bg-emerald-600 hover:bg-emerald-500 text-white rounded-full p-3.5 shadow-2xl flex items-center gap-2.5 transition-all transform hover:scale-105 pulse-wa">
+        <i class="fa-brands fa-whatsapp text-2xl"></i>
+        <span class="hidden sm:inline font-bold text-xs tracking-wider uppercase pr-1">Tanya Marketing</span>
+    </a>
+
+    <!-- Interactive Detail Unit Modal -->
+    <div id="unitDetailModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 sm:p-8 shadow-2xl relative border border-gold-500/30">
+            <button onclick="closeUnitDetail()" class="absolute top-5 right-5 text-zinc-400 hover:text-zinc-950 text-xl p-2">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div id="unitDetailContent"></div>
+        </div>
+    </div>
+
+    <!-- Schedule Visit / Booking Modal -->
+    <div id="bookingModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative border border-gold-500/30">
+            <button onclick="closeBookingModal()" class="absolute top-5 right-5 text-zinc-400 hover:text-zinc-950 text-xl p-2">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            
+            <h3 class="text-xl font-bold font-serif text-zinc-950 mb-1">Jadwalkan Survei / Booking</h3>
+            <p class="text-xs text-zinc-500 mb-6">Isi data singkat untuk terhubung langsung dengan Sales Marketing In-House KCP Land.</p>
+
+            <form id="bookingForm" onsubmit="handleBookingSubmit(event)" class="space-y-4">
+                <input type="hidden" id="modalProjectName" value="General">
+
+                <div>
+                    <label class="block text-[10px] font-bold text-zinc-700 uppercase tracking-wider mb-1">Nama Lengkap</label>
+                    <input type="text" id="modalName" required placeholder="Contoh: Budi Santoso" class="w-full bg-stone-50 border border-zinc-300 rounded-lg px-4 py-2.5 text-xs focus:ring-2 focus:ring-gold-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-bold text-zinc-700 uppercase tracking-wider mb-1">Nomor WhatsApp</label>
+                    <input type="tel" id="modalPhone" required placeholder="081234567890" class="w-full bg-stone-50 border border-zinc-300 rounded-lg px-4 py-2.5 text-xs focus:ring-2 focus:ring-gold-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-bold text-zinc-700 uppercase tracking-wider mb-1">Rencana Kunjungan</label>
+                    <input type="date" id="modalDate" class="w-full bg-stone-50 border border-zinc-300 rounded-lg px-4 py-2.5 text-xs focus:ring-2 focus:ring-gold-500 focus:outline-none">
+                </div>
+
+                <div id="formSuccessMessage" class="hidden p-3 rounded-lg bg-stone-100 text-gold-700 text-xs font-semibold border border-gold-500/30">
+                    <i class="fa-solid fa-circle-check mr-1 text-gold-600"></i> Formulir terkirim! Mengalihkan ke WhatsApp Marketing...
+                </div>
+
+                <button type="submit" class="w-full bg-zinc-950 hover:bg-gold-500 text-gold-400 hover:text-zinc-950 font-bold py-3 rounded-lg text-xs uppercase tracking-wider transition-colors border border-gold-500/30 shadow">
+                    Kirim & Terhubung via WhatsApp
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Brochure Download Lead Modal -->
+    <div id="brochureModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative border border-gold-500/30">
+            <button onclick="closeBrochureModal()" class="absolute top-5 right-5 text-zinc-400 hover:text-zinc-950 text-xl p-2">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            
+            <h3 class="text-xl font-bold font-serif text-zinc-950 mb-1">Download E-Brosur & Price List</h3>
+            <p class="text-xs text-zinc-500 mb-6">Masukkan email/nomor WA Anda untuk menerima berkas PDF brosur perumahan secara otomatis.</p>
+
+            <form onsubmit="handleBrochureSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-[10px] font-bold text-zinc-700 uppercase tracking-wider mb-1">Nama</label>
+                    <input type="text" required placeholder="Nama Anda" class="w-full bg-stone-50 border border-zinc-300 rounded-lg px-4 py-2.5 text-xs focus:ring-2 focus:ring-gold-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-zinc-700 uppercase tracking-wider mb-1">Nomor WhatsApp</label>
+                    <input type="tel" required placeholder="081234567890" class="w-full bg-stone-50 border border-zinc-300 rounded-lg px-4 py-2.5 text-xs focus:ring-2 focus:ring-gold-500 focus:outline-none">
+                </div>
+                <button type="submit" class="w-full gold-button-gradient text-zinc-950 font-bold py-3 rounded-lg text-xs uppercase tracking-wider transition-colors shadow-md">
+                    Dapatkan E-Brosur PDF (Gratis)
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        });
+
+        // Interactive Project Filter
+        function filterProjects(location) {
+            const cards = document.querySelectorAll('.project-card');
+            const buttons = document.querySelectorAll('.project-tab');
+
+            buttons.forEach(btn => {
+                btn.classList.remove('bg-zinc-950', 'text-gold-400', 'border-gold-500/40');
+                btn.classList.add('bg-white', 'text-zinc-700');
+            });
+
+            event.target.classList.remove('bg-white', 'text-zinc-700');
+            event.target.classList.add('bg-zinc-950', 'text-gold-400', 'border-gold-500/40');
+
+            cards.forEach(card => {
+                if (location === 'ALL' || card.dataset.location === location) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Hero quick search filter
+        function handleHeroFilter(e) {
+            e.preventDefault();
+            const location = document.getElementById('filterLocation').value;
+            filterProjects(location);
+            document.getElementById('projects').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Calculator logic
+        function updateCalculator() {
+            const price = parseFloat(document.getElementById('calcPriceInput').value);
+            const dpPercent = parseFloat(document.getElementById('calcDpInput').value);
+            const tenorYears = parseFloat(document.getElementById('calcTenorInput').value);
+            const interestRate = parseFloat(document.getElementById('calcInterestInput').value);
+
+            document.getElementById('calcPriceDisplay').innerText = 'Rp ' + price.toLocaleString('id-ID');
+            const dpAmount = (price * dpPercent) / 100;
+            document.getElementById('calcDpDisplay').innerText = `${dpPercent}% (Rp ${dpAmount.toLocaleString('id-ID')})`;
+
+            const principal = price - dpAmount;
+            const totalMonths = tenorYears * 12;
+            const monthlyRate = (interestRate / 100) / 12;
+
+            let monthlyInstallment = 0;
+            if (monthlyRate > 0) {
+                monthlyInstallment = (principal * monthlyRate * Math.pow(1 + monthlyRate, totalMonths)) / (Math.pow(1 + monthlyRate, totalMonths) - 1);
+            } else {
+                monthlyInstallment = principal / totalMonths;
+            }
+
+            document.getElementById('calcMonthlyOutput').innerText = 'Rp ' + Math.round(monthlyInstallment).toLocaleString('id-ID') + ' / bln';
+        }
+
+        // Interactive Eco-Design Demo Toggle
+        function toggleEcoDemo(type) {
+            const container = document.getElementById('ecoContent');
+            const btns = document.querySelectorAll('.eco-demo-btn');
+            
+            btns.forEach(b => {
+                b.classList.remove('bg-gold-500', 'text-zinc-950');
+                b.classList.add('bg-zinc-800', 'text-zinc-300');
+            });
+
+            document.getElementById('ecoBtn-' + type).classList.remove('bg-zinc-800', 'text-zinc-300');
+            document.getElementById('ecoBtn-' + type).classList.add('bg-gold-500', 'text-zinc-950');
+
+            if (type === 'mezzanine') {
+                container.innerHTML = `
+                    <h4 class="text-xl font-bold font-serif text-gold-400 flex items-center gap-2">
+                        <i class="fa-solid fa-layer-group"></i> Ruang Vertikal Mezzanine
+                    </h4>
+                    <p class="text-xs text-zinc-300 leading-relaxed font-light">
+                        Dengan konsep Mezzanine, ruang lantai dapat dimaksimalkan fungsinya menjadi 2 tingkat internal tanpa perlu merombak struktur utama. Sangat ideal untuk kamar tidur tambahan, ruang kerja studio, atau tempat bermain anak.
+                    </p>
+                    <div class="inline-flex items-center gap-2 text-xs text-gold-300 bg-gold-900/30 border border-gold-500/30 px-3.5 py-2 rounded-lg">
+                        <i class="fa-solid fa-lightbulb text-gold-400"></i>
+                        <span>Pemanfaatan lahan efisien untuk generasi muda milenial.</span>
+                    </div>
+                `;
+            } else if (type === 'ceiling') {
+                container.innerHTML = `
+                    <h4 class="text-xl font-bold font-serif text-gold-400 flex items-center gap-2">
+                        <i class="fa-solid fa-arrows-up-down"></i> High Ceiling (Plafon Tinggi 4.5m)
+                    </h4>
+                    <p class="text-xs text-zinc-300 leading-relaxed font-light">
+                        Plafon tinggi menciptakan volume udara yang lebih besar di dalam rumah, menjaga suhu ruangan tetap dingin secara alami meski di tengah cuaca panas suburban Tangerang.
+                    </p>
+                    <div class="inline-flex items-center gap-2 text-xs text-gold-300 bg-gold-900/30 border border-gold-500/30 px-3.5 py-2 rounded-lg">
+                        <i class="fa-solid fa-bolt text-gold-400"></i>
+                        <span>Mengurangi penggunaan pendingin ruangan (AC) hingga 25-30%.</span>
+                    </div>
+                `;
+            } else if (type === 'ventilation') {
+                container.innerHTML = `
+                    <h4 class="text-xl font-bold font-serif text-gold-400 flex items-center gap-2">
+                        <i class="fa-solid fa-wind"></i> Vent & Sinar Matahari Alami
+                    </h4>
+                    <p class="text-xs text-zinc-300 leading-relaxed font-light">
+                        Penggunaan bukaan jendela berukuran besar dan taman mini belakang (*backyard*) memungkinkan pencahayaan alami masuk secara menyeluruh sepanjang siang hari.
+                    </p>
+                    <div class="inline-flex items-center gap-2 text-xs text-gold-300 bg-gold-900/30 border border-gold-500/30 px-3.5 py-2 rounded-lg">
+                        <i class="fa-solid fa-sun text-gold-400"></i>
+                        <span>Rumah lebih sehat, tidak lembap, dan hemat daya harian.</span>
+                    </div>
+                `;
+            }
+        }
+
+        // Interactive Floor Plan Switcher
+        function switchFloorPlan(planType) {
+            const btns = document.querySelectorAll('.plan-tab-btn');
+            btns.forEach(b => {
+                b.classList.remove('bg-zinc-950', 'text-gold-400', 'border-gold-500/40');
+                b.classList.add('bg-white', 'text-zinc-700');
+            });
+
+            const activeBtn = document.getElementById('planBtn-' + planType);
+            activeBtn.classList.remove('bg-white', 'text-zinc-700');
+            activeBtn.classList.add('bg-zinc-950', 'text-gold-400', 'border-gold-500/40');
+
+            const container = document.getElementById('floorPlanDisplay');
+            if (planType === 'tipe36') {
+                container.innerHTML = `
+                    <div class="lg:col-span-6 space-y-4">
+                        <span class="text-gold-600 text-[10px] font-bold uppercase tracking-wider">Desain Compact Modern</span>
+                        <h3 class="text-2xl font-bold font-serif text-zinc-950">Denah Tipe 36/42 (2 Kamar Tidur)</h3>
+                        <p class="text-xs text-zinc-600 leading-relaxed font-light">
+                            Desain efisien tanpa ruang terbuang. Dilengkapi dengan carport mobil, taman depan, ruang tamu berplafon tinggi, 2 kamar tidur utama, 1 kamar mandi modern, serta dapur & area jemur di halaman belakang.
+                        </p>
+                        <div class="grid grid-cols-2 gap-3 text-xs pt-2">
+                            <div class="p-3 bg-white rounded-lg border border-zinc-200"><span class="font-bold text-zinc-900 block">Kamar Utama:</span> 3.0m x 3.0m</div>
+                            <div class="p-3 bg-white rounded-lg border border-zinc-200"><span class="font-bold text-zinc-900 block">Kamar Anak:</span> 2.8m x 3.0m</div>
+                            <div class="p-3 bg-white rounded-lg border border-zinc-200"><span class="font-bold text-zinc-900 block">Carport:</span> 1 Mobil + Motor</div>
+                            <div class="p-3 bg-white rounded-lg border border-zinc-200"><span class="font-bold text-zinc-900 block">Taman Belakang:</span> Multi-fungsi</div>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-6 bg-white p-4 rounded-xl border border-zinc-200 shadow-sm flex items-center justify-center">
+                        <img src="https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=700&q=80" alt="Denah Tipe 36" class="rounded-lg w-full h-64 object-cover">
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="lg:col-span-6 space-y-4">
+                        <span class="text-gold-600 text-[10px] font-bold uppercase tracking-wider">Desain Vertikal Scandinavian</span>
+                        <h3 class="text-2xl font-bold font-serif text-zinc-950">Denah Tipe 72 Mezzanine (3 Kamar Tidur)</h3>
+                        <p class="text-xs text-zinc-600 leading-relaxed font-light">
+                            Mengadopsi pemanfaatan ruang ganda vertikal. Lantai bawah memuat 2 kamar tidur, ruang keluarga, & dapur. Lantai Mezzanine atas berfungsi sebagai Kamar Tidur Ke-3 atau Ruang Kerja Studio dengan pemandangan terbuka ke ruang tamu.
+                        </p>
+                        <div class="grid grid-cols-2 gap-3 text-xs pt-2">
+                            <div class="p-3 bg-white rounded-lg border border-zinc-200"><span class="font-bold text-zinc-900 block">Lantai 1:</span> 2 KT + 1 KM + Dapur</div>
+                            <div class="p-3 bg-white rounded-lg border border-zinc-200"><span class="font-bold text-zinc-900 block">Lantai Mezzanine:</span> 1 KT / Work Studio</div>
+                            <div class="p-3 bg-white rounded-lg border border-zinc-200"><span class="font-bold text-zinc-900 block">Plafon Utama:</span> High Ceiling 4.5m</div>
+                            <div class="p-3 bg-white rounded-lg border border-zinc-200"><span class="font-bold text-zinc-900 block">Bebas Renovasi:</span> Siap Huni</div>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-6 bg-white p-4 rounded-xl border border-zinc-200 shadow-sm flex items-center justify-center">
+                        <img src="https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=700&q=80" alt="Denah Tipe 72 Mezzanine" class="rounded-lg w-full h-64 object-cover">
+                    </div>
+                `;
+            }
+        }
+
+        // FAQ Toggle
+        function toggleFaq(id) {
+            const element = document.getElementById(id);
+            const icon = document.getElementById(id + '-icon');
+            element.classList.toggle('hidden');
+            icon.classList.toggle('rotate-180');
+        }
+
+        // Unit Details Modal Data
+        const unitData = {
+            'arcadia-soetta': {
+                title: 'Arcadia Soetta (Sepatan Timur, Kab. Tangerang)',
+                price: 'Mulai Rp 460.000.000',
+                specs: [
+                    'Pondasi: Batu Kali & Struktur Beton Bertulang',
+                    'Dinding: Hebel Plester Aci Cat Finished',
+                    'Atap: Rangka Baja Ringan & Genteng Beton Full Flat Black',
+                    'Lantai: Homogenous Tiles 60x60',
+                    'Kusen & Pintu: Kusen Aluminium Anti-Rayap & Engineering Wood',
+                    'Fasilitas Internal: One Gate System, CCTV 24/7, Taman Hijau, Row 6m'
+                ],
+                locationInfo: '4 Menit ke Jl. Raya Gatot Subroto, 20 Menit Stasiun Tangerang, 30 Menit Bandara Soetta.'
+            },
+            'forest-village': {
+                title: 'The Forest Village (Kabupaten Bandung)',
+                price: 'Mulai Rp 380.000.000',
+                specs: [
+                    'Pondasi: Cakar Ayam & Batu Kali',
+                    'Dinding: Bata Ringan Finishing Cat Weatherproof',
+                    'Atap: Rangka Baja Ringan',
+                    'Lantai: Granite Tile 60x60',
+                    'Daya Listrik: 1.300 VA - 2.200 VA',
+                    'Fasilitas: Masjid Perumahan, Playground, Keamanan Tersentralisasi'
+                ],
+                locationInfo: 'Lingkungan pegunungan asri dengan akses cepat ke pusat kota Bandung & sarana pendidikan.'
+            },
+            'arcadia-extension': {
+                title: 'Arcadia Extension Series (Bogor & Penyangga)',
+                price: 'Mulai Rp 520.000.000',
+                specs: [
+                    'Desain: Scandinavian Minimalist 2 Lantai / Mezzanine',
+                    'Legalitas: Pecah SHM & IMB/PBG Lengkap',
+                    'Air: Sumur Bor / PDAM dengan Pompa Otomatis',
+                    'Promo: Bebas Biaya BPHTB, Balik Nama, & Subsidi KPR'
+                ],
+                locationInfo: 'Sangat dekat dengan rencana gerbang Tol Kamal-Teluknaga-Rajeg & stasiun KRL commuter.'
+            }
+        };
+
+        function openUnitDetail(key) {
+            const data = unitData[key];
+            if (!data) return;
+
+            const modal = document.getElementById('unitDetailModal');
+            const content = document.getElementById('unitDetailContent');
+
+            content.innerHTML = `
+                <span class="text-[10px] font-bold text-gold-600 uppercase tracking-widest">Spesifikasi Detail Unit</span>
+                <h3 class="text-2xl font-bold font-serif text-zinc-950 mt-1 mb-2">${data.title}</h3>
+                <p class="text-lg font-extrabold text-gold-600 mb-6 font-serif">${data.price}</p>
+
+                <div class="mb-6">
+                    <h4 class="font-bold text-zinc-900 text-xs uppercase tracking-wider mb-3">Spesifikasi Material Bangunan:</h4>
+                    <ul class="space-y-2 text-xs text-zinc-600 font-light">
+                        ${data.specs.map(s => `<li class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-gold-600 text-xs"></i> ${s}</li>`).join('')}
+                    </ul>
+                </div>
+
+                <div class="p-4 bg-stone-50 rounded-xl border border-zinc-200 mb-6 text-xs text-zinc-600 font-light">
+                    <span class="font-bold block text-zinc-900 mb-1"><i class="fa-solid fa-route text-gold-600 mr-1"></i> Aksesibilitas Lokasi:</span>
+                    ${data.locationInfo}
+                </div>
+
+                <div class="flex gap-3">
+                    <button onclick="closeUnitDetail(); openBookingModal('${data.title}')" class="w-full bg-zinc-950 hover:bg-gold-500 text-gold-400 hover:text-zinc-950 border border-gold-500/30 font-bold py-3 rounded-lg text-xs uppercase tracking-wider transition-colors">
+                        Booking Unit Ini (Rp 3 Juta)
+                    </button>
+                </div>
+            `;
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeUnitDetail() {
+            const modal = document.getElementById('unitDetailModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Booking Modal
+        function openBookingModal(projectName) {
+            document.getElementById('modalProjectName').value = projectName;
+            const modal = document.getElementById('bookingModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeBookingModal() {
+            const modal = document.getElementById('bookingModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.getElementById('formSuccessMessage').classList.add('hidden');
+        }
+
+        function handleBookingSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('modalName').value;
+            const phone = document.getElementById('modalPhone').value;
+            const date = document.getElementById('modalDate').value;
+            const project = document.getElementById('modalProjectName').value;
+
+            document.getElementById('formSuccessMessage').classList.remove('hidden');
+
+            const text = `Halo Marketing KCP Land, saya ${name} (${phone}) bermaksud konsultasi/survei unit ${project} pada tanggal ${date || 'secepatnya'}. Mohon informasinya.`;
+            const waUrl = `https://wa.me/6281385519521?text=${encodeURIComponent(text)}`;
+
+            setTimeout(() => {
+                window.open(waUrl, '_blank');
+                closeBookingModal();
+            }, 1200);
+        }
+
+        // Brochure Modal
+        function openBrochureModal() {
+            const modal = document.getElementById('brochureModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeBrochureModal() {
+            const modal = document.getElementById('brochureModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function handleBrochureSubmit(e) {
+            e.preventDefault();
+            alert('Terima kasih! File E-Brosur & Price List terbaru sedang dikirimkan via WhatsApp Sales kami.');
+            closeBrochureModal();
+        }
+
+        // Initialize on load
+        window.onload = function() {
+            updateCalculator();
+            switchFloorPlan('tipe36');
+        };
+    </script>
+</body>
+</html>
