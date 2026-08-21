@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pufutara Keep - Smart Notes</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0" />
+    
+    <style>
+        /* --- PUFUTARA KEEP DESIGN TOKENS --- */
+        :root {
+            --bg-color: #ffffff;
+            --surface: #ffffff;
+            --surface-container: #f9f9f9;
+            --primary: #000000;
+            --on-primary: #ffffff;
+            --primary-container: #f0f0f0;
+            --on-primary-container: #000000;
+            --text-main: #000000;
+            --text-muted: #666666;
+            --border: #eaeaea;
+            --hover-bg: #f5f5f5;
+            --danger: #d93025;
+            --success: #0f9d58;
+            --warning: #f9ab00;
+            --info: #4285f4;
+            
+            /* Note Colors */
+            --note-white: #ffffff;
+            --note-red: #f28b82;
+            --note-orange: #fbbc04;
+            --note-yellow: #fff475;
+            --note-green: #ccff90;
+            --note-teal: #a7ffeb;
+            --note-blue: #cbf0f8;
+            --note-purple: #d7aefb;
+            --note-pink: #fdcfe8;
+            --note-brown: #e6c9a8;
+            --note-gray: #e8eaed;
+        }
+
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: 'Inter', sans-serif; 
+        }
+        
+        body { 
+            background-color: var(--bg-color); 
+            display: flex; 
+            flex-direction: column;
+            height: 100vh; 
+            overflow: hidden; 
+            color: var(--text-main);
+            letter-spacing: -0.2px;
+        }
+
+        /* --- AUTH SCREEN --- */
+        #authScreen {
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%;
+            background: #fff; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            z-index: 9999;
+            padding: 20px;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        
+        #authScreen.hiding { 
+            opacity: 0; 
+            transform: scale(1.04); 
+            pointer-events: none; 
+        }
+        
+        .auth-container { 
+            width: 100%; 
+            max-width: 420px; 
+            padding: 50px 40px; 
+            border-radius: 24px; 
+            border: 1px solid var(--border); 
+            background: var(--surface);
+            display: flex; 
+            flex-direction: column; 
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.03);
+            animation: fadeInScale 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+        }
+        
+        .auth-logo { 
+            font-size: 32px; 
+            font-weight: 900; 
+            color: var(--primary); 
+            margin-bottom: 8px; 
+            letter-spacing: -1.5px; 
+            animation: spinIn 0.6s 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+        }
+        
+        .auth-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            animation: fadeInUp 0.5s 0.15s both;
+        }
+        
+        .auth-container h1 { 
+            font-size: 1.25rem; 
+            font-weight: 600; 
+            margin-bottom: 8px; 
+            color: var(--text-main); 
+            animation: fadeInUp 0.5s 0.2s both;
+        }
+        
+        .auth-container p.subtitle { 
+            color: var(--text-muted); 
+            font-size: 0.95rem; 
+            margin-bottom: 32px; 
+            animation: fadeInUp 0.5s 0.3s both;
+        }
+        
+        .auth-container input { 
+            width: 100%; 
+            padding: 14px 16px; 
+            margin-bottom: 16px; 
+            border: 1px solid var(--border); 
+            border-radius: 12px; 
+            font-size: 0.95rem; 
+            outline: none; 
+            transition: 0.3s; 
+            background: var(--surface-container);
+            color: var(--text-main);
+        }
+        
+        .auth-container input:nth-of-type(1) { animation: fadeInUp 0.5s 0.35s both; }
+        .auth-container input:nth-of-type(2) { animation: fadeInUp 0.5s 0.42s both; }
+        
+        .auth-container input:focus { 
+            border-color: var(--primary); 
+            background: var(--surface); 
+        }
+        
+        .btn-black { 
+            background: var(--primary); 
+            color: var(--on-primary); 
+            border: none; 
+            padding: 14px 28px; 
+            border-radius: 12px; 
+            font-size: 0.95rem; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: 0.3s; 
+            width: 100%; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            gap: 8px;
+            animation: fadeInUp 0.5s 0.5s both;
+        }
+        
+        .btn-black:hover { 
+            transform: scale(1.02); 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1); 
+        }
+        
+        #authErr {
+            color: var(--danger); 
+            font-size: 0.85rem; 
+            margin-top: 12px;
+            min-height: 20px;
+            font-weight: 500;
+        }
+
+        /* --- TOP HEADER --- */
+        .top-header {
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between;
+            padding: 12px 24px; 
+            min-height: 64px; 
+            background: var(--bg-color); 
+            border-bottom: 1px solid var(--border);
+            z-index: 200; 
+            position: relative;
+            animation: fadeInUp 0.4s 0.1s both;
+        }
+        
+        .header-left { 
+            display: flex; 
+            align-items: center; 
+            gap: 16px; 
+        }
+        
+        .menu-btn {
+            background: transparent; 
+            border: none; 
+            font-size: 24px; 
+            cursor: pointer; 
+            color: var(--primary); 
+            padding: 8px; 
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+        
+        .menu-btn:hover {
+            background: var(--hover-bg);
+        }
+        
+        .logo-area { 
+            font-size: 20px; 
+            font-weight: 900; 
+            color: var(--primary); 
+            letter-spacing: -1px; 
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .header-center {
+            flex: 1;
+            max-width: 720px;
+            margin: 0 24px;
+        }
+        
+        .search-bar {
+            width: 100%;
+            background: var(--surface-container);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 10px 16px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: 0.3s;
+            color: var(--text-main);
+        }
+        
+        .search-bar:focus {
+            background: var(--surface);
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        
+        .header-right { 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+        }
+        
+        .icon-btn {
+            background: transparent;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-main);
+            transition: 0.2s;
+        }
+        
+        .icon-btn:hover {
+            background: var(--hover-bg);
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: var(--on-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        
+        .user-avatar:hover {
+            transform: scale(1.1);
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar-overlay {
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.4); 
+            z-index: 250; 
+            backdrop-filter: blur(2px); 
+            transition: opacity 0.3s;
+        }
+        
+        .sidebar-overlay.open { 
+            display: block; 
+        }
+        
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 64px;
+            bottom: 0;
+            width: 280px;
+            background: var(--bg-color);
+            border-right: 1px solid var(--border);
+            z-index: 300;
+            transition: transform 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+            display: flex;
+            flex-direction: column;
+            animation: slideInLeft 0.4s 0.15s both;
+        }
+        
+        .sidebar.collapsed {
+            width: 72px;
+        }
+        
+        .sidebar-nav {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            color: var(--text-main);
+            transition: 0.2s;
+            margin-bottom: 4px;
+            text-decoration: none;
+        }
+        
+        .nav-item:hover {
+            background: var(--hover-bg);
+        }
+        
+        .nav-item.active {
+            background: var(--primary-container);
+            font-weight: 600;
+        }
+        
+        .nav-item .material-symbols-outlined {
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+        
+        .nav-item span:not(.material-symbols-outlined) {
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+        
+        .sidebar.collapsed .nav-item span:not(.material-symbols-outlined) {
+            display: none;
+        }
+
+        /* --- MAIN CONTENT --- */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            overflow-y: auto;
+            padding: 32px 24px;
+            transition: margin-left 0.3s;
+            animation: slideInRight 0.4s 0.15s both;
+        }
+        
+        .main-content.expanded {
+            margin-left: 72px;
+        }
+
+        /* --- NOTE INPUT --- */
+        .note-input-container {
+            max-width: 600px;
+            margin: 0 auto 32px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            transition: 0.3s;
+        }
+        
+        .note-input-container:focus-within {
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+        }
+        
+        .note-input-title {
+            width: 100%;
+            border: none;
+            padding: 16px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            outline: none;
+            background: transparent;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .note-input-content {
+            width: 100%;
+            border: none;
+            padding: 16px 20px;
+            font-size: 0.95rem;
+            outline: none;
+            background: transparent;
+            color: var(--text-main);
+            min-height: 100px;
+            resize: vertical;
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+        }
+        
+        .note-input-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .note-colors {
+            display: flex;
+            gap: 6px;
+        }
+        
+        .color-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: 0.2s;
+            position: relative;
+        }
+        
+        .color-btn:hover {
+            transform: scale(1.15);
+            border-color: rgba(0,0,0,0.2);
+        }
+        
+        .color-btn.active {
+            border-color: rgba(0,0,0,0.4);
+        }
+        
+        .color-btn.active::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 14px;
+            font-weight: bold;
+            color: rgba(0,0,0,0.6);
+        }
+
+        /* --- NOTES GRID --- */
+        .notes-section-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+            padding: 0 8px;
+        }
+        
+        .notes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        
+        .note-card {
+            background: var(--note-white);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.3s ease both;
+        }
+        
+        .note-card:hover {
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            transform: translateY(-4px);
+        }
+        
+        .note-card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        
+        .note-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 8px;
+            word-wrap: break-word;
+        }
+        
+        .note-content {
+            font-size: 0.875rem;
+            color: var(--text-main);
+            line-height: 1.6;
+            max-height: 200px;
+            overflow: hidden;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+        
+        .note-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        .note-timestamp {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+        
+        .note-actions {
+            display: flex;
+            gap: 4px;
+            opacity: 0;
+            transition: 0.2s;
+        }
+        
+        .note-card:hover .note-actions {
+            opacity: 1;
+        }
+        
+        .note-action-btn {
+            background: none;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-main);
+            transition: 0.2s;
+        }
+        
+        .note-action-btn:hover {
+            background: rgba(0,0,0,0.08);
+        }
+        
+        .note-action-btn .material-symbols-outlined {
+            font-size: 18px;
+        }
+
+        /* Note Colors */
+        .note-card[data-color="white"] { background: var(--note-white); }
+        .note-card[data-color="red"] { background: var(--note-red); }
+        .note-card[data-color="orange"] { background: var(--note-orange); }
+        .note-card[data-color="yellow"] { background: var(--note-yellow); }
+        .note-card[data-color="green"] { background: var(--note-green); }
+        .note-card[data-color="teal"] { background: var(--note-teal); }
+        .note-card[data-color="blue"] { background: var(--note-blue); }
+        .note-card[data-color="purple"] { background: var(--note-purple); }
+        .note-card[data-color="pink"] { background: var(--note-pink); }
+        .note-card[data-color="brown"] { background: var(--note-brown); }
+        .note-card[data-color="gray"] { background: var(--note-gray); }
+
+        /* --- MODAL --- */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 10000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(4px);
+        }
+        
+        .modal-overlay.open {
+            display: flex;
+        }
+        
+        .modal-box {
+            background: var(--surface);
+            width: 90%;
+            max-width: 600px;
+            border-radius: 24px;
+            box-shadow: 0 24px 48px rgba(0,0,0,0.2);
+            animation: fadeInScale 0.3s ease;
+            position: relative;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .modal-header {
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .modal-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-muted);
+            padding: 8px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+        
+        .modal-close:hover {
+            background: var(--hover-bg);
+            color: var(--primary);
+        }
+        
+        .modal-body {
+            padding: 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        
+        .modal-body input[type="text"],
+        .modal-body textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-size: 0.95rem;
+            outline: none;
+            background: var(--surface-container);
+            color: var(--text-main);
+            transition: 0.3s;
+            font-family: 'Inter', sans-serif;
+            margin-bottom: 16px;
+        }
+        
+        .modal-body textarea {
+            min-height: 200px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+        
+        .modal-body input:focus,
+        .modal-body textarea:focus {
+            border-color: var(--primary);
+            background: var(--surface);
+        }
+        
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* --- EMPTY STATE --- */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-muted);
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .empty-state .material-symbols-outlined {
+            font-size: 80px;
+            opacity: 0.2;
+            margin-bottom: 20px;
+        }
+        
+        .empty-state h3 {
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+        
+        .empty-state p {
+            font-size: 0.9rem;
+        }
+
+        /* --- BUTTONS --- */
+        .btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: var(--on-primary);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+        
+        .btn-secondary {
+            background: var(--surface);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--hover-bg);
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(217, 48, 37, 0.3);
+        }
+
+        /* --- TOAST --- */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--primary);
+            color: var(--on-primary);
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            z-index: 11000;
+            opacity: 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* --- ANIMATIONS --- */
+        @keyframes fadeIn { 
+            from { opacity: 0; } 
+            to { opacity: 1; } 
+        }
+        
+        @keyframes fadeInUp { 
+            from { 
+                opacity: 0; 
+                transform: translateY(20px); 
+            } 
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            } 
+        }
+        
+        @keyframes fadeInScale { 
+            from { 
+                opacity: 0; 
+                transform: scale(0.92); 
+            } 
+            to { 
+                opacity: 1; 
+                transform: scale(1); 
+            } 
+        }
+        
+        @keyframes slideInLeft { 
+            from { 
+                opacity: 0; 
+                transform: translateX(-40px); 
+            } 
+            to { 
+                opacity: 1; 
+                transform: translateX(0); 
+            } 
+        }
+        
+        @keyframes slideInRight { 
+            from { 
+                opacity: 0; 
+                transform: translateX(40px); 
+            } 
+            to { 
+                opacity: 1; 
+                transform: translateX(0); 
+            } 
+        }
+        
+        @keyframes spinIn { 
+            from { 
+                opacity: 0; 
+                transform: rotate(-15deg) scale(0.8); 
+            } 
+            to { 
+                opacity: 1; 
+                transform: rotate(0deg) scale(1); 
+            } 
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 768px) {
+            .top-header {
+                padding: 12px 16px;
+            }
+            
+            .header-center {
+                display: none;
+            }
+            
+            .sidebar {
+                position: fixed;
+                transform: translateX(-100%);
+                top: 64px;
+                box-shadow: 4px 0 24px rgba(0,0,0,0.1);
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 20px 16px;
+            }
+            
+            .notes-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .note-input-container {
+                border-radius: 12px;
+            }
+            
+            .auth-container {
+                padding: 40px 24px;
+                border-radius: 16px;
+                border: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- AUTH SCREEN -->
+    <div id="authScreen">
+        <div class="auth-container">
+            <div class="auth-logo">PUFUTARA.</div>
+            <div class="auth-icon">📝</div>
+            <h1>Akses Pufutara Keep</h1>
+            <p class="subtitle">Catat semua ide dan pemikiran penting Anda dengan aman.</p>
+            <input type="email" id="emailIn" placeholder="Email" autocomplete="email">
+            <input type="password" id="passIn" placeholder="Password">
+            <button class="btn-black" onclick="handleAuth()">
+                <span class="material-symbols-outlined">login</span>
+                Sign In
+            </button>
+            <p id="authErr"></p>
+        </div>
+    </div>
+
+    <!-- MAIN APP -->
+    <div id="mainApp" style="display: none; flex-direction: column; height: 100vh;">
+        
+        <!-- HEADER -->
+        <header class="top-header">
+            <div class="header-left">
+                <button class="menu-btn" onclick="toggleSidebar()">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+                <a href="#" class="logo-area">
+                    <span class="material-symbols-outlined">lightbulb</span>
+                    PUFUTARA KEEP
+                </a>
+            </div>
+            
+            <div class="header-center">
+                <input 
+                    type="text" 
+                    class="search-bar" 
+                    placeholder="Cari catatan..."
+                    id="searchInput"
+                    oninput="searchNotes(this.value)"
+                >
+            </div>
+            
+            <div class="header-right">
+                <button class="icon-btn" onclick="refreshNotes()" title="Refresh">
+                    <span class="material-symbols-outlined">refresh</span>
+                </button>
+                <div class="user-avatar" onclick="handleLogout()" title="Logout" id="userAvatar">U</div>
+            </div>
+        </header>
+
+        <!-- SIDEBAR OVERLAY -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="sidebar">
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" onclick="filterNotes('all')">
+                    <span class="material-symbols-outlined">lightbulb</span>
+                    <span>Catatan</span>
+                </a>
+                <a href="#" class="nav-item" onclick="filterNotes('archived')">
+                    <span class="material-symbols-outlined">archive</span>
+                    <span>Arsip</span>
+                </a>
+                <a href="#" class="nav-item" onclick="filterNotes('trash')">
+                    <span class="material-symbols-outlined">delete</span>
+                    <span>Sampah</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content" id="mainContent">
+            
+            <!-- NOTE INPUT -->
+            <div class="note-input-container">
+                <input 
+                    type="text" 
+                    class="note-input-title" 
+                    placeholder="Judul"
+                    id="noteTitle"
+                >
+                <textarea 
+                    class="note-input-content" 
+                    placeholder="Tulis catatan..."
+                    id="noteContent"
+                ></textarea>
+                <div class="note-input-actions">
+                    <div class="note-colors">
+                        <div class="color-btn active" data-color="white" style="background: var(--note-white);" onclick="selectColor('white')"></div>
+                        <div class="color-btn" data-color="red" style="background: var(--note-red);" onclick="selectColor('red')"></div>
+                        <div class="color-btn" data-color="orange" style="background: var(--note-orange);" onclick="selectColor('orange')"></div>
+                        <div class="color-btn" data-color="yellow" style="background: var(--note-yellow);" onclick="selectColor('yellow')"></div>
+                        <div class="color-btn" data-color="green" style="background: var(--note-green);" onclick="selectColor('green')"></div>
+                        <div class="color-btn" data-color="teal" style="background: var(--note-teal);" onclick="selectColor('teal')"></div>
+                        <div class="color-btn" data-color="blue" style="background: var(--note-blue);" onclick="selectColor('blue')"></div>
+                        <div class="color-btn" data-color="purple" style="background: var(--note-purple);" onclick="selectColor('purple')"></div>
+                        <div class="color-btn" data-color="pink" style="background: var(--note-pink);" onclick="selectColor('pink')"></div>
+                        <div class="color-btn" data-color="brown" style="background: var(--note-brown);" onclick="selectColor('brown')"></div>
+                        <div class="color-btn" data-color="gray" style="background: var(--note-gray);" onclick="selectColor('gray')"></div>
+                    </div>
+                    <button class="btn btn-primary" onclick="saveNote()">
+                        <span class="material-symbols-outlined">add</span>
+                        Simpan
+                    </button>
+                </div>
+            </div>
+
+            <!-- NOTES GRID -->
+            <div id="notesContainer">
+                <!-- Notes will be loaded here -->
+            </div>
+
+        </main>
+
+    </div>
+
+    <!-- EDIT MODAL -->
+    <div class="modal-overlay" id="editModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 class="modal-title">Edit Catatan</h3>
+                <button class="modal-close" onclick="closeEditModal()">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="editTitle" placeholder="Judul">
+                <textarea id="editContent" placeholder="Isi catatan..."></textarea>
+                <div class="note-colors">
+                    <div class="color-btn" data-color="white" style="background: var(--note-white);" onclick="selectEditColor('white')"></div>
+                    <div class="color-btn" data-color="red" style="background: var(--note-red);" onclick="selectEditColor('red')"></div>
+                    <div class="color-btn" data-color="orange" style="background: var(--note-orange);" onclick="selectEditColor('orange')"></div>
+                    <div class="color-btn" data-color="yellow" style="background: var(--note-yellow);" onclick="selectEditColor('yellow')"></div>
+                    <div class="color-btn" data-color="green" style="background: var(--note-green);" onclick="selectEditColor('green')"></div>
+                    <div class="color-btn" data-color="teal" style="background: var(--note-teal);" onclick="selectEditColor('teal')"></div>
+                    <div class="color-btn" data-color="blue" style="background: var(--note-blue);" onclick="selectEditColor('blue')"></div>
+                    <div class="color-btn" data-color="purple" style="background: var(--note-purple);" onclick="selectEditColor('purple')"></div>
+                    <div class="color-btn" data-color="pink" style="background: var(--note-pink);" onclick="selectEditColor('pink')"></div>
+                    <div class="color-btn" data-color="brown" style="background: var(--note-brown);" onclick="selectEditColor('brown')"></div>
+                    <div class="color-btn" data-color="gray" style="background: var(--note-gray);" onclick="selectEditColor('gray')"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" onclick="deleteNote()">
+                    <span class="material-symbols-outlined">delete</span>
+                    Hapus
+                </button>
+                <button class="btn btn-primary" onclick="updateNote()">
+                    <span class="material-symbols-outlined">save</span>
+                    Simpan Perubahan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <script src="script.js?v=2"></script>
+</body>
+</html>

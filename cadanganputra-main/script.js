@@ -72,7 +72,7 @@ function renderProyek() {
         return `
             <a href="${p.link}" target="_blank" class="group block no-underline reveal-on-scroll" data-delay="${delay}" data-category="${p.category}">
                 <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-slate-200 transition-all duration-300 h-full flex flex-col">
-                    <div class="card-image-container relative lazy-cover" data-cover="${p.cover}" role="img" aria-label="Cover proyek ${p.title}"></div>
+                    <div class="card-image-container" style="--card-cover: url('${p.cover}')" role="img" aria-label="Cover proyek ${p.title}"></div>
                     <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
                         <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-slate-500 uppercase tracking-widest">${String(p.no).padStart(2, '0')}</span>
                         <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
@@ -157,33 +157,12 @@ document.querySelectorAll('.reveal-on-scroll').forEach((el) => {
     revealObserver.observe(el);
 });
 
-// ===== LAZY LOAD COVER IMAGES =====
-const lazyCoverObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            const el = entry.target;
-            const cover = el.dataset.cover;
-            if (cover) el.style.setProperty('--card-cover', `url('${cover}')`);
-            lazyCoverObserver.unobserve(el);
-        }
-    });
-}, { rootMargin: '200px 0px' });
-
-// Fungsi untuk observe semua cover gambar
-function observeLazyCovers() {
-    document.querySelectorAll('#projects-grid .lazy-cover').forEach(el => lazyCoverObserver.observe(el));
-    // Juga observe kartu proyek terbaik
-    document.querySelectorAll('#proyek-terbaik-grid .lazy-cover').forEach(el => lazyCoverObserver.observe(el));
-}
-
 // Init: render proyek dari data, lalu observe kartu-kartunya
 renderProyek();
 // Observe setelah render — kartu yang langsung di viewport akan muncul via observer
 document.querySelectorAll('#projects-grid .reveal-on-scroll').forEach(el => {
     revealObserver.observe(el);
 });
-// Observe gambar cover proyek
-observeLazyCovers();
 
 // ===== FILTER & SEARCH PROYEK =====
 const filterBtns = document.querySelectorAll('.filter-btn');
@@ -206,12 +185,6 @@ function updateProjectVisibility() {
         if (matchFilter && matchSearch) {
             card.style.display = '';
             visibleCount++;
-            
-            // Re-observe lazy cover untuk card yang baru ditampilkan
-            const lazyCover = card.querySelector('.lazy-cover');
-            if (lazyCover && !lazyCover.style.getPropertyValue('--card-cover')) {
-                lazyCoverObserver.observe(lazyCover);
-            }
         } else {
             card.style.display = 'none';
         }
@@ -543,24 +516,6 @@ function sosmedComingSoon(e) {
 // ============================================================
 // HERO ENTRANCE ANIMATION (sync dengan opening intro)
 // ============================================================
-(function () {
-    const heroLeft  = document.getElementById('hero-left');
-    const heroRight = document.getElementById('hero-right');
-
-    function triggerHero() {
-        if (heroLeft)  { setTimeout(() => heroLeft.classList.add('hero-visible'),  0);   }
-        if (heroRight) { setTimeout(() => heroRight.classList.add('hero-visible'), 200); }
-    }
-
-    // Kalau intro sudah pernah ditampilkan di sesi ini, langsung tampilkan hero
-    if (sessionStorage.getItem('pufutara_intro_shown')) {
-        triggerHero();
-    } else {
-        // Sync dengan waktu opening fade-out: 1900ms + sedikit overlap 200ms
-        setTimeout(triggerHero, 2100);
-    }
-})();
-
 // ============================================================
 // ACTIVE NAV HIGHLIGHT ON SCROLL
 // ============================================================
@@ -627,45 +582,16 @@ function typeEffect() {
     }
     setTimeout(typeEffect, speed);
 }
-// ── Navbar: muncul setelah animasi "Elfathin" selesai ──
-// Elfathin: delay 2200ms dari triggerLines + ~700ms animasi masuk = 2900ms
-(function () {
-    // showNavbar dipanggil dari stats chain setelah semua counter selesai
-    // Saat returning (session lama), langsung tampil
-    var isReturning = sessionStorage.getItem('pufutara_intro_shown');
-    if (isReturning) {
-        var header = document.getElementById('site-header');
-        if (header) {
-            header.style.display = 'block';
-            header.getBoundingClientRect();
-            header.style.transition    = 'opacity 0.6s ease, transform 0.6s cubic-bezier(0.16,1,0.3,1), background 0.4s ease, border-color 0.4s ease';
-            header.style.opacity       = '1';
-            header.style.transform     = 'translateY(0)';
-            header.style.pointerEvents = 'all';
-        }
-    }
-    // First visit: navbar dikendalikan window.showNavbar() dari stats chain
-    window._showNavbar = function() {
-        var header = document.getElementById('site-header');
-        if (!header) return;
-        header.style.display = 'block';
-        header.getBoundingClientRect();
-        header.style.transition    = 'opacity 0.6s ease, transform 0.6s cubic-bezier(0.16,1,0.3,1), background 0.4s ease, border-color 0.4s ease';
-        header.style.backdropFilter = 'blur(12px)';
-        header.style.webkitBackdropFilter = 'blur(12px)';
-        header.style.opacity       = '1';
-        header.style.transform     = 'translateY(0)';
-        header.style.pointerEvents = 'all';
-    };
-})();
-
+// ── Navbar: selalu muncul setelah stats chain selesai ──
 // ============================================================
 // STATS COUNTER ANIMATION
 // ============================================================
 function animateCounter(el, target, duration, onDone) {
     if (el.dataset.animated) { if (onDone) onDone(); return; }
     el.dataset.animated = '1';
-    duration = duration || 1200;
+    
+    // Apply speed multiplier
+    duration = Math.round((duration || 1200) / (window.animationSpeedMultiplier || 1));
 
     let start = 0;
     const step = target / (duration / 16);
@@ -700,6 +626,10 @@ function animateCounter(el, target, duration, onDone) {
         const sep  = s.sepId ? document.getElementById(s.sepId) : null;
         const counter = document.getElementById(s.counterId);
 
+        function getSpeed(delay) {
+            return Math.round(delay / (window.animationSpeedMultiplier || 1));
+        }
+
         // Munculkan separator terlebih dahulu (kecuali stat pertama)
         if (sep) {
             sep.style.opacity = '1';
@@ -722,12 +652,35 @@ function animateCounter(el, target, duration, onDone) {
                 // Counter selesai → jeda 200ms → lanjut stat berikutnya
                 setTimeout(function () {
                     showStat(index + 1, onAllDone);
-                }, 200);
+                }, getSpeed(200));
             });
-        }, 150);
+        }, getSpeed(150));
+    }
+
+    function showNavbar() {
+        const navbar = document.getElementById('site-header');
+        if (!navbar) return;
+        // Pastikan visible dulu, lalu set transisi, lalu fade-in
+        navbar.style.display = 'block';
+        navbar.getBoundingClientRect(); // force repaint agar transisi jalan
+        navbar.style.transition = 'opacity 0.6s ease, transform 0.6s cubic-bezier(0.16,1,0.3,1)';
+        navbar.style.opacity = '1';
+        navbar.style.transform = 'translateY(0)';
+        navbar.style.pointerEvents = 'all';
     }
 
     function startStatChain() {
+        function getSpeed(delay) {
+            return Math.round(delay / (window.animationSpeedMultiplier || 1));
+        }
+
+        // Timeline sesuai opening baru:
+        // opening dismiss: 1900ms
+        // opening fade out: +750ms = 2650ms
+        // kata h1 muncul: delay terakhir 2200ms + transisi 700ms = +2900ms
+        // h1 flyback: +950ms
+        // Total sampai h1 kembali ke posisi: ~6500ms dari awal halaman
+        // Tambah buffer 300ms → mulai stats di 6800ms
         setTimeout(function () {
             var statsEl = document.getElementById('hero-stats');
             var descEl  = document.getElementById('hero-desc');
@@ -737,75 +690,80 @@ function animateCounter(el, target, duration, onDone) {
             if (statsEl && descEl) {
                 var statsRect = statsEl.getBoundingClientRect();
                 var descRect  = descEl.getBoundingClientRect();
-                // Desc ada di atas stats dalam DOM — offset negatif (naik)
                 offsetY = descRect.top + descRect.height / 2 - (statsRect.top + statsRect.height / 2);
             }
 
-            // STEP 1: geser stats ke posisi celah desc (tanpa transisi)
+            // STEP 1: geser stats ke posisi desc (tanpa transisi)
             if (statsEl) {
                 statsEl.classList.add('stats-displaced');
                 statsEl.style.transform = 'translateY(' + offsetY + 'px)';
             }
 
-            // STEP 2: jalankan counter satu per satu di posisi "celah" desc
+            // STEP 2: counter satu per satu di posisi desc
             showStat(0, function () {
-                // Semua counter selesai — STEP 3: flyback ke posisi asli
-                if (statsEl) {
-                    statsEl.classList.remove('stats-displaced');
-                    statsEl.classList.add('stats-flyback');
-                    // Force repaint
-                    statsEl.getBoundingClientRect();
-                    statsEl.style.transform = 'translateY(0)';
-                }
-
-                // Setelah flyback selesai (800ms) — muncul navbar + desc
+                // STEP 3: flyback ke posisi normal (dengan transisi)
                 setTimeout(function() {
                     if (statsEl) {
-                        statsEl.classList.remove('stats-flyback');
-                        statsEl.style.transform = '';
+                        statsEl.classList.remove('stats-displaced');
+                        statsEl.classList.add('stats-flyback');
+                        statsEl.getBoundingClientRect(); // force repaint
+                        statsEl.style.transform = 'translateY(0)';
                     }
 
-                    // Navbar
-                    if (window._showNavbar) window._showNavbar();
-
-                    // Desc muncul
-                    var desc = document.getElementById('hero-desc');
-                    if (desc) {
-                        desc.style.opacity   = '1';
-                        desc.style.transform = 'translateY(0)';
-                        desc.style.filter    = 'blur(0)';
-                    }
-
-                    // Typing + CTA 400ms setelah desc
+                    // STEP 4: setelah flyback selesai → navbar + desc muncul
                     setTimeout(function() {
-                        var typing   = document.getElementById('hero-typing');
-                        var cta      = document.getElementById('hero-cta');
-                        var keahlian = document.getElementById('keahlian');
-
-                        [typing, cta].forEach(function(el) {
-                            if (el) {
-                                el.style.opacity   = '1';
-                                el.style.transform = 'translateY(0)';
-                                el.style.filter    = 'blur(0)';
-                            }
-                        });
-                        if (keahlian) {
-                            keahlian.style.animationDelay = '0ms';
-                            keahlian.classList.add('hero-line-visible');
+                        if (statsEl) {
+                            statsEl.classList.remove('stats-flyback');
+                            statsEl.style.transform = '';
                         }
-                        setTimeout(typeEffect, 100);
-                    }, 400);
 
-                }, 850);
+                        // Desc muncul dulu
+                        var desc = document.getElementById('hero-desc');
+                        if (desc) {
+                            desc.style.opacity   = '1';
+                            desc.style.transform = 'translateY(0)';
+                            desc.style.filter    = 'blur(0)';
+                        }
+
+                        // Navbar muncul setelah deskripsi (700ms = durasi transisi desc)
+                        setTimeout(function() {
+                            showNavbar();
+                        }, getSpeed(700));
+
+                        // Typing + CTA + keahlian 400ms setelah desc
+                        setTimeout(function() {
+                            var typing   = document.getElementById('hero-typing');
+                            var cta      = document.getElementById('hero-cta');
+                            var keahlian = document.getElementById('keahlian');
+
+                            [typing, cta].forEach(function(el) {
+                                if (el) {
+                                    el.style.opacity   = '1';
+                                    el.style.transform = 'translateY(0)';
+                                    el.style.filter    = 'blur(0)';
+                                }
+                            });
+                            if (keahlian) {
+                                keahlian.style.animationDelay = '0ms';
+                                keahlian.classList.add('hero-line-visible');
+                            }
+
+                            // dot grid
+                            document.querySelectorAll('.dot-grid-topleft, .dot-grid-botright')
+                                .forEach(function(d) { d.classList.add('dot-visible'); });
+
+                            setTimeout(typeEffect, getSpeed(100));
+                        }, getSpeed(400));
+
+                    }, getSpeed(850)); // waktu flyback stats
+
+                }, getSpeed(300)); // jeda sebelum flyback
             });
 
-        }, 2200 + 700 + 300 + 500); // = 3700ms setelah triggerLines
+        }, getSpeed(6800)); // mulai setelah h1 kembali ke posisi
     }
 
-    // Sinkron dengan triggerLines
-    const isReturning = sessionStorage.getItem('pufutara_intro_shown');
-    const triggerBase = isReturning ? 50 : 2650;
-    setTimeout(startStatChain, triggerBase);
+    startStatChain();
 })();
 
 // ── Counter di luar hero: IntersectionObserver ──

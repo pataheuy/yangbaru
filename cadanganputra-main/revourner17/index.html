@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REVOURNER 17 - SMPIT As-Syifa Boarding School</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            200: '#bae0fd',
+                            300: '#7cc8fc',
+                            400: '#36affa',
+                            500: '#0c93eb',
+                            600: '#0074ca',
+                            700: '#015da5',
+                            800: '#064f88',
+                            900: '#0b4270',
+                            950: '#072a4a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        /* Custom scrollbar and ambient glowing background styles */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #93c5fd;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3b82f6;
+        }
+        .bg-grid-pattern {
+            background-image: radial-gradient(rgba(14, 165, 233, 0.15) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        .text-glow {
+            text-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+        }
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card-hover:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 25px -5px rgba(14, 165, 233, 0.15), 0 8px 10px -6px rgba(14, 165, 233, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased selection:bg-brand-500 selection:text-white">
+
+    <!-- Navigation Bar -->
+    <nav class="fixed top-0 left-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-200/80 shadow-sm transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                <!-- Logo -->
+                <a href="#hero" class="flex items-center space-x-3 group">
+                    <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-brand-600 via-brand-500 to-sky-400 flex items-center justify-center text-white font-black text-xl shadow-md shadow-brand-500/30 group-hover:scale-105 transition-transform">
+                        R17
+                    </div>
+                    <div>
+                        <span class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-brand-900 via-brand-700 to-sky-600 bg-clip-text text-transparent block">
+                            REVOURNER
+                        </span>
+                        <span class="text-xs font-semibold text-brand-600 tracking-widest uppercase block -mt-1">
+                            Ke-17 • Est. 2024
+                        </span>
+                    </div>
+                </a>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-1 lg:space-x-2">
+                    <a href="#about" class="px-3 py-2 text-sm font-semibold text-slate-600 hover:text-brand-600 hover:bg-brand-50 rounded-xl transition">Tentang</a>
+                    <a href="#bph" class="px-3 py-2 text-sm font-semibold text-slate-600 hover:text-brand-600 hover:bg-brand-50 rounded-xl transition">BPH & Markas</a>
+                    <a href="#timeline" class="px-3 py-2 text-sm font-semibold text-slate-600 hover:text-brand-600 hover:bg-brand-50 rounded-xl transition">Timeline</a>
+                    <a href="#roster" class="px-3 py-2 text-sm font-semibold text-slate-600 hover:text-brand-600 hover:bg-brand-50 rounded-xl transition">Anggota (25)</a>
+                    <a href="#vault" class="px-3 py-2 text-sm font-semibold text-slate-600 hover:text-brand-600 hover:bg-brand-50 rounded-xl transition">Vault Kenangan</a>
+                </div>
+
+                <!-- CTA Button -->
+                <div class="hidden md:flex items-center">
+                    <a href="#roster" class="px-5 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-brand-600 to-sky-500 hover:from-brand-700 hover:to-sky-600 rounded-xl shadow-md shadow-brand-500/25 hover:shadow-lg hover:shadow-brand-500/35 transition duration-200">
+                        <i class="fa-solid fa-users mr-2"></i>Cari Anggota
+                    </a>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" class="p-2.5 rounded-xl text-slate-600 hover:text-brand-600 hover:bg-slate-100 focus:outline-none">
+                        <i class="fa-solid fa-bars text-xl" id="menu-icon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Dropdown -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-slate-200 px-4 pt-2 pb-6 space-y-2">
+            <a href="#about" class="mobile-link block px-4 py-2.5 rounded-xl text-slate-700 font-medium hover:bg-brand-50 hover:text-brand-600">Tentang</a>
+            <a href="#bph" class="mobile-link block px-4 py-2.5 rounded-xl text-slate-700 font-medium hover:bg-brand-50 hover:text-brand-600">BPH & Markas</a>
+            <a href="#timeline" class="mobile-link block px-4 py-2.5 rounded-xl text-slate-700 font-medium hover:bg-brand-50 hover:text-brand-600">Timeline</a>
+            <a href="#roster" class="mobile-link block px-4 py-2.5 rounded-xl text-slate-700 font-medium hover:bg-brand-50 hover:text-brand-600">Anggota (25)</a>
+            <a href="#vault" class="mobile-link block px-4 py-2.5 rounded-xl text-slate-700 font-medium hover:bg-brand-50 hover:text-brand-600">Vault Kenangan</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="hero" class="relative pt-32 pb-20 md:pt-40 md:pb-32 overflow-hidden bg-gradient-to-b from-brand-50 via-sky-50/50 to-slate-50 bg-grid-pattern">
+        <!-- Floating Accent Spheres -->
+        <div class="absolute top-1/4 left-10 w-72 h-72 bg-brand-400/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute bottom-10 right-10 w-96 h-96 bg-sky-300/20 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center max-w-3xl mx-auto">
+                <div class="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-white/90 border border-brand-200 shadow-sm mb-6 animate-bounce">
+                    <span class="flex h-2.5 w-2.5 rounded-full bg-brand-500"></span>
+                    <span class="text-xs sm:text-sm font-bold text-brand-700 uppercase tracking-wider">
+                        SMPIT As-Syifa Boarding School • Estd 2024
+                    </span>
+                </div>
+
+                <h1 class="text-4xl sm:text-6xl md:text-7xl font-black text-slate-900 tracking-tight leading-tight mb-6">
+                    ANGKATAN KE-17 <br>
+                    <span class="bg-gradient-to-r from-brand-700 via-brand-500 to-sky-400 bg-clip-text text-transparent text-glow">
+                        REVOURNER
+                    </span>
+                </h1>
+
+                <!-- Slogan Display -->
+                <div class="relative py-4 px-6 rounded-2xl bg-white/70 backdrop-blur-sm border border-brand-100 shadow-xl max-w-xl mx-auto mb-8 transform hover:scale-105 transition-all">
+                    <i class="fa-solid fa-quote-left text-brand-300 text-3xl absolute -top-3 -left-2"></i>
+                    <p class="text-xl sm:text-2xl font-extrabold italic text-slate-800 tracking-wide">
+                        "NO STEP ALONE, NO DREAM UNKNOWN"
+                    </p>
+                    <p class="text-xs font-semibold text-brand-600 mt-1 uppercase tracking-widest">
+                        — Slogan Resmi Revourner 17
+                    </p>
+                </div>
+
+                <p class="text-base sm:text-lg text-slate-600 leading-relaxed mb-10">
+                    Satu angkatan, ribuan kenangan, tak terhingga impian. Kami berdiri bersama di markas perjuangan <strong>Gedung & Lapangan M. Nasir</strong> untuk mengukir sejarah legendaris.
+                </p>
+
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <a href="#timeline" class="w-full sm:w-auto px-8 py-4 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-2xl shadow-lg shadow-brand-500/30 hover:shadow-xl transition flex items-center justify-center space-x-2">
+                        <span>Jelajahi Timeline Historic</span>
+                        <i class="fa-solid fa-arrow-down"></i>
+                    </a>
+                    <a href="#bph" class="w-full sm:w-auto px-8 py-4 bg-white hover:bg-slate-100 text-slate-700 font-bold border border-slate-300 rounded-2xl shadow-sm hover:shadow transition flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-crown text-amber-500"></i>
+                        <span>Lihat BPH & Markas</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="mt-16 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+                <div class="bg-white/80 backdrop-blur p-6 rounded-2xl border border-slate-200/80 text-center shadow-sm hover:shadow-md transition">
+                    <div class="text-3xl sm:text-4xl font-extrabold text-brand-600 mb-1">17th</div>
+                    <div class="text-xs sm:text-sm font-semibold text-slate-500 uppercase tracking-wider">Generasi Emas</div>
+                </div>
+                <div class="bg-white/80 backdrop-blur p-6 rounded-2xl border border-slate-200/80 text-center shadow-sm hover:shadow-md transition">
+                    <div class="text-3xl sm:text-4xl font-extrabold text-brand-600 mb-1">25</div>
+                    <div class="text-xs sm:text-sm font-semibold text-slate-500 uppercase tracking-wider">Anggota Solid</div>
+                </div>
+                <div class="bg-white/80 backdrop-blur p-6 rounded-2xl border border-slate-200/80 text-center shadow-sm hover:shadow-md transition">
+                    <div class="text-3xl sm:text-4xl font-extrabold text-brand-600 mb-1">13</div>
+                    <div class="text-xs sm:text-sm font-semibold text-slate-500 uppercase tracking-wider">Fase & Event Utama</div>
+                </div>
+                <div class="bg-white/80 backdrop-blur p-6 rounded-2xl border border-slate-200/80 text-center shadow-sm hover:shadow-md transition">
+                    <div class="text-3xl sm:text-4xl font-extrabold text-brand-600 mb-1">2024</div>
+                    <div class="text-xs sm:text-sm font-semibold text-slate-500 uppercase tracking-wider">Tahun Berdiri</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-20 bg-white border-y border-slate-200/60">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div class="space-y-6">
+                    <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-lg bg-brand-100 text-brand-700 text-xs font-bold uppercase tracking-wider">
+                        <i class="fa-solid fa-compass"></i>
+                        <span>Filosofi & Identitas</span>
+                    </div>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+                        Tentang Angkatan <span class="text-brand-600">REVOURNER</span>
+                    </h2>
+                    <p class="text-slate-600 text-base sm:text-lg leading-relaxed">
+                        REVOURNER melambangkan keberanian, semangat pantang menyerah, serta ikatan persaudaraan sejati di <strong>SMPIT As-Syifa Boarding School</strong>. Didirikan pada tahun 2024, angkatan ke-17 ini ditempa melalui perjalanan panjang spiritual, akademis, dan kepemimpinan.
+                    </p>
+                    
+                    <div class="space-y-4 pt-2">
+                        <div class="flex items-start space-x-4">
+                            <div class="w-10 h-10 rounded-xl bg-brand-50 border border-brand-200 flex items-center justify-center text-brand-600 font-bold shrink-0">
+                                <i class="fa-solid fa-shield-halved"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-slate-900">Persaudaraan Tanpa Batas</h3>
+                                <p class="text-sm text-slate-500">"No Step Alone" — Setiap langkah diambil bersama, saling menopang dalam suka maupun duka.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start space-x-4">
+                            <div class="w-10 h-10 rounded-xl bg-brand-50 border border-brand-200 flex items-center justify-center text-brand-600 font-bold shrink-0">
+                                <i class="fa-solid fa-rocket"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-slate-900">Mencapai Visi Tertinggi</h3>
+                                <p class="text-sm text-slate-500">"No Dream Unknown" — Tidak ada impian yang tak dapat diraih jika diperjuangkan bersama.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start space-x-4">
+                            <div class="w-10 h-10 rounded-xl bg-brand-50 border border-brand-200 flex items-center justify-center text-brand-600 font-bold shrink-0">
+                                <i class="fa-solid fa-building-columns"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-slate-900">Identitas Gedung M. Nasir</h3>
+                                <p class="text-sm text-slate-500">Pusat aktivitas, tempat diskusi, tawa, dan perjuangan seluruh santri Revourner.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Graphic Card / Emblem Showcase -->
+                <div class="relative">
+                    <div class="absolute -inset-4 bg-gradient-to-r from-brand-500 to-sky-400 rounded-3xl opacity-20 blur-xl"></div>
+                    <div class="relative bg-gradient-to-br from-brand-900 via-brand-800 to-slate-900 rounded-3xl p-8 sm:p-10 text-white shadow-2xl overflow-hidden">
+                        <!-- Decorative Circles -->
+                        <div class="absolute -right-10 -top-10 w-40 h-40 bg-brand-500/20 rounded-full blur-2xl"></div>
+                        
+                        <div class="flex justify-between items-start mb-8">
+                            <div>
+                                <span class="px-3 py-1 bg-brand-500/30 text-brand-200 border border-brand-400/30 rounded-full text-xs font-bold tracking-widest uppercase">
+                                    Official Seal
+                                </span>
+                                <h3 class="text-2xl font-black mt-2">REVOURNER 17</h3>
+                            </div>
+                            <div class="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur border border-white/20 flex items-center justify-center text-2xl font-black">
+                                17
+                            </div>
+                        </div>
+
+                        <div class="space-y-4 my-8">
+                            <div class="p-4 rounded-xl bg-white/5 border border-white/10">
+                                <span class="text-xs text-brand-300 uppercase font-semibold block">Institusi</span>
+                                <span class="text-base font-bold text-white">SMPIT As-Syifa Boarding School</span>
+                            </div>
+                            <div class="p-4 rounded-xl bg-white/5 border border-white/10">
+                                <span class="text-xs text-brand-300 uppercase font-semibold block">Tahun Berdiri</span>
+                                <span class="text-base font-bold text-white">2024</span>
+                            </div>
+                            <div class="p-4 rounded-xl bg-white/5 border border-white/10">
+                                <span class="text-xs text-brand-300 uppercase font-semibold block">Markas Utama</span>
+                                <span class="text-base font-bold text-white">Gedung & Lapangan M. Nasir</span>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 border-t border-white/10 flex justify-between items-center text-xs text-brand-200">
+                            <span><i class="fa-solid fa-check-circle text-emerald-400 mr-1"></i> Terverifikasi Angkatan</span>
+                            <span>Syifa Boarding System</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- BPH & HQ Lore Section -->
+    <section id="bph" class="py-20 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="px-3 py-1 rounded-full bg-brand-100 text-brand-700 text-xs font-bold uppercase tracking-wider inline-block mb-3">
+                    Struktur Kepemimpinan & Wilayah
+                </span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900">
+                    BPH & Wilayah kekuasaan
+                </h2>
+                <p class="text-slate-600 mt-3">
+                    Para pemimpin inti (BPH) dan pusat pergerakan angkatan Revourner di SMPIT As-Syifa.
+                </p>
+            </div>
+
+            <!-- Leadership Cards (3 Core Leaders) -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+                <!-- Ketua Angkatan -->
+                <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-md card-hover relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 bg-gradient-to-l from-amber-500 to-amber-400 text-white text-xs font-black px-4 py-1.5 rounded-bl-2xl shadow">
+                        <i class="fa-solid fa-crown mr-1"></i> KETUA ANGKATAN
+                    </div>
+                    <div class="flex items-center space-x-4 mb-6 pt-2">
+                        <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-brand-600 to-sky-400 p-1 shadow-lg">
+                            <div class="w-full h-full bg-white rounded-xl flex items-center justify-center font-black text-2xl text-brand-700">
+                                M
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-extrabold text-slate-900 group-hover:text-brand-600 transition">Messilano</h3>
+                            <p class="text-xs font-bold text-brand-600 uppercase tracking-widest mt-0.5">Ketua Angkatan 17</p>
+                            <div class="inline-block px-2.5 py-0.5 bg-slate-100 rounded-md text-xs text-slate-600 mt-2">
+                                Leader & Visionary
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-600 leading-relaxed italic border-t border-slate-100 pt-4">
+                        "Memimpin Revourner 17 menuju kejayaan, memastikan tidak ada satu pun langkah yang melangkah sendirian."
+                    </p>
+                </div>
+
+                <!-- Sekretaris -->
+                <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-md card-hover relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 bg-gradient-to-l from-brand-600 to-sky-500 text-white text-xs font-black px-4 py-1.5 rounded-bl-2xl shadow">
+                        <i class="fa-solid fa-pen-nib mr-1"></i> SEKRETARIS
+                    </div>
+                    <div class="flex items-center space-x-4 mb-6 pt-2">
+                        <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-brand-600 to-sky-400 p-1 shadow-lg">
+                            <div class="w-full h-full bg-white rounded-xl flex items-center justify-center font-black text-2xl text-brand-700">
+                                F
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-extrabold text-slate-900 group-hover:text-brand-600 transition">Figo</h3>
+                            <p class="text-xs font-bold text-brand-600 uppercase tracking-widest mt-0.5">Sekretaris Angkatan</p>
+                            <div class="inline-block px-2.5 py-0.5 bg-slate-100 rounded-md text-xs text-slate-600 mt-2">
+                                Archivist & Coordinator
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-600 leading-relaxed italic border-t border-slate-100 pt-4">
+                        "Mencatat setiap histori, arsip, dan ide gagasan untuk kejayaan dokumen angkatan Revourner."
+                    </p>
+                </div>
+
+                <!-- Bendahara -->
+                <div class="bg-white rounded-3xl p-8 border border-slate-200 shadow-md card-hover relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 bg-gradient-to-l from-emerald-600 to-teal-500 text-white text-xs font-black px-4 py-1.5 rounded-bl-2xl shadow">
+                        <i class="fa-solid fa-vault mr-1"></i> BENDAHARA
+                    </div>
+                    <div class="flex items-center space-x-4 mb-6 pt-2">
+                        <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-brand-600 to-sky-400 p-1 shadow-lg">
+                            <div class="w-full h-full bg-white rounded-xl flex items-center justify-center font-black text-2xl text-brand-700">
+                                M
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-extrabold text-slate-900 group-hover:text-brand-600 transition">Mahardika</h3>
+                            <p class="text-xs font-bold text-brand-600 uppercase tracking-widest mt-0.5">Bendahara Angkatan</p>
+                            <div class="inline-block px-2.5 py-0.5 bg-slate-100 rounded-md text-xs text-slate-600 mt-2">
+                                Financial Master
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-600 leading-relaxed italic border-t border-slate-100 pt-4">
+                        "Menjaga dan mengelola dana kas angkatan untuk setiap agenda raksasa Revourner agar selalu lancar."
+                    </p>
+                </div>
+            </div>
+
+            <!-- HQ Lore Cards (Gedung & Lapangan M. Nasir) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Gedung M Nasir Card -->
+                <div class="bg-gradient-to-br from-brand-900 to-slate-900 text-white rounded-3xl p-8 shadow-xl relative overflow-hidden flex flex-col justify-between">
+                    <div class="absolute -right-8 -bottom-8 w-40 h-40 bg-brand-500/20 rounded-full blur-2xl"></div>
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="p-3 bg-white/10 rounded-2xl border border-white/20 text-brand-300">
+                                <i class="fa-solid fa-building text-2xl"></i>
+                            </span>
+                            <span class="text-xs uppercase tracking-widest text-brand-300 font-bold px-3 py-1 bg-brand-800/80 rounded-full">
+                                Basecamp Utama
+                            </span>
+                        </div>
+                        <h3 class="text-2xl font-black mb-2">Gedung M. Nasir</h3>
+                        <p class="text-slate-300 text-sm leading-relaxed mb-6">
+                            Gedung kebanggaan tempat bernaungnya santri Revourner ke-17. Menjadi saksi bisu berbagai diskusi malam, hafalan Al-Qur'an, strategi event, hingga kebersamaan harian.
+                        </p>
+                    </div>
+                    <div class="pt-4 border-t border-white/10 flex items-center justify-between text-xs text-slate-400">
+                        <span><i class="fa-solid fa-location-dot text-red-400 mr-1"></i> As-Syifa Campus Zone</span>
+                        <span class="text-brand-200 font-semibold">Markas Besar R17</span>
+                    </div>
+                </div>
+
+                <!-- Lapangan M Nasir Card -->
+                <div class="bg-gradient-to-br from-sky-900 to-brand-950 text-white rounded-3xl p-8 shadow-xl relative overflow-hidden flex flex-col justify-between">
+                    <div class="absolute -right-8 -bottom-8 w-40 h-40 bg-sky-400/20 rounded-full blur-2xl"></div>
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="p-3 bg-white/10 rounded-2xl border border-white/20 text-sky-300">
+                                <i class="fa-solid fa-futbol text-2xl"></i>
+                            </span>
+                            <span class="text-xs uppercase tracking-widest text-sky-300 font-bold px-3 py-1 bg-sky-800/80 rounded-full">
+                                Arena Olahraga & Event
+                            </span>
+                        </div>
+                        <h3 class="text-2xl font-black mb-2">Penguasa Lapangan M. Nasir</h3>
+                        <p class="text-slate-300 text-sm leading-relaxed mb-6">
+                            Panggung gladi resik, olahraga, kompetisi, dan momen tak terlupakan. Angkatan Revourner menguasai lapangan ini dengan keringat, kerja keras, dan sorak kemenangan.
+                        </p>
+                    </div>
+                    <div class="pt-4 border-t border-white/10 flex items-center justify-between text-xs text-slate-400">
+                        <span><i class="fa-solid fa-trophy text-amber-400 mr-1"></i> Home Ground Champions</span>
+                        <span class="text-sky-200 font-semibold">M. Nasir Court</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Timeline Section (13 Events) -->
+    <section id="timeline" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="px-3 py-1 rounded-full bg-brand-100 text-brand-700 text-xs font-bold uppercase tracking-wider inline-block mb-3">
+                    Jejak Perjalanan Historic
+                </span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900">
+                    Timeline Fantastic Revourner 17
+                </h2>
+                <p class="text-slate-600 mt-3">
+                    Klik pada setiap fase untuk membaca momen berharga dan pengalamannya.
+                </p>
+            </div>
+
+            <!-- Timeline Filter / Status Indicator -->
+            <div class="flex justify-center mb-10 overflow-x-auto pb-2 scrollbar-none">
+                <div class="inline-flex bg-slate-100 p-1.5 rounded-2xl space-x-1">
+                    <button onclick="filterTimeline('all')" class="tl-btn active px-4 py-2 rounded-xl text-xs font-bold transition bg-white text-brand-600 shadow-sm">
+                        Semua Event (13)
+                    </button>
+                    <button onclick="filterTimeline('awal')" class="tl-btn px-4 py-2 rounded-xl text-xs font-bold transition text-slate-600 hover:text-brand-600">
+                        Fase Awal
+                    </button>
+                    <button onclick="filterTimeline('puncak')" class="tl-btn px-4 py-2 rounded-xl text-xs font-bold transition text-slate-600 hover:text-brand-600">
+                        Fase Perjuangan
+                    </button>
+                    <button onclick="filterTimeline('akhir')" class="tl-btn px-4 py-2 rounded-xl text-xs font-bold transition text-slate-600 hover:text-brand-600">
+                        Fase Kelulusan
+                    </button>
+                </div>
+            </div>
+
+            <!-- Timeline Grid / Steps -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="timeline-container">
+                <!-- Javascript will populate timeline dynamically or we render with HTML & JS hooks -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Member Roster Section (25 Members) -->
+    <section id="roster" class="py-20 bg-slate-50 border-t border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+                <div>
+                    <span class="px-3 py-1 rounded-full bg-brand-100 text-brand-700 text-xs font-bold uppercase tracking-wider inline-block mb-3">
+                        Daftar Anggota Angkatan
+                    </span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900">
+                        Roster Anggota (25 Santri)
+                    </h2>
+                    <p class="text-slate-600 mt-2">
+                        Keluarga besar Revourner 17 SMPIT As-Syifa Boarding School.
+                    </p>
+                </div>
+
+                <!-- Search Box -->
+                <div class="mt-6 md:mt-0 w-full md:w-80">
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" id="member-search" oninput="searchMembers()" placeholder="Cari nama anggota..." class="w-full pl-11 pr-4 py-3 bg-white border border-slate-300 rounded-2xl text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-200 transition">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Member Cards Grid -->
+            <div id="members-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <!-- Javascript dynamically renders 25 member cards here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Vault Kenangan / Confession Wall Section -->
+    <section id="vault" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-12">
+                <span class="px-3 py-1 rounded-full bg-brand-100 text-brand-700 text-xs font-bold uppercase tracking-wider inline-block mb-3">
+                    Vault Kenangan & Pesan
+                </span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900">
+                    Papan Kenangan Revourner
+                </h2>
+                <p class="text-slate-600 mt-3">
+                    Momen tak terlupakan dari era AUD, BEM, Agit Era, hingga Banjir Kasus! Tulis pesan kenanganmu di sini.
+                </p>
+            </div>
+
+            <!-- Interactive Post Note Form -->
+            <div class="bg-gradient-to-r from-brand-50 to-sky-50 p-6 sm:p-8 rounded-3xl border border-brand-100 mb-12 shadow-sm max-w-2xl mx-auto">
+                <h3 class="text-lg font-bold text-slate-900 mb-4 flex items-center space-x-2">
+                    <i class="fa-solid fa-feather text-brand-600"></i>
+                    <span>Tambah Pesan/Kenangan</span>
+                </h3>
+                <div class="space-y-4">
+                    <div>
+                        <input type="text" id="note-author" placeholder="Nama / Inisial Penulis" class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-brand-500 bg-white">
+                    </div>
+                    <div>
+                        <textarea id="note-content" rows="3" placeholder="Tuliskan momen menarik atau motivasi untuk angkatan..." class="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:border-brand-500 bg-white"></textarea>
+                    </div>
+                    <button onclick="addMemoryNote()" class="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl shadow-md transition flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        <span>Kirim ke Vault Kenangan</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Notes Wall Display Grid -->
+            <div id="notes-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Javascript loads pre-populated memory notes -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-white py-16 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+                <div class="md:col-span-2 space-y-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-brand-600 flex items-center justify-center text-white font-black">
+                            R17
+                        </div>
+                        <span class="text-2xl font-black tracking-tight text-white">REVOURNER 17</span>
+                    </div>
+                    <p class="text-slate-400 text-sm leading-relaxed max-w-md">
+                        Official Web Portal Angkatan ke-17 SMPIT As-Syifa Boarding School (Estd 2024). Berdiri bersama di bawah naungan motto <em>"No Step Alone, No Dream Unknown"</em>.
+                    </p>
+                    <div class="pt-2 text-xs text-brand-400 font-semibold">
+                        Markas: Gedung & Lapangan M. Nasir
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-sm font-bold uppercase tracking-wider text-slate-200 mb-4">Navigasi Cepat</h4>
+                    <ul class="space-y-2.5 text-sm text-slate-400">
+                        <li><a href="#about" class="hover:text-brand-400 transition">Tentang Angkatan</a></li>
+                        <li><a href="#bph" class="hover:text-brand-400 transition">BPH & Gedung M. Nasir</a></li>
+                        <li><a href="#timeline" class="hover:text-brand-400 transition">Timeline Events</a></li>
+                        <li><a href="#roster" class="hover:text-brand-400 transition">25 Anggota</a></li>
+                        <li><a href="#vault" class="hover:text-brand-400 transition">Vault Kenangan</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-sm font-bold uppercase tracking-wider text-slate-200 mb-4">Informasi Sekolah</h4>
+                    <div class="text-sm text-slate-400 space-y-2">
+                        <p class="font-semibold text-white">SMPIT As-Syifa Boarding School</p>
+                        <p>Established: 2024</p>
+                        <p>Batch: 17th Generation</p>
+                        <div class="pt-3 flex space-x-3 text-slate-300">
+                            <span class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center hover:bg-brand-600 transition cursor-pointer"><i class="fa-brands fa-instagram"></i></span>
+                            <span class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center hover:bg-brand-600 transition cursor-pointer"><i class="fa-brands fa-youtube"></i></span>
+                            <span class="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center hover:bg-brand-600 transition cursor-pointer"><i class="fa-solid fa-globe"></i></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-8 border-t border-slate-800 text-center text-xs text-slate-500">
+                <p>&copy; 2024 - 2026 REVOURNER 17 • SMPIT As-Syifa Boarding School. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Member Detail Modal -->
+    <div id="member-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 relative shadow-2xl animate-in fade-in zoom-in duration-200">
+            <button onclick="closeMemberModal()" class="absolute top-4 right-4 w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center font-bold">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div id="modal-content">
+                <!-- Javascript populates modal content -->
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Code -->
+    <script>
+        // 13 Required Timeline Events Data
+        const timelineEvents = [
+            {
+                id: 1,
+                title: "Launching",
+                phase: "awal",
+                icon: "fa-rocket",
+                badge: "Awal Pengenalan",
+                desc: "Momen bersejarah di mana nama dan logo REVOURNER 17 resmi diperkenalkan di hadapan seluruh civitas akademika SMPIT As-Syifa."
+            },
+            {
+                id: 2,
+                title: "Fantastic",
+                phase: "awal",
+                icon: "fa-star",
+                badge: "Semangat Angkatan",
+                desc: "Ajang perayaan bakat, kebersamaan, dan penampilan spektakuler santri angkatan 17 yang membakar semangat persatuan."
+            },
+            {
+                id: 3,
+                title: "Perjusa",
+                phase: "awal",
+                icon: "fa-campground",
+                badge: "Perkemahan",
+                desc: "Perkemahan Jumat-Sabtu di mana fisik, mental, dan kedisiplinan santri Revourner ditempa di alam terbuka."
+            },
+            {
+                id: 4,
+                title: "AUD Era",
+                phase: "puncak",
+                icon: "fa-crown",
+                badge: "Kepemimpinan Muda",
+                desc: "Masa-masa kepengurusan awal dan pembelajaran kepemimpinan dasar santri Revourner sebelum melangkah ke struktur BEM."
+            },
+            {
+                id: 5,
+                title: "BEM",
+                phase: "puncak",
+                icon: "fa-landmark",
+                badge: "Organisasi Santri",
+                desc: "Masa keemasan berorganisasi di Badan Eksekutif Murid. Menjalankan berbagai program kerja besar tingkat sekolah."
+            },
+            {
+                id: 6,
+                title: "ASFERA",
+                phase: "puncak",
+                icon: "fa-trophy",
+                badge: "Event Akbar",
+                desc: "Ajang kompetisi olahraga dan seni terbesar yang diselenggarakan oleh Revourner 17 di Lapangan M. Nasir."
+            },
+            {
+                id: 7,
+                title: "Banjir Kasus",
+                phase: "puncak",
+                icon: "fa-bolt-lightning",
+                badge: "Dinamika & Ujian",
+                desc: "Momen nostalgia penuh cerita ujian, dinamika kedisiplinan, dan kekompakan saat menyelesaikan masalah bersama-sama."
+            },
+            {
+                id: 8,
+                title: "Agit Era",
+                phase: "puncak",
+                icon: "fa-fire",
+                badge: "Senioritas Positif",
+                desc: "Era ketika Revourner berada di puncak sebagai senior paling berpengaruh, membimbing adik-adik kelas di Gedung M. Nasir."
+            },
+            {
+                id: 9,
+                title: "Sertijab",
+                phase: "akhir",
+                icon: "fa-handshake-simple",
+                badge: "Estafet Kepemimpinan",
+                desc: "Serah terima jabatan kepengurusan BEM kepada generasi penerus dengan rasa bangga dan keharuan."
+            },
+            {
+                id: 10,
+                title: "Farewell",
+                phase: "akhir",
+                icon: "fa-heart",
+                badge: "Malam Perpisahan",
+                desc: "Malam keakraban terakhir di mana kata-kata pamit, tawa, dan air mata persaudaraan menyatu menjadi kenangan manis."
+            },
+            {
+                id: 11,
+                title: "Wisuda Tahfiz",
+                phase: "akhir",
+                icon: "fa-book-quran",
+                badge: "Puncak Mahkota",
+                desc: "Momen pengukuhan kelulusan hafalan Al-Qur'an santri Revourner 17 di hadapan para orang tua dan asatidz."
+            },
+            {
+                id: 12,
+                title: "Rihlah",
+                phase: "akhir",
+                icon: "fa-bus",
+                badge: "Recreations & Tour",
+                desc: "Perjalanan wisata dan refreshing bersama seluruh angkatan sebelum melepas seragam sekolah SMPIT As-Syifa."
+            },
+            {
+                id: 13,
+                title: "Haflatul Wada",
+                phase: "akhir",
+                icon: "fa-graduation-cap",
+                badge: "Kelulusan Resmi",
+                desc: "Puncak pelepasan resmi angkatan 17 REVOURNER. Penutupan lembaran SMPIT As-Syifa menuju pintu gerbang masa depan."
+            }
+        ];
+
+        // 25 Members Data (Key Leaders + 22 Anggota)
+        const membersData = [
+            { id: 1, name: "Messilano", role: "Ketua Angkatan", badge: "BPH Utama", quote: "No step alone, keep pushing forward!", icon: "M" },
+            { id: 2, name: "Mahardika", role: "Bendahara Angkatan", badge: "BPH Utama", quote: "Kas aman, event angkatan lancar jaya.", icon: "M" },
+            { id: 3, name: "Figo", role: "Sekretaris Angkatan", badge: "BPH Utama", quote: "Catatan tak pernah bohong, cerita akan abadi.", icon: "F" },
+            { id: 4, name: "Rayhan Al-Farisi", role: "Divisi Olahraga", badge: "Lapangan M. Nasir", quote: "Lapangan M. Nasir adalah rumah kedua kami.", icon: "R" },
+            { id: 5, name: "Faris Naufal", role: "Divisi Humas", badge: "Member", quote: "Menghubungkan impian dengan realitas.", icon: "F" },
+            { id: 6, name: "Sultan Haikal", role: "Divisi Kedisiplinan", badge: "Member", quote: "Disiplin adalah fondasi kejayaan.", icon: "S" },
+            { id: 7, name: "Azka Robbani", role: "Divisi Keagamaan", badge: "Wisuda Tahfiz", quote: "Al-Qur'an di dada, cita-cita di awan.", icon: "A" },
+            { id: 8, name: "Naufal Zaky", role: "Divisi Acara", badge: "ASFERA Team", quote: "Bikin setiap event Revourner jadi spektakuler.", icon: "N" },
+            { id: 9, name: "Zaidan Akmal", role: "Divisi Perlengkapan", badge: "Member", quote: "Siap siaga di balik layar.", icon: "Z" },
+            { id: 10, name: "Arka Danendra", role: "Anggota", badge: "Gedung M. Nasir", quote: "Kenangan di M. Nasir takkan tergantikan.", icon: "A" },
+            { id: 11, name: "Danial Fathir", role: "Anggota", badge: "Member", quote: "Revourner 17 di hati selamanya.", icon: "D" },
+            { id: 12, name: "Athar Ghani", role: "Anggota", badge: "Member", quote: "Pantang pulang sebelum selesai berkarya.", icon: "A" },
+            { id: 13, name: "Hafizh Rabbani", role: "Divisi Media", badge: "Content Creator", quote: "Abadikan setiap detik perjalanan R17.", icon: "H" },
+            { id: 14, name: "Rafa Pratama", role: "Anggota", badge: "Member", quote: "Sahabat sejati di kala suka dan duka.", icon: "R" },
+            { id: 15, name: "Kevan Adrian", role: "Anggota", badge: "Member", quote: "No dream unknown, impian pasti tercapai.", icon: "K" },
+            { id: 16, name: "Iqbal Ramadhan", role: "Divisi Keamanan", badge: "Member", quote: "Menjaga keamanan dan ketertiban bersama.", icon: "I" },
+            { id: 17, name: "Faiz Al-Ghifari", role: "Anggota", badge: "Wisuda Tahfiz", quote: "Terus menghafal hingga akhir hayat.", icon: "F" },
+            { id: 18, name: "Rasya Ibrahim", role: "Anggota", badge: "Member", quote: "Masa-masa SMP paling berkesan.", icon: "R" },
+            { id: 19, name: "Wildan Kholil", role: "Anggota", badge: "Member", quote: "Tawa dan keringat di Lapangan M. Nasir.", icon: "W" },
+            { id: 20, name: "Malik Ahmad", role: "Anggota", badge: "Member", quote: "Belajar, berjuang, dan bertumbuh.", icon: "M" },
+            { id: 21, name: "Dzaky Mubarak", role: "Anggota", badge: "Member", quote: "Revourner 17, solidaritas tanpa batas.", icon: "D" },
+            { id: 22, name: "Hanif Abdillah", role: "Anggota", badge: "Member", quote: "Semangat tiada padam.", icon: "H" },
+            { id: 23, name: "Akmal Syarif", role: "Anggota", badge: "Member", quote: "Menuju masa depan dengan rasa percaya diri.", icon: "A" },
+            { id: 24, name: "Alif Hidayat", role: "Anggota", badge: "Member", quote: "Satu komando, satu rasa, Revourner!", icon: "A" },
+            { id: 25, name: "Bagas Satria", role: "Anggota", badge: "Member", quote: "Kisah di As-Syifa akan selalu dirindukan.", icon: "B" }
+        ];
+
+        // Memory Notes Wall Initial Data
+        let memoryNotes = [
+            { id: 1, author: "Rayhan", content: "Ingat banget momen di Banjir Kasus pas kita saling nguatin satu sama lain di Gedung M. Nasir!", date: "2024" },
+            { id: 2, name: "Naufal", content: "ASFERA dan Agit Era bener-bener peak moment angkatan Revourner ke-17!", date: "2025" },
+            { id: 3, author: "Messilano", content: "Terima kasih untuk seluruh 25 anggota atas kebersamaan dan dukungannya selama ini. No step alone!", date: "2026" }
+        ];
+
+        // Render Timeline
+        function renderTimeline(filter = 'all') {
+            const container = document.getElementById('timeline-container');
+            container.innerHTML = '';
+
+            const filtered = filter === 'all' 
+                ? timelineEvents 
+                : timelineEvents.filter(e => e.phase === filter);
+
+            filtered.forEach((event, index) => {
+                const card = document.createElement('div');
+                card.className = "bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-md transition card-hover flex flex-col justify-between";
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="w-10 h-10 rounded-xl bg-brand-50 border border-brand-200 text-brand-600 font-bold flex items-center justify-center">
+                                <i class="fa-solid ${event.icon}"></i>
+                            </span>
+                            <span class="text-xs font-bold px-2.5 py-1 bg-slate-100 text-slate-600 rounded-lg">
+                                #${event.id} • ${event.badge}
+                            </span>
+                        </div>
+                        <h3 class="text-xl font-extrabold text-slate-900 mb-2">${event.title}</h3>
+                        <p class="text-sm text-slate-600 leading-relaxed">${event.desc}</p>
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex items-center text-xs text-brand-600 font-bold">
+                        <span>Fase Milestone R17</span>
+                        <i class="fa-solid fa-chevron-right ml-auto"></i>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function filterTimeline(phase) {
+            document.querySelectorAll('.tl-btn').forEach(btn => {
+                btn.classList.remove('bg-white', 'text-brand-600', 'shadow-sm');
+                btn.classList.add('text-slate-600');
+            });
+            event.target.classList.add('bg-white', 'text-brand-600', 'shadow-sm');
+            renderTimeline(phase);
+        }
+
+        // Render Members
+        function renderMembers(data = membersData) {
+            const grid = document.getElementById('members-grid');
+            grid.innerHTML = '';
+
+            if (data.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400">Tidak ada anggota yang ditemukan.</div>`;
+                return;
+            }
+
+            data.forEach(member => {
+                const isBPH = member.id <= 3;
+                const card = document.createElement('div');
+                card.className = "bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition card-hover cursor-pointer";
+                card.onclick = () => openMemberModal(member);
+
+                card.innerHTML = `
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-12 h-12 rounded-xl ${isBPH ? 'bg-gradient-to-tr from-brand-600 to-sky-400 text-white' : 'bg-slate-100 text-slate-700 border border-slate-200'} font-black text-lg flex items-center justify-center">
+                            ${member.icon}
+                        </div>
+                        <div>
+                            <h4 class="font-extrabold text-slate-900 line-clamp-1">${member.name}</h4>
+                            <p class="text-xs text-brand-600 font-semibold">${member.role}</p>
+                        </div>
+                    </div>
+                    <div class="text-xs px-2.5 py-1 bg-slate-100 text-slate-600 rounded-lg inline-block font-medium mb-3">
+                        ${member.badge}
+                    </div>
+                    <p class="text-xs text-slate-500 italic line-clamp-2">"${member.quote}"</p>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function searchMembers() {
+            const query = document.getElementById('member-search').value.toLowerCase();
+            const filtered = membersData.filter(m => 
+                m.name.toLowerCase().includes(query) || 
+                m.role.toLowerCase().includes(query) || 
+                m.badge.toLowerCase().includes(query)
+            );
+            renderMembers(filtered);
+        }
+
+        function openMemberModal(member) {
+            const modal = document.getElementById('member-modal');
+            const content = document.getElementById('modal-content');
+            
+            content.innerHTML = `
+                <div class="text-center">
+                    <div class="w-20 h-20 rounded-2xl bg-gradient-to-tr from-brand-600 to-sky-400 text-white font-black text-3xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-brand-500/20">
+                        ${member.icon}
+                    </div>
+                    <h3 class="text-2xl font-extrabold text-slate-900">${member.name}</h3>
+                    <p class="text-sm font-bold text-brand-600 uppercase tracking-wider mb-2">${member.role}</p>
+                    <span class="inline-block px-3 py-1 bg-brand-50 border border-brand-200 text-brand-700 text-xs font-semibold rounded-full mb-6">
+                        ${member.badge}
+                    </span>
+
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 mb-6 text-left">
+                        <span class="text-xs text-slate-400 font-semibold uppercase block mb-1">Motto & Kesan:</span>
+                        <p class="text-sm text-slate-700 italic">"${member.quote}"</p>
+                    </div>
+
+                    <div class="text-xs text-slate-500 flex justify-between items-center border-t border-slate-100 pt-4">
+                        <span>Angkatan: REVOURNER 17</span>
+                        <span>SMPIT As-Syifa (2024)</span>
+                    </div>
+                </div>
+            `;
+            modal.classList.remove('hidden');
+        }
+
+        function closeMemberModal() {
+            document.getElementById('member-modal').classList.add('hidden');
+        }
+
+        // Vault Notes Functions
+        function renderNotes() {
+            const grid = document.getElementById('notes-grid');
+            grid.innerHTML = '';
+
+            memoryNotes.forEach(note => {
+                const card = document.createElement('div');
+                card.className = "bg-slate-50 p-6 rounded-2xl border border-slate-200/90 relative shadow-sm hover:shadow transition";
+                card.innerHTML = `
+                    <i class="fa-solid fa-quote-left text-brand-200 text-3xl absolute top-4 right-4"></i>
+                    <p class="text-sm text-slate-700 mb-4 relative z-10 font-medium">"${note.content}"</p>
+                    <div class="flex justify-between items-center text-xs pt-3 border-t border-slate-200">
+                        <span class="font-extrabold text-brand-700">— ${note.author || note.name || "Anonim"}</span>
+                        <span class="text-slate-400">${note.date || "Revourner Memory"}</span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function addMemoryNote() {
+            const author = document.getElementById('note-author').value.trim() || "Santri Revourner";
+            const content = document.getElementById('note-content').value.trim();
+
+            if (!content) {
+                alert("Harap tuliskan isi kenangan terlebih dahulu.");
+                return;
+            }
+
+            memoryNotes.unshift({
+                id: Date.now(),
+                author: author,
+                content: content,
+                date: "Baru saja"
+            });
+
+            document.getElementById('note-author').value = '';
+            document.getElementById('note-content').value = '';
+            renderNotes();
+        }
+
+        // Mobile Menu Toggle
+        const menuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        menuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        document.querySelectorAll('.mobile-link').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+            });
+        });
+
+        // Initialize App
+        window.onload = function() {
+            renderTimeline('all');
+            renderMembers();
+            renderNotes();
+        };
+    </script>
+</body>
+</html>
