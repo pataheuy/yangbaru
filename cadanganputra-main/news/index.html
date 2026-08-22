@@ -438,11 +438,19 @@
             document.getElementById('readContent').innerHTML = art.content;
             reader.classList.add('open');
             document.body.style.overflow = 'hidden';
+            
+            // Update URL with History API (path-based routing)
+            const basePath = window.location.pathname.replace(/\/[^/]*$/, '');
+            history.pushState({ view: 'article', articleId: art.id }, '', `${basePath}/article/${art.id}`);
         }
 
         document.getElementById('closeReader').onclick = () => {
             reader.classList.remove('open');
             document.body.style.overflow = '';
+            
+            // Update URL back to main view (path-based routing)
+            const basePath = window.location.pathname.replace(/\/[^/]*$/, '');
+            history.pushState({ view: 'home' }, '', basePath || '/news');
         };
 
         const navLinks = document.querySelectorAll('.nav-link');
@@ -458,7 +466,14 @@
                 navLinks.forEach(l => l.classList.remove('active'));
                 link.classList.add('active');
                 moveIndicator(link);
-                renderArticles(link.dataset.filter);
+                
+                const filter = link.dataset.filter;
+                // Update URL with History API (path-based routing)
+                const basePath = window.location.pathname.replace(/\/[^/]*$/, '');
+                const url = filter !== 'all' ? `${basePath}/filter/${filter}` : basePath || '/news';
+                history.pushState({ filter: filter }, '', url);
+                
+                renderArticles(filter);
             });
         });
 
@@ -504,6 +519,47 @@
             document.getElementById('currentDate').textContent = new Date().toLocaleDateString('id-ID', options);
             renderArticles();
             moveIndicator(document.querySelector('.nav-link.active'));
+            
+            // Handle browser back/forward buttons
+            window.addEventListener('popstate', (event) => {
+                if (event.state) {
+                    if (event.state.view === 'article' && event.state.articleId) {
+                        const art = articles.find(a => a.id === event.state.articleId);
+                        if (art) openReader(art);
+                    } else if (event.state.view === 'home') {
+                        reader.classList.remove('open');
+                        document.body.style.overflow = '';
+                    } else if (event.state.filter) {
+                        renderArticles(event.state.filter);
+                    }
+                } else {
+                    // Parse URL path
+                    const path = window.location.pathname;
+                    const parts = path.split('/').filter(p => p);
+                    
+                    if (parts.length >= 2 && parts[parts.length - 2] === 'article') {
+                        const articleId = parseInt(parts[parts.length - 1]);
+                        const art = articles.find(a => a.id === articleId);
+                        if (art) openReader(art);
+                    } else if (parts.length >= 2 && parts[parts.length - 2] === 'filter') {
+                        const filter = parts[parts.length - 1];
+                        renderArticles(filter);
+                    }
+                }
+            });
+
+            // Handle initial page load
+            const path = window.location.pathname;
+            const parts = path.split('/').filter(p => p);
+            
+            if (parts.length >= 2 && parts[parts.length - 2] === 'article') {
+                const articleId = parseInt(parts[parts.length - 1]);
+                const art = articles.find(a => a.id === articleId);
+                if (art) setTimeout(() => openReader(art), 100);
+            } else if (parts.length >= 2 && parts[parts.length - 2] === 'filter') {
+                const filter = parts[parts.length - 1];
+                setTimeout(() => renderArticles(filter), 100);
+            }
         };
     </script>
 </body>

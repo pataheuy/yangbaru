@@ -511,7 +511,18 @@
 
         function toggleModal(id) {
             const modal = document.getElementById(id);
-            if (modal) modal.classList.toggle('hidden');
+            if (modal) {
+                const isHidden = modal.classList.contains('hidden');
+                modal.classList.toggle('hidden');
+                
+                // Update URL when closing product detail modal (path-based routing)
+                if (id === 'modalDetail' && !isHidden) {
+                    // Modal is being closed
+                    const basePath = window.location.pathname.replace(/\/[^/]*$/, '');
+                    const categoryUrl = currentCategory !== 'all' ? `${basePath}/category/${currentCategory}` : basePath || '/shop';
+                    history.pushState({ category: currentCategory }, '', categoryUrl);
+                }
+            }
         }
 
         function toggleSidebar(id) {
@@ -527,6 +538,12 @@
 
         function updateCategory(cat, event) {
             currentCategory = cat;
+            
+            // Update URL with History API (path-based routing)
+            const basePath = window.location.pathname.replace(/\/[^/]*$/, '');
+            const url = cat !== 'all' ? `${basePath}/category/${cat}` : basePath || '/shop';
+            history.pushState({ category: cat }, '', url);
+            
             renderProducts(cat, searchQuery, event);
         }
 
@@ -620,6 +637,10 @@
             activeProductId = id;
             const p = products.find(prod => prod.id === id);
             if (!p) return;
+            
+            // Update URL with History API (path-based routing)
+            const basePath = window.location.pathname.replace(/\/[^/]*$/, '');
+            history.pushState({ view: 'product', productId: id }, '', `${basePath}/product/${id}`);
             
             const finalPrice = p.price - (p.price * (p.discount / 100));
             const coverImage = (p.images && p.images.length > 0) ? p.images[0] : p.image;
@@ -985,6 +1006,49 @@
             }
 
             renderProducts();
+            
+            // Handle browser back/forward buttons
+            window.addEventListener('popstate', (event) => {
+                if (event.state) {
+                    if (event.state.view === 'product' && event.state.productId) {
+                        showProductDetail(event.state.productId);
+                        toggleModal('modalDetail');
+                    } else if (event.state.category) {
+                        currentCategory = event.state.category;
+                        renderProducts();
+                    }
+                } else {
+                    // Parse URL path
+                    const path = window.location.pathname;
+                    const parts = path.split('/').filter(p => p);
+                    
+                    if (parts.length >= 2 && parts[parts.length - 2] === 'product') {
+                        const productId = parseInt(parts[parts.length - 1]);
+                        showProductDetail(productId);
+                        toggleModal('modalDetail');
+                    } else if (parts.length >= 2 && parts[parts.length - 2] === 'category') {
+                        const category = parts[parts.length - 1];
+                        currentCategory = category;
+                        renderProducts();
+                    }
+                }
+            });
+
+            // Handle initial page load
+            const path = window.location.pathname;
+            const parts = path.split('/').filter(p => p);
+            
+            if (parts.length >= 2 && parts[parts.length - 2] === 'product') {
+                const productId = parseInt(parts[parts.length - 1]);
+                setTimeout(() => {
+                    showProductDetail(productId);
+                    toggleModal('modalDetail');
+                }, 100);
+            } else if (parts.length >= 2 && parts[parts.length - 2] === 'category') {
+                const category = parts[parts.length - 1];
+                currentCategory = category;
+                setTimeout(() => renderProducts(), 100);
+            }
         };
     </script>
 </body>

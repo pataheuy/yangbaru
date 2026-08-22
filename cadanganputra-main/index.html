@@ -331,6 +331,16 @@
             gap: 0.75rem;
         }
 
+        /* Pricing cards: 3 kolom default, 1 kolom di mobile */
+        #pricing-cards {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+        @media (max-width: 767px) {
+            #pricing-cards {
+                grid-template-columns: repeat(1, minmax(0, 1fr));
+            }
+        }
+
         /* Dot grid behind terminal card */
         .dot-grid-bg {
             background-image: radial-gradient(circle, #94a3b8 3px, transparent 3px);
@@ -463,6 +473,7 @@
                 <a href="#keahlian" class="text-sm font-semibold text-slate-600 hover:text-primary transition-colors">Keahlian</a>
                 <a href="#proyek" class="text-sm font-semibold text-slate-600 hover:text-primary transition-colors">Proyek</a>
                 <a href="#prestasi" class="text-sm font-semibold text-slate-600 hover:text-primary transition-colors">Prestasi</a>
+                <a href="#pricing" class="text-sm font-semibold text-slate-600 hover:text-primary transition-colors">Pricing</a>
                 <a href="#pesantren" class="text-sm font-semibold text-slate-600 hover:text-primary transition-colors">Kisah Santri</a>
                 <a href="#galeri" class="text-sm font-semibold text-slate-600 hover:text-primary transition-colors">Galeri</a>
                 <a href="#kontak" id="nav-kontak-btn" class="px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-secondary text-white text-sm font-semibold hover:opacity-90 transition-all shadow-lg shadow-slate-300">
@@ -496,6 +507,10 @@
                 <a href="#prestasi" class="flex items-center gap-3 text-slate-600 hover:text-primary hover:bg-slate-50 font-medium py-3 px-3 rounded-xl text-sm transition-all">
                     <i class="fa-solid fa-trophy w-4 text-slate-400 text-xs"></i>
                     Prestasi
+                </a>
+                <a href="#pricing" class="flex items-center gap-3 text-slate-600 hover:text-primary hover:bg-slate-50 font-medium py-3 px-3 rounded-xl text-sm transition-all">
+                    <i class="fa-solid fa-tags w-4 text-slate-400 text-xs"></i>
+                    Pricing
                 </a>
                 <a href="#pesantren" class="flex items-center gap-3 text-slate-600 hover:text-primary hover:bg-slate-50 font-medium py-3 px-3 rounded-xl text-sm transition-all">
                     <i class="fa-solid fa-mosque w-4 text-slate-400 text-xs"></i>
@@ -651,49 +666,91 @@
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-2xl mx-auto mb-12 reveal-on-scroll" data-delay="0">
                 <h2 class="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent inline-block">Proyek Terbaik</h2>
-                <p class="text-slate-500 mt-2">Delapan karya yang paling Putra banggakan dari semua yang pernah dibuat.</p>
+                <p class="text-slate-500 mt-2">Delapan karya terbaik dari semua yang pernah Putra buat.</p>
             </div>
 
             <div id="proyek-terbaik-grid" class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-                <!-- PufutaraOS -->
-                <a href="/os/index.html" target="_blank" class="group block no-underline reveal-on-scroll" data-delay="0">
+                <!-- Kabinet Literasi -->
+                <a href="/Kabinetliterasi/index.html" target="_blank" class="group block no-underline reveal-on-scroll" data-delay="0">
                     <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-slate-200 transition-all duration-300 h-full flex flex-col">
-                        <div class="card-image-container" style="--card-cover: url('/foto/os.png')" role="img" aria-label="Cover PufutaraOS"></div>
+                        <div class="card-image-container" style="--card-cover: url('/foto/kabinetliterasi.png')" role="img" aria-label="Cover Kabinet Literasi"></div>
                         <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
                             <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-slate-500 uppercase tracking-widest">01</span>
                             <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
-                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">OS</span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Education</span>
                         </div>
-                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal"><span class="text-slate-400">Pufutara</span>OS</h3>
-                        <p class="text-slate-500 text-[0.65rem] sm:text-[0.75rem] leading-relaxed">Sistem operasi modern berbasis web. Cita-cita Putra waktu kecil akhirnya terwujud di PC Labkom!</p>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">Kabinet Literasi</h3>
+                        <p class="text-slate-500 text-[0.65rem] sm:text-[0.75rem] leading-relaxed">Portal edukasi dan literasi digital untuk kabinet BEM. Berbagi ilmu, artikel, dan materi pembelajaran.</p>
                     </div>
                 </a>
 
-                <!-- PufutaraCBT -->
-                <a href="cbt/index.html" target="_blank" class="group block no-underline reveal-on-scroll" data-delay="60">
+                <!-- KCP Land -->
+                <a href="/kcpland/index.html" target="_blank" class="group block no-underline reveal-on-scroll" data-delay="60">
                     <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-slate-200 transition-all duration-300 h-full flex flex-col">
-                        <div class="card-image-container" style="--card-cover: url('/foto/sarankritik.png')" role="img" aria-label="Cover PufutaraCBT"></div>
+                        <div class="card-image-container" style="--card-cover: url('/foto/kcpland.png')" role="img" aria-label="Cover KCP Land"></div>
                         <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
                             <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-slate-500 uppercase tracking-widest">02</span>
                             <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
-                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Concept</span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Client</span>
                         </div>
-                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">PufutaraCBT</h3>
-                        <p class="text-slate-500 text-[0.65rem] sm:text-[0.75rem] leading-relaxed">CBT bersih dan aman! Otomatis fullscreen, dan kalau keluar otomatis di ban.</p>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">KCP Land</h3>
+                        <p class="text-slate-500 text-[0.65rem] sm:text-[0.75rem] leading-relaxed">Landing page properti PT Kinarya Cipta Pesona. Smart eco design untuk hunian modern dan asri.</p>
                     </div>
                 </a>
 
-                <!-- PufutaraChat -->
-                <a href="/chat/index.html" target="_blank" class="group block no-underline reveal-on-scroll" data-delay="80">
+                <!-- Martabak Mertua -->
+                <a href="/martabakmertua/index.html" target="_blank" class="group block no-underline reveal-on-scroll" data-delay="80">
                     <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-slate-200 transition-all duration-300 h-full flex flex-col">
-                        <div class="card-image-container" style="--card-cover: url('/foto/chat.png')" role="img" aria-label="Cover PufutaraChat"></div>
+                        <div class="card-image-container" style="--card-cover: url('/foto/martabakmertua.png')" role="img" aria-label="Cover Martabak Mertua"></div>
                         <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
                             <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-slate-500 uppercase tracking-widest">03</span>
                             <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
-                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Comm</span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Client</span>
                         </div>
-                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal"><span class="text-slate-400">Pufutara</span>Chat</h3>
-                        <p class="text-slate-500 text-[0.65rem] sm:text-[0.75rem] leading-relaxed">Obrolan simple, tambah akun, login, langsung chat ke semua orang secara real-time.</p>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">Martabak Mertua</h3>
+                        <p class="text-slate-500 text-[0.65rem] sm:text-[0.75rem] leading-relaxed">Website UMKM martabak homemade. Dibuat dengan cinta buat usaha kuliner yang makin go-digital.</p>
+                    </div>
+                </a>
+
+                <!-- Revourner 17 -->
+                <a href="/revourner17/index.html" target="_blank" class="group block no-underline reveal-on-scroll" data-delay="0">
+                    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-slate-200 transition-all duration-300 h-full flex flex-col">
+                        <div class="card-image-container" style="--card-cover: url('/foto/revourner.png')" role="img" aria-label="Cover Revourner 17"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-slate-500 uppercase tracking-widest">04</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Event</span>
+                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">Revourner 17</h3>
+                        <p class="text-slate-500 text-[0.65rem] sm:text-[0.75rem] leading-relaxed">Landing page acara tahunan SMPIT As-Syifa. Didesain penuh semangat untuk menyambut angkatan ke-17.</p>
+                    </div>
+                </a>
+
+                <!-- Aplikasi Pemira -->
+                <a href="/aplikasipemira/index.html" target="_blank" class="group block no-underline reveal-on-scroll" data-delay="60">
+                    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-slate-200 transition-all duration-300 h-full flex flex-col">
+                        <div class="card-image-container" style="--card-cover: url('/foto/pemira.png')" role="img" aria-label="Cover Aplikasi Pemira"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-slate-500 uppercase tracking-widest">05</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Voting</span>
+                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">Aplikasi Pemira</h3>
+                        <p class="text-slate-500 text-[0.65rem] sm:text-[0.75rem] leading-relaxed">Aplikasi pemilihan raya digital yang aman dan transparan. Real-time counting dan hasil instan!</p>
+                    </div>
+                </a>
+
+                <!-- Dapoer Mang Pey -->
+                <a href="/dapurmangpey/index.html" target="_blank" class="group block no-underline reveal-on-scroll" data-delay="80">
+                    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-slate-200 transition-all duration-300 h-full flex flex-col">
+                        <div class="card-image-container" style="--card-cover: url('/foto/mangpey.png')" role="img" aria-label="Cover Dapoer Mang Pey"></div>
+                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-slate-500 uppercase tracking-widest">06</span>
+                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Client</span>
+                        </div>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal">Dapoer Mang Pey</h3>
+                        <p class="text-slate-500 text-[0.65rem] sm:text-[0.75rem] leading-relaxed">Web buat temen pertama Putra. Dibuat saat gabut di hari minggu di ruang BEM.</p>
                     </div>
                 </a>
 
@@ -702,7 +759,7 @@
                     <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-slate-200 transition-all duration-300 h-full flex flex-col">
                         <div class="card-image-container" style="--card-cover: url('/foto/cloud.png')" role="img" aria-label="Cover PufutaraDrive"></div>
                         <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
-                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-slate-500 uppercase tracking-widest">04</span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-slate-500 uppercase tracking-widest">07</span>
                             <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
                             <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Cloud</span>
                         </div>
@@ -711,64 +768,20 @@
                     </div>
                 </a>
 
-                <!-- PufutaraTube -->
-                <a href="/tube/index.html" target="_blank" class="group block no-underline reveal-on-scroll" data-delay="0">
+                <!-- PufutaraOS -->
+                <a href="/os/index.html" target="_blank" class="group block no-underline reveal-on-scroll" data-delay="120">
                     <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-slate-200 transition-all duration-300 h-full flex flex-col">
-                        <div class="card-image-container" style="--card-cover: url('/foto/tube.png')" role="img" aria-label="Cover PufutaraTube"></div>
-                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
-                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-slate-500 uppercase tracking-widest">05</span>
-                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
-                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Media</span>
-                        </div>
-                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal"><span class="text-slate-400">Pufutara</span>Tube</h3>
-                        <p class="text-slate-500 text-[0.65rem] sm:text-[0.75rem] leading-relaxed">Tempat nonton video favorit tanpa iklan yang mengganggu fokus koding kamu.</p>
-                    </div>
-                </a>
-
-                <!-- PufutaraGallery -->
-                <a href="/gallery/index.html" target="_blank" class="group block no-underline reveal-on-scroll" data-delay="60">
-                    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-slate-200 transition-all duration-300 h-full flex flex-col">
-                        <div class="card-image-container" style="--card-cover: url('/foto/image.png')" role="img" aria-label="Cover PufutaraGallery"></div>
-                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
-                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-slate-500 uppercase tracking-widest">06</span>
-                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
-                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Fullstack</span>
-                        </div>
-                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal"><span class="text-slate-400">Pufutara</span>Gallery</h3>
-                        <p class="text-slate-500 text-[0.65rem] sm:text-[0.75rem] leading-relaxed">Proyek Full Stack pertama Putra! Upload foto otomatis tersimpan ke server untuk dilihat semua orang.</p>
-                    </div>
-                </a>
-
-                <!-- Pufutara ProPaint -->
-                <a href="/paint/index.html" target="_blank" class="group block no-underline reveal-on-scroll" data-delay="80">
-                    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-slate-200 transition-all duration-300 h-full flex flex-col">
-                        <div class="card-image-container" style="--card-cover: url('/foto/paint.png')" role="img" aria-label="Cover ProPaint"></div>
-                        <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
-                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-slate-500 uppercase tracking-widest">07</span>
-                            <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
-                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Design</span>
-                        </div>
-                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal"><span class="text-slate-400">Pufutara</span> ProPaint</h3>
-                        <p class="text-slate-500 text-[0.65rem] sm:text-[0.75rem] leading-relaxed">Gambar dan sketsa apa saja dengan mudah. Aplikasi simpel, tapi tools-nya profesional.</p>
-                    </div>
-                </a>
-
-                <!-- Pufutara MiniGames -->
-                <a href="/game/index.html" target="_blank" class="group block no-underline reveal-on-scroll" data-delay="100">
-                    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-xl hover:shadow-slate-200 transition-all duration-300 h-full flex flex-col">
-                        <div class="card-image-container" style="--card-cover: url('/foto/game.png')" role="img" aria-label="Cover MiniGames"></div>
+                        <div class="card-image-container" style="--card-cover: url('/foto/os.png')" role="img" aria-label="Cover PufutaraOS"></div>
                         <div class="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
                             <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-slate-500 uppercase tracking-widest">08</span>
                             <span class="h-[1px] w-2 sm:w-4 bg-black/10"></span>
-                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">Fun</span>
+                            <span class="text-[0.5rem] sm:text-[0.6rem] font-bold text-black/40 uppercase tracking-widest">OS</span>
                         </div>
-                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal"><span class="text-slate-400">Pufutara</span> MiniGames</h3>
-                        <p class="text-slate-500 text-[0.65rem] sm:text-[0.75rem] leading-relaxed">Kumpulan game ringan buat refreshing otak setelah pusing ngurusin bug di HTML.</p>
+                        <h3 class="text-[0.9rem] sm:text-[1.05rem] font-bold mb-1 sm:mb-1.5 tracking-tight leading-tight sm:leading-normal"><span class="text-slate-400">Pufutara</span>OS</h3>
+                        <p class="text-slate-500 text-[0.65rem] sm:text-[0.75rem] leading-relaxed">Sistem operasi modern berbasis web. Cita-cita Putra waktu kecil akhirnya terwujud di PC Labkom!</p>
                     </div>
                 </a>
             </div>
-
-            <!-- Tombol ke semua proyek -->
             <div class="text-center mt-10 reveal-on-scroll" data-delay="0">
                 <a href="#proyek" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-slate-300 hover:border-primary text-slate-700 hover:text-primary text-sm font-semibold transition-all">
                     Lihat Semua Proyek
@@ -1010,6 +1023,123 @@
         </div>
     </section>
 
+    <!-- Pricing Jasa Web -->
+    <!-- Pricing Jasa Web -->
+    <section id="pricing" class="py-20 bg-white border-t border-slate-200 relative overflow-hidden reveal-on-scroll" data-delay="0">
+        <div class="dot-b-left" aria-hidden="true"></div>
+        <div class="dot-b-right" aria-hidden="true"></div>
+        <div class="dot-center" aria-hidden="true"></div>
+
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <!-- Header -->
+            <div class="text-center max-w-xl mx-auto mb-10 reveal-on-scroll" data-delay="0">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Jasa Pembuatan Website</p>
+                <h2 class="text-3xl font-extrabold tracking-tight mb-3">Harga Transparan, Hasil Nyata</h2>
+                <p class="text-slate-500 text-sm leading-relaxed">38+ proyek selesai. Semua dibuat dari nol, bukan template. Pilih paket sesuai kebutuhan.</p>
+                <!-- Promo badge -->
+                <div class="inline-flex items-center gap-1.5 mt-4 bg-slate-50 border border-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-full">
+                    <span class="relative flex h-1.5 w-1.5"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span><span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-red-500"></span></span>
+                    Promo aktif — diskon 75% untuk semua paket
+                </div>
+            </div>
+
+            <!-- Cards -->
+            <div id="pricing-cards" class="grid gap-5 mb-8">
+
+                <!-- Basic -->
+                <div class="reveal-on-scroll" data-delay="0">
+                    <div class="bg-white border border-slate-200 rounded-2xl p-6 h-full flex flex-col transition-all duration-300 hover:shadow-lg hover:border-slate-300">
+                        <div class="mb-5">
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Basic</p>
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-3xl font-extrabold tracking-tight">Rp 62K</span>
+                                <span class="text-slate-400 text-sm line-through">Rp 250K</span>
+                            </div>
+                            <p class="text-slate-500 text-xs mt-1">Landing page · 1–3 halaman</p>
+                        </div>
+
+                        <ul class="space-y-2 mb-6 flex-1 text-sm text-slate-600">
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-500 text-xs w-3"></i>Desain responsif mobile</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-500 text-xs w-3"></i>HTML · CSS · JavaScript</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-500 text-xs w-3"></i>Revisi 2× · Selesai 3–5 hari</li>
+                        </ul>
+
+                        <a href="#kontak" class="block w-full py-2.5 border border-slate-900 text-slate-900 text-sm font-semibold rounded-xl text-center transition-all hover:bg-slate-900 hover:text-white">
+                            Pilih Paket
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Standard (featured) -->
+                <div class="reveal-on-scroll" data-delay="100">
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 h-full flex flex-col transition-all duration-300 hover:shadow-xl relative">
+                        <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-slate-900 border border-slate-700 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest whitespace-nowrap">Terlaris</div>
+
+                        <div class="mb-5">
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Standard</p>
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-3xl font-extrabold tracking-tight text-white">Rp 125K</span>
+                                <span class="text-slate-500 text-sm line-through">Rp 500K</span>
+                            </div>
+                            <p class="text-slate-400 text-xs mt-1">Portofolio · Company profile · 4–7 halaman</p>
+                        </div>
+
+                        <ul class="space-y-2 mb-6 flex-1 text-sm text-slate-300">
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400 text-xs w-3"></i>Desain custom & animasi</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400 text-xs w-3"></i>Form kontak fungsional</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400 text-xs w-3"></i>SEO dasar + meta tags</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400 text-xs w-3"></i>Revisi 3× · Selesai 5–7 hari</li>
+                        </ul>
+
+                        <a href="#kontak" class="block w-full py-2.5 bg-white text-slate-900 text-sm font-semibold rounded-xl text-center transition-all hover:bg-slate-100">
+                            Pilih Paket
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Premium -->
+                <div class="reveal-on-scroll" data-delay="200">
+                    <div class="bg-white border border-slate-200 rounded-2xl p-6 h-full flex flex-col transition-all duration-300 hover:shadow-lg hover:border-slate-300">
+                        <div class="mb-5">
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Premium</p>
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-3xl font-extrabold tracking-tight">Rp 250K</span>
+                                <span class="text-slate-400 text-sm line-through">Rp 1JT</span>
+                            </div>
+                            <p class="text-slate-500 text-xs mt-1">Solusi bisnis · 8+ halaman unlimited</p>
+                        </div>
+
+                        <ul class="space-y-2 mb-6 flex-1 text-sm text-slate-600">
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-500 text-xs w-3"></i>Full custom design</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-500 text-xs w-3"></i>CMS / Admin panel + database</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-500 text-xs w-3"></i>SEO advanced + analytics</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-500 text-xs w-3"></i>Revisi unlimited · Support 1 bulan</li>
+                        </ul>
+
+                        <a href="#kontak" class="block w-full py-2.5 bg-slate-900 text-white text-sm font-semibold rounded-xl text-center transition-all hover:bg-slate-800">
+                            Pilih Paket
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Footer note + CTA -->
+            <div class="flex flex-col items-center gap-3 text-center reveal-on-scroll" data-delay="300">
+                <p class="text-slate-400 text-xs">
+                    <i class="fa-solid fa-circle-info mr-1"></i>
+                    Harga belum termasuk domain & hosting · tersedia mulai <strong class="text-slate-600">Rp 25K/tahun</strong>
+                </p>
+                <a href="#kontak" class="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-900 text-white font-semibold text-sm rounded-xl transition-all hover:bg-slate-800 hover:scale-105">
+                    <i class="fa-solid fa-paper-plane text-xs"></i>
+                    Hubungi Sekarang
+                </a>
+            </div>
+
+        </div>
+    </section>
+
     <!-- Mari Berkolaborasi -->
     <section id="kontak" class="py-20 bg-slate-50 border-t border-slate-200 relative overflow-hidden reveal-on-scroll" data-delay="0">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -1065,19 +1195,17 @@
 
     <!-- Opening PUFUTARA: dismiss + h1 teleport ke tengah + flyback -->
     <script>
-    // â”€â”€ Global speed multiplier (triple-click = 3x) â”€â”€
+    // -- Global speed multiplier (triple-click = 5x) --
     window.animationSpeedMultiplier = 1;
     (function() {
         var clickCount = 0, clickTimer;
         document.addEventListener('click', function() {
             clickCount++;
             if (clickTimer) clearTimeout(clickTimer);
-            if (clickCount === 2) {
-                window.animationSpeedMultiplier = 3;
-                document.body.classList.add('speed-3x');
+            if (clickCount === 3) {
+                window.animationSpeedMultiplier = 5;
+                document.body.classList.add('speed-5x');
                 clickCount = 0;
-                document.body.style.filter = 'hue-rotate(120deg)';
-                setTimeout(function() { document.body.style.filter = ''; }, 200);
             } else {
                 clickTimer = setTimeout(function() { clickCount = 0; }, 500);
             }
@@ -1170,11 +1298,13 @@
                         h1.style.transform = '';
                         h1.style.zIndex    = '';
                         h1.style.position  = '';
+                        // Signal ke script.js bahwa flyback selesai
+                        if (window.__heroFlybackDone) window.__heroFlybackDone();
                     }, spd(950));
                 }, spd(2900));
 
-            }, spd(750));
-        }, spd(1900));
+            }, spd(500));
+        }, spd(1500));
     })();
     </script>
 
@@ -1309,10 +1439,10 @@
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
             <!-- Main row: 4 kolom horizontal -->
-            <div class="grid grid-cols-4 gap-10 py-14 border-b border-white/10">
+            <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-8 md:gap-10 py-10 md:py-14 border-b border-white/10">
 
                 <!-- Brand -->
-                <div>
+                <div class="col-span-2 md:col-span-1">
                     <h3 class="text-base font-extrabold tracking-tight mb-3">PUTRA AZZAM</h3>
                     <p class="text-sm text-white/60 leading-relaxed">
                         Santri SMPIT Assyifa Boarding School Jalancagak. Mengintegrasikan Adab &amp; Teknologi.
@@ -1359,10 +1489,10 @@
                 </div>
 
                 <!-- Email -->
-                <div>
+                <div class="col-span-2 sm:col-span-1 md:col-span-1">
                     <p class="text-xs font-bold text-white/40 uppercase tracking-widest mb-4">Email</p>
                     <ul class="space-y-2.5 mb-5">
-                        <li><a href="mailto:putra@pufutara.com" class="text-sm text-white/70 hover:text-white transition-colors">putra@pufutara.com</a></li>
+                        <li><a href="mailto:putra.azzam2110@gmail.com" class="text-sm text-white/70 hover:text-white transition-colors">putra.azzam2110@gmail.com</a></li>
                         <li><a href="#kontak" class="text-sm text-white/70 hover:text-white transition-colors">Kirim Pesan</a></li>
                     </ul>
                     <p class="text-xs font-bold text-white/40 uppercase tracking-widest mb-3">Platform</p>
@@ -1374,7 +1504,7 @@
             </div>
 
             <!-- Bottom bar -->
-            <div class="flex flex-col sm:flex-row items-center justify-between gap-3 py-6 text-xs text-white/40">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-3 py-6 text-xs text-white/40 text-center sm:text-left">
                 <p>Â© 2026 Putra Azzam Elfathin. Hak Cipta Dilindungi.</p>
                 <p class="flex items-center gap-1.5">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span>
@@ -1498,6 +1628,10 @@
     #mobile-menu .space-y-0\.5 > div:nth-child(6) a { transition-delay: 0.30s; }
     #mobile-menu .space-y-0\.5 > a:nth-child(7),
     #mobile-menu .space-y-0\.5 > div:nth-child(7) a { transition-delay: 0.35s; }
+    #mobile-menu .space-y-0\.5 > a:nth-child(8),
+    #mobile-menu .space-y-0\.5 > div:nth-child(8) a { transition-delay: 0.40s; }
+    #mobile-menu .space-y-0\.5 > a:nth-child(9),
+    #mobile-menu .space-y-0\.5 > div:nth-child(9) a { transition-delay: 0.45s; }
 
     /* ============================================
        HOVER ANIMATIONS â€” LEBIH BANYAK & ESTETIK

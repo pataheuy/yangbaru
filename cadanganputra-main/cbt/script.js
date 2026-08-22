@@ -316,6 +316,10 @@
                 }
             });
 
+            // Update URL with History API (path-based routing)
+            const basePath = window.location.pathname.replace(/\/[^/]*$/, '');
+            history.pushState({ view: viewId }, '', `${basePath}/${viewId}`);
+
             // Visibilitas Navigasi Header
             const header = document.getElementById('main-header');
             const footer = document.getElementById('main-footer');
@@ -2786,5 +2790,34 @@
             
             // Periksa Sesi
             checkActiveExamSession();
+            
+            // Handle browser back/forward buttons
+            window.addEventListener('popstate', (event) => {
+                if (event.state && event.state.view) {
+                    switchView(event.state.view);
+                } else {
+                    // Parse URL path
+                    const path = window.location.pathname;
+                    const parts = path.split('/').filter(p => p);
+                    
+                    if (parts.length >= 1) {
+                        const viewId = parts[parts.length - 1];
+                        if (document.getElementById(viewId)) {
+                            switchView(viewId);
+                        }
+                    }
+                }
+            });
+
+            // Handle initial page load
+            const path = window.location.pathname;
+            const parts = path.split('/').filter(p => p);
+            
+            if (parts.length >= 1) {
+                const viewId = parts[parts.length - 1];
+                if (document.getElementById(viewId)) {
+                    setTimeout(() => switchView(viewId), 100);
+                }
+            }
         };
 

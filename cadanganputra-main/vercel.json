@@ -1,4 +1,40 @@
 {
-  "cleanUrls": true,
-  "trailingSlash": true
+  "rewrites": [
+    {
+      "source": "/Kabinetliterasi/(.*)",
+      "destination": "/Kabinetliterasi/index.html"
+    },
+    {
+      "source": "/shop/(.*)",
+      "destination": "/shop/index.html"
+    },
+    {
+      "source": "/news/(.*)",
+      "destination": "/news/index.html"
+    },
+    {
+      "source": "/cbt/(.*)",
+      "destination": "/cbt/index.html"
+    },
+    {
+      "source": "/chat/(.*)",
+      "destination": "/chat/index.html"
+    },
+    {
+      "source": "/drive/(.*)",
+      "destination": "/drive/index.html"
+    },
+    {
+      "source": "/library/(.*)",
+      "destination": "/library/index.html"
+    },
+    {
+      "source": "/quiz/(.*)",
+      "destination": "/quiz/index.html"
+    },
+    {
+      "source": "/tube/(.*)",
+      "destination": "/tube/index.html"
+    }
+  ]
 }

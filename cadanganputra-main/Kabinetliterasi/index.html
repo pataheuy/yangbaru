@@ -734,6 +734,10 @@
             document.getElementById('mainHomeView').classList.add('hidden');
             document.getElementById('memberProfilePage').classList.remove('hidden');
 
+            // Update URL with History API (path-based routing)
+            const basePath = window.location.pathname.replace(/\/[^/]*$/, '');
+            history.pushState({ view: 'member', certId: certId }, '', `${basePath}/member/${certId}`);
+
             // Isi Data Halaman Anggota
             document.getElementById('pageMemberAvatar').src = member.avatar;
             document.getElementById('pageMemberName').innerText = member.name;
@@ -755,6 +759,11 @@
         function showMainHome(sectionId) {
             document.getElementById('memberProfilePage').classList.add('hidden');
             document.getElementById('mainHomeView').classList.remove('hidden');
+
+            // Update URL with History API (path-based routing)
+            const basePath = window.location.pathname.replace(/\/[^/]*$/, '');
+            const url = sectionId ? `${basePath}/${sectionId}` : basePath || '/Kabinetliterasi';
+            history.pushState({ view: 'home', section: sectionId }, '', url);
 
             if (sectionId) {
                 setTimeout(() => {
@@ -791,6 +800,45 @@
         // Init load
         document.addEventListener('DOMContentLoaded', () => {
             renderGrid();
+            
+            // Handle browser back/forward buttons
+            window.addEventListener('popstate', (event) => {
+                if (event.state) {
+                    if (event.state.view === 'member' && event.state.certId) {
+                        openMemberPage(event.state.certId);
+                    } else if (event.state.view === 'home') {
+                        showMainHome(event.state.section);
+                    }
+                } else {
+                    // Parse URL path
+                    const path = window.location.pathname;
+                    const parts = path.split('/').filter(p => p);
+                    
+                    if (parts.length >= 2 && parts[parts.length - 2] === 'member') {
+                        const certId = parts[parts.length - 1];
+                        openMemberPage(certId);
+                    } else if (parts.length >= 1) {
+                        const sectionId = parts[parts.length - 1];
+                        if (document.getElementById(sectionId)) {
+                            showMainHome(sectionId);
+                        }
+                    }
+                }
+            });
+
+            // Handle initial page load
+            const path = window.location.pathname;
+            const parts = path.split('/').filter(p => p);
+            
+            if (parts.length >= 2 && parts[parts.length - 2] === 'member') {
+                const certId = parts[parts.length - 1];
+                setTimeout(() => openMemberPage(certId), 100);
+            } else if (parts.length >= 1) {
+                const sectionId = parts[parts.length - 1];
+                if (document.getElementById(sectionId)) {
+                    setTimeout(() => showMainHome(sectionId), 100);
+                }
+            }
         });
     </script>
 </body>
