@@ -1,4 +1,40 @@
 // ==========================================
+// KONFIGURASI CLOUDINARY
+// ==========================================
+const CLOUDINARY_CLOUD_NAME = 'ydj9xhqk';
+const CLOUDINARY_UPLOAD_PRESET = 'upload lagu spotipai';
+
+/**
+ * Upload file ke Cloudinary menggunakan unsigned upload preset.
+ * @param {File} file - File yang akan diupload
+ * @param {string} folder - Folder tujuan di Cloudinary ('audio' | 'covers')
+ * @returns {Promise<string>} URL publik file yang diupload
+ */
+async function uploadToCloudinary(file, folder = 'covers') {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+    formData.append('folder', `spotipai/${folder}`);
+
+    // Cloudinary otomatis deteksi resource_type dari file.
+    // Untuk audio gunakan 'video' karena Cloudinary memakai endpoint itu untuk semua media non-gambar.
+    const resourceType = file.type.startsWith('audio/') ? 'video' : 'image';
+
+    const res = await fetch(
+        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload`,
+        { method: 'POST', body: formData }
+    );
+
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error?.message || `Upload Cloudinary gagal: ${res.status}`);
+    }
+
+    const data = await res.json();
+    return data.secure_url;
+}
+
+// ==========================================
 // KONFIGURASI SUPABASE
 // ==========================================
 const SUPABASE_URL = 'https://xhgwgdsurorujsvwzdpi.supabase.co';
@@ -364,6 +400,7 @@ function performHeaderSearch(val) {
         document.getElementById('trending-artists-grid'),
         document.querySelector('#tab-home > hr'),
         document.querySelector('#tab-home > div.flex.items-center.justify-between'),
+        document.getElementById('public-playlists-header'),
         document.getElementById('public-playlists-grid'),
     ];
     hideOnSearch.forEach(el => { if (el) el.style.display = hasQuery ? 'none' : ''; });
@@ -1643,11 +1680,10 @@ async function savePlaylistCover() {
         if (coverLayoutMode === 'single') {
             const slot = coverSlotData[0];
             if (!slot) { showMessage('Pilih gambar terlebih dahulu.', 'error'); return; }
-            if (slot.type === 'upload' && slot.file && supabaseClient) {
-                const path = `covers/playlist_${playlistId}_${Date.now()}_${slot.file.name.replace(/[^a-zA-Z0-9.-]/g, '')}`;
-                const { error } = await supabaseClient.storage.from('media').upload(path, slot.file);
-                if (!error) finalCoverData = supabaseClient.storage.from('media').getPublicUrl(path).data.publicUrl;
-                else finalCoverData = slot.url;
+            if (slot.type === 'upload' && slot.file) {
+                try {
+                    finalCoverData = await uploadToCloudinary(slot.file, 'covers');
+                } catch(e) { finalCoverData = slot.url; }
             } else {
                 finalCoverData = slot.url;
             }
@@ -1656,10 +1692,10 @@ async function savePlaylistCover() {
             const urls = [];
             for (let i = 1; i <= 4; i++) {
                 const slot = coverSlotData[i];
-                if (slot && slot.type === 'upload' && slot.file && supabaseClient) {
-                    const path = `covers/playlist_${playlistId}_slot${i}_${Date.now()}_${slot.file.name.replace(/[^a-zA-Z0-9.-]/g, '')}`;
-                    const { error } = await supabaseClient.storage.from('media').upload(path, slot.file);
-                    urls.push(!error ? supabaseClient.storage.from('media').getPublicUrl(path).data.publicUrl : (slot.url || ''));
+                if (slot && slot.type === 'upload' && slot.file) {
+                    try {
+                        urls.push(await uploadToCloudinary(slot.file, 'covers'));
+                    } catch(e) { urls.push(slot.url || ''); }
                 } else {
                     urls.push(slot?.url || '');
                 }
@@ -1798,17 +1834,12 @@ async function handlePlaylistCoverChange(input) {
         // Save to local playlist
         const pl = customPlaylists.find(p => p.id === currentOpenPlaylistId);
         if (pl) {
-            // Try upload to Supabase storage if available, otherwise use data URL
+            // Upload ke Cloudinary
             let finalCoverUrl = dataUrl;
-            if (supabaseClient) {
-                try {
-                    const path = `covers/playlist_${currentOpenPlaylistId}_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '')}`;
-                    const { error } = await supabaseClient.storage.from('media').upload(path, file);
-                    if (!error) {
-                        finalCoverUrl = supabaseClient.storage.from('media').getPublicUrl(path).data.publicUrl;
-                    }
-                } catch(e) { /* fallback to dataUrl */ }
-            }
+            try {
+                finalCoverUrl = await uploadToCloudinary(file, 'covers');
+            } catch(e) { /* fallback ke dataUrl */ }
+
             pl.customCover = finalCoverUrl;
             localStorage.setItem('bemspotipai_playlists', JSON.stringify(customPlaylists));
 
@@ -2758,10 +2789,8 @@ async function submitMultiUpload() {
         const f = document.getElementById('multi-cover-file')?.files[0];
         if (f) {
             try {
-                const path = `covers/${Date.now()}_${f.name.replace(/[^a-zA-Z0-9.-]/g, '')}`;
-                const { error } = await supabaseClient.storage.from('media').upload(path, f);
-                if (!error) sharedCoverUrl = supabaseClient.storage.from('media').getPublicUrl(path).data.publicUrl;
-            } catch(e) { console.warn('Cover upload failed', e); }
+                sharedCoverUrl = await uploadToCloudinary(f, 'covers');
+            } catch(e) { console.warn('Shared cover upload gagal', e); }
         }
     }
 
@@ -2781,18 +2810,15 @@ async function submitMultiUpload() {
         btn.innerHTML = `<i class="ph ph-spinner text-lg"></i> Upload ${i+1}/${multiSongFiles.length}...`;
 
         try {
-            // Upload audio
-            const audioPath = `audio/${Date.now()}_${item.audioFile.name.replace(/[^a-zA-Z0-9.-]/g, '')}`;
-            const { error: audioErr } = await supabaseClient.storage.from('media').upload(audioPath, item.audioFile);
-            if (audioErr) throw audioErr;
-            const audioUrl = supabaseClient.storage.from('media').getPublicUrl(audioPath).data.publicUrl;
+            // Upload audio ke Cloudinary
+            const audioUrl = await uploadToCloudinary(item.audioFile, 'audio');
 
             // Resolve cover
             let finalCoverUrl = coverUrl;
             if (!finalCoverUrl && item.coverFile) {
-                const coverPath = `covers/${Date.now()}_${item.coverFile.name.replace(/[^a-zA-Z0-9.-]/g, '')}`;
-                const { error: coverErr } = await supabaseClient.storage.from('media').upload(coverPath, item.coverFile);
-                if (!coverErr) finalCoverUrl = supabaseClient.storage.from('media').getPublicUrl(coverPath).data.publicUrl;
+                try {
+                    finalCoverUrl = await uploadToCloudinary(item.coverFile, 'covers');
+                } catch(e) { console.warn('Cover upload gagal untuk', title, e); }
             }
             if (!finalCoverUrl) finalCoverUrl = sharedCoverUrl;
             if (!finalCoverUrl) finalCoverUrl = 'https://images.unsplash.com/photo-1614613535308-eb51bd3d2c17?w=300&q=80';
@@ -2845,22 +2871,12 @@ function initAddSongForm() {
             if (coverType === 'url') { coverUrl = document.getElementById('add-cover-url').value.trim(); }
             else {
                 const file = document.getElementById('add-cover-file').files[0];
-                if (file) {
-                    const path = `covers/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '')}`;
-                    const { error } = await supabaseClient.storage.from('media').upload(path, file);
-                    if (error) throw error;
-                    coverUrl = supabaseClient.storage.from('media').getPublicUrl(path).data.publicUrl;
-                }
+                if (file) coverUrl = await uploadToCloudinary(file, 'covers');
             }
             if (audioType === 'url') { audioUrl = document.getElementById('add-audio-url').value.trim(); }
             else {
                 const file = document.getElementById('add-audio-file').files[0];
-                if (file) {
-                    const path = `audio/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '')}`;
-                    const { error } = await supabaseClient.storage.from('media').upload(path, file);
-                    if (error) throw error;
-                    audioUrl = supabaseClient.storage.from('media').getPublicUrl(path).data.publicUrl;
-                }
+                if (file) audioUrl = await uploadToCloudinary(file, 'audio');
             }
             if (!title || !artist || !coverUrl || !audioUrl) { showMessage('Semua kolom utama harus diisi (URL atau File)', 'error'); return; }
             const newSongData = { id: Date.now().toString(), title, artist, cover_url: coverUrl, audio_url: audioUrl, lyrics, play_count: 0 };
@@ -2904,10 +2920,7 @@ function initEditSongForm() {
             if (coverType === 'file') {
                 const file = document.getElementById('edit-cover-file').files[0];
                 if (file) {
-                    const path = `covers/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '')}`;
-                    const { error } = await supabaseClient.storage.from('media').upload(path, file);
-                    if (error) throw error;
-                    coverUrl = supabaseClient.storage.from('media').getPublicUrl(path).data.publicUrl;
+                    coverUrl = await uploadToCloudinary(file, 'covers');
                 } else { coverUrl = currentSong.coverUrl; }
             } else { if (!coverUrl) coverUrl = currentSong.coverUrl; }
             const { data, error } = await supabaseClient.from('songs').update({ title, artist, cover_url: coverUrl, lyrics }).eq('id', id).select();

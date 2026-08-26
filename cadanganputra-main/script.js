@@ -14,46 +14,59 @@
 //   category  : 'web' atau 'desktop' (untuk filter)
 // ---------------------------------------------------------------
 const proyekData = [
-    // --- Proyek Terbaik (teratas) ---
+    // --- Proyek Terbaik (best: true — tampil di section Proyek Terbaik saja) ---
     { no: 1,  title: 'Kabinet Literasi',                                kategori: 'Education',             cover: '/foto/kabinetliterasi.png',    link: '/Kabinetliterasi/index.html',  category: 'web',     best: true,  desc: 'Portal edukasi dan literasi digital untuk kabinet BEM. Berbagi ilmu, artikel, dan materi pembelajaran.' },
     { no: 2,  title: 'KCP Land',                                        kategori: 'Client',                cover: '/foto/kcpland.png',            link: '/kcpland/index.html',          category: 'web',     best: true,  desc: 'Landing page properti PT Kinarya Cipta Pesona. Smart eco design untuk hunian modern dan asri.' },
     { no: 3,  title: 'Martabak Mertua',                                 kategori: 'Client',                cover: '/foto/martabakmertua.png',     link: '/martabakmertua/index.html',   category: 'web',     best: true,  desc: 'Website UMKM martabak homemade. Dibuat dengan cinta buat usaha kuliner yang makin go-digital.' },
-    { no: 4,  title: 'Revourner 17',                                    kategori: 'Event',                 cover: '/foto/revourner.png',          link: '/revourner17/index.html',      category: 'web',               desc: 'Landing page acara tahunan SMPIT As-Syifa. Didesain penuh semangat untuk menyambut angkatan ke-17.' },
     { no: 5,  title: 'Aplikasi Pemira',                                 kategori: 'Voting',                cover: '/foto/pemira.png',             link: '/aplikasipemira/index.html',   category: 'web',     best: true,  desc: 'Aplikasi pemilihan raya digital yang aman dan transparan. Real-time counting dan hasil instan!' },
     { no: 6,  title: 'Dapoer Mang Pey',                                 kategori: 'Client',                cover: '/foto/mangpey.png',            link: '/dapurmangpey/index.html',     category: 'web',     best: true,  desc: 'Web buat temen pertama Putra. Dibuat saat gabut di hari minggu di ruang BEM.' },
-    // --- Web Apps ---
-    { no: 7,  title: 'PufutaraOS',           titlePrefix: 'Pufutara', kategori: 'OS',                     cover: '/foto/os.png',          link: '/os/index.html',                                          category: 'web',     best: true,  desc: 'Sistem operasi modern berbasis web. Cita-cita Putra waktu kecil akhirnya terwujud di PC Labkom!' },
-    { no: 8,  title: 'PufutaraArchive',       titlePrefix: 'Pufutara', kategori: 'Web App',                cover: '/foto/archive.png',      link: '/archive/index.html',                                     category: 'web',     desc: 'Platform pusat proyek web dengan desain modern, rounded, dan minimalis.' },
-    { no: 9,  title: 'MutabaahOS',                                     kategori: 'Startup',                cover: '/foto/mutabaahos.png',   link: 'https://mutabaahos.vercel.app',                           category: 'desktop', desc: 'Landing page proyek full stack dan full keren. InsyaAllah jadi startup baru di Indo.' },
-    { no: 46, title: 'PufutaraTube',          titlePrefix: 'Pufutara', kategori: 'Media',                  cover: '/foto/tube.png',         link: '/tube/index.html',                                        category: 'web',     desc: 'Tempat nonton video favorit tanpa iklan yang mengganggu fokus koding kamu.' },
-    { no: 45, title: 'PufutaraChat',          titlePrefix: 'Pufutara', kategori: 'Comm',                   cover: '/foto/chat.png',         link: '/chat/index.html',                                        category: 'web',     desc: 'Obrolan Simple, tambah akun, login, langsung chat ke semua orang secara real-time.' },
-    { no: 44, title: 'PufutaraDrive',         titlePrefix: 'Pufutara', kategori: 'Cloud',                  cover: '/foto/cloud.png',        link: '/drive/index.html',                                       category: 'web',     desc: 'Simpan file-file penting proyek kodingan kamu dengan aman dan mudah diakses di mana saja.' },
-    { no: 43, title: 'PufutaraGallery',       titlePrefix: 'Pufutara', kategori: 'Fullstack',              cover: '/foto/image.png',        link: '/gallery/index.html',                                     category: 'web',     desc: 'Proyek Full Stack pertama Putra! Upload foto otomatis tersimpan ke server untuk dilihat semua orang.' },
-    { no: 14, title: 'PufutaraAudio',         titlePrefix: 'Pufutara', kategori: 'Audio',                  cover: '/foto/mp3music.png',     link: '/audio/index.html',                                       category: 'web',     desc: 'Dengerin lo-fi beat dan ambience alam biar koding makin chill dan nggak spaneng.' },
-    { no: 15, title: 'Pufutara MiniGames',    titlePrefix: 'Pufutara', kategori: 'Fun',                    cover: '/foto/game.png',         link: '/game/index.html',                                        category: 'web',     desc: 'Kumpulan game ringan buat refreshing otak setelah pusing ngurusin bug di HTML.' },
-    { no: 16, title: 'Pufutara ProPaint',     titlePrefix: 'Pufutara', kategori: 'Design',                 cover: '/foto/paint.png',        link: '/paint/index.html',                                       category: 'web',     desc: 'Gambar dan sketsa apa saja dengan mudah. Aplikasi simpel, tapi tools-nya profesional.' },
-    { no: 17, title: 'Pufutara Writer',       titlePrefix: 'Pufutara', kategori: 'Writing',                cover: '/foto/writer.png',       link: '/write/index.html',                                       category: 'web',     desc: 'Pengolahan kata yang cepat dan ringan. Cocok buat nulis ide proyek yang tiba-tiba muncul.' },
-    { no: 18, title: 'Pufutara DigLib',       titlePrefix: 'Pufutara', kategori: 'Library',                cover: '/foto/diglib.png',       link: '/library/index.html',                                     category: 'web',     desc: 'Perpustakaan digital dan info cuaca Jalancagak biar tau kapan harus bawa payung ke Labkom.' },
-    { no: 19, title: 'Pufutara SpinWheel',    titlePrefix: 'Pufutara', kategori: 'Tools',                  cover: '/foto/spinwheel.png',    link: '/spin/index.html',                                        category: 'web',     desc: 'Putuskan kelompok belajar atau pilihan sulit lainnya dengan roda tak terduga ini.' },
-    { no: 20, title: 'Pufutara Workspace',    titlePrefix: 'Pufutara', kategori: 'Hub',                    cover: '/foto/workspace.png',    link: '/work/index.html',                                        category: 'web',     desc: 'Hub pusat aplikasi produktivitas Pufutara, gabungan dari berbagai proyek jadi satu.' },
-    { no: 21, title: 'Pufutara ToDo List',    titlePrefix: 'Pufutara', kategori: 'Focus',                  cover: '/foto/Todo.png',         link: '/todo/index.html',                                        category: 'web',     desc: 'List tugas simpel dan modern untuk Putra yang pelupa biar jadwal tetap teratur.' },
-    { no: 22, title: 'Pufutara Habit Tracker',titlePrefix: 'Pufutara', kategori: 'Goals',                  cover: '/foto/habit.png',        link: '/habit/index.html',                                       category: 'web',     desc: 'Pantau proses membangun kebiasaan baik dan hilangkan kebiasaan buruk setiap hari.' },
-    { no: 23, title: 'Pufutara News & Calc',  titlePrefix: 'Pufutara', kategori: 'Utility',                cover: '/foto/news.png',         link: '/news/landing.html',                                      category: 'web',     desc: 'Baca berita terbaru atau pakai kalkulator sains akurat buat bantu tugas Labkom kamu.' },
-    { no: 24, title: 'Pufutara Web V2',       titlePrefix: 'Pufutara', kategori: 'Official',               cover: '/foto/webv2.png',        link: 'https://pufuta.vercel.app',                               category: 'web',     desc: "Website utama Putra versi terbaru. Modern, cepat, dan pastinya tetap 'putraganteng'." },
-    { no: 25, title: 'Pufutara Web V1',       titlePrefix: 'Pufutara', kategori: 'History',                cover: '/foto/webv1.png',        link: 'https://kanay.vercel.app',                                category: 'web',     desc: 'Saksi bisu perjalanan di BEM. Tanya anak BEM se-Sikma kalau mau tau sejarah web ini!' },
-    { no: 26, title: 'Pufutara AI',           titlePrefix: 'Pufutara', kategori: 'AI',                     cover: '/foto/ai1.png',          link: 'https://pufutaraai.vercel.app',                           category: 'web',     desc: 'AI chatbot menggunakan Gemini API key sebagai dasar AI nya.' },
-    { no: 27, title: 'Pufutara Calc Pro',     titlePrefix: 'Pufutara', kategori: 'Utility',                cover: '/foto/calculator.png',   link: '/calc/index.html',                                        category: 'web',     desc: 'Kalkulator modern dengan fungsi sains, persentase, dan riwayat perhitungan.' },
-    { no: 28, title: 'Pufutara Vote System',  titlePrefix: 'Pufutara', kategori: 'Web',                    cover: '/foto/vote.png',         link: '/vote/index.html',                                        category: 'web',     desc: 'Sistem voting sederhana untuk menentukan pilihan kelas atau keputusan bersama.' },
-    { no: 29, title: 'Pufutara Quiz App',     titlePrefix: 'Pufutara', kategori: 'Edu',                    cover: '/foto/quiz.png',         link: '/quiz/index.html',                                        category: 'web',     desc: 'Uji pengetahuanmu lewat kuis interaktif. Pilihan gacor dan leaderboard seru.' },
-    { no: 30, title: 'Pufutara StikiNot',     titlePrefix: 'Pufutara', kategori: 'App',                    cover: '/foto/stikinot.png',     link: '/stikinot/index.html',                                    category: 'desktop', desc: 'Aplikasi catatan ringan, mendukung rich text dan fitur praktis lainnya.' },
-    { no: 31, title: 'Pufutara Cahier',       titlePrefix: 'Pufutara', kategori: 'Note',                   cover: '/foto/cashier.png',      link: '/kasir/index.html',                                       category: 'web',     desc: 'Jurnal digital minimalis. Catat ide atau tugas sekolah dengan antarmuka menenangkan.' },
-    { no: 32, title: 'Pufutara Shop',         titlePrefix: 'Pufutara', kategori: 'Store',                  cover: '/foto/shop.png',         link: '/shop/index.html',                                        category: 'web',     best: true,  desc: 'Toko merchandise resmi Pufutara. Dukung terus karya lokal.' },
-    { no: 33, title: 'Pufutara Browser',      titlePrefix: 'Pufutara', kategori: 'Tools',                  cover: '/foto/browser.png',      link: '/browser/index.html',                                     category: 'desktop', desc: 'Browser cepat, ringan dan modern! dibuat dari framework electron.' },
-    { no: 34, title: 'KLS WEB',                                         kategori: 'Pro',                   cover: '/foto/klsweb.png',       link: '/kls/index.html',                                         category: 'web',     desc: 'Landing page website organisasi authot pufutara. Kece banget kek profesional.' },
-    { no: 35, title: 'DepDik Putra Web',                                kategori: 'Our lovely Departement', cover: '/foto/depdikweb.png',   link: '/depdikweb/index.html',                                   category: 'web',     desc: 'Web departmen pendidikan bem asbosch. dibuat dengan alasan untuk menyaingi web bapuk S.id depdik putri yg bayi pun bisa bikin' },
-    { no: 36, title: 'PufutaraCBT',                                     kategori: 'Concept',               cover: '/foto/cbt.png',          link: '/cbt/index.html',                                         category: 'web',     best: true,  desc: 'CBT bersih dan aman! gaperlu pakai exam browser lagi! otomatis fullscreen! dan kalo keluar otomatis di Ban.' },
-    { no: 37, title: 'Online Order System',                             kategori: 'E-Commerce',            cover: '/foto/onlineorder.png',  link: '/onlineorder/index.html',                                 category: 'web',     best: true,  desc: 'Sistem pemesanan online modern dan praktis. Kelola pesanan, menu, dan transaksi dengan mudah!' },
+    { no: 7,  title: 'PufutaraOS',           titlePrefix: 'Pufutara',  kategori: 'OS',                    cover: '/foto/os.png',                 link: '/os/index.html',               category: 'web',     best: true,  desc: 'Sistem operasi modern berbasis web. Cita-cita Putra waktu kecil akhirnya terwujud di PC Labkom!' },
+    { no: 32, title: 'Pufutara Shop',         titlePrefix: 'Pufutara', kategori: 'Store',                  cover: '/foto/shop.png',               link: '/shop/index.html',             category: 'web',     best: true,  desc: 'Toko merchandise resmi Pufutara. Dukung terus karya lokal.' },
+    { no: 36, title: 'PufutaraCBT',                                     kategori: 'Concept',               cover: '/foto/cbt.png',                link: '/cbt/index.html',              category: 'web',     best: true,  desc: 'CBT bersih dan aman! gaperlu pakai exam browser lagi! otomatis fullscreen! dan kalo keluar otomatis di Ban.' },
+    { no: 37, title: 'Online Order System',                             kategori: 'E-Commerce',            cover: '/foto/onlineorder.png',        link: '/onlineorder/index.html',      category: 'web',     best: true,  desc: 'Sistem pemesanan online modern dan praktis. Kelola pesanan, menu, dan transaksi dengan mudah!' },
     { no: 38, title: 'DepDik Putra Web V2',                             kategori: 'Departement',           cover: '/foto/depdikputrawebv2.png',   link: '/depdikputrawebv2/index.html', category: 'web',     best: true,  desc: 'Versi kedua web Departemen Pendidikan BEM As-Syifa 2025/2026. Lebih modern, lebih lengkap.' },
+
+    // --- Grup 1: DepDik Putra Web, KLS Web, MutabaahOS, StikiNot ---
+    { no: 35, title: 'DepDik Putra Web',                                kategori: 'Our lovely Departement', cover: '/foto/depdikweb.png',         link: '/depdikweb/index.html',        category: 'web',     desc: 'Web departmen pendidikan bem asbosch. dibuat dengan alasan untuk menyaingi web bapuk S.id depdik putri yg bayi pun bisa bikin' },
+    { no: 34, title: 'KLS WEB',                                         kategori: 'Pro',                   cover: '/foto/klsweb.png',             link: '/kls/index.html',              category: 'web',     desc: 'Landing page website organisasi authot pufutara. Kece banget kek profesional.' },
+    { no: 9,  title: 'MutabaahOS',                                      kategori: 'Startup',               cover: '/foto/mutabaahos.png',         link: 'https://mutabaahos.vercel.app', category: 'desktop', desc: 'Landing page proyek full stack dan full keren. InsyaAllah jadi startup baru di Indo.' },
+    { no: 30, title: 'Pufutara StikiNot',     titlePrefix: 'Pufutara', kategori: 'App',                    cover: '/foto/stikinot.png',           link: '/stikinot/index.html',         category: 'desktop', desc: 'Aplikasi catatan ringan, mendukung rich text dan fitur praktis lainnya.' },
+
+    // --- Grup 2: Browser, Drive, Chat, Tube, Gallery ---
+    { no: 33, title: 'Pufutara Browser',      titlePrefix: 'Pufutara', kategori: 'Tools',                  cover: '/foto/browser.png',           link: '/browser/index.html',          category: 'desktop', desc: 'Browser cepat, ringan dan modern! dibuat dari framework electron.' },
+    { no: 44, title: 'PufutaraDrive',         titlePrefix: 'Pufutara', kategori: 'Cloud',                  cover: '/foto/cloud.png',             link: '/drive/index.html',            category: 'web',     desc: 'Simpan file-file penting proyek kodingan kamu dengan aman dan mudah diakses di mana saja.' },
+    { no: 45, title: 'PufutaraChat',          titlePrefix: 'Pufutara', kategori: 'Comm',                   cover: '/foto/chat.png',              link: '/chat/index.html',             category: 'web',     desc: 'Obrolan Simple, tambah akun, login, langsung chat ke semua orang secara real-time.' },
+    { no: 46, title: 'PufutaraTube',          titlePrefix: 'Pufutara', kategori: 'Media',                  cover: '/foto/tube.png',              link: '/tube/index.html',             category: 'web',     desc: 'Tempat nonton video favorit tanpa iklan yang mengganggu fokus koding kamu.' },
+    { no: 43, title: 'PufutaraGallery',       titlePrefix: 'Pufutara', kategori: 'Fullstack',              cover: '/foto/image.png',             link: '/gallery/index.html',          category: 'web',     desc: 'Proyek Full Stack pertama Putra! Upload foto otomatis tersimpan ke server untuk dilihat semua orang.' },
+
+    // --- Grup 3: AI, ProPaint, Cahier, Writer ---
+    { no: 26, title: 'Pufutara AI',           titlePrefix: 'Pufutara', kategori: 'AI',                     cover: '/foto/ai1.png',               link: 'https://pufutaraai.vercel.app', category: 'web',   desc: 'AI chatbot menggunakan Gemini API key sebagai dasar AI nya.' },
+    { no: 16, title: 'Pufutara ProPaint',     titlePrefix: 'Pufutara', kategori: 'Design',                 cover: '/foto/paint.png',             link: '/paint/index.html',            category: 'web',     desc: 'Gambar dan sketsa apa saja dengan mudah. Aplikasi simpel, tapi tools-nya profesional.' },
+    { no: 31, title: 'Pufutara Cahier',       titlePrefix: 'Pufutara', kategori: 'Note',                   cover: '/foto/cashier.png',           link: '/kasir/index.html',            category: 'web',     desc: 'Jurnal digital minimalis. Catat ide atau tugas sekolah dengan antarmuka menenangkan.' },
+    { no: 17, title: 'Pufutara Writer',       titlePrefix: 'Pufutara', kategori: 'Writing',                cover: '/foto/writer.png',            link: '/write/index.html',            category: 'web',     desc: 'Pengolahan kata yang cepat dan ringan. Cocok buat nulis ide proyek yang tiba-tiba muncul.' },
+
+    // --- Grup 4: Habit Tracker, News, Quiz, Vote ---
+    { no: 22, title: 'Pufutara Habit Tracker',titlePrefix: 'Pufutara', kategori: 'Goals',                  cover: '/foto/habit.png',             link: '/habit/index.html',            category: 'web',     desc: 'Pantau proses membangun kebiasaan baik dan hilangkan kebiasaan buruk setiap hari.' },
+    { no: 23, title: 'Pufutara News & Calc',  titlePrefix: 'Pufutara', kategori: 'Utility',                cover: '/foto/news.png',              link: '/news/landing.html',           category: 'web',     desc: 'Baca berita terbaru atau pakai kalkulator sains akurat buat bantu tugas Labkom kamu.' },
+    { no: 29, title: 'Pufutara Quiz App',     titlePrefix: 'Pufutara', kategori: 'Edu',                    cover: '/foto/quiz.png',              link: '/quiz/index.html',             category: 'web',     desc: 'Uji pengetahuanmu lewat kuis interaktif. Pilihan gacor dan leaderboard seru.' },
+    { no: 28, title: 'Pufutara Vote System',  titlePrefix: 'Pufutara', kategori: 'Web',                    cover: '/foto/vote.png',              link: '/vote/index.html',             category: 'web',     desc: 'Sistem voting sederhana untuk menentukan pilihan kelas atau keputusan bersama.' },
+
+    // --- Grup 5: DigLib, SpinWheel, ToDo, Workspace ---
+    { no: 18, title: 'Pufutara DigLib',       titlePrefix: 'Pufutara', kategori: 'Library',                cover: '/foto/diglib.png',            link: '/library/index.html',          category: 'web',     desc: 'Perpustakaan digital dan info cuaca Jalancagak biar tau kapan harus bawa payung ke Labkom.' },
+    { no: 19, title: 'Pufutara SpinWheel',    titlePrefix: 'Pufutara', kategori: 'Tools',                  cover: '/foto/spinwheel.png',         link: '/spin/index.html',             category: 'web',     desc: 'Putuskan kelompok belajar atau pilihan sulit lainnya dengan roda tak terduga ini.' },
+    { no: 21, title: 'Pufutara ToDo List',    titlePrefix: 'Pufutara', kategori: 'Focus',                  cover: '/foto/Todo.png',              link: '/todo/index.html',             category: 'web',     desc: 'List tugas simpel dan modern untuk Putra yang pelupa biar jadwal tetap teratur.' },
+    { no: 20, title: 'Pufutara Workspace',    titlePrefix: 'Pufutara', kategori: 'Hub',                    cover: '/foto/workspace.png',         link: '/work/index.html',             category: 'web',     desc: 'Hub pusat aplikasi produktivitas Pufutara, gabungan dari berbagai proyek jadi satu.' },
+
+    // --- Grup 6: CalcPro, MiniGames, Web V1, Web V2 ---
+    { no: 27, title: 'Pufutara Calc Pro',     titlePrefix: 'Pufutara', kategori: 'Utility',                cover: '/foto/calculator.png',        link: '/calc/index.html',             category: 'web',     desc: 'Kalkulator modern dengan fungsi sains, persentase, dan riwayat perhitungan.' },
+    { no: 15, title: 'Pufutara MiniGames',    titlePrefix: 'Pufutara', kategori: 'Fun',                    cover: '/foto/game.png',              link: '/game/index.html',             category: 'web',     desc: 'Kumpulan game ringan buat refreshing otak setelah pusing ngurusin bug di HTML.' },
+    { no: 25, title: 'Pufutara Web V1',       titlePrefix: 'Pufutara', kategori: 'History',                cover: '/foto/webv1.png',             link: 'https://kanay.vercel.app',     category: 'web',     desc: 'Saksi bisu perjalanan di BEM. Tanya anak BEM se-Sikma kalau mau tau sejarah web ini!' },
+    { no: 24, title: 'Pufutara Web V2',       titlePrefix: 'Pufutara', kategori: 'Official',               cover: '/foto/webv2.png',             link: 'https://pufuta.vercel.app',    category: 'web',     desc: "Website utama Putra versi terbaru. Modern, cepat, dan pastinya tetap 'putraganteng'." },
+
+    // --- Grup 7: Revourner17, Archive, Audio, dll ---
+    { no: 4,  title: 'Revourner 17',                                    kategori: 'Event',                 cover: '/foto/revourner.png',          link: '/revourner17/index.html',      category: 'web',     desc: 'Landing page acara tahunan SMPIT As-Syifa. Didesain penuh semangat untuk menyambut angkatan ke-17.' },
+    { no: 8,  title: 'PufutaraArchive',       titlePrefix: 'Pufutara', kategori: 'Web App',                cover: '/foto/archive.png',           link: '/archive/index.html',          category: 'web',     desc: 'Platform pusat proyek web dengan desain modern, rounded, dan minimalis.' },
+    { no: 14, title: 'PufutaraAudio',         titlePrefix: 'Pufutara', kategori: 'Audio',                  cover: '/foto/mp3music.png',          link: '/audio/index.html',            category: 'web',     desc: 'Dengerin lo-fi beat dan ambience alam biar koding makin chill dan nggak spaneng.' },
 ];
 
 // ===== RENDER PROYEK =====
@@ -61,10 +74,10 @@ function renderProyek() {
     const grid = document.getElementById('projects-grid');
     if (!grid) return;
 
-    // Reverse array agar urutan terbalik (no. besar ke kecil)
-    const reversedProyekData = [...proyekData].reverse();
+    // Gunakan urutan array langsung sesuai grouping yang sudah ditentukan
+    const orderedProyekData = [...proyekData];
 
-    grid.innerHTML = reversedProyekData.map((p, idx) => {
+    grid.innerHTML = orderedProyekData.map((p, idx) => {
         // Skip proyek terbaik — sudah tampil di section tersendiri
         if (p.best) return '';
 
@@ -665,14 +678,75 @@ function animateCounter(el, target, duration, onDone) {
     function showNavbar() {
         const navbar = document.getElementById('site-header');
         if (!navbar) return;
-        // Pastikan visible dulu, lalu set transisi, lalu fade-in
         navbar.style.display = 'block';
-        navbar.getBoundingClientRect(); // force repaint agar transisi jalan
+        navbar.getBoundingClientRect();
         navbar.style.transition = 'opacity 0.6s ease, transform 0.6s cubic-bezier(0.16,1,0.3,1)';
         navbar.style.opacity = '1';
         navbar.style.transform = 'translateY(0)';
         navbar.style.pointerEvents = 'all';
     }
+
+    // Instantly selesaikan semua elemen hero tanpa animasi
+    window.__heroSkipAll = function() {
+        // Batalkan semua timeout stats chain yang mungkin sedang berjalan
+        if (window._statsTimeouts) {
+            window._statsTimeouts.forEach(function(id) { clearTimeout(id); });
+            window._statsTimeouts = [];
+        }
+        // Kosongkan callback agar tidak dipanggil lagi
+        window.__heroFlybackDone = null;
+        window.__skipToStats = null;
+
+        // Stats — reset posisi, langsung visible
+        var statsEl = document.getElementById('hero-stats');
+        if (statsEl) {
+            statsEl.classList.remove('stats-displaced', 'stats-flyback');
+            statsEl.style.transition = 'none';
+            statsEl.style.transform  = '';
+        }
+
+        // Tiap stat item — langsung muncul
+        ['stat-item-proyek','stat-item-tahun','stat-item-org','stat-item-prestasi'].forEach(function(id) {
+            var e = document.getElementById(id);
+            if (e) { e.style.transition='none'; e.style.opacity='1'; e.style.transform='none'; e.style.filter='none'; }
+        });
+        ['stat-sep-1','stat-sep-2','stat-sep-3'].forEach(function(id) {
+            var e = document.getElementById(id);
+            if (e) { e.style.transition='none'; e.style.opacity='1'; }
+        });
+
+        // Counter — langsung ke nilai akhir
+        var statTargets = {'stat-proyek':38,'stat-tahun':2,'stat-org':7,'stat-prestasi':12};
+        Object.keys(statTargets).forEach(function(id) {
+            var e = document.getElementById(id);
+            if (e) { e.textContent = statTargets[id]+'+'; e.dataset.animated='1'; }
+        });
+
+        // Desc
+        var desc = document.getElementById('hero-desc');
+        if (desc) { desc.style.transition='none'; desc.style.opacity='1'; desc.style.transform='none'; desc.style.filter='none'; }
+
+        // Navbar
+        var navbar = document.getElementById('site-header');
+        if (navbar) { navbar.style.display='block'; navbar.style.transition='none'; navbar.style.opacity='1'; navbar.style.transform='translateY(0)'; navbar.style.pointerEvents='all'; }
+
+        // Typing + CTA
+        ['hero-typing','hero-cta'].forEach(function(id) {
+            var e = document.getElementById(id);
+            if (e) { e.style.transition='none'; e.style.opacity='1'; e.style.transform='none'; e.style.filter='none'; }
+        });
+
+        // Keahlian section
+        var keahlian = document.getElementById('keahlian');
+        if (keahlian) { keahlian.style.animationDelay='0ms'; keahlian.classList.add('hero-line-visible'); }
+
+        // Dot grid
+        document.querySelectorAll('.dot-grid-topleft, .dot-grid-botright')
+            .forEach(function(d) { d.classList.add('dot-visible'); });
+
+        // Mulai typing effect
+        setTimeout(typeEffect, 100);
+    };
 
     function startStatChain() {
         function getSpeed(delay) {
@@ -701,7 +775,7 @@ function animateCounter(el, target, duration, onDone) {
             // STEP 2: counter satu per satu di posisi desc
             showStat(0, function () {
                 // STEP 3: flyback ke posisi normal (dengan transisi)
-                setTimeout(function() {
+                window._statsTimeouts.push(setTimeout(function() {
                     if (statsEl) {
                         statsEl.classList.remove('stats-displaced');
                         statsEl.classList.add('stats-flyback');
@@ -710,7 +784,7 @@ function animateCounter(el, target, duration, onDone) {
                     }
 
                     // STEP 4: setelah flyback selesai → navbar + desc muncul
-                    setTimeout(function() {
+                    window._statsTimeouts.push(setTimeout(function() {
                         if (statsEl) {
                             statsEl.classList.remove('stats-flyback');
                             statsEl.style.transform = '';
@@ -725,12 +799,12 @@ function animateCounter(el, target, duration, onDone) {
                         }
 
                         // Navbar muncul setelah deskripsi (700ms = durasi transisi desc)
-                        setTimeout(function() {
+                        window._statsTimeouts.push(setTimeout(function() {
                             showNavbar();
-                        }, getSpeed(700));
+                        }, getSpeed(700)));
 
                         // Typing + CTA + keahlian 400ms setelah desc
-                        setTimeout(function() {
+                        window._statsTimeouts.push(setTimeout(function() {
                             var typing   = document.getElementById('hero-typing');
                             var cta      = document.getElementById('hero-cta');
                             var keahlian = document.getElementById('keahlian');
@@ -751,12 +825,12 @@ function animateCounter(el, target, duration, onDone) {
                             document.querySelectorAll('.dot-grid-topleft, .dot-grid-botright')
                                 .forEach(function(d) { d.classList.add('dot-visible'); });
 
-                            setTimeout(typeEffect, getSpeed(100));
-                        }, getSpeed(400));
+                            window._statsTimeouts.push(setTimeout(typeEffect, getSpeed(100)));
+                        }, getSpeed(400)));
 
-                    }, getSpeed(850)); // waktu flyback stats
+                    }, getSpeed(850))); // waktu flyback stats
 
-                }, getSpeed(300)); // jeda sebelum flyback
+                }, getSpeed(300))); // jeda sebelum flyback
             });
 
         } // end run()
@@ -768,9 +842,11 @@ function animateCounter(el, target, duration, onDone) {
             return;
         } else {
             window.__heroFlybackDone = run;
+            window.__skipToStats = run; // fallback untuk tombol skip
         }
     }
 
+    window._statsTimeouts = [];
     startStatChain();
 })();
 
