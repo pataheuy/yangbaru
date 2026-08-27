@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>pufutaracalc</title>
     <!-- TailwindCSS + Font Awesome -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -11,6 +11,8 @@
         /* efek sentuhan tombol */
         button {
             transition: transform 0.1s ease, background-color 0.15s ease;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
         button:active {
             transform: scale(0.94);
@@ -38,6 +40,132 @@
         #current-operand {
             word-break: break-word;
             white-space: pre-wrap;
+        }
+
+        /* ====== MOBILE RESPONSIVE ====== */
+        @media (max-width: 767px) {
+            /* Paksa full height, tidak scroll */
+            html, body {
+                height: 100%;
+                overflow: hidden;
+            }
+
+            /* Layout: column — sidebar tipis di atas, kalkulator di bawah */
+            body {
+                flex-direction: column !important;
+            }
+
+            /* Sidebar jadi strip tab di atas */
+            aside {
+                width: 100% !important;
+                height: auto !important;
+                padding: 10px 12px 8px !important;
+                border-bottom: 1px solid #e5e7eb !important;
+                border-right: none !important;
+                flex-direction: column !important;
+                gap: 8px !important;
+            }
+
+            /* Logo kecil */
+            aside .mb-5:first-child {
+                margin-bottom: 0 !important;
+            }
+            aside h1 {
+                font-size: 1rem !important;
+                line-height: 1 !important;
+            }
+
+            /* Mode selector: horizontal row, full width, tombol sejajar */
+            aside nav {
+                flex-direction: row !important;
+                gap: 6px !important;
+                overflow-x: auto !important;
+                padding-bottom: 0 !important;
+            }
+            aside nav button {
+                min-width: 0 !important;
+                flex: 1 !important;
+                padding: 7px 4px !important;
+                font-size: 0.72rem !important;
+                justify-content: center !important;
+                border-radius: 10px !important;
+                gap: 4px !important;
+            }
+
+            /* Sembunyikan riwayat di mobile (ada di sidebar desktop) */
+            aside .flex-1.flex.flex-col {
+                display: none !important;
+            }
+            aside h2 {
+                display: none !important;
+            }
+
+            /* Main: sisa tinggi layar */
+            main {
+                flex: 1 !important;
+                padding: 10px 12px 8px !important;
+                overflow-y: auto !important;
+                align-items: flex-start !important;
+            }
+
+            /* Container kalkulator: penuh lebar */
+            #calculator-container {
+                max-width: 100% !important;
+                width: 100% !important;
+                padding: 10px !important;
+                border-radius: 20px !important;
+            }
+
+            /* Layar display lebih tinggi dan font lebih besar */
+            #calculator-container > div:first-child {
+                min-height: 90px !important;
+                padding: 14px 16px !important;
+            }
+            #current-operand {
+                font-size: 2.4rem !important;
+            }
+            #previous-operand {
+                font-size: 0.85rem !important;
+            }
+
+            /* Tombol angka/operasi lebih besar di mobile */
+            #calculator-buttons button {
+                padding-top: 14px !important;
+                padding-bottom: 14px !important;
+                font-size: 1.2rem !important;
+                border-radius: 14px !important;
+            }
+
+            /* Tombol saintis sedikit lebih kecil supaya muat 5 kolom */
+            #calculator-buttons .grid-cols-5 button {
+                padding-top: 10px !important;
+                padding-bottom: 10px !important;
+                font-size: 0.75rem !important;
+                border-radius: 10px !important;
+            }
+
+            /* Gap tombol sedikit lebih rapat */
+            #calculator-buttons .grid {
+                gap: 7px !important;
+            }
+
+            /* Konversi: select lebih besar */
+            #calculator-buttons select {
+                font-size: 0.9rem !important;
+                padding: 9px 10px !important;
+            }
+        }
+
+        /* Layar kecil banget (< 380px) */
+        @media (max-width: 379px) {
+            #current-operand {
+                font-size: 1.9rem !important;
+            }
+            #calculator-buttons button {
+                padding-top: 11px !important;
+                padding-bottom: 11px !important;
+                font-size: 1.05rem !important;
+            }
         }
     </style>
 </head>
@@ -515,11 +643,11 @@
             document.getElementById('calculator-buttons').innerHTML = grids[mode];
             if (mode === 'konversi') setTimeout(() => { updateConvOptions(); }, 10);
             const container = document.getElementById('calculator-container');
-            // atur ulang lebar sesuai mode (lebih kecil 25%)
-            if (mode === 'saintis') {
-                container.style.maxWidth = '340px';
+            // desktop: atur lebar sesuai mode; mobile: full width via CSS
+            if (window.innerWidth >= 768) {
+                container.style.maxWidth = mode === 'saintis' ? '340px' : '290px';
             } else {
-                container.style.maxWidth = '290px';
+                container.style.maxWidth = '100%';
             }
         }
 
@@ -530,6 +658,17 @@
 
         // inisialisasi
         handleURLChange();
+
+        // Update lebar container saat resize / orientasi berubah
+        window.addEventListener('resize', () => {
+            const container = document.getElementById('calculator-container');
+            if (!container) return;
+            if (window.innerWidth < 768) {
+                container.style.maxWidth = '100%';
+            } else {
+                container.style.maxWidth = currentMode === 'saintis' ? '340px' : '290px';
+            }
+        });
 
         // Keyboard support
         document.addEventListener('keydown', (e) => {

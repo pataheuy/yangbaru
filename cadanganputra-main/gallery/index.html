@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Pufutara Gallery</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,300,0,0" />
     
@@ -81,6 +81,11 @@
             font-weight: 600; cursor: pointer; transition: 0.3s; width: 100%; justify-content: center; margin-bottom: 12px;
         }
 
+        .btn-upload-sidebar {
+            background: var(--surface-container); color: var(--text-main); border: 1.5px solid var(--border);
+        }
+        .btn-upload-sidebar:hover { background: var(--hover-bg); }
+
         .nav-menu { list-style: none; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; flex: 1;}
         .section-label { font-size: 0.7rem; font-weight: 800; color: var(--text-muted); padding: 12px 16px 4px; text-transform: uppercase; }
         .nav-item {
@@ -146,6 +151,7 @@
             .main-toolbar { padding: 16px; }
             .file-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); padding: 16px; gap: 12px; }
             .card-actions { opacity: 1; } /* Tampil terus di mobile agar mudah diklik */
+            .btn-upload-sidebar { display: none; }
         }
 
         /* Loading */
@@ -156,6 +162,52 @@
         }
         @keyframes spin { 100% { transform: rotate(360deg); } }
         .spinner { animation: spin 1s linear infinite; font-size: 40px; margin-bottom: 15px; }
+
+        /* --- MODAL --- */
+        .modal-backdrop {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.25); z-index: 20000; display: none;
+            justify-content: center; align-items: center;
+            backdrop-filter: blur(4px);
+        }
+        .modal-backdrop.show { display: flex; }
+        .modal-box {
+            background: #fff; border-radius: 20px; padding: 32px 28px 24px;
+            width: 100%; max-width: 400px; box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+            animation: modalIn 0.2s ease;
+        }
+        @keyframes modalIn {
+            from { transform: translateY(12px) scale(0.97); opacity: 0; }
+            to   { transform: translateY(0) scale(1); opacity: 1; }
+        }
+        .modal-box h3 {
+            font-size: 1.1rem; font-weight: 800; margin-bottom: 6px; letter-spacing: -0.5px;
+        }
+        .modal-box p {
+            font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;
+        }
+        .modal-input {
+            width: 100%; padding: 14px 16px; border: 1.5px solid var(--border);
+            border-radius: 12px; font-size: 0.95rem; font-family: 'Inter', sans-serif;
+            outline: none; transition: 0.2s; background: var(--surface-container);
+        }
+        .modal-input:focus { border-color: #000; background: #fff; }
+        .modal-actions {
+            display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end;
+        }
+        .modal-btn {
+            padding: 11px 22px; border-radius: 12px; font-size: 0.9rem;
+            font-weight: 600; cursor: pointer; border: none; transition: 0.2s;
+        }
+        .modal-btn.cancel {
+            background: var(--surface-container); color: var(--text-main);
+        }
+        .modal-btn.cancel:hover { background: var(--hover-bg); }
+        .modal-btn.confirm {
+            background: #000; color: #fff;
+        }
+        .modal-btn.confirm:hover { background: #333; }
+        .modal-btn.confirm:disabled { background: #ccc; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -191,6 +243,10 @@
                 <button class="btn-new-folder" onclick="addFolder()">
                     <span class="material-symbols-outlined">create_new_folder</span> Album Baru
                 </button>
+                <input type="file" id="fileInputSidebar" accept="image/*" multiple style="display:none" onchange="uploadImages('sidebar')">
+                <button class="btn-new-folder btn-upload-sidebar" onclick="document.getElementById('fileInputSidebar').click()">
+                    <span class="material-symbols-outlined">upload</span> Upload Foto
+                </button>
                 
                 <div class="section-label">Default</div>
                 <div class="nav-item active" id="nav-semua" onclick="switchFolder('semua')">
@@ -224,12 +280,33 @@
         <img id="lightboxImg" src="">
     </div>
 
+    <!-- Modal Album Baru -->
+    <div class="modal-backdrop" id="modalAlbum" onclick="closeAlbumModal(event)">
+        <div class="modal-box">
+            <h3>Album Baru</h3>
+            <p>Masukkan nama untuk album foto baru</p>
+            <input 
+                type="text" 
+                class="modal-input" 
+                id="albumNameInput" 
+                placeholder="Contoh: Liburan 2025, Wisuda..."
+                maxlength="50"
+                onkeydown="if(event.key==='Enter') confirmAddFolder()"
+                oninput="document.getElementById('btnConfirmAlbum').disabled = this.value.trim() === ''"
+            >
+            <div class="modal-actions">
+                <button class="modal-btn cancel" onclick="closeAlbumModal()">Batal</button>
+                <button class="modal-btn confirm" id="btnConfirmAlbum" onclick="confirmAddFolder()" disabled>Buat Album</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ==========================================
         // CONFIG & INITIALIZATION
         // ==========================================
-        const SUPABASE_URL = 'https://yzxwlodobpdqukilmlly.supabase.co'; 
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl6eHdsb2RvYnBkcXVraWxtbGx5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzMzE3NzIsImV4cCI6MjA4NzkwNzc3Mn0.ihwATIC0EdwdAXGL7RUKgigk-GsZ8O8xz5yJrh9PBts'; 
+        const SUPABASE_URL = 'https://puywjdopumlzvmzbcudr.supabase.co'; 
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1eXdqZG9wdW1senZtemJjdWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDE3MTksImV4cCI6MjA4NzkxNzcxOX0.vvThyjtK2SlA9oA9Mr_XOmt1R_tNZk-ib3PO9XpiiSc'; 
 
         const _client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         const BUCKET_NAME = 'pufutara-gallery'; 
@@ -286,7 +363,11 @@
             if (activeFolderId !== 'semua') query = query.eq('folder_id', activeFolderId);
 
             const { data, error } = await query;
-            if (error) return console.error(error);
+            if (error) {
+                console.error(error);
+                grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:100px; color:#ccc;"><span class="material-symbols-outlined" style="font-size:48px;">cloud_off</span><p>Gagal memuat gallery. Periksa koneksi atau konfigurasi Supabase.</p></div>';
+                return;
+            }
 
             allImages = data || [];
             renderGalleryUI(allImages);
@@ -323,8 +404,9 @@
         }
 
         // --- ACTIONS ---
-        async function uploadImages() {
-            const files = document.getElementById('fileInput').files;
+        async function uploadImages(source) {
+            const inputId = source === 'sidebar' ? 'fileInputSidebar' : 'fileInput';
+            const files = document.getElementById(inputId).files;
             if(!files.length) return;
 
             // Folder ID untuk penyimpanan (jika 'semua', masukkan ke 'general')
@@ -344,6 +426,7 @@
 
             document.getElementById('loadingOverlay').style.display = 'none';
             document.getElementById('fileInput').value = '';
+            document.getElementById('fileInputSidebar').value = '';
             fetchImages();
         }
 
@@ -374,12 +457,26 @@
         }
 
         function addFolder() {
-            const name = prompt("Nama Album Baru:");
-            if(name && name.trim() !== "") {
-                const newF = { id: 'f' + Date.now(), name: name.trim() };
-                folders.push(newF);
-                switchFolder(newF.id);
-            }
+            const input = document.getElementById('albumNameInput');
+            input.value = '';
+            document.getElementById('btnConfirmAlbum').disabled = true;
+            document.getElementById('modalAlbum').classList.add('show');
+            setTimeout(() => input.focus(), 100);
+        }
+
+        function closeAlbumModal(event) {
+            // Tutup hanya jika klik backdrop, bukan box
+            if (event && event.target !== document.getElementById('modalAlbum')) return;
+            document.getElementById('modalAlbum').classList.remove('show');
+        }
+
+        function confirmAddFolder() {
+            const name = document.getElementById('albumNameInput').value.trim();
+            if (!name) return;
+            const newF = { id: 'f' + Date.now(), name };
+            folders.push(newF);
+            document.getElementById('modalAlbum').classList.remove('show');
+            switchFolder(newF.id);
         }
 
         function searchImages(val) {
