@@ -403,7 +403,15 @@ function performHeaderSearch(val) {
         document.getElementById('public-playlists-header'),
         document.getElementById('public-playlists-grid'),
     ];
-    hideOnSearch.forEach(el => { if (el) el.style.display = hasQuery ? 'none' : ''; });
+    hideOnSearch.forEach(el => {
+        if (!el) return;
+        if (hasQuery) {
+            el.classList.add('search-active-hide');
+        } else {
+            el.classList.remove('search-active-hide');
+            el.style.display = '';
+        }
+    });
 
     if (!hasQuery) {
         if (heading) heading.textContent = 'Semua Lagu';
@@ -3081,12 +3089,12 @@ function renderPublicPlaylists() {
     const tabSearchVal = (document.getElementById('search-input')?.value || '').trim();
     const isSearching = headerSearchVal.length > 0 || tabSearchVal.length > 0;
     if (isSearching) {
-        if (header) header.style.display = 'none';
-        grid.style.display = 'none';
+        if (header) header.classList.add('search-active-hide');
+        grid.classList.add('search-active-hide');
         return;
     } else {
-        if (header) header.style.display = '';
-        grid.style.display = '';
+        if (header) header.classList.remove('search-active-hide');
+        grid.classList.remove('search-active-hide');
     }
 
     grid.innerHTML = '';

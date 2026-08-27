@@ -44,6 +44,11 @@
 
         #public-playlists-grid::-webkit-scrollbar { display: none; }
 
+        /* Sembunyikan saat search aktif — override semua !important lainnya */
+        .search-active-hide {
+            display: none !important;
+        }
+
         #public-playlists-grid > div {
             flex: 0 0 calc((100% - 3.75rem) / 6);
             min-width: 0;
