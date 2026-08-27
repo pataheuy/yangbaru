@@ -1023,7 +1023,18 @@ async function uploadFiles() {
         const file=files[i], safe=file.name.replace(/\s+/g,'_');
         btn.innerHTML=`<span class="material-symbols-outlined" style="animation:spin 2s linear infinite">sync</span> ${i+1}/${files.length}`;
         try{
-            const {url,bytes}=await uploadToCloudinary(file,`${_userFolder}/${cloudFolder==='root'?'':cloudFolder}`);
+            // File dengan ekstensi yang diblokir Cloudinary (.exe, .dll, dll)
+            // diupload sebagai .bin agar tetap bisa disimpan
+            const BLOCKED_EXTS = ['exe','dll','bat','cmd','msi','com','scr','pif','vbs','ps1','sh'];
+            const origExt = file.name.split('.').pop().toLowerCase();
+            const isBlocked = BLOCKED_EXTS.includes(origExt);
+
+            // Buat File object baru dengan nama .bin jika diblokir
+            const uploadFile = isBlocked
+                ? new File([file], file.name.replace(/\.[^.]+$/, '.bin'), { type: 'application/octet-stream' })
+                : file;
+
+            const {url,bytes}=await uploadToCloudinary(uploadFile,`${_userFolder}/${cloudFolder==='root'?'':cloudFolder}`);
 
             // Cek duplikat nama di folder yang sama
             let dupQuery=_client.from('drive_files').select('id').eq('owner_email',_userEmail).eq('file_name',safe);

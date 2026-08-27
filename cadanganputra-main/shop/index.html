@@ -12,96 +12,57 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 *{box-sizing:border-box}
 body{font-family:'Plus Jakarta Sans',sans-serif;background:#f5f5f5;color:#1a1a1a;overflow-x:hidden}
-
-/* scrollbar */
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-track{background:#f0f0f0}
 ::-webkit-scrollbar-thumb{background:#ccc;border-radius:99px}
 .cscroll::-webkit-scrollbar-thumb{background:#1a1a1a}
-
-/* skeleton */
 .skel{background:linear-gradient(90deg,#ececec 25%,#e0e0e0 50%,#ececec 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:12px}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-
-/* toast */
 #toastWrap{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;align-items:center}
 .toast{background:#1a1a1a;color:#fff;padding:10px 20px;border-radius:99px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:8px;box-shadow:0 8px 24px rgba(0,0,0,.2);animation:tIn .35s cubic-bezier(.175,.885,.32,1.275);pointer-events:auto;white-space:nowrap}
 .toast.out{animation:tOut .3s forwards}
 @keyframes tIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 @keyframes tOut{to{opacity:0;transform:scale(.9)}}
-
-/* product card */
 .pcard{background:#fff;border-radius:14px;overflow:hidden;border:1px solid #eee;transition:box-shadow .2s,transform .2s;cursor:pointer}
 .pcard:hover{box-shadow:0 8px 28px rgba(0,0,0,.1);transform:translateY(-2px)}
 .pcard .thumb{position:relative;overflow:hidden;aspect-ratio:1;background:#f5f5f5}
 .pcard .thumb img{width:100%;height:100%;object-fit:cover;transition:transform .5s}
 .pcard:hover .thumb img{transform:scale(1.04)}
-
-/* hover actions — NO blur */
-.pcard .hactions{
-  position:absolute;bottom:0;left:0;right:0;
-  display:flex;gap:6px;padding:8px;
-  opacity:0;transform:translateY(6px);
-  transition:opacity .2s,transform .2s;pointer-events:none;
-}
+.pcard .hactions{position:absolute;bottom:0;left:0;right:0;display:flex;gap:6px;padding:8px;opacity:0;transform:translateY(6px);transition:opacity .2s,transform .2s;pointer-events:none}
 .pcard:hover .hactions{opacity:1;transform:translateY(0);pointer-events:auto}
-
-/* fav corner */
-.pcard .favcorner{
-  position:absolute;top:8px;right:8px;
-  opacity:0;transform:scale(.8);
-  transition:opacity .2s,transform .2s;
-}
-.pcard:hover .favcorner,
-.pcard .favcorner.on{opacity:1!important;transform:scale(1)!important}
-
-/* PDP fullscreen */
+.pcard .favcorner{position:absolute;top:8px;right:8px;opacity:0;transform:scale(.8);transition:opacity .2s,transform .2s}
+.pcard:hover .favcorner,.pcard .favcorner.on{opacity:1!important;transform:scale(1)!important}
 #pdp{position:fixed;inset:0;z-index:500;background:#fff;overflow-y:auto;transform:translateY(100%);transition:transform .4s cubic-bezier(.32,1,.32,1)}
 #pdp.open{transform:translateY(0)}
-
-/* sidebar */
 .sbar{position:fixed;inset-y:0;right:0;width:340px;background:#fff;z-index:400;box-shadow:-4px 0 24px rgba(0,0,0,.08);transform:translateX(100%);transition:transform .35s cubic-bezier(.32,1,.32,1);display:flex;flex-direction:column}
 .sbar.open{transform:translateX(0)}
-
-/* modal backdrop */
 .mback{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:16px}
 .mbox{background:#fff;border-radius:24px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,.18)}
-
-/* variant chip */
 .vchip{border:1.5px solid #e5e7eb;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;background:#fff}
 .vchip:hover{border-color:#1a1a1a}
 .vchip.sel{border-color:#1a1a1a;background:#1a1a1a;color:#fff}
 .vchip.out{border-color:#e5e7eb;color:#ccc;cursor:not-allowed;text-decoration:line-through}
-
-/* welcome */
 @keyframes wIn{from{opacity:0;transform:scale(.94) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
 .wanim{animation:wIn .4s cubic-bezier(.175,.885,.32,1.275)}
-
-/* range */
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;background:#1a1a1a;border-radius:50%;cursor:pointer}
-
-/* field */
 .flabel{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#9ca3af;margin-bottom:4px}
 .finput{width:100%;background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;padding:10px 14px;font-size:13px;outline:none;font-family:inherit;transition:border-color .15s}
 .finput:focus{border-color:#1a1a1a;background:#fff}
-
-/* hide scrollbar helper */
-.noscroll{scrollbar-width:none}
-.noscroll::-webkit-scrollbar{display:none}
+.noscroll{scrollbar-width:none}.noscroll::-webkit-scrollbar{display:none}
+/* timeline */
+.tl-line{width:2px;background:#e5e7eb;flex-shrink:0}
+.tl-line.done{background:#1a1a1a}
 </style>
 </head>
 <body>
-
 <div id="toastWrap"></div>
 
-<!-- ═══════════════════ WELCOME MODAL ═══════════════════ -->
+<!-- WELCOME MODAL -->
 <div id="welcomeModal" class="mback hidden" style="z-index:700">
   <div class="mbox wanim max-w-md overflow-hidden">
     <div class="relative h-44 bg-neutral-900 flex items-center justify-center overflow-hidden">
       <div class="text-center relative z-10">
-        <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-xl">
-          <span class="text-2xl font-black">P</span>
-        </div>
+        <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-xl"><span class="text-2xl font-black">P</span></div>
         <p class="text-white font-black text-2xl tracking-tight italic">pufutarashop</p>
         <p class="text-gray-400 text-xs mt-1 font-bold tracking-widest uppercase">High-End E-Commerce</p>
       </div>
@@ -120,7 +81,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
   </div>
 </div>
 
-<!-- ═══════════════════ NAVBAR ═══════════════════ -->
+<!-- NAVBAR -->
 <nav class="sticky top-0 bg-white border-b border-gray-100 shadow-sm" style="z-index:300">
   <div class="max-w-7xl mx-auto px-4 h-14 flex items-center gap-3">
     <div class="flex items-center gap-2 cursor-pointer flex-shrink-0" onclick="goHome()">
@@ -136,6 +97,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
       <button onclick="toggleModal('modalJual')" class="hidden sm:flex items-center gap-1.5 text-xs font-black bg-black text-white px-4 py-2 rounded-xl hover:bg-zinc-800 transition-colors">
         <i class="fa-solid fa-plus text-[10px]"></i> Jual
       </button>
+      <button onclick="openTracking(null)" class="hidden sm:flex items-center gap-1.5 text-xs font-bold border border-gray-200 px-3 py-2 rounded-xl hover:bg-gray-50 transition-colors">
+        <i class="fa-solid fa-truck-fast text-[10px]"></i> Pesananku
+      </button>
       <button onclick="openSidebar('favSidebar')" class="relative p-2 hover:bg-gray-100 rounded-xl transition-colors">
         <i class="fa-regular fa-heart text-base"></i>
         <span id="favCount" class="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center font-bold">0</span>
@@ -146,19 +110,17 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
       </button>
     </div>
   </div>
-  <!-- Category tabs -->
   <div class="border-t border-gray-100">
     <div class="max-w-7xl mx-auto px-4">
       <div id="catTabs" class="flex items-center gap-1 overflow-x-auto py-1.5 noscroll">
         <button id="tab-all" onclick="setCat('all')" class="ctab active flex-shrink-0 px-4 py-1.5 text-xs font-bold rounded-xl bg-black text-white transition-all">Semua</button>
-        <!-- dynamic tabs -->
         <button id="tab-promo" onclick="setCat('promo')" class="ctab flex-shrink-0 px-4 py-1.5 text-xs font-bold rounded-xl text-red-500 hover:bg-red-50 transition-all">🔥 Promo</button>
       </div>
     </div>
   </div>
 </nav>
 
-<!-- ═══════════════════ HERO ═══════════════════ -->
+<!-- HERO -->
 <div class="max-w-7xl mx-auto px-4 pt-5">
   <div class="relative bg-neutral-900 rounded-3xl p-8 md:p-12 text-white overflow-hidden">
     <div class="relative z-10 max-w-sm">
@@ -170,13 +132,11 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
         <button onclick="setCat('all')"   class="border border-white/20 px-5 py-2.5 rounded-xl font-black text-xs hover:bg-white/10 transition-all">Semua Produk</button>
       </div>
     </div>
-    <div class="absolute right-[-2%] bottom-[-5%] opacity-[.07] pointer-events-none select-none">
-      <i class="fa-solid fa-gem text-[200px]"></i>
-    </div>
+    <div class="absolute right-[-2%] bottom-[-5%] opacity-[.07] pointer-events-none select-none"><i class="fa-solid fa-gem text-[200px]"></i></div>
   </div>
 </div>
 
-<!-- ═══════════════════ FILTER BAR ═══════════════════ -->
+<!-- FILTER BAR -->
 <div class="max-w-7xl mx-auto px-4 pt-5 pb-3 flex flex-wrap items-center justify-between gap-3">
   <div>
     <h2 class="font-black text-lg">Katalog Produk</h2>
@@ -198,7 +158,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
   </div>
 </div>
 
-<!-- ═══════════════════ PRODUCT GRID ═══════════════════ -->
+<!-- PRODUCT GRID -->
 <main class="max-w-7xl mx-auto px-4 pb-16">
   <div id="productGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
     <div class="skel aspect-square"></div><div class="skel aspect-square"></div>
@@ -207,9 +167,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
   </div>
 </main>
 
-<!-- ═══════════════════ PDP FULLSCREEN ═══════════════════ -->
+<!-- PDP FULLSCREEN -->
 <div id="pdp">
-  <!-- PDP Topbar -->
   <div class="sticky top-0 bg-white border-b border-gray-100 z-10">
     <div class="max-w-7xl mx-auto px-4 h-14 flex items-center gap-3">
       <button onclick="closePDP()" class="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors flex-shrink-0">
@@ -225,10 +184,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
       </button>
     </div>
   </div>
-
   <div class="max-w-7xl mx-auto px-4 py-6">
     <div class="flex flex-col lg:flex-row gap-8">
-
       <!-- Images -->
       <div class="lg:w-[460px] flex-shrink-0">
         <div class="relative bg-gray-50 rounded-2xl overflow-hidden aspect-square mb-3">
@@ -237,23 +194,18 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
         </div>
         <div id="pdpThumbs" class="flex gap-2 overflow-x-auto pb-1 noscroll"></div>
       </div>
-
       <!-- Info -->
       <div class="flex-1 min-w-0">
         <div class="flex items-center gap-2 mb-2">
           <span id="pdpCatBadge"   class="text-[10px] font-bold bg-gray-100 text-gray-600 px-3 py-1 rounded-full"></span>
           <span id="pdpStockBadge" class="text-[10px] font-bold px-3 py-1 rounded-full"></span>
         </div>
-
         <h1 id="pdpName" class="text-2xl font-black leading-tight mb-2"></h1>
-
         <div class="flex items-center gap-3 mb-4">
           <div id="pdpStars"   class="flex items-center gap-0.5 text-yellow-400 text-sm"></div>
           <span id="pdpRating" class="text-xs font-bold text-gray-500"></span>
           <span id="pdpCmtCnt" class="text-xs text-gray-400"></span>
         </div>
-
-        <!-- Price box -->
         <div class="bg-orange-50 rounded-2xl p-4 mb-5">
           <div class="flex items-baseline gap-3">
             <span id="pdpPrice"    class="text-3xl font-black text-orange-600"></span>
@@ -261,26 +213,19 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
           </div>
           <p id="pdpSave" class="text-xs text-orange-600 font-bold mt-1 hidden"></p>
         </div>
-
         <!-- Variants -->
         <div id="pdpVarSection" class="mb-5 hidden">
           <div id="pdpVarContainer" class="space-y-4"></div>
         </div>
-
-        <!-- Description -->
         <div class="mb-5">
           <h3 class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Deskripsi</h3>
           <p id="pdpDesc" class="text-sm text-gray-600 leading-relaxed whitespace-pre-line"></p>
         </div>
-
-        <!-- Shipping -->
         <div class="bg-gray-50 rounded-2xl p-4 mb-5 space-y-2 text-xs font-semibold text-gray-600">
           <div class="flex items-center gap-2.5"><i class="fa-solid fa-location-dot text-gray-400 w-4 text-center"></i><span id="pdpLoc"></span></div>
           <div class="flex items-center gap-2.5"><i class="fa-solid fa-box text-gray-400 w-4 text-center"></i><span id="pdpFrom"></span></div>
           <div class="flex items-center gap-2.5"><i class="fa-solid fa-truck-fast text-gray-400 w-4 text-center"></i><span id="pdpEst"></span></div>
         </div>
-
-        <!-- CTA -->
         <div class="flex gap-3 mb-8">
           <button id="pdpBtnCart" onclick="pdpAddCart()"  class="flex-1 bg-black text-white py-4 rounded-2xl font-black text-sm hover:bg-zinc-800 transition-colors flex items-center justify-center gap-2">
             <i class="fa-solid fa-bag-shopping"></i> Tambah ke Keranjang
@@ -289,7 +234,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
             <i class="fa-solid fa-bolt"></i> Beli Sekarang
           </button>
         </div>
-
         <!-- Reviews -->
         <div class="border-t border-gray-100 pt-6">
           <div class="flex items-center justify-between mb-4">
@@ -297,7 +241,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
             <span id="pdpAvgRating" class="text-xs font-bold text-gray-400"></span>
           </div>
           <div id="pdpComments" class="space-y-3 mb-5"></div>
-          <!-- Comment form -->
           <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100">
             <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Tulis Ulasanmu</p>
             <div class="flex items-center gap-1.5 mb-3" id="starRow">
@@ -309,17 +252,13 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
               <i class="star-btn fa-regular fa-star text-lg text-gray-300 cursor-pointer hover:text-yellow-400 transition-colors" onclick="setRating(5)"></i>
             </div>
             <div class="flex gap-2">
-              <input id="cmtInput" type="text" placeholder="Ceritakan pengalamanmu..."
-                class="flex-1 bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-black">
-              <button id="cmtBtn" onclick="submitCmt()"
-                class="bg-black text-white px-4 py-2 rounded-xl text-xs font-black hover:bg-zinc-800 transition-colors flex-shrink-0">Kirim</button>
+              <input id="cmtInput" type="text" placeholder="Ceritakan pengalamanmu..." class="flex-1 bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-black">
+              <button id="cmtBtn" onclick="submitCmt()" class="bg-black text-white px-4 py-2 rounded-xl text-xs font-black hover:bg-zinc-800 transition-colors flex-shrink-0">Kirim</button>
             </div>
           </div>
         </div>
       </div>
     </div>
-
-    <!-- Related -->
     <div class="mt-12">
       <h3 class="font-black text-base mb-4">Produk Serupa</h3>
       <div id="pdpRelated" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3"></div>
@@ -327,7 +266,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
   </div>
 </div>
 
-<!-- ═══════════════════ SIDEBAR FAV ═══════════════════ -->
+<!-- SIDEBAR FAV -->
 <div id="favSidebar" class="sbar">
   <div class="px-5 py-4 border-b border-gray-100 flex justify-between items-center flex-shrink-0">
     <h3 class="font-black">Favorit <span id="favBadge" class="text-sm text-gray-400 font-semibold"></span></h3>
@@ -336,7 +275,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
   <div id="favItems" class="flex-1 overflow-y-auto p-5 space-y-4 cscroll"></div>
 </div>
 
-<!-- ═══════════════════ SIDEBAR CART ═══════════════════ -->
+<!-- SIDEBAR CART -->
 <div id="cartSidebar" class="sbar">
   <div class="px-5 py-4 border-b border-gray-100 flex justify-between items-center flex-shrink-0">
     <h3 class="font-black">Keranjang</h3>
@@ -351,11 +290,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
     <button onclick="checkout()" class="w-full bg-black text-white py-3.5 rounded-2xl font-black text-sm hover:bg-zinc-800 transition-colors">Checkout</button>
   </div>
 </div>
-
-<!-- Overlay sidebar -->
 <div id="sbOverlay" class="fixed inset-0 bg-black/40 z-[399] hidden" onclick="closeAllSidebars()"></div>
 
-<!-- ═══════════════════ MODAL JUAL ═══════════════════ -->
+<!-- MODAL JUAL BARANG -->
 <div id="modalJual" class="mback hidden">
   <div class="mbox max-w-md max-h-[95vh] flex flex-col">
     <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center flex-shrink-0">
@@ -371,7 +308,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
           <div><label class="flabel">Diskon (%)</label><input id="pDiscount" type="number" min="0" max="100" placeholder="0" class="finput"></div>
         </div>
         <div><label class="flabel">Kategori</label><select id="pCategory" class="finput"></select></div>
-
         <!-- Varian -->
         <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100">
           <div class="flex items-center justify-between mb-2">
@@ -381,7 +317,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
           <div id="varGroups" class="space-y-3"></div>
           <p class="text-[10px] text-gray-400 mt-2">Contoh: Ukuran → 38,39,40 | Warna → Hitam,Putih</p>
         </div>
-
         <!-- Foto -->
         <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100">
           <label class="flabel">Foto Produk (maks 3)</label>
@@ -390,11 +325,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
           <p class="text-[10px] text-gray-400 text-center my-2">— atau URL —</p>
           <input type="text" id="pImgUrl" placeholder="https://..." class="finput text-xs font-mono">
         </div>
-
         <div><label class="flabel">Lokasi Barang</label><input id="pLoc" type="text" required placeholder="ex: Jakarta Selatan" class="finput"></div>
         <div><label class="flabel">Dikirim dari</label><input id="pFrom" type="text" required placeholder="ex: Toko Utama" class="finput"></div>
         <div><label class="flabel">Estimasi Pengiriman</label><input id="pEst" type="text" required placeholder="ex: 2-3 Hari Kerja" class="finput"></div>
-
         <button type="submit" id="btnJual" class="w-full bg-black text-white py-3.5 rounded-2xl font-black text-sm hover:bg-zinc-800 transition-colors flex items-center justify-center gap-2">
           <i class="fa-solid fa-upload text-xs"></i> Post Barang
         </button>
@@ -403,7 +336,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
   </div>
 </div>
 
-<!-- ═══════════════════ MODAL CHECKOUT ═══════════════════ -->
+<!-- MODAL CHECKOUT -->
 <div id="modalCheckout" class="mback hidden">
   <div class="mbox max-w-lg max-h-[92vh] flex flex-col">
     <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center flex-shrink-0">
@@ -417,14 +350,14 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
       </div>
       <form id="formCheckout" class="space-y-3">
         <p class="flabel mb-1">Data Penerima</p>
-        <input type="text" required placeholder="Nama Lengkap" class="finput">
-        <input type="tel"  required placeholder="Nomor WhatsApp" class="finput">
-        <textarea required placeholder="Alamat Lengkap (Jl, RT/RW, Kec, Kota, Kode Pos)" class="finput h-20 resize-none"></textarea>
+        <input id="coName"  type="text" required placeholder="Nama Lengkap"   class="finput">
+        <input id="coPhone" type="tel"  required placeholder="Nomor WhatsApp" class="finput">
+        <textarea id="coAddr" required placeholder="Alamat Lengkap (Jl, RT/RW, Kec, Kota, Kode Pos)" class="finput h-20 resize-none"></textarea>
         <div class="bg-orange-50 rounded-2xl p-4 flex justify-between items-center mt-2">
           <span class="text-sm font-black">Total Pembayaran</span>
           <span id="coTotal" class="text-xl font-black text-orange-600">Rp 0</span>
         </div>
-        <button type="submit" class="w-full bg-black text-white py-3.5 rounded-2xl font-black text-sm hover:bg-zinc-800 transition-colors flex items-center justify-center gap-2">
+        <button type="submit" id="btnCheckout" class="w-full bg-black text-white py-3.5 rounded-2xl font-black text-sm hover:bg-zinc-800 transition-colors flex items-center justify-center gap-2">
           <i class="fa-solid fa-lock text-xs"></i> Konfirmasi & Bayar
         </button>
       </form>
@@ -432,7 +365,118 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
   </div>
 </div>
 
-<!-- ═══════════════════ SCRIPT ═══════════════════ -->
+<!-- MODAL PAYMENT PROCESSING -->
+<div id="modalPaying" class="mback hidden" style="z-index:800">
+  <div class="mbox wanim max-w-xs p-8 text-center">
+    <div class="w-24 h-24 mx-auto mb-5 relative">
+      <svg class="w-24 h-24 -rotate-90" viewBox="0 0 80 80">
+        <circle cx="40" cy="40" r="34" fill="none" stroke="#e5e7eb" stroke-width="5"/>
+        <circle id="payCircle" cx="40" cy="40" r="34" fill="none" stroke="#1a1a1a" stroke-width="5"
+          stroke-dasharray="213.6" stroke-dashoffset="0"
+          stroke-linecap="round" style="transition:stroke-dashoffset .9s linear"/>
+      </svg>
+      <div class="absolute inset-0 flex items-center justify-center">
+        <span id="payCountdown" class="text-3xl font-black">5</span>
+      </div>
+    </div>
+    <h3 class="font-black text-lg mb-2">Memproses Pembayaran</h3>
+    <p class="text-gray-400 text-sm leading-relaxed">Mohon tunggu, pesananmu sedang dikonfirmasi...</p>
+    <div class="flex items-center justify-center gap-1.5 mt-4">
+      <span class="w-1.5 h-1.5 bg-black rounded-full animate-bounce" style="animation-delay:0s"></span>
+      <span class="w-1.5 h-1.5 bg-black rounded-full animate-bounce" style="animation-delay:.15s"></span>
+      <span class="w-1.5 h-1.5 bg-black rounded-full animate-bounce" style="animation-delay:.3s"></span>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ORDER SUCCESS -->
+<div id="modalSuccess" class="mback hidden" style="z-index:800">
+  <div class="mbox wanim max-w-sm overflow-hidden">
+    <div class="bg-green-500 p-8 text-center text-white">
+      <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+        <i class="fa-solid fa-check text-green-500 text-2xl"></i>
+      </div>
+      <h3 class="font-black text-xl">Pesanan Berhasil!</h3>
+      <p class="text-green-100 text-xs mt-1">Pembayaran diterima &amp; sedang diproses</p>
+    </div>
+    <div class="p-6">
+      <div class="bg-gray-50 rounded-2xl p-4 mb-4 text-center">
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Nomor Pesanan</p>
+        <p id="successOrderNum" class="font-black text-xl text-black font-mono"></p>
+      </div>
+      <p class="text-xs text-gray-500 text-center mb-5 leading-relaxed">Simpan nomor ini untuk melacak status pengirimanmu kapan saja.</p>
+      <button onclick="openTrackingFromSuccess()" class="w-full bg-black text-white py-3 rounded-2xl font-black text-sm hover:bg-zinc-800 transition-colors mb-2 flex items-center justify-center gap-2">
+        <i class="fa-solid fa-truck-fast text-xs"></i> Lacak Pesanan
+      </button>
+      <button onclick="closeSuccess()" class="w-full border border-gray-200 py-3 rounded-2xl font-black text-sm hover:bg-gray-50 transition-colors">
+        Lanjut Belanja
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ORDER TRACKING -->
+<div id="modalTracking" class="mback hidden" style="z-index:800">
+  <div class="mbox max-w-lg max-h-[90vh] flex flex-col">
+    <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center flex-shrink-0">
+      <div>
+        <h3 class="font-black text-base">Lacak Pesanan</h3>
+        <p id="trackOrderNum" class="text-xs text-gray-400 font-mono mt-0.5"></p>
+      </div>
+      <button onclick="toggleModal('modalTracking')" class="w-8 h-8 rounded-xl bg-gray-100 flex items-center justify-center hover:bg-gray-200"><i class="fa-solid fa-xmark text-sm"></i></button>
+    </div>
+    <div class="overflow-y-auto p-6 flex-1 cscroll space-y-5">
+      <div class="flex gap-2">
+        <input id="trackInput" type="text" placeholder="Nomor pesanan (PFT-...)" class="finput flex-1 text-xs font-mono uppercase">
+        <button onclick="searchOrder()" class="bg-black text-white px-4 py-2 rounded-xl text-xs font-black hover:bg-zinc-800 transition-colors flex-shrink-0 flex items-center gap-1.5">
+          <i class="fa-solid fa-magnifying-glass text-[10px]"></i> Cari
+        </button>
+      </div>
+
+      <div id="trackLoading" class="hidden text-center py-6">
+        <i class="fa-solid fa-spinner fa-spin text-2xl text-gray-400"></i>
+        <p class="text-xs text-gray-400 mt-2">Mencari pesanan...</p>
+      </div>
+
+      <div id="trackContent" class="hidden space-y-5">
+        <!-- Timeline -->
+        <div>
+          <p class="flabel mb-3">Status Pesanan</p>
+          <div id="trackTimeline" class="space-y-0"></div>
+        </div>
+        <!-- Items -->
+        <div>
+          <p class="flabel mb-3">Barang Pesanan</p>
+          <div id="trackItems" class="space-y-3"></div>
+        </div>
+        <!-- Info -->
+        <div class="bg-gray-50 rounded-2xl p-4 space-y-2">
+          <p class="flabel mb-2">Info Pengiriman</p>
+          <div class="flex items-start gap-2 text-xs font-semibold text-gray-600"><i class="fa-solid fa-user text-gray-400 w-4 text-center mt-0.5"></i><span id="trackName"></span></div>
+          <div class="flex items-start gap-2 text-xs font-semibold text-gray-600"><i class="fa-solid fa-phone text-gray-400 w-4 text-center mt-0.5"></i><span id="trackPhone"></span></div>
+          <div class="flex items-start gap-2 text-xs font-semibold text-gray-600"><i class="fa-solid fa-location-dot text-gray-400 w-4 text-center mt-0.5"></i><span id="trackAddr" class="leading-relaxed"></span></div>
+          <div id="trackResiWrap" class="hidden flex items-center gap-2 text-xs font-semibold text-gray-600">
+            <i class="fa-solid fa-barcode text-gray-400 w-4 text-center"></i>
+            <span>Resi: <span id="trackResi" class="font-black text-black font-mono"></span></span>
+          </div>
+        </div>
+      </div>
+
+      <div id="trackEmpty" class="hidden text-center py-10 text-gray-400">
+        <i class="fa-solid fa-box-open text-3xl mb-3 block"></i>
+        <p class="text-sm font-bold">Pesanan tidak ditemukan</p>
+        <p class="text-xs mt-1">Periksa kembali nomor pesananmu</p>
+      </div>
+
+      <div id="trackHint" class="text-center py-8 text-gray-400">
+        <i class="fa-solid fa-truck-fast text-3xl mb-3 block"></i>
+        <p class="text-sm font-bold">Lacak Pesananmu</p>
+        <p class="text-xs mt-1">Masukkan nomor pesanan di atas</p>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 // ─── SUPABASE ───────────────────────────────────
 const { createClient } = supabase;
@@ -442,12 +486,13 @@ const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let products  = [], cart = [], favs = [], categories = [];
 let curCat    = 'all', curSort = 'default', curPrice = 5000000, query = '';
 let activeP   = null, selVars = {}, formRating = 5, pendingFiles = [], varGroupN = 0;
+let lastOrderId = null, lastOrderNum = null;
 
 const DEFAULT_CATS = [
-    {name:'Pakaian', icon:'fa-shirt',      color:'bg-purple-500'},
-    {name:'Sepatu',  icon:'fa-shoe-prints', color:'bg-blue-500'},
-    {name:'Aksesori',icon:'fa-glasses',     color:'bg-yellow-500'},
-    {name:'Gadget',  icon:'fa-microchip',   color:'bg-green-500'},
+    {name:'Pakaian',  icon:'fa-shirt',       color:'bg-purple-500'},
+    {name:'Sepatu',   icon:'fa-shoe-prints',  color:'bg-blue-500'},
+    {name:'Aksesori', icon:'fa-glasses',      color:'bg-yellow-500'},
+    {name:'Gadget',   icon:'fa-microchip',    color:'bg-green-500'},
 ];
 
 // ─── UTILS ──────────────────────────────────────
@@ -474,6 +519,13 @@ function toSlug(s) {
     return s.toLowerCase().trim().replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-');
 }
 
+function generateOrderNumber() {
+    const d = new Date();
+    const date = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+    const rand = Math.random().toString(36).slice(2,6).toUpperCase();
+    return `PFT-${date}-${rand}`;
+}
+
 // ─── WELCOME ────────────────────────────────────
 function showWelcome() {
     if (sessionStorage.getItem('pw') || localStorage.getItem('pw_never')) return;
@@ -495,11 +547,10 @@ function loadCats() {
 function buildTabs() {
     const wrap  = document.getElementById('catTabs');
     const promo = document.getElementById('tab-promo');
-    // remove old dynamic tabs
     [...wrap.querySelectorAll('.ctab:not(#tab-all):not(#tab-promo)')].forEach(b=>b.remove());
     categories.forEach(c => {
         const b = document.createElement('button');
-        b.id        = `tab-${c.name}`;
+        b.id = `tab-${c.name}`;
         b.className = 'ctab flex-shrink-0 px-4 py-1.5 text-xs font-bold rounded-xl text-gray-600 hover:bg-gray-100 transition-all';
         b.textContent = c.name;
         b.onclick = () => setCat(c.name);
@@ -557,12 +608,11 @@ function norm(r) {
 }
 
 // ─── RENDER GRID ────────────────────────────────
-function setCat(cat)   { curCat=cat; pushCat(cat); renderGrid(); }
+function setCat(cat)   { curCat=cat; pushCat(cat); renderGrid(); document.querySelector('main')?.scrollIntoView({behavior:'smooth'}); }
 function setSort(v)    { curSort=v; renderGrid(); }
 function setPriceLimit(v) { curPrice=parseInt(v); document.getElementById('priceLabel').innerText=idr(curPrice); renderGrid(); }
 
 function renderGrid() {
-    // tabs highlight
     document.querySelectorAll('.ctab').forEach(b => {
         b.classList.remove('bg-black','text-white','bg-red-500','text-red-500');
         b.classList.add('text-gray-600');
@@ -585,8 +635,10 @@ function renderGrid() {
 
     document.getElementById('prodCount').innerText = `${list.length} produk ditemukan`;
     const grid=document.getElementById('productGrid');
-    if (!list.length) { grid.innerHTML=`<div class="col-span-5 text-center py-20 text-gray-400"><i class="fa-solid fa-box-open text-4xl mb-3 block"></i><p class="font-bold">Tidak ada produk</p></div>`; return; }
-
+    if (!list.length) {
+        grid.innerHTML=`<div class="col-span-5 text-center py-20 text-gray-400"><i class="fa-solid fa-box-open text-4xl mb-3 block"></i><p class="font-bold">Tidak ada produk</p></div>`;
+        return;
+    }
     grid.innerHTML = list.map(p => {
         const price = fp(p), img=p.images[0]||p.image, isFav=favs.includes(p.id);
         return `
@@ -641,9 +693,9 @@ async function openPDP(id, pushUrl=true) {
     document.getElementById('pdpEst').innerText    = `Estimasi: ${p.estimatedTime}`;
 
     const sb=document.getElementById('pdpStockBadge');
-    if (p.stock===0)     { sb.innerText='Stok Habis';          sb.className='text-[10px] font-bold bg-gray-200 text-gray-600 px-3 py-1 rounded-full'; }
-    else if(p.stock<=3)  { sb.innerText=`Sisa ${p.stock}!`;    sb.className='text-[10px] font-bold bg-orange-100 text-orange-600 px-3 py-1 rounded-full'; }
-    else                 { sb.innerText=`Stok: ${p.stock}`;    sb.className='text-[10px] font-bold bg-green-100 text-green-600 px-3 py-1 rounded-full'; }
+    if (p.stock===0)     { sb.innerText='Stok Habis';        sb.className='text-[10px] font-bold bg-gray-200 text-gray-600 px-3 py-1 rounded-full'; }
+    else if(p.stock<=3)  { sb.innerText=`Sisa ${p.stock}!`;  sb.className='text-[10px] font-bold bg-orange-100 text-orange-600 px-3 py-1 rounded-full'; }
+    else                 { sb.innerText=`Stok: ${p.stock}`;  sb.className='text-[10px] font-bold bg-green-100 text-green-600 px-3 py-1 rounded-full'; }
 
     const db2=document.getElementById('pdpDiscBadge');
     if (p.discount>0) { db2.innerText=`-${p.discount}%`; db2.classList.remove('hidden'); } else db2.classList.add('hidden');
@@ -651,38 +703,27 @@ async function openPDP(id, pushUrl=true) {
     const sv=document.getElementById('pdpSave');
     if (p.discount>0) { sv.innerText=`Hemat ${idr(p.price-price)} (${p.discount}% off)`; sv.classList.remove('hidden'); } else sv.classList.add('hidden');
 
-    // thumbs
     const th=document.getElementById('pdpThumbs');
     th.innerHTML = p.images.length>1 ? p.images.map((s,i)=>`
         <img src="${s}" loading="lazy"
           onclick="document.getElementById('pdpImg').src='${s}';[...document.querySelectorAll('#pdpThumbs img')].forEach(x=>x.classList.remove('ring-2','ring-black'));this.classList.add('ring-2','ring-black')"
           class="w-16 h-16 object-cover rounded-xl cursor-pointer border border-gray-200 flex-shrink-0 ${i===0?'ring-2 ring-black':'hover:border-black'} transition-all">`).join('') : '';
 
-    // fav
     updatePDPFav();
-
-    // CTA state
     [document.getElementById('pdpBtnCart'),document.getElementById('pdpBtnBuy')].forEach(b=>{
         b.disabled=p.stock===0; b.classList.toggle('opacity-40',p.stock===0); b.classList.toggle('cursor-not-allowed',p.stock===0);
     });
 
-    // variants
     renderVariants(p);
-
-    // related
     renderRelated(p);
-
-    // reset comment form
     setRating(5); document.getElementById('cmtInput').value='';
     document.getElementById('pdpComments').innerHTML='<p class="text-xs text-gray-400 italic">Memuat ulasan...</p>';
     document.getElementById('pdpCmtCnt').innerText='';
 
-    // open
     document.getElementById('pdp').classList.add('open');
     document.getElementById('pdp').scrollTop=0;
     document.body.style.overflow='hidden';
 
-    // load comments async
     const cmts=await loadCmts(p.id);
     renderCmts(cmts,p);
 }
@@ -700,13 +741,10 @@ function updatePDPFav() {
     const on=favs.includes(activeP.id);
     i.className=on?'fa-solid fa-heart text-sm text-red-500':'fa-regular fa-heart text-sm';
 }
-
 function pdpToggleFav() { if(activeP) toggleFav(activeP.id); updatePDPFav(); }
+function pdpAddCart()   { if(!chkVars()) return; addToCart(activeP.id, selVars); }
+function pdpBuyNow()    { if(!chkVars()) return; addToCart(activeP.id, selVars); closePDP(); checkout(); }
 
-function pdpAddCart()  { if(!chkVars()) return; addToCart(activeP.id, selVars); }
-function pdpBuyNow()   { if(!chkVars()) return; addToCart(activeP.id, selVars); closePDP(); checkout(); }
-
-// variants
 function renderVariants(p) {
     const sec=document.getElementById('pdpVarSection');
     const con=document.getElementById('pdpVarContainer');
@@ -718,7 +756,7 @@ function renderVariants(p) {
           <div class="flex flex-wrap gap-2">
             ${g.options.map(o=>`
               <button class="vchip ${o.stock===0?'out':''}"
-                id="vc-${toSlug(g.name)}-${toSlug(o.value)}"
+                id="vc-${toSlug(g.name)}-${toSlug(String(o.value))}"
                 onclick="selVar('${g.name}','${o.value}')"
                 ${o.stock===0?'disabled':''}
               >${o.value}${o.stock===0?' (Habis)':''}</button>`).join('')}
@@ -729,7 +767,7 @@ function renderVariants(p) {
 function selVar(group, val) {
     selVars[group]=val;
     document.querySelectorAll(`[id^="vc-${toSlug(group)}-"]`).forEach(b=>b.classList.remove('sel'));
-    document.getElementById(`vc-${toSlug(group)}-${toSlug(val)}`)?.classList.add('sel');
+    document.getElementById(`vc-${toSlug(group)}-${toSlug(String(val))}`)?.classList.add('sel');
 }
 
 function chkVars() {
@@ -740,7 +778,6 @@ function chkVars() {
     return true;
 }
 
-// related
 function renderRelated(p) {
     const rel=products.filter(x=>x.id!==p.id&&x.category===p.category).slice(0,5);
     document.getElementById('pdpRelated').innerHTML=rel.map(r=>{
@@ -769,7 +806,6 @@ function renderRelated(p) {
     }).join('');
 }
 
-// comments
 async function loadCmts(pid) {
     const {data,error}=await db.from('comments').select('*').eq('product_id',pid).order('created_at',{ascending:false});
     return error?[]:data;
@@ -827,7 +863,6 @@ async function submitCmt() {
 // ─── CART ───────────────────────────────────────
 function saveCart() { localStorage.setItem('pufutara_cart',JSON.stringify(cart)); }
 function saveFavs() { localStorage.setItem('pufutara_fav', JSON.stringify(favs)); }
-
 function quickCart(id) { addToCart(id,{}); }
 
 function addToCart(id, vars={}) {
@@ -920,9 +955,7 @@ function closeSidebar(id) {
        !document.getElementById('cartSidebar').classList.contains('open'))
         document.getElementById('sbOverlay').classList.add('hidden');
 }
-function closeAllSidebars() {
-    closeSidebar('favSidebar'); closeSidebar('cartSidebar');
-}
+function closeAllSidebars() { closeSidebar('favSidebar'); closeSidebar('cartSidebar'); }
 
 // ─── CHECKOUT ───────────────────────────────────
 function checkout() {
@@ -947,15 +980,228 @@ function checkout() {
         </div>`;
     }).join('');
     document.getElementById('coTotal').innerText=idr(total);
+    document.getElementById('coName').value='';
+    document.getElementById('coPhone').value='';
+    document.getElementById('coAddr').value='';
+    const btn=document.getElementById('btnCheckout');
+    btn.disabled=false;
+    btn.innerHTML='<i class="fa-solid fa-lock text-xs"></i> Konfirmasi & Bayar';
     toggleModal('modalCheckout');
 }
 
-document.getElementById('formCheckout').addEventListener('submit',function(e){
+document.getElementById('formCheckout').addEventListener('submit', async function(e) {
     e.preventDefault();
-    toast('Pesanan berhasil! Sedang diproses...','fa-truck-fast');
-    cart=[]; updateCartUI(); saveCart();
-    toggleModal('modalCheckout'); this.reset();
+    const btn = document.getElementById('btnCheckout');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-xs"></i> Memproses...';
+
+    const name  = document.getElementById('coName').value.trim();
+    const phone = document.getElementById('coPhone').value.trim();
+    const addr  = document.getElementById('coAddr').value.trim();
+    const total = cart.reduce((s,i) => s + fp(i)*i.qty, 0);
+    const orderNum = generateOrderNumber();
+
+    try {
+        // Insert order
+        const { data: order, error: oErr } = await db.from('orders').insert([{
+            order_number:  orderNum,
+            buyer_name:    name,
+            buyer_phone:   phone,
+            buyer_address: addr,
+            total_price:   total,
+            status:        'menunggu_pembayaran'
+        }]).select().single();
+        if (oErr) throw oErr;
+
+        lastOrderId  = order.id;
+        lastOrderNum = orderNum;
+
+        // Insert order items
+        const items = cart.map(item => ({
+            order_id:        order.id,
+            product_id:      item.id,
+            product_name:    item.name,
+            product_image:   item.images?.[0] || item.image || '',
+            unit_price:      fp(item),
+            quantity:        item.qty,
+            chosen_variants: item.chosenVars || {},
+            subtotal:        fp(item) * item.qty
+        }));
+        const { error: iErr } = await db.from('order_items').insert(items);
+        if (iErr) throw iErr;
+
+        // Close checkout, start countdown
+        toggleModal('modalCheckout');
+        this.reset();
+        startPaymentCountdown(order.id, orderNum);
+
+    } catch(err) {
+        toast('Gagal membuat pesanan: ' + err.message, 'fa-triangle-exclamation');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-lock text-xs"></i> Konfirmasi & Bayar';
+    }
 });
+
+// ─── PAYMENT COUNTDOWN ──────────────────────────
+function startPaymentCountdown(orderId, orderNum) {
+    document.getElementById('modalPaying').classList.remove('hidden');
+    const circle     = document.getElementById('payCircle');
+    const countEl    = document.getElementById('payCountdown');
+    const circumference = 213.6;
+    const totalSecs  = 5;
+    let remaining    = totalSecs;
+
+    // Start from full circle, drain to 0
+    circle.style.strokeDashoffset = '0';
+
+    const tick = setInterval(async () => {
+        remaining--;
+        countEl.textContent = remaining;
+        const offset = circumference * ((totalSecs - remaining) / totalSecs);
+        circle.style.strokeDashoffset = offset;
+
+        if (remaining <= 0) {
+            clearInterval(tick);
+            try {
+                await db.from('orders').update({ status: 'pembayaran_diterima' }).eq('id', orderId);
+            } catch(e) { /* non-fatal */ }
+
+            document.getElementById('modalPaying').classList.add('hidden');
+            cart = []; updateCartUI(); saveCart();
+            document.getElementById('successOrderNum').textContent = orderNum;
+            document.getElementById('modalSuccess').classList.remove('hidden');
+        }
+    }, 1000);
+}
+
+// ─── ORDER SUCCESS ───────────────────────────────
+function closeSuccess() {
+    document.getElementById('modalSuccess').classList.add('hidden');
+}
+
+function openTrackingFromSuccess() {
+    document.getElementById('modalSuccess').classList.add('hidden');
+    openTracking(lastOrderId);
+}
+
+// ─── ORDER TRACKING ──────────────────────────────
+const STATUS_STEPS = [
+    { key:'menunggu_pembayaran', label:'Menunggu Pembayaran', icon:'fa-clock'         },
+    { key:'pembayaran_diterima', label:'Pembayaran Diterima', icon:'fa-circle-check'  },
+    { key:'diproses',            label:'Pesanan Diproses',    icon:'fa-gear'           },
+    { key:'dikemas',             label:'Sedang Dikemas',      icon:'fa-box'            },
+    { key:'dikirim',             label:'Dalam Pengiriman',    icon:'fa-truck'          },
+    { key:'sampai',              label:'Sampai di Tujuan',    icon:'fa-location-dot'   },
+    { key:'selesai',             label:'Pesanan Selesai',     icon:'fa-star'           },
+    { key:'dibatalkan',          label:'Pesanan Dibatalkan',  icon:'fa-xmark'          },
+];
+
+async function openTracking(orderId) {
+    document.getElementById('modalTracking').classList.remove('hidden');
+    document.getElementById('trackContent').classList.add('hidden');
+    document.getElementById('trackEmpty').classList.add('hidden');
+    document.getElementById('trackHint').classList.add('hidden');
+    document.getElementById('trackLoading').classList.remove('hidden');
+
+    if (!orderId) {
+        document.getElementById('trackLoading').classList.add('hidden');
+        document.getElementById('trackHint').classList.remove('hidden');
+        return;
+    }
+
+    const { data: order, error } = await db
+        .from('orders')
+        .select('*, order_items(*)')
+        .eq('id', orderId)
+        .single();
+
+    document.getElementById('trackLoading').classList.add('hidden');
+    if (error || !order) { document.getElementById('trackEmpty').classList.remove('hidden'); return; }
+    renderTrackingData(order);
+}
+
+async function searchOrder() {
+    const num = document.getElementById('trackInput').value.trim().toUpperCase();
+    if (!num) return;
+    document.getElementById('trackContent').classList.add('hidden');
+    document.getElementById('trackEmpty').classList.add('hidden');
+    document.getElementById('trackHint').classList.add('hidden');
+    document.getElementById('trackLoading').classList.remove('hidden');
+
+    const { data: order, error } = await db
+        .from('orders')
+        .select('*, order_items(*)')
+        .eq('order_number', num)
+        .single();
+
+    document.getElementById('trackLoading').classList.add('hidden');
+    if (error || !order) { document.getElementById('trackEmpty').classList.remove('hidden'); return; }
+    renderTrackingData(order);
+}
+
+function renderTrackingData(order) {
+    const isCancelled = order.status === 'dibatalkan';
+    const curIdx      = STATUS_STEPS.findIndex(s => s.key === order.status);
+    const steps       = isCancelled
+        ? STATUS_STEPS.filter(s => s.key !== 'selesai')
+        : STATUS_STEPS.filter(s => s.key !== 'dibatalkan');
+
+    document.getElementById('trackTimeline').innerHTML = steps.map((s, i) => {
+        const stepIdx = STATUS_STEPS.findIndex(x => x.key === s.key);
+        const done    = stepIdx <= curIdx;
+        const active  = stepIdx === curIdx;
+        const isLast  = i === steps.length - 1;
+        const cancelled = isCancelled && active;
+
+        return `
+        <div class="flex gap-4">
+          <div class="flex flex-col items-center" style="min-width:36px">
+            <div class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0
+              ${done ? (cancelled ? 'bg-red-500' : 'bg-black') : 'bg-gray-100'}">
+              <i class="fa-solid ${s.icon} text-xs ${done ? 'text-white' : 'text-gray-400'}"></i>
+            </div>
+            ${!isLast ? `<div class="w-0.5 flex-1 min-h-[20px] my-1 ${done && stepIdx < curIdx ? 'bg-black' : 'bg-gray-200'}"></div>` : ''}
+          </div>
+          <div class="flex-1 pb-4 pt-1">
+            <p class="text-xs font-black ${active ? (cancelled?'text-red-600':'text-black') : done ? 'text-gray-600' : 'text-gray-400'}">${s.label}</p>
+            ${active && order.status_note ? `<p class="text-[10px] text-gray-400 mt-0.5 leading-relaxed">${order.status_note}</p>` : ''}
+            ${active ? `<p class="text-[10px] text-gray-400 mt-0.5">${new Date(order.updated_at||order.created_at).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</p>` : ''}
+          </div>
+        </div>`;
+    }).join('');
+
+    // items
+    document.getElementById('trackItems').innerHTML = (order.order_items||[]).map(item => {
+        const vl = Object.entries(item.chosen_variants||{}).map(([k,v])=>`${k}: ${v}`).join(', ');
+        return `
+        <div class="flex gap-3 items-center bg-gray-50 rounded-2xl p-3">
+          <img src="${item.product_image||''}" class="w-12 h-12 object-cover rounded-xl flex-shrink-0 border border-gray-100"
+            onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2248%22 height=%2248%22><rect fill=%22%23e5e7eb%22 width=%2248%22 height=%2248%22/></svg>'">
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-bold truncate">${item.product_name}</p>
+            ${vl?`<p class="text-[10px] text-gray-400">${vl}</p>`:''}
+            <p class="text-[10px] text-gray-400">${item.quantity} × ${idr(item.unit_price)}</p>
+          </div>
+          <span class="text-xs font-black flex-shrink-0">${idr(item.subtotal)}</span>
+        </div>`;
+    }).join('');
+
+    document.getElementById('trackOrderNum').textContent  = order.order_number;
+    document.getElementById('trackInput').value           = order.order_number;
+    document.getElementById('trackName').textContent      = order.buyer_name;
+    document.getElementById('trackPhone').textContent     = order.buyer_phone;
+    document.getElementById('trackAddr').textContent      = order.buyer_address;
+
+    const resiWrap = document.getElementById('trackResiWrap');
+    if (order.tracking_number) {
+        resiWrap.classList.remove('hidden');
+        document.getElementById('trackResi').textContent = order.tracking_number;
+    } else {
+        resiWrap.classList.add('hidden');
+    }
+
+    document.getElementById('trackContent').classList.remove('hidden');
+}
 
 // ─── FORM JUAL ──────────────────────────────────
 function addVarGroup() {
@@ -1045,13 +1291,19 @@ function f2b64(file){
 // ─── MODAL HELPERS ──────────────────────────────
 function toggleModal(id){document.getElementById(id)?.classList.toggle('hidden');}
 
-['modalJual','modalCheckout','welcomeModal'].forEach(id=>{
+['modalJual','modalCheckout','modalSuccess','modalTracking','welcomeModal'].forEach(id=>{
     document.getElementById(id)?.addEventListener('click',function(e){
         if(e.target===this){
             if(id==='welcomeModal') closeWelcome();
+            else if(id==='modalSuccess') closeSuccess();
             else this.classList.add('hidden');
         }
     });
+});
+
+// Enter to search order
+document.getElementById('trackInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') searchOrder();
 });
 
 // ─── SEARCH ─────────────────────────────────────
@@ -1074,7 +1326,6 @@ window.addEventListener('DOMContentLoaded',async()=>{
     loadLocal();
     await loadProducts();
 
-    // deep link
     const parts=window.location.pathname.split('/').filter(Boolean);
     const len=parts.length;
     if(len>=2&&parts[len-2]==='product'){
