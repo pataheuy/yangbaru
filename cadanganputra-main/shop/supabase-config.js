@@ -1,15 +1,3 @@
-// ============================================================
-// SUPABASE CONFIGURATION
-// Ganti nilai di bawah ini dengan project Supabase kamu
-// ============================================================
-
-const SUPABASE_URL = 'https://YOUR_PROJECT_ID.supabase.co';
-const SUPABASE_ANON_KEY = 'YOUR_ANON_PUBLIC_KEY';
-
-// ============================================================
-// Cara mendapatkan nilai di atas:
-// 1. Login ke https://supabase.com
-// 2. Buka project kamu
-// 3. Pergi ke Settings > API
-// 4. Copy "Project URL" dan "anon public" key
-// ============================================================
+// Supabase config - pufutara project
+const SUPABASE_URL = 'https://puywjdopumlzvmzbcudr.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1eXdqZG9wdW1senZtemJjdWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDE3MTksImV4cCI6MjA4NzkxNzcxOX0.vvThyjtK2SlA9oA9Mr_XOmt1R_tNZk-ib3PO9XpiiSc';

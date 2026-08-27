@@ -1,1182 +1,1091 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pufutarashop | High-End E-Commerce</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <!-- Supabase JS Client -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Konfigurasi Supabase (ganti URL & KEY di file ini) -->
-    <script src="supabase-config.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
-        
-        :root { font-size: 13px; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pufutarashop</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+*{box-sizing:border-box}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:#f5f5f5;color:#1a1a1a;overflow-x:hidden}
 
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #fcfcfc;
-            color: #1a1a1a;
-            scroll-behavior: smooth;
-            overflow-x: hidden;
-        }
+/* scrollbar */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:#f0f0f0}
+::-webkit-scrollbar-thumb{background:#ccc;border-radius:99px}
+.cscroll::-webkit-scrollbar-thumb{background:#1a1a1a}
 
-        .custom-shadow { box-shadow: 0 10px 40px -10px rgba(0,0,0,0.08); }
-        .product-card:hover .product-image { transform: scale(1.05); }
+/* skeleton */
+.skel{background:linear-gradient(90deg,#ececec 25%,#e0e0e0 50%,#ececec 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:12px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
-        .modal-bg {
-            background-color: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(8px);
-        }
+/* toast */
+#toastWrap{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;align-items:center}
+.toast{background:#1a1a1a;color:#fff;padding:10px 20px;border-radius:99px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:8px;box-shadow:0 8px 24px rgba(0,0,0,.2);animation:tIn .35s cubic-bezier(.175,.885,.32,1.275);pointer-events:auto;white-space:nowrap}
+.toast.out{animation:tOut .3s forwards}
+@keyframes tIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes tOut{to{opacity:0;transform:scale(.9)}}
 
-        .fade-in {
-            animation: fadeIn 0.3s ease-in-out;
-        }
+/* product card */
+.pcard{background:#fff;border-radius:14px;overflow:hidden;border:1px solid #eee;transition:box-shadow .2s,transform .2s;cursor:pointer}
+.pcard:hover{box-shadow:0 8px 28px rgba(0,0,0,.1);transform:translateY(-2px)}
+.pcard .thumb{position:relative;overflow:hidden;aspect-ratio:1;background:#f5f5f5}
+.pcard .thumb img{width:100%;height:100%;object-fit:cover;transition:transform .5s}
+.pcard:hover .thumb img{transform:scale(1.04)}
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+/* hover actions — NO blur */
+.pcard .hactions{
+  position:absolute;bottom:0;left:0;right:0;
+  display:flex;gap:6px;padding:8px;
+  opacity:0;transform:translateY(6px);
+  transition:opacity .2s,transform .2s;pointer-events:none;
+}
+.pcard:hover .hactions{opacity:1;transform:translateY(0);pointer-events:auto}
 
-        #toast-container {
-            position: fixed;
-            bottom: 2rem;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 200;
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-            pointer-events: none;
-        }
+/* fav corner */
+.pcard .favcorner{
+  position:absolute;top:8px;right:8px;
+  opacity:0;transform:scale(.8);
+  transition:opacity .2s,transform .2s;
+}
+.pcard:hover .favcorner,
+.pcard .favcorner.on{opacity:1!important;transform:scale(1)!important}
 
-        .toast-item {
-            background: #1a1a1a;
-            color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 1.25rem;
-            font-weight: 600;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            pointer-events: auto;
-        }
+/* PDP fullscreen */
+#pdp{position:fixed;inset:0;z-index:500;background:#fff;overflow-y:auto;transform:translateY(100%);transition:transform .4s cubic-bezier(.32,1,.32,1)}
+#pdp.open{transform:translateY(0)}
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+/* sidebar */
+.sbar{position:fixed;inset-y:0;right:0;width:340px;background:#fff;z-index:400;box-shadow:-4px 0 24px rgba(0,0,0,.08);transform:translateX(100%);transition:transform .35s cubic-bezier(.32,1,.32,1);display:flex;flex-direction:column}
+.sbar.open{transform:translateX(0)}
 
-        .toast-exit { animation: fadeOut 0.3s forwards; }
+/* modal backdrop */
+.mback{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:16px}
+.mbox{background:#fff;border-radius:24px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,.18)}
 
-        @keyframes fadeOut {
-            to { opacity: 0; transform: scale(0.95); }
-        }
+/* variant chip */
+.vchip{border:1.5px solid #e5e7eb;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;background:#fff}
+.vchip:hover{border-color:#1a1a1a}
+.vchip.sel{border-color:#1a1a1a;background:#1a1a1a;color:#fff}
+.vchip.out{border-color:#e5e7eb;color:#ccc;cursor:not-allowed;text-decoration:line-through}
 
-        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #1a1a1a; border-radius: 10px; }
+/* welcome */
+@keyframes wIn{from{opacity:0;transform:scale(.94) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.wanim{animation:wIn .4s cubic-bezier(.175,.885,.32,1.275)}
 
-        ::-webkit-scrollbar { width: 5px; height: 5px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #1a1a1a; border-radius: 10px; }
+/* range */
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;background:#1a1a1a;border-radius:50%;cursor:pointer}
 
-        input[type='range']::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 15px; height: 15px;
-            background: black;
-            cursor: pointer;
-            border-radius: 50%;
-        }
+/* field */
+.flabel{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#9ca3af;margin-bottom:4px}
+.finput{width:100%;background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;padding:10px 14px;font-size:13px;outline:none;font-family:inherit;transition:border-color .15s}
+.finput:focus{border-color:#1a1a1a;background:#fff}
 
-        /* Loading skeleton */
-        .skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
-        }
-
-        @keyframes shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-    </style>
+/* hide scrollbar helper */
+.noscroll{scrollbar-width:none}
+.noscroll::-webkit-scrollbar{display:none}
+</style>
 </head>
-<body class="bg-white">
+<body>
 
-    <!-- Toast Container -->
-    <div id="toast-container"></div>
+<div id="toastWrap"></div>
 
-    <!-- Navigasi -->
-    <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center gap-3 cursor-pointer" onclick="goHome()">
-                    <div class="w-8 h-8 bg-black rounded-xl flex items-center justify-center rotate-3 hover:rotate-0 transition-transform">
-                        <span class="text-white font-bold text-sm">P</span>
-                    </div>
-                    <span class="text-xl font-black tracking-tighter uppercase">pufutarashop</span>
-                </div>
-
-                <div class="hidden md:flex flex-1 max-w-md mx-8">
-                    <div class="relative w-full">
-                        <input type="text" id="searchInput" placeholder="Cari gaya favoritmu..."
-                            class="w-full bg-gray-100 border-none rounded-xl py-2 px-10 focus:ring-2 focus:ring-black transition-all outline-none text-sm">
-                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-3 text-gray-400"></i>
-                    </div>
-                </div>
-
-                <div class="flex items-center gap-5">
-                    <button onclick="toggleModal('modalJual')" class="hidden sm:block text-[10px] font-bold uppercase tracking-widest hover:text-gray-500 transition-colors">Jual Barang</button>
-                    <div class="flex items-center gap-4">
-                        <button onclick="toggleSidebar('favSidebar')" class="relative hover:scale-110 transition-transform">
-                            <i class="fa-regular fa-heart text-lg"></i>
-                            <span id="favCount" class="absolute -top-1 -right-1 bg-red-500 text-white text-[8px] w-3.5 h-3.5 rounded-full flex items-center justify-center">0</span>
-                        </button>
-                        <button onclick="toggleSidebar('cartSidebar')" class="relative hover:scale-110 transition-transform">
-                            <i class="fa-solid fa-bag-shopping text-lg"></i>
-                            <span id="cartCount" class="absolute -top-1 -right-1 bg-black text-white text-[8px] w-3.5 h-3.5 rounded-full flex items-center justify-center">0</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
+<!-- ═══════════════════ WELCOME MODAL ═══════════════════ -->
+<div id="welcomeModal" class="mback hidden" style="z-index:700">
+  <div class="mbox wanim max-w-md overflow-hidden">
+    <div class="relative h-44 bg-neutral-900 flex items-center justify-center overflow-hidden">
+      <div class="text-center relative z-10">
+        <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-xl">
+          <span class="text-2xl font-black">P</span>
         </div>
-    </nav>
+        <p class="text-white font-black text-2xl tracking-tight italic">pufutarashop</p>
+        <p class="text-gray-400 text-xs mt-1 font-bold tracking-widest uppercase">High-End E-Commerce</p>
+      </div>
+    </div>
+    <div class="p-7">
+      <h2 class="text-xl font-black mb-1">Selamat Datang! 👋</h2>
+      <p class="text-gray-500 text-sm leading-relaxed mb-5">Temukan ribuan produk pilihan dengan harga terbaik. Belanja mudah, aman, dan cepat sampai.</p>
+      <div class="grid grid-cols-3 gap-3 mb-6 text-center">
+        <div class="bg-gray-50 rounded-2xl p-3"><i class="fa-solid fa-shield-halved text-black text-lg mb-1 block"></i><p class="text-[10px] font-bold text-gray-500">Belanja Aman</p></div>
+        <div class="bg-gray-50 rounded-2xl p-3"><i class="fa-solid fa-truck-fast text-black text-lg mb-1 block"></i><p class="text-[10px] font-bold text-gray-500">Kirim Cepat</p></div>
+        <div class="bg-gray-50 rounded-2xl p-3"><i class="fa-solid fa-gem text-black text-lg mb-1 block"></i><p class="text-[10px] font-bold text-gray-500">Kualitas Top</p></div>
+      </div>
+      <button onclick="closeWelcome()" class="w-full bg-black text-white py-3.5 rounded-2xl font-black text-sm hover:bg-zinc-800 transition-colors">Mulai Belanja</button>
+      <button onclick="closeWelcome(true)" class="w-full text-gray-400 text-xs font-semibold mt-3 hover:text-black transition-colors">Jangan tampilkan lagi</button>
+    </div>
+  </div>
+</div>
 
-    <!-- Header -->
-    <header class="max-w-7xl mx-auto px-4 mt-6">
-        <div class="relative bg-neutral-900 rounded-[2rem] p-8 md:p-14 text-white overflow-hidden">
-            <div class="relative z-10 max-w-md">
-                <span class="text-[10px] font-bold tracking-[0.3em] text-gray-400 uppercase mb-3 block">Koleksi Terbatas 2024</span>
-                <h1 class="text-4xl md:text-5xl font-black leading-tight mb-4 italic">Style Tanpa Batas.</h1>
-                <p class="text-gray-400 text-sm mb-8 leading-relaxed">Jelajahi berbagai produk pilihan dengan desain eksklusif hanya di Pufutarashop.</p>
-                <div class="flex gap-3">
-                    <button onclick="updateCategory('promo')" class="bg-white text-black px-6 py-3 rounded-xl font-bold text-sm hover:bg-gray-200 transition-all shadow-xl">Lihat Promo</button>
-                    <button onclick="updateCategory('all')" class="border border-white/20 px-6 py-3 rounded-xl font-bold text-sm hover:bg-white/10 transition-all">Semua</button>
-                </div>
-            </div>
-            <div class="absolute right-[-5%] bottom-[-10%] opacity-10 pointer-events-none">
-                <i class="fa-solid fa-gem text-[250px]"></i>
-            </div>
-        </div>
-    </header>
+<!-- ═══════════════════ NAVBAR ═══════════════════ -->
+<nav class="sticky top-0 bg-white border-b border-gray-100 shadow-sm" style="z-index:300">
+  <div class="max-w-7xl mx-auto px-4 h-14 flex items-center gap-3">
+    <div class="flex items-center gap-2 cursor-pointer flex-shrink-0" onclick="goHome()">
+      <div class="w-7 h-7 bg-black rounded-lg flex items-center justify-center"><span class="text-white font-black text-xs">P</span></div>
+      <span class="font-black text-base tracking-tighter uppercase hidden sm:block">pufutarashop</span>
+    </div>
+    <div class="flex-1 relative max-w-xl">
+      <input id="searchInput" type="text" placeholder="Cari produk, kategori..."
+        class="w-full bg-gray-100 rounded-xl py-2 pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-black border-none">
+      <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-gray-400 text-xs"></i>
+    </div>
+    <div class="flex items-center gap-2 flex-shrink-0">
+      <button onclick="toggleModal('modalJual')" class="hidden sm:flex items-center gap-1.5 text-xs font-black bg-black text-white px-4 py-2 rounded-xl hover:bg-zinc-800 transition-colors">
+        <i class="fa-solid fa-plus text-[10px]"></i> Jual
+      </button>
+      <button onclick="openSidebar('favSidebar')" class="relative p-2 hover:bg-gray-100 rounded-xl transition-colors">
+        <i class="fa-regular fa-heart text-base"></i>
+        <span id="favCount" class="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center font-bold">0</span>
+      </button>
+      <button onclick="openSidebar('cartSidebar')" class="relative p-2 hover:bg-gray-100 rounded-xl transition-colors">
+        <i class="fa-solid fa-bag-shopping text-base"></i>
+        <span id="cartCount" class="absolute -top-0.5 -right-0.5 bg-black text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center font-bold">0</span>
+      </button>
+    </div>
+  </div>
+  <!-- Category tabs -->
+  <div class="border-t border-gray-100">
+    <div class="max-w-7xl mx-auto px-4">
+      <div id="catTabs" class="flex items-center gap-1 overflow-x-auto py-1.5 noscroll">
+        <button id="tab-all" onclick="setCat('all')" class="ctab active flex-shrink-0 px-4 py-1.5 text-xs font-bold rounded-xl bg-black text-white transition-all">Semua</button>
+        <!-- dynamic tabs -->
+        <button id="tab-promo" onclick="setCat('promo')" class="ctab flex-shrink-0 px-4 py-1.5 text-xs font-bold rounded-xl text-red-500 hover:bg-red-50 transition-all">🔥 Promo</button>
+      </div>
+    </div>
+  </div>
+</nav>
 
-    <!-- Konten Utama -->
-    <main class="max-w-7xl mx-auto px-4 py-12">
-        <!-- Filter Bar -->
-        <div class="flex flex-col md:flex-row md:items-end justify-between mb-6 gap-4 border-b border-gray-100 pb-8">
-            <div>
-                <h2 class="text-2xl font-black tracking-tight">Katalog Produk</h2>
-                <p class="text-gray-500 text-sm mt-1">Gaya harian yang dikurasi untuk Anda.</p>
-            </div>
-            <div class="flex flex-col gap-4 items-end">
-                <div class="flex flex-wrap gap-1.5 p-1 bg-gray-100 rounded-2xl w-fit">
-                    <button id="btn-all" onclick="updateCategory('all')" class="category-btn active px-4 py-2 rounded-xl text-xs font-bold transition-all bg-white shadow-sm">Semua</button>
-                    <button id="btn-Pakaian" onclick="updateCategory('Pakaian')" class="category-btn px-4 py-2 rounded-xl text-xs font-bold transition-all text-gray-500 hover:text-black">Pakaian</button>
-                    <button id="btn-Sepatu" onclick="updateCategory('Sepatu')" class="category-btn px-4 py-2 rounded-xl text-xs font-bold transition-all text-gray-500 hover:text-black">Sepatu</button>
-                    <button id="btn-Aksesori" onclick="updateCategory('Aksesori')" class="category-btn px-4 py-2 rounded-xl text-xs font-bold transition-all text-gray-500 hover:text-black">Aksesori</button>
-                    <button id="btn-Gadget" onclick="updateCategory('Gadget')" class="category-btn px-4 py-2 rounded-xl text-xs font-bold transition-all text-gray-500 hover:text-black">Gadget</button>
-                    <button id="btn-promo" onclick="updateCategory('promo')" class="category-btn px-4 py-2 rounded-xl text-xs font-bold transition-all text-red-500 hover:text-red-700">Promo</button>
-                </div>
-                <div class="flex items-center gap-3">
-                    <select id="sortSelect" onchange="updateSort(this.value)" class="bg-gray-50 border border-gray-200 text-gray-700 text-xs font-bold rounded-xl px-3 py-2 outline-none cursor-pointer hover:bg-gray-100 transition-colors">
-                        <option value="default">Terbaru (Default)</option>
-                        <option value="price-asc">Harga Termurah</option>
-                        <option value="price-desc">Harga Termahal</option>
-                    </select>
-                    <div class="flex items-center gap-3 bg-gray-50 p-2 rounded-xl border border-gray-100">
-                        <span class="text-[10px] font-bold text-gray-400 uppercase px-2">Harga Maks:</span>
-                        <input type="range" id="priceRange" min="0" max="5000000" step="100000" value="5000000" class="w-32 accent-black h-1 rounded-lg cursor-pointer" oninput="updatePriceLabel(this.value)">
-                        <span id="priceLabel" class="text-[10px] font-bold bg-black text-white px-2 py-1 rounded-lg min-w-[80px] text-center">Rp 5.000.000</span>
-                    </div>
-                </div>
-            </div>
+<!-- ═══════════════════ HERO ═══════════════════ -->
+<div class="max-w-7xl mx-auto px-4 pt-5">
+  <div class="relative bg-neutral-900 rounded-3xl p-8 md:p-12 text-white overflow-hidden">
+    <div class="relative z-10 max-w-sm">
+      <span class="text-[10px] font-bold tracking-[.3em] text-gray-400 uppercase mb-2 block">Koleksi Eksklusif 2024</span>
+      <h1 class="text-3xl md:text-4xl font-black leading-tight mb-3 italic">Style Tanpa<br>Kompromi.</h1>
+      <p class="text-gray-400 text-xs mb-6 leading-relaxed">Pilihan produk premium yang dikurasi khusus untuk Anda.</p>
+      <div class="flex gap-2">
+        <button onclick="setCat('promo')" class="bg-white text-black px-5 py-2.5 rounded-xl font-black text-xs hover:bg-gray-100 transition-all shadow-xl">Lihat Promo</button>
+        <button onclick="setCat('all')"   class="border border-white/20 px-5 py-2.5 rounded-xl font-black text-xs hover:bg-white/10 transition-all">Semua Produk</button>
+      </div>
+    </div>
+    <div class="absolute right-[-2%] bottom-[-5%] opacity-[.07] pointer-events-none select-none">
+      <i class="fa-solid fa-gem text-[200px]"></i>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ FILTER BAR ═══════════════════ -->
+<div class="max-w-7xl mx-auto px-4 pt-5 pb-3 flex flex-wrap items-center justify-between gap-3">
+  <div>
+    <h2 class="font-black text-lg">Katalog Produk</h2>
+    <p id="prodCount" class="text-xs text-gray-400 mt-0.5">Memuat...</p>
+  </div>
+  <div class="flex items-center gap-2 flex-wrap">
+    <select id="sortSel" onchange="setSort(this.value)" class="bg-white border border-gray-200 text-xs font-bold rounded-xl px-3 py-2 outline-none cursor-pointer">
+      <option value="default">Terbaru</option>
+      <option value="price-asc">Termurah</option>
+      <option value="price-desc">Termahal</option>
+      <option value="rating">Rating Tertinggi</option>
+    </select>
+    <div class="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-3 py-1.5">
+      <span class="text-[10px] font-bold text-gray-400 uppercase">Maks:</span>
+      <input type="range" id="priceRange" min="0" max="5000000" step="100000" value="5000000"
+        class="w-24 accent-black h-1 rounded" oninput="setPriceLimit(this.value)">
+      <span id="priceLabel" class="text-[10px] font-black bg-black text-white px-2 py-0.5 rounded-lg min-w-[70px] text-center">Rp 5.000.000</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ PRODUCT GRID ═══════════════════ -->
+<main class="max-w-7xl mx-auto px-4 pb-16">
+  <div id="productGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+    <div class="skel aspect-square"></div><div class="skel aspect-square"></div>
+    <div class="skel aspect-square"></div><div class="skel aspect-square"></div>
+    <div class="skel aspect-square hidden md:block"></div>
+  </div>
+</main>
+
+<!-- ═══════════════════ PDP FULLSCREEN ═══════════════════ -->
+<div id="pdp">
+  <!-- PDP Topbar -->
+  <div class="sticky top-0 bg-white border-b border-gray-100 z-10">
+    <div class="max-w-7xl mx-auto px-4 h-14 flex items-center gap-3">
+      <button onclick="closePDP()" class="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors flex-shrink-0">
+        <i class="fa-solid fa-arrow-left text-sm"></i>
+      </button>
+      <p id="pdpCrumb" class="text-xs text-gray-400 font-semibold truncate flex-1"></p>
+      <button id="pdpFavBtn" onclick="pdpToggleFav()" class="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors flex-shrink-0">
+        <i class="fa-regular fa-heart text-sm"></i>
+      </button>
+      <button onclick="openSidebar('cartSidebar')" class="relative p-2 hover:bg-gray-100 rounded-xl transition-colors">
+        <i class="fa-solid fa-bag-shopping text-base"></i>
+        <span id="pdpCartCount" class="absolute -top-0.5 -right-0.5 bg-black text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center font-bold">0</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-4 py-6">
+    <div class="flex flex-col lg:flex-row gap-8">
+
+      <!-- Images -->
+      <div class="lg:w-[460px] flex-shrink-0">
+        <div class="relative bg-gray-50 rounded-2xl overflow-hidden aspect-square mb-3">
+          <img id="pdpImg" src="" class="w-full h-full object-cover">
+          <span id="pdpDiscBadge" class="absolute top-4 left-4 bg-red-500 text-white text-xs font-black px-3 py-1 rounded-full hidden"></span>
+        </div>
+        <div id="pdpThumbs" class="flex gap-2 overflow-x-auto pb-1 noscroll"></div>
+      </div>
+
+      <!-- Info -->
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 mb-2">
+          <span id="pdpCatBadge"   class="text-[10px] font-bold bg-gray-100 text-gray-600 px-3 py-1 rounded-full"></span>
+          <span id="pdpStockBadge" class="text-[10px] font-bold px-3 py-1 rounded-full"></span>
         </div>
 
-        <!-- Grid Produk -->
-        <div id="productGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-            <!-- Skeleton loading -->
-            <div class="skeleton rounded-[1.5rem] aspect-square"></div>
-            <div class="skeleton rounded-[1.5rem] aspect-square"></div>
-            <div class="skeleton rounded-[1.5rem] aspect-square"></div>
-            <div class="skeleton rounded-[1.5rem] aspect-square"></div>
-            <div class="skeleton rounded-[1.5rem] aspect-square"></div>
-        </div>
-    </main>
+        <h1 id="pdpName" class="text-2xl font-black leading-tight mb-2"></h1>
 
-    <!-- ===== SIDEBAR FAVORIT ===== -->
-    <div id="favSidebar" class="fixed inset-y-0 right-0 w-80 bg-white z-[120] shadow-2xl translate-x-full transition-transform duration-500 flex flex-col">
-        <div class="p-6 border-b flex justify-between items-center">
-            <h3 class="text-xl font-black">Favorit</h3>
-            <button onclick="toggleSidebar('favSidebar')" class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center hover:bg-black hover:text-white transition-all"><i class="fa-solid fa-xmark text-sm"></i></button>
+        <div class="flex items-center gap-3 mb-4">
+          <div id="pdpStars"   class="flex items-center gap-0.5 text-yellow-400 text-sm"></div>
+          <span id="pdpRating" class="text-xs font-bold text-gray-500"></span>
+          <span id="pdpCmtCnt" class="text-xs text-gray-400"></span>
         </div>
-        <div id="favItems" class="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar"></div>
+
+        <!-- Price box -->
+        <div class="bg-orange-50 rounded-2xl p-4 mb-5">
+          <div class="flex items-baseline gap-3">
+            <span id="pdpPrice"    class="text-3xl font-black text-orange-600"></span>
+            <span id="pdpOldPrice" class="text-base text-gray-400 line-through font-semibold"></span>
+          </div>
+          <p id="pdpSave" class="text-xs text-orange-600 font-bold mt-1 hidden"></p>
+        </div>
+
+        <!-- Variants -->
+        <div id="pdpVarSection" class="mb-5 hidden">
+          <div id="pdpVarContainer" class="space-y-4"></div>
+        </div>
+
+        <!-- Description -->
+        <div class="mb-5">
+          <h3 class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">Deskripsi</h3>
+          <p id="pdpDesc" class="text-sm text-gray-600 leading-relaxed whitespace-pre-line"></p>
+        </div>
+
+        <!-- Shipping -->
+        <div class="bg-gray-50 rounded-2xl p-4 mb-5 space-y-2 text-xs font-semibold text-gray-600">
+          <div class="flex items-center gap-2.5"><i class="fa-solid fa-location-dot text-gray-400 w-4 text-center"></i><span id="pdpLoc"></span></div>
+          <div class="flex items-center gap-2.5"><i class="fa-solid fa-box text-gray-400 w-4 text-center"></i><span id="pdpFrom"></span></div>
+          <div class="flex items-center gap-2.5"><i class="fa-solid fa-truck-fast text-gray-400 w-4 text-center"></i><span id="pdpEst"></span></div>
+        </div>
+
+        <!-- CTA -->
+        <div class="flex gap-3 mb-8">
+          <button id="pdpBtnCart" onclick="pdpAddCart()"  class="flex-1 bg-black text-white py-4 rounded-2xl font-black text-sm hover:bg-zinc-800 transition-colors flex items-center justify-center gap-2">
+            <i class="fa-solid fa-bag-shopping"></i> Tambah ke Keranjang
+          </button>
+          <button id="pdpBtnBuy"  onclick="pdpBuyNow()"  class="flex-1 bg-orange-500 text-white py-4 rounded-2xl font-black text-sm hover:bg-orange-600 transition-colors flex items-center justify-center gap-2">
+            <i class="fa-solid fa-bolt"></i> Beli Sekarang
+          </button>
+        </div>
+
+        <!-- Reviews -->
+        <div class="border-t border-gray-100 pt-6">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-sm font-black">Ulasan Pembeli</h3>
+            <span id="pdpAvgRating" class="text-xs font-bold text-gray-400"></span>
+          </div>
+          <div id="pdpComments" class="space-y-3 mb-5"></div>
+          <!-- Comment form -->
+          <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100">
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Tulis Ulasanmu</p>
+            <div class="flex items-center gap-1.5 mb-3" id="starRow">
+              <span class="text-xs font-bold text-gray-500 mr-1">Rating:</span>
+              <i class="star-btn fa-regular fa-star text-lg text-gray-300 cursor-pointer hover:text-yellow-400 transition-colors" onclick="setRating(1)"></i>
+              <i class="star-btn fa-regular fa-star text-lg text-gray-300 cursor-pointer hover:text-yellow-400 transition-colors" onclick="setRating(2)"></i>
+              <i class="star-btn fa-regular fa-star text-lg text-gray-300 cursor-pointer hover:text-yellow-400 transition-colors" onclick="setRating(3)"></i>
+              <i class="star-btn fa-regular fa-star text-lg text-gray-300 cursor-pointer hover:text-yellow-400 transition-colors" onclick="setRating(4)"></i>
+              <i class="star-btn fa-regular fa-star text-lg text-gray-300 cursor-pointer hover:text-yellow-400 transition-colors" onclick="setRating(5)"></i>
+            </div>
+            <div class="flex gap-2">
+              <input id="cmtInput" type="text" placeholder="Ceritakan pengalamanmu..."
+                class="flex-1 bg-white border border-gray-200 rounded-xl px-3 py-2 text-xs outline-none focus:ring-1 focus:ring-black">
+              <button id="cmtBtn" onclick="submitCmt()"
+                class="bg-black text-white px-4 py-2 rounded-xl text-xs font-black hover:bg-zinc-800 transition-colors flex-shrink-0">Kirim</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- ===== SIDEBAR KERANJANG ===== -->
-    <div id="cartSidebar" class="fixed inset-y-0 right-0 w-80 bg-white z-[120] shadow-2xl translate-x-full transition-transform duration-500 flex flex-col">
-        <div class="p-6 border-b flex justify-between items-center">
-            <h3 class="text-xl font-black">Keranjang</h3>
-            <button onclick="toggleSidebar('cartSidebar')" class="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center hover:bg-black hover:text-white transition-all"><i class="fa-solid fa-xmark text-sm"></i></button>
-        </div>
-        <div id="cartItems" class="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar"></div>
-        <div class="p-6 border-t bg-gray-50 rounded-t-[2rem]">
-            <div class="flex justify-between items-center mb-4">
-                <span class="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Total</span>
-                <span id="cartTotal" class="text-xl font-black">Rp 0</span>
-            </div>
-            <button onclick="checkout()" class="w-full bg-black text-white py-4 rounded-xl font-bold text-sm hover:shadow-xl transition-all">Selesaikan Pesanan</button>
-        </div>
+    <!-- Related -->
+    <div class="mt-12">
+      <h3 class="font-black text-base mb-4">Produk Serupa</h3>
+      <div id="pdpRelated" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3"></div>
     </div>
+  </div>
+</div>
 
-    <!-- ===== MODAL DETAIL PRODUK ===== -->
-    <div id="modalDetail" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 modal-bg">
-        <div class="bg-white w-full max-w-4xl rounded-[2.5rem] overflow-hidden custom-shadow flex flex-col md:flex-row max-h-[90vh]">
-            <div class="md:w-1/2 bg-gray-50 flex flex-col items-center justify-center relative p-6">
-                <img id="detailImg" src="" class="w-full aspect-square object-cover rounded-xl shadow-lg transition-all duration-300">
-                <div id="detailGallery" class="flex gap-3 mt-4 overflow-x-auto w-full justify-center pb-2"></div>
-            </div>
-            <div class="md:w-1/2 p-8 overflow-y-auto custom-scrollbar flex flex-col relative">
-                <div class="flex justify-between items-start mb-3">
-                    <span id="detailBadge" class="bg-black text-white text-[9px] px-2.5 py-1 rounded-full font-bold uppercase tracking-widest">Baru</span>
-                    <button onclick="closeProductDetail()" class="text-gray-300 hover:text-black absolute right-8 top-8 z-10 bg-white rounded-full w-8 h-8 shadow-sm flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-                <h3 id="detailTitle" class="text-2xl font-black mb-1">Nama Produk</h3>
-                <div id="modalRatingDisplay" class="flex items-center gap-2 mb-2 text-yellow-400 text-xs"></div>
-                <div class="flex items-center gap-3 mb-6">
-                    <span id="detailPrice" class="text-xl font-bold">Rp 0</span>
-                    <span id="detailOldPrice" class="text-xs text-gray-300 line-through"></span>
-                </div>
-                <div class="mb-4">
-                    <h4 class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Deskripsi</h4>
-                    <p id="detailDesc" class="text-gray-500 text-sm leading-relaxed whitespace-pre-line">Deskripsi produk.</p>
-                </div>
-                <div class="bg-gray-50 rounded-xl p-3 mb-6 border border-gray-100 text-[11px] text-gray-600 space-y-2">
-                    <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-location-dot text-gray-400 w-4 text-center"></i>
-                        <span id="detailLocation" class="font-medium">Lokasi: -</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-box text-gray-400 w-4 text-center"></i>
-                        <span id="detailShippedFrom" class="font-medium">Dikirim dari: -</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-truck-fast text-gray-400 w-4 text-center"></i>
-                        <span id="detailEstTime" class="font-medium">Estimasi Waktu: -</span>
-                    </div>
-                </div>
-                <div class="grid grid-cols-5 gap-2 mt-auto mb-6">
-                    <button id="addToCartBtn" class="col-span-4 bg-black text-white py-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-neutral-800 transition-all">
-                        <i class="fa-solid fa-plus text-xs"></i> Tambahkan
-                    </button>
-                    <button id="detailFavBtn" class="col-span-1 border-2 border-gray-100 rounded-xl flex items-center justify-center text-lg hover:bg-gray-50 transition-all">
-                        <i class="fa-regular fa-heart"></i>
-                    </button>
-                </div>
-                <!-- Komentar & Rating -->
-                <div class="border-t border-gray-100 pt-5">
-                    <h4 class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3">Ulasan & Komentar</h4>
-                    <div id="detailComments" class="space-y-2 mb-4 max-h-32 overflow-y-auto pr-2 custom-scrollbar"></div>
-                    <div class="bg-gray-50 p-3 rounded-xl border border-gray-100">
-                        <div class="flex items-center gap-1.5 mb-2 text-gray-300 text-xs" id="starInput">
-                            <span class="text-[10px] font-bold text-gray-500 mr-1">Beri Rating:</span>
-                            <i class="fa-regular fa-star cursor-pointer hover:text-yellow-400 transition-colors" onclick="setFormRating(1)"></i>
-                            <i class="fa-regular fa-star cursor-pointer hover:text-yellow-400 transition-colors" onclick="setFormRating(2)"></i>
-                            <i class="fa-regular fa-star cursor-pointer hover:text-yellow-400 transition-colors" onclick="setFormRating(3)"></i>
-                            <i class="fa-regular fa-star cursor-pointer hover:text-yellow-400 transition-colors" onclick="setFormRating(4)"></i>
-                            <i class="fa-regular fa-star cursor-pointer hover:text-yellow-400 transition-colors" onclick="setFormRating(5)"></i>
-                        </div>
-                        <div class="flex gap-2">
-                            <input type="text" id="commentInput" placeholder="Tulis ulasan jujurmu..." class="flex-1 bg-white border border-gray-200 rounded-lg p-2 text-xs focus:ring-1 focus:ring-black outline-none">
-                            <button id="submitCommentBtn" class="bg-black text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-gray-800 transition-colors">Kirim</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+<!-- ═══════════════════ SIDEBAR FAV ═══════════════════ -->
+<div id="favSidebar" class="sbar">
+  <div class="px-5 py-4 border-b border-gray-100 flex justify-between items-center flex-shrink-0">
+    <h3 class="font-black">Favorit <span id="favBadge" class="text-sm text-gray-400 font-semibold"></span></h3>
+    <button onclick="closeSidebar('favSidebar')" class="w-8 h-8 rounded-xl bg-gray-100 flex items-center justify-center hover:bg-gray-200"><i class="fa-solid fa-xmark text-sm"></i></button>
+  </div>
+  <div id="favItems" class="flex-1 overflow-y-auto p-5 space-y-4 cscroll"></div>
+</div>
+
+<!-- ═══════════════════ SIDEBAR CART ═══════════════════ -->
+<div id="cartSidebar" class="sbar">
+  <div class="px-5 py-4 border-b border-gray-100 flex justify-between items-center flex-shrink-0">
+    <h3 class="font-black">Keranjang</h3>
+    <button onclick="closeSidebar('cartSidebar')" class="w-8 h-8 rounded-xl bg-gray-100 flex items-center justify-center hover:bg-gray-200"><i class="fa-solid fa-xmark text-sm"></i></button>
+  </div>
+  <div id="cartItems" class="flex-1 overflow-y-auto p-5 space-y-4 cscroll"></div>
+  <div class="p-5 border-t border-gray-100 flex-shrink-0">
+    <div class="flex justify-between items-center mb-3">
+      <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Total</span>
+      <span id="cartTotal" class="text-xl font-black">Rp 0</span>
     </div>
+    <button onclick="checkout()" class="w-full bg-black text-white py-3.5 rounded-2xl font-black text-sm hover:bg-zinc-800 transition-colors">Checkout</button>
+  </div>
+</div>
 
-    <!-- ===== MODAL JUAL BARANG ===== -->
-    <div id="modalJual" class="hidden fixed inset-0 z-[110] flex items-center justify-center p-4 modal-bg">
-        <div class="bg-white w-full max-w-md rounded-[2rem] p-8 custom-shadow fade-in max-h-[95vh] overflow-y-auto custom-scrollbar">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-black">Jual Barang</h3>
-                <button onclick="toggleModal('modalJual')" class="text-gray-300 hover:text-black"><i class="fa-solid fa-xmark text-xl"></i></button>
-            </div>
-            <form id="formJual" class="space-y-4">
-                <input type="text" id="pName" required placeholder="Nama Produk" class="w-full bg-gray-50 border-none rounded-xl p-3 focus:ring-1 focus:ring-black outline-none text-sm">
-                <textarea id="pDesc" required placeholder="Deskripsi Produk (Bahan, Ukuran, Detail Barang...)" class="w-full bg-gray-50 border-none rounded-xl p-3 focus:ring-1 focus:ring-black outline-none text-sm h-24 resize-none custom-scrollbar"></textarea>
-                <div class="grid grid-cols-2 gap-3">
-                    <input type="number" id="pPrice" required placeholder="Harga (Rp)" class="w-full bg-gray-50 border-none rounded-xl p-3 focus:ring-1 focus:ring-black outline-none text-sm">
-                    <input type="number" id="pDiscount" placeholder="Diskon (%)" min="0" max="100" class="w-full bg-gray-50 border-none rounded-xl p-3 focus:ring-1 focus:ring-black outline-none text-sm">
-                </div>
-                <select id="pCategory" class="w-full bg-gray-50 border-none rounded-xl p-3 focus:ring-1 focus:ring-black outline-none text-sm">
-                    <option value="Pakaian">Pakaian</option>
-                    <option value="Sepatu">Sepatu</option>
-                    <option value="Aksesori">Aksesori</option>
-                    <option value="Gadget">Gadget</option>
-                </select>
+<!-- Overlay sidebar -->
+<div id="sbOverlay" class="fixed inset-0 bg-black/40 z-[399] hidden" onclick="closeAllSidebars()"></div>
 
-                <!-- Upload Foto -->
-                <div class="bg-gray-50 rounded-xl p-3 border border-gray-100">
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Upload Foto Produk (Maks 3)</label>
-                    <p class="text-[9px] text-gray-400 mb-2">Pilih hingga 3 foto sekaligus. Foto pertama menjadi sampul.</p>
-                    <input type="file" id="pImageFile" accept="image/*" multiple class="w-full text-xs text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-black file:text-white hover:file:bg-gray-800 transition-colors cursor-pointer mb-2">
-                    <div id="imagePreviewContainer" class="flex gap-2 overflow-x-auto pb-1"></div>
-                    <p class="text-[10px] text-gray-400 text-center my-2">Atau gunakan URL:</p>
-                    <input type="text" id="pImage" placeholder="https://..." class="w-full bg-white border border-gray-200 rounded-lg p-2 focus:ring-1 focus:ring-black outline-none text-xs">
-                </div>
-
-                <!-- Lokasi & Pengiriman -->
-                <div class="space-y-3">
-                    <input type="text" id="pLocation" required placeholder="Lokasi Barang (ex: Jakarta Selatan)" class="w-full bg-gray-50 border-none rounded-xl p-3 focus:ring-1 focus:ring-black outline-none text-sm">
-                    <input type="text" id="pShippedFrom" required placeholder="Dikirim dari (ex: Toko Utama Jakarta)" class="w-full bg-gray-50 border-none rounded-xl p-3 focus:ring-1 focus:ring-black outline-none text-sm">
-                    <input type="text" id="pEstTime" required placeholder="Estimasi Waktu Pengiriman (ex: 2-3 Hari)" class="w-full bg-gray-50 border-none rounded-xl p-3 focus:ring-1 focus:ring-black outline-none text-sm">
-                </div>
-
-                <button type="submit" id="submitJualBtn" class="w-full bg-black text-white py-4 rounded-xl font-bold mt-4 text-sm shadow-md hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2">
-                    Post Barang
-                </button>
-            </form>
-        </div>
+<!-- ═══════════════════ MODAL JUAL ═══════════════════ -->
+<div id="modalJual" class="mback hidden">
+  <div class="mbox max-w-md max-h-[95vh] flex flex-col">
+    <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center flex-shrink-0">
+      <h3 class="font-black text-base">Jual Barang</h3>
+      <button onclick="toggleModal('modalJual')" class="w-8 h-8 rounded-xl bg-gray-100 flex items-center justify-center hover:bg-gray-200"><i class="fa-solid fa-xmark text-sm"></i></button>
     </div>
-
-    <!-- ===== MODAL CHECKOUT ===== -->
-    <div id="modalCheckout" class="hidden fixed inset-0 z-[130] flex items-center justify-center p-4 modal-bg">
-        <div class="bg-white w-full max-w-lg rounded-[2.5rem] p-8 custom-shadow fade-in flex flex-col max-h-[90vh]">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-black">Detail Pengiriman</h3>
-                <button onclick="toggleModal('modalCheckout')" class="text-gray-300 hover:text-black"><i class="fa-solid fa-xmark text-xl"></i></button>
-            </div>
-            <div class="overflow-y-auto pr-2 custom-scrollbar flex-1 mb-4">
-                <div class="mb-6 border-b border-gray-100 pb-4">
-                    <h4 class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3">Ringkasan Pesanan</h4>
-                    <div id="checkoutItemsContainer" class="space-y-3"></div>
-                </div>
-                <form id="formCheckout" class="space-y-4">
-                    <div>
-                        <h4 class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3">Informasi Penerima</h4>
-                        <div class="space-y-3">
-                            <input type="text" required placeholder="Nama Lengkap Penerima" class="w-full bg-gray-50 border-none rounded-xl p-3 focus:ring-1 focus:ring-black outline-none text-sm">
-                            <input type="tel" required placeholder="Nomor WhatsApp" class="w-full bg-gray-50 border-none rounded-xl p-3 focus:ring-1 focus:ring-black outline-none text-sm">
-                            <textarea required placeholder="Alamat Lengkap (Jl, RT/RW, Kec, Kota, Kode Pos)" class="w-full bg-gray-50 border-none rounded-xl p-3 focus:ring-1 focus:ring-black outline-none text-sm h-24 resize-none custom-scrollbar"></textarea>
-                        </div>
-                    </div>
-                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 flex justify-between items-center mt-4">
-                        <span class="text-sm font-bold text-gray-500">Total Pembayaran</span>
-                        <span id="checkoutFinalTotal" class="text-xl font-black text-black">Rp 0</span>
-                    </div>
-                    <button type="submit" class="w-full bg-black text-white py-4 rounded-xl font-bold mt-4 text-sm shadow-md hover:bg-neutral-800 transition-colors flex justify-center items-center gap-2">
-                        <i class="fa-solid fa-lock text-xs"></i> Konfirmasi & Bayar
-                    </button>
-                </form>
-            </div>
+    <div class="overflow-y-auto p-6 flex-1 cscroll">
+      <form id="formJual" class="space-y-3">
+        <div><label class="flabel">Nama Produk</label><input id="pName" type="text" required placeholder="Nama produk..." class="finput"></div>
+        <div><label class="flabel">Deskripsi</label><textarea id="pDesc" required placeholder="Bahan, ukuran, kondisi..." class="finput h-20 resize-none"></textarea></div>
+        <div class="grid grid-cols-2 gap-3">
+          <div><label class="flabel">Harga (Rp)</label><input id="pPrice" type="number" required min="0" placeholder="0" class="finput"></div>
+          <div><label class="flabel">Diskon (%)</label><input id="pDiscount" type="number" min="0" max="100" placeholder="0" class="finput"></div>
         </div>
+        <div><label class="flabel">Kategori</label><select id="pCategory" class="finput"></select></div>
+
+        <!-- Varian -->
+        <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100">
+          <div class="flex items-center justify-between mb-2">
+            <p class="flabel mb-0">Varian Produk</p>
+            <button type="button" onclick="addVarGroup()" class="text-xs font-bold flex items-center gap-1 hover:text-gray-600 transition-colors"><i class="fa-solid fa-plus text-[10px]"></i> Tambah Tipe</button>
+          </div>
+          <div id="varGroups" class="space-y-3"></div>
+          <p class="text-[10px] text-gray-400 mt-2">Contoh: Ukuran → 38,39,40 | Warna → Hitam,Putih</p>
+        </div>
+
+        <!-- Foto -->
+        <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100">
+          <label class="flabel">Foto Produk (maks 3)</label>
+          <input type="file" id="pImgFile" accept="image/*" multiple class="w-full text-xs text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-black file:text-white hover:file:bg-zinc-800 cursor-pointer mb-2">
+          <div id="imgPrev" class="flex gap-2 flex-wrap mt-1"></div>
+          <p class="text-[10px] text-gray-400 text-center my-2">— atau URL —</p>
+          <input type="text" id="pImgUrl" placeholder="https://..." class="finput text-xs font-mono">
+        </div>
+
+        <div><label class="flabel">Lokasi Barang</label><input id="pLoc" type="text" required placeholder="ex: Jakarta Selatan" class="finput"></div>
+        <div><label class="flabel">Dikirim dari</label><input id="pFrom" type="text" required placeholder="ex: Toko Utama" class="finput"></div>
+        <div><label class="flabel">Estimasi Pengiriman</label><input id="pEst" type="text" required placeholder="ex: 2-3 Hari Kerja" class="finput"></div>
+
+        <button type="submit" id="btnJual" class="w-full bg-black text-white py-3.5 rounded-2xl font-black text-sm hover:bg-zinc-800 transition-colors flex items-center justify-center gap-2">
+          <i class="fa-solid fa-upload text-xs"></i> Post Barang
+        </button>
+      </form>
     </div>
+  </div>
+</div>
 
-    <script>
-    // ============================================================
-    // INISIALISASI SUPABASE
-    // ============================================================
-    const { createClient } = supabase;
-    const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+<!-- ═══════════════════ MODAL CHECKOUT ═══════════════════ -->
+<div id="modalCheckout" class="mback hidden">
+  <div class="mbox max-w-lg max-h-[92vh] flex flex-col">
+    <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center flex-shrink-0">
+      <h3 class="font-black text-base">Checkout</h3>
+      <button onclick="toggleModal('modalCheckout')" class="w-8 h-8 rounded-xl bg-gray-100 flex items-center justify-center hover:bg-gray-200"><i class="fa-solid fa-xmark text-sm"></i></button>
+    </div>
+    <div class="overflow-y-auto p-6 flex-1 cscroll">
+      <div class="mb-5">
+        <p class="flabel mb-3">Pesanan</p>
+        <div id="coItems" class="space-y-3"></div>
+      </div>
+      <form id="formCheckout" class="space-y-3">
+        <p class="flabel mb-1">Data Penerima</p>
+        <input type="text" required placeholder="Nama Lengkap" class="finput">
+        <input type="tel"  required placeholder="Nomor WhatsApp" class="finput">
+        <textarea required placeholder="Alamat Lengkap (Jl, RT/RW, Kec, Kota, Kode Pos)" class="finput h-20 resize-none"></textarea>
+        <div class="bg-orange-50 rounded-2xl p-4 flex justify-between items-center mt-2">
+          <span class="text-sm font-black">Total Pembayaran</span>
+          <span id="coTotal" class="text-xl font-black text-orange-600">Rp 0</span>
+        </div>
+        <button type="submit" class="w-full bg-black text-white py-3.5 rounded-2xl font-black text-sm hover:bg-zinc-800 transition-colors flex items-center justify-center gap-2">
+          <i class="fa-solid fa-lock text-xs"></i> Konfirmasi & Bayar
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
 
-    // ============================================================
-    // STATE GLOBAL
-    // ============================================================
-    let products = [];
-    let cart = [];
-    let favorites = [];
-    let currentCategory = 'all';
-    let currentPriceLimit = 5000000;
-    let searchQuery = '';
-    let currentSort = 'default';
-    let activeProduct = null; // objek produk yang sedang dibuka
-    let formRating = 5;
-    let uploadedImagesBase64 = [];
+<!-- ═══════════════════ SCRIPT ═══════════════════ -->
+<script>
+// ─── SUPABASE ───────────────────────────────────
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const defaultShipping = {
-        location: "Jakarta Selatan, Indonesia",
-        shippedFrom: "Gudang Utama Pufutarashop",
-        estimatedTime: "1 - 3 Hari Kerja"
+// ─── STATE ──────────────────────────────────────
+let products  = [], cart = [], favs = [], categories = [];
+let curCat    = 'all', curSort = 'default', curPrice = 5000000, query = '';
+let activeP   = null, selVars = {}, formRating = 5, pendingFiles = [], varGroupN = 0;
+
+const DEFAULT_CATS = [
+    {name:'Pakaian', icon:'fa-shirt',      color:'bg-purple-500'},
+    {name:'Sepatu',  icon:'fa-shoe-prints', color:'bg-blue-500'},
+    {name:'Aksesori',icon:'fa-glasses',     color:'bg-yellow-500'},
+    {name:'Gadget',  icon:'fa-microchip',   color:'bg-green-500'},
+];
+
+// ─── UTILS ──────────────────────────────────────
+const idr = n => new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(n);
+const fp  = p => p.price - p.price * p.discount / 100;
+
+function stars(r) {
+    let h=''; const f=Math.floor(r), half=r%1>=.5;
+    for(let i=0;i<f;i++) h+='<i class="fa-solid fa-star"></i>';
+    if(half) h+='<i class="fa-solid fa-star-half-stroke"></i>';
+    for(let i=0;i<5-f-(half?1:0);i++) h+='<i class="fa-regular fa-star"></i>';
+    return h;
+}
+
+function toast(msg, icon='fa-check') {
+    const w=document.getElementById('toastWrap');
+    const t=document.createElement('div'); t.className='toast';
+    t.innerHTML=`<i class="fa-solid ${icon}"></i><span>${msg}</span>`;
+    w.appendChild(t);
+    setTimeout(()=>{ t.classList.add('out'); setTimeout(()=>t.remove(),300); }, 2800);
+}
+
+function toSlug(s) {
+    return s.toLowerCase().trim().replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-');
+}
+
+// ─── WELCOME ────────────────────────────────────
+function showWelcome() {
+    if (sessionStorage.getItem('pw') || localStorage.getItem('pw_never')) return;
+    document.getElementById('welcomeModal').classList.remove('hidden');
+}
+function closeWelcome(never=false) {
+    document.getElementById('welcomeModal').classList.add('hidden');
+    sessionStorage.setItem('pw','1');
+    if (never) localStorage.setItem('pw_never','1');
+}
+
+// ─── CATEGORIES ─────────────────────────────────
+function loadCats() {
+    const s = localStorage.getItem('pufutara_categories');
+    categories = s ? JSON.parse(s) : DEFAULT_CATS;
+    buildTabs(); fillSelects();
+}
+
+function buildTabs() {
+    const wrap  = document.getElementById('catTabs');
+    const promo = document.getElementById('tab-promo');
+    // remove old dynamic tabs
+    [...wrap.querySelectorAll('.ctab:not(#tab-all):not(#tab-promo)')].forEach(b=>b.remove());
+    categories.forEach(c => {
+        const b = document.createElement('button');
+        b.id        = `tab-${c.name}`;
+        b.className = 'ctab flex-shrink-0 px-4 py-1.5 text-xs font-bold rounded-xl text-gray-600 hover:bg-gray-100 transition-all';
+        b.textContent = c.name;
+        b.onclick = () => setCat(c.name);
+        wrap.insertBefore(b, promo);
+    });
+}
+
+function fillSelects() {
+    const el = document.getElementById('pCategory');
+    if (el) el.innerHTML = categories.map(c=>`<option value="${c.name}">${c.name}</option>`).join('');
+}
+
+// ─── ROUTING ────────────────────────────────────
+function getBase() { return window.location.pathname.replace(/\/(product|category)(\/.*)?$/,'').replace(/\/$/,''); }
+function goHome()  { history.pushState({view:'home'},'',getBase()||'./'); closePDP(); curCat='all'; renderGrid(); }
+
+function pushProd(p) {
+    history.pushState({view:'product',slug:toSlug(p.name)},`${p.name} | Pufutarashop`,`${getBase()}/product/${toSlug(p.name)}`);
+    document.title = `${p.name} | Pufutarashop`;
+}
+function pushCat(cat) {
+    const url = cat==='all' ? getBase()||'./' : `${getBase()}/category/${cat}`;
+    history.pushState({view:'category',category:cat},`${cat} | Pufutarashop`,url);
+    document.title = cat!=='all' ? `${cat} | Pufutarashop` : 'Pufutarashop';
+}
+
+window.addEventListener('popstate', async e => {
+    const s=e.state; if(!s) return;
+    if (s.view==='product') {
+        if (!products.length) await loadProducts();
+        const p=products.find(x=>toSlug(x.name)===s.slug);
+        if (p) openPDP(p.id,false);
+    } else { closePDP(false); curCat=s.category||'all'; renderGrid(); }
+});
+
+// ─── LOAD PRODUCTS ──────────────────────────────
+async function loadProducts() {
+    const {data,error} = await db.from('products').select('*').order('created_at',{ascending:false});
+    if (error) { toast('Gagal memuat produk','fa-triangle-exclamation'); return; }
+    products = data.map(norm);
+    renderGrid();
+}
+
+function norm(r) {
+    const imgs = Array.isArray(r.images) ? r.images : JSON.parse(r.images||'[]');
+    return {
+        id:r.id, name:r.name,
+        price:parseFloat(r.price)||0, discount:parseFloat(r.discount)||0,
+        category:r.category, desc:r.description||'',
+        images:imgs, image:imgs[0]||'',
+        location:r.location||'', shippedFrom:r.shipped_from||'', estimatedTime:r.estimated_time||'',
+        likes:r.likes||0, rating:parseFloat(r.rating)||0, stock:r.stock||0,
+        variants: r.variants ? (Array.isArray(r.variants)?r.variants:JSON.parse(r.variants)) : [],
     };
+}
 
-    // ============================================================
-    // UTILITAS: SLUG
-    // Mengubah nama produk jadi URL-friendly string
-    // Contoh: "Premium Onyx Hoodie" → "premium-onyx-hoodie"
-    // ============================================================
-    function toSlug(name) {
-        return name
-            .toLowerCase()
-            .trim()
-            .replace(/[^a-z0-9\s-]/g, '')   // hapus karakter spesial
-            .replace(/\s+/g, '-')            // spasi → tanda hubung
-            .replace(/-+/g, '-');            // hapus tanda hubung ganda
+// ─── RENDER GRID ────────────────────────────────
+function setCat(cat)   { curCat=cat; pushCat(cat); renderGrid(); }
+function setSort(v)    { curSort=v; renderGrid(); }
+function setPriceLimit(v) { curPrice=parseInt(v); document.getElementById('priceLabel').innerText=idr(curPrice); renderGrid(); }
+
+function renderGrid() {
+    // tabs highlight
+    document.querySelectorAll('.ctab').forEach(b => {
+        b.classList.remove('bg-black','text-white','bg-red-500','text-red-500');
+        b.classList.add('text-gray-600');
+    });
+    const atab = document.getElementById('tab-'+curCat);
+    if (atab) {
+        atab.classList.remove('text-gray-600');
+        if (curCat==='promo') atab.classList.add('bg-red-500','text-white');
+        else atab.classList.add('bg-black','text-white');
     }
 
-    function findProductBySlug(slug) {
-        return products.find(p => toSlug(p.name) === slug);
+    let list = [...products];
+    if (curCat==='promo')   list=list.filter(p=>p.discount>0);
+    else if(curCat!=='all') list=list.filter(p=>p.category===curCat);
+    if (query) list=list.filter(p=>p.name.toLowerCase().includes(query.toLowerCase()));
+    list=list.filter(p=>fp(p)<=curPrice);
+    if (curSort==='price-asc')  list.sort((a,b)=>fp(a)-fp(b));
+    if (curSort==='price-desc') list.sort((a,b)=>fp(b)-fp(a));
+    if (curSort==='rating')     list.sort((a,b)=>b.rating-a.rating);
+
+    document.getElementById('prodCount').innerText = `${list.length} produk ditemukan`;
+    const grid=document.getElementById('productGrid');
+    if (!list.length) { grid.innerHTML=`<div class="col-span-5 text-center py-20 text-gray-400"><i class="fa-solid fa-box-open text-4xl mb-3 block"></i><p class="font-bold">Tidak ada produk</p></div>`; return; }
+
+    grid.innerHTML = list.map(p => {
+        const price = fp(p), img=p.images[0]||p.image, isFav=favs.includes(p.id);
+        return `
+        <div class="pcard" onclick="openPDP('${p.id}')">
+          <div class="thumb">
+            ${p.discount>0?`<span class="absolute top-2 left-2 z-10 bg-red-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full">-${p.discount}%</span>`:''}
+            ${p.stock===0?`<span class="absolute top-2 right-2 z-10 bg-gray-600 text-white text-[9px] font-black px-2 py-0.5 rounded-full">Habis</span>`:p.stock<=3?`<span class="absolute top-2 right-2 z-10 bg-orange-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full">Menipis</span>`:''}
+            <img src="${img}" alt="${p.name}" loading="lazy">
+            <button class="favcorner ${isFav?'on':''} w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center hover:scale-110 transition-transform"
+              onclick="event.stopPropagation(); toggleFav('${p.id}')">
+              <i class="${isFav?'fa-solid text-red-500':'fa-regular text-gray-400'} fa-heart text-sm"></i>
+            </button>
+            <div class="hactions">
+              <button onclick="event.stopPropagation(); quickCart('${p.id}')"
+                class="flex-1 bg-black text-white rounded-xl py-2 text-xs font-black flex items-center justify-center gap-1 hover:bg-zinc-800 transition-colors shadow-lg">
+                <i class="fa-solid fa-plus text-[10px]"></i> Keranjang
+              </button>
+            </div>
+          </div>
+          <div class="p-3">
+            <p class="text-[10px] text-gray-400 font-semibold mb-0.5">${p.category}</p>
+            <p class="text-xs font-bold text-gray-800 truncate">${p.name}</p>
+            <div class="flex items-center gap-1 text-yellow-400 text-[9px] my-1">${stars(p.rating)}<span class="text-gray-400 ml-1">(${p.rating})</span></div>
+            <div class="flex items-baseline gap-1.5">
+              <span class="text-sm font-black">${idr(price)}</span>
+              ${p.discount>0?`<span class="text-[10px] text-gray-400 line-through">${idr(p.price)}</span>`:''}
+            </div>
+            <p class="text-[10px] text-gray-400 mt-0.5 truncate">${p.location}</p>
+          </div>
+        </div>`;
+    }).join('');
+}
+
+// ─── PDP ────────────────────────────────────────
+async function openPDP(id, pushUrl=true) {
+    const p=products.find(x=>x.id===id); if(!p) return;
+    activeP=p; selVars={};
+    if (pushUrl) pushProd(p);
+
+    const price=fp(p), img=p.images[0]||p.image;
+    document.getElementById('pdpImg').src   = img;
+    document.getElementById('pdpCrumb').innerText = `${p.category} / ${p.name}`;
+    document.getElementById('pdpCatBadge').innerText = p.category;
+    document.getElementById('pdpName').innerText  = p.name;
+    document.getElementById('pdpStars').innerHTML = stars(p.rating);
+    document.getElementById('pdpRating').innerText = p.rating>0 ? `${p.rating}/5` : '';
+    document.getElementById('pdpPrice').innerText  = idr(price);
+    document.getElementById('pdpOldPrice').innerText = p.discount>0 ? idr(p.price) : '';
+    document.getElementById('pdpDesc').innerText   = p.desc;
+    document.getElementById('pdpLoc').innerText    = `Lokasi: ${p.location}`;
+    document.getElementById('pdpFrom').innerText   = `Dikirim dari: ${p.shippedFrom}`;
+    document.getElementById('pdpEst').innerText    = `Estimasi: ${p.estimatedTime}`;
+
+    const sb=document.getElementById('pdpStockBadge');
+    if (p.stock===0)     { sb.innerText='Stok Habis';          sb.className='text-[10px] font-bold bg-gray-200 text-gray-600 px-3 py-1 rounded-full'; }
+    else if(p.stock<=3)  { sb.innerText=`Sisa ${p.stock}!`;    sb.className='text-[10px] font-bold bg-orange-100 text-orange-600 px-3 py-1 rounded-full'; }
+    else                 { sb.innerText=`Stok: ${p.stock}`;    sb.className='text-[10px] font-bold bg-green-100 text-green-600 px-3 py-1 rounded-full'; }
+
+    const db2=document.getElementById('pdpDiscBadge');
+    if (p.discount>0) { db2.innerText=`-${p.discount}%`; db2.classList.remove('hidden'); } else db2.classList.add('hidden');
+
+    const sv=document.getElementById('pdpSave');
+    if (p.discount>0) { sv.innerText=`Hemat ${idr(p.price-price)} (${p.discount}% off)`; sv.classList.remove('hidden'); } else sv.classList.add('hidden');
+
+    // thumbs
+    const th=document.getElementById('pdpThumbs');
+    th.innerHTML = p.images.length>1 ? p.images.map((s,i)=>`
+        <img src="${s}" loading="lazy"
+          onclick="document.getElementById('pdpImg').src='${s}';[...document.querySelectorAll('#pdpThumbs img')].forEach(x=>x.classList.remove('ring-2','ring-black'));this.classList.add('ring-2','ring-black')"
+          class="w-16 h-16 object-cover rounded-xl cursor-pointer border border-gray-200 flex-shrink-0 ${i===0?'ring-2 ring-black':'hover:border-black'} transition-all">`).join('') : '';
+
+    // fav
+    updatePDPFav();
+
+    // CTA state
+    [document.getElementById('pdpBtnCart'),document.getElementById('pdpBtnBuy')].forEach(b=>{
+        b.disabled=p.stock===0; b.classList.toggle('opacity-40',p.stock===0); b.classList.toggle('cursor-not-allowed',p.stock===0);
+    });
+
+    // variants
+    renderVariants(p);
+
+    // related
+    renderRelated(p);
+
+    // reset comment form
+    setRating(5); document.getElementById('cmtInput').value='';
+    document.getElementById('pdpComments').innerHTML='<p class="text-xs text-gray-400 italic">Memuat ulasan...</p>';
+    document.getElementById('pdpCmtCnt').innerText='';
+
+    // open
+    document.getElementById('pdp').classList.add('open');
+    document.getElementById('pdp').scrollTop=0;
+    document.body.style.overflow='hidden';
+
+    // load comments async
+    const cmts=await loadCmts(p.id);
+    renderCmts(cmts,p);
+}
+
+function closePDP(updateUrl=true) {
+    document.getElementById('pdp').classList.remove('open');
+    document.body.style.overflow='';
+    if(updateUrl){pushCat(curCat);document.title='Pufutarashop';}
+    activeP=null;
+}
+
+function updatePDPFav() {
+    if(!activeP) return;
+    const i=document.getElementById('pdpFavBtn').querySelector('i');
+    const on=favs.includes(activeP.id);
+    i.className=on?'fa-solid fa-heart text-sm text-red-500':'fa-regular fa-heart text-sm';
+}
+
+function pdpToggleFav() { if(activeP) toggleFav(activeP.id); updatePDPFav(); }
+
+function pdpAddCart()  { if(!chkVars()) return; addToCart(activeP.id, selVars); }
+function pdpBuyNow()   { if(!chkVars()) return; addToCart(activeP.id, selVars); closePDP(); checkout(); }
+
+// variants
+function renderVariants(p) {
+    const sec=document.getElementById('pdpVarSection');
+    const con=document.getElementById('pdpVarContainer');
+    if(!p.variants||!p.variants.length){sec.classList.add('hidden');return;}
+    sec.classList.remove('hidden');
+    con.innerHTML=p.variants.map(g=>`
+        <div>
+          <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">${g.name}</p>
+          <div class="flex flex-wrap gap-2">
+            ${g.options.map(o=>`
+              <button class="vchip ${o.stock===0?'out':''}"
+                id="vc-${toSlug(g.name)}-${toSlug(o.value)}"
+                onclick="selVar('${g.name}','${o.value}')"
+                ${o.stock===0?'disabled':''}
+              >${o.value}${o.stock===0?' (Habis)':''}</button>`).join('')}
+          </div>
+        </div>`).join('');
+}
+
+function selVar(group, val) {
+    selVars[group]=val;
+    document.querySelectorAll(`[id^="vc-${toSlug(group)}-"]`).forEach(b=>b.classList.remove('sel'));
+    document.getElementById(`vc-${toSlug(group)}-${toSlug(val)}`)?.classList.add('sel');
+}
+
+function chkVars() {
+    if(!activeP?.variants?.length) return true;
+    for(const g of activeP.variants) {
+        if(!selVars[g.name]) { toast(`Pilih ${g.name} terlebih dahulu`,'fa-circle-exclamation'); return false; }
     }
+    return true;
+}
 
-    // ============================================================
-    // UTILITAS UMUM
-    // ============================================================
-    const formatIDR = (num) =>
-        new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num);
+// related
+function renderRelated(p) {
+    const rel=products.filter(x=>x.id!==p.id&&x.category===p.category).slice(0,5);
+    document.getElementById('pdpRelated').innerHTML=rel.map(r=>{
+        const img=r.images[0]||r.image, isFav=favs.includes(r.id);
+        return `
+        <div class="pcard" onclick="openPDP('${r.id}')">
+          <div class="thumb">
+            ${r.discount>0?`<span class="absolute top-2 left-2 z-10 bg-red-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full">-${r.discount}%</span>`:''}
+            <img src="${img}" alt="${r.name}" loading="lazy">
+            <button class="favcorner ${isFav?'on':''} w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center"
+              onclick="event.stopPropagation();toggleFav('${r.id}')">
+              <i class="${isFav?'fa-solid text-red-500':'fa-regular text-gray-400'} fa-heart text-sm"></i>
+            </button>
+            <div class="hactions">
+              <button onclick="event.stopPropagation();quickCart('${r.id}')"
+                class="flex-1 bg-black text-white rounded-xl py-2 text-xs font-black flex items-center justify-center gap-1 hover:bg-zinc-800 shadow-lg">
+                <i class="fa-solid fa-plus text-[10px]"></i> Keranjang
+              </button>
+            </div>
+          </div>
+          <div class="p-3">
+            <p class="text-xs font-bold text-gray-800 truncate">${r.name}</p>
+            <span class="text-sm font-black">${idr(fp(r))}</span>
+          </div>
+        </div>`;
+    }).join('');
+}
 
-    function generateStars(rating) {
-        let html = '';
-        const full  = Math.floor(rating);
-        const half  = rating % 1 >= 0.5;
-        const empty = 5 - full - (half ? 1 : 0);
-        for (let i = 0; i < full; i++)  html += '<i class="fa-solid fa-star"></i>';
-        if (half)                        html += '<i class="fa-solid fa-star-half-stroke"></i>';
-        for (let i = 0; i < empty; i++) html += '<i class="fa-regular fa-star"></i>';
-        return html;
-    }
+// comments
+async function loadCmts(pid) {
+    const {data,error}=await db.from('comments').select('*').eq('product_id',pid).order('created_at',{ascending:false});
+    return error?[]:data;
+}
 
-    function showToast(message, icon = 'fa-check') {
-        const container = document.getElementById('toast-container');
-        const toast = document.createElement('div');
-        toast.className = 'toast-item';
-        toast.innerHTML = `<i class="fa-solid ${icon}"></i> <span>${message}</span>`;
-        container.appendChild(toast);
-        setTimeout(() => {
-            toast.classList.add('toast-exit');
-            setTimeout(() => toast.remove(), 300);
-        }, 2500);
-    }
+function renderCmts(cmts,p) {
+    document.getElementById('pdpCmtCnt').innerText=`${cmts.length} ulasan`;
+    if(p.rating>0) document.getElementById('pdpAvgRating').innerHTML=`<span class="text-yellow-500">${stars(p.rating)}</span> <span class="font-black">${p.rating}</span>`;
+    const el=document.getElementById('pdpComments');
+    if(!cmts.length){el.innerHTML='<p class="text-xs text-gray-400 italic">Belum ada ulasan.</p>';return;}
+    el.innerHTML=cmts.map(c=>`
+        <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100">
+          <div class="flex items-center justify-between mb-2">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 bg-black text-white rounded-full flex items-center justify-center text-[10px] font-black">P</div>
+              <span class="text-xs font-bold">Pembeli</span>
+            </div>
+            <div class="text-yellow-400 text-xs">${'<i class="fa-solid fa-star"></i>'.repeat(c.rating)}${'<i class="fa-regular fa-star text-gray-300"></i>'.repeat(5-c.rating)}</div>
+          </div>
+          <p class="text-xs text-gray-600 leading-relaxed">${c.text}</p>
+          <p class="text-[10px] text-gray-400 mt-2">${new Date(c.created_at).toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'})}</p>
+        </div>`).join('');
+}
 
-    function showLoadingBtn(btnId, text = 'Menyimpan...') {
-        const btn = document.getElementById(btnId);
-        if (btn) {
-            btn.disabled = true;
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${text}`;
+function setRating(r) {
+    formRating=r;
+    document.querySelectorAll('.star-btn').forEach((s,i)=>{
+        s.className=`star-btn ${i<r?'fa-solid text-yellow-400':'fa-regular text-gray-300'} fa-star text-lg cursor-pointer hover:text-yellow-400 transition-colors`;
+    });
+}
+
+async function submitCmt() {
+    const text=document.getElementById('cmtInput').value.trim();
+    if(!text){toast('Komentar tidak boleh kosong','fa-circle-exclamation');return;}
+    if(!activeP) return;
+    const btn=document.getElementById('cmtBtn');
+    btn.disabled=true; btn.innerText='...';
+    try {
+        await db.from('comments').insert([{product_id:activeP.id,text,rating:formRating}]);
+        const {data:all}=await db.from('comments').select('rating').eq('product_id',activeP.id);
+        const avg=all.length ? parseFloat((all.reduce((s,c)=>s+c.rating,0)/all.length).toFixed(1)) : formRating;
+        await db.from('products').update({rating:avg}).eq('id',activeP.id);
+        const idx=products.findIndex(x=>x.id===activeP.id);
+        if(idx>=0) products[idx].rating=avg;
+        activeP.rating=avg;
+        document.getElementById('cmtInput').value=''; setRating(5);
+        const cmts=await loadCmts(activeP.id); renderCmts(cmts,activeP);
+        document.getElementById('pdpStars').innerHTML=stars(avg);
+        document.getElementById('pdpRating').innerText=`${avg}/5`;
+        toast('Ulasan dikirim!','fa-check');
+    } catch(e){toast('Gagal: '+e.message,'fa-triangle-exclamation');}
+    finally{btn.disabled=false;btn.innerText='Kirim';}
+}
+
+// ─── CART ───────────────────────────────────────
+function saveCart() { localStorage.setItem('pufutara_cart',JSON.stringify(cart)); }
+function saveFavs() { localStorage.setItem('pufutara_fav', JSON.stringify(favs)); }
+
+function quickCart(id) { addToCart(id,{}); }
+
+function addToCart(id, vars={}) {
+    const p=products.find(x=>x.id===id); if(!p) return;
+    const key=id+JSON.stringify(vars);
+    const ex=cart.find(i=>i.key===key);
+    if(ex) ex.qty++;
+    else cart.push({...p,qty:1,key,chosenVars:vars});
+    updateCartUI(); saveCart();
+    toast(`${p.name} ditambahkan`,'fa-bag-shopping');
+}
+
+function changeQty(key,d) {
+    const item=cart.find(i=>i.key===key); if(!item) return;
+    item.qty+=d;
+    if(item.qty<=0) cart=cart.filter(i=>i.key!==key);
+    updateCartUI(); saveCart();
+}
+
+function updateCartUI() {
+    const cnt=cart.reduce((a,b)=>a+b.qty,0);
+    document.getElementById('cartCount').innerText=cnt;
+    document.getElementById('pdpCartCount').innerText=cnt;
+    const list=document.getElementById('cartItems');
+    const tot=document.getElementById('cartTotal');
+    if(!cart.length){list.innerHTML='<p class="text-center py-12 text-gray-400 text-xs italic">Keranjang kosong</p>';tot.innerText='Rp 0';return;}
+    let total=0;
+    list.innerHTML=cart.map(item=>{
+        const price=fp(item); total+=price*item.qty;
+        const img=item.images?.[0]||item.image;
+        const vl=Object.entries(item.chosenVars||{}).map(([k,v])=>`${k}: ${v}`).join(', ');
+        return `
+        <div class="flex gap-3 items-start">
+          <img src="${img}" class="w-16 h-16 object-cover rounded-xl flex-shrink-0 border border-gray-100">
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-bold truncate">${item.name}</p>
+            ${vl?`<p class="text-[10px] text-gray-400">${vl}</p>`:''}
+            <p class="text-xs font-black mt-0.5">${idr(price)}</p>
+            <div class="flex items-center gap-1.5 bg-gray-100 w-fit rounded-xl p-1 mt-1.5">
+              <button onclick="changeQty('${item.key}',-1)" class="w-6 h-6 hover:bg-white rounded-lg text-xs font-black flex items-center justify-center">−</button>
+              <span class="text-xs font-black w-5 text-center">${item.qty}</span>
+              <button onclick="changeQty('${item.key}',1)"  class="w-6 h-6 hover:bg-white rounded-lg text-xs font-black flex items-center justify-center">+</button>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+    tot.innerText=idr(total);
+}
+
+// ─── FAVORITES ──────────────────────────────────
+function toggleFav(id) {
+    const p=products.find(x=>x.id===id); if(!p) return;
+    if(favs.includes(id)){favs=favs.filter(x=>x!==id);toast(`${p.name} dihapus dari favorit`,'fa-heart-crack');}
+    else{favs.push(id);toast(`${p.name} difavoritkan`,'fa-heart');}
+    document.getElementById('favCount').innerText=favs.length;
+    document.getElementById('favBadge').innerText=`(${favs.length})`;
+    saveFavs(); updateFavUI(); renderGrid();
+    if(activeP?.id===id) updatePDPFav();
+}
+
+function updateFavUI() {
+    const list=document.getElementById('favItems');
+    if(!favs.length){list.innerHTML='<p class="text-center py-12 text-gray-400 text-xs italic">Belum ada favorit</p>';return;}
+    list.innerHTML=favs.map(fid=>{
+        const p=products.find(x=>x.id===fid); if(!p) return '';
+        const img=p.images?.[0]||p.image;
+        return `
+        <div class="flex gap-3 items-center cursor-pointer" onclick="closeSidebar('favSidebar');openPDP('${p.id}')">
+          <img src="${img}" class="w-14 h-14 object-cover rounded-xl border border-gray-100 flex-shrink-0">
+          <div class="flex-1 min-w-0">
+            <p class="text-xs font-bold truncate">${p.name}</p>
+            <p class="text-[10px] text-gray-400">${p.category}</p>
+            <p class="text-xs font-black mt-0.5">${idr(fp(p))}</p>
+          </div>
+          <button onclick="event.stopPropagation();toggleFav('${p.id}')" class="text-red-500 p-1 flex-shrink-0">
+            <i class="fa-solid fa-heart"></i>
+          </button>
+        </div>`;
+    }).join('');
+}
+
+// ─── SIDEBAR ────────────────────────────────────
+function openSidebar(id) {
+    document.getElementById(id).classList.add('open');
+    document.getElementById('sbOverlay').classList.remove('hidden');
+}
+function closeSidebar(id) {
+    document.getElementById(id).classList.remove('open');
+    if(!document.getElementById('favSidebar').classList.contains('open')&&
+       !document.getElementById('cartSidebar').classList.contains('open'))
+        document.getElementById('sbOverlay').classList.add('hidden');
+}
+function closeAllSidebars() {
+    closeSidebar('favSidebar'); closeSidebar('cartSidebar');
+}
+
+// ─── CHECKOUT ───────────────────────────────────
+function checkout() {
+    if(!cart.length){toast('Keranjang masih kosong!','fa-circle-exclamation');return;}
+    closeSidebar('cartSidebar');
+    let total=0;
+    document.getElementById('coItems').innerHTML=cart.map(item=>{
+        const price=fp(item); total+=price*item.qty;
+        const img=item.images?.[0]||item.image;
+        const vl=Object.entries(item.chosenVars||{}).map(([k,v])=>`${k}: ${v}`).join(', ');
+        return `
+        <div class="flex justify-between items-center bg-gray-50 p-3 rounded-2xl">
+          <div class="flex gap-3 items-center">
+            <img src="${img}" class="w-12 h-12 object-cover rounded-xl">
+            <div>
+              <p class="text-xs font-bold">${item.name}</p>
+              ${vl?`<p class="text-[10px] text-gray-400">${vl}</p>`:''}
+              <p class="text-[10px] text-gray-400">${item.qty} × ${idr(price)}</p>
+            </div>
+          </div>
+          <span class="text-xs font-black">${idr(price*item.qty)}</span>
+        </div>`;
+    }).join('');
+    document.getElementById('coTotal').innerText=idr(total);
+    toggleModal('modalCheckout');
+}
+
+document.getElementById('formCheckout').addEventListener('submit',function(e){
+    e.preventDefault();
+    toast('Pesanan berhasil! Sedang diproses...','fa-truck-fast');
+    cart=[]; updateCartUI(); saveCart();
+    toggleModal('modalCheckout'); this.reset();
+});
+
+// ─── FORM JUAL ──────────────────────────────────
+function addVarGroup() {
+    varGroupN++;
+    const id=`vg${varGroupN}`;
+    const div=document.createElement('div');
+    div.id=id; div.className='bg-white rounded-xl p-3 border border-gray-200 space-y-2';
+    div.innerHTML=`
+      <div class="flex gap-2 items-center">
+        <input type="text" placeholder="Nama tipe (ex: Ukuran, Warna)" class="finput flex-1 text-xs vgname">
+        <button type="button" onclick="document.getElementById('${id}').remove()" class="w-7 h-7 rounded-lg bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-100 flex-shrink-0">
+          <i class="fa-solid fa-xmark text-xs"></i>
+        </button>
+      </div>
+      <input type="text" placeholder="Pilihan dipisah koma (ex: 38,39,40)" class="finput text-xs vgopts">`;
+    document.getElementById('varGroups').appendChild(div);
+}
+
+function buildVarsFromForm() {
+    const groups=[];
+    document.querySelectorAll('#varGroups>div').forEach(div=>{
+        const name=div.querySelector('.vgname')?.value.trim();
+        const opts=div.querySelector('.vgopts')?.value.trim();
+        if(!name||!opts) return;
+        groups.push({name,options:opts.split(',').map(o=>({value:o.trim(),stock:10})).filter(o=>o.value)});
+    });
+    return groups;
+}
+
+document.getElementById('pImgFile').addEventListener('change',function(e){
+    pendingFiles=Array.from(e.target.files).slice(0,3);
+    const prev=document.getElementById('imgPrev'); prev.innerHTML='';
+    pendingFiles.forEach(f=>{
+        const r=new FileReader(); r.onload=ev=>{ prev.innerHTML+=`<img src="${ev.target.result}" class="w-12 h-12 object-cover rounded-lg border border-gray-200">`; };
+        r.readAsDataURL(f);
+    });
+});
+
+document.getElementById('formJual').addEventListener('submit',async function(e){
+    e.preventDefault();
+    const btn=document.getElementById('btnJual');
+    btn.disabled=true; btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Mengupload...';
+    try {
+        let imgs=[];
+        if(pendingFiles.length) {
+            for(const f of pendingFiles){
+                const fn=`${Date.now()}-${f.name.replace(/\s/g,'_')}`;
+                const {data,error}=await db.storage.from('product-images').upload(fn,f,{cacheControl:'3600',upsert:false});
+                if(error){const b=await f2b64(f);imgs.push(b);}
+                else{const {data:u}=db.storage.from('product-images').getPublicUrl(data.path);imgs.push(u.publicUrl);}
+            }
+        } else {
+            const url=document.getElementById('pImgUrl').value.trim();
+            imgs=url?[url]:['https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&h=500&fit=crop'];
         }
-    }
-
-    function resetBtn(btnId, html) {
-        const btn = document.getElementById(btnId);
-        if (btn) {
-            btn.disabled = false;
-            btn.innerHTML = html;
-        }
-    }
-
-    // ============================================================
-    // ROUTING: HISTORY API BERBASIS SLUG
-    // ============================================================
-    function goHome() {
-        history.pushState({ view: 'home' }, '', window.location.pathname.replace(/\/(product|category)\/[^/]+$/, '') || './');
-        closeProductDetailSilent();
-        currentCategory = 'all';
-        renderProducts();
-    }
-
-    function pushProductUrl(product) {
-        const slug = toSlug(product.name);
-        const base = getBasePath();
-        history.pushState({ view: 'product', slug }, `${product.name} | Pufutarashop`, `${base}/product/${slug}`);
-        document.title = `${product.name} | Pufutarashop`;
-    }
-
-    function pushCategoryUrl(cat) {
-        const base = getBasePath();
-        const url = cat === 'all' ? base || './' : `${base}/category/${cat}`;
-        history.pushState({ view: 'category', category: cat }, `${cat} | Pufutarashop`, url);
-        document.title = cat !== 'all' ? `${cat} | Pufutarashop` : 'Pufutarashop';
-    }
-
-    function getBasePath() {
-        // Ambil path dasar tanpa segment /product/* atau /category/*
-        return window.location.pathname.replace(/\/(product|category)(\/.*)?$/, '').replace(/\/$/, '');
-    }
-
-    // ============================================================
-    // DATA: LOAD PRODUK DARI SUPABASE
-    // ============================================================
-    async function loadProducts() {
-        const { data, error } = await db
-            .from('products')
-            .select('*')
-            .order('created_at', { ascending: false });
-
-        if (error) {
-            console.error('Gagal memuat produk:', error.message);
-            showToast('Gagal terhubung ke database', 'fa-triangle-exclamation');
-            return;
-        }
-
-        // Normalisasi field agar konsisten dengan kode lama
-        products = data.map(normalizeProduct);
-        renderProducts();
-    }
-
-    // Normalisasi field dari Supabase (snake_case) ke format internal
-    function normalizeProduct(row) {
-        return {
-            id:            row.id,
-            name:          row.name,
-            price:         parseFloat(row.price),
-            discount:      parseFloat(row.discount) || 0,
-            category:      row.category,
-            desc:          row.description,
-            images:        Array.isArray(row.images) ? row.images : JSON.parse(row.images || '[]'),
-            image:         Array.isArray(row.images) && row.images.length > 0 ? row.images[0] : '',
-            location:      row.location      || defaultShipping.location,
-            shippedFrom:   row.shipped_from  || defaultShipping.shippedFrom,
-            estimatedTime: row.estimated_time|| defaultShipping.estimatedTime,
-            likes:         row.likes  || 0,
-            rating:        parseFloat(row.rating) || 0,
-            stock:         row.stock  || 0,
+        const payload={
+            name:document.getElementById('pName').value.trim(),
+            description:document.getElementById('pDesc').value.trim(),
+            price:parseFloat(document.getElementById('pPrice').value)||0,
+            discount:parseFloat(document.getElementById('pDiscount').value)||0,
+            category:document.getElementById('pCategory').value,
+            images:imgs,
+            location:document.getElementById('pLoc').value.trim(),
+            shipped_from:document.getElementById('pFrom').value.trim(),
+            estimated_time:document.getElementById('pEst').value.trim(),
+            variants:buildVarsFromForm(),
+            likes:0,rating:0,stock:10,
         };
-    }
-
-    // ============================================================
-    // DATA: LOAD KOMENTAR DARI SUPABASE
-    // ============================================================
-    async function loadComments(productId) {
-        const { data, error } = await db
-            .from('comments')
-            .select('*')
-            .eq('product_id', productId)
-            .order('created_at', { ascending: false });
-
-        if (error) {
-            console.error('Gagal memuat komentar:', error.message);
-            return [];
-        }
-        return data;
-    }
-
-    // ============================================================
-    // DATA: SIMPAN PRODUK BARU KE SUPABASE
-    // ============================================================
-    async function saveProductToSupabase(productData) {
-        const { data, error } = await db
-            .from('products')
-            .insert([productData])
-            .select()
-            .single();
-
-        if (error) throw error;
-        return normalizeProduct(data);
-    }
-
-    // ============================================================
-    // DATA: SIMPAN KOMENTAR KE SUPABASE + UPDATE RATING
-    // ============================================================
-    async function saveCommentToSupabase(productId, text, rating) {
-        // 1. Insert komentar
-        const { error: commentErr } = await db
-            .from('comments')
-            .insert([{ product_id: productId, text, rating }]);
-
-        if (commentErr) throw commentErr;
-
-        // 2. Hitung rata-rata rating baru dari semua komentar produk
-        const { data: allComments, error: fetchErr } = await db
-            .from('comments')
-            .select('rating')
-            .eq('product_id', productId);
-
-        if (fetchErr) throw fetchErr;
-
-        const avgRating = allComments.length > 0
-            ? parseFloat((allComments.reduce((sum, c) => sum + c.rating, 0) / allComments.length).toFixed(1))
-            : rating;
-
-        // 3. Update rating produk di tabel products
-        const { error: updateErr } = await db
-            .from('products')
-            .update({ rating: avgRating })
-            .eq('id', productId);
-
-        if (updateErr) throw updateErr;
-
-        // Update di memori lokal juga
-        const p = products.find(prod => prod.id === productId);
-        if (p) p.rating = avgRating;
-
-        return avgRating;
-    }
-
-    // ============================================================
-    // UPLOAD GAMBAR KE SUPABASE STORAGE
-    // Jika storage belum dikonfigurasi, fallback ke base64
-    // ============================================================
-    async function uploadImagesToStorage(files) {
-        const urls = [];
-        for (const file of files) {
-            const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}-${file.name.replace(/\s/g, '_')}`;
-            const { data, error } = await db.storage
-                .from('product-images')
-                .upload(filename, file, { cacheControl: '3600', upsert: false });
-
-            if (error) {
-                // Fallback: gunakan base64 jika storage gagal
-                console.warn('Storage upload gagal, fallback ke base64:', error.message);
-                const base64 = await fileToBase64(file);
-                urls.push(base64);
-            } else {
-                const { data: urlData } = db.storage.from('product-images').getPublicUrl(data.path);
-                urls.push(urlData.publicUrl);
-            }
-        }
-        return urls;
-    }
-
-    function fileToBase64(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = e => resolve(e.target.result);
-            reader.onerror = reject;
-            reader.readAsDataURL(file);
-        });
-    }
-
-    // ============================================================
-    // CART: LOCAL STORAGE (cart tidak perlu server)
-    // ============================================================
-    function saveCart() { localStorage.setItem('pufutara_cart', JSON.stringify(cart)); }
-    function saveFavorites() { localStorage.setItem('pufutara_favorites', JSON.stringify(favorites)); }
-
-    function loadLocalData() {
-        const savedCart = localStorage.getItem('pufutara_cart');
-        const savedFav  = localStorage.getItem('pufutara_favorites');
-        if (savedCart) cart      = JSON.parse(savedCart);
-        if (savedFav)  favorites = JSON.parse(savedFav);
-        document.getElementById('favCount').innerText = favorites.length;
-        updateCartUI();
-        updateFavUI();
-    }
-
-    // ============================================================
-    // FILTER & RENDER PRODUK
-    // ============================================================
-    function updateCategory(cat) {
-        currentCategory = cat;
-        pushCategoryUrl(cat);
-        renderProducts();
-    }
-
-    function updateSort(val) {
-        currentSort = val;
-        renderProducts();
-    }
-
-    function updatePriceLabel(val) {
-        currentPriceLimit = parseInt(val);
-        document.getElementById('priceLabel').innerText = formatIDR(currentPriceLimit);
-        renderProducts();
-    }
-
-    function renderProducts() {
-        const grid = document.getElementById('productGrid');
-        if (!grid) return;
-        grid.innerHTML = '';
-
-        if (products.length === 0) {
-            grid.innerHTML = `<div class="col-span-5 text-center py-20 text-gray-400"><i class="fa-solid fa-box-open text-4xl mb-4 block"></i><p class="font-bold">Belum ada produk</p></div>`;
-            return;
-        }
-
-        let filtered = [...products];
-
-        // Filter kategori / promo
-        if (currentCategory === 'promo')     filtered = filtered.filter(p => p.discount > 0);
-        else if (currentCategory !== 'all')  filtered = filtered.filter(p => p.category === currentCategory);
-
-        // Filter search
-        if (searchQuery) filtered = filtered.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()));
-
-        // Filter harga
-        filtered = filtered.filter(p => (p.price - p.price * p.discount / 100) <= currentPriceLimit);
-
-        // Sort
-        if (currentSort === 'price-asc') {
-            filtered.sort((a, b) => (a.price - a.price * a.discount / 100) - (b.price - b.price * b.discount / 100));
-        } else if (currentSort === 'price-desc') {
-            filtered.sort((a, b) => (b.price - b.price * b.discount / 100) - (a.price - a.price * a.discount / 100));
-        }
-
-        if (filtered.length === 0) {
-            grid.innerHTML = `<div class="col-span-5 text-center py-20 text-gray-400"><i class="fa-solid fa-magnifying-glass text-4xl mb-4 block"></i><p class="font-bold">Tidak ada produk yang cocok</p></div>`;
-        }
-
-        filtered.forEach(p => {
-            const finalPrice  = p.price - p.price * p.discount / 100;
-            const coverImage  = p.images && p.images.length > 0 ? p.images[0] : p.image;
-            const isFav       = favorites.includes(p.id);
-
-            grid.innerHTML += `
-                <div class="product-card group relative fade-in cursor-pointer" onclick="showProductDetail('${p.id}')">
-                    <div class="w-full aspect-square overflow-hidden rounded-[1.5rem] bg-gray-50 relative custom-shadow">
-                        ${p.discount > 0 ? `<span class="absolute top-3 left-3 z-10 bg-red-500 text-white text-[8px] px-2 py-1 rounded-full font-bold">-${p.discount}%</span>` : ''}
-                        ${p.stock <= 3 && p.stock > 0 ? `<span class="absolute top-3 right-3 z-10 bg-orange-500 text-white text-[8px] px-2 py-1 rounded-full font-bold">Stok Menipis</span>` : ''}
-                        ${p.stock === 0 ? `<span class="absolute top-3 right-3 z-10 bg-gray-700 text-white text-[8px] px-2 py-1 rounded-full font-bold">Habis</span>` : ''}
-                        <img src="${coverImage}" alt="${p.name}" class="product-image h-full w-full object-cover transition-transform duration-700" loading="lazy">
-                        <div class="absolute inset-0 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black/10 backdrop-blur-[2px]">
-                            <button onclick="event.stopPropagation(); addToCart('${p.id}')" class="w-10 h-10 bg-white rounded-xl flex items-center justify-center hover:bg-black hover:text-white transition-all shadow-lg" title="Tambah ke Keranjang">
-                                <i class="fa-solid fa-plus text-xs"></i>
-                            </button>
-                            <button onclick="event.stopPropagation(); toggleFavorite('${p.id}')" class="w-10 h-10 bg-white rounded-xl flex items-center justify-center hover:text-red-500 transition-all shadow-lg" title="Favorit">
-                                <i class="${isFav ? 'fa-solid text-red-500' : 'fa-regular'} fa-heart text-sm"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="mt-3 px-1">
-                        <div class="flex justify-between items-start mb-0.5">
-                            <h3 class="text-xs font-bold text-gray-800 tracking-tight truncate flex-1">${p.name}</h3>
-                            <div class="flex items-center gap-1 text-yellow-400 text-[9px] font-bold">${generateStars(p.rating)}</div>
-                        </div>
-                        <div class="flex items-center justify-between mt-1">
-                            <span class="text-xs font-black text-black">${formatIDR(finalPrice)}</span>
-                            <button onclick="event.stopPropagation(); toggleFavorite('${p.id}')" class="text-gray-300 hover:text-red-500 transition-colors">
-                                <i class="${isFav ? 'fa-solid text-red-500' : 'fa-regular'} fa-heart text-xs"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>`;
-        });
-
-        // Update tombol kategori aktif
-        document.querySelectorAll('.category-btn').forEach(btn => {
-            btn.classList.remove('active', 'bg-white', 'shadow-sm', 'text-black');
-            btn.classList.add('text-gray-500');
-        });
-        const activeBtn = document.getElementById('btn-' + currentCategory);
-        if (activeBtn) {
-            activeBtn.classList.add('active', 'bg-white', 'shadow-sm', 'text-black');
-            activeBtn.classList.remove('text-gray-500');
-        }
-    }
-
-    // ============================================================
-    // MODAL DETAIL PRODUK
-    // ============================================================
-    async function showProductDetail(productId) {
-        const p = products.find(prod => prod.id === productId);
-        if (!p) return;
-
-        activeProduct = p;
-
-        // Update address bar dengan slug nama produk
-        pushProductUrl(p);
-
-        const finalPrice = p.price - p.price * p.discount / 100;
-        const coverImage = p.images && p.images.length > 0 ? p.images[0] : p.image;
-
-        document.getElementById('detailImg').src = coverImage;
-        document.getElementById('detailTitle').innerText = p.name;
-        document.getElementById('detailDesc').innerText = p.desc;
-        document.getElementById('detailPrice').innerText = formatIDR(finalPrice);
-        document.getElementById('detailOldPrice').innerText = p.discount > 0 ? formatIDR(p.price) : '';
-        document.getElementById('detailBadge').innerText = `${p.category} | Stok: ${p.stock}`;
-        document.getElementById('detailLocation').innerText    = `Lokasi: ${p.location}`;
-        document.getElementById('detailShippedFrom').innerText = `Dikirim dari: ${p.shippedFrom}`;
-        document.getElementById('detailEstTime').innerText     = `Estimasi Waktu: ${p.estimatedTime}`;
-        document.getElementById('modalRatingDisplay').innerHTML = generateStars(p.rating) + `<span class="text-gray-400 ml-1 font-bold">(${p.rating}/5)</span>`;
-
-        // Gallery thumbnail
-        const galleryContainer = document.getElementById('detailGallery');
-        galleryContainer.innerHTML = '';
-        if (p.images && p.images.length > 1) {
-            p.images.forEach(imgSrc => {
-                galleryContainer.innerHTML += `
-                    <img src="${imgSrc}" onclick="document.getElementById('detailImg').src='${imgSrc}'" 
-                    class="w-14 h-14 object-cover rounded-xl cursor-pointer border-2 border-transparent hover:border-black transition-all shadow-sm" loading="lazy">`;
-            });
-        }
-
-        document.getElementById('addToCartBtn').onclick = () => { addToCart(p.id); closeProductDetail(); };
-        document.getElementById('detailFavBtn').onclick = () => { toggleFavorite(p.id); updateDetailFavIcon(p.id); };
-        updateDetailFavIcon(p.id);
-
-        // Reset form komentar
-        setFormRating(5);
-        document.getElementById('commentInput').value = '';
-        document.getElementById('detailComments').innerHTML = '<p class="text-[11px] text-gray-400 italic">Memuat ulasan...</p>';
-
-        // Tampilkan modal
-        document.getElementById('modalDetail').classList.remove('hidden');
-
-        // Load komentar dari Supabase (async, tidak block UI)
-        const comments = await loadComments(p.id);
-        renderComments(comments);
-    }
-
-    function closeProductDetail() {
-        document.getElementById('modalDetail').classList.add('hidden');
-        // Kembalikan URL ke kategori atau home
-        pushCategoryUrl(currentCategory);
-        document.title = 'Pufutarashop';
-        activeProduct = null;
-    }
-
-    function closeProductDetailSilent() {
-        document.getElementById('modalDetail').classList.add('hidden');
-        activeProduct = null;
-    }
-
-    function updateDetailFavIcon(id) {
-        const btn  = document.getElementById('detailFavBtn');
-        const icon = btn.querySelector('i');
-        if (favorites.includes(id)) {
-            icon.classList.replace('fa-regular', 'fa-solid');
-            icon.classList.add('text-red-500');
-        } else {
-            icon.classList.replace('fa-solid', 'fa-regular');
-            icon.classList.remove('text-red-500');
-        }
-    }
-
-    // ============================================================
-    // CART
-    // ============================================================
-    function addToCart(id) {
-        const p = products.find(prod => prod.id === id);
-        if (!p) return;
-        const existing = cart.find(item => item.id === id);
-        if (existing) existing.qty++;
-        else cart.push({ ...p, qty: 1 });
-        updateCartUI();
-        saveCart();
-        showToast(`${p.name} ditambahkan`, 'fa-cart-shopping');
-    }
-
-    function changeQty(id, delta) {
-        const item = cart.find(i => i.id === id);
-        if (item) {
-            item.qty += delta;
-            if (item.qty <= 0) cart = cart.filter(i => i.id !== id);
-            updateCartUI();
-            saveCart();
-        }
-    }
-
-    function updateCartUI() {
-        const list         = document.getElementById('cartItems');
-        const totalDisplay = document.getElementById('cartTotal');
-        const countDisplay = document.getElementById('cartCount');
-        countDisplay.innerText = cart.reduce((a, b) => a + b.qty, 0);
-
-        if (cart.length === 0) {
-            list.innerHTML = `<div class="text-center py-10 text-gray-400 text-xs italic">Keranjang kosong</div>`;
-            totalDisplay.innerText = 'Rp 0';
-            return;
-        }
-
-        let total = 0;
-        list.innerHTML = '';
-        cart.forEach(item => {
-            const finalPrice = item.price - item.price * item.discount / 100;
-            total += finalPrice * item.qty;
-            const coverImg = item.images && item.images.length > 0 ? item.images[0] : item.image;
-            list.innerHTML += `
-                <div class="flex gap-4 items-center fade-in">
-                    <img src="${coverImg}" class="w-16 h-16 object-cover rounded-xl shadow-sm" loading="lazy">
-                    <div class="flex-1">
-                        <h4 class="font-bold text-[11px] truncate">${item.name}</h4>
-                        <p class="text-[9px] text-gray-400 mb-2">${formatIDR(finalPrice)}</p>
-                        <div class="flex items-center gap-2 bg-gray-100 w-fit rounded-lg p-1">
-                            <button onclick="changeQty('${item.id}', -1)" class="w-5 h-5 hover:bg-white rounded text-[10px]">-</button>
-                            <span class="text-[10px] font-bold w-4 text-center">${item.qty}</span>
-                            <button onclick="changeQty('${item.id}', 1)" class="w-5 h-5 hover:bg-white rounded text-[10px]">+</button>
-                        </div>
-                    </div>
-                </div>`;
-        });
-        totalDisplay.innerText = formatIDR(total);
-    }
-
-    // ============================================================
-    // FAVORIT
-    // ============================================================
-    function toggleFavorite(id) {
-        const p = products.find(prod => prod.id === id);
-        if (!p) return;
-        if (favorites.includes(id)) {
-            favorites = favorites.filter(fid => fid !== id);
-            showToast(`${p.name} dihapus dari favorit`, 'fa-heart-crack');
-        } else {
-            favorites.push(id);
-            showToast(`${p.name} difavoritkan`, 'fa-heart');
-        }
-        document.getElementById('favCount').innerText = favorites.length;
-        updateFavUI();
-        saveFavorites();
-        renderProducts();
-    }
-
-    function updateFavUI() {
-        const list = document.getElementById('favItems');
-        if (favorites.length === 0) {
-            list.innerHTML = `<p class="text-center py-10 text-gray-400 text-xs italic">Belum ada favorit</p>`;
-            return;
-        }
-        list.innerHTML = '';
-        favorites.forEach(fid => {
-            const item = products.find(p => p.id === fid);
-            if (!item) return;
-            const coverImg = item.images && item.images.length > 0 ? item.images[0] : item.image;
-            list.innerHTML += `
-                <div class="flex gap-4 items-center fade-in">
-                    <img src="${coverImg}" class="w-14 h-14 object-cover rounded-xl shadow-sm" loading="lazy">
-                    <div class="flex-1">
-                        <h4 class="font-bold text-[11px] truncate">${item.name}</h4>
-                        <p class="text-[9px] text-gray-400">${item.category}</p>
-                    </div>
-                    <button onclick="toggleFavorite('${item.id}')" class="text-red-500"><i class="fa-solid fa-heart text-xs"></i></button>
-                </div>`;
-        });
-    }
-
-    // ============================================================
-    // CHECKOUT
-    // ============================================================
-    function checkout() {
-        if (cart.length === 0) {
-            showToast('Keranjang Anda masih kosong!', 'fa-circle-exclamation');
-            return;
-        }
-        toggleSidebar('cartSidebar');
-
-        const container = document.getElementById('checkoutItemsContainer');
-        let total = 0;
-        container.innerHTML = '';
-        cart.forEach(item => {
-            const finalPrice = item.price - item.price * item.discount / 100;
-            total += finalPrice * item.qty;
-            const coverImg = item.images && item.images.length > 0 ? item.images[0] : item.image;
-            container.innerHTML += `
-                <div class="flex justify-between items-center bg-gray-50 p-3 rounded-xl">
-                    <div class="flex items-center gap-3">
-                        <img src="${coverImg}" class="w-12 h-12 rounded-lg object-cover shadow-sm">
-                        <div>
-                            <p class="text-xs font-bold truncate max-w-[150px] sm:max-w-[200px]">${item.name}</p>
-                            <p class="text-[10px] text-gray-400">${item.qty} x ${formatIDR(finalPrice)}</p>
-                        </div>
-                    </div>
-                    <span class="text-xs font-bold">${formatIDR(finalPrice * item.qty)}</span>
-                </div>`;
-        });
-        document.getElementById('checkoutFinalTotal').innerText = formatIDR(total);
-        toggleModal('modalCheckout');
-    }
-
-    document.getElementById('formCheckout').addEventListener('submit', function(e) {
-        e.preventDefault();
-        showToast('Pembayaran Berhasil! Memproses pesanan...', 'fa-truck-fast');
-        cart = [];
-        updateCartUI();
-        saveCart();
-        toggleModal('modalCheckout');
+        const {data:saved,error}=await db.from('products').insert([payload]).select().single();
+        if(error) throw error;
+        products.unshift(norm(saved));
+        renderGrid(); updateFavUI();
+        toggleModal('modalJual');
+        toast('Produk berhasil diposting!','fa-check-circle');
         this.reset();
-    });
+        document.getElementById('imgPrev').innerHTML='';
+        document.getElementById('varGroups').innerHTML='';
+        pendingFiles=[]; varGroupN=0;
+    } catch(err){toast('Gagal: '+err.message,'fa-triangle-exclamation');}
+    finally{btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-upload text-xs"></i> Post Barang';}
+});
 
-    // ============================================================
-    // KOMENTAR
-    // ============================================================
-    function setFormRating(rating) {
-        formRating = rating;
-        document.getElementById('starInput').querySelectorAll('i').forEach((star, i) => {
-            star.classList.toggle('fa-solid', i < rating);
-            star.classList.toggle('fa-regular', i >= rating);
-            star.classList.toggle('text-yellow-400', i < rating);
-        });
+function f2b64(file){
+    return new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=rej;r.readAsDataURL(file);});
+}
+
+// ─── MODAL HELPERS ──────────────────────────────
+function toggleModal(id){document.getElementById(id)?.classList.toggle('hidden');}
+
+['modalJual','modalCheckout','welcomeModal'].forEach(id=>{
+    document.getElementById(id)?.addEventListener('click',function(e){
+        if(e.target===this){
+            if(id==='welcomeModal') closeWelcome();
+            else this.classList.add('hidden');
+        }
+    });
+});
+
+// ─── SEARCH ─────────────────────────────────────
+document.getElementById('searchInput').addEventListener('input',e=>{query=e.target.value;renderGrid();});
+
+// ─── LOCAL STORAGE LOAD ─────────────────────────
+function loadLocal(){
+    const c=localStorage.getItem('pufutara_cart');
+    const f=localStorage.getItem('pufutara_fav');
+    if(c) cart=JSON.parse(c);
+    if(f) favs=JSON.parse(f);
+    document.getElementById('favCount').innerText=favs.length;
+    document.getElementById('favBadge').innerText=`(${favs.length})`;
+    updateCartUI(); updateFavUI();
+}
+
+// ─── INIT ────────────────────────────────────────
+window.addEventListener('DOMContentLoaded',async()=>{
+    loadCats();
+    loadLocal();
+    await loadProducts();
+
+    // deep link
+    const parts=window.location.pathname.split('/').filter(Boolean);
+    const len=parts.length;
+    if(len>=2&&parts[len-2]==='product'){
+        const p=products.find(x=>toSlug(x.name)===parts[len-1]);
+        if(p){openPDP(p.id,false);return;}
+    } else if(len>=2&&parts[len-2]==='category'){
+        curCat=parts[len-1]; renderGrid(); return;
     }
 
-    function renderComments(comments) {
-        const container = document.getElementById('detailComments');
-        if (!comments || comments.length === 0) {
-            container.innerHTML = '<p class="text-[11px] text-gray-400 italic">Jadilah yang pertama memberikan ulasan!</p>';
-            return;
-        }
-        container.innerHTML = comments.map(c => `
-            <div class="bg-white p-3 rounded-lg border border-gray-100 fade-in">
-                <div class="flex items-center justify-between mb-1">
-                    <span class="text-[10px] font-bold">Pembeli</span>
-                    <div class="flex items-center gap-0.5 text-yellow-400 text-[8px]">
-                        ${'<i class="fa-solid fa-star"></i>'.repeat(c.rating)}${'<i class="fa-regular fa-star text-gray-300"></i>'.repeat(5 - c.rating)}
-                    </div>
-                </div>
-                <p class="text-xs text-gray-600">${c.text}</p>
-            </div>`).join('');
-    }
-
-    document.getElementById('submitCommentBtn').addEventListener('click', async () => {
-        const text = document.getElementById('commentInput').value.trim();
-        if (!text) { showToast('Komentar tidak boleh kosong', 'fa-circle-exclamation'); return; }
-        if (!activeProduct) return;
-
-        const btn = document.getElementById('submitCommentBtn');
-        btn.disabled = true;
-        btn.innerText = 'Mengirim...';
-
-        try {
-            const newRating = await saveCommentToSupabase(activeProduct.id, text, formRating);
-            const comments = await loadComments(activeProduct.id);
-            renderComments(comments);
-            document.getElementById('modalRatingDisplay').innerHTML =
-                generateStars(newRating) + `<span class="text-gray-400 ml-1 font-bold">(${newRating}/5)</span>`;
-            document.getElementById('commentInput').value = '';
-            setFormRating(5);
-            showToast('Ulasan berhasil ditambahkan!', 'fa-check');
-            renderProducts();
-        } catch (err) {
-            console.error(err);
-            showToast('Gagal mengirim ulasan', 'fa-triangle-exclamation');
-        } finally {
-            btn.disabled = false;
-            btn.innerText = 'Kirim';
-        }
-    });
-
-    // ============================================================
-    // FORM JUAL BARANG (POST KE SUPABASE)
-    // ============================================================
-    let pendingFiles = []; // File object asli untuk di-upload ke storage
-
-    document.getElementById('pImageFile').addEventListener('change', function(e) {
-        uploadedImagesBase64 = [];
-        pendingFiles = [];
-        const previewContainer = document.getElementById('imagePreviewContainer');
-        previewContainer.innerHTML = '';
-
-        const files = Array.from(e.target.files).slice(0, 3);
-        pendingFiles = files;
-
-        files.forEach(file => {
-            const reader = new FileReader();
-            reader.onload = ev => {
-                uploadedImagesBase64.push(ev.target.result);
-                previewContainer.innerHTML += `
-                    <img src="${ev.target.result}" class="w-12 h-12 object-cover rounded-lg border border-gray-200 shadow-sm">`;
-            };
-            reader.readAsDataURL(file);
-        });
-    });
-
-    document.getElementById('formJual').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        showLoadingBtn('submitJualBtn', 'Mengupload...');
-
-        try {
-            let finalImages = [];
-
-            // Coba upload ke Supabase Storage
-            if (pendingFiles.length > 0) {
-                finalImages = await uploadImagesToStorage(pendingFiles);
-            } else {
-                const urlValue = document.getElementById('pImage').value.trim();
-                finalImages = urlValue
-                    ? [urlValue]
-                    : ['https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&h=500&fit=crop'];
-            }
-
-            const newProduct = {
-                name:           document.getElementById('pName').value.trim(),
-                description:    document.getElementById('pDesc').value.trim(),
-                price:          parseFloat(document.getElementById('pPrice').value),
-                discount:       parseFloat(document.getElementById('pDiscount').value) || 0,
-                category:       document.getElementById('pCategory').value,
-                images:         finalImages,
-                location:       document.getElementById('pLocation').value.trim(),
-                shipped_from:   document.getElementById('pShippedFrom').value.trim(),
-                estimated_time: document.getElementById('pEstTime').value.trim(),
-                likes: 0, rating: 0, stock: 10
-            };
-
-            const saved = await saveProductToSupabase(newProduct);
-            products.unshift(saved);
-            renderProducts();
-            updateFavUI();
-            toggleModal('modalJual');
-            showToast('Produk berhasil diposting!', 'fa-check-circle');
-            this.reset();
-            uploadedImagesBase64 = [];
-            pendingFiles = [];
-            document.getElementById('imagePreviewContainer').innerHTML = '';
-        } catch (err) {
-            console.error('Gagal menyimpan produk:', err.message);
-            showToast('Gagal menyimpan produk: ' + err.message, 'fa-triangle-exclamation');
-        } finally {
-            resetBtn('submitJualBtn', 'Post Barang');
-        }
-    });
-
-    // ============================================================
-    // MODAL & SIDEBAR HELPER
-    // ============================================================
-    function toggleModal(id) {
-        document.getElementById(id)?.classList.toggle('hidden');
-    }
-
-    function toggleSidebar(id) {
-        document.getElementById(id)?.classList.toggle('translate-x-full');
-    }
-
-    // ============================================================
-    // SEARCH
-    // ============================================================
-    document.getElementById('searchInput').addEventListener('input', e => {
-        searchQuery = e.target.value;
-        renderProducts();
-    });
-
-    // ============================================================
-    // POPSTATE: HANDLE BACK / FORWARD BUTTON
-    // ============================================================
-    window.addEventListener('popstate', async (event) => {
-        const state = event.state;
-        if (!state) return;
-
-        if (state.view === 'product' && state.slug) {
-            // Mungkin produk belum ada di memori, tunggu load selesai
-            if (products.length === 0) await loadProducts();
-            const p = findProductBySlug(state.slug);
-            if (p) {
-                await showProductDetail(p.id);
-            }
-        } else if (state.view === 'category') {
-            closeProductDetailSilent();
-            currentCategory = state.category || 'all';
-            renderProducts();
-        } else if (state.view === 'home') {
-            closeProductDetailSilent();
-            currentCategory = 'all';
-            renderProducts();
-        }
-    });
-
-    // ============================================================
-    // INISIALISASI HALAMAN
-    // ============================================================
-    window.addEventListener('DOMContentLoaded', async () => {
-        loadLocalData();          // cart & favorit dari localStorage
-        await loadProducts();     // produk dari Supabase
-
-        // Handle deep link saat pertama buka halaman
-        const path  = window.location.pathname;
-        const parts = path.split('/').filter(Boolean);
-        const len   = parts.length;
-
-        if (len >= 2 && parts[len - 2] === 'product') {
-            const slug = parts[len - 1];
-            const p    = findProductBySlug(slug);
-            if (p) await showProductDetail(p.id);
-        } else if (len >= 2 && parts[len - 2] === 'category') {
-            currentCategory = parts[len - 1];
-            renderProducts();
-        }
-    });
-    </script>
+    setTimeout(showWelcome,700);
+});
+</script>
 </body>
 </html>

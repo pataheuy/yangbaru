@@ -3072,8 +3072,23 @@ async function loadPublicPlaylists() {
 
 function renderPublicPlaylists() {
     const grid = document.getElementById('public-playlists-grid');
+    const header = document.getElementById('public-playlists-header');
     const seeAllBtn = document.getElementById('btn-see-all-playlists');
     if (!grid) return;
+
+    // Sembunyikan section playlist pendengar saat search aktif
+    const headerSearchVal = (document.getElementById('header-search-input')?.value || '').trim();
+    const tabSearchVal = (document.getElementById('search-input')?.value || '').trim();
+    const isSearching = headerSearchVal.length > 0 || tabSearchVal.length > 0;
+    if (isSearching) {
+        if (header) header.style.display = 'none';
+        grid.style.display = 'none';
+        return;
+    } else {
+        if (header) header.style.display = '';
+        grid.style.display = '';
+    }
+
     grid.innerHTML = '';
 
     if (publicPlaylists.length === 0) {

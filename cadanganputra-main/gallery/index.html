@@ -34,33 +34,26 @@
             letter-spacing: -0.2px;
         }
 
-        /* --- GALLERY SCREEN --- */
         #galleryScreen { width: 100%; height: 100%; display: flex; flex-direction: column; }
 
         /* --- TOP HEADER --- */
         .top-header {
             display: flex; align-items: center; justify-content: space-between;
             padding: 12px 24px; min-height: 72px; background: var(--bg-color); border-bottom: 1px solid var(--border);
-            z-index: 50;
+            z-index: 50; flex-shrink: 0;
         }
         .logo-area { display: flex; align-items: center; width: 238px; font-size: 20px; font-weight: 900; color: var(--primary); letter-spacing: -1px; }
-        
         .hamburger-btn {
             display: none; background: transparent; border: none; font-size: 24px; cursor: pointer; color: var(--primary); 
             margin-right: 12px; align-items: center; justify-content: center; padding: 4px; border-radius: 8px;
         }
-
         .search-container {
             flex: 1; max-width: 600px; background: var(--surface-container); border-radius: 16px;
             border: 1px solid var(--border); display: flex; align-items: center; padding: 0 16px; height: 48px;
         }
         .search-container input { flex: 1; border: none; background: transparent; outline: none; padding: 0 12px; font-size: 0.95rem; }
-
-        .profile-area { display: flex; align-items: center; gap: 16px; padding-left: 30px; position: relative; }
-        .avatar {
-            width: 36px; height: 36px; background: var(--primary); color: white; border-radius: 12px;
-            display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px;
-        }
+        .profile-area { display: flex; align-items: center; gap: 16px; padding-left: 30px; }
+        .avatar { width: 36px; height: 36px; background: var(--primary); color: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
 
         /* --- MAIN LAYOUT --- */
         .drive-body { display: flex; flex: 1; overflow: hidden; position: relative; }
@@ -68,36 +61,26 @@
         /* --- SIDEBAR --- */
         .sidebar { 
             width: 280px; padding: 24px 16px; display: flex; flex-direction: column; gap: 8px; 
-            background: var(--bg-color); border-right: 1px solid var(--border); z-index: 95; transition: transform 0.3s;
+            background: var(--bg-color); border-right: 1px solid var(--border); z-index: 95; transition: transform 0.3s; flex-shrink: 0;
         }
-        .sidebar-overlay {
-            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.4); z-index: 90; backdrop-filter: blur(2px);
-        }
-
+        .sidebar-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 90; backdrop-filter: blur(2px); }
         .btn-new-folder {
             background: var(--primary); color: var(--on-primary); border: none; padding: 14px 24px;
             border-radius: 16px; display: inline-flex; align-items: center; gap: 12px; font-size: 0.95rem; 
-            font-weight: 600; cursor: pointer; transition: 0.3s; width: 100%; justify-content: center; margin-bottom: 12px;
+            font-weight: 600; cursor: pointer; transition: 0.2s; width: 100%; justify-content: center; margin-bottom: 4px;
         }
-
-        .btn-upload-sidebar {
-            background: var(--surface-container); color: var(--text-main); border: 1.5px solid var(--border);
-        }
-        .btn-upload-sidebar:hover { background: var(--hover-bg); }
-
-        .nav-menu { list-style: none; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; flex: 1;}
+        .btn-new-folder:hover { opacity: 0.85; }
+        .btn-upload-sidebar { background: var(--surface-container); color: var(--text-main); border: 1.5px solid var(--border); }
+        .btn-upload-sidebar:hover { background: var(--hover-bg); opacity: 1; }
+        .nav-menu { list-style: none; display: flex; flex-direction: column; gap: 4px; overflow-y: auto; flex: 1; }
         .section-label { font-size: 0.7rem; font-weight: 800; color: var(--text-muted); padding: 12px 16px 4px; text-transform: uppercase; }
-        .nav-item {
-            display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 12px;
-            cursor: pointer; color: var(--text-muted); font-size: 0.9rem; font-weight: 500; transition: 0.2s;
-        }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 12px; cursor: pointer; color: var(--text-muted); font-size: 0.9rem; font-weight: 500; transition: 0.2s; }
         .nav-item:hover { background: var(--hover-bg); color: var(--text-main); }
         .nav-item.active { background: var(--primary-container); color: var(--primary); font-weight: 600; }
 
         /* --- MAIN CONTENT --- */
         .main-content-wrapper { flex: 1; background: var(--surface); display: flex; flex-direction: column; overflow: hidden; }
-        .main-toolbar { padding: 24px 32px 16px; display: flex; justify-content: space-between; align-items: center; }
+        .main-toolbar { padding: 24px 32px 16px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
         .main-toolbar h2 { font-size: 1.5rem; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; }
 
         /* --- GALLERY GRID --- */
@@ -105,20 +88,17 @@
             flex: 1; padding: 16px 32px 32px; overflow-y: auto; display: grid;
             grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; align-content: start;
         }
-
         .gallery-card {
             background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden;
             display: flex; flex-direction: column; transition: 0.3s; cursor: pointer; position: relative;
         }
-        .gallery-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.06); border-color: #000; }
-        
-        .gallery-preview {
-            height: 200px; width: 100%; background: var(--surface-container); display: flex; 
-            align-items: center; justify-content: center; overflow: hidden; position: relative;
-        }
+        .gallery-card:hover { transform: translateY(-4px); box-shadow: 0 15px 30px rgba(0,0,0,0.06); border-color: #000; }
+        .gallery-preview { height: 200px; width: 100%; background: var(--surface-container); display: flex; align-items: center; justify-content: center; overflow: hidden; }
         .gallery-preview img { width: 100%; height: 100%; object-fit: cover; }
-
-        /* ACTIONS ON HOVER */
+        .card-info { padding: 12px 14px 14px; }
+        .card-title { font-size: 0.9rem; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
+        .card-meta { font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; justify-content: space-between; }
+        .card-rating { display: flex; align-items: center; gap: 3px; color: #f5a623; font-size: 0.75rem; font-weight: 700; }
         .card-actions {
             position: absolute; top: 10px; right: 10px; opacity: 0; transition: 0.3s;
             display: flex; gap: 8px; z-index: 5;
@@ -132,14 +112,131 @@
         .action-btn:hover { background: #000; color: #fff; }
         .action-btn.delete:hover { background: #d93025; color: #fff; }
 
-        /* --- LIGHTBOX --- */
-        .lightbox {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.98); z-index: 10000; display: none; 
-            justify-content: center; align-items: center; backdrop-filter: blur(10px);
+        /* --- LOADING --- */
+        .loading-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(255,255,255,0.85); z-index: 30000; display: none; 
+            flex-direction: column; justify-content: center; align-items: center; font-weight: bold; 
         }
-        .lightbox img { max-width: 90%; max-height: 85vh; border-radius: 12px; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
-        .close-lightbox { position: absolute; top: 30px; right: 30px; cursor: pointer; font-size: 32px; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .spinner { animation: spin 1s linear infinite; font-size: 40px; margin-bottom: 15px; }
+
+        /* --- MODAL UMUM --- */
+        .modal-backdrop {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.3); z-index: 20000; display: none;
+            justify-content: center; align-items: center;
+            backdrop-filter: blur(4px);
+        }
+        .modal-backdrop.show { display: flex; }
+        .modal-box {
+            background: #fff; border-radius: 20px; padding: 28px 28px 24px;
+            width: 100%; max-width: 440px; box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            animation: modalIn 0.2s ease; max-height: 90vh; overflow-y: auto;
+        }
+        @keyframes modalIn { from { transform: translateY(12px) scale(0.97); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
+        .modal-box h3 { font-size: 1.1rem; font-weight: 800; margin-bottom: 4px; letter-spacing: -0.5px; }
+        .modal-box .modal-subtitle { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px; }
+        .form-group { margin-bottom: 16px; }
+        .form-label { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; display: block; }
+        .modal-input {
+            width: 100%; padding: 13px 16px; border: 1.5px solid var(--border);
+            border-radius: 12px; font-size: 0.95rem; font-family: 'Inter', sans-serif;
+            outline: none; transition: 0.2s; background: var(--surface-container); color: var(--text-main);
+        }
+        .modal-input:focus { border-color: #000; background: #fff; }
+        .modal-actions { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
+        .modal-btn { padding: 11px 22px; border-radius: 12px; font-size: 0.9rem; font-weight: 600; cursor: pointer; border: none; transition: 0.2s; }
+        .modal-btn.cancel { background: var(--surface-container); color: var(--text-main); }
+        .modal-btn.cancel:hover { background: var(--hover-bg); }
+        .modal-btn.confirm { background: #000; color: #fff; }
+        .modal-btn.confirm:hover { background: #333; }
+        .modal-btn.confirm:disabled { background: #ccc; cursor: not-allowed; }
+
+        /* Preview file di modal upload */
+        .upload-preview-area {
+            border: 2px dashed var(--border); border-radius: 14px; padding: 20px;
+            text-align: center; cursor: pointer; transition: 0.2s; margin-bottom: 16px;
+            background: var(--surface-container); position: relative;
+        }
+        .upload-preview-area:hover { border-color: #000; }
+        .upload-preview-area .preview-img {
+            max-height: 160px; border-radius: 10px; object-fit: contain; display: none;
+        }
+        .upload-preview-area .preview-placeholder { color: var(--text-muted); font-size: 0.9rem; }
+        .upload-preview-area .preview-placeholder span { font-size: 40px; display: block; margin-bottom: 8px; }
+        .file-count-badge {
+            display: inline-block; background: #000; color: #fff; font-size: 0.75rem; font-weight: 700;
+            padding: 3px 10px; border-radius: 20px; margin-top: 8px;
+        }
+
+        /* --- DETAIL PANEL (pengganti lightbox) --- */
+        .detail-panel {
+            position: fixed; top: 0; right: -100%; width: 100%; height: 100%;
+            background: #fff; z-index: 15000; display: flex; flex-direction: column;
+            transition: right 0.35s cubic-bezier(0.4,0,0.2,1);
+        }
+        .detail-panel.open { right: 0; }
+        .detail-inner {
+            display: flex; flex: 1; overflow: hidden;
+        }
+        /* kiri: gambar */
+        .detail-photo-side {
+            flex: 1; background: #f5f5f5; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;
+        }
+        .detail-photo-side img { max-width: 100%; max-height: 100%; object-fit: contain; padding: 24px; }
+        /* kanan: info */
+        .detail-info-side {
+            width: 380px; flex-shrink: 0; border-left: 1px solid var(--border);
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+        .detail-header { padding: 20px 24px 16px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+        .detail-header h2 { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 4px; }
+        .detail-uploader { font-size: 0.82rem; color: var(--text-muted); }
+        .detail-close {
+            position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.06);
+            border: none; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; cursor: pointer; z-index: 2; transition: 0.2s;
+        }
+        .detail-close:hover { background: #000; color: #fff; }
+
+        /* Rating summary di header detail */
+        .rating-summary { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+        .rating-big { font-size: 1.8rem; font-weight: 900; letter-spacing: -2px; line-height: 1; }
+        .rating-stars-sm { display: flex; gap: 1px; }
+        .star-sm { font-size: 16px; color: #e0e0e0; }
+        .star-sm.filled { color: #f5a623; }
+        .rating-count { font-size: 0.78rem; color: var(--text-muted); }
+
+        /* Komentar section */
+        .comment-section { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .comment-list { flex: 1; overflow-y: auto; padding: 16px 24px; display: flex; flex-direction: column; gap: 16px; }
+        .comment-item { display: flex; gap: 10px; }
+        .comment-avatar { width: 34px; height: 34px; background: var(--primary-container); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; flex-shrink: 0; }
+        .comment-body { flex: 1; }
+        .comment-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px; }
+        .comment-author { font-size: 0.83rem; font-weight: 700; }
+        .comment-rating { display: flex; gap: 1px; }
+        .comment-rating .star-sm { font-size: 13px; }
+        .comment-text { font-size: 0.88rem; color: var(--text-muted); line-height: 1.5; }
+        .comment-time { font-size: 0.72rem; color: #bbb; margin-top: 4px; }
+
+        /* Form kirim komentar + rating */
+        .comment-form { padding: 14px 24px 18px; border-top: 1px solid var(--border); flex-shrink: 0; }
+        .comment-form input { margin-bottom: 8px; }
+        .comment-textarea { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 12px; font-size: 0.88rem; font-family: 'Inter', sans-serif; outline: none; resize: none; height: 68px; transition: 0.2s; background: var(--surface-container); }
+        .comment-textarea:focus { border-color: #000; background: #fff; }
+
+        /* Bintang di form */
+        .form-stars { display: flex; gap: 4px; margin-bottom: 10px; align-items: center; }
+        .form-stars-label { font-size: 0.78rem; color: var(--text-muted); margin-right: 6px; }
+        .form-star { font-size: 26px; cursor: pointer; color: #e0e0e0; transition: 0.15s; user-select: none; }
+        .form-star.filled { color: #f5a623; }
+        .form-star:hover { transform: scale(1.15); }
+
+        .send-btn { background: #000; color: #fff; border: none; padding: 10px 18px; border-radius: 12px; font-weight: 700; font-size: 0.88rem; cursor: pointer; width: 100%; margin-top: 8px; transition: 0.2s; }
+        .send-btn:hover { background: #333; }
+        .send-btn:disabled { background: #ccc; cursor: not-allowed; }
 
         /* Responsive */
         @media (max-width: 768px) {
@@ -150,71 +247,20 @@
             .search-container { display: none; }
             .main-toolbar { padding: 16px; }
             .file-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); padding: 16px; gap: 12px; }
-            .card-actions { opacity: 1; } /* Tampil terus di mobile agar mudah diklik */
+            .card-actions { opacity: 1; }
             .btn-upload-sidebar { display: none; }
+            /* Detail panel mobile: full screen, stacked */
+            .detail-inner { flex-direction: column; }
+            .detail-photo-side { height: 260px; flex: none; }
+            .detail-info-side { width: 100%; border-left: none; border-top: 1px solid var(--border); flex: 1; }
         }
-
-        /* Loading */
-        .loading-overlay { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(255,255,255,0.8); z-index: 10001; display: none; 
-            flex-direction: column; justify-content: center; align-items: center; font-weight: bold; 
-        }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        .spinner { animation: spin 1s linear infinite; font-size: 40px; margin-bottom: 15px; }
-
-        /* --- MODAL --- */
-        .modal-backdrop {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.25); z-index: 20000; display: none;
-            justify-content: center; align-items: center;
-            backdrop-filter: blur(4px);
-        }
-        .modal-backdrop.show { display: flex; }
-        .modal-box {
-            background: #fff; border-radius: 20px; padding: 32px 28px 24px;
-            width: 100%; max-width: 400px; box-shadow: 0 20px 60px rgba(0,0,0,0.12);
-            animation: modalIn 0.2s ease;
-        }
-        @keyframes modalIn {
-            from { transform: translateY(12px) scale(0.97); opacity: 0; }
-            to   { transform: translateY(0) scale(1); opacity: 1; }
-        }
-        .modal-box h3 {
-            font-size: 1.1rem; font-weight: 800; margin-bottom: 6px; letter-spacing: -0.5px;
-        }
-        .modal-box p {
-            font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;
-        }
-        .modal-input {
-            width: 100%; padding: 14px 16px; border: 1.5px solid var(--border);
-            border-radius: 12px; font-size: 0.95rem; font-family: 'Inter', sans-serif;
-            outline: none; transition: 0.2s; background: var(--surface-container);
-        }
-        .modal-input:focus { border-color: #000; background: #fff; }
-        .modal-actions {
-            display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end;
-        }
-        .modal-btn {
-            padding: 11px 22px; border-radius: 12px; font-size: 0.9rem;
-            font-weight: 600; cursor: pointer; border: none; transition: 0.2s;
-        }
-        .modal-btn.cancel {
-            background: var(--surface-container); color: var(--text-main);
-        }
-        .modal-btn.cancel:hover { background: var(--hover-bg); }
-        .modal-btn.confirm {
-            background: #000; color: #fff;
-        }
-        .modal-btn.confirm:hover { background: #333; }
-        .modal-btn.confirm:disabled { background: #ccc; cursor: not-allowed; }
     </style>
 </head>
 <body>
 
     <div id="loadingOverlay" class="loading-overlay">
         <span class="material-symbols-outlined spinner">sync</span>
-        <p>Sedang memproses...</p>
+        <p id="loadingText">Sedang memproses...</p>
     </div>
 
     <div id="galleryScreen">
@@ -225,14 +271,14 @@
             </div>
             <div class="search-container">
                 <span class="material-symbols-outlined">search</span>
-                <input type="text" placeholder="Cari foto di album ini..." onkeyup="searchImages(this.value)">
+                <input type="text" placeholder="Cari judul atau pengupload..." onkeyup="searchImages(this.value)">
             </div>
             <div class="profile-area">
-                <input type="file" id="fileInput" accept="image/*" multiple style="display:none" onchange="uploadImages()">
-                <button class="btn-black" onclick="document.getElementById('fileInput').click()" style="background: #000; color: #fff; border: none; padding: 10px 20px; border-radius: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;">
-                    <span class="material-symbols-outlined" style="font-size: 18px;">upload</span> Upload
+                <input type="file" id="fileInput" accept="image/*" multiple style="display:none" onchange="openUploadModal()">
+                <button onclick="document.getElementById('fileInput').click()" style="background:#000;color:#fff;border:none;padding:10px 20px;border-radius:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;">
+                    <span class="material-symbols-outlined" style="font-size:18px;">upload</span> Upload
                 </button>
-                <div class="avatar" id="userAvatar">A</div>
+                <div class="avatar">A</div>
             </div>
         </header>
 
@@ -243,7 +289,7 @@
                 <button class="btn-new-folder" onclick="addFolder()">
                     <span class="material-symbols-outlined">create_new_folder</span> Album Baru
                 </button>
-                <input type="file" id="fileInputSidebar" accept="image/*" multiple style="display:none" onchange="uploadImages('sidebar')">
+                <input type="file" id="fileInputSidebar" accept="image/*" multiple style="display:none" onchange="openUploadModal('sidebar')">
                 <button class="btn-new-folder btn-upload-sidebar" onclick="document.getElementById('fileInputSidebar').click()">
                     <span class="material-symbols-outlined">upload</span> Upload Foto
                 </button>
@@ -254,46 +300,67 @@
                 </div>
 
                 <div class="section-label">Album Saya</div>
-                <ul class="nav-menu" id="folderList">
-                    </ul>
+                <ul class="nav-menu" id="folderList"></ul>
 
                 <div style="margin-top:auto; padding: 16px; font-size: 0.7rem; color: #ccc; line-height: 1.5;">
-                    Pufutara Gallery v3.0<br>
-                    No Login Required
+                    Pufutara Gallery v4.0
                 </div>
             </aside>
 
             <main class="main-content-wrapper">
                 <div class="main-toolbar">
                     <h2 id="currentFolderTitle">Semua Foto</h2>
-                    <p id="fotoCount" style="color: var(--text-muted); font-size: 0.9rem;">0 Foto</p>
+                    <p id="fotoCount" style="color:var(--text-muted);font-size:0.9rem;">0 Foto</p>
                 </div>
-
-                <div id="galleryGrid" class="file-grid">
-                    </div>
+                <div id="galleryGrid" class="file-grid"></div>
             </main>
         </div>
     </div>
 
-    <div class="lightbox" id="lightbox" onclick="this.style.display='none'">
-        <span class="material-symbols-outlined close-lightbox">close</span>
-        <img id="lightboxImg" src="">
+    <!-- ===================== MODAL UPLOAD ===================== -->
+    <div class="modal-backdrop" id="modalUpload" onclick="closeUploadModal(event)">
+        <div class="modal-box">
+            <h3>Upload Foto</h3>
+            <p class="modal-subtitle" id="uploadSubtitle">Lengkapi info sebelum mengunggah</p>
+
+            <div class="upload-preview-area" id="uploadPreviewArea" onclick="document.getElementById('fileInput').click()">
+                <img class="preview-img" id="previewImg" src="" alt="preview">
+                <div class="preview-placeholder" id="previewPlaceholder">
+                    <span class="material-symbols-outlined">add_photo_alternate</span>
+                    Klik untuk pilih foto
+                </div>
+                <span class="file-count-badge" id="fileCountBadge" style="display:none;"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Judul Foto</label>
+                <input type="text" class="modal-input" id="uploadTitle" placeholder="Contoh: Sunset di Pantai..." maxlength="100">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Nama Pengupload <span style="color:#bbb;font-weight:400;">(opsional)</span></label>
+                <input type="text" class="modal-input" id="uploadUploader" placeholder="Nama kamu..." maxlength="60">
+            </div>
+
+            <div class="modal-actions">
+                <button class="modal-btn cancel" onclick="document.getElementById('modalUpload').classList.remove('show')">Batal</button>
+                <button class="modal-btn confirm" id="btnDoUpload" onclick="doUpload()">
+                    <span class="material-symbols-outlined" style="font-size:17px;vertical-align:middle;">upload</span> Upload
+                </button>
+            </div>
+        </div>
     </div>
 
-    <!-- Modal Album Baru -->
+    <!-- ===================== MODAL ALBUM BARU ===================== -->
     <div class="modal-backdrop" id="modalAlbum" onclick="closeAlbumModal(event)">
         <div class="modal-box">
             <h3>Album Baru</h3>
-            <p>Masukkan nama untuk album foto baru</p>
-            <input 
-                type="text" 
-                class="modal-input" 
-                id="albumNameInput" 
-                placeholder="Contoh: Liburan 2025, Wisuda..."
-                maxlength="50"
-                onkeydown="if(event.key==='Enter') confirmAddFolder()"
-                oninput="document.getElementById('btnConfirmAlbum').disabled = this.value.trim() === ''"
-            >
+            <p class="modal-subtitle">Masukkan nama untuk album foto baru</p>
+            <div class="form-group">
+                <input type="text" class="modal-input" id="albumNameInput" placeholder="Contoh: Liburan 2025, Wisuda..."
+                    maxlength="50"
+                    onkeydown="if(event.key==='Enter') confirmAddFolder()"
+                    oninput="document.getElementById('btnConfirmAlbum').disabled = this.value.trim() === ''">
+            </div>
             <div class="modal-actions">
                 <button class="modal-btn cancel" onclick="closeAlbumModal()">Batal</button>
                 <button class="modal-btn confirm" id="btnConfirmAlbum" onclick="confirmAddFolder()" disabled>Buat Album</button>
@@ -301,27 +368,93 @@
         </div>
     </div>
 
+    <!-- ===================== DETAIL PANEL ===================== -->
+    <div class="detail-panel" id="detailPanel">
+        <button class="detail-close" onclick="closeDetail()">
+            <span class="material-symbols-outlined">close</span>
+        </button>
+        <div class="detail-inner">
+            <!-- Foto -->
+            <div class="detail-photo-side">
+                <img id="detailImg" src="" alt="foto">
+            </div>
+            <!-- Info -->
+            <div class="detail-info-side">
+                <div class="detail-header">
+                    <h2 id="detailTitle">Tanpa Judul</h2>
+                    <div class="detail-uploader">
+                        <span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;">person</span>
+                        <span id="detailUploader">Anonim</span>
+                        &nbsp;·&nbsp;
+                        <span id="detailDate"></span>
+                    </div>
+                    <!-- Rating summary -->
+                    <div class="rating-summary">
+                        <div class="rating-big" id="ratingAvg">—</div>
+                        <div>
+                            <div class="rating-stars-sm" id="ratingStarsDisplay"></div>
+                            <div class="rating-count" id="ratingCount">Belum ada rating</div>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:8px;margin-top:12px;">
+                        <button onclick="downloadImage(document.getElementById('detailImg').src)" style="background:var(--surface-container);border:1px solid var(--border);padding:7px 14px;border-radius:10px;font-size:0.82rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;">
+                            <span class="material-symbols-outlined" style="font-size:16px;">download</span> Download
+                        </button>
+                        <button id="detailDeleteBtn" onclick="deleteImageFromDetail()" style="background:#fff3f3;border:1px solid #fcc;color:#d93025;padding:7px 14px;border-radius:10px;font-size:0.82rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;">
+                            <span class="material-symbols-outlined" style="font-size:16px;">delete</span> Hapus
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Komentar + Rating gabung -->
+                <div class="comment-section">
+                    <div class="comment-list" id="commentList">
+                        <div style="text-align:center;color:#ccc;padding:30px;">Memuat komentar...</div>
+                    </div>
+                    <div class="comment-form">
+                        <input type="text" class="modal-input" id="commentAuthor" placeholder="Nama kamu..." maxlength="50" style="font-size:0.88rem;width:100%;">
+                        <div class="form-stars">
+                            <span class="form-stars-label">Rating:</span>
+                            <span class="form-star material-symbols-outlined" data-val="1" onclick="selectFormStar(1)" onmouseenter="hoverFormStar(1)" onmouseleave="unhoverFormStar()">star</span>
+                            <span class="form-star material-symbols-outlined" data-val="2" onclick="selectFormStar(2)" onmouseenter="hoverFormStar(2)" onmouseleave="unhoverFormStar()">star</span>
+                            <span class="form-star material-symbols-outlined" data-val="3" onclick="selectFormStar(3)" onmouseenter="hoverFormStar(3)" onmouseleave="unhoverFormStar()">star</span>
+                            <span class="form-star material-symbols-outlined" data-val="4" onclick="selectFormStar(4)" onmouseenter="hoverFormStar(4)" onmouseleave="unhoverFormStar()">star</span>
+                            <span class="form-star material-symbols-outlined" data-val="5" onclick="selectFormStar(5)" onmouseenter="hoverFormStar(5)" onmouseleave="unhoverFormStar()">star</span>
+                        </div>
+                        <textarea class="comment-textarea" id="commentText" placeholder="Tulis komentar... (opsional)"></textarea>
+                        <button class="send-btn" onclick="submitComment()">Kirim</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ==========================================
-        // CONFIG & INITIALIZATION
+        // CONFIG
         // ==========================================
-        const SUPABASE_URL = 'https://puywjdopumlzvmzbcudr.supabase.co'; 
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1eXdqZG9wdW1senZtemJjdWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDE3MTksImV4cCI6MjA4NzkxNzcxOX0.vvThyjtK2SlA9oA9Mr_XOmt1R_tNZk-ib3PO9XpiiSc'; 
-
+        const SUPABASE_URL = 'https://puywjdopumlzvmzbcudr.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1eXdqZG9wdW1senZtemJjdWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDE3MTksImV4cCI6MjA4NzkxNzcxOX0.vvThyjtK2SlA9oA9Mr_XOmt1R_tNZk-ib3PO9XpiiSc';
         const _client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        const BUCKET_NAME = 'pufutara-gallery'; 
+        const BUCKET_NAME = 'pufutara-gallery';
 
-        let folders = JSON.parse(localStorage.getItem('pufutara_folders')) || [{ id: 'semua', name: 'Semua Foto Global' }];
+        let folders = JSON.parse(localStorage.getItem('pufutara_folders')) || [{ id: 'semua', name: 'Semua Foto' }];
         let activeFolderId = 'semua';
         let allImages = [];
+        let pendingFiles = [];       // file-file yang dipilih, menunggu konfirmasi di modal
+        let currentDetailId = null;  // id gambar yang sedang dibuka di detail panel
 
-        // --- APP START ---
+        // ==========================================
+        // INIT
+        // ==========================================
         window.addEventListener('DOMContentLoaded', () => {
             renderFolders();
             fetchImages();
         });
 
-        // --- UI LOGIC ---
+        // ==========================================
+        // SIDEBAR & FOLDER
+        // ==========================================
         function toggleSidebar() {
             document.getElementById('appSidebar').classList.toggle('active');
             document.getElementById('sidebarOverlay').classList.toggle('active');
@@ -331,7 +464,7 @@
             const list = document.getElementById('folderList');
             list.innerHTML = '';
             folders.forEach(f => {
-                if(f.id === 'semua') return;
+                if (f.id === 'semua') return;
                 const li = document.createElement('li');
                 li.className = `nav-item ${f.id === activeFolderId ? 'active' : ''}`;
                 li.innerHTML = `<span class="material-symbols-outlined">folder</span> ${f.name}`;
@@ -344,115 +477,14 @@
         function switchFolder(id) {
             activeFolderId = id;
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            if(id === 'semua') document.getElementById('nav-semua').classList.add('active');
-            
-            document.getElementById('currentFolderTitle').innerText = folders.find(f => f.id === id).name;
-            if(window.innerWidth <= 768) {
+            if (id === 'semua') document.getElementById('nav-semua').classList.add('active');
+            const folder = folders.find(f => f.id === id);
+            document.getElementById('currentFolderTitle').innerText = folder ? folder.name : 'Semua Foto';
+            if (window.innerWidth <= 768) {
                 document.getElementById('appSidebar').classList.remove('active');
                 document.getElementById('sidebarOverlay').classList.remove('active');
             }
             renderFolders();
-            fetchImages();
-        }
-
-        async function fetchImages() {
-            const grid = document.getElementById('galleryGrid');
-            grid.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:50px; color:#999;">Memuat gallery...</p>';
-            
-            let query = _client.from('gallery_images').select('*').order('created_at', { ascending: false });
-            if (activeFolderId !== 'semua') query = query.eq('folder_id', activeFolderId);
-
-            const { data, error } = await query;
-            if (error) {
-                console.error(error);
-                grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:100px; color:#ccc;"><span class="material-symbols-outlined" style="font-size:48px;">cloud_off</span><p>Gagal memuat gallery. Periksa koneksi atau konfigurasi Supabase.</p></div>';
-                return;
-            }
-
-            allImages = data || [];
-            renderGalleryUI(allImages);
-        }
-
-        function renderGalleryUI(data) {
-            const grid = document.getElementById('galleryGrid');
-            document.getElementById('fotoCount').innerText = `${data.length} Foto`;
-            grid.innerHTML = '';
-
-            if(data.length === 0) {
-                grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:100px; color:#ccc;"><span class="material-symbols-outlined" style="font-size:48px;">image_not_supported</span><p>Belum ada foto di sini</p></div>';
-                return;
-            }
-
-            data.forEach(img => {
-                const card = document.createElement('div');
-                card.className = 'gallery-card';
-                card.innerHTML = `
-                    <div class="gallery-preview">
-                        <img src="${img.image_url}" loading="lazy" onclick="openLightbox('${img.image_url}')">
-                    </div>
-                    <div class="card-actions">
-                        <button class="action-btn" onclick="downloadImage('${img.image_url}', event)" title="Download">
-                            <span class="material-symbols-outlined" style="font-size:20px;">download</span>
-                        </button>
-                        <button class="action-btn delete" onclick="deleteImage('${img.id}', event)" title="Hapus">
-                            <span class="material-symbols-outlined" style="font-size:20px;">delete</span>
-                        </button>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-        }
-
-        // --- ACTIONS ---
-        async function uploadImages(source) {
-            const inputId = source === 'sidebar' ? 'fileInputSidebar' : 'fileInput';
-            const files = document.getElementById(inputId).files;
-            if(!files.length) return;
-
-            // Folder ID untuk penyimpanan (jika 'semua', masukkan ke 'general')
-            const targetFolder = activeFolderId === 'semua' ? 'general' : activeFolderId;
-
-            document.getElementById('loadingOverlay').style.display = 'flex';
-
-            for(let file of files) {
-                const path = `${targetFolder}/${Date.now()}_${file.name}`;
-                const { error: upErr } = await _client.storage.from(BUCKET_NAME).upload(path, file);
-                
-                if(!upErr) {
-                    const { data } = _client.storage.from(BUCKET_NAME).getPublicUrl(path);
-                    await _client.from('gallery_images').insert([{ folder_id: targetFolder, image_url: data.publicUrl }]);
-                }
-            }
-
-            document.getElementById('loadingOverlay').style.display = 'none';
-            document.getElementById('fileInput').value = '';
-            document.getElementById('fileInputSidebar').value = '';
-            fetchImages();
-        }
-
-        // FUNGSI DOWNLOAD BARU
-        async function downloadImage(url, event) {
-            event.stopPropagation();
-            try {
-                const response = await fetch(url);
-                const blob = await response.blob();
-                const blobUrl = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = blobUrl;
-                a.download = `pufutara_${Date.now()}.jpg`;
-                document.body.appendChild(a);
-                a.click();
-                window.URL.revokeObjectURL(blobUrl);
-                a.remove();
-            } catch (e) {
-                alert("Gagal mendownload foto.");
-            }
-        }
-
-        async function deleteImage(id, event) {
-            event.stopPropagation();
-            if(!confirm("Hapus foto ini secara permanen?")) return;
-            await _client.from('gallery_images').delete().eq('id', id);
             fetchImages();
         }
 
@@ -465,7 +497,6 @@
         }
 
         function closeAlbumModal(event) {
-            // Tutup hanya jika klik backdrop, bukan box
             if (event && event.target !== document.getElementById('modalAlbum')) return;
             document.getElementById('modalAlbum').classList.remove('show');
         }
@@ -479,14 +510,403 @@
             switchFolder(newF.id);
         }
 
+        // ==========================================
+        // FETCH & RENDER GALLERY
+        // ==========================================
+        async function fetchImages() {
+            const grid = document.getElementById('galleryGrid');
+            grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:50px;color:#999;">Memuat gallery...</p>';
+
+            let query = _client.from('gallery_images_with_rating').select('*').order('created_at', { ascending: false });
+            if (activeFolderId !== 'semua') query = query.eq('folder_id', activeFolderId);
+
+            const { data, error } = await query;
+            if (error) {
+                console.error(error);
+                grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:80px;color:#ccc;"><span class="material-symbols-outlined" style="font-size:48px;">cloud_off</span><p style="margin-top:8px;">Gagal memuat gallery.<br>Periksa koneksi atau konfigurasi Supabase.</p></div>';
+                return;
+            }
+            allImages = data || [];
+            renderGalleryUI(allImages);
+        }
+
+        function renderGalleryUI(data) {
+            const grid = document.getElementById('galleryGrid');
+            document.getElementById('fotoCount').innerText = `${data.length} Foto`;
+            grid.innerHTML = '';
+
+            if (data.length === 0) {
+                grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:100px;color:#ccc;"><span class="material-symbols-outlined" style="font-size:48px;">image_not_supported</span><p style="margin-top:8px;">Belum ada foto di sini</p></div>';
+                return;
+            }
+
+            data.forEach(img => {
+                const avgRating = img.avg_rating ? parseFloat(img.avg_rating).toFixed(1) : null;
+                const ratingCount = img.rating_count || 0;
+                const ratingHtml = avgRating
+                    ? `<span class="card-rating">
+                            <span class="material-symbols-outlined" style="font-size:13px;color:#f5a623;">star</span>
+                            ${avgRating}
+                            <span style="color:#bbb;font-weight:400;">(${ratingCount})</span>
+                       </span>`
+                    : `<span style="color:#ccc;font-size:0.75rem;">Belum dirating</span>`;
+
+                const card = document.createElement('div');
+                card.className = 'gallery-card';
+                card.innerHTML = `
+                    <div class="gallery-preview">
+                        <img src="${img.image_url}" loading="lazy">
+                    </div>
+                    <div class="card-info">
+                        <div class="card-title">${img.title || 'Tanpa Judul'}</div>
+                        <div class="card-meta">
+                            <span>${img.uploader_name || 'Anonim'}</span>
+                            ${ratingHtml}
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <button class="action-btn" onclick="event.stopPropagation();downloadImage('${img.image_url}')" title="Download">
+                            <span class="material-symbols-outlined" style="font-size:20px;">download</span>
+                        </button>
+                        <button class="action-btn delete" onclick="event.stopPropagation();deleteImage('${img.id}')" title="Hapus">
+                            <span class="material-symbols-outlined" style="font-size:20px;">delete</span>
+                        </button>
+                    </div>
+                `;
+                card.addEventListener('click', () => openDetail(img));
+                grid.appendChild(card);
+            });
+        }
+
         function searchImages(val) {
-            const filtered = allImages.filter(img => img.image_url.toLowerCase().includes(val.toLowerCase()));
+            const v = val.toLowerCase();
+            const filtered = allImages.filter(img =>
+                (img.title || '').toLowerCase().includes(v) ||
+                (img.uploader_name || '').toLowerCase().includes(v) ||
+                img.image_url.toLowerCase().includes(v)
+            );
             renderGalleryUI(filtered);
         }
 
-        function openLightbox(url) {
-            document.getElementById('lightboxImg').src = url;
-            document.getElementById('lightbox').style.display = 'flex';
+        // ==========================================
+        // UPLOAD FLOW
+        // ==========================================
+        function openUploadModal(source) {
+            // Ambil file dari input yang sesuai
+            const inputId = source === 'sidebar' ? 'fileInputSidebar' : 'fileInput';
+            const files = document.getElementById(inputId).files;
+            if (!files || files.length === 0) return;
+
+            pendingFiles = Array.from(files);
+
+            // Update preview
+            const previewImg = document.getElementById('previewImg');
+            const placeholder = document.getElementById('previewPlaceholder');
+            const badge = document.getElementById('fileCountBadge');
+
+            if (pendingFiles.length === 1) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    previewImg.src = e.target.result;
+                    previewImg.style.display = 'block';
+                    placeholder.style.display = 'none';
+                };
+                reader.readAsDataURL(pendingFiles[0]);
+                badge.style.display = 'none';
+            } else {
+                // Multi-file: tampilkan icon dan badge jumlah
+                previewImg.style.display = 'none';
+                placeholder.style.display = 'block';
+                badge.style.display = 'inline-block';
+                badge.textContent = `${pendingFiles.length} foto dipilih`;
+            }
+
+            // Isi subtitle
+            document.getElementById('uploadSubtitle').textContent =
+                pendingFiles.length === 1 ? `1 foto siap diupload` : `${pendingFiles.length} foto siap diupload`;
+
+            // Reset form
+            document.getElementById('uploadTitle').value = '';
+            document.getElementById('uploadUploader').value = '';
+
+            document.getElementById('modalUpload').classList.add('show');
+            setTimeout(() => document.getElementById('uploadTitle').focus(), 100);
+        }
+
+        function closeUploadModal(event) {
+            if (event && event.target !== document.getElementById('modalUpload')) return;
+            document.getElementById('modalUpload').classList.remove('show');
+            // Reset input file supaya bisa pilih file yang sama lagi
+            document.getElementById('fileInput').value = '';
+            document.getElementById('fileInputSidebar').value = '';
+        }
+
+        async function doUpload() {
+            if (!pendingFiles.length) return;
+
+            const title = document.getElementById('uploadTitle').value.trim();
+            const uploader = document.getElementById('uploadUploader').value.trim();
+            const targetFolder = activeFolderId === 'semua' ? 'general' : activeFolderId;
+
+            document.getElementById('modalUpload').classList.remove('show');
+            const loadingEl = document.getElementById('loadingOverlay');
+            const loadingText = document.getElementById('loadingText');
+            loadingEl.style.display = 'flex';
+
+            for (let i = 0; i < pendingFiles.length; i++) {
+                const file = pendingFiles[i];
+                loadingText.textContent = `Mengupload ${i + 1} / ${pendingFiles.length}...`;
+                const path = `${targetFolder}/${Date.now()}_${file.name}`;
+                const { error: upErr } = await _client.storage.from(BUCKET_NAME).upload(path, file);
+
+                if (!upErr) {
+                    const { data: urlData } = _client.storage.from(BUCKET_NAME).getPublicUrl(path);
+                    // Setiap foto dapat judul yang sama (atau judul + nomor kalau multi)
+                    const photoTitle = pendingFiles.length === 1
+                        ? (title || null)
+                        : (title ? `${title} (${i + 1})` : null);
+
+                    await _client.from('gallery_images').insert([{
+                        folder_id: targetFolder,
+                        image_url: urlData.publicUrl,
+                        title: photoTitle,
+                        uploader_name: uploader || null
+                    }]);
+                }
+            }
+
+            loadingEl.style.display = 'none';
+            loadingText.textContent = 'Sedang memproses...';
+            pendingFiles = [];
+            document.getElementById('fileInput').value = '';
+            document.getElementById('fileInputSidebar').value = '';
+            fetchImages();
+        }
+
+        // ==========================================
+        // DELETE & DOWNLOAD
+        // ==========================================
+        async function downloadImage(url) {
+            try {
+                const response = await fetch(url);
+                const blob = await response.blob();
+                const blobUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = `pufutara_${Date.now()}.jpg`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(blobUrl);
+                a.remove();
+            } catch (e) {
+                alert('Gagal mendownload foto.');
+            }
+        }
+
+        async function deleteImage(id) {
+            if (!confirm('Hapus foto ini secara permanen?')) return;
+            await _client.from('gallery_images').delete().eq('id', id);
+            fetchImages();
+        }
+
+        async function deleteImageFromDetail() {
+            if (!currentDetailId) return;
+            if (!confirm('Hapus foto ini secara permanen?')) return;
+            await _client.from('gallery_images').delete().eq('id', currentDetailId);
+            closeDetail();
+            fetchImages();
+        }
+
+        // ==========================================
+        // DETAIL PANEL
+        // ==========================================
+        function openDetail(img) {
+            currentDetailId = img.id;
+
+            document.getElementById('detailImg').src = img.image_url;
+            document.getElementById('detailTitle').textContent = img.title || 'Tanpa Judul';
+            document.getElementById('detailUploader').textContent = img.uploader_name || 'Anonim';
+            document.getElementById('detailDate').textContent = img.created_at
+                ? new Date(img.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
+                : '';
+
+            document.getElementById('detailPanel').classList.add('open');
+            document.body.style.overflow = 'hidden';
+
+            // Reset form stars
+            selectedFormRating = 0;
+            unhoverFormStar();
+
+            loadRatingsAndComments(img.id);
+        }
+
+        function closeDetail() {
+            document.getElementById('detailPanel').classList.remove('open');
+            document.body.style.overflow = '';
+            currentDetailId = null;
+        }
+
+        // ==========================================
+        // RATING SUMMARY + FORM STARS
+        // ==========================================
+        let selectedFormRating = 0;
+
+        function hoverFormStar(val) {
+            document.querySelectorAll('.form-star').forEach(s => {
+                s.classList.toggle('filled', parseInt(s.dataset.val) <= val);
+            });
+        }
+
+        function unhoverFormStar() {
+            document.querySelectorAll('.form-star').forEach(s => {
+                s.classList.toggle('filled', parseInt(s.dataset.val) <= selectedFormRating);
+            });
+        }
+
+        function selectFormStar(val) {
+            selectedFormRating = val;
+            unhoverFormStar();
+        }
+
+        function renderRatingSummary(ratings) {
+            const starsDisplay = document.getElementById('ratingStarsDisplay');
+            const ratingAvg = document.getElementById('ratingAvg');
+            const ratingCount = document.getElementById('ratingCount');
+
+            if (!ratings || ratings.length === 0) {
+                ratingAvg.textContent = '—';
+                starsDisplay.innerHTML = '';
+                ratingCount.textContent = 'Belum ada rating';
+                return;
+            }
+
+            const avg = ratings.reduce((s, r) => s + r.rating, 0) / ratings.length;
+            ratingAvg.textContent = avg.toFixed(1);
+            ratingCount.textContent = `${ratings.length} rating`;
+
+            let html = '';
+            for (let i = 1; i <= 5; i++) {
+                const filled = i <= Math.round(avg);
+                html += `<span class="material-symbols-outlined star-sm ${filled ? 'filled' : ''}">star</span>`;
+            }
+            starsDisplay.innerHTML = html;
+        }
+
+        // ==========================================
+        // LOAD RATINGS + KOMENTAR (gabung)
+        // ==========================================
+        async function loadRatingsAndComments(imageId) {
+            // Load ratings
+            const { data: ratingData } = await _client
+                .from('gallery_ratings')
+                .select('rating')
+                .eq('image_id', imageId);
+            renderRatingSummary(ratingData);
+
+            // Load komentar (join dengan rating berdasarkan comment.rating_id atau kolom rating)
+            const list = document.getElementById('commentList');
+            list.innerHTML = '<div style="text-align:center;color:#ccc;padding:20px;">Memuat komentar...</div>';
+
+            const { data, error } = await _client
+                .from('gallery_comments')
+                .select('*')
+                .eq('image_id', imageId)
+                .order('created_at', { ascending: true });
+
+            if (error) {
+                list.innerHTML = '<div style="text-align:center;color:#ccc;padding:20px;">Gagal memuat komentar.</div>';
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                list.innerHTML = '<div style="text-align:center;color:#ccc;padding:30px;">Belum ada ulasan. Jadilah yang pertama!</div>';
+                return;
+            }
+
+            list.innerHTML = '';
+            data.forEach(c => {
+                const initial = (c.author || 'A').charAt(0).toUpperCase();
+                const time = new Date(c.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+
+                // Bintang per komentar — filled (★) vs outline (☆)
+                let starsHtml = '';
+                if (c.rating && c.rating > 0) {
+                    const labels = ['', 'Buruk', 'Kurang', 'Cukup', 'Bagus', 'Sangat Bagus'];
+                    let stars = '';
+                    for (let i = 1; i <= 5; i++) {
+                        stars += `<span style="font-size:14px;color:${i <= c.rating ? '#f5a623' : '#e0e0e0'};">★</span>`;
+                    }
+                    starsHtml = `<span style="display:flex;align-items:center;gap:3px;">
+                        ${stars}
+                        <span style="font-size:0.72rem;color:#f5a623;font-weight:700;margin-left:2px;">${c.rating}/5</span>
+                    </span>`;
+                }
+
+                const item = document.createElement('div');
+                item.className = 'comment-item';
+                item.innerHTML = `
+                    <div class="comment-avatar">${initial}</div>
+                    <div class="comment-body">
+                        <div class="comment-header">
+                            <span class="comment-author">${c.author || 'Anonim'}</span>
+                            <div class="comment-rating">${starsHtml}</div>
+                        </div>
+                        ${c.content ? `<div class="comment-text">${c.content}</div>` : ''}
+                        <div class="comment-time">${time}</div>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+            list.scrollTop = list.scrollHeight;
+        }
+
+        // ==========================================
+        // SUBMIT KOMENTAR + RATING SEKALIGUS
+        // ==========================================
+        async function submitComment() {
+            if (!currentDetailId) return;
+            const author = document.getElementById('commentAuthor').value.trim();
+            const content = document.getElementById('commentText').value.trim();
+            const rating = selectedFormRating;
+
+            // Harus ada minimal rating atau komentar
+            if (!content && rating === 0) {
+                document.getElementById('commentText').focus();
+                return;
+            }
+
+            const btn = document.querySelector('.send-btn');
+            btn.disabled = true;
+            btn.textContent = 'Mengirim...';
+
+            // Insert komentar (dengan kolom rating jika ada)
+            const { error } = await _client.from('gallery_comments').insert([{
+                image_id: currentDetailId,
+                author: author || 'Anonim',
+                content: content || '',
+                rating: rating || null
+            }]);
+
+            // Juga insert ke gallery_ratings (untuk summary avg)
+            if (rating > 0) {
+                await _client.from('gallery_ratings').insert([{
+                    image_id: currentDetailId,
+                    rating
+                }]);
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'Kirim';
+
+            if (!error) {
+                document.getElementById('commentText').value = '';
+                selectedFormRating = 0;
+                unhoverFormStar();
+                loadRatingsAndComments(currentDetailId);
+                fetchImages(); // update avg di card
+            } else {
+                alert('Gagal mengirim ulasan.');
+            }
         }
     </script>
 </body>
