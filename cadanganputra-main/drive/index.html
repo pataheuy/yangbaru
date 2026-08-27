@@ -410,7 +410,7 @@
 
             <!-- SIDEBAR -->
             <aside class="sidebar" id="appSidebar">
-                <input type="file" id="fileUpload" style="display:none;" onchange="uploadFile()">
+                <input type="file" id="fileUpload" style="display:none;" multiple onchange="uploadFiles()">
                 <button class="btn-new" id="btnUpload" onclick="document.getElementById('fileUpload').click()">
                     <span class="material-symbols-outlined">add</span> Upload Baru
                 </button>
@@ -494,7 +494,7 @@
         <div class="modal-box">
             <button class="modal-close" onclick="closeModalBtn('settingsModal')"><span class="material-symbols-outlined">close</span></button>
             <h3>Pengaturan Pufutara</h3>
-            <p style="font-size:0.95rem; color:var(--text-muted); margin-bottom:24px;"><strong>Tema:</strong> Minimalis Hitam Putih (Default)<br><br><strong>Sinkronisasi:</strong> Otomatis aktif<br><br><strong>Keamanan:</strong> Enkripsi end-to-end melalui Supabase Storage aktif.</p>
+            <p style="font-size:0.95rem; color:var(--text-muted); margin-bottom:24px;"><strong>Tema:</strong> Minimalis Hitam Putih (Default)<br><br><strong>Sinkronisasi:</strong> Otomatis aktif<br><br><strong>Penyimpanan:</strong> File disimpan di Cloudinary, metadata dikelola via Supabase.</p>
             <button class="btn-black" style="width: 100%; margin-top: 0;" onclick="closeModalBtn('settingsModal')">Tutup</button>
         </div>
     </div>
@@ -504,7 +504,7 @@
         <div class="modal-box">
             <button class="modal-close" onclick="closeModalBtn('helpModal')"><span class="material-symbols-outlined">close</span></button>
             <h3>Pusat Bantuan</h3>
-            <p style="font-size:0.95rem; color:var(--text-muted); margin-bottom:24px;"><strong>Favorit:</strong> Klik ikon bintang untuk menandai file penting.<br><br><strong>Bagikan:</strong> Klik ikon orang untuk berbagi ke email lain.<br><br><strong>Limit:</strong> Maksimal 15MB per file.</p>
+            <p style="font-size:0.95rem; color:var(--text-muted); margin-bottom:24px;"><strong>Upload Banyak File:</strong> Pilih beberapa file sekaligus saat klik "Upload Baru".<br><br><strong>Favorit:</strong> Klik ikon bintang untuk menandai file penting.<br><br><strong>Bagikan:</strong> Klik ikon orang untuk berbagi ke email lain.</p>
             <button class="btn-black" style="width: 100%; margin-top: 0;" onclick="closeModalBtn('helpModal')">Paham</button>
         </div>
     </div>
@@ -554,7 +554,41 @@
         };
 
         const _client = window.supabase.createClient(_CONFIG.URL, _CONFIG.KEY);
-        const BUCKET_NAME = 'pufutara_files';
+
+        // Konfigurasi Cloudinary
+        const CLOUDINARY_CLOUD_NAME = 'ydj9xhqk';
+        const CLOUDINARY_UPLOAD_PRESET = 'upload lagu spotipai';
+
+        /**
+         * Upload satu file ke Cloudinary menggunakan unsigned upload preset.
+         * @param {File} file - File yang akan diupload
+         * @param {string} folder - Folder tujuan di Cloudinary
+         * @returns {Promise<{url: string, bytes: number, format: string}>}
+         */
+        async function uploadToCloudinary(file, folder = 'drive') {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+            formData.append('folder', `pufutara/${folder}`);
+
+            // Cloudinary: audio/video → endpoint 'video', gambar → 'image', sisanya → 'raw'
+            let resourceType = 'raw';
+            if (file.type.startsWith('image/')) resourceType = 'image';
+            else if (file.type.startsWith('video/') || file.type.startsWith('audio/')) resourceType = 'video';
+
+            const res = await fetch(
+                `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload`,
+                { method: 'POST', body: formData }
+            );
+
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error?.message || `Upload Cloudinary gagal: ${res.status}`);
+            }
+
+            const data = await res.json();
+            return { url: data.secure_url, bytes: data.bytes, format: data.format };
+        }
 
         // ── TOAST & CONFIRM UI ──────────────────────────────────────
         let _toastTimer;
@@ -608,7 +642,7 @@
         let _fileToShare = null;
         let _fileToRename = null; 
         let _currentPreviewName = '';
-        let _currentPreviewFolder = '';
+        let _currentPreviewUrl = '';
 
         // --- MOBILE SIDEBAR TOGGLE ---
         function toggleSidebar() {
@@ -691,8 +725,12 @@
                 const { data, error } = await _client.from('shared_files').select('*').eq('shared_to_email', _userEmail);
                 if (data && !error) {
                     _sharedWithMe = data.map(item => ({
-                        name: item.file_name, ownerEmail: item.owner_email, ownerFolder: item.owner_folder,
-                        isSharedWithMe: true, isFavorite: false, updated_at: item.created_at
+                        name: item.file_name,
+                        file_url: item.file_url || null,
+                        ownerEmail: item.owner_email,
+                        ownerFolder: item.owner_folder,
+                        isSharedWithMe: true, isFavorite: false, updated_at: item.created_at,
+                        metadata: { size: item.file_size || 0, mimetype: item.mime_type || '' }
                     }));
                 } else _sharedWithMe = [];
             } catch (err) { _sharedWithMe = []; }
@@ -722,26 +760,34 @@
             const grid = document.getElementById('fileGrid');
             grid.innerHTML = `<div class="empty-state"><span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span><h3>Memuat Data...</h3></div>`;
 
-            const { data, error } = await _client.storage.from(BUCKET_NAME).list(_userFolder + '/');
+            const { data, error } = await _client
+                .from('drive_files')
+                .select('*')
+                .eq('owner_email', _userEmail)
+                .order('created_at', { ascending: false });
+
             if (error) { grid.innerHTML = `<div class="empty-state" style="color:red;"><h3>Gagal memuat</h3></div>`; return; }
 
             const favs = getLocalData('favs');
             const sharedMap = getSharedData();
 
-            _allFiles = data.filter(f => f.name !== '.emptyFolderPlaceholder').map(f => {
-                f.isFavorite = favs.includes(f.name);
-                f.sharedWith = sharedMap[f.name] || [];
-                return f;
-            });
-            
+            _allFiles = (data || []).map(f => ({
+                name: f.file_name,
+                file_url: f.file_url,
+                isFavorite: favs.includes(f.file_name),
+                sharedWith: sharedMap[f.file_name] || [],
+                updated_at: f.created_at,
+                metadata: { size: f.file_size || 0, mimetype: f.mime_type || '' }
+            }));
+
             sortFilesArray(); updateStorageUI(_allFiles); applyNavFilter();
         }
 
         function updateStorageUI(files) {
             const MAX_BYTES = 15 * 1024 * 1024 * 1024;
             let usedBytes = files.reduce((acc, f) => acc + (f.metadata?.size || 0), 0);
-            let displaySize = usedBytes < 1024*1024 ? (usedBytes/1024).toFixed(1)+' KB' : 
-                              usedBytes < 1024*1024*1024 ? (usedBytes/(1024*1024)).toFixed(2)+' MB' : 
+            let displaySize = usedBytes < 1024*1024 ? (usedBytes/1024).toFixed(1)+' KB' :
+                              usedBytes < 1024*1024*1024 ? (usedBytes/(1024*1024)).toFixed(2)+' MB' :
                               (usedBytes/(1024*1024*1024)).toFixed(2)+' GB';
             if(usedBytes === 0) displaySize = '0 MB';
 
@@ -822,16 +868,31 @@
             card.className = 'file-card';
             card.style.animation = "fadeIn 0.5s ease forwards";
 
-            const targetFolder = file.isSharedWithMe ? file.ownerFolder : _userFolder;
-            const { data: publicUrlData } = _client.storage.from(BUCKET_NAME).getPublicUrl(`${targetFolder}/${file.name}`);
-            const fileUrl = publicUrlData.publicUrl;
+            // Gunakan Cloudinary URL langsung dari data
+            const fileUrl = file.file_url || '';
 
             const ext = file.name.split('.').pop().toLowerCase();
-            const isImg = file.metadata?.mimetype?.startsWith('image/') || (file.isSharedWithMe && ['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(ext));
+            const mime = file.metadata?.mimetype || '';
+            const isImg = mime.startsWith('image/') || ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'].includes(ext);
+            const isVideo = mime.startsWith('video/') || ['mp4', 'webm', 'mov'].includes(ext);
+            const isAudio = mime.startsWith('audio/') || ['mp3', 'wav', 'ogg', 'm4a'].includes(ext);
+            const isPdf = ext === 'pdf';
 
-            let visualHtml = isImg ? `<img src="${fileUrl}" alt="preview" loading="lazy">` : `<span class="material-symbols-outlined">${file.name.endsWith('.pdf') ? 'picture_as_pdf' : 'description'}</span>`;
-            let fileIcon = isImg ? 'image' : (file.name.endsWith('.pdf') ? 'picture_as_pdf' : 'draft');
-            
+            let visualHtml;
+            if (isImg) {
+                visualHtml = `<img src="${fileUrl}" alt="preview" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="material-symbols-outlined" style="display:none;">broken_image</span>`;
+            } else if (isVideo) {
+                visualHtml = `<span class="material-symbols-outlined">movie</span>`;
+            } else if (isAudio) {
+                visualHtml = `<span class="material-symbols-outlined">music_note</span>`;
+            } else if (isPdf) {
+                visualHtml = `<span class="material-symbols-outlined">picture_as_pdf</span>`;
+            } else {
+                visualHtml = `<span class="material-symbols-outlined">description</span>`;
+            }
+
+            let fileIcon = isImg ? 'image' : isVideo ? 'movie' : isAudio ? 'music_note' : isPdf ? 'picture_as_pdf' : 'draft';
+
             let badgesHtml = '';
             if(file.isFavorite) badgesHtml += `<div class="badge-icon fav" title="Favorit"><span class="material-symbols-outlined">star</span></div>`;
             if(file.sharedWith && file.sharedWith.length > 0) badgesHtml += `<div class="badge-icon shared" title="Dibagikan Ke Orang Lain"><span class="material-symbols-outlined">group</span></div>`;
@@ -842,16 +903,18 @@
             else if(file.sharedWith && file.sharedWith.length > 0) metaText = `<span class="shared-info">Ke: ${file.sharedWith[0]}${file.sharedWith.length > 1 ? ', ...' : ''}</span>`;
 
             const favBtnClass = file.isFavorite ? 'action-icon-btn active-fav' : 'action-icon-btn';
+            // Encode nama file supaya aman di onclick string
+            const safeName = file.name.replace(/'/g, "\\'");
 
-            let actionsHtml = file.isSharedWithMe 
-                ? `<button class="action-icon-btn" onclick="actionDownload('${file.name}', event, '${targetFolder}')"><span class="material-symbols-outlined">download</span></button>` 
-                : `<button class="${favBtnClass}" onclick="actionToggleFav('${file.name}', event)"><span class="material-symbols-outlined">star</span></button>
-                   <button class="action-icon-btn" onclick="actionOpenShare('${file.name}', event)"><span class="material-symbols-outlined">person_add</span></button>
-                   <button class="action-icon-btn" onclick="actionRename('${file.name}', event)"><span class="material-symbols-outlined">edit</span></button>
-                   <button class="action-icon-btn" onclick="actionDownload('${file.name}', event, '${targetFolder}')"><span class="material-symbols-outlined">download</span></button>
-                   <button class="action-icon-btn" onclick="deleteFile('${file.name}', event)"><span class="material-symbols-outlined">delete</span></button>`;
+            let actionsHtml = file.isSharedWithMe
+                ? `<button class="action-icon-btn" onclick="actionDownload('${safeName}', event)"><span class="material-symbols-outlined">download</span></button>`
+                : `<button class="${favBtnClass}" onclick="actionToggleFav('${safeName}', event)"><span class="material-symbols-outlined">star</span></button>
+                   <button class="action-icon-btn" onclick="actionOpenShare('${safeName}', event)"><span class="material-symbols-outlined">person_add</span></button>
+                   <button class="action-icon-btn" onclick="actionRename('${safeName}', event)"><span class="material-symbols-outlined">edit</span></button>
+                   <button class="action-icon-btn" onclick="actionDownload('${safeName}', event)"><span class="material-symbols-outlined">download</span></button>
+                   <button class="action-icon-btn" onclick="deleteFile('${safeName}', event)"><span class="material-symbols-outlined">delete</span></button>`;
 
-            card.onclick = () => openFilePreview(fileUrl, file.name, file.metadata?.mimetype, targetFolder);
+            card.onclick = () => openFilePreview(fileUrl, file.name, mime);
             card.innerHTML = `
                 <div class="file-preview"><div class="file-badge-container">${badgesHtml}</div>${visualHtml}</div>
                 <div class="file-info-area">
@@ -864,8 +927,8 @@
         }
 
         // --- IN-APP PREVIEW HANDLER ---
-        function openFilePreview(url, name, mimetype, folderPath) {
-            _currentPreviewName = name; _currentPreviewFolder = folderPath;
+        function openFilePreview(url, name, mimetype) {
+            _currentPreviewName = name; _currentPreviewUrl = url;
             document.getElementById('previewTitle').innerText = name;
             const contentDiv = document.getElementById('previewContent');
             contentDiv.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite; font-size:48px; color:#ccc;">sync</span>';
@@ -875,8 +938,8 @@
             let html = '';
 
             if (mime.startsWith('image/') || ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'].includes(ext)) html = `<img src="${url}" alt="${name}">`;
-            else if (mime.startsWith('video/') || ['mp4', 'webm', 'ogg'].includes(ext)) html = `<video src="${url}" controls autoplay></video>`;
-            else if (mime.startsWith('audio/') || ['mp3', 'wav', 'ogg'].includes(ext)) html = `<audio src="${url}" controls autoplay></audio>`;
+            else if (mime.startsWith('video/') || ['mp4', 'webm', 'ogg', 'mov'].includes(ext)) html = `<video src="${url}" controls autoplay></video>`;
+            else if (mime.startsWith('audio/') || ['mp3', 'wav', 'ogg', 'm4a'].includes(ext)) html = `<audio src="${url}" controls autoplay></audio>`;
             else if (mime === 'application/pdf' || ['pdf', 'html', 'txt'].includes(ext)) html = `<iframe src="${url}"></iframe>`;
             else html = `<div style="text-align:center; color:var(--text-muted);"><span class="material-symbols-outlined" style="font-size:64px; margin-bottom:16px;">unknown_document</span><p>Pratinjau tidak tersedia untuk format file ini.</p><button class="btn-black" style="margin-top:16px;" onclick="downloadCurrentPreview()">Download File</button></div>`;
             setTimeout(() => { contentDiv.innerHTML = html; }, 100);
@@ -884,7 +947,7 @@
 
         function closePreviewModal(event) { if (event.target.id === 'filePreviewModal') { closePreviewBtn(); } }
         function closePreviewBtn() { document.getElementById('filePreviewModal').style.display = 'none'; document.getElementById('previewContent').innerHTML = ''; }
-        function downloadCurrentPreview() { if(_currentPreviewName) actionDownload(_currentPreviewName, null, _currentPreviewFolder); }
+        function downloadCurrentPreview() { if(_currentPreviewName) actionDownload(_currentPreviewName, null); }
 
         // --- ACTIONS ---
         function actionToggleFav(fileName, event) {
@@ -1003,8 +1066,20 @@
             const originalText = btn.innerHTML; btn.innerHTML = 'Mengirim...'; btn.disabled = true;
 
             try {
+                // Ambil file_url dari data yang sudah di-load
+                const fileObj = _allFiles.find(f => f.name === _fileToShare);
+                const fileUrl = fileObj?.file_url || null;
+                const fileSize = fileObj?.metadata?.size || 0;
+                const mimeType = fileObj?.metadata?.mimetype || '';
+
                 const { error } = await _client.from('shared_files').insert([{
-                    file_name: _fileToShare, owner_email: _userEmail, owner_folder: _userFolder, shared_to_email: emailTarget
+                    file_name: _fileToShare,
+                    owner_email: _userEmail,
+                    owner_folder: _userFolder,
+                    shared_to_email: emailTarget,
+                    file_url: fileUrl,
+                    file_size: fileSize,
+                    mime_type: mimeType
                 }]);
                 if (error) throw error;
 
@@ -1015,7 +1090,7 @@
                 _allFiles.find(f => f.name === _fileToShare).sharedWith = sharedMap[_fileToShare];
 
                 closeModalBtn('shareModal'); driveToast(`File berhasil dibagikan ke ${emailTarget}`, 'success'); applyNavFilter();
-            } catch (err) { driveToast('Terjadi kesalahan: ' + err.message, 'error'); } 
+            } catch (err) { driveToast('Terjadi kesalahan: ' + err.message, 'error'); }
             finally { btn.innerHTML = originalText; btn.disabled = false; }
         }
 
@@ -1026,43 +1101,98 @@
         }
 
         async function processRename() {
-            const newName = document.getElementById('renameInput').value.trim();
-            if(!newName || newName === _fileToRename) return;
-            const oldPath = `${_userFolder}/${_fileToRename}`; const newPath = `${_userFolder}/${newName.replace(/\s+/g, '_')}`;
+            const newName = document.getElementById('renameInput').value.trim().replace(/\s+/g, '_');
+            if(!newName || newName === _fileToRename) { closeModalBtn('renameModal'); return; }
             closeModalBtn('renameModal');
-            
-            const { error } = await _client.storage.from(BUCKET_NAME).move(oldPath, newPath);
-            if(error) driveToast("Gagal mengganti nama: " + error.message, 'error');
-            else {
-                let favs = getLocalData('favs');
-                if(favs.includes(_fileToRename)) { saveLocalData('favs', [...favs.filter(f => f !== _fileToRename), newName]); }
-                let sharedMap = getSharedData();
-                if(sharedMap[_fileToRename]) { sharedMap[newName] = sharedMap[_fileToRename]; delete sharedMap[_fileToRename]; saveSharedData(sharedMap); }
-                loadFiles(); 
+
+            const { error } = await _client.from('drive_files')
+                .update({ file_name: newName })
+                .eq('owner_email', _userEmail)
+                .eq('file_name', _fileToRename);
+
+            if(error) { driveToast("Gagal mengganti nama: " + error.message, 'error'); return; }
+
+            // Update local state: favs & shared map
+            let favs = getLocalData('favs');
+            if(favs.includes(_fileToRename)) { saveLocalData('favs', [...favs.filter(f => f !== _fileToRename), newName]); }
+            let sharedMap = getSharedData();
+            if(sharedMap[_fileToRename]) { sharedMap[newName] = sharedMap[_fileToRename]; delete sharedMap[_fileToRename]; saveSharedData(sharedMap); }
+            driveToast(`Berhasil diganti menjadi "${newName}"`, 'success');
+            loadFiles();
+        }
+
+        async function uploadFiles() {
+            const input = document.getElementById('fileUpload');
+            const files = Array.from(input.files);
+            if (!files.length) return;
+
+            const btn = document.getElementById('btnUpload');
+            const originalHTML = btn.innerHTML;
+            btn.disabled = true;
+
+            let successCount = 0;
+            let failCount = 0;
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const safeName = file.name.replace(/\s+/g, '_');
+                btn.innerHTML = `<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span> ${i + 1}/${files.length}`;
+
+                try {
+                    const { url, bytes } = await uploadToCloudinary(file, _userFolder);
+
+                    // Simpan metadata ke tabel drive_files di Supabase
+                    const { error: dbErr } = await _client.from('drive_files').upsert([{
+                        owner_email: _userEmail,
+                        owner_folder: _userFolder,
+                        file_name: safeName,
+                        file_url: url,
+                        file_size: bytes,
+                        mime_type: file.type || 'application/octet-stream'
+                    }], { onConflict: 'owner_email,file_name' });
+
+                    if (dbErr) throw dbErr;
+                    successCount++;
+                } catch (err) {
+                    failCount++;
+                    driveToast(`Gagal upload "${file.name}": ${err.message}`, 'error');
+                }
+            }
+
+            btn.innerHTML = originalHTML;
+            btn.disabled = false;
+            input.value = '';
+
+            if (successCount > 0) {
+                const msg = files.length === 1
+                    ? `"${files[0].name.replace(/\s+/g, '_')}" berhasil diupload`
+                    : `${successCount} file berhasil diupload${failCount > 0 ? `, ${failCount} gagal` : ''}`;
+                driveToast(msg, failCount > 0 ? 'warning' : 'success');
+                loadFiles();
             }
         }
 
-        async function uploadFile() {
-            const input = document.getElementById('fileUpload'); const file = input.files[0]; if (!file) return;
-            const btn = document.getElementById('btnUpload'); const originalHTML = btn.innerHTML;
-            btn.innerHTML = `<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span> Uploading...`; btn.disabled = true;
-
-            try {
-                const { error } = await _client.storage.from(BUCKET_NAME).upload(`${_userFolder}/${file.name.replace(/\s+/g, '_')}`, file, { upsert: true });
-                if (error) throw error; loadFiles();
-            } catch (err) { driveToast("Gagal upload: " + err.message, 'error'); } 
-            finally { btn.innerHTML = originalHTML; btn.disabled = false; input.value = ''; }
-        }
-
-        async function actionDownload(fileName, event, customFolder = null) {
-            if(event) event.stopPropagation(); const btn = event ? event.currentTarget : null;
+        async function actionDownload(fileName, event) {
+            if(event) event.stopPropagation();
+            const btn = event ? event.currentTarget : null;
             if(btn) btn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 2s linear infinite;">sync</span>';
+
             try {
-                const { data, error } = await _client.storage.from(BUCKET_NAME).download(`${customFolder || _userFolder}/${fileName}`);
-                if (error) throw error;
-                const url = URL.createObjectURL(data), a = document.createElement('a');
-                a.href = url; a.download = fileName; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-            } catch(err) { driveToast("Gagal mengunduh: " + err.message, 'error'); } 
+                // Cari URL dari _allFiles atau _sharedWithMe
+                const fileObj = _allFiles.find(f => f.name === fileName) || _sharedWithMe.find(f => f.name === fileName);
+                const url = fileObj?.file_url;
+                if (!url) throw new Error('URL file tidak ditemukan');
+
+                // Download via fetch lalu blob agar nama file terjaga
+                const res = await fetch(url);
+                if (!res.ok) throw new Error('Gagal mengambil file');
+                const blob = await res.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = blobUrl; a.download = fileName;
+                document.body.appendChild(a); a.click(); a.remove();
+                URL.revokeObjectURL(blobUrl);
+            } catch(err) { driveToast("Gagal mengunduh: " + err.message, 'error'); }
             finally { if(btn) btn.innerHTML = '<span class="material-symbols-outlined">download</span>'; }
         }
 
@@ -1070,14 +1200,18 @@
             event.stopPropagation();
             const ok = await driveConfirm(`Hapus permanen "${fileName}"? Tindakan ini tidak dapat dibatalkan.`, 'Hapus File', 'delete_forever', 'Hapus Permanen', '#d93025');
             if(ok) {
-                const { error } = await _client.storage.from(BUCKET_NAME).remove([`${_userFolder}/${fileName}`]);
-                if (error) driveToast("Gagal menghapus: " + error.message, 'error');
-                else {
-                    let favs = getLocalData('favs'); if(favs.includes(fileName)) saveLocalData('favs', favs.filter(f => f !== fileName));
-                    let shared = getSharedData(); if(shared[fileName]) { delete shared[fileName]; saveSharedData(shared); }
-                    driveToast(`"${fileName}" berhasil dihapus`, 'success');
-                    loadFiles();
-                }
+                // Hapus dari tabel drive_files
+                const { error } = await _client.from('drive_files')
+                    .delete()
+                    .eq('owner_email', _userEmail)
+                    .eq('file_name', fileName);
+
+                if (error) { driveToast("Gagal menghapus: " + error.message, 'error'); return; }
+
+                let favs = getLocalData('favs'); if(favs.includes(fileName)) saveLocalData('favs', favs.filter(f => f !== fileName));
+                let shared = getSharedData(); if(shared[fileName]) { delete shared[fileName]; saveSharedData(shared); }
+                driveToast(`"${fileName}" berhasil dihapus`, 'success');
+                loadFiles();
             }
         }
 
