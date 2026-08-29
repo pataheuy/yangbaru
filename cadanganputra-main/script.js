@@ -746,6 +746,9 @@ function animateCounter(el, target, duration, onDone) {
 
         // Mulai typing effect
         setTimeout(typeEffect, 100);
+
+        // Trigger modal sapaan setelah 5 detik
+        if (window.__openingAllDone) window.__openingAllDone();
     };
 
     function startStatChain() {
@@ -826,6 +829,9 @@ function animateCounter(el, target, duration, onDone) {
                                 .forEach(function(d) { d.classList.add('dot-visible'); });
 
                             window._statsTimeouts.push(setTimeout(typeEffect, getSpeed(100)));
+
+                            // Trigger modal sapaan setelah 5 detik
+                            if (window.__openingAllDone) window.__openingAllDone();
                         }, getSpeed(400)));
 
                     }, getSpeed(850))); // waktu flyback stats

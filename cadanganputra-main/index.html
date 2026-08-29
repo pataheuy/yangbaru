@@ -1258,6 +1258,174 @@
         </div>
     </section>
 
+    <!-- ===== WELCOME + CHANGELOG MODAL ===== -->
+    <div id="welcome-modal" style="
+        position:fixed;inset:0;z-index:99990;
+        display:flex;align-items:flex-end;justify-content:center;
+        padding-bottom:2rem;padding-left:1rem;padding-right:1rem;
+        pointer-events:none;opacity:0;
+        transition:opacity 0.45s cubic-bezier(0.16,1,0.3,1);
+    " aria-modal="true" role="dialog" aria-labelledby="wm-title">
+        <!-- Backdrop blur ringan -->
+        <div id="welcome-modal-backdrop" onclick="closeWelcomeModal()" style="
+            position:absolute;inset:0;
+            background:rgba(15,23,42,0.18);
+            backdrop-filter:blur(3px);
+            -webkit-backdrop-filter:blur(3px);
+        "></div>
+
+        <!-- Card -->
+        <div id="welcome-modal-card" style="
+            position:relative;
+            width:100%;max-width:430px;
+            background:#fff;
+            border-radius:20px;
+            box-shadow:0 24px 60px -8px rgba(15,23,42,0.18),0 0 0 1px rgba(15,23,42,0.06);
+            padding:1.5rem;
+            transform:translateY(32px) scale(0.97);
+            transition:transform 0.5s cubic-bezier(0.34,1.56,0.64,1);
+            overflow:hidden;
+        ">
+            <!-- Ambient gradient dekor -->
+            <div style="position:absolute;top:-60px;right:-60px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(148,163,184,0.22) 0%,transparent 70%);pointer-events:none;"></div>
+
+            <!-- Header baris: sapaan + tombol tutup -->
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.75rem;margin-bottom:1rem;">
+                <div>
+                    <p style="font-size:0.7rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#94a3b8;margin-bottom:4px;">Selamat Datang 👋</p>
+                    <h2 id="wm-title" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.2rem;font-weight:800;color:#0f172a;line-height:1.2;letter-spacing:-0.02em;">
+                        Hai! Ada yang baru nih<span id="wm-wave" style="display:inline-block;animation:wmWave 1.4s ease-in-out 0.6s 2 both;">.</span>
+                    </h2>
+                    <p style="font-size:0.8rem;color:#64748b;margin-top:4px;line-height:1.4;">Beberapa fitur baru udah di-push. Cek update-nya yuk!</p>
+                </div>
+                <button onclick="closeWelcomeModal()" aria-label="Tutup" style="
+                    flex-shrink:0;width:32px;height:32px;border-radius:9999px;
+                    background:#f1f5f9;border:none;cursor:pointer;
+                    display:flex;align-items:center;justify-content:center;
+                    color:#475569;font-size:1rem;transition:background 0.15s;
+                " onmouseenter="this.style.background='#e2e8f0'" onmouseleave="this.style.background='#f1f5f9'">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1L13 13M13 1L1 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                </button>
+            </div>
+
+            <!-- Divider -->
+            <div style="height:1px;background:linear-gradient(to right,#e2e8f0,transparent);margin-bottom:1rem;"></div>
+
+            <!-- Badge versi -->
+            <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.875rem;">
+                <span style="font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:#0f172a;color:#fff;padding:3px 9px;border-radius:9999px;">Changelog</span>
+                <span style="font-size:0.7rem;font-weight:600;color:#94a3b8;">Update terbaru · Agustus 2026</span>
+            </div>
+
+            <!-- Changelog list -->
+            <ul style="display:flex;flex-direction:column;gap:0.6rem;margin:0;padding:0;list-style:none;">
+                <!-- Drive -->
+                <li style="display:flex;align-items:flex-start;gap:0.625rem;">
+                    <span style="flex-shrink:0;width:28px;height:28px;border-radius:8px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:0.85rem;">☁️</span>
+                    <div>
+                        <p style="font-size:0.82rem;font-weight:700;color:#0f172a;margin:0 0 1px;">Pufutara Drive</p>
+                        <p style="font-size:0.75rem;color:#64748b;margin:0;line-height:1.4;">Upload file, manajemen folder, dan berbagi link makin mulus dengan UI baru.</p>
+                    </div>
+                </li>
+                <!-- Gallery -->
+                <li style="display:flex;align-items:flex-start;gap:0.625rem;">
+                    <span style="flex-shrink:0;width:28px;height:28px;border-radius:8px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:0.85rem;">🖼️</span>
+                    <div>
+                        <p style="font-size:0.82rem;font-weight:700;color:#0f172a;margin:0 0 1px;">Pufutara Gallery</p>
+                        <p style="font-size:0.75rem;color:#64748b;margin:0;line-height:1.4;">Tampilan grid baru, filter album, dan lightbox yang lebih responsif.</p>
+                    </div>
+                </li>
+                <!-- Shop -->
+                <li style="display:flex;align-items:flex-start;gap:0.625rem;">
+                    <span style="flex-shrink:0;width:28px;height:28px;border-radius:8px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:0.85rem;">🛒</span>
+                    <div>
+                        <p style="font-size:0.82rem;font-weight:700;color:#0f172a;margin:0 0 1px;">Pufutara Shop</p>
+                        <p style="font-size:0.75rem;color:#64748b;margin:0;line-height:1.4;">Sistem order baru berbasis Supabase, admin panel, dan notifikasi real-time.</p>
+                    </div>
+                </li>
+                <!-- Spotipai -->
+                <li style="display:flex;align-items:flex-start;gap:0.625rem;">
+                    <span style="flex-shrink:0;width:28px;height:28px;border-radius:8px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:0.85rem;">🎵</span>
+                    <div>
+                        <p style="font-size:0.82rem;font-weight:700;color:#0f172a;margin:0 0 1px;">Spotipai</p>
+                        <p style="font-size:0.75rem;color:#64748b;margin:0;line-height:1.4;">Player musik lokal dengan playlist custom, shuffle, dan progress bar interaktif.</p>
+                    </div>
+                </li>
+            </ul>
+
+            <!-- CTA -->
+            <div style="margin-top:1.125rem;display:flex;gap:0.5rem;">
+                <a href="#proyek" onclick="closeWelcomeModal()" style="
+                    flex:1;text-align:center;padding:0.6rem 1rem;
+                    background:#0f172a;color:#fff;border-radius:12px;
+                    font-size:0.8rem;font-weight:700;text-decoration:none;
+                    transition:opacity 0.15s;
+                " onmouseenter="this.style.opacity='0.85'" onmouseleave="this.style.opacity='1'">Lihat Proyek</a>
+                <button onclick="closeWelcomeModal()" style="
+                    padding:0.6rem 1rem;border-radius:12px;
+                    border:1.5px solid #e2e8f0;background:transparent;
+                    font-size:0.8rem;font-weight:600;color:#475569;cursor:pointer;
+                    transition:background 0.15s;font-family:'Plus Jakarta Sans',sans-serif;
+                " onmouseenter="this.style.background='#f1f5f9'" onmouseleave="this.style.background='transparent'">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Welcome Modal -->
+    <script>
+    (function () {
+        var _wmShown = false;
+        var _wmTimer = null;
+
+        // Animasi wave titik
+        var style = document.createElement('style');
+        style.textContent = '@keyframes wmWave{0%,100%{transform:rotate(0deg)}25%{transform:rotate(-8deg)}75%{transform:rotate(8deg)}}';
+        document.head.appendChild(style);
+
+        function showWelcomeModal() {
+            if (_wmShown) return;
+            _wmShown = true;
+            var modal = document.getElementById('welcome-modal');
+            var card  = document.getElementById('welcome-modal-card');
+            if (!modal || !card) return;
+            modal.style.pointerEvents = 'all';
+            modal.style.opacity = '1';
+            setTimeout(function () {
+                card.style.transform = 'translateY(0) scale(1)';
+            }, 20);
+        }
+
+        window.closeWelcomeModal = function () {
+            var modal = document.getElementById('welcome-modal');
+            var card  = document.getElementById('welcome-modal-card');
+            if (!modal) return;
+            card.style.transform = 'translateY(32px) scale(0.97)';
+            modal.style.opacity = '0';
+            setTimeout(function () { modal.style.pointerEvents = 'none'; }, 450);
+        };
+
+        // Escape key tutup modal
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') window.closeWelcomeModal();
+        });
+
+        // Tentukan kapan modal tampil:
+        // - Returning visitor (opening di-skip/tidak ada): 5 detik dari DOMContentLoaded
+        // - First visit: 5 detik setelah flyback/skip selesai via __openingAllDone
+        window.__openingAllDone = function () {
+            clearTimeout(_wmTimer);
+            _wmTimer = setTimeout(showWelcomeModal, 5000);
+        };
+
+        // Untuk returning visitor: opening langsung skip, jadi trigger dari sini
+        if (sessionStorage.getItem('pufutara_intro_shown')) {
+            document.addEventListener('DOMContentLoaded', function () {
+                _wmTimer = setTimeout(showWelcomeModal, 5000);
+            });
+        }
+    })();
+    </script>
+
     <!-- Toast Notifikasi -->
     <div id="kolaborasi-toast" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#111;color:white;padding:12px 24px;border-radius:60px;font-size:0.9rem;z-index:1000;opacity:0;transition:opacity 0.2s;pointer-events:none;white-space:nowrap;font-family:'Plus Jakarta Sans',sans-serif;"></div>
 

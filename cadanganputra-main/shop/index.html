@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
@@ -18,11 +18,15 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f5f5f5;color:#1a1a1a
 .cscroll::-webkit-scrollbar-thumb{background:#1a1a1a}
 .skel{background:linear-gradient(90deg,#ececec 25%,#e0e0e0 50%,#ececec 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:12px}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* toast */
 #toastWrap{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;align-items:center}
 .toast{background:#1a1a1a;color:#fff;padding:10px 20px;border-radius:99px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:8px;box-shadow:0 8px 24px rgba(0,0,0,.2);animation:tIn .35s cubic-bezier(.175,.885,.32,1.275);pointer-events:auto;white-space:nowrap}
 .toast.out{animation:tOut .3s forwards}
 @keyframes tIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 @keyframes tOut{to{opacity:0;transform:scale(.9)}}
+
+/* product card */
 .pcard{background:#fff;border-radius:14px;overflow:hidden;border:1px solid #eee;transition:box-shadow .2s,transform .2s;cursor:pointer}
 .pcard:hover{box-shadow:0 8px 28px rgba(0,0,0,.1);transform:translateY(-2px)}
 .pcard .thumb{position:relative;overflow:hidden;aspect-ratio:1;background:#f5f5f5}
@@ -32,60 +36,138 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:#f5f5f5;color:#1a1a1a
 .pcard:hover .hactions{opacity:1;transform:translateY(0);pointer-events:auto}
 .pcard .favcorner{position:absolute;top:8px;right:8px;opacity:0;transform:scale(.8);transition:opacity .2s,transform .2s}
 .pcard:hover .favcorner,.pcard .favcorner.on{opacity:1!important;transform:scale(1)!important}
+
+/* PDP fullscreen */
 #pdp{position:fixed;inset:0;z-index:500;background:#fff;overflow-y:auto;transform:translateY(100%);transition:transform .4s cubic-bezier(.32,1,.32,1)}
 #pdp.open{transform:translateY(0)}
-.sbar{position:fixed;inset-y:0;right:0;width:340px;background:#fff;z-index:400;box-shadow:-4px 0 24px rgba(0,0,0,.08);transform:translateX(100%);transition:transform .35s cubic-bezier(.32,1,.32,1);display:flex;flex-direction:column}
+
+/* sidebar â€” z-index lebih tinggi dari pdp agar selalu muncul */
+.sbar{position:fixed;inset-y:0;right:0;width:340px;background:#fff;z-index:600;box-shadow:-4px 0 24px rgba(0,0,0,.1);transform:translateX(100%);transition:transform .35s cubic-bezier(.32,1,.32,1);display:flex;flex-direction:column}
 .sbar.open{transform:translateX(0)}
-.mback{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:16px}
+
+/* modal backdrop */
+.mback{position:fixed;inset:0;z-index:700;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:16px}
 .mbox{background:#fff;border-radius:24px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,.18)}
+
+/* variant chip */
 .vchip{border:1.5px solid #e5e7eb;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;background:#fff}
 .vchip:hover{border-color:#1a1a1a}
 .vchip.sel{border-color:#1a1a1a;background:#1a1a1a;color:#fff}
 .vchip.out{border-color:#e5e7eb;color:#ccc;cursor:not-allowed;text-decoration:line-through}
+
+/* welcome / auth modal */
 @keyframes wIn{from{opacity:0;transform:scale(.94) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
 .wanim{animation:wIn .4s cubic-bezier(.175,.885,.32,1.275)}
+
+/* banner / hero slideshow */
+#heroSlider{position:relative;overflow:hidden;border-radius:24px}
+#heroSlider .slide{position:absolute;inset:0;opacity:0;transition:opacity .7s ease}
+#heroSlider .slide.active{opacity:1;position:relative}
+#heroSlider img{width:100%;height:100%;object-fit:cover}
+.slide-dot{width:6px;height:6px;border-radius:99px;background:rgba(255,255,255,.4);cursor:pointer;transition:all .3s}
+.slide-dot.act{background:#fff;width:18px}
+
+/* range input */
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;background:#1a1a1a;border-radius:50%;cursor:pointer}
+
+/* field */
 .flabel{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#9ca3af;margin-bottom:4px}
 .finput{width:100%;background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;padding:10px 14px;font-size:13px;outline:none;font-family:inherit;transition:border-color .15s}
 .finput:focus{border-color:#1a1a1a;background:#fff}
 .noscroll{scrollbar-width:none}.noscroll::-webkit-scrollbar{display:none}
-/* timeline */
-.tl-line{width:2px;background:#e5e7eb;flex-shrink:0}
-.tl-line.done{background:#1a1a1a}
+
+/* user avatar */
+#userAvatar{width:32px;height:32px;border-radius:50%;background:#1a1a1a;color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:opacity .15s;flex-shrink:0}
+#userAvatar:hover{opacity:.8}
 </style>
 </head>
 <body>
 <div id="toastWrap"></div>
 
-<!-- WELCOME MODAL -->
-<div id="welcomeModal" class="mback hidden" style="z-index:700">
-  <div class="mbox wanim max-w-md overflow-hidden">
-    <div class="relative h-44 bg-neutral-900 flex items-center justify-center overflow-hidden">
-      <div class="text-center relative z-10">
-        <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-xl"><span class="text-2xl font-black">P</span></div>
-        <p class="text-white font-black text-2xl tracking-tight italic">pufutarashop</p>
-        <p class="text-gray-400 text-xs mt-1 font-bold tracking-widest uppercase">High-End E-Commerce</p>
-      </div>
+<!-- â•â•â• AUTH MODAL (LOGIN / REGISTER) â•â•â• -->
+<div id="modalAuth" class="mback hidden" style="z-index:800">
+  <div class="mbox wanim max-w-sm overflow-hidden">
+    <!-- tabs -->
+    <div class="flex border-b border-gray-100">
+      <button id="tabLogin" onclick="switchAuth('login')"
+        class="flex-1 py-4 text-sm font-black border-b-2 border-black transition-colors">Masuk</button>
+      <button id="tabReg" onclick="switchAuth('register')"
+        class="flex-1 py-4 text-sm font-bold text-gray-400 border-b-2 border-transparent transition-colors hover:text-black">Daftar</button>
     </div>
-    <div class="p-7">
-      <h2 class="text-xl font-black mb-1">Selamat Datang! 👋</h2>
-      <p class="text-gray-500 text-sm leading-relaxed mb-5">Temukan ribuan produk pilihan dengan harga terbaik. Belanja mudah, aman, dan cepat sampai.</p>
-      <div class="grid grid-cols-3 gap-3 mb-6 text-center">
-        <div class="bg-gray-50 rounded-2xl p-3"><i class="fa-solid fa-shield-halved text-black text-lg mb-1 block"></i><p class="text-[10px] font-bold text-gray-500">Belanja Aman</p></div>
-        <div class="bg-gray-50 rounded-2xl p-3"><i class="fa-solid fa-truck-fast text-black text-lg mb-1 block"></i><p class="text-[10px] font-bold text-gray-500">Kirim Cepat</p></div>
-        <div class="bg-gray-50 rounded-2xl p-3"><i class="fa-solid fa-gem text-black text-lg mb-1 block"></i><p class="text-[10px] font-bold text-gray-500">Kualitas Top</p></div>
+
+    <!-- login form -->
+    <div id="authLogin" class="p-7 space-y-4">
+      <div class="text-center mb-2">
+        <div class="w-12 h-12 bg-black rounded-2xl flex items-center justify-center mx-auto mb-3">
+          <span class="text-white font-black text-base">P</span>
+        </div>
+        <p class="font-black">Selamat Datang Kembali</p>
+        <p class="text-xs text-gray-400 mt-1">Masuk untuk melanjutkan belanja</p>
       </div>
-      <button onclick="closeWelcome()" class="w-full bg-black text-white py-3.5 rounded-2xl font-black text-sm hover:bg-zinc-800 transition-colors">Mulai Belanja</button>
-      <button onclick="closeWelcome(true)" class="w-full text-gray-400 text-xs font-semibold mt-3 hover:text-black transition-colors">Jangan tampilkan lagi</button>
+      <div><label class="flabel">Email</label>
+        <input id="loginEmail" type="email" placeholder="email@kamu.com" class="finput"></div>
+      <div><label class="flabel">Password</label>
+        <input id="loginPass" type="password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" class="finput"
+          onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <p id="loginErr" class="text-xs text-red-500 hidden"></p>
+      <button onclick="doLogin()" id="btnLogin"
+        class="w-full bg-black text-white py-3.5 rounded-2xl font-black text-sm hover:bg-zinc-800 transition-colors flex items-center justify-center gap-2">
+        <i class="fa-solid fa-arrow-right-to-bracket text-xs"></i> Masuk
+      </button>
+      <button onclick="closeAuthAndContinue()"
+        class="w-full text-gray-400 text-xs font-semibold hover:text-black transition-colors">
+        Lanjut tanpa akun
+      </button>
+    </div>
+
+    <!-- register form -->
+    <div id="authReg" class="p-7 space-y-4 hidden">
+      <div class="text-center mb-2">
+        <p class="font-black">Buat Akun Baru</p>
+        <p class="text-xs text-gray-400 mt-1">Gratis, cepat, mudah</p>
+      </div>
+      <div><label class="flabel">Nama Lengkap</label>
+        <input id="regName" type="text" placeholder="Namamu" class="finput"></div>
+      <div><label class="flabel">Email</label>
+        <input id="regEmail" type="email" placeholder="email@kamu.com" class="finput"></div>
+      <div><label class="flabel">Password (min. 6 karakter)</label>
+        <input id="regPass" type="password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" class="finput"
+          onkeydown="if(event.key==='Enter')doRegister()"></div>
+      <p id="regErr" class="text-xs text-red-500 hidden"></p>
+      <button onclick="doRegister()" id="btnReg"
+        class="w-full bg-black text-white py-3.5 rounded-2xl font-black text-sm hover:bg-zinc-800 transition-colors flex items-center justify-center gap-2">
+        <i class="fa-solid fa-user-plus text-xs"></i> Daftar Sekarang
+      </button>
+      <button onclick="closeAuthAndContinue()"
+        class="w-full text-gray-400 text-xs font-semibold hover:text-black transition-colors">
+        Lanjut tanpa akun
+      </button>
     </div>
   </div>
 </div>
 
-<!-- NAVBAR -->
+<!-- â•â•â• USER MENU DROPDOWN â•â•â• -->
+<div id="userDropdown" class="hidden fixed z-[750] bg-white rounded-2xl shadow-2xl border border-gray-100 py-2 w-52">
+  <div id="udName" class="px-4 py-2 text-xs font-black text-gray-800 border-b border-gray-100 truncate"></div>
+  <button onclick="openMyOrders()" class="w-full text-left px-4 py-2.5 text-xs font-semibold hover:bg-gray-50 flex items-center gap-2">
+    <i class="fa-solid fa-receipt text-gray-400 w-4 text-center"></i> Pesanan Saya
+  </button>
+  <button onclick="openFavFromMenu()" class="w-full text-left px-4 py-2.5 text-xs font-semibold hover:bg-gray-50 flex items-center gap-2">
+    <i class="fa-regular fa-heart text-gray-400 w-4 text-center"></i> Favorit
+  </button>
+  <div class="border-t border-gray-100 mt-1"></div>
+  <button onclick="doLogout()" class="w-full text-left px-4 py-2.5 text-xs font-semibold text-red-500 hover:bg-red-50 flex items-center gap-2">
+    <i class="fa-solid fa-right-from-bracket w-4 text-center"></i> Keluar
+  </button>
+</div>
+
+<!-- â•â•â• NAVBAR â•â•â• -->
 <nav class="sticky top-0 bg-white border-b border-gray-100 shadow-sm" style="z-index:300">
   <div class="max-w-7xl mx-auto px-4 h-14 flex items-center gap-3">
     <div class="flex items-center gap-2 cursor-pointer flex-shrink-0" onclick="goHome()">
-      <div class="w-7 h-7 bg-black rounded-lg flex items-center justify-center"><span class="text-white font-black text-xs">P</span></div>
+      <div class="w-7 h-7 bg-black rounded-lg flex items-center justify-center">
+        <span class="text-white font-black text-xs">P</span>
+      </div>
       <span class="font-black text-base tracking-tighter uppercase hidden sm:block">pufutarashop</span>
     </div>
     <div class="flex-1 relative max-w-xl">
@@ -97,9 +179,14 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
       <button onclick="toggleModal('modalJual')" class="hidden sm:flex items-center gap-1.5 text-xs font-black bg-black text-white px-4 py-2 rounded-xl hover:bg-zinc-800 transition-colors">
         <i class="fa-solid fa-plus text-[10px]"></i> Jual
       </button>
-      <button onclick="openTracking(null)" class="hidden sm:flex items-center gap-1.5 text-xs font-bold border border-gray-200 px-3 py-2 rounded-xl hover:bg-gray-50 transition-colors">
-        <i class="fa-solid fa-truck-fast text-[10px]"></i> Pesananku
-      </button>
+      <!-- auth: tampilkan avatar jika login, tombol masuk jika tidak -->
+      <div id="authBtnWrap" class="flex items-center gap-2">
+        <button id="btnShowAuth" onclick="openAuth()"
+          class="text-xs font-bold border border-gray-200 px-3 py-2 rounded-xl hover:bg-gray-50 transition-colors flex items-center gap-1.5">
+          <i class="fa-regular fa-user text-[10px]"></i> Masuk
+        </button>
+        <div id="userAvatar" class="hidden" onclick="toggleUserDropdown()">?</div>
+      </div>
       <button onclick="openSidebar('favSidebar')" class="relative p-2 hover:bg-gray-100 rounded-xl transition-colors">
         <i class="fa-regular fa-heart text-base"></i>
         <span id="favCount" class="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[8px] w-4 h-4 rounded-full flex items-center justify-center font-bold">0</span>
@@ -110,33 +197,45 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
       </button>
     </div>
   </div>
+  <!-- Category tabs -->
   <div class="border-t border-gray-100">
     <div class="max-w-7xl mx-auto px-4">
       <div id="catTabs" class="flex items-center gap-1 overflow-x-auto py-1.5 noscroll">
         <button id="tab-all" onclick="setCat('all')" class="ctab active flex-shrink-0 px-4 py-1.5 text-xs font-bold rounded-xl bg-black text-white transition-all">Semua</button>
-        <button id="tab-promo" onclick="setCat('promo')" class="ctab flex-shrink-0 px-4 py-1.5 text-xs font-bold rounded-xl text-red-500 hover:bg-red-50 transition-all">🔥 Promo</button>
+        <button id="tab-promo" onclick="setCat('promo')" class="ctab flex-shrink-0 px-4 py-1.5 text-xs font-bold rounded-xl text-red-500 hover:bg-red-50 transition-all">ðŸ”¥ Promo</button>
       </div>
     </div>
   </div>
 </nav>
 
-<!-- HERO -->
+<!-- â•â•â• HERO SLIDESHOW â•â•â• -->
 <div class="max-w-7xl mx-auto px-4 pt-5">
-  <div class="relative bg-neutral-900 rounded-3xl p-8 md:p-12 text-white overflow-hidden">
-    <div class="relative z-10 max-w-sm">
-      <span class="text-[10px] font-bold tracking-[.3em] text-gray-400 uppercase mb-2 block">Koleksi Eksklusif 2024</span>
-      <h1 class="text-3xl md:text-4xl font-black leading-tight mb-3 italic">Style Tanpa<br>Kompromi.</h1>
-      <p class="text-gray-400 text-xs mb-6 leading-relaxed">Pilihan produk premium yang dikurasi khusus untuk Anda.</p>
-      <div class="flex gap-2">
-        <button onclick="setCat('promo')" class="bg-white text-black px-5 py-2.5 rounded-xl font-black text-xs hover:bg-gray-100 transition-all shadow-xl">Lihat Promo</button>
-        <button onclick="setCat('all')"   class="border border-white/20 px-5 py-2.5 rounded-xl font-black text-xs hover:bg-white/10 transition-all">Semua Produk</button>
+  <div id="heroSlider" class="relative rounded-3xl overflow-hidden" style="height:320px;background:#1a1a1a">
+    <!-- slides diisi JS -->
+    <div id="heroSlides" class="relative h-full"></div>
+    <!-- overlay teks -->
+    <div id="heroOverlay" class="absolute inset-0 z-10 flex flex-col justify-end p-8 md:p-12 pointer-events-none"
+         style="background:linear-gradient(to top, rgba(0,0,0,.7) 0%, rgba(0,0,0,.1) 60%, transparent 100%)">
+      <span id="heroSubtitle" class="text-[10px] font-bold tracking-[.3em] text-gray-300 uppercase mb-2 block"></span>
+      <h1 id="heroTitle" class="text-3xl md:text-4xl font-black leading-tight mb-4 italic text-white"></h1>
+      <div class="flex gap-2 pointer-events-auto">
+        <button id="heroBtnMain" class="bg-white text-black px-5 py-2.5 rounded-xl font-black text-xs hover:bg-gray-100 transition-all shadow-xl">Lihat Koleksi</button>
+        <button onclick="setCat('all')" class="border border-white/30 text-white px-5 py-2.5 rounded-xl font-black text-xs hover:bg-white/10 transition-all">Semua Produk</button>
       </div>
     </div>
-    <div class="absolute right-[-2%] bottom-[-5%] opacity-[.07] pointer-events-none select-none"><i class="fa-solid fa-gem text-[200px]"></i></div>
+    <!-- dots -->
+    <div id="heroDots" class="absolute bottom-4 left-0 right-0 z-20 flex justify-center gap-2"></div>
+    <!-- arrows -->
+    <button onclick="slidePrev()" class="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 bg-white/20 hover:bg-white/40 text-white rounded-full flex items-center justify-center transition-all backdrop-blur-sm">
+      <i class="fa-solid fa-chevron-left text-xs"></i>
+    </button>
+    <button onclick="slideNext()" class="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 bg-white/20 hover:bg-white/40 text-white rounded-full flex items-center justify-center transition-all backdrop-blur-sm">
+      <i class="fa-solid fa-chevron-right text-xs"></i>
+    </button>
   </div>
 </div>
 
-<!-- FILTER BAR -->
+<!-- â•â•â• FILTER BAR â•â•â• -->
 <div class="max-w-7xl mx-auto px-4 pt-5 pb-3 flex flex-wrap items-center justify-between gap-3">
   <div>
     <h2 class="font-black text-lg">Katalog Produk</h2>
@@ -158,7 +257,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
   </div>
 </div>
 
-<!-- PRODUCT GRID -->
+<!-- â•â•â• PRODUCT GRID â•â•â• -->
 <main class="max-w-7xl mx-auto px-4 pb-16">
   <div id="productGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
     <div class="skel aspect-square"></div><div class="skel aspect-square"></div>
@@ -167,7 +266,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
   </div>
 </main>
 
-<!-- PDP FULLSCREEN -->
+<!-- â•â•â• PDP FULLSCREEN â•â•â• -->
 <div id="pdp">
   <div class="sticky top-0 bg-white border-b border-gray-100 z-10">
     <div class="max-w-7xl mx-auto px-4 h-14 flex items-center gap-3">
@@ -186,7 +285,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
   </div>
   <div class="max-w-7xl mx-auto px-4 py-6">
     <div class="flex flex-col lg:flex-row gap-8">
-      <!-- Images -->
       <div class="lg:w-[460px] flex-shrink-0">
         <div class="relative bg-gray-50 rounded-2xl overflow-hidden aspect-square mb-3">
           <img id="pdpImg" src="" class="w-full h-full object-cover">
@@ -194,7 +292,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
         </div>
         <div id="pdpThumbs" class="flex gap-2 overflow-x-auto pb-1 noscroll"></div>
       </div>
-      <!-- Info -->
       <div class="flex-1 min-w-0">
         <div class="flex items-center gap-2 mb-2">
           <span id="pdpCatBadge"   class="text-[10px] font-bold bg-gray-100 text-gray-600 px-3 py-1 rounded-full"></span>
@@ -202,7 +299,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
         </div>
         <h1 id="pdpName" class="text-2xl font-black leading-tight mb-2"></h1>
         <div class="flex items-center gap-3 mb-4">
-          <div id="pdpStars"   class="flex items-center gap-0.5 text-yellow-400 text-sm"></div>
+          <div id="pdpStars" class="flex items-center gap-0.5 text-yellow-400 text-sm"></div>
           <span id="pdpRating" class="text-xs font-bold text-gray-500"></span>
           <span id="pdpCmtCnt" class="text-xs text-gray-400"></span>
         </div>
@@ -213,7 +310,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
           </div>
           <p id="pdpSave" class="text-xs text-orange-600 font-bold mt-1 hidden"></p>
         </div>
-        <!-- Variants -->
         <div id="pdpVarSection" class="mb-5 hidden">
           <div id="pdpVarContainer" class="space-y-4"></div>
         </div>
@@ -227,14 +323,13 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
           <div class="flex items-center gap-2.5"><i class="fa-solid fa-truck-fast text-gray-400 w-4 text-center"></i><span id="pdpEst"></span></div>
         </div>
         <div class="flex gap-3 mb-8">
-          <button id="pdpBtnCart" onclick="pdpAddCart()"  class="flex-1 bg-black text-white py-4 rounded-2xl font-black text-sm hover:bg-zinc-800 transition-colors flex items-center justify-center gap-2">
+          <button id="pdpBtnCart" onclick="pdpAddCart()" class="flex-1 bg-black text-white py-4 rounded-2xl font-black text-sm hover:bg-zinc-800 transition-colors flex items-center justify-center gap-2">
             <i class="fa-solid fa-bag-shopping"></i> Tambah ke Keranjang
           </button>
-          <button id="pdpBtnBuy"  onclick="pdpBuyNow()"  class="flex-1 bg-orange-500 text-white py-4 rounded-2xl font-black text-sm hover:bg-orange-600 transition-colors flex items-center justify-center gap-2">
+          <button id="pdpBtnBuy" onclick="pdpBuyNow()" class="flex-1 bg-orange-500 text-white py-4 rounded-2xl font-black text-sm hover:bg-orange-600 transition-colors flex items-center justify-center gap-2">
             <i class="fa-solid fa-bolt"></i> Beli Sekarang
           </button>
         </div>
-        <!-- Reviews -->
         <div class="border-t border-gray-100 pt-6">
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-sm font-black">Ulasan Pembeli</h3>
@@ -266,23 +361,23 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
   </div>
 </div>
 
-<!-- SIDEBAR FAV -->
+<!-- â•â•â• SIDEBAR FAV â•â•â• -->
 <div id="favSidebar" class="sbar">
   <div class="px-5 py-4 border-b border-gray-100 flex justify-between items-center flex-shrink-0">
-    <h3 class="font-black">Favorit <span id="favBadge" class="text-sm text-gray-400 font-semibold"></span></h3>
-    <button onclick="closeSidebar('favSidebar')" class="w-8 h-8 rounded-xl bg-gray-100 flex items-center justify-center hover:bg-gray-200"><i class="fa-solid fa-xmark text-sm"></i></button>
+    <h3 class="font-black text-base">Favorit <span id="favBadge" class="text-sm text-gray-400 font-semibold"></span></h3>
+    <button onclick="closeSidebar('favSidebar')" class="w-8 h-8 rounded-xl bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"><i class="fa-solid fa-xmark text-sm"></i></button>
   </div>
   <div id="favItems" class="flex-1 overflow-y-auto p-5 space-y-4 cscroll"></div>
 </div>
 
-<!-- SIDEBAR CART -->
+<!-- â•â•â• SIDEBAR CART â•â•â• -->
 <div id="cartSidebar" class="sbar">
   <div class="px-5 py-4 border-b border-gray-100 flex justify-between items-center flex-shrink-0">
-    <h3 class="font-black">Keranjang</h3>
-    <button onclick="closeSidebar('cartSidebar')" class="w-8 h-8 rounded-xl bg-gray-100 flex items-center justify-center hover:bg-gray-200"><i class="fa-solid fa-xmark text-sm"></i></button>
+    <h3 class="font-black text-base">Keranjang</h3>
+    <button onclick="closeSidebar('cartSidebar')" class="w-8 h-8 rounded-xl bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"><i class="fa-solid fa-xmark text-sm"></i></button>
   </div>
   <div id="cartItems" class="flex-1 overflow-y-auto p-5 space-y-4 cscroll"></div>
-  <div class="p-5 border-t border-gray-100 flex-shrink-0">
+  <div class="p-5 border-t border-gray-100 flex-shrink-0 bg-white">
     <div class="flex justify-between items-center mb-3">
       <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Total</span>
       <span id="cartTotal" class="text-xl font-black">Rp 0</span>
@@ -290,9 +385,18 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
     <button onclick="checkout()" class="w-full bg-black text-white py-3.5 rounded-2xl font-black text-sm hover:bg-zinc-800 transition-colors">Checkout</button>
   </div>
 </div>
-<div id="sbOverlay" class="fixed inset-0 bg-black/40 z-[399] hidden" onclick="closeAllSidebars()"></div>
+<div id="sbOverlay" class="fixed inset-0 bg-black/40 hidden" style="z-index:599" onclick="closeAllSidebars()"></div>
 
-<!-- MODAL JUAL BARANG -->
+<!-- â•â•â• SIDEBAR PESANAN SAYA â•â•â• -->
+<div id="orderSidebar" class="sbar">
+  <div class="px-5 py-4 border-b border-gray-100 flex justify-between items-center flex-shrink-0">
+    <h3 class="font-black text-base">Pesanan Saya</h3>
+    <button onclick="closeSidebar('orderSidebar')" class="w-8 h-8 rounded-xl bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"><i class="fa-solid fa-xmark text-sm"></i></button>
+  </div>
+  <div id="orderItems" class="flex-1 overflow-y-auto p-5 space-y-4 cscroll"></div>
+</div>
+
+<!-- â•â•â• MODAL JUAL BARANG â•â•â• -->
 <div id="modalJual" class="mback hidden">
   <div class="mbox max-w-md max-h-[95vh] flex flex-col">
     <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center flex-shrink-0">
@@ -308,21 +412,19 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
           <div><label class="flabel">Diskon (%)</label><input id="pDiscount" type="number" min="0" max="100" placeholder="0" class="finput"></div>
         </div>
         <div><label class="flabel">Kategori</label><select id="pCategory" class="finput"></select></div>
-        <!-- Varian -->
         <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100">
           <div class="flex items-center justify-between mb-2">
             <p class="flabel mb-0">Varian Produk</p>
-            <button type="button" onclick="addVarGroup()" class="text-xs font-bold flex items-center gap-1 hover:text-gray-600 transition-colors"><i class="fa-solid fa-plus text-[10px]"></i> Tambah Tipe</button>
+            <button type="button" onclick="addVarGroup()" class="text-xs font-bold flex items-center gap-1 hover:text-gray-600"><i class="fa-solid fa-plus text-[10px]"></i> Tambah Tipe</button>
           </div>
           <div id="varGroups" class="space-y-3"></div>
-          <p class="text-[10px] text-gray-400 mt-2">Contoh: Ukuran → 38,39,40 | Warna → Hitam,Putih</p>
+          <p class="text-[10px] text-gray-400 mt-2">Contoh: Ukuran â†’ 38,39,40 | Warna â†’ Hitam,Putih</p>
         </div>
-        <!-- Foto -->
         <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100">
           <label class="flabel">Foto Produk (maks 3)</label>
           <input type="file" id="pImgFile" accept="image/*" multiple class="w-full text-xs text-gray-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-black file:text-white hover:file:bg-zinc-800 cursor-pointer mb-2">
           <div id="imgPrev" class="flex gap-2 flex-wrap mt-1"></div>
-          <p class="text-[10px] text-gray-400 text-center my-2">— atau URL —</p>
+          <p class="text-[10px] text-gray-400 text-center my-2">â€” atau URL â€”</p>
           <input type="text" id="pImgUrl" placeholder="https://..." class="finput text-xs font-mono">
         </div>
         <div><label class="flabel">Lokasi Barang</label><input id="pLoc" type="text" required placeholder="ex: Jakarta Selatan" class="finput"></div>
@@ -336,7 +438,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
   </div>
 </div>
 
-<!-- MODAL CHECKOUT -->
+<!-- â•â•â• MODAL CHECKOUT â•â•â• -->
 <div id="modalCheckout" class="mback hidden">
   <div class="mbox max-w-lg max-h-[92vh] flex flex-col">
     <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center flex-shrink-0">
@@ -347,6 +449,13 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
       <div class="mb-5">
         <p class="flabel mb-3">Pesanan</p>
         <div id="coItems" class="space-y-3"></div>
+      </div>
+      <!-- Info user yang sudah login -->
+      <div id="coUserInfo" class="bg-blue-50 border border-blue-100 rounded-2xl p-4 mb-4 hidden">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-circle-check text-blue-500 text-sm"></i>
+          <p class="text-xs font-bold text-blue-700">Checkout sebagai: <span id="coUserEmail" class="font-black"></span></p>
+        </div>
       </div>
       <form id="formCheckout" class="space-y-3">
         <p class="flabel mb-1">Data Penerima</p>
@@ -365,22 +474,21 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
   </div>
 </div>
 
-<!-- MODAL PAYMENT PROCESSING -->
+<!-- â•â•â• MODAL PAYMENT PROCESSING â•â•â• -->
 <div id="modalPaying" class="mback hidden" style="z-index:800">
   <div class="mbox wanim max-w-xs p-8 text-center">
     <div class="w-24 h-24 mx-auto mb-5 relative">
       <svg class="w-24 h-24 -rotate-90" viewBox="0 0 80 80">
         <circle cx="40" cy="40" r="34" fill="none" stroke="#e5e7eb" stroke-width="5"/>
         <circle id="payCircle" cx="40" cy="40" r="34" fill="none" stroke="#1a1a1a" stroke-width="5"
-          stroke-dasharray="213.6" stroke-dashoffset="0"
-          stroke-linecap="round" style="transition:stroke-dashoffset .9s linear"/>
+          stroke-dasharray="213.6" stroke-dashoffset="0" stroke-linecap="round" style="transition:stroke-dashoffset .9s linear"/>
       </svg>
       <div class="absolute inset-0 flex items-center justify-center">
         <span id="payCountdown" class="text-3xl font-black">5</span>
       </div>
     </div>
     <h3 class="font-black text-lg mb-2">Memproses Pembayaran</h3>
-    <p class="text-gray-400 text-sm leading-relaxed">Mohon tunggu, pesananmu sedang dikonfirmasi...</p>
+    <p class="text-gray-400 text-sm">Mohon tunggu sebentar...</p>
     <div class="flex items-center justify-center gap-1.5 mt-4">
       <span class="w-1.5 h-1.5 bg-black rounded-full animate-bounce" style="animation-delay:0s"></span>
       <span class="w-1.5 h-1.5 bg-black rounded-full animate-bounce" style="animation-delay:.15s"></span>
@@ -389,7 +497,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
   </div>
 </div>
 
-<!-- MODAL ORDER SUCCESS -->
+<!-- â•â•â• MODAL ORDER SUCCESS â•â•â• -->
 <div id="modalSuccess" class="mback hidden" style="z-index:800">
   <div class="mbox wanim max-w-sm overflow-hidden">
     <div class="bg-green-500 p-8 text-center text-white">
@@ -404,939 +512,15 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
         <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Nomor Pesanan</p>
         <p id="successOrderNum" class="font-black text-xl text-black font-mono"></p>
       </div>
-      <p class="text-xs text-gray-500 text-center mb-5 leading-relaxed">Simpan nomor ini untuk melacak status pengirimanmu kapan saja.</p>
-      <button onclick="openTrackingFromSuccess()" class="w-full bg-black text-white py-3 rounded-2xl font-black text-sm hover:bg-zinc-800 transition-colors mb-2 flex items-center justify-center gap-2">
-        <i class="fa-solid fa-truck-fast text-xs"></i> Lacak Pesanan
+      <p class="text-xs text-gray-500 text-center mb-5 leading-relaxed">Pantau status pesananmu di menu <strong>Pesanan Saya</strong>.</p>
+      <button onclick="openMyOrders(); closeSuccess()" class="w-full bg-black text-white py-3 rounded-2xl font-black text-sm hover:bg-zinc-800 transition-colors mb-2 flex items-center justify-center gap-2">
+        <i class="fa-solid fa-receipt text-xs"></i> Lihat Pesanan Saya
       </button>
-      <button onclick="closeSuccess()" class="w-full border border-gray-200 py-3 rounded-2xl font-black text-sm hover:bg-gray-50 transition-colors">
-        Lanjut Belanja
-      </button>
+      <button onclick="closeSuccess()" class="w-full border border-gray-200 py-3 rounded-2xl font-black text-sm hover:bg-gray-50 transition-colors">Lanjut Belanja</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL ORDER TRACKING -->
-<div id="modalTracking" class="mback hidden" style="z-index:800">
-  <div class="mbox max-w-lg max-h-[90vh] flex flex-col">
-    <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center flex-shrink-0">
-      <div>
-        <h3 class="font-black text-base">Lacak Pesanan</h3>
-        <p id="trackOrderNum" class="text-xs text-gray-400 font-mono mt-0.5"></p>
-      </div>
-      <button onclick="toggleModal('modalTracking')" class="w-8 h-8 rounded-xl bg-gray-100 flex items-center justify-center hover:bg-gray-200"><i class="fa-solid fa-xmark text-sm"></i></button>
-    </div>
-    <div class="overflow-y-auto p-6 flex-1 cscroll space-y-5">
-      <div class="flex gap-2">
-        <input id="trackInput" type="text" placeholder="Nomor pesanan (PFT-...)" class="finput flex-1 text-xs font-mono uppercase">
-        <button onclick="searchOrder()" class="bg-black text-white px-4 py-2 rounded-xl text-xs font-black hover:bg-zinc-800 transition-colors flex-shrink-0 flex items-center gap-1.5">
-          <i class="fa-solid fa-magnifying-glass text-[10px]"></i> Cari
-        </button>
-      </div>
-
-      <div id="trackLoading" class="hidden text-center py-6">
-        <i class="fa-solid fa-spinner fa-spin text-2xl text-gray-400"></i>
-        <p class="text-xs text-gray-400 mt-2">Mencari pesanan...</p>
-      </div>
-
-      <div id="trackContent" class="hidden space-y-5">
-        <!-- Timeline -->
-        <div>
-          <p class="flabel mb-3">Status Pesanan</p>
-          <div id="trackTimeline" class="space-y-0"></div>
-        </div>
-        <!-- Items -->
-        <div>
-          <p class="flabel mb-3">Barang Pesanan</p>
-          <div id="trackItems" class="space-y-3"></div>
-        </div>
-        <!-- Info -->
-        <div class="bg-gray-50 rounded-2xl p-4 space-y-2">
-          <p class="flabel mb-2">Info Pengiriman</p>
-          <div class="flex items-start gap-2 text-xs font-semibold text-gray-600"><i class="fa-solid fa-user text-gray-400 w-4 text-center mt-0.5"></i><span id="trackName"></span></div>
-          <div class="flex items-start gap-2 text-xs font-semibold text-gray-600"><i class="fa-solid fa-phone text-gray-400 w-4 text-center mt-0.5"></i><span id="trackPhone"></span></div>
-          <div class="flex items-start gap-2 text-xs font-semibold text-gray-600"><i class="fa-solid fa-location-dot text-gray-400 w-4 text-center mt-0.5"></i><span id="trackAddr" class="leading-relaxed"></span></div>
-          <div id="trackResiWrap" class="hidden flex items-center gap-2 text-xs font-semibold text-gray-600">
-            <i class="fa-solid fa-barcode text-gray-400 w-4 text-center"></i>
-            <span>Resi: <span id="trackResi" class="font-black text-black font-mono"></span></span>
-          </div>
-        </div>
-      </div>
-
-      <div id="trackEmpty" class="hidden text-center py-10 text-gray-400">
-        <i class="fa-solid fa-box-open text-3xl mb-3 block"></i>
-        <p class="text-sm font-bold">Pesanan tidak ditemukan</p>
-        <p class="text-xs mt-1">Periksa kembali nomor pesananmu</p>
-      </div>
-
-      <div id="trackHint" class="text-center py-8 text-gray-400">
-        <i class="fa-solid fa-truck-fast text-3xl mb-3 block"></i>
-        <p class="text-sm font-bold">Lacak Pesananmu</p>
-        <p class="text-xs mt-1">Masukkan nomor pesanan di atas</p>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script>
-// ─── SUPABASE ───────────────────────────────────
-const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-// ─── STATE ──────────────────────────────────────
-let products  = [], cart = [], favs = [], categories = [];
-let curCat    = 'all', curSort = 'default', curPrice = 5000000, query = '';
-let activeP   = null, selVars = {}, formRating = 5, pendingFiles = [], varGroupN = 0;
-let lastOrderId = null, lastOrderNum = null;
-
-const DEFAULT_CATS = [
-    {name:'Pakaian',  icon:'fa-shirt',       color:'bg-purple-500'},
-    {name:'Sepatu',   icon:'fa-shoe-prints',  color:'bg-blue-500'},
-    {name:'Aksesori', icon:'fa-glasses',      color:'bg-yellow-500'},
-    {name:'Gadget',   icon:'fa-microchip',    color:'bg-green-500'},
-];
-
-// ─── UTILS ──────────────────────────────────────
-const idr = n => new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0}).format(n);
-const fp  = p => p.price - p.price * p.discount / 100;
-
-function stars(r) {
-    let h=''; const f=Math.floor(r), half=r%1>=.5;
-    for(let i=0;i<f;i++) h+='<i class="fa-solid fa-star"></i>';
-    if(half) h+='<i class="fa-solid fa-star-half-stroke"></i>';
-    for(let i=0;i<5-f-(half?1:0);i++) h+='<i class="fa-regular fa-star"></i>';
-    return h;
-}
-
-function toast(msg, icon='fa-check') {
-    const w=document.getElementById('toastWrap');
-    const t=document.createElement('div'); t.className='toast';
-    t.innerHTML=`<i class="fa-solid ${icon}"></i><span>${msg}</span>`;
-    w.appendChild(t);
-    setTimeout(()=>{ t.classList.add('out'); setTimeout(()=>t.remove(),300); }, 2800);
-}
-
-function toSlug(s) {
-    return s.toLowerCase().trim().replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-');
-}
-
-function generateOrderNumber() {
-    const d = new Date();
-    const date = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
-    const rand = Math.random().toString(36).slice(2,6).toUpperCase();
-    return `PFT-${date}-${rand}`;
-}
-
-// ─── WELCOME ────────────────────────────────────
-function showWelcome() {
-    if (sessionStorage.getItem('pw') || localStorage.getItem('pw_never')) return;
-    document.getElementById('welcomeModal').classList.remove('hidden');
-}
-function closeWelcome(never=false) {
-    document.getElementById('welcomeModal').classList.add('hidden');
-    sessionStorage.setItem('pw','1');
-    if (never) localStorage.setItem('pw_never','1');
-}
-
-// ─── CATEGORIES ─────────────────────────────────
-function loadCats() {
-    const s = localStorage.getItem('pufutara_categories');
-    categories = s ? JSON.parse(s) : DEFAULT_CATS;
-    buildTabs(); fillSelects();
-}
-
-function buildTabs() {
-    const wrap  = document.getElementById('catTabs');
-    const promo = document.getElementById('tab-promo');
-    [...wrap.querySelectorAll('.ctab:not(#tab-all):not(#tab-promo)')].forEach(b=>b.remove());
-    categories.forEach(c => {
-        const b = document.createElement('button');
-        b.id = `tab-${c.name}`;
-        b.className = 'ctab flex-shrink-0 px-4 py-1.5 text-xs font-bold rounded-xl text-gray-600 hover:bg-gray-100 transition-all';
-        b.textContent = c.name;
-        b.onclick = () => setCat(c.name);
-        wrap.insertBefore(b, promo);
-    });
-}
-
-function fillSelects() {
-    const el = document.getElementById('pCategory');
-    if (el) el.innerHTML = categories.map(c=>`<option value="${c.name}">${c.name}</option>`).join('');
-}
-
-// ─── ROUTING ────────────────────────────────────
-function getBase() { return window.location.pathname.replace(/\/(product|category)(\/.*)?$/,'').replace(/\/$/,''); }
-function goHome()  { history.pushState({view:'home'},'',getBase()||'./'); closePDP(); curCat='all'; renderGrid(); }
-
-function pushProd(p) {
-    history.pushState({view:'product',slug:toSlug(p.name)},`${p.name} | Pufutarashop`,`${getBase()}/product/${toSlug(p.name)}`);
-    document.title = `${p.name} | Pufutarashop`;
-}
-function pushCat(cat) {
-    const url = cat==='all' ? getBase()||'./' : `${getBase()}/category/${cat}`;
-    history.pushState({view:'category',category:cat},`${cat} | Pufutarashop`,url);
-    document.title = cat!=='all' ? `${cat} | Pufutarashop` : 'Pufutarashop';
-}
-
-window.addEventListener('popstate', async e => {
-    const s=e.state; if(!s) return;
-    if (s.view==='product') {
-        if (!products.length) await loadProducts();
-        const p=products.find(x=>toSlug(x.name)===s.slug);
-        if (p) openPDP(p.id,false);
-    } else { closePDP(false); curCat=s.category||'all'; renderGrid(); }
-});
-
-// ─── LOAD PRODUCTS ──────────────────────────────
-async function loadProducts() {
-    const {data,error} = await db.from('products').select('*').order('created_at',{ascending:false});
-    if (error) { toast('Gagal memuat produk','fa-triangle-exclamation'); return; }
-    products = data.map(norm);
-    renderGrid();
-}
-
-function norm(r) {
-    const imgs = Array.isArray(r.images) ? r.images : JSON.parse(r.images||'[]');
-    return {
-        id:r.id, name:r.name,
-        price:parseFloat(r.price)||0, discount:parseFloat(r.discount)||0,
-        category:r.category, desc:r.description||'',
-        images:imgs, image:imgs[0]||'',
-        location:r.location||'', shippedFrom:r.shipped_from||'', estimatedTime:r.estimated_time||'',
-        likes:r.likes||0, rating:parseFloat(r.rating)||0, stock:r.stock||0,
-        variants: r.variants ? (Array.isArray(r.variants)?r.variants:JSON.parse(r.variants)) : [],
-    };
-}
-
-// ─── RENDER GRID ────────────────────────────────
-function setCat(cat)   { curCat=cat; pushCat(cat); renderGrid(); document.querySelector('main')?.scrollIntoView({behavior:'smooth'}); }
-function setSort(v)    { curSort=v; renderGrid(); }
-function setPriceLimit(v) { curPrice=parseInt(v); document.getElementById('priceLabel').innerText=idr(curPrice); renderGrid(); }
-
-function renderGrid() {
-    document.querySelectorAll('.ctab').forEach(b => {
-        b.classList.remove('bg-black','text-white','bg-red-500','text-red-500');
-        b.classList.add('text-gray-600');
-    });
-    const atab = document.getElementById('tab-'+curCat);
-    if (atab) {
-        atab.classList.remove('text-gray-600');
-        if (curCat==='promo') atab.classList.add('bg-red-500','text-white');
-        else atab.classList.add('bg-black','text-white');
-    }
-
-    let list = [...products];
-    if (curCat==='promo')   list=list.filter(p=>p.discount>0);
-    else if(curCat!=='all') list=list.filter(p=>p.category===curCat);
-    if (query) list=list.filter(p=>p.name.toLowerCase().includes(query.toLowerCase()));
-    list=list.filter(p=>fp(p)<=curPrice);
-    if (curSort==='price-asc')  list.sort((a,b)=>fp(a)-fp(b));
-    if (curSort==='price-desc') list.sort((a,b)=>fp(b)-fp(a));
-    if (curSort==='rating')     list.sort((a,b)=>b.rating-a.rating);
-
-    document.getElementById('prodCount').innerText = `${list.length} produk ditemukan`;
-    const grid=document.getElementById('productGrid');
-    if (!list.length) {
-        grid.innerHTML=`<div class="col-span-5 text-center py-20 text-gray-400"><i class="fa-solid fa-box-open text-4xl mb-3 block"></i><p class="font-bold">Tidak ada produk</p></div>`;
-        return;
-    }
-    grid.innerHTML = list.map(p => {
-        const price = fp(p), img=p.images[0]||p.image, isFav=favs.includes(p.id);
-        return `
-        <div class="pcard" onclick="openPDP('${p.id}')">
-          <div class="thumb">
-            ${p.discount>0?`<span class="absolute top-2 left-2 z-10 bg-red-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full">-${p.discount}%</span>`:''}
-            ${p.stock===0?`<span class="absolute top-2 right-2 z-10 bg-gray-600 text-white text-[9px] font-black px-2 py-0.5 rounded-full">Habis</span>`:p.stock<=3?`<span class="absolute top-2 right-2 z-10 bg-orange-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full">Menipis</span>`:''}
-            <img src="${img}" alt="${p.name}" loading="lazy">
-            <button class="favcorner ${isFav?'on':''} w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center hover:scale-110 transition-transform"
-              onclick="event.stopPropagation(); toggleFav('${p.id}')">
-              <i class="${isFav?'fa-solid text-red-500':'fa-regular text-gray-400'} fa-heart text-sm"></i>
-            </button>
-            <div class="hactions">
-              <button onclick="event.stopPropagation(); quickCart('${p.id}')"
-                class="flex-1 bg-black text-white rounded-xl py-2 text-xs font-black flex items-center justify-center gap-1 hover:bg-zinc-800 transition-colors shadow-lg">
-                <i class="fa-solid fa-plus text-[10px]"></i> Keranjang
-              </button>
-            </div>
-          </div>
-          <div class="p-3">
-            <p class="text-[10px] text-gray-400 font-semibold mb-0.5">${p.category}</p>
-            <p class="text-xs font-bold text-gray-800 truncate">${p.name}</p>
-            <div class="flex items-center gap-1 text-yellow-400 text-[9px] my-1">${stars(p.rating)}<span class="text-gray-400 ml-1">(${p.rating})</span></div>
-            <div class="flex items-baseline gap-1.5">
-              <span class="text-sm font-black">${idr(price)}</span>
-              ${p.discount>0?`<span class="text-[10px] text-gray-400 line-through">${idr(p.price)}</span>`:''}
-            </div>
-            <p class="text-[10px] text-gray-400 mt-0.5 truncate">${p.location}</p>
-          </div>
-        </div>`;
-    }).join('');
-}
-
-// ─── PDP ────────────────────────────────────────
-async function openPDP(id, pushUrl=true) {
-    const p=products.find(x=>x.id===id); if(!p) return;
-    activeP=p; selVars={};
-    if (pushUrl) pushProd(p);
-
-    const price=fp(p), img=p.images[0]||p.image;
-    document.getElementById('pdpImg').src   = img;
-    document.getElementById('pdpCrumb').innerText = `${p.category} / ${p.name}`;
-    document.getElementById('pdpCatBadge').innerText = p.category;
-    document.getElementById('pdpName').innerText  = p.name;
-    document.getElementById('pdpStars').innerHTML = stars(p.rating);
-    document.getElementById('pdpRating').innerText = p.rating>0 ? `${p.rating}/5` : '';
-    document.getElementById('pdpPrice').innerText  = idr(price);
-    document.getElementById('pdpOldPrice').innerText = p.discount>0 ? idr(p.price) : '';
-    document.getElementById('pdpDesc').innerText   = p.desc;
-    document.getElementById('pdpLoc').innerText    = `Lokasi: ${p.location}`;
-    document.getElementById('pdpFrom').innerText   = `Dikirim dari: ${p.shippedFrom}`;
-    document.getElementById('pdpEst').innerText    = `Estimasi: ${p.estimatedTime}`;
-
-    const sb=document.getElementById('pdpStockBadge');
-    if (p.stock===0)     { sb.innerText='Stok Habis';        sb.className='text-[10px] font-bold bg-gray-200 text-gray-600 px-3 py-1 rounded-full'; }
-    else if(p.stock<=3)  { sb.innerText=`Sisa ${p.stock}!`;  sb.className='text-[10px] font-bold bg-orange-100 text-orange-600 px-3 py-1 rounded-full'; }
-    else                 { sb.innerText=`Stok: ${p.stock}`;  sb.className='text-[10px] font-bold bg-green-100 text-green-600 px-3 py-1 rounded-full'; }
-
-    const db2=document.getElementById('pdpDiscBadge');
-    if (p.discount>0) { db2.innerText=`-${p.discount}%`; db2.classList.remove('hidden'); } else db2.classList.add('hidden');
-
-    const sv=document.getElementById('pdpSave');
-    if (p.discount>0) { sv.innerText=`Hemat ${idr(p.price-price)} (${p.discount}% off)`; sv.classList.remove('hidden'); } else sv.classList.add('hidden');
-
-    const th=document.getElementById('pdpThumbs');
-    th.innerHTML = p.images.length>1 ? p.images.map((s,i)=>`
-        <img src="${s}" loading="lazy"
-          onclick="document.getElementById('pdpImg').src='${s}';[...document.querySelectorAll('#pdpThumbs img')].forEach(x=>x.classList.remove('ring-2','ring-black'));this.classList.add('ring-2','ring-black')"
-          class="w-16 h-16 object-cover rounded-xl cursor-pointer border border-gray-200 flex-shrink-0 ${i===0?'ring-2 ring-black':'hover:border-black'} transition-all">`).join('') : '';
-
-    updatePDPFav();
-    [document.getElementById('pdpBtnCart'),document.getElementById('pdpBtnBuy')].forEach(b=>{
-        b.disabled=p.stock===0; b.classList.toggle('opacity-40',p.stock===0); b.classList.toggle('cursor-not-allowed',p.stock===0);
-    });
-
-    renderVariants(p);
-    renderRelated(p);
-    setRating(5); document.getElementById('cmtInput').value='';
-    document.getElementById('pdpComments').innerHTML='<p class="text-xs text-gray-400 italic">Memuat ulasan...</p>';
-    document.getElementById('pdpCmtCnt').innerText='';
-
-    document.getElementById('pdp').classList.add('open');
-    document.getElementById('pdp').scrollTop=0;
-    document.body.style.overflow='hidden';
-
-    const cmts=await loadCmts(p.id);
-    renderCmts(cmts,p);
-}
-
-function closePDP(updateUrl=true) {
-    document.getElementById('pdp').classList.remove('open');
-    document.body.style.overflow='';
-    if(updateUrl){pushCat(curCat);document.title='Pufutarashop';}
-    activeP=null;
-}
-
-function updatePDPFav() {
-    if(!activeP) return;
-    const i=document.getElementById('pdpFavBtn').querySelector('i');
-    const on=favs.includes(activeP.id);
-    i.className=on?'fa-solid fa-heart text-sm text-red-500':'fa-regular fa-heart text-sm';
-}
-function pdpToggleFav() { if(activeP) toggleFav(activeP.id); updatePDPFav(); }
-function pdpAddCart()   { if(!chkVars()) return; addToCart(activeP.id, selVars); }
-function pdpBuyNow()    { if(!chkVars()) return; addToCart(activeP.id, selVars); closePDP(); checkout(); }
-
-function renderVariants(p) {
-    const sec=document.getElementById('pdpVarSection');
-    const con=document.getElementById('pdpVarContainer');
-    if(!p.variants||!p.variants.length){sec.classList.add('hidden');return;}
-    sec.classList.remove('hidden');
-    con.innerHTML=p.variants.map(g=>`
-        <div>
-          <p class="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-2">${g.name}</p>
-          <div class="flex flex-wrap gap-2">
-            ${g.options.map(o=>`
-              <button class="vchip ${o.stock===0?'out':''}"
-                id="vc-${toSlug(g.name)}-${toSlug(String(o.value))}"
-                onclick="selVar('${g.name}','${o.value}')"
-                ${o.stock===0?'disabled':''}
-              >${o.value}${o.stock===0?' (Habis)':''}</button>`).join('')}
-          </div>
-        </div>`).join('');
-}
-
-function selVar(group, val) {
-    selVars[group]=val;
-    document.querySelectorAll(`[id^="vc-${toSlug(group)}-"]`).forEach(b=>b.classList.remove('sel'));
-    document.getElementById(`vc-${toSlug(group)}-${toSlug(String(val))}`)?.classList.add('sel');
-}
-
-function chkVars() {
-    if(!activeP?.variants?.length) return true;
-    for(const g of activeP.variants) {
-        if(!selVars[g.name]) { toast(`Pilih ${g.name} terlebih dahulu`,'fa-circle-exclamation'); return false; }
-    }
-    return true;
-}
-
-function renderRelated(p) {
-    const rel=products.filter(x=>x.id!==p.id&&x.category===p.category).slice(0,5);
-    document.getElementById('pdpRelated').innerHTML=rel.map(r=>{
-        const img=r.images[0]||r.image, isFav=favs.includes(r.id);
-        return `
-        <div class="pcard" onclick="openPDP('${r.id}')">
-          <div class="thumb">
-            ${r.discount>0?`<span class="absolute top-2 left-2 z-10 bg-red-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full">-${r.discount}%</span>`:''}
-            <img src="${img}" alt="${r.name}" loading="lazy">
-            <button class="favcorner ${isFav?'on':''} w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center"
-              onclick="event.stopPropagation();toggleFav('${r.id}')">
-              <i class="${isFav?'fa-solid text-red-500':'fa-regular text-gray-400'} fa-heart text-sm"></i>
-            </button>
-            <div class="hactions">
-              <button onclick="event.stopPropagation();quickCart('${r.id}')"
-                class="flex-1 bg-black text-white rounded-xl py-2 text-xs font-black flex items-center justify-center gap-1 hover:bg-zinc-800 shadow-lg">
-                <i class="fa-solid fa-plus text-[10px]"></i> Keranjang
-              </button>
-            </div>
-          </div>
-          <div class="p-3">
-            <p class="text-xs font-bold text-gray-800 truncate">${r.name}</p>
-            <span class="text-sm font-black">${idr(fp(r))}</span>
-          </div>
-        </div>`;
-    }).join('');
-}
-
-async function loadCmts(pid) {
-    const {data,error}=await db.from('comments').select('*').eq('product_id',pid).order('created_at',{ascending:false});
-    return error?[]:data;
-}
-
-function renderCmts(cmts,p) {
-    document.getElementById('pdpCmtCnt').innerText=`${cmts.length} ulasan`;
-    if(p.rating>0) document.getElementById('pdpAvgRating').innerHTML=`<span class="text-yellow-500">${stars(p.rating)}</span> <span class="font-black">${p.rating}</span>`;
-    const el=document.getElementById('pdpComments');
-    if(!cmts.length){el.innerHTML='<p class="text-xs text-gray-400 italic">Belum ada ulasan.</p>';return;}
-    el.innerHTML=cmts.map(c=>`
-        <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100">
-          <div class="flex items-center justify-between mb-2">
-            <div class="flex items-center gap-2">
-              <div class="w-7 h-7 bg-black text-white rounded-full flex items-center justify-center text-[10px] font-black">P</div>
-              <span class="text-xs font-bold">Pembeli</span>
-            </div>
-            <div class="text-yellow-400 text-xs">${'<i class="fa-solid fa-star"></i>'.repeat(c.rating)}${'<i class="fa-regular fa-star text-gray-300"></i>'.repeat(5-c.rating)}</div>
-          </div>
-          <p class="text-xs text-gray-600 leading-relaxed">${c.text}</p>
-          <p class="text-[10px] text-gray-400 mt-2">${new Date(c.created_at).toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'})}</p>
-        </div>`).join('');
-}
-
-function setRating(r) {
-    formRating=r;
-    document.querySelectorAll('.star-btn').forEach((s,i)=>{
-        s.className=`star-btn ${i<r?'fa-solid text-yellow-400':'fa-regular text-gray-300'} fa-star text-lg cursor-pointer hover:text-yellow-400 transition-colors`;
-    });
-}
-
-async function submitCmt() {
-    const text=document.getElementById('cmtInput').value.trim();
-    if(!text){toast('Komentar tidak boleh kosong','fa-circle-exclamation');return;}
-    if(!activeP) return;
-    const btn=document.getElementById('cmtBtn');
-    btn.disabled=true; btn.innerText='...';
-    try {
-        await db.from('comments').insert([{product_id:activeP.id,text,rating:formRating}]);
-        const {data:all}=await db.from('comments').select('rating').eq('product_id',activeP.id);
-        const avg=all.length ? parseFloat((all.reduce((s,c)=>s+c.rating,0)/all.length).toFixed(1)) : formRating;
-        await db.from('products').update({rating:avg}).eq('id',activeP.id);
-        const idx=products.findIndex(x=>x.id===activeP.id);
-        if(idx>=0) products[idx].rating=avg;
-        activeP.rating=avg;
-        document.getElementById('cmtInput').value=''; setRating(5);
-        const cmts=await loadCmts(activeP.id); renderCmts(cmts,activeP);
-        document.getElementById('pdpStars').innerHTML=stars(avg);
-        document.getElementById('pdpRating').innerText=`${avg}/5`;
-        toast('Ulasan dikirim!','fa-check');
-    } catch(e){toast('Gagal: '+e.message,'fa-triangle-exclamation');}
-    finally{btn.disabled=false;btn.innerText='Kirim';}
-}
-
-// ─── CART ───────────────────────────────────────
-function saveCart() { localStorage.setItem('pufutara_cart',JSON.stringify(cart)); }
-function saveFavs() { localStorage.setItem('pufutara_fav', JSON.stringify(favs)); }
-function quickCart(id) { addToCart(id,{}); }
-
-function addToCart(id, vars={}) {
-    const p=products.find(x=>x.id===id); if(!p) return;
-    const key=id+JSON.stringify(vars);
-    const ex=cart.find(i=>i.key===key);
-    if(ex) ex.qty++;
-    else cart.push({...p,qty:1,key,chosenVars:vars});
-    updateCartUI(); saveCart();
-    toast(`${p.name} ditambahkan`,'fa-bag-shopping');
-}
-
-function changeQty(key,d) {
-    const item=cart.find(i=>i.key===key); if(!item) return;
-    item.qty+=d;
-    if(item.qty<=0) cart=cart.filter(i=>i.key!==key);
-    updateCartUI(); saveCart();
-}
-
-function updateCartUI() {
-    const cnt=cart.reduce((a,b)=>a+b.qty,0);
-    document.getElementById('cartCount').innerText=cnt;
-    document.getElementById('pdpCartCount').innerText=cnt;
-    const list=document.getElementById('cartItems');
-    const tot=document.getElementById('cartTotal');
-    if(!cart.length){list.innerHTML='<p class="text-center py-12 text-gray-400 text-xs italic">Keranjang kosong</p>';tot.innerText='Rp 0';return;}
-    let total=0;
-    list.innerHTML=cart.map(item=>{
-        const price=fp(item); total+=price*item.qty;
-        const img=item.images?.[0]||item.image;
-        const vl=Object.entries(item.chosenVars||{}).map(([k,v])=>`${k}: ${v}`).join(', ');
-        return `
-        <div class="flex gap-3 items-start">
-          <img src="${img}" class="w-16 h-16 object-cover rounded-xl flex-shrink-0 border border-gray-100">
-          <div class="flex-1 min-w-0">
-            <p class="text-xs font-bold truncate">${item.name}</p>
-            ${vl?`<p class="text-[10px] text-gray-400">${vl}</p>`:''}
-            <p class="text-xs font-black mt-0.5">${idr(price)}</p>
-            <div class="flex items-center gap-1.5 bg-gray-100 w-fit rounded-xl p-1 mt-1.5">
-              <button onclick="changeQty('${item.key}',-1)" class="w-6 h-6 hover:bg-white rounded-lg text-xs font-black flex items-center justify-center">−</button>
-              <span class="text-xs font-black w-5 text-center">${item.qty}</span>
-              <button onclick="changeQty('${item.key}',1)"  class="w-6 h-6 hover:bg-white rounded-lg text-xs font-black flex items-center justify-center">+</button>
-            </div>
-          </div>
-        </div>`;
-    }).join('');
-    tot.innerText=idr(total);
-}
-
-// ─── FAVORITES ──────────────────────────────────
-function toggleFav(id) {
-    const p=products.find(x=>x.id===id); if(!p) return;
-    if(favs.includes(id)){favs=favs.filter(x=>x!==id);toast(`${p.name} dihapus dari favorit`,'fa-heart-crack');}
-    else{favs.push(id);toast(`${p.name} difavoritkan`,'fa-heart');}
-    document.getElementById('favCount').innerText=favs.length;
-    document.getElementById('favBadge').innerText=`(${favs.length})`;
-    saveFavs(); updateFavUI(); renderGrid();
-    if(activeP?.id===id) updatePDPFav();
-}
-
-function updateFavUI() {
-    const list=document.getElementById('favItems');
-    if(!favs.length){list.innerHTML='<p class="text-center py-12 text-gray-400 text-xs italic">Belum ada favorit</p>';return;}
-    list.innerHTML=favs.map(fid=>{
-        const p=products.find(x=>x.id===fid); if(!p) return '';
-        const img=p.images?.[0]||p.image;
-        return `
-        <div class="flex gap-3 items-center cursor-pointer" onclick="closeSidebar('favSidebar');openPDP('${p.id}')">
-          <img src="${img}" class="w-14 h-14 object-cover rounded-xl border border-gray-100 flex-shrink-0">
-          <div class="flex-1 min-w-0">
-            <p class="text-xs font-bold truncate">${p.name}</p>
-            <p class="text-[10px] text-gray-400">${p.category}</p>
-            <p class="text-xs font-black mt-0.5">${idr(fp(p))}</p>
-          </div>
-          <button onclick="event.stopPropagation();toggleFav('${p.id}')" class="text-red-500 p-1 flex-shrink-0">
-            <i class="fa-solid fa-heart"></i>
-          </button>
-        </div>`;
-    }).join('');
-}
-
-// ─── SIDEBAR ────────────────────────────────────
-function openSidebar(id) {
-    document.getElementById(id).classList.add('open');
-    document.getElementById('sbOverlay').classList.remove('hidden');
-}
-function closeSidebar(id) {
-    document.getElementById(id).classList.remove('open');
-    if(!document.getElementById('favSidebar').classList.contains('open')&&
-       !document.getElementById('cartSidebar').classList.contains('open'))
-        document.getElementById('sbOverlay').classList.add('hidden');
-}
-function closeAllSidebars() { closeSidebar('favSidebar'); closeSidebar('cartSidebar'); }
-
-// ─── CHECKOUT ───────────────────────────────────
-function checkout() {
-    if(!cart.length){toast('Keranjang masih kosong!','fa-circle-exclamation');return;}
-    closeSidebar('cartSidebar');
-    let total=0;
-    document.getElementById('coItems').innerHTML=cart.map(item=>{
-        const price=fp(item); total+=price*item.qty;
-        const img=item.images?.[0]||item.image;
-        const vl=Object.entries(item.chosenVars||{}).map(([k,v])=>`${k}: ${v}`).join(', ');
-        return `
-        <div class="flex justify-between items-center bg-gray-50 p-3 rounded-2xl">
-          <div class="flex gap-3 items-center">
-            <img src="${img}" class="w-12 h-12 object-cover rounded-xl">
-            <div>
-              <p class="text-xs font-bold">${item.name}</p>
-              ${vl?`<p class="text-[10px] text-gray-400">${vl}</p>`:''}
-              <p class="text-[10px] text-gray-400">${item.qty} × ${idr(price)}</p>
-            </div>
-          </div>
-          <span class="text-xs font-black">${idr(price*item.qty)}</span>
-        </div>`;
-    }).join('');
-    document.getElementById('coTotal').innerText=idr(total);
-    document.getElementById('coName').value='';
-    document.getElementById('coPhone').value='';
-    document.getElementById('coAddr').value='';
-    const btn=document.getElementById('btnCheckout');
-    btn.disabled=false;
-    btn.innerHTML='<i class="fa-solid fa-lock text-xs"></i> Konfirmasi & Bayar';
-    toggleModal('modalCheckout');
-}
-
-document.getElementById('formCheckout').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const btn = document.getElementById('btnCheckout');
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-xs"></i> Memproses...';
-
-    const name  = document.getElementById('coName').value.trim();
-    const phone = document.getElementById('coPhone').value.trim();
-    const addr  = document.getElementById('coAddr').value.trim();
-    const total = cart.reduce((s,i) => s + fp(i)*i.qty, 0);
-    const orderNum = generateOrderNumber();
-
-    try {
-        // Insert order
-        const { data: order, error: oErr } = await db.from('orders').insert([{
-            order_number:  orderNum,
-            buyer_name:    name,
-            buyer_phone:   phone,
-            buyer_address: addr,
-            total_price:   total,
-            status:        'menunggu_pembayaran'
-        }]).select().single();
-        if (oErr) throw oErr;
-
-        lastOrderId  = order.id;
-        lastOrderNum = orderNum;
-
-        // Insert order items
-        const items = cart.map(item => ({
-            order_id:        order.id,
-            product_id:      item.id,
-            product_name:    item.name,
-            product_image:   item.images?.[0] || item.image || '',
-            unit_price:      fp(item),
-            quantity:        item.qty,
-            chosen_variants: item.chosenVars || {},
-            subtotal:        fp(item) * item.qty
-        }));
-        const { error: iErr } = await db.from('order_items').insert(items);
-        if (iErr) throw iErr;
-
-        // Close checkout, start countdown
-        toggleModal('modalCheckout');
-        this.reset();
-        startPaymentCountdown(order.id, orderNum);
-
-    } catch(err) {
-        toast('Gagal membuat pesanan: ' + err.message, 'fa-triangle-exclamation');
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-lock text-xs"></i> Konfirmasi & Bayar';
-    }
-});
-
-// ─── PAYMENT COUNTDOWN ──────────────────────────
-function startPaymentCountdown(orderId, orderNum) {
-    document.getElementById('modalPaying').classList.remove('hidden');
-    const circle     = document.getElementById('payCircle');
-    const countEl    = document.getElementById('payCountdown');
-    const circumference = 213.6;
-    const totalSecs  = 5;
-    let remaining    = totalSecs;
-
-    // Start from full circle, drain to 0
-    circle.style.strokeDashoffset = '0';
-
-    const tick = setInterval(async () => {
-        remaining--;
-        countEl.textContent = remaining;
-        const offset = circumference * ((totalSecs - remaining) / totalSecs);
-        circle.style.strokeDashoffset = offset;
-
-        if (remaining <= 0) {
-            clearInterval(tick);
-            try {
-                await db.from('orders').update({ status: 'pembayaran_diterima' }).eq('id', orderId);
-            } catch(e) { /* non-fatal */ }
-
-            document.getElementById('modalPaying').classList.add('hidden');
-            cart = []; updateCartUI(); saveCart();
-            document.getElementById('successOrderNum').textContent = orderNum;
-            document.getElementById('modalSuccess').classList.remove('hidden');
-        }
-    }, 1000);
-}
-
-// ─── ORDER SUCCESS ───────────────────────────────
-function closeSuccess() {
-    document.getElementById('modalSuccess').classList.add('hidden');
-}
-
-function openTrackingFromSuccess() {
-    document.getElementById('modalSuccess').classList.add('hidden');
-    openTracking(lastOrderId);
-}
-
-// ─── ORDER TRACKING ──────────────────────────────
-const STATUS_STEPS = [
-    { key:'menunggu_pembayaran', label:'Menunggu Pembayaran', icon:'fa-clock'         },
-    { key:'pembayaran_diterima', label:'Pembayaran Diterima', icon:'fa-circle-check'  },
-    { key:'diproses',            label:'Pesanan Diproses',    icon:'fa-gear'           },
-    { key:'dikemas',             label:'Sedang Dikemas',      icon:'fa-box'            },
-    { key:'dikirim',             label:'Dalam Pengiriman',    icon:'fa-truck'          },
-    { key:'sampai',              label:'Sampai di Tujuan',    icon:'fa-location-dot'   },
-    { key:'selesai',             label:'Pesanan Selesai',     icon:'fa-star'           },
-    { key:'dibatalkan',          label:'Pesanan Dibatalkan',  icon:'fa-xmark'          },
-];
-
-async function openTracking(orderId) {
-    document.getElementById('modalTracking').classList.remove('hidden');
-    document.getElementById('trackContent').classList.add('hidden');
-    document.getElementById('trackEmpty').classList.add('hidden');
-    document.getElementById('trackHint').classList.add('hidden');
-    document.getElementById('trackLoading').classList.remove('hidden');
-
-    if (!orderId) {
-        document.getElementById('trackLoading').classList.add('hidden');
-        document.getElementById('trackHint').classList.remove('hidden');
-        return;
-    }
-
-    const { data: order, error } = await db
-        .from('orders')
-        .select('*, order_items(*)')
-        .eq('id', orderId)
-        .single();
-
-    document.getElementById('trackLoading').classList.add('hidden');
-    if (error || !order) { document.getElementById('trackEmpty').classList.remove('hidden'); return; }
-    renderTrackingData(order);
-}
-
-async function searchOrder() {
-    const num = document.getElementById('trackInput').value.trim().toUpperCase();
-    if (!num) return;
-    document.getElementById('trackContent').classList.add('hidden');
-    document.getElementById('trackEmpty').classList.add('hidden');
-    document.getElementById('trackHint').classList.add('hidden');
-    document.getElementById('trackLoading').classList.remove('hidden');
-
-    const { data: order, error } = await db
-        .from('orders')
-        .select('*, order_items(*)')
-        .eq('order_number', num)
-        .single();
-
-    document.getElementById('trackLoading').classList.add('hidden');
-    if (error || !order) { document.getElementById('trackEmpty').classList.remove('hidden'); return; }
-    renderTrackingData(order);
-}
-
-function renderTrackingData(order) {
-    const isCancelled = order.status === 'dibatalkan';
-    const curIdx      = STATUS_STEPS.findIndex(s => s.key === order.status);
-    const steps       = isCancelled
-        ? STATUS_STEPS.filter(s => s.key !== 'selesai')
-        : STATUS_STEPS.filter(s => s.key !== 'dibatalkan');
-
-    document.getElementById('trackTimeline').innerHTML = steps.map((s, i) => {
-        const stepIdx = STATUS_STEPS.findIndex(x => x.key === s.key);
-        const done    = stepIdx <= curIdx;
-        const active  = stepIdx === curIdx;
-        const isLast  = i === steps.length - 1;
-        const cancelled = isCancelled && active;
-
-        return `
-        <div class="flex gap-4">
-          <div class="flex flex-col items-center" style="min-width:36px">
-            <div class="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0
-              ${done ? (cancelled ? 'bg-red-500' : 'bg-black') : 'bg-gray-100'}">
-              <i class="fa-solid ${s.icon} text-xs ${done ? 'text-white' : 'text-gray-400'}"></i>
-            </div>
-            ${!isLast ? `<div class="w-0.5 flex-1 min-h-[20px] my-1 ${done && stepIdx < curIdx ? 'bg-black' : 'bg-gray-200'}"></div>` : ''}
-          </div>
-          <div class="flex-1 pb-4 pt-1">
-            <p class="text-xs font-black ${active ? (cancelled?'text-red-600':'text-black') : done ? 'text-gray-600' : 'text-gray-400'}">${s.label}</p>
-            ${active && order.status_note ? `<p class="text-[10px] text-gray-400 mt-0.5 leading-relaxed">${order.status_note}</p>` : ''}
-            ${active ? `<p class="text-[10px] text-gray-400 mt-0.5">${new Date(order.updated_at||order.created_at).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</p>` : ''}
-          </div>
-        </div>`;
-    }).join('');
-
-    // items
-    document.getElementById('trackItems').innerHTML = (order.order_items||[]).map(item => {
-        const vl = Object.entries(item.chosen_variants||{}).map(([k,v])=>`${k}: ${v}`).join(', ');
-        return `
-        <div class="flex gap-3 items-center bg-gray-50 rounded-2xl p-3">
-          <img src="${item.product_image||''}" class="w-12 h-12 object-cover rounded-xl flex-shrink-0 border border-gray-100"
-            onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2248%22 height=%2248%22><rect fill=%22%23e5e7eb%22 width=%2248%22 height=%2248%22/></svg>'">
-          <div class="flex-1 min-w-0">
-            <p class="text-xs font-bold truncate">${item.product_name}</p>
-            ${vl?`<p class="text-[10px] text-gray-400">${vl}</p>`:''}
-            <p class="text-[10px] text-gray-400">${item.quantity} × ${idr(item.unit_price)}</p>
-          </div>
-          <span class="text-xs font-black flex-shrink-0">${idr(item.subtotal)}</span>
-        </div>`;
-    }).join('');
-
-    document.getElementById('trackOrderNum').textContent  = order.order_number;
-    document.getElementById('trackInput').value           = order.order_number;
-    document.getElementById('trackName').textContent      = order.buyer_name;
-    document.getElementById('trackPhone').textContent     = order.buyer_phone;
-    document.getElementById('trackAddr').textContent      = order.buyer_address;
-
-    const resiWrap = document.getElementById('trackResiWrap');
-    if (order.tracking_number) {
-        resiWrap.classList.remove('hidden');
-        document.getElementById('trackResi').textContent = order.tracking_number;
-    } else {
-        resiWrap.classList.add('hidden');
-    }
-
-    document.getElementById('trackContent').classList.remove('hidden');
-}
-
-// ─── FORM JUAL ──────────────────────────────────
-function addVarGroup() {
-    varGroupN++;
-    const id=`vg${varGroupN}`;
-    const div=document.createElement('div');
-    div.id=id; div.className='bg-white rounded-xl p-3 border border-gray-200 space-y-2';
-    div.innerHTML=`
-      <div class="flex gap-2 items-center">
-        <input type="text" placeholder="Nama tipe (ex: Ukuran, Warna)" class="finput flex-1 text-xs vgname">
-        <button type="button" onclick="document.getElementById('${id}').remove()" class="w-7 h-7 rounded-lg bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-100 flex-shrink-0">
-          <i class="fa-solid fa-xmark text-xs"></i>
-        </button>
-      </div>
-      <input type="text" placeholder="Pilihan dipisah koma (ex: 38,39,40)" class="finput text-xs vgopts">`;
-    document.getElementById('varGroups').appendChild(div);
-}
-
-function buildVarsFromForm() {
-    const groups=[];
-    document.querySelectorAll('#varGroups>div').forEach(div=>{
-        const name=div.querySelector('.vgname')?.value.trim();
-        const opts=div.querySelector('.vgopts')?.value.trim();
-        if(!name||!opts) return;
-        groups.push({name,options:opts.split(',').map(o=>({value:o.trim(),stock:10})).filter(o=>o.value)});
-    });
-    return groups;
-}
-
-document.getElementById('pImgFile').addEventListener('change',function(e){
-    pendingFiles=Array.from(e.target.files).slice(0,3);
-    const prev=document.getElementById('imgPrev'); prev.innerHTML='';
-    pendingFiles.forEach(f=>{
-        const r=new FileReader(); r.onload=ev=>{ prev.innerHTML+=`<img src="${ev.target.result}" class="w-12 h-12 object-cover rounded-lg border border-gray-200">`; };
-        r.readAsDataURL(f);
-    });
-});
-
-document.getElementById('formJual').addEventListener('submit',async function(e){
-    e.preventDefault();
-    const btn=document.getElementById('btnJual');
-    btn.disabled=true; btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Mengupload...';
-    try {
-        let imgs=[];
-        if(pendingFiles.length) {
-            for(const f of pendingFiles){
-                const fn=`${Date.now()}-${f.name.replace(/\s/g,'_')}`;
-                const {data,error}=await db.storage.from('product-images').upload(fn,f,{cacheControl:'3600',upsert:false});
-                if(error){const b=await f2b64(f);imgs.push(b);}
-                else{const {data:u}=db.storage.from('product-images').getPublicUrl(data.path);imgs.push(u.publicUrl);}
-            }
-        } else {
-            const url=document.getElementById('pImgUrl').value.trim();
-            imgs=url?[url]:['https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&h=500&fit=crop'];
-        }
-        const payload={
-            name:document.getElementById('pName').value.trim(),
-            description:document.getElementById('pDesc').value.trim(),
-            price:parseFloat(document.getElementById('pPrice').value)||0,
-            discount:parseFloat(document.getElementById('pDiscount').value)||0,
-            category:document.getElementById('pCategory').value,
-            images:imgs,
-            location:document.getElementById('pLoc').value.trim(),
-            shipped_from:document.getElementById('pFrom').value.trim(),
-            estimated_time:document.getElementById('pEst').value.trim(),
-            variants:buildVarsFromForm(),
-            likes:0,rating:0,stock:10,
-        };
-        const {data:saved,error}=await db.from('products').insert([payload]).select().single();
-        if(error) throw error;
-        products.unshift(norm(saved));
-        renderGrid(); updateFavUI();
-        toggleModal('modalJual');
-        toast('Produk berhasil diposting!','fa-check-circle');
-        this.reset();
-        document.getElementById('imgPrev').innerHTML='';
-        document.getElementById('varGroups').innerHTML='';
-        pendingFiles=[]; varGroupN=0;
-    } catch(err){toast('Gagal: '+err.message,'fa-triangle-exclamation');}
-    finally{btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-upload text-xs"></i> Post Barang';}
-});
-
-function f2b64(file){
-    return new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=rej;r.readAsDataURL(file);});
-}
-
-// ─── MODAL HELPERS ──────────────────────────────
-function toggleModal(id){document.getElementById(id)?.classList.toggle('hidden');}
-
-['modalJual','modalCheckout','modalSuccess','modalTracking','welcomeModal'].forEach(id=>{
-    document.getElementById(id)?.addEventListener('click',function(e){
-        if(e.target===this){
-            if(id==='welcomeModal') closeWelcome();
-            else if(id==='modalSuccess') closeSuccess();
-            else this.classList.add('hidden');
-        }
-    });
-});
-
-// Enter to search order
-document.getElementById('trackInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter') searchOrder();
-});
-
-// ─── SEARCH ─────────────────────────────────────
-document.getElementById('searchInput').addEventListener('input',e=>{query=e.target.value;renderGrid();});
-
-// ─── LOCAL STORAGE LOAD ─────────────────────────
-function loadLocal(){
-    const c=localStorage.getItem('pufutara_cart');
-    const f=localStorage.getItem('pufutara_fav');
-    if(c) cart=JSON.parse(c);
-    if(f) favs=JSON.parse(f);
-    document.getElementById('favCount').innerText=favs.length;
-    document.getElementById('favBadge').innerText=`(${favs.length})`;
-    updateCartUI(); updateFavUI();
-}
-
-// ─── INIT ────────────────────────────────────────
-window.addEventListener('DOMContentLoaded',async()=>{
-    loadCats();
-    loadLocal();
-    await loadProducts();
-
-    const parts=window.location.pathname.split('/').filter(Boolean);
-    const len=parts.length;
-    if(len>=2&&parts[len-2]==='product'){
-        const p=products.find(x=>toSlug(x.name)===parts[len-1]);
-        if(p){openPDP(p.id,false);return;}
-    } else if(len>=2&&parts[len-2]==='category'){
-        curCat=parts[len-1]; renderGrid(); return;
-    }
-
-    setTimeout(showWelcome,700);
-});
-</script>
+<script src="app.js"></script>
 </body>
 </html>
