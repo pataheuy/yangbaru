@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpotipaiKW — Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/regular/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.1/src/fill/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root { --green: #1DB954; }
+        * { box-sizing: border-box; }
+        body { background: #0a0a0a; color: #fff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #111; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+
+        /* ---- LOGIN ---- */
+        #login-overlay { position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:100; }
+        .form-label { font-size:0.72rem;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:5px; }
+        .form-input { width:100%;background:#161616;border:1px solid #2a2a2a;border-radius:8px;color:#fff;padding:10px 12px;font-size:0.85rem;outline:none;transition:border-color 0.15s; }
+        .form-input:focus { border-color:var(--green); }
+        .form-input::placeholder { color:#444; }
+
+        /* ---- TOAST ---- */
+        #toast { position:fixed;bottom:24px;right:24px;z-index:999;display:flex;flex-direction:column;gap:8px;pointer-events:none; }
+        .toast-item { padding:10px 16px;border-radius:8px;font-size:0.82rem;font-weight:600;display:flex;align-items:center;gap:8px;animation:slideUp 0.25s ease forwards;pointer-events:none; }
+        .toast-success { background:#1DB954;color:#000; }
+        .toast-error   { background:#ef4444;color:#fff; }
+        @keyframes slideUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes fadeOut { from{opacity:1} to{opacity:0;transform:translateY(-6px)} }
+        .toast-exit { animation:fadeOut 0.25s ease forwards; }
+
+        /* ---- TAB BAR ---- */
+        .tab-btn { padding:7px 18px;border-radius:999px;font-size:0.82rem;font-weight:700;cursor:pointer;border:none;background:transparent;color:#666;transition:background 0.15s,color 0.15s; }
+        .tab-btn:hover { background:#1a1a1a;color:#fff; }
+        .tab-btn.active { background:var(--green);color:#000; }
+
+        /* ---- TOOLBAR ---- */
+        .search-input { background:#161616;border:1px solid #222;border-radius:8px;color:#fff;padding:7px 12px 7px 36px;font-size:0.82rem;outline:none;transition:border-color 0.15s; }
+        .search-input:focus { border-color:var(--green); }
+        .search-input::placeholder { color:#444; }
+        .toolbar-btn { background:#161616;border:1px solid #222;border-radius:8px;color:#888;padding:7px 14px;font-size:0.8rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background 0.15s,color 0.15s;white-space:nowrap; }
+        .toolbar-btn:hover { background:#222;color:#fff; }
+        .toolbar-btn.green { background:var(--green);border-color:var(--green);color:#000; }
+        .toolbar-btn.green:hover { filter:brightness(1.1); }
+        .toolbar-btn.danger { background:#2a1010;border-color:#f8717140;color:#f87171; }
+        .toolbar-btn.danger:hover { background:#3a1515; }
+
+        /* ---- REQUESTS TABLE ---- */
+        #req-table { width:100%;border-collapse:collapse;font-size:0.8rem; }
+        #req-table thead th {
+            background:#161616;padding:9px 12px;text-align:left;
+            font-weight:700;color:#666;font-size:0.68rem;
+            text-transform:uppercase;letter-spacing:0.05em;
+            border-bottom:1px solid #222;white-space:nowrap;
+            position:sticky;top:0;z-index:5;
+        }
+        #req-table tbody tr { border-bottom:1px solid #1a1a1a;transition:background 0.1s; }
+        #req-table tbody tr:hover { background:#111; }
+        #req-table tbody tr.row-selected { background:#0d1f14 !important; }
+        #req-table tbody tr.row-dirty { outline:1px solid var(--green);outline-offset:-1px; }
+        #req-table td { padding:7px 12px;vertical-align:middle; }
+
+        /* inline edit */
+        .req-cell-inp {
+            width:100%;background:#111;border:1px solid #2a2a2a;border-radius:5px;
+            color:#fff;padding:4px 8px;font-size:0.78rem;outline:none;
+            transition:border-color 0.15s;
+        }
+        .req-cell-inp:focus { border-color:var(--green);background:#0d0d0d; }
+
+        /* status select */
+        .status-sel {
+            background:#161616;border:1px solid #2a2a2a;border-radius:6px;
+            color:#fff;padding:4px 8px;font-size:0.75rem;outline:none;cursor:pointer;
+        }
+        .status-sel:focus { border-color:var(--green); }
+
+        /* status badge */
+        .badge { display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:999px;font-size:0.68rem;font-weight:700; }
+        .badge-pending  { background:#2d2000;color:#facc15; }
+        .badge-done     { background:#0d1f14;color:#1DB954; }
+        .badge-rejected { background:#2a1010;color:#f87171; }
+
+        /* ---- BULK SAVE BAR ---- */
+        #bulk-save-bar {
+            display:none;position:sticky;bottom:0;left:0;right:0;
+            background:#0d1f14;border-top:1px solid #1DB95440;
+            padding:10px 24px;align-items:center;gap:12px;z-index:20;
+        }
+        #bulk-save-bar.show { display:flex; }
+
+
+
+        @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+        #songs-table { width:100%;border-collapse:collapse;font-size:0.8rem; }
+        #songs-table thead th {
+            background:#161616;padding:9px 12px;text-align:left;
+            font-weight:700;color:#666;font-size:0.68rem;
+            text-transform:uppercase;letter-spacing:0.05em;
+            border-bottom:1px solid #222;white-space:nowrap;
+            position:sticky;top:0;z-index:5;
+        }
+        #songs-table tbody tr { border-bottom:1px solid #1a1a1a;transition:background 0.1s; }
+        #songs-table tbody tr:hover { background:#111; }
+        #songs-table tbody tr.song-editing { background:#0d1f14 !important;outline:1px solid var(--green);outline-offset:-1px; }
+        #songs-table td { padding:7px 12px;vertical-align:middle; }
+        .song-cell-inp {
+            width:100%;background:#111;border:1px solid #2a2a2a;border-radius:5px;
+            color:#fff;padding:4px 8px;font-size:0.78rem;outline:none;transition:border-color 0.15s;
+        }
+        .song-cell-inp:focus { border-color:var(--green);background:#0d0d0d; }
+        .song-cell-inp.url { font-size:0.7rem;color:#999;font-family:monospace; }
+        .song-cell-inp.url:focus { color:#fff; }
+        .cover-thumb { width:38px;height:38px;border-radius:5px;object-fit:cover;background:#1a1a1a;border:1px solid #222; }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+<!-- Login Overlay -->
+<div id="login-overlay">
+    <div style="width:100%;max-width:360px;padding:32px;background:#111;border-radius:16px;border:1px solid #1e1e1e;">
+        <div style="display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:28px;">
+            <i class="ph-fill ph-spotify-logo" style="font-size:2rem;color:var(--green)"></i>
+            <span style="font-size:1.3rem;font-weight:800;">spotipaiKW Admin</span>
+        </div>
+        <div id="login-error" class="hidden" style="background:#2a1010;color:#f87171;font-size:0.82rem;font-weight:600;padding:10px 14px;border-radius:8px;margin-bottom:16px;">
+            Username atau password salah.
+        </div>
+        <div style="margin-bottom:14px;">
+            <div class="form-label">Username</div>
+            <input id="login-username" type="text" class="form-input" placeholder="sadmin" autocomplete="username">
+        </div>
+        <div style="margin-bottom:22px;">
+            <div class="form-label">Password</div>
+            <input id="login-password" type="password" class="form-input" placeholder="••••••" autocomplete="current-password">
+        </div>
+        <button onclick="doLogin()" style="width:100%;background:var(--green);color:#000;font-weight:800;padding:11px;border-radius:999px;border:none;cursor:pointer;font-size:0.9rem;">
+            Masuk
+        </button>
+    </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- Header -->
+<header style="background:#111;border-bottom:1px solid #1e1e1e;padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+    <div style="display:flex;align-items:center;gap:10px;">
+        <a href="index.html" style="color:var(--green);font-size:1.3rem;line-height:1;" title="Kembali"><i class="ph ph-arrow-left"></i></a>
+        <i class="ph-fill ph-spotify-logo" style="font-size:1.4rem;color:var(--green)"></i>
+        <span style="font-weight:800;font-size:0.95rem;">Admin Panel</span>
+        <span id="req-count-badge" style="background:#1DB95420;color:var(--green);font-size:0.68rem;font-weight:700;padding:2px 8px;border-radius:999px;"></span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+        <button onclick="doLogout()" style="background:#161616;border:none;color:#666;padding:6px 14px;border-radius:999px;cursor:pointer;font-size:0.78rem;font-weight:600;">
+            <i class="ph ph-sign-out"></i> Keluar
+        </button>
+    </div>
+</header>
+
+<!-- Tab bar -->
+<div style="background:#111;border-bottom:1px solid #1e1e1e;padding:6px 20px;display:flex;align-items:center;gap:6px;flex-shrink:0;">
+    <button class="tab-btn" id="tab-btn-requests" onclick="switchTab('requests')">
+        <i class="ph ph-chat-centered-text"></i> Request Lagu
+        <span id="requests-badge" style="display:none;background:#facc15;color:#000;font-size:0.62rem;font-weight:800;padding:1px 6px;border-radius:999px;margin-left:4px;"></span>
+    </button>
+    <button class="tab-btn" id="tab-btn-songs" onclick="switchTab('songs')">
+        <i class="ph ph-music-notes"></i> Lagu
+        <span id="songs-count-badge" style="display:none;background:#1DB95430;color:var(--green);font-size:0.62rem;font-weight:800;padding:1px 6px;border-radius:999px;margin-left:4px;"></span>
+    </button>
+</div>
+
+<!-- Main: Requests -->
+<div id="main-requests-panel" style="flex:1;overflow:hidden;display:flex;flex-direction:column;">
+
+    <!-- Toolbar -->
+    <div style="padding:10px 20px;display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap;border-bottom:1px solid #1a1a1a;">
+        <!-- Search -->
+        <div style="position:relative;flex:1;min-width:180px;max-width:320px;">
+            <i class="ph ph-magnifying-glass" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#555;pointer-events:none;"></i>
+            <input type="text" id="req-search" class="search-input" placeholder="Cari nama atau lagu..." oninput="filterRequests()" style="width:100%;">
+        </div>
+        <!-- Status filter -->
+        <select id="req-status-filter" onchange="filterRequests()" style="background:#161616;border:1px solid #222;border-radius:8px;color:#ccc;padding:7px 10px;font-size:0.8rem;outline:none;cursor:pointer;">
+            <option value="all">Semua Status</option>
+            <option value="pending">Pending</option>
+            <option value="done">Done</option>
+            <option value="rejected">Rejected</option>
+        </select>
+        <!-- Refresh -->
+        <button class="toolbar-btn" onclick="refreshRequests()">
+            <i class="ph ph-arrows-clockwise"></i> Refresh
+        </button>
+        <!-- Bulk edit toggle -->
+        <button class="toolbar-btn" id="bulk-mode-btn" onclick="toggleBulkMode()">
+            <i class="ph ph-pencil-simple"></i> Edit Banyak
+        </button>
+        <!-- Select all (shown in bulk mode) -->
+        <button class="toolbar-btn hidden" id="select-all-btn" onclick="selectAll()">
+            <i class="ph ph-check-square"></i> Pilih Semua
+        </button>
+        <button class="toolbar-btn hidden" id="deselect-all-btn" onclick="deselectAll()">
+            <i class="ph ph-square"></i> Batal Pilih
+        </button>
+        <div style="margin-left:auto;font-size:0.75rem;color:#555;" id="req-count-label"></div>
+    </div>
+
+    <!-- Table -->
+    <div style="flex:1;overflow:auto;" id="req-table-wrap">
+        <table id="req-table">
+            <thead>
+                <tr>
+                    <th id="th-check" style="width:36px;display:none;"></th>
+                    <th style="width:40px;">#</th>
+                    <th style="min-width:110px;">Nama</th>
+                    <th style="min-width:190px;">Lagu diminta</th>
+                    <th style="min-width:130px;">Keterangan</th>
+                    <th style="width:100px;">Status</th>
+                    <th style="width:110px;">Tanggal</th>
+                    <th style="width:70px;text-align:center;">Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="req-tbody">
+                <tr><td colspan="8" style="padding:40px;text-align:center;color:#444;font-size:0.82rem;">
+                    <i class="ph ph-circle-notch" style="animation:spin 1s linear infinite;font-size:1.2rem;display:block;margin-bottom:8px;"></i>
+                    Memuat data...
+                </td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Bulk save bar -->
+    <div id="bulk-save-bar">
+        <i class="ph-fill ph-pencil-simple" style="color:var(--green);font-size:1rem;"></i>
+        <span id="dirty-count-label" style="font-size:0.82rem;color:#aaa;"></span>
+        <button class="toolbar-btn" onclick="cancelBulkChanges()" style="margin-left:auto;">
+            <i class="ph ph-x"></i> Batalkan
+        </button>
+        <button class="toolbar-btn green" id="save-all-btn" onclick="saveAllChanges()">
+            <i class="ph-fill ph-floppy-disk"></i> Simpan Semua
+        </button>
+    </div>
+
+</div>
+
+<!-- ===== TAB: SONGS ===== -->
+<div id="tab-songs-panel" style="display:none;flex:1;overflow:hidden;flex-direction:column;">
+
+    <!-- Toolbar -->
+    <div style="padding:10px 20px;display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap;border-bottom:1px solid #1a1a1a;">
+        <div style="position:relative;flex:1;min-width:180px;max-width:320px;">
+            <i class="ph ph-magnifying-glass" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#555;pointer-events:none;"></i>
+            <input type="text" id="song-search" class="search-input" placeholder="Cari judul atau artis..." oninput="filterSongs()" style="width:100%;">
+        </div>
+        <select id="song-sort" onchange="filterSongs()" style="background:#161616;border:1px solid #222;border-radius:8px;color:#ccc;padding:7px 10px;font-size:0.8rem;outline:none;cursor:pointer;">
+            <option value="newest">Terbaru</option>
+            <option value="oldest">Terlama</option>
+            <option value="title">Judul A–Z</option>
+            <option value="artist">Artis A–Z</option>
+            <option value="plays">Play terbanyak</option>
+        </select>
+        <button class="toolbar-btn" onclick="refreshSongs()">
+            <i class="ph ph-arrows-clockwise"></i> Refresh
+        </button>
+        <div style="margin-left:auto;font-size:0.75rem;color:#555;" id="song-count-label"></div>
+    </div>
+
+    <!-- Table -->
+    <div style="flex:1;overflow:auto;">
+        <table id="songs-table">
+            <thead>
+                <tr>
+                    <th style="width:40px;">#</th>
+                    <th style="width:44px;">Cover</th>
+                    <th style="min-width:140px;">Judul</th>
+                    <th style="min-width:120px;">Artis</th>
+                    <th style="min-width:180px;">URL Cover</th>
+                    <th style="min-width:180px;">URL Audio</th>
+                    <th style="width:60px;">Plays</th>
+                    <th style="width:90px;text-align:center;">Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="songs-tbody">
+                <tr><td colspan="8" style="padding:40px;text-align:center;color:#444;font-size:0.82rem;">
+                    <i class="ph ph-circle-notch" style="animation:spin 1s linear infinite;font-size:1.2rem;display:block;margin-bottom:8px;"></i>
+                    Memuat data...
+                </td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Confirm modal -->
+<div id="confirm-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:50;align-items:center;justify-content:center;">
+    <div style="background:#161616;border:1px solid #2a2a2a;border-radius:14px;padding:24px;max-width:360px;width:90%;">
+        <div style="font-size:0.95rem;font-weight:700;margin-bottom:8px;" id="confirm-title">Konfirmasi</div>
+        <div id="confirm-msg" style="font-size:0.82rem;color:#888;margin-bottom:20px;"></div>
+        <div style="display:flex;gap:8px;justify-content:flex-end;">
+            <button onclick="closeConfirm()" style="background:#222;border:none;color:#888;padding:7px 18px;border-radius:999px;cursor:pointer;font-size:0.8rem;font-weight:600;">Batal</button>
+            <button id="confirm-ok-btn" style="background:#ef4444;border:none;color:#fff;padding:7px 18px;border-radius:999px;cursor:pointer;font-size:0.8rem;font-weight:700;">OK</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────
+// CONFIG & STATE
+// ─────────────────────────────────────────
+const SUPABASE_URL  = 'https://xhgwgdsurorujsvwzdpi.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhoZ3dnZHN1cm9ydWpzdnd6ZHBpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMwMzUxMzEsImV4cCI6MjA5ODYxMTEzMX0.Az8W5OaQEpZHCtmJ1mUvRAF_O8jlOFAM3zDIE3KTfew';
+let sb = null;
+let allRequests  = [];
+let filteredReqs = [];
+let bulkMode = false;
+// dirtyMap: { [id]: { name, song, note, status } }  — perubahan yg belum disimpan
+let dirtyMap = {};
+
+// ─────────────────────────────────────────
+// AUTH
+// ─────────────────────────────────────────
+document.getElementById('login-password').addEventListener('keydown', e => { if (e.key==='Enter') doLogin(); });
+document.getElementById('login-username').addEventListener('keydown', e => { if (e.key==='Enter') document.getElementById('login-password').focus(); });
+
+function doLogin() {
+    const u = document.getElementById('login-username').value.trim();
+    const p = document.getElementById('login-password').value;
+    if (u === 'sadmin' && p === 'sadmin') {
+        sessionStorage.setItem('admin_auth','1');
+        document.getElementById('login-overlay').style.display = 'none';
+        init();
+    } else {
+        document.getElementById('login-error').classList.remove('hidden');
+    }
+}
+function doLogout() { sessionStorage.removeItem('admin_auth'); location.reload(); }
+
+window.onload = () => {
+    if (sessionStorage.getItem('admin_auth') === '1') {
+        document.getElementById('login-overlay').style.display = 'none';
+        init();
+    }
+};
+
+// ─────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────
+async function init() {
+    sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+    switchTab('requests');
+    await loadRequests();
+}
+
+// semua tab mengarah ke requests — tidak ada navigasi lain
+function goRequests() { /* sudah di halaman yang benar */ }
+
+// ─────────────────────────────────────────
+// TABS
+// ─────────────────────────────────────────
+let currentTab = 'requests';
+let allSongs = [];
+let editingSongId = null;
+
+function switchTab(tab) {
+    currentTab = tab;
+    const reqPanel   = document.getElementById('main-requests-panel');
+    const songsPanel = document.getElementById('tab-songs-panel');
+    if (reqPanel)   reqPanel.style.display   = tab === 'requests' ? 'flex' : 'none';
+    if (songsPanel) songsPanel.style.display = tab === 'songs'    ? 'flex' : 'none';
+    document.getElementById('tab-btn-requests')?.classList.toggle('active', tab === 'requests');
+    document.getElementById('tab-btn-songs')?.classList.toggle('active', tab === 'songs');
+    if (tab === 'songs' && allSongs.length === 0) loadSongs();
+}
+
+// ─────────────────────────────────────────
+// SONGS: LOAD & RENDER
+// ─────────────────────────────────────────
+async function loadSongs() {
+    document.getElementById('songs-tbody').innerHTML = `<tr><td colspan="8" style="padding:40px;text-align:center;color:#444;font-size:0.82rem;"><i class="ph ph-circle-notch" style="animation:spin 1s linear infinite;font-size:1.2rem;display:block;margin-bottom:8px;"></i>Memuat...</td></tr>`;
+    const { data, error } = await sb.from('songs').select('*').order('created_at', { ascending: false });
+    if (error) { toast('Gagal memuat lagu: ' + error.message, 'error'); return; }
+    allSongs = data || [];
+    const badge = document.getElementById('songs-count-badge');
+    if (badge) { badge.textContent = allSongs.length; badge.style.display = ''; }
+    filterSongs();
+}
+
+async function refreshSongs() {
+    allSongs = [];
+    await loadSongs();
+}
+
+function filterSongs() {
+    const q    = document.getElementById('song-search')?.value.toLowerCase().trim() || '';
+    const sort = document.getElementById('song-sort')?.value || 'newest';
+    let data = q ? allSongs.filter(s =>
+        (s.title||'').toLowerCase().includes(q) || (s.artist||'').toLowerCase().includes(q)
+    ) : [...allSongs];
+
+    if (sort === 'newest')  data.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+    else if (sort === 'oldest') data.sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+    else if (sort === 'title')  data.sort((a,b) => (a.title||'').localeCompare(b.title||''));
+    else if (sort === 'artist') data.sort((a,b) => (a.artist||'').localeCompare(b.artist||''));
+    else if (sort === 'plays')  data.sort((a,b) => (b.play_count||0) - (a.play_count||0));
+
+    const label = document.getElementById('song-count-label');
+    if (label) label.textContent = data.length !== allSongs.length ? `${data.length} dari ${allSongs.length}` : `${allSongs.length} lagu`;
+    renderSongsTable(data);
+}
+
+function renderSongsTable(data) {
+    const tbody = document.getElementById('songs-tbody');
+    const fallback = 'https://images.unsplash.com/photo-1614613535308-eb51bd3d2c17?w=80&q=60';
+    if (!data.length) {
+        tbody.innerHTML = `<tr><td colspan="8" style="padding:40px;text-align:center;color:#444;font-size:0.82rem;">Tidak ada lagu.</td></tr>`;
+        return;
+    }
+    tbody.innerHTML = data.map((s, i) => `
+        <tr id="song-row-${s.id}" data-id="${s.id}">
+            <td style="color:#444;font-size:0.72rem;">${i+1}</td>
+            <td><img id="song-cover-img-${s.id}" src="${esc(s.cover_url||'')}" onerror="this.src='${fallback}'" class="cover-thumb"></td>
+            <td>
+                <div id="song-disp-title-${s.id}" class="cell-disp" onclick="startSongEdit('${s.id}')" title="Klik untuk edit" style="cursor:pointer;padding:3px 5px;border-radius:4px;transition:background 0.15s;" onmouseover="this.style.background='#1a1a1a'" onmouseout="this.style.background=''">${esc(s.title||'—')}</div>
+                <input class="song-cell-inp hidden" id="song-inp-title-${s.id}" value="${esc(s.title||'')}" placeholder="Judul" onkeydown="handleSongKey(event,'${s.id}')">
+            </td>
+            <td>
+                <div id="song-disp-artist-${s.id}" class="cell-disp" onclick="startSongEdit('${s.id}')" style="cursor:pointer;padding:3px 5px;border-radius:4px;transition:background 0.15s;" onmouseover="this.style.background='#1a1a1a'" onmouseout="this.style.background=''">${esc(s.artist||'—')}</div>
+                <input class="song-cell-inp hidden" id="song-inp-artist-${s.id}" value="${esc(s.artist||'')}" placeholder="Artis" onkeydown="handleSongKey(event,'${s.id}')">
+            </td>
+            <td>
+                <div id="song-disp-cover-${s.id}" class="cell-disp" onclick="startSongEdit('${s.id}')" style="cursor:pointer;padding:3px 5px;border-radius:4px;font-size:0.7rem;color:#777;font-family:monospace;white-space:nowrap;overflow:hidden;max-width:200px;text-overflow:ellipsis;transition:background 0.15s;" title="${esc(s.cover_url||'')}" onmouseover="this.style.background='#1a1a1a'" onmouseout="this.style.background=''">${truncUrl(s.cover_url)}</div>
+                <input class="song-cell-inp url hidden" id="song-inp-cover-${s.id}" value="${esc(s.cover_url||'')}" placeholder="https://..." onkeydown="handleSongKey(event,'${s.id}')" oninput="previewCover('${s.id}')">
+            </td>
+            <td>
+                <div id="song-disp-audio-${s.id}" class="cell-disp" onclick="startSongEdit('${s.id}')" style="cursor:pointer;padding:3px 5px;border-radius:4px;font-size:0.7rem;color:#777;font-family:monospace;white-space:nowrap;overflow:hidden;max-width:200px;text-overflow:ellipsis;transition:background 0.15s;" title="${esc(s.audio_url||'')}" onmouseover="this.style.background='#1a1a1a'" onmouseout="this.style.background=''">${truncUrl(s.audio_url)}</div>
+                <input class="song-cell-inp url hidden" id="song-inp-audio-${s.id}" value="${esc(s.audio_url||'')}" placeholder="https://..." onkeydown="handleSongKey(event,'${s.id}')">
+            </td>
+            <td style="color:#555;font-size:0.75rem;">${s.play_count||0}</td>
+            <td style="text-align:center;">
+                <div id="song-actions-view-${s.id}" style="display:flex;align-items:center;justify-content:center;gap:4px;">
+                    <button onclick="startSongEdit('${s.id}')" style="background:#1a1a1a;border:none;color:#888;width:28px;height:28px;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.15s;" title="Edit" onmouseover="this.style.background='#2a2a2a';this.style.color='#fff'" onmouseout="this.style.background='#1a1a1a';this.style.color='#888'"><i class="ph ph-pencil-simple"></i></button>
+                    <button onclick="deleteSong('${s.id}','${esc(s.title||'')}')" style="background:transparent;border:none;color:#444;width:28px;height:28px;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;" title="Hapus" onmouseover="this.style.background='#3a1515';this.style.color='#f87171'" onmouseout="this.style.background='transparent';this.style.color='#444'"><i class="ph ph-trash"></i></button>
+                </div>
+                <div id="song-actions-edit-${s.id}" style="display:none;align-items:center;justify-content:center;gap:4px;">
+                    <button onclick="saveSong('${s.id}')" style="background:var(--green);border:none;color:#000;width:28px;height:28px;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;" title="Simpan"><i class="ph ph-floppy-disk"></i></button>
+                    <button onclick="cancelSongEdit('${s.id}')" style="background:#2a2a2a;border:none;color:#aaa;width:28px;height:28px;border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;" title="Batal"><i class="ph ph-x"></i></button>
+                </div>
+            </td>
+        </tr>`).join('');
+}
+
+function truncUrl(url) {
+    if (!url) return '<span style="color:#333;">—</span>';
+    return url.length > 36 ? url.slice(0,33) + '…' : url;
+}
+
+function startSongEdit(id) {
+    if (editingSongId && editingSongId !== id) cancelSongEdit(editingSongId);
+    editingSongId = id;
+    document.getElementById(`song-row-${id}`)?.classList.add('song-editing');
+    ['title','artist','cover','audio'].forEach(f => {
+        document.getElementById(`song-disp-${f}-${id}`)?.classList.add('hidden');
+        document.getElementById(`song-inp-${f}-${id}`)?.classList.remove('hidden');
+    });
+    document.getElementById(`song-actions-view-${id}`).style.display = 'none';
+    document.getElementById(`song-actions-edit-${id}`).style.display = 'flex';
+    document.getElementById(`song-inp-title-${id}`)?.focus();
+}
+
+function cancelSongEdit(id) {
+    if (editingSongId === id) editingSongId = null;
+    const song = allSongs.find(s => s.id === id);
+    if (!song) return;
+    document.getElementById(`song-row-${id}`)?.classList.remove('song-editing');
+    const fi = (f, v) => { const el = document.getElementById(`song-inp-${f}-${id}`); if (el) el.value = v||''; };
+    fi('title', song.title); fi('artist', song.artist); fi('cover', song.cover_url); fi('audio', song.audio_url);
+    const img = document.getElementById(`song-cover-img-${id}`);
+    if (img) img.src = song.cover_url || '';
+    ['title','artist','cover','audio'].forEach(f => {
+        document.getElementById(`song-disp-${f}-${id}`)?.classList.remove('hidden');
+        document.getElementById(`song-inp-${f}-${id}`)?.classList.add('hidden');
+    });
+    document.getElementById(`song-actions-view-${id}`).style.display = 'flex';
+    document.getElementById(`song-actions-edit-${id}`).style.display = 'none';
+}
+
+function handleSongKey(e, id) {
+    if (e.key === 'Enter') { e.preventDefault(); saveSong(id); }
+    if (e.key === 'Escape') { e.preventDefault(); cancelSongEdit(id); }
+}
+
+function previewCover(id) {
+    const inp = document.getElementById(`song-inp-cover-${id}`);
+    const img = document.getElementById(`song-cover-img-${id}`);
+    if (img && inp) img.src = inp.value.trim() || 'https://images.unsplash.com/photo-1614613535308-eb51bd3d2c17?w=80&q=60';
+}
+
+async function saveSong(id) {
+    const title     = document.getElementById(`song-inp-title-${id}`)?.value.trim();
+    const artist    = document.getElementById(`song-inp-artist-${id}`)?.value.trim();
+    const cover_url = document.getElementById(`song-inp-cover-${id}`)?.value.trim();
+    const audio_url = document.getElementById(`song-inp-audio-${id}`)?.value.trim();
+    if (!title) { toast('Judul tidak boleh kosong', 'error'); return; }
+
+    const saveBtn = document.getElementById(`song-actions-edit-${id}`)?.querySelector('button');
+    if (saveBtn) { saveBtn.disabled = true; saveBtn.innerHTML = '<i class="ph ph-circle-notch" style="animation:spin 0.8s linear infinite;display:inline-block;"></i>'; }
+
+    const { error } = await sb.from('songs').update({ title, artist, cover_url, audio_url }).eq('id', id);
+
+    if (saveBtn) { saveBtn.disabled = false; saveBtn.innerHTML = '<i class="ph ph-floppy-disk"></i>'; }
+    if (error) { toast('Gagal simpan: ' + error.message, 'error'); return; }
+
+    const song = allSongs.find(s => s.id === id);
+    if (song) Object.assign(song, { title, artist, cover_url, audio_url });
+
+    document.getElementById(`song-disp-title-${id}`).textContent  = title || '—';
+    document.getElementById(`song-disp-artist-${id}`).textContent = artist || '—';
+    document.getElementById(`song-disp-cover-${id}`).innerHTML    = truncUrl(cover_url);
+    document.getElementById(`song-disp-audio-${id}`).innerHTML    = truncUrl(audio_url);
+    document.getElementById(`song-disp-cover-${id}`).title = cover_url||'';
+    document.getElementById(`song-disp-audio-${id}`).title = audio_url||'';
+
+    cancelSongEdit(id);
+    toast('Tersimpan!');
+}
+
+async function deleteSong(id, title) {
+    showConfirm('Hapus Lagu?', `"${title}" akan dihapus permanen.`, async () => {
+        const { error } = await sb.from('songs').delete().eq('id', id);
+        if (error) { toast('Gagal hapus: ' + error.message, 'error'); return; }
+        allSongs = allSongs.filter(s => s.id !== id);
+        const row = document.getElementById(`song-row-${id}`);
+        if (row) { row.style.opacity='0'; row.style.transition='opacity 0.2s'; setTimeout(()=>row.remove(), 220); }
+        const badge = document.getElementById('songs-count-badge');
+        if (badge) badge.textContent = allSongs.length;
+        filterSongs();
+        toast('Lagu dihapus.');
+    });
+}
+
+// ─────────────────────────────────────────
+// TOAST
+// ─────────────────────────────────────────
+function toast(msg, type='success') {
+    const el = document.createElement('div');
+    el.className = `toast-item toast-${type}`;
+    el.innerHTML = `<i class="ph ph-${type==='success'?'check-circle':'warning-circle'}"></i>${msg}`;
+    document.getElementById('toast').appendChild(el);
+    setTimeout(() => { el.classList.add('toast-exit'); setTimeout(()=>el.remove(), 260); }, 2800);
+}
+
+// ─────────────────────────────────────────
+// CONFIRM MODAL
+// ─────────────────────────────────────────
+function showConfirm(title, msg, cb, danger=true) {
+    document.getElementById('confirm-title').textContent = title;
+    document.getElementById('confirm-msg').textContent = msg;
+    const btn = document.getElementById('confirm-ok-btn');
+    btn.style.background = danger ? '#ef4444' : 'var(--green)';
+    btn.style.color = danger ? '#fff' : '#000';
+    btn.onclick = () => { closeConfirm(); cb(); };
+    document.getElementById('confirm-modal').style.display = 'flex';
+}
+function closeConfirm() { document.getElementById('confirm-modal').style.display = 'none'; }
+
+// ─────────────────────────────────────────
+// REQUESTS: LOAD
+// ─────────────────────────────────────────
+async function loadRequests() {
+    setLoading(true);
+    const { data, error } = await sb.from('song_requests').select('*').order('created_at', { ascending: false });
+    setLoading(false);
+    if (error) {
+        document.getElementById('req-tbody').innerHTML = `<tr><td colspan="8" style="padding:40px;text-align:center;color:#f87171;font-size:0.82rem;"><i class="ph ph-warning-circle" style="font-size:1.2rem;display:block;margin-bottom:6px;"></i>Tabel belum ada atau gagal dimuat.<br><span style="color:#555;font-size:0.75rem;">Buat tabel <code>song_requests</code> di Supabase Dashboard → SQL Editor.</span></td></tr>`;
+        return;
+    }
+    allRequests = data || [];
+    dirtyMap = {};
+    updateBadge();
+    filterRequests();
+}
+
+async function refreshRequests() {
+    if (hasDirty()) {
+        showConfirm('Refresh?', 'Ada perubahan yang belum disimpan. Refresh akan membatalkan semua perubahan.', () => {
+            dirtyMap = {};
+            updateSaveBar();
+            loadRequests();
+        });
+        return;
+    }
+    await loadRequests();
+}
+
+function setLoading(on) {
+    if (on) document.getElementById('req-tbody').innerHTML = `<tr><td colspan="8" style="padding:40px;text-align:center;color:#444;font-size:0.82rem;"><i class="ph ph-circle-notch" style="animation:spin 1s linear infinite;font-size:1.2rem;display:block;margin-bottom:8px;"></i>Memuat...</td></tr>`;
+}
+
+// ─────────────────────────────────────────
+// REQUESTS: FILTER
+// ─────────────────────────────────────────
+function filterRequests() {
+    const q = document.getElementById('req-search').value.toLowerCase().trim();
+    const st = document.getElementById('req-status-filter').value;
+    filteredReqs = allRequests.filter(r => {
+        const matchQ = !q || (r.name||'').toLowerCase().includes(q) || (r.song||'').toLowerCase().includes(q);
+        const matchSt = st === 'all' || r.status === st;
+        return matchQ && matchSt;
+    });
+    renderTable();
+}
+
+// ─────────────────────────────────────────
+// REQUESTS: RENDER TABLE
+// ─────────────────────────────────────────
+function renderTable() {
+    const tbody = document.getElementById('req-tbody');
+    const label = document.getElementById('req-count-label');
+    const badge = document.getElementById('req-count-badge');
+
+    label.textContent = `${filteredReqs.length} request`;
+    badge.textContent = `${allRequests.length} total`;
+
+    if (filteredReqs.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" style="padding:40px;text-align:center;color:#444;font-size:0.82rem;"><i class="ph ph-tray" style="font-size:1.5rem;display:block;margin-bottom:8px;"></i>Tidak ada request.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = filteredReqs.map((r, i) => buildRow(r, i+1)).join('');
+}
+
+function buildRow(r, num) {
+    const dirty = dirtyMap[r.id] || {};
+    const cur = { name: dirty.name ?? r.name, song: dirty.song ?? r.song, note: dirty.note ?? r.note ?? '', status: dirty.status ?? r.status };
+    const isDirty = !!dirtyMap[r.id];
+    const isSelected = bulkMode && document.getElementById(`chk-${r.id}`)?.checked;
+
+    const statusBadge = cur.status === 'done'
+        ? `<span class="badge badge-done"><i class="ph-fill ph-check-circle"></i> Done</span>`
+        : cur.status === 'rejected'
+        ? `<span class="badge badge-rejected"><i class="ph-fill ph-x-circle"></i> Rejected</span>`
+        : `<span class="badge badge-pending"><i class="ph ph-clock"></i> Pending</span>`;
+
+    const date = r.created_at ? new Date(r.created_at).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+
+    const chkCell = bulkMode
+        ? `<td style="padding:7px 8px;"><input type="checkbox" id="chk-${r.id}" onchange="onRowCheck('${r.id}')" style="accent-color:var(--green);width:15px;height:15px;cursor:pointer;" ${isSelected?'checked':''}></td>`
+        : '';
+
+    if (bulkMode) {
+        // Edit mode: inputs langsung
+        return `<tr id="row-${r.id}" class="${isDirty ? 'row-dirty' : ''}">
+            ${chkCell}
+            <td style="color:#444;font-size:0.72rem;">${num}</td>
+            <td><input class="req-cell-inp" value="${esc(cur.name)}" oninput="markDirty('${r.id}','name',this.value)" placeholder="Nama"></td>
+            <td><input class="req-cell-inp" value="${esc(cur.song)}" oninput="markDirty('${r.id}','song',this.value)" placeholder="Judul lagu"></td>
+            <td><input class="req-cell-inp" value="${esc(cur.note)}" oninput="markDirty('${r.id}','note',this.value)" placeholder="—"></td>
+            <td>
+                <select class="status-sel" onchange="markDirty('${r.id}','status',this.value)">
+                    <option value="pending" ${cur.status==='pending'?'selected':''}>Pending</option>
+                    <option value="done"    ${cur.status==='done'?'selected':''}>Done</option>
+                    <option value="rejected"${cur.status==='rejected'?'selected':''}>Rejected</option>
+                </select>
+            </td>
+            <td style="color:#444;font-size:0.72rem;">${date}</td>
+            <td style="text-align:center;">
+                <button onclick="deleteReq('${r.id}','${esc(r.song)}')" style="background:none;border:none;color:#444;cursor:pointer;padding:4px;border-radius:5px;transition:color 0.15s;" onmouseover="this.style.color='#f87171'" onmouseout="this.style.color='#444'"><i class="ph ph-trash"></i></button>
+            </td>
+        </tr>`;
+    } else {
+        // Read mode: badge status + tombol aksi
+        return `<tr id="row-${r.id}">
+            <td style="color:#444;font-size:0.72rem;">${num}</td>
+            <td style="font-weight:600;color:#ddd;">${esc(r.name||'—')}</td>
+            <td style="color:#bbb;">${esc(r.song||'—')}</td>
+            <td style="color:#666;font-size:0.77rem;">${esc(r.note||'—')}</td>
+            <td>${statusBadge}</td>
+            <td style="color:#444;font-size:0.75rem;">${date}</td>
+            <td style="text-align:center;">
+                <div style="display:flex;align-items:center;justify-content:center;gap:3px;">
+                    ${r.status!=='done'     ? `<button onclick="setStatus('${r.id}','done')"     title="Done"    style="background:#0d1f14;border:1px solid #1DB95440;color:#1DB954;padding:3px 8px;border-radius:5px;font-size:0.7rem;font-weight:700;cursor:pointer;">Done</button>` : ''}
+                    ${r.status!=='rejected' ? `<button onclick="setStatus('${r.id}','rejected')" title="Reject"  style="background:#2a1010;border:1px solid #f8717140;color:#f87171;padding:3px 8px;border-radius:5px;font-size:0.7rem;font-weight:700;cursor:pointer;">Reject</button>` : ''}
+                    ${r.status!=='pending'  ? `<button onclick="setStatus('${r.id}','pending')"  title="Pending" style="background:#2d2000;border:1px solid #facc1540;color:#facc15;padding:3px 8px;border-radius:5px;font-size:0.7rem;font-weight:700;cursor:pointer;">Pending</button>` : ''}
+                </div>
+            </td>
+        </tr>`;
+    }
+}
+
+// ─────────────────────────────────────────
+// SINGLE STATUS UPDATE
+// ─────────────────────────────────────────
+async function setStatus(id, status) {
+    const { error } = await sb.from('song_requests').update({ status }).eq('id', id);
+    if (error) { toast('Gagal update: ' + error.message, 'error'); return; }
+    const req = allRequests.find(r => r.id === id);
+    if (req) req.status = status;
+    updateBadge();
+    filterRequests();
+    toast(`Status → ${status}`);
+}
+
+// ─────────────────────────────────────────
+// DELETE
+// ─────────────────────────────────────────
+async function deleteReq(id, song) {
+    showConfirm('Hapus Request?', `"${song}" akan dihapus permanen.`, async () => {
+        const { error } = await sb.from('song_requests').delete().eq('id', id);
+        if (error) { toast('Gagal hapus: ' + error.message, 'error'); return; }
+        allRequests = allRequests.filter(r => r.id !== id);
+        delete dirtyMap[id];
+        updateBadge();
+        updateSaveBar();
+        filterRequests();
+        toast('Request dihapus.');
+    });
+}
+
+// ─────────────────────────────────────────
+// BULK EDIT MODE
+// ─────────────────────────────────────────
+function toggleBulkMode() {
+    bulkMode = !bulkMode;
+    const btn = document.getElementById('bulk-mode-btn');
+    const thCheck = document.getElementById('th-check');
+    const selAllBtn = document.getElementById('select-all-btn');
+    const deselAllBtn = document.getElementById('deselect-all-btn');
+
+    if (bulkMode) {
+        btn.innerHTML = '<i class="ph ph-x"></i> Keluar Edit';
+        btn.style.background = '#2a2a2a';
+        btn.style.borderColor = '#444';
+        btn.style.color = '#fff';
+        thCheck.style.display = '';
+        selAllBtn.classList.remove('hidden');
+        deselAllBtn.classList.remove('hidden');
+    } else {
+        btn.innerHTML = '<i class="ph ph-pencil-simple"></i> Edit Banyak';
+        btn.style.background = '';
+        btn.style.borderColor = '';
+        btn.style.color = '';
+        thCheck.style.display = 'none';
+        selAllBtn.classList.add('hidden');
+        deselAllBtn.classList.add('hidden');
+        if (hasDirty()) updateSaveBar();
+    }
+    filterRequests();
+}
+
+function markDirty(id, field, value) {
+    if (!dirtyMap[id]) {
+        const orig = allRequests.find(r => r.id === id);
+        dirtyMap[id] = { name: orig.name, song: orig.song, note: orig.note||'', status: orig.status };
+    }
+    dirtyMap[id][field] = value;
+    // Tandai baris
+    const row = document.getElementById(`row-${id}`);
+    if (row) row.classList.add('row-dirty');
+    updateSaveBar();
+}
+
+function updateSaveBar() {
+    const bar = document.getElementById('bulk-save-bar');
+    const count = Object.keys(dirtyMap).length;
+    if (count > 0) {
+        bar.classList.add('show');
+        document.getElementById('dirty-count-label').textContent = `${count} baris diubah, belum disimpan`;
+    } else {
+        bar.classList.remove('show');
+    }
+}
+
+function hasDirty() { return Object.keys(dirtyMap).length > 0; }
+
+function cancelBulkChanges() {
+    dirtyMap = {};
+    updateSaveBar();
+    filterRequests();
+}
+
+async function saveAllChanges() {
+    const ids = Object.keys(dirtyMap);
+    if (!ids.length) return;
+
+    const btn = document.getElementById('save-all-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="ph ph-circle-notch" style="animation:spin 0.8s linear infinite;display:inline-block;"></i> Menyimpan...';
+
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const id of ids) {
+        const changes = dirtyMap[id];
+        const { error } = await sb.from('song_requests')
+            .update({ name: changes.name, song: changes.song, note: changes.note, status: changes.status })
+            .eq('id', id);
+        if (error) {
+            failCount++;
+        } else {
+            // Update local
+            const req = allRequests.find(r => r.id === id);
+            if (req) Object.assign(req, changes);
+            successCount++;
+        }
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ph-fill ph-floppy-disk"></i> Simpan Semua';
+
+    if (failCount > 0) toast(`${failCount} baris gagal disimpan.`, 'error');
+    if (successCount > 0) toast(`${successCount} baris berhasil disimpan!`);
+
+    dirtyMap = {};
+    updateSaveBar();
+    updateBadge();
+    filterRequests();
+}
+
+function selectAll() {
+    filteredReqs.forEach(r => {
+        const chk = document.getElementById(`chk-${r.id}`);
+        if (chk) chk.checked = true;
+    });
+}
+
+function deselectAll() {
+    filteredReqs.forEach(r => {
+        const chk = document.getElementById(`chk-${r.id}`);
+        if (chk) chk.checked = false;
+    });
+}
+
+function onRowCheck(id) {
+    const row = document.getElementById(`row-${id}`);
+    const chk = document.getElementById(`chk-${id}`);
+    if (row) row.classList.toggle('row-selected', chk?.checked);
+}
+
+// ─────────────────────────────────────────
+// BADGE
+// ─────────────────────────────────────────
+function updateBadge() {
+    const pending = allRequests.filter(r => r.status === 'pending').length;
+    const badge = document.getElementById('requests-badge');
+    if (pending > 0) { badge.style.display = ''; badge.textContent = pending; }
+    else badge.style.display = 'none';
+}
+
+// ─────────────────────────────────────────
+// UTILS
+// ─────────────────────────────────────────
+function esc(str){
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>

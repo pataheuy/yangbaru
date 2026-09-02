@@ -949,6 +949,10 @@ function initLoginForm() {
         // Sadmin: muat playlist publik pendengar agar tersedia di tab Koleksi
         if (currentUser && currentUser.role === 'admin') {
             loadPublicPlaylists();
+            // Tampilkan SQL editor di tab request
+            const sqlSection = document.getElementById('req-sql-section');
+            if (sqlSection) sqlSection.classList.remove('hidden');
+            initSqlEditor();
         }
     });
 }
@@ -962,6 +966,10 @@ function logout() {
     // Sembunyikan section playlist pendengar
     const adminSection = document.getElementById('admin-listener-playlists-section');
     if (adminSection) adminSection.classList.add('hidden');
+    // Sembunyikan SQL editor
+    const sqlSection = document.getElementById('req-sql-section');
+    if (sqlSection) sqlSection.classList.add('hidden');
+    sqlEditorInited = false;
     document.getElementById('auth-login-btn').classList.remove('hidden');
     document.getElementById('auth-user-info').classList.add('hidden');
     document.getElementById('auth-user-info').classList.remove('flex');
@@ -1049,7 +1057,12 @@ function switchTab(tabId) {
         if (mainEl) mainEl.scrollTo({ top: 0, behavior: 'smooth' });
     }
     else if (tabId === 'request') {
-        renderRequestTable();
+        loadRequestTable();
+        if (currentUser && currentUser.role === 'admin') {
+            const sqlSection = document.getElementById('req-sql-section');
+            if (sqlSection) sqlSection.classList.remove('hidden');
+            initSqlEditor();
+        }
         const mainEl = document.querySelector('main');
         if (mainEl) mainEl.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -2259,7 +2272,406 @@ function filterByCategory(cat) {
     if (searchInput) { searchInput.value = cat === 'Semua' ? '' : cat; searchInput.dispatchEvent(new Event('input')); }
 }
 
-function renderRequestTable() { /* stub */ }
+function renderRequestTable() { /* stub — digantikan loadRequestTable() */ }
+
+// ==========================================
+// REQUEST LAGU
+// ==========================================
+
+async function submitRequest(e) {
+    e.preventDefault();
+    if (!supabaseClient) { showMessage('Koneksi database tidak tersedia.', 'error'); return; }
+
+    const name = document.getElementById('req-name')?.value.trim();
+    const song = document.getElementById('req-song')?.value.trim();
+    const note = document.getElementById('req-note')?.value.trim() || null;
+
+    if (!name || !song) return;
+
+    const btn = document.getElementById('req-submit-btn');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="ph ph-circle-notch" style="animation:spin 1s linear infinite;display:inline-block;"></i> Mengirim...'; }
+
+    try {
+        const { error } = await supabaseClient.from('song_requests').insert([{
+            id: Date.now().toString(),
+            name,
+            song,
+            note,
+            status: 'pending',
+            created_at: new Date().toISOString()
+        }]);
+
+        if (error) throw error;
+
+        // Reset form
+        document.getElementById('request-form').reset();
+        const successMsg = document.getElementById('req-success-msg');
+        if (successMsg) {
+            successMsg.classList.remove('hidden');
+            setTimeout(() => successMsg.classList.add('hidden'), 5000);
+        }
+        showMessage('Request lagu terkirim!');
+        loadRequestTable();
+    } catch (err) {
+        console.error('Gagal submit request:', err);
+        showMessage('Gagal mengirim request. Coba lagi.', 'error');
+    } finally {
+        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="ph-fill ph-paper-plane-right text-lg"></i> Kirim Request'; }
+    }
+}
+
+async function loadRequestTable() {
+    if (!supabaseClient) return;
+    const tbody = document.getElementById('request-table-body');
+    const countEl = document.getElementById('req-count');
+    if (!tbody) return;
+
+    tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-8 text-center text-gray-600 text-xs">
+        <i class="ph ph-circle-notch text-lg" style="animation:spin 1s linear infinite;display:inline-block;"></i>
+        <p class="mt-2">Memuat...</p></td></tr>`;
+
+    try {
+        const { data, error } = await supabaseClient
+            .from('song_requests')
+            .select('id, name, song, note, status, created_at')
+            .order('created_at', { ascending: false })
+            .limit(50);
+
+        if (error) throw error;
+
+        const rows = data || [];
+        if (countEl) countEl.textContent = rows.length;
+
+        if (rows.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-8 text-center text-gray-600 text-xs">Belum ada request.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = rows.map((r, i) => {
+            const statusHtml = r.status === 'done'
+                ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-spotify-green/10 text-spotify-green border border-spotify-green/20"><i class="ph-fill ph-check-circle"></i> Done</span>`
+                : r.status === 'rejected'
+                ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-red-500/10 text-red-400 border border-red-500/20"><i class="ph-fill ph-x-circle"></i> Ditolak</span>`
+                : `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-yellow-500/10 text-yellow-400 border border-yellow-500/20"><i class="ph ph-clock"></i> Pending</span>`;
+
+            return `<tr class="border-b border-gray-800/50 hover:bg-white/[0.02] transition-colors">
+                <td class="px-4 py-3 text-gray-600 text-xs">${i + 1}</td>
+                <td class="px-4 py-3 text-white text-sm font-semibold">
+                    <span class="flex items-center gap-1.5">
+                        <i class="ph ph-user-circle text-gray-600 flex-shrink-0"></i>
+                        ${escapeHtml(r.name || '')}
+                    </span>
+                </td>
+                <td class="px-4 py-3 text-gray-300 text-sm">
+                    <span class="flex items-center gap-1.5">
+                        <i class="ph ph-music-note text-gray-600 flex-shrink-0"></i>
+                        ${escapeHtml(r.song || '')}
+                    </span>
+                </td>
+                <td class="px-4 py-3 text-gray-500 text-xs hidden sm:table-cell">
+                    ${r.note ? `<span class="flex items-center gap-1.5"><i class="ph ph-chat-text text-gray-700 flex-shrink-0"></i>${escapeHtml(r.note)}</span>` : '<span class="text-gray-700">—</span>'}
+                </td>
+                <td class="px-4 py-3 text-center">${statusHtml}</td>
+            </tr>`;
+        }).join('');
+    } catch (err) {
+        console.error('Gagal load request:', err);
+        tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-8 text-center text-gray-600 text-xs">Gagal memuat data.</td></tr>`;
+    }
+}
+
+function escapeHtml(str) {
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
+// ==========================================
+// SQL EDITOR (tab request — sadmin only)
+// ==========================================
+let sqlResultData = [];
+let sqlEditorInited = false;
+
+const SQL_TEMPLATES = {
+    select_songs:
+`SELECT id, title, artist, cover_url, audio_url, play_count, created_at
+FROM songs
+ORDER BY created_at DESC
+LIMIT 20;`,
+    select_requests:
+`SELECT id, name, song, note, status, created_at
+FROM song_requests
+ORDER BY created_at DESC
+LIMIT 50;`,
+    select_playlists:
+`SELECT id, name, creator_name, is_public, play_count, created_at
+FROM public_playlists
+ORDER BY created_at DESC;`,
+    update_song:
+`UPDATE songs
+SET title = 'Judul Baru',
+    artist = 'Artis Baru',
+    cover_url = 'https://...'
+WHERE id = 'ID_LAGU_DISINI';`,
+    delete_song:
+`DELETE FROM songs
+WHERE id = 'ID_LAGU_DISINI';`,
+    create_requests:
+`CREATE TABLE IF NOT EXISTS song_requests (
+  id         text PRIMARY KEY,
+  name       text NOT NULL,
+  song       text NOT NULL,
+  note       text,
+  status     text DEFAULT 'pending',
+  created_at timestamptz DEFAULT now()
+);
+ALTER TABLE song_requests ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "allow_insert" ON song_requests FOR INSERT WITH CHECK (true);
+CREATE POLICY "allow_select" ON song_requests FOR SELECT USING (true);
+CREATE POLICY "allow_update" ON song_requests FOR UPDATE USING (true);`
+};
+
+function initSqlEditor() {
+    if (sqlEditorInited) return;
+    sqlEditorInited = true;
+    const editor = document.getElementById('sql-editor');
+    if (editor && !editor.value.trim()) editor.value = SQL_TEMPLATES.select_songs;
+    updateLineNumbers();
+}
+
+function sqlTemplate(key) {
+    const editor = document.getElementById('sql-editor');
+    if (!editor) return;
+    editor.value = SQL_TEMPLATES[key] || '';
+    editor.focus();
+    updateLineNumbers();
+}
+
+function clearSql() {
+    const editor = document.getElementById('sql-editor');
+    if (editor) { editor.value = ''; editor.focus(); }
+    updateLineNumbers();
+    const body = document.getElementById('sql-results-body');
+    const info = document.getElementById('sql-result-info');
+    if (body) body.innerHTML = '';
+    if (info) info.textContent = 'Hasil query akan muncul di sini.';
+    document.getElementById('sql-copy-btn')?.classList.add('hidden');
+    document.getElementById('sql-download-btn')?.classList.add('hidden');
+    sqlResultData = [];
+}
+
+function onSqlInput() { updateLineNumbers(); }
+
+function syncLineNumbers() {
+    const editor = document.getElementById('sql-editor');
+    const numbers = document.getElementById('sql-line-numbers');
+    if (numbers && editor) numbers.scrollTop = editor.scrollTop;
+}
+
+function updateLineNumbers() {
+    const editor = document.getElementById('sql-editor');
+    const numbers = document.getElementById('sql-line-numbers');
+    if (!editor || !numbers) return;
+    const count = editor.value.split('\n').length;
+    numbers.innerHTML = Array.from({ length: count }, (_, i) =>
+        `<div style="padding:0 8px 0 0;line-height:1.6;">${i + 1}</div>`
+    ).join('');
+    syncLineNumbers();
+}
+
+function handleSqlKey(e) {
+    const editor = document.getElementById('sql-editor');
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); runSql(); return; }
+    if (e.key === 'Tab') {
+        e.preventDefault();
+        const s = editor.selectionStart, en = editor.selectionEnd;
+        editor.value = editor.value.slice(0, s) + '  ' + editor.value.slice(en);
+        editor.selectionStart = editor.selectionEnd = s + 2;
+        updateLineNumbers();
+    }
+}
+
+async function runSql() {
+    const editor = document.getElementById('sql-editor');
+    if (!editor?.value.trim()) return;
+    const query = getActiveQuery(editor);
+    if (!query) return;
+
+    const runBtn = document.getElementById('sql-run-btn');
+    const statusEl = document.getElementById('sql-status');
+    const infoEl = document.getElementById('sql-result-info');
+    const bodyEl = document.getElementById('sql-results-body');
+
+    if (runBtn) { runBtn.disabled = true; runBtn.innerHTML = '<i class="ph ph-circle-notch" style="animation:spin 0.8s linear infinite;display:inline-block;"></i> Running...'; }
+    if (statusEl) statusEl.textContent = '';
+    if (bodyEl) bodyEl.innerHTML = `<div style="padding:20px;text-align:center;color:#555;font-size:0.78rem;"><i class="ph ph-circle-notch" style="animation:spin 1s linear infinite;display:inline-block;"></i></div>`;
+
+    const t0 = performance.now();
+    try {
+        const result = await executeSqlQuery(query);
+        const elapsed = ((performance.now() - t0) / 1000).toFixed(3);
+        if (result.error) throw result.error;
+
+        sqlResultData = result.data || [];
+        const count = sqlResultData.length;
+        const isWrite = /^\s*(INSERT|UPDATE|DELETE|CREATE|DROP|ALTER|TRUNCATE)/i.test(query);
+
+        if (statusEl) statusEl.textContent = `${elapsed}s`;
+
+        if (isWrite && count === 0) {
+            if (infoEl) infoEl.innerHTML = `<span style="color:#4ade80;"><i class="ph-fill ph-check-circle"></i> Berhasil</span> · <span style="color:#555;">${elapsed}s</span>`;
+            if (bodyEl) bodyEl.innerHTML = `<div style="padding:20px;text-align:center;color:#4ade80;font-size:0.8rem;"><i class="ph-fill ph-check-circle" style="font-size:1.4rem;display:block;margin-bottom:6px;"></i>Query berhasil dijalankan.</div>`;
+            document.getElementById('sql-copy-btn')?.classList.add('hidden');
+            document.getElementById('sql-download-btn')?.classList.add('hidden');
+        } else if (count === 0) {
+            if (infoEl) infoEl.innerHTML = `<span>0 baris</span> · <span style="color:#555;">${elapsed}s</span>`;
+            if (bodyEl) bodyEl.innerHTML = `<div style="padding:20px;text-align:center;color:#444;font-size:0.8rem;"><i class="ph ph-tray" style="font-size:1.4rem;display:block;margin-bottom:6px;"></i>Tidak ada data.</div>`;
+            document.getElementById('sql-copy-btn')?.classList.add('hidden');
+            document.getElementById('sql-download-btn')?.classList.add('hidden');
+        } else {
+            if (infoEl) infoEl.innerHTML = `<span style="color:#fff;font-weight:700;">${count} baris</span> · <span style="color:#555;">${elapsed}s</span>`;
+            document.getElementById('sql-copy-btn')?.classList.remove('hidden');
+            document.getElementById('sql-download-btn')?.classList.remove('hidden');
+            renderSqlResultTable(sqlResultData);
+        }
+    } catch (err) {
+        const elapsed = ((performance.now() - t0) / 1000).toFixed(3);
+        if (statusEl) statusEl.textContent = `${elapsed}s`;
+        const msg = err?.message || err?.details || String(err);
+        if (infoEl) infoEl.innerHTML = `<span style="color:#f87171;"><i class="ph-fill ph-warning-circle"></i> Error</span> · <span style="color:#555;">${elapsed}s</span>`;
+        if (bodyEl) bodyEl.innerHTML = `<div style="padding:12px 16px;background:#1a0808;border-top:1px solid #f8717130;font-family:monospace;font-size:0.75rem;color:#fca5a5;white-space:pre-wrap;">${escapeHtml(msg)}</div>`;
+        document.getElementById('sql-copy-btn')?.classList.add('hidden');
+        document.getElementById('sql-download-btn')?.classList.add('hidden');
+    } finally {
+        if (runBtn) { runBtn.disabled = false; runBtn.innerHTML = '<i class="ph-fill ph-play text-sm"></i> Jalankan <span class="opacity-60 text-[10px]">Ctrl+Enter</span>'; }
+    }
+}
+
+function getActiveQuery(editor) {
+    const val = editor.value;
+    const cursor = editor.selectionStart;
+    const segments = [];
+    let start = 0;
+    for (let i = 0; i <= val.length; i++) {
+        if (i === val.length || val[i] === ';') {
+            segments.push({ text: val.slice(start, i).trim(), end: i });
+            start = i + 1;
+        }
+    }
+    let active = '';
+    for (const seg of segments) {
+        if (seg.text) active = seg.text;
+        if (seg.end >= cursor) break;
+    }
+    return active || val.trim();
+}
+
+async function executeSqlQuery(query) {
+    const upper = query.trim().toUpperCase();
+    if (/^SELECT\b/.test(upper)) return await execSelect(query);
+    if (/^UPDATE\b/.test(upper)) return await execDml(query, 'update');
+    if (/^DELETE\b/.test(upper)) return await execDml(query, 'delete');
+    if (/^INSERT\b/.test(upper)) return await execDml(query, 'insert');
+    return await execRaw(query);
+}
+
+async function execSelect(query) {
+    const tableMatch = query.match(/FROM\s+([a-zA-Z_][a-zA-Z0-9_]*)/i);
+    if (!tableMatch) return { data: [], error: { message: 'Tidak bisa mendeteksi nama tabel.' } };
+    const table = tableMatch[1];
+    const limitMatch = query.match(/LIMIT\s+(\d+)/i);
+    const limit = limitMatch ? parseInt(limitMatch[1]) : 500;
+    const colMatch = query.match(/SELECT\s+(.*?)\s+FROM/is);
+    const colStr = colMatch ? colMatch[1].trim() : '*';
+    const cols = colStr === '*' ? '*' : colStr.split(',').map(c => c.trim().split(/\s+/).pop()).join(',');
+    let req = supabaseClient.from(table).select(cols).limit(limit);
+    const orderMatch = query.match(/ORDER\s+BY\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*(ASC|DESC)?/i);
+    if (orderMatch) req = req.order(orderMatch[1], { ascending: !orderMatch[2] || orderMatch[2].toUpperCase() === 'ASC' });
+    return await req;
+}
+
+async function execDml(query, type) {
+    const res = await execRaw(query);
+    if (!res.error) return res;
+    if (type === 'update') {
+        try {
+            const tableMatch = query.match(/UPDATE\s+([a-zA-Z_][a-zA-Z0-9_]*)/i);
+            const whereMatch = query.match(/WHERE\s+id\s*=\s*'([^']+)'/i);
+            if (!tableMatch || !whereMatch) throw new Error("Hanya mendukung UPDATE ... WHERE id = '...'");
+            const setMatch = query.match(/SET\s+(.*?)\s+WHERE/is);
+            if (!setMatch) throw new Error('Tidak dapat mem-parse klausa SET.');
+            const updates = {};
+            setMatch[1].split(',').forEach(pair => {
+                const [k, ...vParts] = pair.trim().split('=');
+                updates[k.trim()] = vParts.join('=').trim().replace(/^'|'$/g,'').replace(/^"|"$/g,'');
+            });
+            const { data, error } = await supabaseClient.from(tableMatch[1]).update(updates).eq('id', whereMatch[1]).select();
+            return { data: data || [], error };
+        } catch(e) { return { data: [], error: { message: e.message } }; }
+    }
+    if (type === 'delete') {
+        try {
+            const tableMatch = query.match(/DELETE\s+FROM\s+([a-zA-Z_][a-zA-Z0-9_]*)/i);
+            const whereMatch = query.match(/WHERE\s+id\s*=\s*'([^']+)'/i);
+            if (!tableMatch || !whereMatch) throw new Error("Hanya mendukung DELETE FROM table WHERE id = '...'");
+            const { data, error } = await supabaseClient.from(tableMatch[1]).delete().eq('id', whereMatch[1]).select();
+            return { data: data || [], error };
+        } catch(e) { return { data: [], error: { message: e.message } }; }
+    }
+    return res;
+}
+
+async function execRaw(query) {
+    try {
+        const { data, error } = await supabaseClient.rpc('exec_sql', { query });
+        return { data: data || [], error };
+    } catch(e) {
+        return { data: [], error: { message: e.message || 'RPC exec_sql tidak tersedia.' } };
+    }
+}
+
+function renderSqlResultTable(data) {
+    const body = document.getElementById('sql-results-body');
+    if (!body || !data?.length) return;
+    const cols = Object.keys(data[0]);
+    const thead = `<thead><tr>${cols.map(c => `<th>${escapeHtml(c)}</th>`).join('')}</tr></thead>`;
+    const tbody = `<tbody>${data.map(row =>
+        `<tr>${cols.map(col => {
+            const v = row[col];
+            if (v === null || v === undefined) return `<td class="sql-null">null</td>`;
+            if (typeof v === 'boolean') return `<td class="${v ? 'sql-true' : 'sql-false'}">${v}</td>`;
+            if (typeof v === 'number') return `<td class="sql-num">${v}</td>`;
+            const s = typeof v === 'object' ? JSON.stringify(v) : String(v);
+            return `<td title="${escapeHtml(s)}">${escapeHtml(s.length > 80 ? s.slice(0,80) + '…' : s)}</td>`;
+        }).join('')}</tr>`
+    ).join('')}</tbody>`;
+    body.innerHTML = `<table class="sql-result-table">${thead}${tbody}</table>`;
+}
+
+function copyResultsJson() {
+    if (!sqlResultData.length) return;
+    navigator.clipboard.writeText(JSON.stringify(sqlResultData, null, 2))
+        .then(() => showMessage('Disalin ke clipboard!'))
+        .catch(() => showMessage('Gagal menyalin.', 'error'));
+}
+
+function downloadResultsCsv() {
+    if (!sqlResultData.length) return;
+    const cols = Object.keys(sqlResultData[0]);
+    const rows = sqlResultData.map(r =>
+        cols.map(c => {
+            const v = r[c] === null ? '' : typeof r[c] === 'object' ? JSON.stringify(r[c]) : String(r[c]);
+            return `"${v.replace(/"/g,'""')}"`;
+        }).join(',')
+    );
+    const csv = [cols.join(','), ...rows].join('\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+    a.download = `query_${Date.now()}.csv`;
+    a.click();
+}
 
 // ==========================================
 // LIKE / LOVE

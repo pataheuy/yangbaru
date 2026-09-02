@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simpan Sandi</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+
+    <!-- Layar Login -->
+    <div id="login-view" class="auth-box hidden">
+      <div class="auth-header">
+        <h2 class="auth-title">Masukkan Master Password</h2>
+        <p class="auth-desc">Masukkan kata sandi utama untuk melihat daftar akun dan password.</p>
+      </div>
+      <div class="form-group">
+        <input type="password" id="login-master-input" class="input-field" placeholder="Masukkan Master Password..." autofocus />
+      </div>
+      <div id="login-error" class="error-message hidden">Master Password salah!</div>
+      <button id="btn-login-master" class="btn-primary">Buka Akses</button>
+    </div>
+
+    <!-- Layar Utama -->
+    <div id="main-view" class="hidden">
+
+      <!-- Tab Navigation -->
+      <div class="tab-nav">
+        <button class="tab-btn active" data-tab="passwords">Sandi</button>
+        <button class="tab-btn" data-tab="supabase">Supabase</button>
+      </div>
+
+      <!-- Tab: Sandi Tersimpan -->
+      <div id="tab-passwords" class="tab-content">
+        <header class="header">
+          <div class="header-title">
+            <h1>Sandi Tersimpan</h1>
+            <span id="count-badge" class="badge">0</span>
+          </div>
+          <div class="header-actions">
+            <button id="btn-lock" class="btn-text">Kunci</button>
+            <span class="divider">|</span>
+            <button id="clear-all" class="btn-text">Hapus Semua</button>
+          </div>
+        </header>
+
+        <div class="search-box">
+          <input type="text" id="search-input" placeholder="Cari situs atau username..." />
+        </div>
+
+        <div id="password-list" class="password-list"></div>
+
+        <div id="empty-state" class="empty-state hidden">
+          <p class="empty-title">Belum ada sandi tersimpan</p>
+          <p class="empty-desc">Sandi yang Anda ketik saat login akan otomatis muncul di sini.</p>
+        </div>
+      </div>
+
+      <!-- Tab: Supabase (Live View) -->
+      <div id="tab-supabase" class="tab-content hidden">
+        <header class="header">
+          <div class="header-title">
+            <h1>Data Supabase</h1>
+            <span id="sb-count-badge" class="badge">0</span>
+          </div>
+          <div class="header-actions">
+            <button id="btn-sb-refresh" class="btn-text">Refresh</button>
+          </div>
+        </header>
+
+        <div id="sb-loading" class="sb-loading hidden">Memuat data...</div>
+        <div id="sb-error"   class="sb-status sb-status--error hidden"></div>
+
+        <div id="sb-list" class="password-list"></div>
+
+        <div id="sb-empty" class="empty-state hidden">
+          <p class="empty-title">Belum ada data di Supabase</p>
+          <p class="empty-desc">Data akan muncul di sini setelah tersinkronisasi.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

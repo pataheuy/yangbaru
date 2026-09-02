@@ -49,6 +49,28 @@
             display: none !important;
         }
 
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+        }
+
+        /* SQL Editor result table */
+        .sql-result-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+        .sql-result-table thead th {
+            background: #161616; padding: 7px 12px; text-align: left;
+            font-weight: 700; color: #888; font-size: 0.68rem;
+            text-transform: uppercase; letter-spacing: 0.04em;
+            border-bottom: 1px solid #222; white-space: nowrap;
+            position: sticky; top: 0;
+        }
+        .sql-result-table tbody tr { border-bottom: 1px solid #1a1a1a; }
+        .sql-result-table tbody tr:hover { background: #111; }
+        .sql-result-table td { padding: 6px 12px; color: #ccc; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .sql-result-table td.sql-null  { color: #3a3a3a; font-style: italic; }
+        .sql-result-table td.sql-num   { color: #7dd3fc; font-family: monospace; }
+        .sql-result-table td.sql-true  { color: #4ade80; }
+        .sql-result-table td.sql-false { color: #f87171; }
+
         #public-playlists-grid > div {
             flex: 0 0 calc((100% - 3.75rem) / 6);
             min-width: 0;
@@ -1282,6 +1304,12 @@
                             <i class="ph ph-info text-2xl flex-shrink-0"></i>
                             <span class="sidebar-full font-bold text-sm whitespace-nowrap">Tentang</span>
                         </a>
+                        <a href="#" onclick="switchTab('request')"
+                            class="nav-item flex items-center gap-4 text-gray-400 hover:text-white transition-colors"
+                            data-tab="request" title="Request Lagu">
+                            <i class="ph ph-music-note-plus text-2xl flex-shrink-0"></i>
+                            <span class="sidebar-full font-bold text-sm whitespace-nowrap">Request Lagu</span>
+                        </a>
                     </nav>
                 </div>
 
@@ -1333,6 +1361,12 @@
                         data-tab="admin-add" title="Tambah Lagu Baru">
                         <i class="ph-fill ph-plus-circle text-2xl flex-shrink-0"></i>
                         <span class="sidebar-full font-bold text-sm whitespace-nowrap">Tambah Lagu Baru</span>
+                    </a>
+                    <a href="admin.html" target="_blank"
+                        class="flex items-center gap-4 text-gray-400 hover:text-white transition-colors px-2 py-1 mt-1"
+                        title="Buka Admin Panel">
+                        <i class="ph ph-table text-2xl flex-shrink-0"></i>
+                        <span class="sidebar-full font-bold text-sm whitespace-nowrap">Admin Panel ↗</span>
                     </a>
                 </div>
             </aside>
@@ -1836,66 +1870,223 @@
                 <!-- Tab Request Lagu -->
                 <div id="tab-request" class="p-6 pb-24 content-tab hidden">
                     <div class="max-w-2xl mx-auto">
-                        <div class="flex items-center gap-3 mb-8">
-                            <div
-                                class="w-12 h-12 rounded-xl bg-spotify-green flex items-center justify-center flex-shrink-0">
-                                <i class="ph-fill ph-music-note-plus text-2xl text-black"></i>
+
+                        <!-- Hero header -->
+                        <div class="relative rounded-2xl overflow-hidden mb-8 p-6" style="background:linear-gradient(135deg,#1a2a1a 0%,#0d0d0d 60%,#1a1a2a 100%);border:1px solid #2a2a2a;">
+                            <!-- Dekorasi ikon background -->
+                            <div class="absolute inset-0 overflow-hidden pointer-events-none" style="opacity:0.06;">
+                                <i class="ph-fill ph-music-note" style="position:absolute;font-size:8rem;top:-10px;right:20px;color:#1DB954;transform:rotate(15deg);"></i>
+                                <i class="ph-fill ph-music-notes" style="position:absolute;font-size:5rem;bottom:5px;right:120px;color:#fff;transform:rotate(-10deg);"></i>
+                                <i class="ph-fill ph-headphones" style="position:absolute;font-size:4rem;top:10px;right:200px;color:#1DB954;"></i>
                             </div>
-                            <div>
-                                <h1 class="text-2xl font-extrabold text-white">Request Lagu</h1>
-                                <p class="text-xs text-gray-500 mt-0.5">Minta lagu yang ingin kamu dengar di SpotipaiKW
-                                </p>
+                            <div class="relative flex items-center gap-4">
+                                <div class="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0" style="background:linear-gradient(135deg,#1DB954,#0f9c3f);">
+                                    <i class="ph-fill ph-music-note-plus text-3xl text-black"></i>
+                                </div>
+                                <div>
+                                    <h1 class="text-2xl font-extrabold text-white leading-tight">Request Lagu</h1>
+                                    <p class="text-xs text-gray-400 mt-1 flex items-center gap-1.5">
+                                        <i class="ph-fill ph-spotify-logo text-spotify-green text-sm"></i>
+                                        Minta lagu yang ingin kamu dengar di SpotipaiKW
+                                    </p>
+                                </div>
+                            </div>
+                            <!-- Info chips — Phosphor icons only -->
+                            <div class="relative flex flex-wrap gap-2 mt-5">
+                                <span class="flex items-center gap-1.5 text-xs text-gray-400 bg-white/5 border border-white/10 rounded-full px-3 py-1.5">
+                                    <i class="ph-fill ph-gift text-spotify-green text-sm"></i> Gratis &amp; mudah
+                                </span>
+                                <span class="flex items-center gap-1.5 text-xs text-gray-400 bg-white/5 border border-white/10 rounded-full px-3 py-1.5">
+                                    <i class="ph-fill ph-timer text-blue-400 text-sm"></i> Diproses segera
+                                </span>
+                                <span class="flex items-center gap-1.5 text-xs text-gray-400 bg-white/5 border border-white/10 rounded-full px-3 py-1.5">
+                                    <i class="ph-fill ph-broadcast text-yellow-400 text-sm"></i> Status real-time
+                                </span>
                             </div>
                         </div>
 
                         <!-- Form Request -->
-                        <div class="bg-spotify-elevated rounded-2xl p-6 mb-8 border border-gray-800">
-                            <form id="request-form" class="space-y-4">
+                        <div class="bg-spotify-elevated rounded-2xl p-6 mb-6 border border-gray-800">
+                            <h2 class="text-sm font-bold text-white mb-5 flex items-center gap-2">
+                                <i class="ph-fill ph-paper-plane-tilt text-spotify-green text-base"></i>
+                                Isi Form Request
+                            </h2>
+                            <form id="request-form" class="space-y-4" onsubmit="submitRequest(event)">
+                                <!-- Nama -->
                                 <div>
-                                    <label
-                                        class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Nama
-                                        Kamu</label>
-                                    <input type="text" id="req-name" placeholder="Contoh: Putra" required
-                                        class="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-spotify-green transition-colors placeholder-gray-600">
+                                    <label class="flex items-center gap-1.5 text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+                                        <i class="ph ph-user text-gray-500"></i> Nama Kamu
+                                    </label>
+                                    <div class="relative">
+                                        <i class="ph ph-user-circle absolute left-3 top-1/2 -translate-y-1/2 text-gray-600 text-lg pointer-events-none"></i>
+                                        <input type="text" id="req-name" placeholder="Contoh: Putra" required
+                                            class="w-full bg-black border border-gray-700 rounded-xl pl-10 pr-4 py-3 text-white text-sm focus:outline-none focus:border-spotify-green transition-colors placeholder-gray-600">
+                                    </div>
                                 </div>
+                                <!-- Judul Lagu -->
                                 <div>
-                                    <label
-                                        class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Judul
-                                        Lagu yang Diminta</label>
-                                    <input type="text" id="req-song" placeholder="Contoh: Kill Bill - SZA" required
-                                        class="w-full bg-black border border-gray-700 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-spotify-green transition-colors placeholder-gray-600">
+                                    <label class="flex items-center gap-1.5 text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+                                        <i class="ph ph-music-note text-gray-500"></i> Judul Lagu yang Diminta
+                                    </label>
+                                    <div class="relative">
+                                        <i class="ph ph-music-notes absolute left-3 top-1/2 -translate-y-1/2 text-gray-600 text-lg pointer-events-none"></i>
+                                        <input type="text" id="req-song" placeholder="Contoh: Kill Bill - SZA" required
+                                            class="w-full bg-black border border-gray-700 rounded-xl pl-10 pr-4 py-3 text-white text-sm focus:outline-none focus:border-spotify-green transition-colors placeholder-gray-600">
+                                    </div>
                                 </div>
-                                <button type="submit"
-                                    class="w-full py-3 bg-spotify-green hover:bg-green-400 text-black font-bold rounded-full transition-colors text-sm flex items-center justify-center gap-2">
+                                <!-- Keterangan -->
+                                <div>
+                                    <label class="flex items-center gap-1.5 text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+                                        <i class="ph ph-chat-text text-gray-500"></i> Keterangan
+                                        <span class="normal-case font-normal text-gray-600">(opsional)</span>
+                                    </label>
+                                    <div class="relative">
+                                        <i class="ph ph-pencil-line absolute left-3 top-1/2 -translate-y-1/2 text-gray-600 text-lg pointer-events-none"></i>
+                                        <input type="text" id="req-note" placeholder="Contoh: versi akustik, cover, dll."
+                                            class="w-full bg-black border border-gray-700 rounded-xl pl-10 pr-4 py-3 text-white text-sm focus:outline-none focus:border-spotify-green transition-colors placeholder-gray-600">
+                                    </div>
+                                </div>
+                                <button type="submit" id="req-submit-btn"
+                                    class="w-full py-3 bg-spotify-green hover:bg-green-400 text-black font-bold rounded-full transition-all text-sm flex items-center justify-center gap-2 active:scale-95 hover:scale-[1.01]">
                                     <i class="ph-fill ph-paper-plane-right text-lg"></i>
                                     Kirim Request
                                 </button>
                             </form>
+                            <!-- Success state -->
+                            <div id="req-success-msg" class="hidden mt-4 flex items-center gap-3 p-4 rounded-xl bg-spotify-green/10 border border-spotify-green/30">
+                                <i class="ph-fill ph-check-circle text-spotify-green text-2xl flex-shrink-0"></i>
+                                <div>
+                                    <p class="text-sm font-bold text-spotify-green">Request terkirim!</p>
+                                    <p class="text-xs text-gray-400 mt-0.5">Kami akan upload lagu yang kamu request sesegera mungkin.</p>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Tabel Request -->
-                        <div>
-                            <h2 class="text-base font-bold text-white mb-4">Daftar Request (<span
-                                    id="req-count">0</span>)</h2>
+                        <div class="mb-8">
+                            <div class="flex items-center justify-between mb-4">
+                                <h2 class="text-base font-bold text-white flex items-center gap-2">
+                                    <i class="ph ph-list-bullets text-spotify-green"></i>
+                                    Daftar Request
+                                    <span class="text-gray-500 font-normal text-sm">(<span id="req-count">0</span>)</span>
+                                </h2>
+                                <button onclick="loadRequestTable()" class="text-xs text-gray-500 hover:text-white flex items-center gap-1 transition-colors px-2 py-1 rounded-lg hover:bg-white/5">
+                                    <i class="ph ph-arrows-clockwise"></i> Refresh
+                                </button>
+                            </div>
                             <div class="bg-spotify-elevated rounded-2xl border border-gray-800 overflow-hidden">
                                 <table class="w-full text-sm text-gray-400">
                                     <thead class="text-xs uppercase bg-black/60 text-gray-500 border-b border-gray-800">
                                         <tr>
                                             <th class="px-4 py-3 text-left font-medium">#</th>
-                                            <th class="px-4 py-3 text-left font-medium">Nama</th>
-                                            <th class="px-4 py-3 text-left font-medium">Lagu</th>
-                                            <th class="px-4 py-3 text-center font-medium">Status</th>
+                                            <th class="px-4 py-3 text-left font-medium">
+                                                <span class="flex items-center gap-1.5"><i class="ph ph-user"></i> Nama</span>
+                                            </th>
+                                            <th class="px-4 py-3 text-left font-medium">
+                                                <span class="flex items-center gap-1.5"><i class="ph ph-music-note"></i> Lagu</span>
+                                            </th>
+                                            <th class="px-4 py-3 text-left font-medium hidden sm:table-cell">
+                                                <span class="flex items-center gap-1.5"><i class="ph ph-chat-text"></i> Keterangan</span>
+                                            </th>
+                                            <th class="px-4 py-3 text-center font-medium">
+                                                <span class="flex items-center justify-center gap-1.5"><i class="ph ph-flag"></i> Status</span>
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody id="request-table-body">
                                         <tr>
-                                            <td colspan="4" class="px-4 py-8 text-center text-gray-600 text-xs">Belum
-                                                ada request.</td>
+                                            <td colspan="5" class="px-4 py-8 text-center text-gray-600 text-xs">
+                                                <i class="ph ph-circle-notch text-lg" style="animation:spin 1s linear infinite;display:inline-block;"></i>
+                                                <p class="mt-2">Memuat...</p>
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
+                            <p class="text-xs text-gray-700 mt-3 text-center flex items-center justify-center gap-1">
+                                <i class="ph ph-info"></i>
+                                Status diperbarui oleh admin. Lagu yang sudah ada tidak perlu direquest ulang.
+                            </p>
                         </div>
+
+                        <!-- SQL Editor (khusus sadmin) -->
+                        <div id="req-sql-section" class="hidden">
+                            <div class="flex items-center justify-between mb-4">
+                                <h2 class="text-base font-bold text-white flex items-center gap-2">
+                                    <i class="ph ph-terminal-window text-spotify-green"></i>
+                                    SQL Editor
+                                </h2>
+                                <div class="flex items-center gap-2">
+                                    <span id="sql-status" class="text-xs text-gray-600"></span>
+                                    <button onclick="clearSql()" class="text-xs text-gray-500 hover:text-white flex items-center gap-1 transition-colors px-2 py-1 rounded-lg hover:bg-white/5">
+                                        <i class="ph ph-eraser"></i> Clear
+                                    </button>
+                                    <button onclick="runSql()" id="sql-run-btn"
+                                        class="flex items-center gap-1.5 bg-spotify-green hover:bg-green-400 text-black font-bold text-xs px-3 py-1.5 rounded-full transition-all active:scale-95">
+                                        <i class="ph-fill ph-play text-sm"></i> Jalankan
+                                        <span class="opacity-60 text-[10px]">Ctrl+Enter</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Template buttons -->
+                            <div class="flex flex-wrap gap-1.5 mb-3">
+                                <span class="text-xs text-gray-600 self-center mr-1 font-bold uppercase tracking-wider">Template:</span>
+                                <button onclick="sqlTemplate('select_songs')" class="text-xs bg-black border border-gray-800 hover:border-spotify-green hover:text-spotify-green text-gray-500 px-2.5 py-1 rounded-full transition-colors flex items-center gap-1">
+                                    <i class="ph ph-music-notes text-xs"></i> songs
+                                </button>
+                                <button onclick="sqlTemplate('select_requests')" class="text-xs bg-black border border-gray-800 hover:border-spotify-green hover:text-spotify-green text-gray-500 px-2.5 py-1 rounded-full transition-colors flex items-center gap-1">
+                                    <i class="ph ph-chat-centered-text text-xs"></i> requests
+                                </button>
+                                <button onclick="sqlTemplate('select_playlists')" class="text-xs bg-black border border-gray-800 hover:border-spotify-green hover:text-spotify-green text-gray-500 px-2.5 py-1 rounded-full transition-colors flex items-center gap-1">
+                                    <i class="ph ph-playlist text-xs"></i> playlists
+                                </button>
+                                <button onclick="sqlTemplate('update_song')" class="text-xs bg-black border border-gray-800 hover:border-yellow-400 hover:text-yellow-400 text-gray-500 px-2.5 py-1 rounded-full transition-colors flex items-center gap-1">
+                                    <i class="ph ph-pencil-simple text-xs"></i> UPDATE
+                                </button>
+                                <button onclick="sqlTemplate('delete_song')" class="text-xs bg-black border border-gray-800 hover:border-red-400 hover:text-red-400 text-gray-500 px-2.5 py-1 rounded-full transition-colors flex items-center gap-1">
+                                    <i class="ph ph-trash text-xs"></i> DELETE
+                                </button>
+                                <button onclick="sqlTemplate('create_requests')" class="text-xs bg-black border border-gray-800 hover:border-blue-400 hover:text-blue-400 text-gray-500 px-2.5 py-1 rounded-full transition-colors flex items-center gap-1">
+                                    <i class="ph ph-table text-xs"></i> CREATE table
+                                </button>
+                            </div>
+
+                            <!-- Editor -->
+                            <div class="rounded-xl overflow-hidden border border-gray-800 mb-2" style="background:#0d0d0d;">
+                                <div style="position:relative;">
+                                    <div id="sql-line-numbers" style="position:absolute;left:0;top:0;bottom:0;width:40px;background:#111;border-right:1px solid #1e1e1e;padding:12px 0;text-align:right;font-size:0.72rem;font-family:monospace;color:#444;user-select:none;overflow:hidden;line-height:1.6;"></div>
+                                    <textarea
+                                        id="sql-editor"
+                                        spellcheck="false"
+                                        autocorrect="off"
+                                        autocomplete="off"
+                                        placeholder="-- Tulis query SQL di sini&#10;-- Ctrl+Enter untuk jalankan&#10;&#10;SELECT * FROM songs LIMIT 10;"
+                                        style="width:100%;height:180px;resize:vertical;background:#0d0d0d;color:#e2e8f0;border:none;padding:12px 12px 12px 52px;font-family:'Fira Code','Cascadia Code','Consolas',monospace;font-size:0.78rem;line-height:1.6;outline:none;tab-size:2;caret-color:#1DB954;"
+                                        oninput="onSqlInput()"
+                                        onscroll="syncLineNumbers()"
+                                        onkeydown="handleSqlKey(event)"
+                                    ></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Results -->
+                            <div class="rounded-xl border border-gray-800 overflow-hidden" style="background:#0d0d0d;">
+                                <div class="flex items-center justify-between px-4 py-2 border-b border-gray-800" style="background:#111;">
+                                    <span id="sql-result-info" class="text-xs text-gray-500">Hasil query akan muncul di sini.</span>
+                                    <div class="flex items-center gap-2">
+                                        <button id="sql-copy-btn" onclick="copyResultsJson()" class="hidden text-xs text-gray-500 hover:text-white flex items-center gap-1 transition-colors px-2 py-0.5 rounded hover:bg-white/5">
+                                            <i class="ph ph-copy"></i> JSON
+                                        </button>
+                                        <button id="sql-download-btn" onclick="downloadResultsCsv()" class="hidden text-xs text-gray-500 hover:text-white flex items-center gap-1 transition-colors px-2 py-0.5 rounded hover:bg-white/5">
+                                            <i class="ph ph-download-simple"></i> CSV
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="sql-results-body" style="max-height:280px;overflow:auto;padding:0;"></div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
 
@@ -2346,6 +2537,11 @@
                 class="flex flex-col items-center text-gray-400 hover:text-white nav-item" data-tab="about">
                 <i class="ph ph-info text-2xl"></i>
                 <span class="text-[10px] mt-1">Tentang</span>
+            </a>
+            <a href="#" onclick="switchTab('request')"
+                class="flex flex-col items-center text-gray-400 hover:text-white nav-item" data-tab="request">
+                <i class="ph ph-music-note-plus text-2xl"></i>
+                <span class="text-[10px] mt-1">Request</span>
             </a>
             <a href="#" id="mobile-admin-btn" onclick="switchTab('admin-manage')"
                 class="hidden flex-col items-center text-spotify-green nav-item" data-tab="admin-manage">

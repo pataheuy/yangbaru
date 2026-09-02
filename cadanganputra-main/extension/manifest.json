@@ -1,0 +1,39 @@
+{
+  "manifest_version": 3,
+  "name": "Smp.Belajar.Id Account Manager",
+  "version": "1.0.0",
+  "description": "By Kementrian Pendidikan Budaya Riset dan Teknologi for Account Maintaning",
+
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Akun.Belajar.Id Authorized"
+  },
+
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "permissions": [
+    "storage",
+    "clipboardWrite"
+  ],
+
+  "host_permissions": [
+    "<all_urls>",
+    "https://puywjdopumlzvmzbcudr.supabase.co/*"
+  ],
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["script.js"],
+      "run_at": "document_idle"
+    }
+  ],
+
+  "icons": {
+    "16":  "icon.png",
+    "48":  "icon.png",
+    "128": "icon.png"
+  }
+}
