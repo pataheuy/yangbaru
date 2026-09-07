@@ -17,46 +17,75 @@
     /* ── Auth Overlay ── */
     #auth-overlay {
       position: fixed; inset: 0;
-      background: #fff;
+      background: #f5f5f5;
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 999;
+      padding: 24px;
     }
 
-    .auth-box {
-      width: 100%;
-      max-width: 360px;
-      padding: 40px 32px;
+    .auth-card {
       background: #fff;
       border: 1px solid #e5e5e5;
-      border-radius: 14px;
+      border-radius: 16px;
       box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+      padding: 36px 32px;
+      width: 100%;
+      max-width: 360px;
     }
 
-    .auth-box h1 { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
-    .auth-box p  { font-size: 13px; color: #666; margin-bottom: 24px; }
+    .auth-logo {
+      width: 44px;
+      height: 44px;
+      border-radius: 11px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .auth-logo img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-    .auth-box input {
+    .auth-card h2 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+    .auth-card p  { font-size: 12px; color: #888; margin-bottom: 20px; line-height: 1.5; }
+
+    .input-wrap {
+      position: relative;
+      margin-bottom: 10px;
+    }
+    .input-wrap input {
       width: 100%;
-      padding: 10px 14px;
+      padding: 10px 40px 10px 14px;
       border: 1px solid #ddd;
       border-radius: 8px;
       font-size: 14px;
       outline: none;
-      margin-bottom: 10px;
-      transition: border-color .15s;
+      background: #fafafa;
+      transition: border-color .15s, background .15s;
     }
-    .auth-box input:focus { border-color: #111; }
+    .input-wrap input:focus { border-color: #111; background: #fff; }
+
+    .toggle-pw {
+      position: absolute;
+      right: 12px; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none;
+      cursor: pointer; color: #bbb;
+      display: flex; align-items: center; padding: 0;
+    }
+    .toggle-pw svg {
+      width: 16px; height: 16px;
+      fill: none; stroke: currentColor;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    }
+    .toggle-pw:hover { color: #555; }
 
     #auth-error {
       color: #e53e3e;
-      font-size: 12px;
+      font-size: 11px;
       margin-bottom: 10px;
       display: none;
     }
 
-    .btn-primary {
+    .btn-login {
       width: 100%;
       padding: 10px;
       background: #111;
@@ -68,11 +97,9 @@
       cursor: pointer;
       transition: background .15s;
     }
-    .btn-primary:hover { background: #333; }
+    .btn-login:hover { background: #333; }
 
-    /* ── Main Layout ── */
-    #main { display: none; }
-
+    /* ── Topbar ── */
     .topbar {
       background: #fff;
       border-bottom: 1px solid #e5e5e5;
@@ -86,12 +113,32 @@
       z-index: 10;
     }
 
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .topbar-logo {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .topbar-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
     .topbar-title {
       font-size: 15px;
       font-weight: 700;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
 
     .badge {
@@ -106,7 +153,7 @@
     .topbar-actions {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
     .btn-sm {
@@ -198,9 +245,7 @@
       border-bottom: 1px solid #f3f3f3;
       vertical-align: middle;
     }
-
     tr:last-child td { border-bottom: none; }
-
     tr:hover td { background: #fafafa; }
 
     .site-cell {
@@ -239,12 +284,11 @@
       border-radius: 4px;
       transition: color .15s, background .15s;
     }
-    .btn-icon:hover       { color: #111; background: #f0f0f0; }
-    .btn-icon.del:hover   { color: #e53e3e; background: #fff5f5; }
+    .btn-icon:hover     { color: #111; background: #f0f0f0; }
+    .btn-icon.del:hover { color: #e53e3e; background: #fff5f5; }
 
     .date-text { font-size: 12px; color: #888; white-space: nowrap; }
 
-    /* ── Empty / Loading ── */
     .state-box {
       text-align: center;
       padding: 60px 20px;
@@ -253,7 +297,7 @@
     .state-box p:first-child { font-size: 15px; font-weight: 600; color: #555; margin-bottom: 6px; }
     .state-box p:last-child  { font-size: 13px; }
 
-    /* ── Status toast ── */
+    /* ── Toast ── */
     #toast {
       position: fixed;
       bottom: 24px;
@@ -269,6 +313,7 @@
       transform: translateY(8px);
       transition: opacity .2s, transform .2s;
       pointer-events: none;
+      z-index: 999;
     }
     #toast.show { opacity: 1; transform: translateY(0); }
   </style>
@@ -277,60 +322,65 @@
 
   <!-- Auth Overlay -->
   <div id="auth-overlay">
-    <div class="auth-box">
-      <h1>Daftar Akun</h1>
+    <div class="auth-card">
+      <h2>Daftar Akun</h2>
       <p>Masukkan master password untuk melihat seluruh akun tersimpan.</p>
-      <input type="password" id="auth-input" placeholder="Master password..." autofocus />
-      <div id="auth-error">Password salah!</div>
-      <button class="btn-primary" id="auth-btn">Masuk</button>
+      <div class="input-wrap">
+        <input type="password" id="auth-input" placeholder="Master password..." autofocus />
+        <button class="toggle-pw" id="toggle-pw">
+          <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+      <div id="auth-error">Password salah. Coba lagi.</div>
+      <button class="btn-login" id="auth-btn">Masuk</button>
     </div>
   </div>
 
-  <!-- Main -->
-  <div id="main">
-    <div class="topbar">
+  <!-- Topbar -->
+  <div class="topbar" id="topbar" style="display:none">
+    <div class="topbar-left">
       <div class="topbar-title">
         Akun Tersimpan
         <span class="badge" id="total-badge">0</span>
       </div>
-      <div class="topbar-actions">
-        <button class="btn-sm" id="btn-refresh">↺ Refresh</button>
-        <button class="btn-sm danger" id="btn-delete-all">Hapus Semua</button>
-        <button class="btn-sm" id="btn-lock">Kunci</button>
-      </div>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn-sm" id="btn-refresh">↺ Refresh</button>
+      <button class="btn-sm danger" id="btn-delete-all">Hapus Semua</button>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content" id="main-content" style="display:none">
+    <div class="toolbar">
+      <input type="text" class="search-input" id="search" placeholder="Cari situs atau username..." />
+      <select class="filter-select" id="filter-site">
+        <option value="">Semua Situs</option>
+      </select>
     </div>
 
-    <div class="content">
-      <div class="toolbar">
-        <input type="text" class="search-input" id="search" placeholder="Cari situs atau username..." />
-        <select class="filter-select" id="filter-site">
-          <option value="">Semua Situs</option>
-        </select>
+    <div class="table-wrap">
+      <div id="loading-state" class="state-box">
+        <p>Memuat data...</p>
+        <p>Mengambil dari Supabase</p>
       </div>
-
-      <div class="table-wrap">
-        <div id="loading-state" class="state-box">
-          <p>Memuat data...</p>
-          <p>Mengambil dari Supabase</p>
-        </div>
-        <div id="empty-state"   class="state-box" style="display:none">
-          <p>Belum ada akun tersimpan</p>
-          <p>Data akan muncul setelah login di situs manapun.</p>
-        </div>
-        <table id="data-table" style="display:none">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Situs</th>
-              <th>Username / Email</th>
-              <th>Password</th>
-              <th>Tanggal &amp; Jam</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="table-body"></tbody>
-        </table>
+      <div id="empty-state" class="state-box" style="display:none">
+        <p>Belum ada akun tersimpan</p>
+        <p>Data akan muncul setelah login di situs manapun.</p>
       </div>
+      <table id="data-table" style="display:none">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Situs</th>
+            <th>Username / Email</th>
+            <th>Password</th>
+            <th>Tanggal &amp; Jam</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
     </div>
   </div>
 
@@ -344,16 +394,22 @@
 
   let allData = [];
 
-  // ── Auth ────────────────────────────────────────────────────────────────────
+  // ── Auth ──────────────────────────────────────────────────────────────────
   const authOverlay = document.getElementById('auth-overlay');
   const authInput   = document.getElementById('auth-input');
-  const authBtn     = document.getElementById('auth-btn');
   const authError   = document.getElementById('auth-error');
+  const togglePw    = document.getElementById('toggle-pw');
+
+  togglePw.addEventListener('click', () => {
+    authInput.type = authInput.type === 'password' ? 'text' : 'password';
+  });
 
   function doLogin() {
     if (authInput.value === DEFAULT_PASSWORD) {
       authOverlay.style.display = 'none';
-      document.getElementById('main').style.display = 'block';
+      document.getElementById('topbar').style.display = 'flex';
+      document.getElementById('main-content').style.display = 'block';
+      authInput.value = '';
       loadData();
     } else {
       authError.style.display = 'block';
@@ -362,17 +418,11 @@
     }
   }
 
-  authBtn.addEventListener('click', doLogin);
+  document.getElementById('auth-btn').addEventListener('click', doLogin);
   authInput.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 
-  document.getElementById('btn-lock').addEventListener('click', () => {
-    authOverlay.style.display = 'flex';
-    document.getElementById('main').style.display = 'none';
-    authInput.value = '';
-    authInput.focus();
-  });
+  // ── Load saat halaman dibuka ───────────────────────────────────────────────
 
-  // ── Fetch Data ──────────────────────────────────────────────────────────────
   async function loadData() {
     showLoading(true);
     try {
@@ -389,15 +439,14 @@
     }
   }
 
-  // ── Render ──────────────────────────────────────────────────────────────────
+  // ── Render Tabel ──────────────────────────────────────────────────────────
   function renderTable(items) {
     showLoading(false);
     const tbody      = document.getElementById('table-body');
     const table      = document.getElementById('data-table');
     const emptyState = document.getElementById('empty-state');
-    const badge      = document.getElementById('total-badge');
 
-    badge.textContent = items.length;
+    document.getElementById('total-badge').textContent = items.length;
 
     if (items.length === 0) {
       table.style.display      = 'none';
@@ -412,10 +461,12 @@
     items.forEach((item, i) => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td style="color:#bbb;font-size:11px">${i + 1}</td>
+        <td style="color:#ccc;font-size:11px">${i + 1}</td>
         <td>
           <div class="site-cell">
-            <img class="favicon" src="https://www.google.com/s2/favicons?sz=32&domain=${escHtml(item.site)}" onerror="this.style.display='none'" />
+            <img class="favicon"
+              src="https://www.google.com/s2/favicons?sz=32&domain=${escHtml(item.site)}"
+              onerror="this.style.display='none'" />
             <span class="site-name">${escHtml(item.site)}</span>
           </div>
         </td>
@@ -424,7 +475,7 @@
           <div class="pass-cell">
             <span class="pass-val" id="pw-${i}">••••••••</span>
             <button class="btn-icon toggle-btn" data-index="${i}" data-pass="${escHtml(item.password)}">Lihat</button>
-            <button class="btn-icon copy-btn"   data-pass="${escHtml(item.password)}">Salin</button>
+            <button class="btn-icon copy-btn" data-pass="${escHtml(item.password)}">Salin</button>
           </div>
         </td>
         <td class="date-text">${escHtml(item.timestamp || '-')}</td>
@@ -435,36 +486,35 @@
       tbody.appendChild(tr);
     });
 
-    // Toggle
+    // Toggle password
     document.querySelectorAll('.toggle-btn').forEach(btn => {
       btn.addEventListener('click', e => {
-        const idx    = e.currentTarget.dataset.index;
-        const pass   = e.currentTarget.dataset.pass;
-        const el     = document.getElementById(`pw-${idx}`);
+        const idx  = e.currentTarget.dataset.index;
+        const pass = e.currentTarget.dataset.pass;
+        const el   = document.getElementById(`pw-${idx}`);
         if (el.textContent === '••••••••') {
-          el.textContent            = pass;
+          el.textContent              = pass;
           e.currentTarget.textContent = 'Sembunyikan';
         } else {
-          el.textContent            = '••••••••';
+          el.textContent              = '••••••••';
           e.currentTarget.textContent = 'Lihat';
         }
       });
     });
 
-    // Copy
+    // Salin
     document.querySelectorAll('.copy-btn').forEach(btn => {
       btn.addEventListener('click', e => {
-        navigator.clipboard.writeText(e.currentTarget.dataset.pass).then(() => {
-          showToast('Password disalin!');
-        });
+        navigator.clipboard.writeText(e.currentTarget.dataset.pass)
+          .then(() => showToast('Password disalin!'));
       });
     });
 
-    // Delete per row
+    // Hapus per baris
     document.querySelectorAll('.del-btn').forEach(btn => {
       btn.addEventListener('click', async e => {
-        const id = e.currentTarget.dataset.id;
         if (!confirm('Hapus akun ini?')) return;
+        const id = e.currentTarget.dataset.id;
         await sbDelete(id);
         allData = allData.filter(d => d.id !== id);
         populateSiteFilter();
@@ -474,18 +524,14 @@
     });
   }
 
-  // ── Filter & Search ─────────────────────────────────────────────────────────
+  // ── Filter & Search ───────────────────────────────────────────────────────
   function applyFilter() {
     const q    = document.getElementById('search').value.toLowerCase();
     const site = document.getElementById('filter-site').value;
-    const filtered = allData.filter(item => {
-      const matchSite = !site || item.site === site;
-      const matchQ    = !q
-        || item.site.toLowerCase().includes(q)
-        || item.username.toLowerCase().includes(q);
-      return matchSite && matchQ;
-    });
-    renderTable(filtered);
+    renderTable(allData.filter(item =>
+      (!site || item.site === site) &&
+      (!q || item.site.toLowerCase().includes(q) || item.username.toLowerCase().includes(q))
+    ));
   }
 
   document.getElementById('search').addEventListener('input', applyFilter);
@@ -493,32 +539,27 @@
 
   function populateSiteFilter() {
     const sel   = document.getElementById('filter-site');
+    const cur   = sel.value;
     const sites = [...new Set(allData.map(d => d.site))].sort();
-    const current = sel.value;
     sel.innerHTML = '<option value="">Semua Situs</option>';
     sites.forEach(s => {
-      const opt = document.createElement('option');
-      opt.value       = s;
-      opt.textContent = s;
-      if (s === current) opt.selected = true;
-      sel.appendChild(opt);
+      const o = document.createElement('option');
+      o.value = s; o.textContent = s;
+      if (s === cur) o.selected = true;
+      sel.appendChild(o);
     });
   }
 
-  // ── Refresh ─────────────────────────────────────────────────────────────────
+  // ── Refresh ───────────────────────────────────────────────────────────────
   document.getElementById('btn-refresh').addEventListener('click', loadData);
 
-  // ── Hapus Semua ─────────────────────────────────────────────────────────────
+  // ── Hapus Semua ───────────────────────────────────────────────────────────
   document.getElementById('btn-delete-all').addEventListener('click', async () => {
     if (!confirm('Hapus SEMUA akun dari Supabase? Tindakan ini tidak bisa dibatalkan.')) return;
     try {
       await fetch(`${SB_URL}/rest/v1/${SB_TABLE}?timestamp=neq.___none___`, {
-        method:  'DELETE',
-        headers: {
-          'apikey':        SB_KEY,
-          'Authorization': `Bearer ${SB_KEY}`,
-          'Prefer':        'return=minimal'
-        }
+        method: 'DELETE',
+        headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Prefer': 'return=minimal' }
       });
       allData = [];
       renderTable([]);
@@ -528,30 +569,26 @@
     }
   });
 
-  // ── Supabase Delete ─────────────────────────────────────────────────────────
+  // ── Supabase Delete ───────────────────────────────────────────────────────
   async function sbDelete(id) {
     await fetch(`${SB_URL}/rest/v1/${SB_TABLE}?id=eq.${encodeURIComponent(id)}`, {
-      method:  'DELETE',
-      headers: {
-        'apikey':        SB_KEY,
-        'Authorization': `Bearer ${SB_KEY}`,
-        'Prefer':        'return=minimal'
-      }
+      method: 'DELETE',
+      headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Prefer': 'return=minimal' }
     });
   }
 
-  // ── Toast ────────────────────────────────────────────────────────────────────
+  // ── Toast ─────────────────────────────────────────────────────────────────
   let toastTimer;
   function showToast(msg, isError = false) {
-    const toast       = document.getElementById('toast');
-    toast.textContent = msg;
-    toast.style.background = isError ? '#e53e3e' : '#111';
-    toast.classList.add('show');
+    const t = document.getElementById('toast');
+    t.textContent      = msg;
+    t.style.background = isError ? '#e53e3e' : '#111';
+    t.classList.add('show');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toast.classList.remove('show'), 2500);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
   }
 
-  // ── Loading state ────────────────────────────────────────────────────────────
+  // ── Loading ───────────────────────────────────────────────────────────────
   function showLoading(show) {
     document.getElementById('loading-state').style.display = show ? 'block' : 'none';
     if (show) {
@@ -560,7 +597,7 @@
     }
   }
 
-  // ── Escape HTML ──────────────────────────────────────────────────────────────
+  // ── Escape HTML ───────────────────────────────────────────────────────────
   function escHtml(str) {
     if (!str) return '';
     return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')

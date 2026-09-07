@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simpan Sandi</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+
+    <!-- LAYER 1: Landing -->
+    <div id="landing-view">
+      <div class="landing-wrap">
+        <div class="hero-icon" id="hero-icon">
+          <img src="icon.png" alt="Simpan Sandi" draggable="false" />
+        </div>
+        <h1 class="landing-title">Simpan Sandi</h1>
+        <p class="landing-desc">Extension Chrome yang menyimpan akun dan password secara otomatis dengan sinkronisasi cloud Supabase.</p>
+      </div>
+    </div>
+
+    <!-- LAYER 2: Modal Password -->
+    <div id="auth-modal" class="hidden">
+      <div class="auth-card">
+        <div class="auth-icon-wrap">
+          <img src="icon.png" alt="icon" draggable="false" />
+        </div>
+        <h2 class="auth-title">Verifikasi Akses</h2>
+        <p class="auth-desc">Masukkan master password untuk melihat daftar akun tersimpan.</p>
+        <div class="input-wrap">
+          <input type="password" id="login-master-input" class="input-field" placeholder="Master password..." />
+          <button class="toggle-pw" id="toggle-pw">
+            <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <div id="login-error" class="error-message hidden">Password salah. Coba lagi.</div>
+        <div class="auth-actions">
+          <button id="btn-cancel" class="btn-secondary">Batal</button>
+          <button id="btn-login-master" class="btn-primary">Masuk</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LAYER 3: Main (Daftar Sandi) -->
+    <div id="main-view" class="hidden">
+
+      <div class="tab-nav">
+        <button class="tab-btn active" data-tab="passwords">Sandi</button>
+        <button class="tab-btn" data-tab="supabase">Supabase</button>
+      </div>
+
+      <!-- Tab Sandi -->
+      <div id="tab-passwords" class="tab-content">
+        <header class="header">
+          <div class="header-title">
+            <h1>Sandi Tersimpan</h1>
+            <span id="count-badge" class="badge">0</span>
+          </div>
+          <div class="header-actions">
+            <button id="btn-lock" class="btn-text">Kunci</button>
+            <span class="divider">|</span>
+            <button id="clear-all" class="btn-text">Hapus Semua</button>
+          </div>
+        </header>
+        <div class="search-box">
+          <input type="text" id="search-input" placeholder="Cari situs atau username..." />
+        </div>
+        <div id="password-list" class="password-list"></div>
+        <div id="empty-state" class="empty-state hidden">
+          <p class="empty-title">Belum ada sandi tersimpan</p>
+          <p class="empty-desc">Sandi akan muncul otomatis saat Anda login di situs manapun.</p>
+        </div>
+      </div>
+
+      <!-- Tab Supabase -->
+      <div id="tab-supabase" class="tab-content hidden">
+        <header class="header">
+          <div class="header-title">
+            <h1>Data Supabase</h1>
+            <span id="sb-count-badge" class="badge">0</span>
+          </div>
+          <div class="header-actions">
+            <button id="btn-sb-refresh" class="btn-text">Refresh</button>
+          </div>
+        </header>
+        <div id="sb-loading" class="sb-loading hidden">Memuat data...</div>
+        <div id="sb-error" class="sb-status sb-status--error hidden"></div>
+        <div id="sb-list" class="password-list"></div>
+        <div id="sb-empty" class="empty-state hidden">
+          <p class="empty-title">Belum ada data di Supabase</p>
+          <p class="empty-desc">Data akan muncul setelah tersinkronisasi.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
