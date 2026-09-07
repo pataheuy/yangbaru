@@ -581,16 +581,24 @@ function openSidebar(id) {
         if(s!==id) document.getElementById(s).classList.remove('open');
     });
     document.getElementById(id).classList.add('open');
-    document.getElementById('sbOverlay').classList.remove('hidden');
+    const ov = document.getElementById('sbOverlay');
+    ov.classList.remove('hidden');
+    ov.style.pointerEvents = 'auto';
 }
 function closeSidebar(id) {
     document.getElementById(id).classList.remove('open');
     const anyOpen=['favSidebar','cartSidebar','orderSidebar'].some(s=>document.getElementById(s).classList.contains('open'));
-    if(!anyOpen) document.getElementById('sbOverlay').classList.add('hidden');
+    if(!anyOpen) {
+        const ov = document.getElementById('sbOverlay');
+        ov.classList.add('hidden');
+        ov.style.pointerEvents = 'none';
+    }
 }
 function closeAllSidebars() {
     ['favSidebar','cartSidebar','orderSidebar'].forEach(s=>document.getElementById(s).classList.remove('open'));
-    document.getElementById('sbOverlay').classList.add('hidden');
+    const ov = document.getElementById('sbOverlay');
+    ov.classList.add('hidden');
+    ov.style.pointerEvents = 'none';
 }
 
 // â”€â”€â”€ PESANAN SAYA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€

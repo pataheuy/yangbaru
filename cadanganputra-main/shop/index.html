@@ -162,7 +162,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
 </div>
 
 <!-- â•â•â• NAVBAR â•â•â• -->
-<nav class="sticky top-0 bg-white border-b border-gray-100 shadow-sm" style="z-index:300">
+<nav class="sticky top-0 bg-white border-b border-gray-100 shadow-sm" style="z-index:650">
   <div class="max-w-7xl mx-auto px-4 h-14 flex items-center gap-3">
     <div class="flex items-center gap-2 cursor-pointer flex-shrink-0" onclick="goHome()">
       <div class="w-7 h-7 bg-black rounded-lg flex items-center justify-center">
@@ -385,7 +385,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
     <button onclick="checkout()" class="w-full bg-black text-white py-3.5 rounded-2xl font-black text-sm hover:bg-zinc-800 transition-colors">Checkout</button>
   </div>
 </div>
-<div id="sbOverlay" class="fixed inset-0 bg-black/40 hidden" style="z-index:599" onclick="closeAllSidebars()"></div>
+<div id="sbOverlay" class="fixed inset-0 bg-black/40 hidden" style="z-index:599;pointer-events:none" onclick="closeAllSidebars()"></div>
 
 <!-- â•â•â• SIDEBAR PESANAN SAYA â•â•â• -->
 <div id="orderSidebar" class="sbar">
