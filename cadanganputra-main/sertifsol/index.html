@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verifikasi Sertifikat - School of Leadership 2026</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- SheetJS for Spreadsheet Parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 text-slate-900 min-h-screen flex flex-col justify-between items-center p-4 sm:p-6 font-sans">
+
+    <!-- PUBLIC VERIFICATION VIEW -->
+    <div id="publicView" class="w-full max-w-2xl mx-auto my-auto space-y-6">
+        
+        <!-- Header Section -->
+        <header class="text-center space-y-2">
+            <button type="button" onclick="handlePillClick()" id="bemBadge" class="inline-flex items-center gap-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider border border-blue-100 shadow-sm transition-all duration-200 cursor-pointer select-none active:scale-95">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                <span>BEM As-Syifa</span>
+            </button>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Verifikasi Sertifikat</h1>
+            <p class="text-sm sm:text-base text-slate-500 font-medium">School of Leadership 2025</p>
+        </header>
+
+        <!-- Main Card Container -->
+        <main class="bg-white/90 backdrop-blur-md rounded-2xl shadow-xl shadow-slate-200/50 border border-white/80 p-6 sm:p-8 space-y-6">
+            
+            <!-- Search Form -->
+            <form id="verifyForm" onsubmit="handleVerify(event)" class="space-y-4">
+                <div class="space-y-1.5">
+                    <label for="certNumber" class="block text-xs font-semibold text-slate-600 uppercase tracking-wider">Nomor Sertifikat</label>
+                    <div class="relative flex items-center">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <input type="text" id="certNumber" required 
+                            class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-blue-600 focus:ring-4 focus:ring-blue-500/10 transition-all duration-200" 
+                            placeholder="Contoh: 13.001/SOL/MPM/VIII/2025">
+                    </div>
+                </div>
+
+                <button type="submit" 
+                    class="w-full bg-blue-600 hover:bg-blue-700 active:scale-[0.99] text-white font-semibold py-3.5 px-6 rounded-xl text-sm shadow-md shadow-blue-500/20 flex items-center justify-center gap-2 transition-all duration-150">
+                    <span>Cek Keaslian Sertifikat</span>
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                    </svg>
+                </button>
+            </form>
+
+            <!-- Result Box (Hidden by default) -->
+            <div id="resultBox" class="hidden pt-6 border-t border-dashed border-slate-200 space-y-5 animate-fade-in">
+                
+                <!-- Status Badge (Valid / Invalid) -->
+                <div id="statusBadge" class="flex items-start gap-3 p-4 rounded-xl bg-emerald-50 text-emerald-900 border border-emerald-200">
+                    <div id="statusIcon" class="p-1 text-emerald-600 shrink-0">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 id="statusTitle" class="text-sm font-bold">Sertifikat Terverifikasi Valid</h4>
+                        <p id="statusDesc" class="text-xs text-emerald-700/90 mt-0.5">Dokumen ini resmi dan telah terdaftar dalam database BEM As-Syifa.</p>
+                    </div>
+                </div>
+
+                <!-- Certificate Details Grid -->
+                <div id="certDetails" class="bg-slate-50 border border-slate-200/80 rounded-xl p-4 sm:p-5 space-y-2.5 text-xs sm:text-sm">
+                    <div class="grid grid-cols-[110px_12px_1fr] sm:grid-cols-[130px_12px_1fr] items-center pb-2 border-b border-slate-200/60">
+                        <span class="text-slate-500 font-medium">ID Sertifikat</span>
+                        <span class="text-slate-400 font-semibold">:</span>
+                        <div>
+                            <span class="font-bold font-mono text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100" id="resCode">13.001/SOL/MPM/VIII/2025</span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-[110px_12px_1fr] sm:grid-cols-[130px_12px_1fr] items-center pb-2 border-b border-slate-200/60">
+                        <span class="text-slate-500 font-medium">Nama Peserta</span>
+                        <span class="text-slate-400 font-semibold">:</span>
+                        <span class="font-bold text-slate-900" id="resName">Muhammad Arfan Alfiansyah</span>
+                    </div>
+                    <div class="grid grid-cols-[110px_12px_1fr] sm:grid-cols-[130px_12px_1fr] items-center pb-2 border-b border-slate-200/60">
+                        <span class="text-slate-500 font-medium">Kelas</span>
+                        <span class="text-slate-400 font-semibold">:</span>
+                        <span class="font-bold text-slate-900" id="resClass">8 Abu</span>
+                    </div>
+                    <div class="grid grid-cols-[110px_12px_1fr] sm:grid-cols-[130px_12px_1fr] items-center pb-2 border-b border-slate-200/60">
+                        <span class="text-slate-500 font-medium">Nilai</span>
+                        <span class="text-slate-400 font-semibold">:</span>
+                        <div>
+                            <span class="font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded border border-emerald-100" id="resGrade">90</span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-[110px_12px_1fr] sm:grid-cols-[130px_12px_1fr] items-center pb-2 border-b border-slate-200/60">
+                        <span class="text-slate-500 font-medium">Kegiatan</span>
+                        <span class="text-slate-400 font-semibold">:</span>
+                        <span class="font-bold text-slate-900" id="resEvent">School of Leadership 2025</span>
+                    </div>
+                    <div class="grid grid-cols-[110px_12px_1fr] sm:grid-cols-[130px_12px_1fr] items-center">
+                        <span class="text-slate-500 font-medium">Penandatangan</span>
+                        <span class="text-slate-400 font-semibold">:</span>
+                        <span class="font-bold text-slate-900" id="resSigner">Asep Lukmanul Hakim S.Sy</span>
+                    </div>
+                </div>
+
+                <!-- Action Group -->
+                <div id="actionButtons" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <button type="button" onclick="showToast('Mengunduh sertifikat PDF...')" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-slate-300 hover:bg-slate-50 active:bg-slate-100 text-slate-700 rounded-xl text-xs font-semibold shadow-sm transition-colors">
+                        <svg class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                        </svg>
+                        Unduh PDF
+                    </button>
+                    <button type="button" onclick="copyLink()" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-slate-300 hover:bg-slate-50 active:bg-slate-100 text-slate-700 rounded-xl text-xs font-semibold shadow-sm transition-colors">
+                        <svg class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                        </svg>
+                        Salin Tautan Verifikasi
+                    </button>
+                </div>
+            </div>
+
+            <!-- Verification Instructions -->
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs space-y-2">
+                <div class="flex items-center gap-1.5 font-bold text-slate-700">
+                    <svg class="w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span>Petunjuk Penulisan Format</span>
+                </div>
+                <ul class="list-disc list-inside text-slate-500 space-y-1 pl-1 leading-relaxed">
+                    <li>Gunakan format standar sertifikat: <span class="font-mono bg-slate-200/60 px-1 py-0.5 rounded text-slate-700">13.001/SOL/MPM/VIII/2025</span></li>
+                    <li>Pastikan penulisan titik, garis miring, dan angka romawi sudah sesuai.</li>
+                </ul>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="text-center text-xs text-slate-500 font-medium">
+            <p>&copy; 2025 School of Leadership — BEM As-Syifa. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <!-- ADMIN DASHBOARD VIEW (Hidden by default) -->
+    <div id="adminView" class="hidden w-full max-w-5xl mx-auto my-auto space-y-6">
+        <!-- Admin Header -->
+        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-slate-900 text-white p-5 rounded-2xl shadow-xl gap-4">
+            <div class="flex items-center gap-3">
+                <div class="p-2.5 bg-blue-600 rounded-xl shadow-md">
+                    <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="text-lg font-bold">Dashboard Admin</h2>
+                    <p class="text-xs text-slate-400">Manajemen & Impor Database Sertifikat</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+                <button onclick="exitAdmin()" class="flex-1 sm:flex-none px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold border border-slate-700 transition-colors flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                    Kembali ke Verifikasi
+                </button>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Left Side: Import & Form -->
+            <div class="space-y-6 lg:col-span-1">
+                
+                <!-- Spreadsheet Upload Box -->
+                <div class="bg-white rounded-2xl shadow-md border border-slate-200/80 p-5 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
+                            <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 0115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                            Unggah Spreadsheet
+                        </h3>
+                        <button type="button" onclick="downloadTemplate()" class="text-[11px] font-semibold text-blue-600 hover:underline">Unduh Contoh Excel</button>
+                    </div>
+
+                    <label for="excelFile" class="border-2 border-dashed border-slate-300 hover:border-blue-500 bg-slate-50 hover:bg-blue-50/50 rounded-xl p-5 flex flex-col items-center justify-center text-center cursor-pointer transition-all">
+                        <svg class="w-8 h-8 text-slate-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                        <span class="text-xs font-semibold text-slate-700">Pilih File Excel / CSV</span>
+                        <span class="text-[10px] text-slate-400 mt-1">Format: .xlsx, .xls, atau .csv</span>
+                        <input type="file" id="excelFile" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleFileUpload(event)">
+                    </label>
+                </div>
+
+                <!-- Add Data Manual Form -->
+                <div class="bg-white rounded-2xl shadow-md border border-slate-200/80 p-5 space-y-4">
+                    <h3 class="font-bold text-sm text-slate-800 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Tambah Data Manual
+                    </h3>
+
+                    <form id="addCertForm" onsubmit="handleManualAdd(event)" class="space-y-3 text-xs">
+                        <div>
+                            <label class="block font-semibold text-slate-600 mb-1">ID Sertifikat</label>
+                            <input type="text" id="adminId" required placeholder="13.001/SOL/MPM/VIII/2025" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600 mb-1">Nama Peserta</label>
+                            <input type="text" id="adminName" required placeholder="Nama Lengkap" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-blue-500">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block font-semibold text-slate-600 mb-1">Kelas</label>
+                                <input type="text" id="adminClass" required placeholder="8 Abu" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-slate-600 mb-1">Nilai</label>
+                                <input type="text" id="adminGrade" required placeholder="90" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-blue-500">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600 mb-1">Kegiatan</label>
+                            <input type="text" id="adminEvent" required value="School of Leadership 2025" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-600 mb-1">Penandatangan</label>
+                            <input type="text" id="adminSigner" required value="Asep Lukmanul Hakim S.Sy" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-blue-500">
+                        </div>
+                        <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow transition-colors">Simpan Sertifikat</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Right Side: Certificate Table -->
+            <div class="lg:col-span-2 space-y-4">
+                <div class="bg-white rounded-2xl shadow-md border border-slate-200/80 p-5 space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                            <h3 class="font-bold text-base text-slate-900">Database Sertifikat Terdaftar</h3>
+                            <p class="text-xs text-slate-500">Total: <span id="totalCertBadge" class="font-bold text-blue-600">1</span> sertifikat</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="exportToExcel()" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                </svg>
+                                Ekspor
+                            </button>
+                            <button onclick="confirmClearAll()" class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 rounded-lg text-xs font-semibold transition-colors">Hapus Semua</button>
+                        </div>
+                    </div>
+
+                    <!-- Search Input in Admin -->
+                    <input type="text" id="adminSearchInput" onkeyup="renderAdminTable()" placeholder="Cari nama atau nomor sertifikat..." class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:outline-none focus:border-blue-500">
+
+                    <!-- Table Container -->
+                    <div class="overflow-x-auto border border-slate-200 rounded-xl">
+                        <table class="w-full text-left text-xs text-slate-700">
+                            <thead class="bg-slate-100 text-slate-600 uppercase font-semibold border-b border-slate-200">
+                                <tr>
+                                    <th class="p-3">ID Sertifikat</th>
+                                    <th class="p-3">Nama</th>
+                                    <th class="p-3">Kelas</th>
+                                    <th class="p-3">Nilai</th>
+                                    <th class="p-3 text-right">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminTableBody" class="divide-y divide-slate-100">
+                                <!-- Table rows generated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PASSWORD MODAL -->
+    <div id="passwordModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 animate-fade-in">
+        <div class="bg-white rounded-2xl shadow-2xl border border-slate-100 max-w-sm w-full p-6 space-y-4">
+            <div class="text-center space-y-1">
+                <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900">Akses Dashboard Admin</h3>
+                <p class="text-xs text-slate-500">Masukkan kata sandi untuk mengelola data</p>
+            </div>
+
+            <form onsubmit="verifyPassword(event)" class="space-y-4">
+                <div>
+                    <input type="password" id="adminPasswordInput" placeholder="Password..." required class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-600">
+                </div>
+                <div class="flex gap-2">
+                    <button type="button" onclick="closePasswordModal()" class="w-1/2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl">Batal</button>
+                    <button type="submit" class="w-1/2 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl shadow">Masuk</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- CONFIRM CLEAR MODAL -->
+    <div id="confirmModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 space-y-4 text-center">
+            <h3 class="text-base font-bold text-slate-900">Hapus Semua Data?</h3>
+            <p class="text-xs text-slate-500">Seluruh sertifikat terdaftar akan dihapus. Aksi ini tidak dapat dibatalkan.</p>
+            <div class="flex gap-2">
+                <button type="button" onclick="closeConfirmModal()" class="w-1/2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl">Batal</button>
+                <button type="button" onclick="clearAllData()" class="w-1/2 py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-xl shadow">Ya, Hapus</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Toast Notification -->
+    <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-xl text-xs font-semibold flex items-center gap-2 opacity-0 pointer-events-none transition-all duration-300">
+        <svg class="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+        <span id="toastMsg">Tautan berhasil disalin!</span>
+    </div>
+
+    <script>
+        // Default Database Initial Data
+        let certDatabase = [
+            {
+                id: "13.001/SOL/MPM/VIII/2025",
+                name: "Muhammad Arfan Alfiansyah",
+                class: "8 Abu",
+                grade: "90",
+                event: "School of Leadership 2025",
+                signer: "Asep Lukmanul Hakim S.Sy"
+            }
+        ];
+
+        // Secret Click State
+        let pillClickCount = 0;
+        let clickTimer = null;
+
+        function handlePillClick() {
+            pillClickCount++;
+            clearTimeout(clickTimer);
+
+            if (pillClickCount >= 10) {
+                pillClickCount = 0;
+                openPasswordModal();
+            } else {
+                clickTimer = setTimeout(() => {
+                    pillClickCount = 0;
+                }, 3000); // Reset count if inactive for 3 seconds
+            }
+        }
+
+        function openPasswordModal() {
+            document.getElementById('adminPasswordInput').value = '';
+            document.getElementById('passwordModal').classList.remove('hidden');
+            setTimeout(() => document.getElementById('adminPasswordInput').focus(), 100);
+        }
+
+        function closePasswordModal() {
+            document.getElementById('passwordModal').classList.add('hidden');
+        }
+
+        function verifyPassword(e) {
+            e.preventDefault();
+            const pass = document.getElementById('adminPasswordInput').value;
+            if (pass === "rais") {
+                closePasswordModal();
+                showAdminDashboard();
+                showToast("Selamat datang, Admin!");
+            } else {
+                showToast("Password salah!");
+            }
+        }
+
+        function showAdminDashboard() {
+            document.getElementById('publicView').classList.add('hidden');
+            document.getElementById('adminView').classList.remove('hidden');
+            renderAdminTable();
+        }
+
+        function exitAdmin() {
+            document.getElementById('adminView').classList.add('hidden');
+            document.getElementById('publicView').classList.remove('hidden');
+        }
+
+        // Public Verification Handler
+        function handleVerify(e) {
+            e.preventDefault();
+            const inputVal = document.getElementById('certNumber').value.trim();
+            const resultBox = document.getElementById('resultBox');
+            const statusBadge = document.getElementById('statusBadge');
+            const statusIcon = document.getElementById('statusIcon');
+            const statusTitle = document.getElementById('statusTitle');
+            const statusDesc = document.getElementById('statusDesc');
+            const certDetails = document.getElementById('certDetails');
+            const actionButtons = document.getElementById('actionButtons');
+
+            const normalizedInput = inputVal.toUpperCase().replace(/\s+/g, '');
+            
+            // Search in dynamic database
+            const foundCert = certDatabase.find(c => c.id.toUpperCase().replace(/\s+/g, '') === normalizedInput);
+
+            resultBox.classList.remove('hidden');
+
+            if (foundCert) {
+                // Verified State
+                statusBadge.className = 'flex items-start gap-3 p-4 rounded-xl bg-emerald-50 text-emerald-900 border border-emerald-200';
+                statusIcon.className = 'p-1 text-emerald-600 shrink-0';
+                statusIcon.innerHTML = `<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+                statusTitle.innerText = 'Sertifikat Terverifikasi Valid';
+                statusDesc.innerText = 'Dokumen ini resmi dan telah terdaftar dalam database BEM As-Syifa.';
+
+                document.getElementById('resCode').innerText = foundCert.id;
+                document.getElementById('resName').innerText = foundCert.name;
+                document.getElementById('resClass').innerText = foundCert.class;
+                document.getElementById('resGrade').innerText = foundCert.grade;
+                document.getElementById('resEvent').innerText = foundCert.event;
+                document.getElementById('resSigner').innerText = foundCert.signer;
+
+                certDetails.classList.remove('hidden');
+                actionButtons.classList.remove('hidden');
+            } else {
+                // Not Found State
+                statusBadge.className = 'flex items-start gap-3 p-4 rounded-xl bg-red-50 text-red-900 border border-red-200';
+                statusIcon.className = 'p-1 text-red-600 shrink-0';
+                statusIcon.innerHTML = `<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+                statusTitle.innerText = 'Sertifikat Tidak Ditemukan';
+                statusDesc.innerText = 'Nomor sertifikat tidak terdaftar. Mohon pastikan penulisan format (Contoh: 13.001/SOL/MPM/VIII/2025).';
+
+                certDetails.classList.add('hidden');
+                actionButtons.classList.add('hidden');
+            }
+        }
+
+        // Admin Table Render
+        function renderAdminTable() {
+            const tbody = document.getElementById('adminTableBody');
+            const search = document.getElementById('adminSearchInput').value.toLowerCase();
+            tbody.innerHTML = '';
+
+            const filtered = certDatabase.filter(c => 
+                c.id.toLowerCase().includes(search) || c.name.toLowerCase().includes(search)
+            );
+
+            document.getElementById('totalCertBadge').innerText = certDatabase.length;
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">Belum ada data sertifikat</td></tr>`;
+                return;
+            }
+
+            filtered.forEach((cert, index) => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 transition-colors';
+                tr.innerHTML = `
+                    <td class="p-3 font-mono font-bold text-blue-700">${cert.id}</td>
+                    <td class="p-3 font-semibold text-slate-800">${cert.name}</td>
+                    <td class="p-3">${cert.class}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded font-bold">${cert.grade}</span></td>
+                    <td class="p-3 text-right">
+                        <button onclick="deleteCert('${cert.id}')" class="text-red-600 hover:text-red-800 font-semibold p-1 hover:bg-red-50 rounded">Hapus</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Add Manual Certificate
+        function handleManualAdd(e) {
+            e.preventDefault();
+            const id = document.getElementById('adminId').value.trim();
+            const name = document.getElementById('adminName').value.trim();
+            const className = document.getElementById('adminClass').value.trim();
+            const grade = document.getElementById('adminGrade').value.trim();
+            const eventName = document.getElementById('adminEvent').value.trim();
+            const signer = document.getElementById('adminSigner').value.trim();
+
+            if (certDatabase.some(c => c.id === id)) {
+                showToast("ID Sertifikat sudah ada!");
+                return;
+            }
+
+            certDatabase.push({ id, name, class: className, grade, event: eventName, signer });
+            renderAdminTable();
+            showToast("Sertifikat berhasil ditambahkan!");
+            document.getElementById('addCertForm').reset();
+            document.getElementById('adminEvent').value = "School of Leadership 2025";
+            document.getElementById('adminSigner').value = "Asep Lukmanul Hakim S.Sy";
+        }
+
+        // Delete Certificate
+        function deleteCert(id) {
+            certDatabase = certDatabase.filter(c => c.id !== id);
+            renderAdminTable();
+            showToast("Sertifikat berhasil dihapus.");
+        }
+
+        function confirmClearAll() {
+            document.getElementById('confirmModal').classList.remove('hidden');
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').classList.add('hidden');
+        }
+
+        function clearAllData() {
+            certDatabase = [];
+            renderAdminTable();
+            closeConfirmModal();
+            showToast("Semua data sertifikat telah dibersihkan.");
+        }
+
+        // Spreadsheet Parser (Excel/CSV)
+        function handleFileUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    const data = new Uint8Array(evt.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    
+                    // Helper to fuzzy match keys in a row object
+                    function getRowValue(row, possibleKeys) {
+                        if (!row || typeof row !== 'object') return '';
+                        const keys = Object.keys(row);
+                        for (const pKey of possibleKeys) {
+                            const normPKey = pKey.toLowerCase().replace(/[^a-z0-9]/g, '');
+                            const matchedKey = keys.find(k => String(k).toLowerCase().replace(/[^a-z0-9]/g, '') === normPKey);
+                            if (matchedKey && row[matchedKey] !== undefined && row[matchedKey] !== null) {
+                                return String(row[matchedKey]).trim();
+                            }
+                        }
+                        return '';
+                    }
+
+                    const idKeys = ['ID Sertifikat', 'ID', 'No Sertifikat', 'No. Sertifikat', 'Nomor Sertifikat', 'No Sertifikasi', 'No', 'Cert ID', 'Certificate ID', 'id'];
+                    const nameKeys = ['Nama Peserta', 'Nama', 'Nama Lengkap', 'Name', 'Participant Name', 'Peserta'];
+                    const classKeys = ['Kelas', 'Class', 'Rombel', 'Ruang'];
+                    const gradeKeys = ['Nilai', 'Grade', 'Score', 'Nilai Akhir'];
+                    const eventKeys = ['Kegiatan', 'Event', 'Nama Kegiatan', 'Acara'];
+                    const signerKeys = ['Penandatangan', 'Signer', 'TTD', 'Yang Tanda Tangan', 'Penanggung Jawab'];
+
+                    let jsonData = XLSX.utils.sheet_to_json(firstSheet, { defval: '' });
+                    
+                    // Extract valid rows with flexible matching
+                    let validRows = [];
+                    jsonData.forEach(row => {
+                        const id = getRowValue(row, idKeys);
+                        const name = getRowValue(row, nameKeys);
+                        if (id && name) {
+                            validRows.push({
+                                id,
+                                name,
+                                class: getRowValue(row, classKeys) || '-',
+                                grade: getRowValue(row, gradeKeys) || '-',
+                                event: getRowValue(row, eventKeys) || 'School of Leadership 2025',
+                                signer: getRowValue(row, signerKeys) || 'Asep Lukmanul Hakim S.Sy'
+                            });
+                        }
+                    });
+
+                    // If standard sheet_to_json found 0 valid rows, try scanning 2D array to locate table headers
+                    if (validRows.length === 0) {
+                        const rawMatrix = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: '' });
+                        let headerRowIdx = -1;
+
+                        for (let r = 0; r < rawMatrix.length; r++) {
+                            const rowArr = rawMatrix[r].map(c => String(c).toLowerCase().trim());
+                            const hasId = rowArr.some(c => c.includes('id') || c.includes('sertifikat') || c.includes('no'));
+                            const hasName = rowArr.some(c => c.includes('nama') || c.includes('name'));
+                            if (hasId && hasName) {
+                                headerRowIdx = r;
+                                break;
+                            }
+                        }
+
+                        if (headerRowIdx !== -1) {
+                            const headers = rawMatrix[headerRowIdx].map(h => String(h).trim());
+                            for (let r = headerRowIdx + 1; r < rawMatrix.length; r++) {
+                                const rowArr = rawMatrix[r];
+                                const rowObj = {};
+                                headers.forEach((h, colIdx) => {
+                                    if (h) rowObj[h] = rowArr[colIdx] !== undefined ? rowArr[colIdx] : '';
+                                });
+
+                                const id = getRowValue(rowObj, idKeys);
+                                const name = getRowValue(rowObj, nameKeys);
+                                if (id && name) {
+                                    validRows.push({
+                                        id,
+                                        name,
+                                        class: getRowValue(rowObj, classKeys) || '-',
+                                        grade: getRowValue(rowObj, gradeKeys) || '-',
+                                        event: getRowValue(rowObj, eventKeys) || 'School of Leadership 2025',
+                                        signer: getRowValue(rowObj, signerKeys) || 'Asep Lukmanul Hakim S.Sy'
+                                    });
+                                }
+                            }
+                        }
+                    }
+
+                    if (validRows.length === 0) {
+                        showToast("Tidak ada data valid. Pastikan ada kolom ID Sertifikat dan Nama Peserta.");
+                        e.target.value = '';
+                        return;
+                    }
+
+                    let importedCount = 0;
+                    let updatedCount = 0;
+
+                    validRows.forEach(item => {
+                        const existingIdx = certDatabase.findIndex(c => 
+                            c.id.toUpperCase().replace(/\s+/g, '') === item.id.toUpperCase().replace(/\s+/g, '')
+                        );
+
+                        if (existingIdx !== -1) {
+                            certDatabase[existingIdx] = item;
+                            updatedCount++;
+                        } else {
+                            certDatabase.push(item);
+                            importedCount++;
+                        }
+                    });
+
+                    renderAdminTable();
+                    if (importedCount > 0 && updatedCount > 0) {
+                        showToast(`Berhasil: ${importedCount} data baru, ${updatedCount} diperbarui!`);
+                    } else if (importedCount > 0) {
+                        showToast(`Berhasil mengimpor ${importedCount} data baru!`);
+                    } else if (updatedCount > 0) {
+                        showToast(`Semua ${updatedCount} data dalam file berhasil diperbarui!`);
+                    }
+
+                } catch (err) {
+                    console.error(err);
+                    showToast("Gagal membaca file spreadsheet.");
+                }
+                e.target.value = '';
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // Export to Excel Template / Data
+        function downloadTemplate() {
+            const templateData = [
+                {
+                    "ID Sertifikat": "13.001/SOL/MPM/VIII/2025",
+                    "Nama Peserta": "Muhammad Arfan Alfiansyah",
+                    "Kelas": "8 Abu",
+                    "Nilai": "90",
+                    "Kegiatan": "School of Leadership 2025",
+                    "Penandatangan": "Asep Lukmanul Hakim S.Sy"
+                }
+            ];
+            const ws = XLSX.utils.json_to_sheet(templateData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Templat Sertifikat");
+            XLSX.writeFile(wb, "Templat_Sertifikat_SOL2025.xlsx");
+        }
+
+        function exportToExcel() {
+            if (certDatabase.length === 0) {
+                showToast("Tidak ada data untuk diekspor!");
+                return;
+            }
+            const exportData = certDatabase.map(c => ({
+                "ID Sertifikat": c.id,
+                "Nama Peserta": c.name,
+                "Kelas": c.class,
+                "Nilai": c.grade,
+                "Kegiatan": c.event,
+                "Penandatangan": c.signer
+            }));
+            const ws = XLSX.utils.json_to_sheet(exportData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Data Sertifikat");
+            XLSX.writeFile(wb, "Database_Sertifikat_SOL2025.xlsx");
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            toastMsg.innerText = message;
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            toast.classList.add('opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100');
+                toast.classList.add('opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+
+        function copyLink() {
+            document.execCommand('copy');
+            showToast('Tautan verifikasi berhasil disalin!');
+        }
+    </script>
+</body>
+</html>
