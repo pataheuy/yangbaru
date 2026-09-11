@@ -881,7 +881,7 @@ function initEasterEgg() {
         }
         if (errorClickCount >= 5) {
             isProcessingEntrance = true;
-            if (statusEl) { statusEl.textContent = 'Status: Bypassing... Redirecting in 1s...'; statusEl.style.color = '#1DB954'; }
+            if (statusEl) { statusEl.style.visibility = 'hidden'; }
             setTimeout(() => {
                 const fake404 = document.getElementById('fake-404');
                 const appView = document.getElementById('app-view');
