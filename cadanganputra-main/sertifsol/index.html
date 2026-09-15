@@ -11,6 +11,9 @@
     <!-- SheetJS for Spreadsheet Parsing -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
+    <!-- Supabase JS Client Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <!-- Google Fonts: Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,16 +25,6 @@
                 extend: {
                     fontFamily: {
                         sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-                    },
-                    colors: {
-                        brand: {
-                            50: '#eff6ff',
-                            100: '#dbeafe',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                            900: '#1e3a8a',
-                        }
                     }
                 }
             }
@@ -84,7 +77,7 @@
             </form>
 
             <!-- Result Box (Hidden by default) -->
-            <div id="resultBox" class="hidden pt-6 border-t border-dashed border-slate-200 space-y-5 animate-fade-in">
+            <div id="resultBox" class="hidden pt-6 border-t border-dashed border-slate-200 space-y-5">
                 
                 <!-- Status Badge (Valid / Invalid) -->
                 <div id="statusBadge" class="flex items-start gap-3 p-4 rounded-xl bg-emerald-50 text-emerald-900 border border-emerald-200">
@@ -105,35 +98,35 @@
                         <span class="text-slate-500 font-medium">ID Sertifikat</span>
                         <span class="text-slate-400 font-semibold">:</span>
                         <div>
-                            <span class="font-bold font-mono text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100" id="resCode">13.001/SOL/MPM/VIII/2025</span>
+                            <span class="font-bold font-mono text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100" id="resCode">-</span>
                         </div>
                     </div>
                     <div class="grid grid-cols-[110px_12px_1fr] sm:grid-cols-[130px_12px_1fr] items-center pb-2 border-b border-slate-200/60">
                         <span class="text-slate-500 font-medium">Nama Peserta</span>
                         <span class="text-slate-400 font-semibold">:</span>
-                        <span class="font-bold text-slate-900" id="resName">Muhammad Arfan Alfiansyah</span>
+                        <span class="font-bold text-slate-900" id="resName">-</span>
                     </div>
                     <div class="grid grid-cols-[110px_12px_1fr] sm:grid-cols-[130px_12px_1fr] items-center pb-2 border-b border-slate-200/60">
                         <span class="text-slate-500 font-medium">Kelas</span>
                         <span class="text-slate-400 font-semibold">:</span>
-                        <span class="font-bold text-slate-900" id="resClass">8 Abu</span>
+                        <span class="font-bold text-slate-900" id="resClass">-</span>
                     </div>
                     <div class="grid grid-cols-[110px_12px_1fr] sm:grid-cols-[130px_12px_1fr] items-center pb-2 border-b border-slate-200/60">
                         <span class="text-slate-500 font-medium">Nilai</span>
                         <span class="text-slate-400 font-semibold">:</span>
                         <div>
-                            <span class="font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded border border-emerald-100" id="resGrade">90</span>
+                            <span class="font-bold text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded border border-emerald-100" id="resGrade">-</span>
                         </div>
                     </div>
                     <div class="grid grid-cols-[110px_12px_1fr] sm:grid-cols-[130px_12px_1fr] items-center pb-2 border-b border-slate-200/60">
                         <span class="text-slate-500 font-medium">Kegiatan</span>
                         <span class="text-slate-400 font-semibold">:</span>
-                        <span class="font-bold text-slate-900" id="resEvent">School of Leadership 2025</span>
+                        <span class="font-bold text-slate-900" id="resEvent">-</span>
                     </div>
                     <div class="grid grid-cols-[110px_12px_1fr] sm:grid-cols-[130px_12px_1fr] items-center">
                         <span class="text-slate-500 font-medium">Penandatangan</span>
                         <span class="text-slate-400 font-semibold">:</span>
-                        <span class="font-bold text-slate-900" id="resSigner">Asep Lukmanul Hakim S.Sy</span>
+                        <span class="font-bold text-slate-900" id="resSigner">-</span>
                     </div>
                 </div>
 
@@ -163,7 +156,7 @@
                     <span>Petunjuk Penulisan Format</span>
                 </div>
                 <ul class="list-disc list-inside text-slate-500 space-y-1 pl-1 leading-relaxed">
-                    <li>Gunakan format standar sertifikat: <span class="font-mono bg-slate-200/60 px-1 py-0.5 rounded text-slate-700">13.001/SOL/MPM/VIII/2025</span></li>
+                    <li>Gunakan format standar sertifikat: <span class="font-mono bg-slate-200/60 px-1 py-0.5 rounded text-slate-700">13.001/SOL/MPM/VIII/2026</span></li>
                     <li>Pastikan penulisan titik, garis miring, dan angka romawi sudah sesuai.</li>
                 </ul>
             </div>
@@ -171,7 +164,7 @@
 
         <!-- Footer -->
         <footer class="text-center text-xs text-slate-500 font-medium">
-            <p>&copy; 2025 School of Leadership — BEM As-Syifa. All rights reserved.</p>
+            <p>&copy; 2026 School of Leadership — BEM As-Syifa. All rights reserved.</p>
         </footer>
     </div>
 
@@ -186,16 +179,27 @@
                     </svg>
                 </div>
                 <div>
-                    <h2 class="text-lg font-bold">Dashboard Admin</h2>
+                    <div class="flex items-center gap-2">
+                        <h2 class="text-lg font-bold">Dashboard Admin</h2>
+                        <div id="supabaseStatusBadge" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Mode Lokal
+                        </div>
+                    </div>
                     <p class="text-xs text-slate-400">Manajemen & Impor Database Sertifikat</p>
                 </div>
             </div>
             <div class="flex items-center gap-2 w-full sm:w-auto">
+                <button onclick="openSupabaseModal()" class="flex-1 sm:flex-none px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold shadow transition-colors flex items-center justify-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/>
+                    </svg>
+                    Koneksi Supabase
+                </button>
                 <button onclick="exitAdmin()" class="flex-1 sm:flex-none px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold border border-slate-700 transition-colors flex items-center justify-center gap-2">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                     </svg>
-                    Kembali ke Verifikasi
+                    Verifikasi
                 </button>
             </div>
         </header>
@@ -274,7 +278,7 @@
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div>
                             <h3 class="font-bold text-base text-slate-900">Database Sertifikat Terdaftar</h3>
-                            <p class="text-xs text-slate-500">Total: <span id="totalCertBadge" class="font-bold text-blue-600">1</span> sertifikat</p>
+                            <p class="text-xs text-slate-500">Total: <span id="totalCertBadge" class="font-bold text-blue-600">0</span> sertifikat</p>
                         </div>
                         <div class="flex items-center gap-2">
                             <button onclick="exportToExcel()" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5">
@@ -312,8 +316,74 @@
         </div>
     </div>
 
+    <!-- SUPABASE CONFIG MODAL -->
+    <div id="supabaseModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl border border-slate-100 max-w-lg w-full p-6 space-y-5">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                    <div class="p-2 bg-emerald-100 text-emerald-700 rounded-lg">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-slate-900">Pengaturan Supabase</h3>
+                        <p class="text-xs text-slate-500">Hubungkan database cloud Supabase Anda</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeSupabaseModal()" class="text-slate-400 hover:text-slate-600">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <form onsubmit="saveSupabaseConfig(event)" class="space-y-4 text-xs">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Supabase URL</label>
+                    <input type="url" id="sbUrlInput" placeholder="https://your-project.supabase.co" class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg font-mono text-xs focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Supabase Anon Key (Project API Key)</label>
+                    <input type="password" id="sbKeyInput" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6..." class="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-lg font-mono text-xs focus:outline-none focus:border-emerald-500">
+                </div>
+
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-slate-700">Skrip SQL Tabel `certificates`</span>
+                        <button type="button" onclick="copySqlSchema()" class="text-emerald-700 font-semibold hover:underline flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                            Salin SQL
+                        </button>
+                    </div>
+                    <textarea id="sqlSchemaText" readonly class="w-full h-24 p-2 bg-slate-900 text-emerald-400 font-mono text-[10px] rounded border border-slate-800 resize-none focus:outline-none">CREATE TABLE IF NOT EXISTS certificates (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    class TEXT,
+    grade TEXT,
+    event TEXT DEFAULT 'School of Leadership 2025',
+    signer TEXT DEFAULT 'Asep Lukmanul Hakim S.Sy',
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE certificates ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Akses Baca Publik" ON certificates FOR SELECT USING (true);
+CREATE POLICY "Akses Tambah Publik" ON certificates FOR INSERT WITH CHECK (true);
+CREATE POLICY "Akses Edit Publik" ON certificates FOR UPDATE USING (true);
+CREATE POLICY "Akses Hapus Publik" ON certificates FOR DELETE USING (true);</textarea>
+                </div>
+
+                <div class="flex gap-2 pt-2">
+                    <button type="button" onclick="disconnectSupabase()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl">Gunakan Mode Lokal</button>
+                    <div class="flex-1 flex gap-2 justify-end">
+                        <button type="button" onclick="closeSupabaseModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl">Batal</button>
+                        <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow">Simpan & Hubungkan</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- PASSWORD MODAL -->
-    <div id="passwordModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 animate-fade-in">
+    <div id="passwordModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl border border-slate-100 max-w-sm w-full p-6 space-y-4">
             <div class="text-center space-y-1">
                 <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-2">
@@ -358,6 +428,12 @@
     </div>
 
     <script>
+        // =========================================================================
+        // KONFIGURASI SUPABASE (Silakan Isi URL & KEY di bawah ini)
+        // =========================================================================
+        const SUPABASE_URL = "";      // Contoh: "https://your-project.supabase.co"
+        const SUPABASE_ANON_KEY = ""; // Contoh: "eyJhbGciOiJIUzI1NiIsInR5cCI6..."
+
         // Default Database Initial Data
         let certDatabase = [
             {
@@ -370,7 +446,107 @@
             }
         ];
 
-        // Secret Click State
+        // Supabase Client Handle
+        let supabaseClient = null;
+
+        // Initialize Supabase if credentials are present
+        function initSupabase() {
+            const url = (typeof SUPABASE_URL !== 'undefined' && SUPABASE_URL.trim() !== "") 
+                ? SUPABASE_URL.trim() 
+                : localStorage.getItem('supabase_url');
+                
+            const key = (typeof SUPABASE_ANON_KEY !== 'undefined' && SUPABASE_ANON_KEY.trim() !== "") 
+                ? SUPABASE_ANON_KEY.trim() 
+                : localStorage.getItem('supabase_key');
+
+            if (url && key && window.supabase) {
+                try {
+                    supabaseClient = window.supabase.createClient(url, key);
+                    updateSupabaseStatusBadge(true);
+                    syncFromSupabase();
+                } catch (err) {
+                    console.error("Supabase Init Error:", err);
+                    supabaseClient = null;
+                    updateSupabaseStatusBadge(false);
+                }
+            } else {
+                updateSupabaseStatusBadge(false);
+            }
+        }
+
+        function updateSupabaseStatusBadge(isConnected) {
+            const badge = document.getElementById('supabaseStatusBadge');
+            if (!badge) return;
+            if (isConnected) {
+                badge.className = "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+                badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Supabase Terhubung`;
+            } else {
+                badge.className = "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30";
+                badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Mode Lokal`;
+            }
+        }
+
+        async function syncFromSupabase() {
+            if (!supabaseClient) return;
+            try {
+                const { data, error } = await supabaseClient.from('certificates').select('*');
+                if (error) {
+                    showToast("Gagal mengambil data dari Supabase: " + error.message);
+                    return;
+                }
+                if (data && data.length > 0) {
+                    certDatabase = data;
+                    renderAdminTable();
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function openSupabaseModal() {
+            document.getElementById('sbUrlInput').value = SUPABASE_URL || localStorage.getItem('supabase_url') || '';
+            document.getElementById('sbKeyInput').value = SUPABASE_ANON_KEY || localStorage.getItem('supabase_key') || '';
+            document.getElementById('supabaseModal').classList.remove('hidden');
+        }
+
+        function closeSupabaseModal() {
+            document.getElementById('supabaseModal').classList.add('hidden');
+        }
+
+        function saveSupabaseConfig(e) {
+            e.preventDefault();
+            const url = document.getElementById('sbUrlInput').value.trim();
+            const key = document.getElementById('sbKeyInput').value.trim();
+
+            if (!url || !key) {
+                showToast("Mohon isi Supabase URL dan Anon Key!");
+                return;
+            }
+
+            localStorage.setItem('supabase_url', url);
+            localStorage.setItem('supabase_key', key);
+            initSupabase();
+            closeSupabaseModal();
+            showToast("Koneksi Supabase berhasil disimpan!");
+        }
+
+        function disconnectSupabase() {
+            localStorage.removeItem('supabase_url');
+            localStorage.removeItem('supabase_key');
+            supabaseClient = null;
+            updateSupabaseStatusBadge(false);
+            closeSupabaseModal();
+            showToast("Beralih ke mode database lokal.");
+        }
+
+        function copySqlSchema() {
+            const sqlText = document.getElementById('sqlSchemaText');
+            sqlText.select();
+            document.execCommand('copy');
+            showToast("Skrip SQL berhasil disalin ke clipboard!");
+        }
+
+        // Secret Click State for Admin Modal
         let pillClickCount = 0;
         let clickTimer = null;
 
@@ -384,7 +560,7 @@
             } else {
                 clickTimer = setTimeout(() => {
                     pillClickCount = 0;
-                }, 3000); // Reset count if inactive for 3 seconds
+                }, 3000);
             }
         }
 
@@ -422,7 +598,7 @@
         }
 
         // Public Verification Handler
-        function handleVerify(e) {
+        async function handleVerify(e) {
             e.preventDefault();
             const inputVal = document.getElementById('certNumber').value.trim();
             const resultBox = document.getElementById('resultBox');
@@ -435,8 +611,22 @@
 
             const normalizedInput = inputVal.toUpperCase().replace(/\s+/g, '');
             
-            // Search in dynamic database
-            const foundCert = certDatabase.find(c => c.id.toUpperCase().replace(/\s+/g, '') === normalizedInput);
+            let foundCert = null;
+
+            if (supabaseClient) {
+                try {
+                    const { data } = await supabaseClient.from('certificates').select('*');
+                    if (data) {
+                        foundCert = data.find(c => c.id.toUpperCase().replace(/\s+/g, '') === normalizedInput);
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+            
+            if (!foundCert) {
+                foundCert = certDatabase.find(c => c.id.toUpperCase().replace(/\s+/g, '') === normalizedInput);
+            }
 
             resultBox.classList.remove('hidden');
 
@@ -450,10 +640,10 @@
 
                 document.getElementById('resCode').innerText = foundCert.id;
                 document.getElementById('resName').innerText = foundCert.name;
-                document.getElementById('resClass').innerText = foundCert.class;
-                document.getElementById('resGrade').innerText = foundCert.grade;
-                document.getElementById('resEvent').innerText = foundCert.event;
-                document.getElementById('resSigner').innerText = foundCert.signer;
+                document.getElementById('resClass').innerText = foundCert.class || '-';
+                document.getElementById('resGrade').innerText = foundCert.grade || '-';
+                document.getElementById('resEvent').innerText = foundCert.event || 'School of Leadership 2025';
+                document.getElementById('resSigner').innerText = foundCert.signer || 'Asep Lukmanul Hakim S.Sy';
 
                 certDetails.classList.remove('hidden');
                 actionButtons.classList.remove('hidden');
@@ -487,14 +677,14 @@
                 return;
             }
 
-            filtered.forEach((cert, index) => {
+            filtered.forEach((cert) => {
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-50 transition-colors';
                 tr.innerHTML = `
                     <td class="p-3 font-mono font-bold text-blue-700">${cert.id}</td>
                     <td class="p-3 font-semibold text-slate-800">${cert.name}</td>
-                    <td class="p-3">${cert.class}</td>
-                    <td class="p-3"><span class="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded font-bold">${cert.grade}</span></td>
+                    <td class="p-3">${cert.class || '-'}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded font-bold">${cert.grade || '-'}</span></td>
                     <td class="p-3 text-right">
                         <button onclick="deleteCert('${cert.id}')" class="text-red-600 hover:text-red-800 font-semibold p-1 hover:bg-red-50 rounded">Hapus</button>
                     </td>
@@ -504,7 +694,7 @@
         }
 
         // Add Manual Certificate
-        function handleManualAdd(e) {
+        async function handleManualAdd(e) {
             e.preventDefault();
             const id = document.getElementById('adminId').value.trim();
             const name = document.getElementById('adminName').value.trim();
@@ -513,23 +703,43 @@
             const eventName = document.getElementById('adminEvent').value.trim();
             const signer = document.getElementById('adminSigner').value.trim();
 
-            if (certDatabase.some(c => c.id === id)) {
-                showToast("ID Sertifikat sudah ada!");
-                return;
+            const newCert = { id, name, class: className, grade, event: eventName, signer };
+
+            if (supabaseClient) {
+                const { error } = await supabaseClient.from('certificates').upsert([newCert]);
+                if (error) {
+                    showToast("Gagal menyimpan ke Supabase: " + error.message);
+                    return;
+                }
+                await syncFromSupabase();
+            } else {
+                if (certDatabase.some(c => c.id === id)) {
+                    showToast("ID Sertifikat sudah ada!");
+                    return;
+                }
+                certDatabase.push(newCert);
+                renderAdminTable();
             }
 
-            certDatabase.push({ id, name, class: className, grade, event: eventName, signer });
-            renderAdminTable();
-            showToast("Sertifikat berhasil ditambahkan!");
+            showToast("Sertifikat berhasil disimpan!");
             document.getElementById('addCertForm').reset();
             document.getElementById('adminEvent').value = "School of Leadership 2025";
             document.getElementById('adminSigner').value = "Asep Lukmanul Hakim S.Sy";
         }
 
         // Delete Certificate
-        function deleteCert(id) {
-            certDatabase = certDatabase.filter(c => c.id !== id);
-            renderAdminTable();
+        async function deleteCert(id) {
+            if (supabaseClient) {
+                const { error } = await supabaseClient.from('certificates').delete().eq('id', id);
+                if (error) {
+                    showToast("Gagal menghapus dari Supabase: " + error.message);
+                    return;
+                }
+                await syncFromSupabase();
+            } else {
+                certDatabase = certDatabase.filter(c => c.id !== id);
+                renderAdminTable();
+            }
             showToast("Sertifikat berhasil dihapus.");
         }
 
@@ -541,9 +751,19 @@
             document.getElementById('confirmModal').classList.add('hidden');
         }
 
-        function clearAllData() {
-            certDatabase = [];
-            renderAdminTable();
+        async function clearAllData() {
+            if (supabaseClient) {
+                const { error } = await supabaseClient.from('certificates').delete().neq('id', '___empty___');
+                if (error) {
+                    showToast("Gagal menghapus dari Supabase: " + error.message);
+                    closeConfirmModal();
+                    return;
+                }
+                await syncFromSupabase();
+            } else {
+                certDatabase = [];
+                renderAdminTable();
+            }
             closeConfirmModal();
             showToast("Semua data sertifikat telah dibersihkan.");
         }
@@ -554,13 +774,12 @@
             if (!file) return;
 
             const reader = new FileReader();
-            reader.onload = function(evt) {
+            reader.onload = async function(evt) {
                 try {
                     const data = new Uint8Array(evt.target.result);
                     const workbook = XLSX.read(data, { type: 'array' });
                     const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
                     
-                    // Helper to fuzzy match keys in a row object
                     function getRowValue(row, possibleKeys) {
                         if (!row || typeof row !== 'object') return '';
                         const keys = Object.keys(row);
@@ -582,9 +801,8 @@
                     const signerKeys = ['Penandatangan', 'Signer', 'TTD', 'Yang Tanda Tangan', 'Penanggung Jawab'];
 
                     let jsonData = XLSX.utils.sheet_to_json(firstSheet, { defval: '' });
-                    
-                    // Extract valid rows with flexible matching
                     let validRows = [];
+
                     jsonData.forEach(row => {
                         const id = getRowValue(row, idKeys);
                         const name = getRowValue(row, nameKeys);
@@ -600,7 +818,6 @@
                         }
                     });
 
-                    // If standard sheet_to_json found 0 valid rows, try scanning 2D array to locate table headers
                     if (validRows.length === 0) {
                         const rawMatrix = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: '' });
                         let headerRowIdx = -1;
@@ -646,30 +863,34 @@
                         return;
                     }
 
-                    let importedCount = 0;
-                    let updatedCount = 0;
-
-                    validRows.forEach(item => {
-                        const existingIdx = certDatabase.findIndex(c => 
-                            c.id.toUpperCase().replace(/\s+/g, '') === item.id.toUpperCase().replace(/\s+/g, '')
-                        );
-
-                        if (existingIdx !== -1) {
-                            certDatabase[existingIdx] = item;
-                            updatedCount++;
-                        } else {
-                            certDatabase.push(item);
-                            importedCount++;
+                    if (supabaseClient) {
+                        const { error } = await supabaseClient.from('certificates').upsert(validRows);
+                        if (error) {
+                            showToast("Gagal impor ke Supabase: " + error.message);
+                            return;
                         }
-                    });
+                        await syncFromSupabase();
+                        showToast(`Berhasil mengunggah ${validRows.length} data ke Supabase!`);
+                    } else {
+                        let importedCount = 0;
+                        let updatedCount = 0;
 
-                    renderAdminTable();
-                    if (importedCount > 0 && updatedCount > 0) {
-                        showToast(`Berhasil: ${importedCount} data baru, ${updatedCount} diperbarui!`);
-                    } else if (importedCount > 0) {
-                        showToast(`Berhasil mengimpor ${importedCount} data baru!`);
-                    } else if (updatedCount > 0) {
-                        showToast(`Semua ${updatedCount} data dalam file berhasil diperbarui!`);
+                        validRows.forEach(item => {
+                            const existingIdx = certDatabase.findIndex(c => 
+                                c.id.toUpperCase().replace(/\s+/g, '') === item.id.toUpperCase().replace(/\s+/g, '')
+                            );
+
+                            if (existingIdx !== -1) {
+                                certDatabase[existingIdx] = item;
+                                updatedCount++;
+                            } else {
+                                certDatabase.push(item);
+                                importedCount++;
+                            }
+                        });
+
+                        renderAdminTable();
+                        showToast(`Impor lokal berhasil (${validRows.length} sertifikat)`);
                     }
 
                 } catch (err) {
@@ -735,6 +956,11 @@
             document.execCommand('copy');
             showToast('Tautan verifikasi berhasil disalin!');
         }
+
+        // Initialize Supabase on Load
+        window.addEventListener('DOMContentLoaded', () => {
+            initSupabase();
+        });
     </script>
 </body>
 </html>

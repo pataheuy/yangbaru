@@ -327,16 +327,20 @@
                     <i class="fa-solid fa-lock"></i>
                 </div>
                 <h3 class="text-xl font-bold text-slate-800">Login Admin</h3>
-                <p class="text-xs text-slate-500">Masukkan kata sandi admin untuk melanjutkan</p>
+                <p class="text-xs text-slate-500">Masukkan akun admin untuk melanjutkan</p>
             </div>
             <form onsubmit="handleAdminLogin(event)" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Kata Sandi Admin</label>
-                    <input type="password" id="adminPasswordInput" placeholder="Password Admin" class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Email Admin</label>
+                    <input type="email" id="adminEmailInput" placeholder="admin@sekolah.ac.id" class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
                 </div>
-                <div id="loginError" class="text-rose-500 text-xs hidden">Kata sandi salah. Coba lagi!</div>
-                <button type="submit" class="w-full gradient-btn text-white font-semibold py-2.5 rounded-xl text-sm transition">
-                    Masuk
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Kata Sandi</label>
+                    <input type="password" id="adminPasswordInput" placeholder="••••••••" class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
+                </div>
+                <div id="loginError" class="text-rose-500 text-xs hidden">Email atau kata sandi salah. Coba lagi!</div>
+                <button type="submit" id="adminLoginBtn" class="w-full gradient-btn text-white font-semibold py-2.5 rounded-xl text-sm transition flex items-center justify-center gap-2">
+                    <span id="adminLoginBtnText">Masuk</span>
                 </button>
             </form>
         </div>
@@ -496,6 +500,15 @@
         // Initialize App
         window.addEventListener('DOMContentLoaded', async () => {
             initSupabaseClient();
+
+            // Task 4: Restore admin session jika Supabase masih aktif dan sesi belum expired
+            if (isSupabaseActive && supabaseClient) {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (session) {
+                    isAdminLoggedIn = true;
+                }
+            }
+
             await loadData();
             renderWelcomeClasses();
         });
@@ -834,6 +847,7 @@
         }
 
         function openAdminLoginModal() {
+            document.getElementById('adminEmailInput').value = '';
             document.getElementById('adminPasswordInput').value = '';
             document.getElementById('loginError').classList.add('hidden');
             const modal = document.getElementById('adminLoginModal');
@@ -847,21 +861,49 @@
             modal.classList.remove('flex');
         }
 
-        function handleAdminLogin(event) {
+        // Task 2: Login via Supabase Auth — tidak ada password hardcoded di client
+        async function handleAdminLogin(event) {
             event.preventDefault();
-            const pass = document.getElementById('adminPasswordInput').value;
-            
-            if (pass === 'raisarfaketuampm') {
-                isAdminLoggedIn = true;
-                closeAdminLoginModal();
-                showPage('admin');
-                showAlertModal('Login Berhasil', 'Selamat datang di Panel Admin BEM SMP.', 'success');
-            } else {
+
+            // Task 5: Fallback jika Supabase tidak aktif
+            if (!isSupabaseActive || !supabaseClient) {
+                document.getElementById('loginError').innerText = 'Koneksi ke server tidak tersedia. Hubungi administrator.';
                 document.getElementById('loginError').classList.remove('hidden');
+                return;
             }
+
+            const email = document.getElementById('adminEmailInput').value.trim();
+            const pass  = document.getElementById('adminPasswordInput').value;
+            const btn   = document.getElementById('adminLoginBtn');
+            const btnText = document.getElementById('adminLoginBtnText');
+            const errEl = document.getElementById('loginError');
+
+            errEl.classList.add('hidden');
+            btn.disabled = true;
+            btnText.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Memeriksa...';
+
+            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
+
+            btn.disabled = false;
+            btnText.innerText = 'Masuk';
+
+            if (error || !data.user) {
+                errEl.innerText = 'Email atau kata sandi salah. Coba lagi!';
+                errEl.classList.remove('hidden');
+                return;
+            }
+
+            isAdminLoggedIn = true;
+            closeAdminLoginModal();
+            showPage('admin');
+            showAlertModal('Login Berhasil', 'Selamat datang di Panel Admin BEM SMP.', 'success');
         }
 
-        function logoutAdmin() {
+        // Task 3: Logout — cabut session Supabase Auth
+        async function logoutAdmin() {
+            if (isSupabaseActive && supabaseClient) {
+                await supabaseClient.auth.signOut();
+            }
             isAdminLoggedIn = false;
             showWelcomeScreen();
             showAlertModal('Selesai', 'Anda telah keluar dari mode admin.', 'info');
