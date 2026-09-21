@@ -1,27 +1,24 @@
 /**
  * api/sb.js — Vercel Serverless Function
  *
- * Bertindak sebagai proxy ke Supabase.
- * Key disimpan di Vercel Environment Variables, tidak pernah dikirim ke browser.
+ * Proxy ke backend. Key & email tidak pernah ke browser.
  *
- * Cara set env var:
- *   Vercel Dashboard → Project → Settings → Environment Variables
- *   Tambahkan:
- *     SUPABASE_URL  = https://xxxx.supabase.co
- *     SUPABASE_KEY  = eyJ...  (anon key atau service_role key)
+ * Env var yang dibutuhkan (Vercel → Settings → Environment Variables):
+ *   SUPABASE_URL        = https://xxxx.supabase.co
+ *   SUPABASE_KEY        = eyJ...  (anon key)
+ *   ALLOWED_EMAIL       = emailkamu@gmail.com  ← email satu-satunya yang boleh login
  */
 
 export default async function handler(req, res) {
-  // Hanya izinkan POST
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Ambil key dari env var Vercel (tidak pernah ke client)
-  const SB_URL = process.env.SUPABASE_URL;
-  const SB_KEY = process.env.SUPABASE_KEY;
+  const SB_URL       = process.env.SUPABASE_URL;
+  const SB_KEY       = process.env.SUPABASE_KEY;
+  const ALLOWED_EMAIL = (process.env.ALLOWED_EMAIL || '').toLowerCase().trim();
 
-  if (!SB_URL || !SB_KEY) {
+  if (!SB_URL || !SB_KEY || !ALLOWED_EMAIL) {
     return res.status(500).json({ error: 'Server configuration missing' });
   }
 
@@ -31,19 +28,62 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'path required' });
   }
 
-  // Hanya izinkan path ke tabel passwords (keamanan tambahan)
-  if (!path.startsWith('/rest/v1/passwords') && !path.startsWith('/auth/v1/')) {
+  // ── Login khusus: inject email dari server, client hanya kirim password ──
+  if (path === '/auth/v1/login') {
+    const password = body && body.password;
+    if (!password) return res.status(400).json({ error: 'password required' });
+
+    const upstream = await fetch(`${SB_URL}/auth/v1/token?grant_type=password`, {
+      method: 'POST',
+      headers: { 'apikey': SB_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: ALLOWED_EMAIL, password })
+    });
+
+    const data = await upstream.json();
+
+    if (!upstream.ok) {
+      return res.status(upstream.status).json({ error: 'Login gagal' });
+      // Jangan bocorkan pesan error asli dari upstream
+    }
+
+    // Verifikasi email dari response — pastikan benar-benar akun yang diizinkan
+    const returnedEmail = ((data.user && data.user.email) || '').toLowerCase();
+    if (returnedEmail !== ALLOWED_EMAIL) {
+      return res.status(403).json({ error: 'Akses ditolak' });
+    }
+
+    return res.status(200).json({
+      access_token: data.access_token,
+      email: data.user.email   // hanya email, tidak ada data sensitif lain
+    });
+  }
+
+  // ── Logout ──────────────────────────────────────────────────────────────
+  if (path === '/auth/v1/logout') {
+    if (token) {
+      await fetch(`${SB_URL}/auth/v1/logout`, {
+        method: 'POST',
+        headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${token}` }
+      }).catch(() => {});
+    }
+    return res.status(200).json({ ok: true });
+  }
+
+  // ── Hanya izinkan akses ke tabel passwords ───────────────────────────────
+  if (!path.startsWith('/rest/v1/passwords')) {
     return res.status(403).json({ error: 'Path not allowed' });
+  }
+
+  // Wajib ada user token untuk akses data (RLS akan menolak kalau pakai anon)
+  if (!token) {
+    return res.status(401).json({ error: 'Unauthorized' });
   }
 
   const headers = {
     'apikey': SB_KEY,
-    // Kalau ada user token (JWT setelah login), pakai itu — RLS tetap aktif
-    // Kalau tidak ada, pakai anon key
-    'Authorization': `Bearer ${token || SB_KEY}`,
+    'Authorization': `Bearer ${token}`,
     'Content-Type': 'application/json',
   };
-
   if (prefer) headers['Prefer'] = prefer;
 
   try {
@@ -58,12 +98,12 @@ export default async function handler(req, res) {
       ? await upstream.json()
       : await upstream.text();
 
-    // Teruskan header content-range untuk pagination
     const contentRange = upstream.headers.get('content-range');
     if (contentRange) res.setHeader('x-content-range', contentRange);
 
     return res.status(upstream.status).json(data);
   } catch (err) {
-    return res.status(502).json({ error: 'Upstream error: ' + err.message });
+    return res.status(502).json({ error: 'Upstream error' });
+    // Jangan bocorkan err.message ke client
   }
 }

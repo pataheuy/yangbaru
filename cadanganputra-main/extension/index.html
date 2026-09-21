@@ -310,22 +310,13 @@
   <div id="auth-overlay">
     <div class="auth-card">
       <h2>Daftar Akun</h2>
-      <p>Masukkan kredensial untuk melihat akun tersimpan.</p>
-
-
-      <div class="input-group">
-        <label>Email</label>
-        <div class="input-wrap">
-          <input type="email" id="auth-email" placeholder="email@contoh.com"
-                 autofocus autocomplete="email" />
-        </div>
-      </div>
+      <p>Masukkan password untuk mengakses.</p>
 
       <div class="input-group">
         <label>Password</label>
         <div class="input-wrap">
           <input type="password" id="auth-input" placeholder="Password..."
-                 autocomplete="current-password" />
+                 autofocus autocomplete="current-password" />
           <button class="toggle-pw" id="toggle-pw" type="button" aria-label="Tampilkan password">
             <svg id="eye-icon" viewBox="0 0 24 24">
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
@@ -335,7 +326,7 @@
         </div>
       </div>
 
-      <div id="auth-error">Email atau password salah.</div>
+      <div id="auth-error">Password salah.</div>
 
       <button class="btn-login" id="auth-btn">
         <div class="spinner-sm" id="auth-spinner"></div>
@@ -403,30 +394,22 @@
 
 <script>
   // ─────────────────────────────────────────────────────────────────────────
-  // Semua request ke backend lewat /api/sb (Vercel Edge Function).
-  // Key tidak ada di file ini — tersimpan di Vercel env var.
+  // Semua request ke backend lewat /api/sb (Vercel Serverless Function).
+  // Key & email tidak ada di file ini — tersimpan di Vercel env var.
   // ─────────────────────────────────────────────────────────────────────────
-
-  // ── Email yang diizinkan login (whitelist) ──────────────────────────────
-  // Ganti dengan email yang kamu daftarkan di Authentication > Users
-  const ALLOWED_EMAILS = [
-    'admin@sekolahputra.id',
-    // 'emaillain@domain.com',
-  ];
 
   let allData   = [];
-  let userToken = null;  // JWT user setelah login
+  let userToken = null;
 
   // ─────────────────────────────────────────────────────────────────────────
-  // Panggil proxy — semua fetch ke Supabase lewat sini
+  // Panggil proxy
   // ─────────────────────────────────────────────────────────────────────────
   async function sbProxy({ path, method = 'GET', body, prefer } = {}) {
-    const res = await fetch('/api/sb', {
+    return fetch('/api/sb', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ path, method, body, token: userToken, prefer })
     });
-    return res;
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -434,10 +417,7 @@
   // ─────────────────────────────────────────────────────────────────────────
   async function forceLogout() {
     if (!userToken) return;
-    // Kirim logout ke proxy
-    try {
-      await sbProxy({ path: '/auth/v1/logout', method: 'POST' });
-    } catch (_) { /* abaikan error saat unload */ }
+    try { await sbProxy({ path: '/auth/v1/logout', method: 'POST' }); } catch (_) {}
     userToken = null;
   }
 
@@ -455,10 +435,9 @@
   });
 
   // ─────────────────────────────────────────────────────────────────────────
-  // AUTH
+  // AUTH — hanya password, email di-inject oleh server
   // ─────────────────────────────────────────────────────────────────────────
   const authOverlay = document.getElementById('auth-overlay');
-  const authEmail   = document.getElementById('auth-email');
   const authInput   = document.getElementById('auth-input');
   const authError   = document.getElementById('auth-error');
   const authSpinner = document.getElementById('auth-spinner');
@@ -478,24 +457,13 @@
   });
 
   async function doLogin() {
-    const email    = authEmail.value.trim().toLowerCase();
     const password = authInput.value;
 
-    if (!email || !password) {
-      showAuthError('Email dan password harus diisi.');
+    if (!password) {
+      showAuthError('Password harus diisi.');
       return;
     }
 
-    // Cek whitelist di client — tolak sebelum request ke server
-    if (!ALLOWED_EMAILS.includes(email)) {
-      showAuthError('Akun ini tidak memiliki akses.');
-      authInput.value = '';
-      authEmail.value = '';
-      authEmail.focus();
-      return;
-    }
-
-    // UI loading
     authError.style.display   = 'none';
     authSpinner.style.display = 'block';
     authBtnText.textContent   = 'Masuk...';
@@ -504,17 +472,17 @@
     let result;
     try {
       const res = await sbProxy({
-        path: '/auth/v1/token?grant_type=password',
+        path: '/auth/v1/login',
         method: 'POST',
-        body: { email, password }
+        body: { password }
       });
       result = await res.json();
-      if (!res.ok) throw new Error(result.error_description || result.message || 'Login gagal');
+      if (!res.ok) throw new Error(result.error || 'Login gagal');
     } catch (err) {
       authSpinner.style.display = 'none';
       authBtnText.textContent   = 'Masuk';
       document.getElementById('auth-btn').disabled = false;
-      showAuthError('Login gagal: ' + err.message);
+      showAuthError(err.message);
       authInput.value = '';
       authInput.focus();
       return;
@@ -524,21 +492,8 @@
     authBtnText.textContent   = 'Masuk';
     document.getElementById('auth-btn').disabled = false;
 
-    // Double-check email dari response server
-    const returnedEmail = ((result.user && result.user.email) || '').toLowerCase();
-    if (!ALLOWED_EMAILS.includes(returnedEmail)) {
-      // Langsung invalidasi token yang baru didapat
-      userToken = result.access_token;
-      await forceLogout();
-      showAuthError('Akun ini tidak memiliki akses.');
-      authInput.value = '';
-      authEmail.value = '';
-      authEmail.focus();
-      return;
-    }
-
     userToken = result.access_token;
-    onLoginSuccess(result.user.email);
+    onLoginSuccess(result.email);
   }
 
   function showAuthError(msg) {
@@ -550,14 +505,12 @@
     authOverlay.style.display                             = 'none';
     document.getElementById('topbar').style.display       = 'flex';
     document.getElementById('main-content').style.display = 'block';
-    document.getElementById('user-email-display').textContent = maskEmail(email);
+    document.getElementById('user-email-display').textContent = maskEmail(email || '');
     authInput.value = '';
-    authEmail.value = '';
     loadData();
   }
 
-  // Sensor email: 2 karakter awal terlihat, sisanya titik
-  // "admin@sekolahputra.id" → "ad•••••••••••••••••"
+  // Sensor: 2 huruf awal + titik-titik
   function maskEmail(email) {
     if (!email) return '••••••••';
     return email.slice(0, 2) + '•'.repeat(Math.max(6, email.length - 2));
@@ -565,7 +518,6 @@
 
   document.getElementById('auth-btn').addEventListener('click', doLogin);
   authInput.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-  authEmail.addEventListener('keydown', e => { if (e.key === 'Enter') authInput.focus(); });
 
   // ─────────────────────────────────────────────────────────────────────────
   // LOGOUT MANUAL
@@ -576,7 +528,7 @@
     document.getElementById('topbar').style.display       = 'none';
     document.getElementById('main-content').style.display = 'none';
     authOverlay.style.display = 'flex';
-    authEmail.focus();
+    authInput.focus();
     showToast('Berhasil keluar.');
   });
 
