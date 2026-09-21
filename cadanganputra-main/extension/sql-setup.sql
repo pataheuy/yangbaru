@@ -21,6 +21,13 @@ CREATE TABLE IF NOT EXISTS public.passwords (
 CREATE INDEX IF NOT EXISTS passwords_user_id_idx ON public.passwords (user_id);
 CREATE INDEX IF NOT EXISTS passwords_site_idx    ON public.passwords (site);
 
+-- Constraint unik: site + username per user tidak boleh duplikat
+-- Ini yang membuat PATCH bisa menarget baris yang tepat
+-- dan mencegah insert ganda kalau ada race condition
+ALTER TABLE public.passwords
+  ADD CONSTRAINT passwords_user_site_username_unique
+  UNIQUE (user_id, site, username);
+
 
 -- ────────────────────────────────────────────────────────────
 -- 2. AKTIFKAN ROW LEVEL SECURITY (RLS)
