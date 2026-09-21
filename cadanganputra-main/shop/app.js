@@ -1,6 +1,6 @@
 ﻿// â”€â”€â”€ SUPABASE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let db; // diisi setelah config siap via initSupabaseConfig()
 
 // â”€â”€â”€ STATE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 let products = [], cart = [], favs = [], categories = [], slides = [];
@@ -878,6 +878,8 @@ function loadLocal(){
 
 // â”€â”€â”€ INIT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 window.addEventListener('DOMContentLoaded', async () => {
+    await initSupabaseConfig();
+    db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     loadCats();
     loadLocal();
 
@@ -906,3 +908,4 @@ window.addEventListener('DOMContentLoaded', async () => {
         curCat=parts[len-1];renderGrid();return;
     }
 });
+

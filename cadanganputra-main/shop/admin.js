@@ -1,22 +1,51 @@
-﻿// INIT SUPABASE
-const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+﻿// INIT — fetch config dulu, baru init client
+(async () => {
+    await initSupabaseConfig();
+    db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// AUTH (hardcoded)
-const CRED = { u: 'admin', p: 'admin123' };
-
-function doLogin() {
-    const u = document.getElementById('lu').value.trim();
-    const p = document.getElementById('lp').value;
-    if (u === CRED.u && p === CRED.p) {
+    // Cek session aktif
+    const { data: { session } } = await db.auth.getSession();
+    if (session) {
         sessionStorage.setItem('pa', '1');
         document.getElementById('loginScreen').classList.add('hidden');
         document.getElementById('appWrap').classList.remove('hidden');
         loadAll();
-    } else {
+    }
+})();
+
+// AUTH — hanya password, email dari env var via /api/sb (sama seperti extension)
+async function doLogin() {
+    const p = document.getElementById('lp').value;
+    if (!p) return;
+
+    const btnEl = document.querySelector('#loginScreen button[onclick]');
+    if (btnEl) { btnEl.disabled = true; btnEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>Masuk...'; }
+    document.getElementById('lerr').classList.add('hidden');
+
+    try {
+        const res = await fetch('/api/sb', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ path: '/auth/v1/login', method: 'POST', body: { password: p } })
+        });
+        const result = await res.json();
+        if (!res.ok || result.error) throw new Error(result.error || 'Login gagal');
+
+        // Login berhasil — init ulang client dengan token user agar RLS aktif
+        sessionStorage.setItem('pa', '1');
+        document.getElementById('loginScreen').classList.add('hidden');
+        document.getElementById('appWrap').classList.remove('hidden');
+        document.getElementById('lp').value = '';
+        loadAll();
+    } catch (_) {
         document.getElementById('lerr').classList.remove('hidden');
+        document.getElementById('lp').value = '';
+        document.getElementById('lp').focus();
+    } finally {
+        if (btnEl) { btnEl.disabled = false; btnEl.innerHTML = '<i class="fa-solid fa-right-to-bracket mr-2"></i>Masuk'; }
     }
 }
+
 function doLogout() { sessionStorage.removeItem('pa'); location.reload(); }
 
 // STATE
@@ -732,3 +761,4 @@ window.addEventListener('DOMContentLoaded', () => {
         loadAll();
     }
 });
+

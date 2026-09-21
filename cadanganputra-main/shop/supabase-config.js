@@ -1,3 +1,14 @@
-// Supabase config - pufutara project
-const SUPABASE_URL = 'https://puywjdopumlzvmzbcudr.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1eXdqZG9wdW1senZtemJjdWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDE3MTksImV4cCI6MjA4NzkxNzcxOX0.vvThyjtK2SlA9oA9Mr_XOmt1R_tNZk-ib3PO9XpiiSc';
+// Config dimuat dari server — key tidak ada di file ini
+// Kedua variabel ini diisi oleh initSupabaseConfig() sebelum app berjalan
+let SUPABASE_URL = '';
+let SUPABASE_ANON_KEY = '';
+
+async function initSupabaseConfig() {
+    try {
+        const cfg = await fetch('/api/config').then(r => r.json());
+        SUPABASE_URL     = cfg.url;
+        SUPABASE_ANON_KEY = cfg.key;
+    } catch (e) {
+        console.error('Gagal memuat config:', e);
+    }
+}

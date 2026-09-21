@@ -271,11 +271,7 @@
 
     <script>
         // =========================================================================
-        // KUNCI SUPABASE MILIKMU (SUDAH DIPERBARUI)
-        // =========================================================================
-        const SUPABASE_URL = 'https://puywjdopumlzvmzbcudr.supabase.co'; 
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1eXdqZG9wdW1senZtemJjdWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDE3MTksImV4cCI6MjA4NzkxNzcxOX0.vvThyjtK2SlA9oA9Mr_XOmt1R_tNZk-ib3PO9XpiiSc'; 
-        
+        // Config dimuat dari server — key tidak ada di file ini
         let supabaseClient = null;
         let currentUser = null;
         let currentQuiz = null; 
@@ -297,7 +293,11 @@
 
         // --- INIT & AUTH ---
         window.onload = async () => {
-            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            // Muat config dari server sebelum init client
+            try {
+                const cfg = await fetch('/api/config').then(r => r.json());
+                supabaseClient = window.supabase.createClient(cfg.url, cfg.key);
+            } catch (_) { supabaseClient = null; }
             const { data: { session } } = await supabaseClient.auth.getSession();
             currentUser = session?.user || null;
             

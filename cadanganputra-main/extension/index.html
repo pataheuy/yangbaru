@@ -404,10 +404,8 @@
   // ─────────────────────────────────────────────────────────────────────────
   // Panggil proxy
   // ─────────────────────────────────────────────────────────────────────────
-  // Proxy URL — pakai URL absolut karena halaman ini bisa di-serve
-  // dari domain berbeda (pspf.vercel.app) sedangkan api/sb ada di
-  // putraazzamelfathin.vercel.app
-  const PROXY_URL = 'https://putraazzamelfathin.vercel.app/api/sb';
+  // Proxy URL — relative path, bekerja di domain manapun repo ini di-deploy
+  const PROXY_URL = '/api/sb';
 
   async function sbProxy({ path, method = 'GET', body, prefer } = {}) {
     return fetch(PROXY_URL, {

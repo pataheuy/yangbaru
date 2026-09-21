@@ -372,10 +372,8 @@
 </div>
 
 <script>
-    const _URL = 'https://puywjdopumlzvmzbcudr.supabase.co';
-    const _KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1eXdqZG9wdW1senZtemJjdWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDE3MTksImV4cCI6MjA4NzkxNzcxOX0.vvThyjtK2SlA9oA9Mr_XOmt1R_tNZk-ib3PO9XpiiSc';
-    const _sb = supabase.createClient(_URL, _KEY);
-
+    // Config dimuat dari server — key tidak ada di file ini
+    let _sb;
     let _me = null, _vid = null, _uType = 'file', _currentChannel = null;
 
     // ── UTILS ──
@@ -680,7 +678,15 @@
     }
 
     // ── INIT ──
-    _sb.auth.getSession().then(({ data }) => {
+    // ── INIT ──
+    // Fetch config dulu, baru init client dan cek session
+    (async () => {
+        try {
+            const cfg = await fetch('/api/config').then(r => r.json());
+            _sb = supabase.createClient(cfg.url, cfg.key);
+        } catch (_) { return; }
+
+        const { data } = await _sb.auth.getSession();
         document.getElementById('appHeader').style.display = 'flex';
         document.getElementById('appBody').style.display   = 'block';
         document.getElementById('authScreen').style.display = 'none';
@@ -696,7 +702,7 @@
             document.getElementById('myKomenAva').textContent   = uname[0].toUpperCase();
         }
         goHome();
-    });
+    })();
 </script>
 </body>
 </html>

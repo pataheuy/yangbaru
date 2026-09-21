@@ -431,12 +431,21 @@
 
     <script>
         // ==========================================
-        // CONFIG
-        // ==========================================
-        const SUPABASE_URL = 'https://puywjdopumlzvmzbcudr.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1eXdqZG9wdW1senZtemJjdWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDE3MTksImV4cCI6MjA4NzkxNzcxOX0.vvThyjtK2SlA9oA9Mr_XOmt1R_tNZk-ib3PO9XpiiSc';
-        const _client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // Config dimuat dari server — key tidak ada di file ini
+        let SUPABASE_URL = '', SUPABASE_KEY = '';
+        let _client;
         const BUCKET_NAME = 'pufutara-gallery';
+
+        // Init: fetch config dulu, baru init client dan load gallery
+        (async () => {
+            try {
+                const cfg = await fetch('/api/config').then(r => r.json());
+                SUPABASE_URL = cfg.url;
+                SUPABASE_KEY = cfg.key;
+            } catch (_) {}
+            _client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            fetchImages();
+        })();
 
         let folders = JSON.parse(localStorage.getItem('pufutara_folders')) || [{ id: 'semua', name: 'Semua Foto' }];
         let activeFolderId = 'semua';
@@ -449,7 +458,7 @@
         // ==========================================
         window.addEventListener('DOMContentLoaded', () => {
             renderFolders();
-            fetchImages();
+            // fetchImages dipanggil oleh IIFE setelah config siap
         });
 
         // ==========================================

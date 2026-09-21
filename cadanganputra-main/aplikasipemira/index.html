@@ -425,10 +425,8 @@
 
     <!-- JavaScript App Logic -->
     <script>
-        // Konfigurasi Supabase (Bisa diisi URL & Key Supabase Anda)
-        const SUPABASE_URL = "https://puywjdopumlzvmzbcudr.supabase.co"; 
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1eXdqZG9wdW1senZtemJjdWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDE3MTksImV4cCI6MjA4NzkxNzcxOX0.vvThyjtK2SlA9oA9Mr_XOmt1R_tNZk-ib3PO9XpiiSc"; 
-
+        // Config dimuat dari server — key tidak ada di file ini
+        let SUPABASE_URL = '', SUPABASE_ANON_KEY = '';
         let supabaseClient = null;
         let isSupabaseActive = false;
 
@@ -499,6 +497,12 @@
 
         // Initialize App
         window.addEventListener('DOMContentLoaded', async () => {
+            // Muat config dari server sebelum init client
+            try {
+                const cfg = await fetch('/api/config').then(r => r.json());
+                SUPABASE_URL = cfg.url;
+                SUPABASE_ANON_KEY = cfg.key;
+            } catch (_) {}
             initSupabaseClient();
 
             // Task 4: Restore admin session jika Supabase masih aktif dan sesi belum expired

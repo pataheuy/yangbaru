@@ -61,22 +61,17 @@ select.field-input { cursor: pointer; }
     </div>
     <div class="space-y-3">
       <div>
-        <label class="field-label">Username</label>
-        <input id="lu" type="text" class="field-input" placeholder="admin" autocomplete="username">
-      </div>
-      <div>
         <label class="field-label">Password</label>
         <input id="lp" type="password" class="field-input" placeholder="Password" autocomplete="current-password"
           onkeydown="if(event.key==='Enter')doLogin()">
       </div>
       <div id="lerr" class="hidden bg-red-50 border border-red-200 rounded-xl px-3 py-2">
-        <p class="text-xs text-red-600 font-semibold"><i class="fa-solid fa-circle-exclamation mr-1"></i>Username atau password salah</p>
+        <p class="text-xs text-red-600 font-semibold"><i class="fa-solid fa-circle-exclamation mr-1"></i>Password salah</p>
       </div>
       <button onclick="doLogin()" class="w-full bg-black text-white font-bold text-sm rounded-xl py-3 hover:bg-zinc-800 transition-colors">
         <i class="fa-solid fa-right-to-bracket mr-2"></i>Masuk
       </button>
     </div>
-    <p class="text-center text-[10px] text-gray-400 mt-5">Default: <span class="font-bold">admin</span> / <span class="font-bold">admin123</span></p>
   </div>
 </div>
 
@@ -864,3 +859,4 @@ select.field-input { cursor: pointer; }
 <script src="admin.js"></script>
 </body>
 </html>
+
