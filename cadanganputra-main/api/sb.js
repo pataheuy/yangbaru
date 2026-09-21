@@ -10,6 +10,18 @@
  */
 
 export default async function handler(req, res) {
+  // Izinkan request dari kedua domain
+  const allowed = ['https://putraazzamelfathin.vercel.app', 'https://pspf.vercel.app'];
+  const origin  = req.headers.origin || '';
+  if (allowed.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  // Preflight
+  if (req.method === 'OPTIONS') return res.status(200).end();
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
