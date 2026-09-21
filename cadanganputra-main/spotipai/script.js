@@ -874,14 +874,8 @@ function initEasterEgg() {
     titleEl.addEventListener('click', () => {
         if (!canClickError || isProcessingEntrance) return;
         errorClickCount++;
-        const statusEl = document.getElementById('error-status');
-        if (statusEl && errorClickCount < 5) {
-            const msgs = ['Status: Retrying connection...','Status: Connection timed out. Retrying...','Status: Server not responding...','Status: Attempting failover...'];
-            statusEl.textContent = msgs[Math.min(errorClickCount - 1, msgs.length - 1)];
-        }
         if (errorClickCount >= 5) {
             isProcessingEntrance = true;
-            if (statusEl) { statusEl.style.visibility = 'hidden'; }
             setTimeout(() => {
                 const fake404 = document.getElementById('fake-404');
                 const appView = document.getElementById('app-view');

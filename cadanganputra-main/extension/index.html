@@ -35,22 +35,20 @@
       max-width: 360px;
     }
 
-    .auth-logo {
-      width: 44px;
-      height: 44px;
-      border-radius: 11px;
-      overflow: hidden;
-      margin-bottom: 16px;
-    }
-    .auth-logo img { width: 100%; height: 100%; object-fit: cover; display: block; }
-
     .auth-card h2 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
     .auth-card p  { font-size: 12px; color: #888; margin-bottom: 20px; line-height: 1.5; }
 
-    .input-wrap {
-      position: relative;
-      margin-bottom: 10px;
+    .input-group { margin-bottom: 12px; }
+    .input-group label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: .4px;
     }
+    .input-wrap { position: relative; }
     .input-wrap input {
       width: 100%;
       padding: 10px 40px 10px 14px;
@@ -96,8 +94,23 @@
       font-weight: 600;
       cursor: pointer;
       transition: background .15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
     .btn-login:hover { background: #333; }
+    .btn-login:disabled { background: #999; cursor: not-allowed; }
+
+    .spinner-sm {
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .6s linear infinite;
+      display: none;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ── Topbar ── */
     .topbar {
@@ -112,27 +125,7 @@
       top: 0;
       z-index: 10;
     }
-
-    .topbar-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .topbar-logo {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      overflow: hidden;
-      flex-shrink: 0;
-    }
-    .topbar-logo img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
+    .topbar-left { display: flex; align-items: center; gap: 12px; }
     .topbar-title {
       font-size: 15px;
       font-weight: 700;
@@ -140,7 +133,6 @@
       align-items: center;
       gap: 8px;
     }
-
     .badge {
       background: #f0f0f0;
       color: #111;
@@ -149,12 +141,7 @@
       padding: 2px 8px;
       border-radius: 10px;
     }
-
-    .topbar-actions {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+    .topbar-actions { display: flex; align-items: center; gap: 10px; }
 
     .btn-sm {
       padding: 6px 14px;
@@ -167,7 +154,7 @@
       color: #333;
       transition: background .15s, border-color .15s;
     }
-    .btn-sm:hover { background: #efefef; border-color: #bbb; }
+    .btn-sm:hover  { background: #efefef; border-color: #bbb; }
     .btn-sm.danger { color: #e53e3e; border-color: #fca5a5; background: #fff5f5; }
     .btn-sm.danger:hover { background: #fee2e2; }
 
@@ -177,14 +164,12 @@
       margin: 0 auto;
       padding: 28px 32px;
     }
-
     .toolbar {
       display: flex;
       gap: 12px;
       margin-bottom: 20px;
       flex-wrap: wrap;
     }
-
     .search-input {
       flex: 1;
       min-width: 200px;
@@ -197,7 +182,6 @@
       transition: border-color .15s;
     }
     .search-input:focus { border-color: #111; }
-
     .filter-select {
       padding: 9px 14px;
       border: 1px solid #ddd;
@@ -216,19 +200,16 @@
       border-radius: 12px;
       overflow-x: auto;
     }
-
     table {
       width: 100%;
       min-width: 900px;
       border-collapse: collapse;
       font-size: 13px;
     }
-
     thead {
       background: #fafafa;
       border-bottom: 1px solid #e5e5e5;
     }
-
     th {
       text-align: left;
       padding: 11px 16px;
@@ -239,7 +220,6 @@
       letter-spacing: .4px;
       white-space: nowrap;
     }
-
     td {
       padding: 12px 16px;
       border-bottom: 1px solid #f3f3f3;
@@ -248,20 +228,13 @@
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: #fafafa; }
 
-    .site-cell {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
+    .site-cell { display: flex; align-items: center; gap: 10px; }
     .favicon {
-      width: 18px;
-      height: 18px;
+      width: 18px; height: 18px;
       border-radius: 4px;
       flex-shrink: 0;
       object-fit: contain;
     }
-
     .site-name { font-weight: 600; color: #111; }
 
     .pass-cell {
@@ -271,7 +244,6 @@
       font-family: monospace;
       min-width: 220px;
     }
-
     .pass-val { color: #444; letter-spacing: 1px; }
 
     .btn-icon {
@@ -316,6 +288,20 @@
       z-index: 999;
     }
     #toast.show { opacity: 1; transform: translateY(0); }
+
+    /* ── User chip ── */
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #555;
+      padding: 4px 10px;
+      background: #f5f5f5;
+      border-radius: 20px;
+      border: 1px solid #e5e5e5;
+    }
+    .user-chip span { max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   </style>
 </head>
 <body>
@@ -324,19 +310,41 @@
   <div id="auth-overlay">
     <div class="auth-card">
       <h2>Daftar Akun</h2>
-      <p>Masukkan master password untuk melihat seluruh akun tersimpan.</p>
-      <div class="input-wrap">
-        <input type="password" id="auth-input" placeholder="Master password..." autofocus />
-        <button class="toggle-pw" id="toggle-pw">
-          <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-        </button>
+      <p>Masukkan kredensial untuk melihat akun tersimpan.</p>
+
+
+      <div class="input-group">
+        <label>Email</label>
+        <div class="input-wrap">
+          <input type="email" id="auth-email" placeholder="email@contoh.com"
+                 autofocus autocomplete="email" />
+        </div>
       </div>
-      <div id="auth-error">Password salah. Coba lagi.</div>
-      <button class="btn-login" id="auth-btn">Masuk</button>
+
+      <div class="input-group">
+        <label>Password</label>
+        <div class="input-wrap">
+          <input type="password" id="auth-input" placeholder="Password..."
+                 autocomplete="current-password" />
+          <button class="toggle-pw" id="toggle-pw" type="button" aria-label="Tampilkan password">
+            <svg id="eye-icon" viewBox="0 0 24 24">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div id="auth-error">Email atau password salah.</div>
+
+      <button class="btn-login" id="auth-btn">
+        <div class="spinner-sm" id="auth-spinner"></div>
+        <span id="auth-btn-text">Masuk</span>
+      </button>
     </div>
   </div>
 
-  <!-- Topbar -->
+  <!-- Topbar (tersembunyi sebelum login) -->
   <div class="topbar" id="topbar" style="display:none">
     <div class="topbar-left">
       <div class="topbar-title">
@@ -345,8 +353,15 @@
       </div>
     </div>
     <div class="topbar-actions">
+      <div class="user-chip">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        <span id="user-email-display">—</span>      </div>
       <button class="btn-sm" id="btn-refresh">↺ Refresh</button>
       <button class="btn-sm danger" id="btn-delete-all">Hapus Semua</button>
+      <button class="btn-sm" id="btn-logout">Keluar</button>
     </div>
   </div>
 
@@ -362,7 +377,7 @@
     <div class="table-wrap">
       <div id="loading-state" class="state-box">
         <p>Memuat data...</p>
-        <p>Mengambil dari Supabase</p>
+        <p>Mohon tunggu sebentar</p>
       </div>
       <div id="empty-state" class="state-box" style="display:none">
         <p>Belum ada akun tersimpan</p>
@@ -387,49 +402,192 @@
   <div id="toast"></div>
 
 <script>
-  const DEFAULT_PASSWORD = 'kamunanya';
-  const SB_URL   = 'https://puywjdopumlzvmzbcudr.supabase.co';
-  const SB_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1eXdqZG9wdW1senZtemJjdWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDE3MTksImV4cCI6MjA4NzkxNzcxOX0.vvThyjtK2SlA9oA9Mr_XOmt1R_tNZk-ib3PO9XpiiSc';
-  const SB_TABLE = 'passwords';
+  // ─────────────────────────────────────────────────────────────────────────
+  // Semua request ke backend lewat /api/sb (Vercel Edge Function).
+  // Key tidak ada di file ini — tersimpan di Vercel env var.
+  // ─────────────────────────────────────────────────────────────────────────
 
-  let allData = [];
+  // ── Email yang diizinkan login (whitelist) ──────────────────────────────
+  // Ganti dengan email yang kamu daftarkan di Authentication > Users
+  const ALLOWED_EMAILS = [
+    'admin@sekolahputra.id',
+    // 'emaillain@domain.com',
+  ];
 
-  // ── Auth ──────────────────────────────────────────────────────────────────
-  const authOverlay = document.getElementById('auth-overlay');
-  const authInput   = document.getElementById('auth-input');
-  const authError   = document.getElementById('auth-error');
-  const togglePw    = document.getElementById('toggle-pw');
+  let allData   = [];
+  let userToken = null;  // JWT user setelah login
 
-  togglePw.addEventListener('click', () => {
-    authInput.type = authInput.type === 'password' ? 'text' : 'password';
+  // ─────────────────────────────────────────────────────────────────────────
+  // Panggil proxy — semua fetch ke Supabase lewat sini
+  // ─────────────────────────────────────────────────────────────────────────
+  async function sbProxy({ path, method = 'GET', body, prefer } = {}) {
+    const res = await fetch('/api/sb', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ path, method, body, token: userToken, prefer })
+    });
+    return res;
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // AUTO-LOGOUT saat tab disembunyikan atau ditutup
+  // ─────────────────────────────────────────────────────────────────────────
+  async function forceLogout() {
+    if (!userToken) return;
+    // Kirim logout ke proxy
+    try {
+      await sbProxy({ path: '/auth/v1/logout', method: 'POST' });
+    } catch (_) { /* abaikan error saat unload */ }
+    userToken = null;
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') forceLogout();
   });
 
-  function doLogin() {
-    if (authInput.value === DEFAULT_PASSWORD) {
-      authOverlay.style.display = 'none';
-      document.getElementById('topbar').style.display = 'flex';
-      document.getElementById('main-content').style.display = 'block';
+  window.addEventListener('beforeunload', () => {
+    if (userToken) {
+      navigator.sendBeacon('/api/sb', JSON.stringify({
+        path: '/auth/v1/logout', method: 'POST', token: userToken
+      }));
+      userToken = null;
+    }
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // AUTH
+  // ─────────────────────────────────────────────────────────────────────────
+  const authOverlay = document.getElementById('auth-overlay');
+  const authEmail   = document.getElementById('auth-email');
+  const authInput   = document.getElementById('auth-input');
+  const authError   = document.getElementById('auth-error');
+  const authSpinner = document.getElementById('auth-spinner');
+  const authBtnText = document.getElementById('auth-btn-text');
+
+  document.getElementById('toggle-pw').addEventListener('click', () => {
+    const isHidden = authInput.type === 'password';
+    authInput.type = isHidden ? 'text' : 'password';
+    document.getElementById('eye-icon').innerHTML = isHidden
+      ? `<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8
+           a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4
+           c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19
+           m-6.72-1.07a3 3 0 11-4.24-4.24"/>
+         <line x1="1" y1="1" x2="23" y2="23"/>`
+      : `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+         <circle cx="12" cy="12" r="3"/>`;
+  });
+
+  async function doLogin() {
+    const email    = authEmail.value.trim().toLowerCase();
+    const password = authInput.value;
+
+    if (!email || !password) {
+      showAuthError('Email dan password harus diisi.');
+      return;
+    }
+
+    // Cek whitelist di client — tolak sebelum request ke server
+    if (!ALLOWED_EMAILS.includes(email)) {
+      showAuthError('Akun ini tidak memiliki akses.');
       authInput.value = '';
-      loadData();
-    } else {
-      authError.style.display = 'block';
+      authEmail.value = '';
+      authEmail.focus();
+      return;
+    }
+
+    // UI loading
+    authError.style.display   = 'none';
+    authSpinner.style.display = 'block';
+    authBtnText.textContent   = 'Masuk...';
+    document.getElementById('auth-btn').disabled = true;
+
+    let result;
+    try {
+      const res = await sbProxy({
+        path: '/auth/v1/token?grant_type=password',
+        method: 'POST',
+        body: { email, password }
+      });
+      result = await res.json();
+      if (!res.ok) throw new Error(result.error_description || result.message || 'Login gagal');
+    } catch (err) {
+      authSpinner.style.display = 'none';
+      authBtnText.textContent   = 'Masuk';
+      document.getElementById('auth-btn').disabled = false;
+      showAuthError('Login gagal: ' + err.message);
       authInput.value = '';
       authInput.focus();
+      return;
     }
+
+    authSpinner.style.display = 'none';
+    authBtnText.textContent   = 'Masuk';
+    document.getElementById('auth-btn').disabled = false;
+
+    // Double-check email dari response server
+    const returnedEmail = ((result.user && result.user.email) || '').toLowerCase();
+    if (!ALLOWED_EMAILS.includes(returnedEmail)) {
+      // Langsung invalidasi token yang baru didapat
+      userToken = result.access_token;
+      await forceLogout();
+      showAuthError('Akun ini tidak memiliki akses.');
+      authInput.value = '';
+      authEmail.value = '';
+      authEmail.focus();
+      return;
+    }
+
+    userToken = result.access_token;
+    onLoginSuccess(result.user.email);
+  }
+
+  function showAuthError(msg) {
+    authError.textContent   = msg;
+    authError.style.display = 'block';
+  }
+
+  function onLoginSuccess(email) {
+    authOverlay.style.display                             = 'none';
+    document.getElementById('topbar').style.display       = 'flex';
+    document.getElementById('main-content').style.display = 'block';
+    document.getElementById('user-email-display').textContent = maskEmail(email);
+    authInput.value = '';
+    authEmail.value = '';
+    loadData();
+  }
+
+  // Sensor email: 2 karakter awal terlihat, sisanya titik
+  // "admin@sekolahputra.id" → "ad•••••••••••••••••"
+  function maskEmail(email) {
+    if (!email) return '••••••••';
+    return email.slice(0, 2) + '•'.repeat(Math.max(6, email.length - 2));
   }
 
   document.getElementById('auth-btn').addEventListener('click', doLogin);
   authInput.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+  authEmail.addEventListener('keydown', e => { if (e.key === 'Enter') authInput.focus(); });
 
-  // ── Load saat halaman dibuka ───────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────────────────
+  // LOGOUT MANUAL
+  // ─────────────────────────────────────────────────────────────────────────
+  document.getElementById('btn-logout').addEventListener('click', async () => {
+    await forceLogout();
+    allData = [];
+    document.getElementById('topbar').style.display       = 'none';
+    document.getElementById('main-content').style.display = 'none';
+    authOverlay.style.display = 'flex';
+    authEmail.focus();
+    showToast('Berhasil keluar.');
+  });
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // LOAD DATA
+  // ─────────────────────────────────────────────────────────────────────────
   async function loadData() {
     showLoading(true);
     try {
-      const res = await fetch(`${SB_URL}/rest/v1/${SB_TABLE}?select=*&order=timestamp.desc`, {
-        headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
-      });
-      if (!res.ok) throw new Error(res.statusText);
+      const res = await sbProxy({ path: '/rest/v1/passwords?select=*&order=timestamp.desc' });
+      if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
       allData = await res.json();
       populateSiteFilter();
       renderTable(allData);
@@ -439,7 +597,9 @@
     }
   }
 
-  // ── Render Tabel ──────────────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────────────────
+  // RENDER TABEL
+  // ─────────────────────────────────────────────────────────────────────────
   function renderTable(items) {
     showLoading(false);
     const tbody      = document.getElementById('table-body');
@@ -480,13 +640,13 @@
         </td>
         <td class="date-text">${escHtml(item.timestamp || '-')}</td>
         <td>
-          <button class="btn-icon del del-btn" data-id="${escHtml(item.id)}">Hapus</button>
+          <button class="btn-icon del del-btn" data-id="${escHtml(String(item.id))}">Hapus</button>
         </td>
       `;
       tbody.appendChild(tr);
     });
 
-    // Toggle password
+    // Toggle password visibility
     document.querySelectorAll('.toggle-btn').forEach(btn => {
       btn.addEventListener('click', e => {
         const idx  = e.currentTarget.dataset.index;
@@ -502,7 +662,7 @@
       });
     });
 
-    // Salin
+    // Salin password
     document.querySelectorAll('.copy-btn').forEach(btn => {
       btn.addEventListener('click', e => {
         navigator.clipboard.writeText(e.currentTarget.dataset.pass)
@@ -510,27 +670,33 @@
       });
     });
 
-    // Hapus per baris
+    // Hapus satu baris
     document.querySelectorAll('.del-btn').forEach(btn => {
       btn.addEventListener('click', async e => {
         if (!confirm('Hapus akun ini?')) return;
         const id = e.currentTarget.dataset.id;
-        await sbDelete(id);
-        allData = allData.filter(d => d.id !== id);
-        populateSiteFilter();
-        applyFilter();
-        showToast('Akun dihapus.');
+        try {
+          await sbDelete(id);
+          allData = allData.filter(d => String(d.id) !== id);
+          populateSiteFilter();
+          applyFilter();
+          showToast('Akun dihapus.');
+        } catch (err) {
+          showToast('Gagal hapus: ' + err.message, true);
+        }
       });
     });
   }
 
-  // ── Filter & Search ───────────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────────────────
+  // FILTER & SEARCH
+  // ─────────────────────────────────────────────────────────────────────────
   function applyFilter() {
     const q    = document.getElementById('search').value.toLowerCase();
     const site = document.getElementById('filter-site').value;
     renderTable(allData.filter(item =>
       (!site || item.site === site) &&
-      (!q || item.site.toLowerCase().includes(q) || item.username.toLowerCase().includes(q))
+      (!q || item.site.toLowerCase().includes(q) || (item.username || '').toLowerCase().includes(q))
     ));
   }
 
@@ -550,17 +716,20 @@
     });
   }
 
-  // ── Refresh ───────────────────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────────────────
+  // REFRESH & HAPUS SEMUA
+  // ─────────────────────────────────────────────────────────────────────────
   document.getElementById('btn-refresh').addEventListener('click', loadData);
 
-  // ── Hapus Semua ───────────────────────────────────────────────────────────
   document.getElementById('btn-delete-all').addEventListener('click', async () => {
-    if (!confirm('Hapus SEMUA akun dari Supabase? Tindakan ini tidak bisa dibatalkan.')) return;
+    if (!confirm('Hapus SEMUA akun? Tindakan ini tidak bisa dibatalkan.')) return;
     try {
-      await fetch(`${SB_URL}/rest/v1/${SB_TABLE}?timestamp=neq.___none___`, {
+      const res = await sbProxy({
+        path: '/rest/v1/passwords?id=neq.00000000-0000-0000-0000-000000000000',
         method: 'DELETE',
-        headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Prefer': 'return=minimal' }
+        prefer: 'return=minimal'
       });
+      if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
       allData = [];
       renderTable([]);
       showToast('Semua data dihapus.');
@@ -569,15 +738,18 @@
     }
   });
 
-  // ── Supabase Delete ───────────────────────────────────────────────────────
   async function sbDelete(id) {
-    await fetch(`${SB_URL}/rest/v1/${SB_TABLE}?id=eq.${encodeURIComponent(id)}`, {
+    const res = await sbProxy({
+      path: `/rest/v1/passwords?id=eq.${encodeURIComponent(id)}`,
       method: 'DELETE',
-      headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Prefer': 'return=minimal' }
+      prefer: 'return=minimal'
     });
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
   }
 
-  // ── Toast ─────────────────────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────────────────
+  // UTILITIES
+  // ─────────────────────────────────────────────────────────────────────────
   let toastTimer;
   function showToast(msg, isError = false) {
     const t = document.getElementById('toast');
@@ -588,7 +760,6 @@
     toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
   }
 
-  // ── Loading ───────────────────────────────────────────────────────────────
   function showLoading(show) {
     document.getElementById('loading-state').style.display = show ? 'block' : 'none';
     if (show) {
@@ -597,11 +768,11 @@
     }
   }
 
-  // ── Escape HTML ───────────────────────────────────────────────────────────
   function escHtml(str) {
     if (!str) return '';
-    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-              .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+    return String(str)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
   }
 </script>
 </body>

@@ -1,0 +1,7 @@
+# Environment variables — JANGAN di-commit ke git
+.env
+.env.local
+.env.production
+
+# Vercel
+.vercel
