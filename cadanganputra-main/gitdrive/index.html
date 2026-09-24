@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitDrive — Pro Repository Manager & Editor</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Marked.js for Markdown Rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <style>
+        :root {
+            --bg-main: #fafafa;
+            --bg-card: #ffffff;
+            --border: #e4e4e7;
+            --text-main: #09090b;
+            --text-muted: #71717a;
+            --primary: #09090b;
+            --accent: #f4f4f5;
+            --active-item: #e4e4e7;
+            --editor-bg: #18181b;
+            --editor-text: #f4f4f5;
+            --danger: #ef4444;
+        }
+
+        body.dark-mode {
+            --bg-main: #09090b;
+            --bg-card: #121215;
+            --border: #27272a;
+            --text-main: #f4f4f5;
+            --text-muted: #a1a1aa;
+            --primary: #f4f4f5;
+            --accent: #18181b;
+            --active-item: #27272a;
+            --editor-bg: #09090b;
+            --editor-text: #f4f4f5;
+            --danger: #f87171;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; transition: background-color 0.15s, border-color 0.15s; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-main); color: var(--text-main); }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .hidden { display: none !important; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(120, 120, 120, 0.2); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(120, 120, 120, 0.4); }
+
+        /* Form Inputs */
+        input[type="text"], input[type="password"], select, textarea { 
+            background: var(--bg-card); 
+            color: var(--text-main); 
+            border: 1px solid var(--border); 
+        }
+        input:focus, select:focus, textarea:focus { 
+            outline: none; 
+            border-color: var(--text-main); 
+        }
+
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+            padding: 8px 14px; background: var(--primary); color: var(--bg-card);
+            border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;
+        }
+        .btn:hover { opacity: 0.9; }
+        .btn-secondary { background: var(--accent); color: var(--text-main); border: 1px solid var(--border); }
+        .btn-secondary:hover { background: var(--active-item); }
+        .btn-icon { padding: 6px; border-radius: 6px; color: var(--text-muted); cursor: pointer; }
+        .btn-icon:hover { background: var(--accent); color: var(--text-main); }
+
+        .tree-item { display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+        .tree-item:hover { background: var(--accent); }
+        .tree-item.active { background: var(--active-item); font-weight: 600; }
+        .tree-item.drag-over { background: rgba(99, 102, 241, 0.15); outline: 2px dashed #6366f1; }
+        .tree-item .actions { opacity: 0; transition: opacity 0.15s; }
+        .tree-item:hover .actions { opacity: 1; }
+
+        .markdown-body { color: var(--text-main); font-size: 14px; line-height: 1.6; }
+        .markdown-body h1 { font-size: 22px; font-weight: 700; border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 12px; }
+        .markdown-body h2 { font-size: 18px; font-weight: 600; margin-top: 16px; margin-bottom: 8px; }
+        .markdown-body code { font-family: 'JetBrains Mono', monospace; background: var(--accent); padding: 2px 6px; border-radius: 4px; font-size: 12px; }
+        .markdown-body pre { background: var(--editor-bg); color: var(--editor-text); padding: 12px; border-radius: 8px; overflow-x: auto; margin: 12px 0; }
+        .markdown-body ul { list-style-type: disc; padding-left: 20px; margin-bottom: 12px; }
+    </style>
+</head>
+<body>
+
+    <!-- ==================== SCREEN 1: LOGIN ==================== -->
+    <div id="loginScreen" class="flex min-h-screen items-center justify-center p-4">
+        <div class="w-full max-w-md p-8 border border-[var(--border)] rounded-xl bg-[var(--bg-card)] shadow-lg">
+            <div class="text-center mb-6">
+                <div class="flex justify-center items-center gap-2 text-xl font-bold mb-1">
+                    <i data-lucide="git-branch" class="w-6 h-6"></i> GitDrive Pro
+                </div>
+                <p class="text-xs text-[var(--text-muted)]">Manajer Repositori GitHub & Live Code Editor</p>
+            </div>
+
+            <div class="mb-6 p-3 rounded-lg text-xs bg-[var(--accent)] border border-[var(--border)] leading-relaxed">
+                <strong>💡 Preview Admin Mode:</strong> Masukkan <code class="bg-[var(--bg-card)] px-1 py-0.5 rounded border border-[var(--border)] font-mono">admin</code> pada semua kolom untuk menguji preview berkas, live HTML, gambar, dan batch push secara simulasi.
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold mb-1">Personal Access Token (PAT)</label>
+                    <input type="password" id="token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" value="admin" class="w-full px-3 py-2 rounded-lg text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold mb-1">GitHub Username / Owner</label>
+                    <input type="text" id="owner" placeholder="Contoh: octocat" value="admin" class="w-full px-3 py-2 rounded-lg text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold mb-1">Repository Name</label>
+                    <input type="text" id="repo" placeholder="Contoh: my-project" value="admin" class="w-full px-3 py-2 rounded-lg text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold mb-1">Default Branch</label>
+                    <input type="text" id="branch" value="main" class="w-full px-3 py-2 rounded-lg text-sm">
+                </div>
+                <button class="btn w-full py-2.5 mt-2" onclick="handleLogin()">
+                    <i data-lucide="log-in" class="w-4 h-4"></i> Masuk Workspace
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== SCREEN 2: MAIN DASHBOARD ==================== -->
+    <div id="dashboardScreen" class="flex flex-col min-h-screen hidden">
+        <!-- HEADER TOOLBAR -->
+        <header class="h-14 border-b border-[var(--border)] bg-[var(--bg-card)] px-4 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 font-bold text-base tracking-tight">
+                    <i data-lucide="git-branch" class="w-5 h-5 text-indigo-500"></i> GitDrive Pro
+                </div>
+                
+                <!-- BRANCH SWITCHER & CREATOR -->
+                <div class="flex items-center gap-1.5 bg-[var(--accent)] border border-[var(--border)] px-2 py-1 rounded-md text-xs">
+                    <i data-lucide="git-fork" class="w-3.5 h-3.5 text-[var(--text-muted)]"></i>
+                    <select id="branchSelect" onchange="switchBranch(this.value)" class="bg-transparent border-none text-xs font-medium cursor-pointer focus:outline-none">
+                        <option value="main">main</option>
+                    </select>
+                    <button onclick="openNewBranchModal()" title="Buat Branch Baru" class="btn-icon p-0.5 ml-1">
+                        <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <!-- QUICK SEARCH TRIGGER (Ctrl + K) -->
+                <button class="btn-secondary text-xs px-3 py-1.5 flex items-center gap-2" onclick="openCommandPalette()">
+                    <i data-lucide="search" class="w-3.5 h-3.5"></i>
+                    <span class="hidden sm:inline">Cari Berkas...</span>
+                    <kbd class="bg-[var(--bg-card)] text-[10px] px-1.5 py-0.5 rounded border border-[var(--border)] font-mono">Ctrl K</kbd>
+                </button>
+
+                <!-- COMMIT HISTORY LOG BUTTON -->
+                <button class="btn-icon p-2" onclick="openCommitHistoryModal()" title="Riwayat Commit">
+                    <i data-lucide="history" class="w-4 h-4"></i>
+                </button>
+
+                <!-- THEME TOGGLE -->
+                <button class="btn-icon p-2" onclick="toggleDarkMode()" id="themeToggleBtn" title="Ganti Tema Light/Dark">
+                    <i data-lucide="sun" class="w-4 h-4"></i>
+                </button>
+
+                <div class="flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 bg-[var(--accent)] border border-[var(--border)] rounded-full">
+                    <i data-lucide="user" class="w-3.5 h-3.5"></i>
+                    <span id="displayUser">admin</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN THREE-PANEL WORKSPACE -->
+        <main class="grid grid-cols-1 md:grid-cols-[280px_360px_1fr] flex-1 h-[calc(100vh-56px)] overflow-hidden">
+            
+            <!-- PANEL 1: FILE EXPLORER -->
+            <div class="border-r border-[var(--border)] bg-[var(--bg-card)] flex flex-col h-full overflow-hidden">
+                <div class="h-12 border-b border-[var(--border)] px-3 flex justify-between items-center">
+                    <span class="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">File Explorer</span>
+                    <div class="flex items-center gap-1">
+                        <button onclick="openNewFileModal()" class="btn-icon p-1" title="Tambah File Baru">
+                            <i data-lucide="file-plus" class="w-4 h-4"></i>
+                        </button>
+                        <button onclick="openNewFolderModal()" class="btn-icon p-1" title="Tambah Folder Baru">
+                            <i data-lucide="folder-plus" class="w-4 h-4"></i>
+                        </button>
+                        <button onclick="loadDirectory()" class="btn-icon p-1" title="Refresh Berkas">
+                            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Instant Filter Input -->
+                <div class="p-2 border-b border-[var(--border)]">
+                    <input type="text" id="explorerSearchInput" oninput="filterFileTree()" placeholder="Filter berkas..." class="w-full px-2.5 py-1 text-xs rounded-md">
+                </div>
+
+                <div id="fileTree" class="p-2 overflow-y-auto flex-1 space-y-0.5">
+                    <!-- Tree items rendered dynamically -->
+                </div>
+            </div>
+
+            <!-- PANEL 2: MULTI-FILE UPLOAD WORKSPACE -->
+            <div class="border-r border-[var(--border)] bg-[var(--bg-main)] p-4 overflow-y-auto flex flex-col">
+                <div class="border border-[var(--border)] rounded-xl bg-[var(--bg-card)] p-4 shadow-sm space-y-4">
+                    <h2 class="text-sm font-semibold flex items-center gap-2">
+                        <i data-lucide="cloud-upload" class="w-4 h-4"></i> Unggah Berkas (Batch Upload)
+                    </h2>
+
+                    <!-- MULTI-FILE BATCH DROPZONE -->
+                    <div class="border-2 border-dashed border-[var(--border)] rounded-xl p-5 text-center cursor-pointer bg-[var(--bg-main)] hover:border-[var(--text-main)] transition-all" id="uploadDropzone" onclick="document.getElementById('fileInput').click()">
+                        <i data-lucide="upload-cloud" class="w-8 h-8 mx-auto text-[var(--text-muted)] mb-2"></i>
+                        <p class="text-xs font-medium">Klik atau Drag & Drop beberapa file ke sini</p>
+                        <span class="text-[11px] text-[var(--text-muted)] block mt-1">Mendukung ungggah banyak file sekaligus</span>
+                        <input type="file" id="fileInput" multiple onchange="displaySelectedFiles()" class="hidden">
+                    </div>
+
+                    <div id="selectedFilesContainer" class="hidden space-y-1">
+                        <span class="text-[11px] font-semibold text-[var(--text-muted)] block">Daftar Berkas Terpilih:</span>
+                        <div id="selectedFilesList" class="max-h-32 overflow-y-auto space-y-1"></div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium mb-1">
+                            Target Folder Path
+                            <span id="targetFolderHint" class="ml-2 text-[10px] px-1.5 py-0.5 bg-indigo-500/10 text-indigo-500 rounded font-semibold hidden">Root</span>
+                        </label>
+                        <input type="text" id="targetPath" placeholder="Contoh: src/components (klik folder di kiri)" class="w-full px-3 py-1.5 text-xs rounded-md">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium mb-1">Commit Message</label>
+                        <input type="text" id="commitMsg" placeholder="feat: upload batch assets" class="w-full px-3 py-1.5 text-xs rounded-md">
+                    </div>
+
+                    <button class="btn w-full py-2" onclick="executeBatchPush()">
+                        <i data-lucide="arrow-up-right" class="w-4 h-4"></i> Push Berkas ke GitHub
+                    </button>
+
+                    <div id="statusOutput" class="hidden text-xs p-2.5 rounded-lg border"></div>
+                </div>
+            </div>
+
+            <!-- PANEL 3: CODE EDITOR & VISUAL PREVIEWER -->
+            <div class="bg-[var(--bg-card)] flex flex-col h-full overflow-hidden">
+                <div class="h-12 border-b border-[var(--border)] px-4 flex justify-between items-center">
+                    <div class="flex items-center gap-3 overflow-hidden">
+                        <div class="flex items-center gap-2 text-xs font-semibold truncate" id="editorTitle">
+                            <i data-lucide="code" class="w-4 h-4 text-indigo-500"></i>
+                            <span id="activeFileName">Pilih berkas untuk diedit</span>
+                        </div>
+                        
+                        <!-- VISUAL PREVIEW TAB SWITCHER FOR HTML, MD, SVG, JSON & IMAGES -->
+                        <div id="previewTabGroup" class="hidden flex bg-[var(--accent)] border border-[var(--border)] p-0.5 rounded-md flex-shrink-0">
+                            <button onclick="switchEditorTab('code')" id="tabBtnCode" class="px-2.5 py-1 text-[11px] font-medium rounded bg-[var(--bg-card)] shadow-xs">Code</button>
+                            <button onclick="switchEditorTab('preview')" id="tabBtnPreview" class="px-2.5 py-1 text-[11px] font-medium rounded text-[var(--text-muted)] flex items-center gap-1">
+                                <i data-lucide="eye" class="w-3 h-3"></i> Live Preview
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="editorActions" class="hidden flex items-center gap-1.5">
+                        <button onclick="copyEditorCode()" class="btn-icon p-1.5" title="Salin Kode ke Clipboard">
+                            <i data-lucide="copy" class="w-4 h-4"></i>
+                        </button>
+                        <button onclick="downloadActiveFile()" class="btn-icon p-1.5" title="Unduh Berkas Ini">
+                            <i data-lucide="download" class="w-4 h-4"></i>
+                        </button>
+                        <button class="btn text-xs px-3 py-1 ml-2" onclick="commitEditorChanges()" id="btnSaveCommit">
+                            <i data-lucide="save" class="w-3.5 h-3.5"></i> Simpan (Ctrl+S)
+                        </button>
+                    </div>
+                </div>
+
+                <div id="editorWorkspace" class="flex-1 bg-[var(--editor-bg)] relative flex flex-col overflow-hidden">
+                    <!-- Default Empty Placeholder -->
+                    <div id="emptyPlaceholder" class="flex-1 flex flex-col items-center justify-center text-[var(--text-muted)] gap-3 text-xs text-center p-8">
+                        <i data-lucide="file-code" class="w-12 h-12 opacity-40"></i>
+                        <p>Klik berkas di File Explorer untuk mengedit kode atau melihat preview visual langsung.</p>
+                    </div>
+
+                    <!-- Textarea Editor -->
+                    <textarea id="codeEditor" class="hidden w-full h-full bg-transparent text-[var(--editor-text)] font-mono text-xs p-4 resize-none outline-none leading-relaxed" spellcheck="false"></textarea>
+
+                    <!-- Multi-Format Live Preview Container -->
+                    <div id="visualPreviewArea" class="hidden w-full h-full bg-[var(--bg-card)] p-4 overflow-y-auto"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODALS -->
+    <!-- COMMAND PALETTE MODAL (Ctrl + K) -->
+    <div id="commandPaletteModal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-start justify-center pt-20">
+        <div class="bg-[var(--bg-card)] border border-[var(--border)] w-full max-w-lg rounded-xl shadow-2xl overflow-hidden">
+            <div class="p-3 border-b border-[var(--border)] flex items-center gap-2">
+                <i data-lucide="search" class="w-4 h-4 text-[var(--text-muted)]"></i>
+                <input type="text" id="paletteSearchInput" oninput="runPaletteSearch()" placeholder="Ketik nama file untuk mencari..." class="w-full text-xs bg-transparent border-none focus:outline-none">
+            </div>
+            <div id="paletteResults" class="max-h-64 overflow-y-auto p-2 space-y-1"></div>
+        </div>
+    </div>
+
+    <!-- NEW FILE MODAL -->
+    <div id="newFileModal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div class="bg-[var(--bg-card)] border border-[var(--border)] p-5 rounded-xl w-full max-w-md space-y-4">
+            <h3 class="text-sm font-bold flex items-center gap-2"><i data-lucide="file-plus" class="w-4 h-4"></i> Buat Berkas Baru</h3>
+            <div>
+                <label class="block text-xs font-medium mb-1">Path Berkas (termasuk folder jika ada)</label>
+                <input type="text" id="newFilePathInput" placeholder="Contoh: src/utils/helper.js" class="w-full px-3 py-1.5 text-xs rounded-md">
+            </div>
+            <div>
+                <label class="block text-xs font-medium mb-1">Isi Berkas Awal</label>
+                <textarea id="newFileContentInput" rows="4" placeholder="// Tulis kode di sini..." class="w-full px-3 py-1.5 text-xs font-mono rounded-md"></textarea>
+            </div>
+            <div class="flex justify-end gap-2">
+                <button class="btn btn-secondary text-xs" onclick="closeModal('newFileModal')">Batal</button>
+                <button class="btn text-xs" onclick="createNewFile()">Buat Berkas</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW FOLDER MODAL -->
+    <div id="newFolderModal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div class="bg-[var(--bg-card)] border border-[var(--border)] p-5 rounded-xl w-full max-w-sm space-y-4">
+            <h3 class="text-sm font-bold flex items-center gap-2"><i data-lucide="folder-plus" class="w-4 h-4"></i> Buat Folder Baru</h3>
+            <div>
+                <label class="block text-xs font-medium mb-1">Nama / Path Folder</label>
+                <input type="text" id="newFolderPathInput" placeholder="Contoh: src/assets" class="w-full px-3 py-1.5 text-xs rounded-md">
+            </div>
+            <div class="flex justify-end gap-2">
+                <button class="btn btn-secondary text-xs" onclick="closeModal('newFolderModal')">Batal</button>
+                <button class="btn text-xs" onclick="createNewFolder()">Buat Folder</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW BRANCH MODAL -->
+    <div id="newBranchModal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div class="bg-[var(--bg-card)] border border-[var(--border)] p-5 rounded-xl w-full max-w-sm space-y-4">
+            <h3 class="text-sm font-bold flex items-center gap-2"><i data-lucide="git-branch" class="w-4 h-4"></i> Buat Branch Baru</h3>
+            <div>
+                <label class="block text-xs font-medium mb-1">Nama Branch</label>
+                <input type="text" id="newBranchNameInput" placeholder="Contoh: feature/login-ui" class="w-full px-3 py-1.5 text-xs rounded-md">
+            </div>
+            <div class="flex justify-end gap-2">
+                <button class="btn btn-secondary text-xs" onclick="closeModal('newBranchModal')">Batal</button>
+                <button class="btn text-xs" onclick="createNewBranch()">Buat Branch</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- COMMIT HISTORY LOG MODAL -->
+    <div id="commitHistoryModal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div class="bg-[var(--bg-card)] border border-[var(--border)] p-5 rounded-xl w-full max-w-lg space-y-4 max-h-[80vh] flex flex-col">
+            <div class="flex justify-between items-center border-b border-[var(--border)] pb-2">
+                <h3 class="text-sm font-bold flex items-center gap-2"><i data-lucide="history" class="w-4 h-4"></i> Riwayat Commit Terakhir</h3>
+                <button onclick="closeModal('commitHistoryModal')" class="btn-icon p-1"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <div id="commitHistoryList" class="flex-1 overflow-y-auto space-y-2 pr-1"></div>
+        </div>
+    </div>
+
+    <!-- MODAL CONFIRM DELETE -->
+    <div id="deleteModal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div class="bg-[var(--bg-card)] border border-[var(--border)] p-5 rounded-xl w-full max-w-sm text-center space-y-3">
+            <h3 class="text-sm font-bold text-[var(--danger)]">Hapus Berkas?</h3>
+            <p id="deleteModalText" class="text-xs text-[var(--text-muted)]"></p>
+            <div class="flex justify-center gap-2 pt-2">
+                <button class="btn btn-secondary text-xs" onclick="closeModal('deleteModal')">Batal</button>
+                <button class="btn text-xs bg-red-600 hover:bg-red-700 text-white border-none" onclick="confirmDeleteFile()">Hapus Permanen</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // MOCK DATA UNTUK ADMIN PREVIEW MODE (Lengkap dengan HTML, MD, React, SVG, JSON & Image)
+        let mockFiles = [
+            { 
+                path: "index.html", 
+                type: "blob", 
+                sha: "sha_index_html", 
+                content: "<!DOCTYPE html>\n<html lang=\"id\">\n<head>\n  <meta charset=\"UTF-8\">\n  <style>\n    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; padding: 40px; background: #0f172a; color: #f8fafc; }\n    .card { background: #1e293b; padding: 30px; border-radius: 16px; border: 1px solid #334155; max-w: 500px; margin: 0 auto; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }\n    h1 { color: #38bdf8; margin-bottom: 8px; font-size: 24px; }\n    p { color: #94a3b8; font-size: 14px; margin-bottom: 20px; line-height: 1.5; }\n    button { background: #6366f1; color: #ffffff; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; }\n    button:hover { background: #4f46e5; transform: translateY(-2px); }\n  </style>\n</head>\n<body>\n  <div class=\"card\">\n    <h1>🚀 Live HTML Preview Sandbox</h1>\n    <p>Sunting teks atau kode HTML/CSS ini secara realtime untuk menguji coba preview web!</p>\n    <button onclick=\"alert('Interaksi JavaScript di iFrame terisolasi berhasil!')\">Klik Uji Tombol Interaktif</button>\n  </div>\n</body>\n</html>" 
+            },
+            { path: "src", type: "tree", sha: "dir_src" },
+            { path: "src/components", type: "tree", sha: "dir_components" },
+            { 
+                path: "src/components/Header.jsx", 
+                type: "blob", 
+                sha: "sha_header", 
+                content: "import React from 'react';\n\nexport const Header = () => {\n  return (\n    <header className=\"p-4 bg-slate-900 text-white flex justify-between items-center\">\n      <h1 className=\"text-lg font-bold\">GitDrive Workspace</h1>\n    </header>\n  );\n};" 
+            },
+            { 
+                path: "src/components/Button.jsx", 
+                type: "blob", 
+                sha: "sha_button", 
+                content: "import React from 'react';\n\nexport const Button = ({ label, onClick }) => {\n  return (\n    <button onClick={onClick} className=\"px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg shadow-sm transition-all\">\n      {label}\n    </button>\n  );\n};" 
+            },
+            {
+                path: "src/assets", type: "tree", sha: "dir_assets"
+            },
+            { 
+                path: "src/assets/logo.png", 
+                type: "blob", 
+                sha: "sha_img", 
+                content: "https://placehold.co/600x300/18181b/38bdf8?text=GitDrive+Image+Preview", 
+                isImage: true 
+            },
+            { 
+                path: "src/assets/icon.svg", 
+                type: "blob", 
+                sha: "sha_svg", 
+                content: `<svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"><path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3"/></svg>` 
+            },
+            {
+                path: "config.json",
+                type: "blob",
+                sha: "sha_json",
+                content: `{\n  "appName": "GitDrive Pro",\n  "version": "2.5.0",\n  "features": {\n    "livePreview": true,\n    "batchUpload": true,\n    "commandPalette": true,\n    "darkMode": true\n  }\n}`
+            },
+            { 
+                path: "README.md", 
+                type: "blob", 
+                sha: "sha_readme", 
+                content: "# GitDrive Pro Manager\n\nSelamat datang di **GitDrive Pro**!\n\n### 🌟 Fitur Utama Preview & Editor:\n- **Live Web Preview**: Sandboxed iFrame untuk `.html` dengan eksekusi JS aman.\n- **Image & SVG Viewer**: Visualisasi lansung untuk gambar `.png`, `.jpg`, `.svg`.\n- **Formatted JSON & Markdown**: Parser Markdown realtime menggunakan `marked.js`.\n- **Batch Multi-File Upload**: Fitur drag and drop banyak berkas sekaligus.\n- **Direct Code Commit**: Edit dan simpan langsung ke branch GitHub." 
+            }
+        ];
+
+        let mockBranches = ["main", "development", "feature/ui-v2"];
+        let mockCommits = [
+            { sha: "8f2a1b", author: "admin", message: "feat: add multi-format preview support (HTML, MD, SVG, JSON, Images)", date: "Baru saja" },
+            { sha: "3c9d4e", author: "admin", message: "docs: update README with markdown preview example", date: "10 menit lalu" },
+            { sha: "1a2b3c", author: "admin", message: "initial commit", date: "1 jam lalu" }
+        ];
+
+        let config = { token: "", owner: "", repo: "", branch: "main" };
+        let isMockMode = false;
+        let activeFile = null;
+        let itemToDelete = null;
+        let currentTreeData = [];
+        let currentTab = 'code';
+        let expandedFolders = new Set(['src', 'src/components', 'src/assets']);
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('gitdrive_theme', isDark ? 'dark' : 'light');
+            updateThemeIcon();
+        }
+
+        function updateThemeIcon() {
+            const isDark = document.body.classList.contains('dark-mode');
+            const iconBtn = document.getElementById('themeToggleBtn');
+            iconBtn.innerHTML = `<i data-lucide="${isDark ? 'sun' : 'moon'}" class="w-4 h-4"></i>`;
+            lucide.createIcons();
+        }
+
+        if (localStorage.getItem('gitdrive_theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+        }
+
+        function handleLogin() {
+            const tokenInput = document.getElementById('token').value.trim();
+            const ownerInput = document.getElementById('owner').value.trim();
+            const repoInput = document.getElementById('repo').value.trim();
+            const branchInput = document.getElementById('branch').value.trim();
+
+            if (!tokenInput || !ownerInput || !repoInput || !branchInput) {
+                alert("Harap isi seluruh kolom login.");
+                return;
+            }
+
+            config = { token: tokenInput, owner: ownerInput, repo: repoInput, branch: branchInput };
+
+            if (tokenInput.toLowerCase() === 'admin' || ownerInput.toLowerCase() === 'admin') {
+                isMockMode = true;
+                document.getElementById('displayUser').innerText = "admin (Preview)";
+            } else {
+                isMockMode = false;
+                document.getElementById('displayUser').innerText = `${config.owner}/${config.repo}`;
+            }
+
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('dashboardScreen').classList.remove('hidden');
+
+            updateThemeIcon();
+            populateBranchSelector();
+            loadDirectory();
+            initDragAndDropHandlers();
+            setupGlobalShortcuts();
+        }
+
+        async function populateBranchSelector() {
+            const select = document.getElementById('branchSelect');
+            select.innerHTML = "";
+
+            let branches = [];
+            if (isMockMode) {
+                branches = mockBranches;
+            } else {
+                try {
+                    const res = await fetch(`https://api.github.com/repos/${config.owner}/${config.repo}/branches`, {
+                        headers: { 'Authorization': `Bearer ${config.token}` }
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        branches = data.map(b => b.name);
+                    } else { branches = [config.branch]; }
+                } catch (e) { branches = [config.branch]; }
+            }
+
+            branches.forEach(b => {
+                const opt = document.createElement('option');
+                opt.value = b;
+                opt.innerText = b;
+                if (b === config.branch) opt.selected = true;
+                select.appendChild(opt);
+            });
+        }
+
+        function switchBranch(newBranch) {
+            config.branch = newBranch;
+            loadDirectory();
+        }
+
+        function openNewBranchModal() { document.getElementById('newBranchModal').classList.remove('hidden'); }
+
+        async function createNewBranch() {
+            const branchName = document.getElementById('newBranchNameInput').value.trim();
+            if (!branchName) return;
+
+            closeModal('newBranchModal');
+            if (isMockMode) {
+                mockBranches.push(branchName);
+                config.branch = branchName;
+                populateBranchSelector();
+                loadDirectory();
+                return;
+            }
+
+            try {
+                const mainRes = await fetch(`https://api.github.com/repos/${config.owner}/${config.repo}/git/ref/heads/${config.branch}`, {
+                    headers: { 'Authorization': `Bearer ${config.token}` }
+                });
+                const mainData = await mainRes.json();
+                const sha = mainData.object.sha;
+
+                const createRes = await fetch(`https://api.github.com/repos/${config.owner}/${config.repo}/git/refs`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${config.token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ref: `refs/heads/${branchName}`, sha: sha })
+                });
+
+                if (createRes.ok) {
+                    config.branch = branchName;
+                    populateBranchSelector();
+                    loadDirectory();
+                } else { alert("Gagal membuat branch baru."); }
+            } catch (e) { alert("Error: " + e.message); }
+        }
+
+        async function loadDirectory() {
+            const treeContainer = document.getElementById('fileTree');
+            treeContainer.innerHTML = `<div class="p-3 text-xs text-[var(--text-muted)]">Memuat berkas...</div>`;
+
+            if (isMockMode) {
+                currentTreeData = mockFiles;
+                renderTree(mockFiles);
+                return;
+            }
+
+            try {
+                const url = `https://api.github.com/repos/${config.owner}/${config.repo}/git/trees/${config.branch}?recursive=1`;
+                const response = await fetch(url, { headers: { 'Authorization': `Bearer ${config.token}` } });
+                if (!response.ok) throw new Error("Gagal memuat struktur file.");
+                const data = await response.json();
+                currentTreeData = data.tree || [];
+                renderTree(currentTreeData);
+            } catch (err) {
+                treeContainer.innerHTML = `<div class="p-3 text-xs text-[var(--danger)]">${err.message}</div>`;
+            }
+        }
+
+        function toggleFolder(folderPath, event) {
+            if (event) event.stopPropagation();
+            if (expandedFolders.has(folderPath)) {
+                expandedFolders.delete(folderPath);
+            } else {
+                expandedFolders.add(folderPath);
+            }
+            renderTree(currentTreeData);
+        }
+
+        function isPathVisible(path) {
+            const parts = path.split('/');
+            if (parts.length <= 1) return true;
+            
+            let currentPath = "";
+            for (let i = 0; i < parts.length - 1; i++) {
+                currentPath = currentPath ? `${currentPath}/${parts[i]}` : parts[i];
+                if (!expandedFolders.has(currentPath)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function quickCreateInFolder(folderPath, type, event) {
+            if (event) event.stopPropagation();
+            selectFolderPath(folderPath);
+            if (type === 'file') {
+                document.getElementById('newFilePathInput').value = folderPath.endsWith('/') ? folderPath : folderPath + '/';
+                openNewFileModal();
+            } else {
+                document.getElementById('newFolderPathInput').value = folderPath.endsWith('/') ? folderPath : folderPath + '/';
+                openNewFolderModal();
+            }
+        }
+
+        function renderTree(treeData) {
+            const treeContainer = document.getElementById('fileTree');
+            treeContainer.innerHTML = "";
+
+            const sorted = [...treeData].sort((a, b) => {
+                if (a.type !== b.type) return a.type === 'tree' ? -1 : 1;
+                return a.path.localeCompare(b.path);
+            });
+
+            sorted.forEach(item => {
+                if (!isPathVisible(item.path)) return;
+
+                const parts = item.path.split('/');
+                const depth = parts.length - 1;
+                const name = parts[parts.length - 1];
+                const isFolder = item.type === 'tree';
+                const isExpanded = expandedFolders.has(item.path);
+
+                const div = document.createElement('div');
+                div.className = `tree-item ${isFolder ? 'folder-item' : 'file-item'}`;
+                div.style.paddingLeft = `${8 + (depth * 14)}px`;
+                div.setAttribute('data-path', item.path);
+
+                let iconName = isFolder ? (isExpanded ? 'folder-open' : 'folder') : (isImgFile(name) ? 'image' : 'file-code');
+                if (name.endsWith('.html') || name.endsWith('.htm')) iconName = 'file-type-2';
+                if (name.endsWith('.md')) iconName = 'file-text';
+                if (name.endsWith('.json')) iconName = 'file-json';
+
+                div.innerHTML = `
+                    <div class="flex items-center gap-1.5 overflow-hidden text-ellipsis whitespace-nowrap">
+                        ${isFolder ? `
+                            <button class="p-0.5 hover:bg-black/10 dark:hover:bg-white/10 rounded" onclick="toggleFolder('${escapeHtml(item.path)}', event)">
+                                <i data-lucide="${isExpanded ? 'chevron-down' : 'chevron-right'}" class="w-3.5 h-3.5 text-[var(--text-muted)]"></i>
+                            </button>
+                        ` : '<span class="w-4 inline-block"></span>'}
+                        <i data-lucide="${iconName}" class="w-4 h-4 flex-shrink-0 ${isFolder ? 'text-amber-500 font-semibold' : 'text-[var(--text-muted)]'}"></i>
+                        <span class="${isFolder ? 'font-medium' : ''}">${escapeHtml(name)}</span>
+                    </div>
+                    <div class="actions flex items-center gap-0.5">
+                        ${isFolder ? `
+                            <button class="btn-icon p-1 hover:text-indigo-500" title="Buat Berkas di Folder ini" onclick="quickCreateInFolder('${escapeHtml(item.path)}', 'file', event)">
+                                <i data-lucide="file-plus" class="w-3.5 h-3.5"></i>
+                            </button>
+                            <button class="btn-icon p-1 hover:text-indigo-500" title="Buat Sub-Folder" onclick="quickCreateInFolder('${escapeHtml(item.path)}', 'folder', event)">
+                                <i data-lucide="folder-plus" class="w-3.5 h-3.5"></i>
+                            </button>
+                        ` : `
+                            <button class="btn-icon p-1 hover:text-red-500" title="Hapus Berkas" onclick="event.stopPropagation(); promptDeleteFile('${item.path}', '${item.sha}')">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                            </button>
+                        `}
+                    </div>
+                `;
+
+                div.onclick = () => {
+                    document.querySelectorAll('.tree-item').forEach(el => el.classList.remove('active'));
+                    div.classList.add('active');
+
+                    if (isFolder) {
+                        selectFolderPath(item.path);
+                        toggleFolder(item.path);
+                    } else {
+                        openFileInEditor(item);
+                    }
+                };
+
+                treeContainer.appendChild(div);
+            });
+
+            lucide.createIcons();
+            setupFolderDropZones();
+        }
+
+        function filterFileTree() {
+            const query = document.getElementById('explorerSearchInput').value.toLowerCase();
+            const filtered = currentTreeData.filter(f => f.path.toLowerCase().includes(query));
+            renderTree(filtered);
+        }
+
+        async function openFileInEditor(fileItem) {
+            activeFile = fileItem;
+            document.getElementById('emptyPlaceholder').classList.add('hidden');
+            document.getElementById('editorActions').classList.remove('hidden');
+            document.getElementById('activeFileName').innerText = fileItem.path;
+
+            const path = fileItem.path.toLowerCase();
+            const isMd = path.endsWith('.md');
+            const isImg = isImgFile(path);
+            const isHtml = path.endsWith('.html') || path.endsWith('.htm');
+            const isSvg = path.endsWith('.svg');
+            const isJson = path.endsWith('.json');
+            const hasPreview = isMd || isImg || isHtml || isSvg || isJson;
+
+            const tabGroup = document.getElementById('previewTabGroup');
+            if (hasPreview) {
+                tabGroup.classList.remove('hidden');
+            } else {
+                tabGroup.classList.add('hidden');
+                switchEditorTab('code');
+            }
+
+            let content = "";
+            let imgDataUrl = null;
+
+            if (isMockMode) {
+                content = fileItem.content || "";
+                if (isImg && fileItem.content) {
+                    imgDataUrl = fileItem.content;
+                }
+            } else {
+                try {
+                    const url = `https://api.github.com/repos/${config.owner}/${config.repo}/contents/${fileItem.path}?ref=${config.branch}`;
+                    const res = await fetch(url, { headers: { 'Authorization': `Bearer ${config.token}` } });
+                    const data = await res.json();
+                    activeFile.sha = data.sha;
+                    
+                    if (isImg) {
+                        // Support for private & public GitHub repos via Base64 Data URI
+                        const ext = path.split('.').pop();
+                        imgDataUrl = `data:image/${ext};base64,${data.content.replace(/\n/g, '')}`;
+                        content = imgDataUrl;
+                    } else {
+                        content = decodeURIComponent(escape(atob(data.content)));
+                    }
+                } catch (e) { 
+                    content = "// Error loading file content from GitHub."; 
+                }
+            }
+
+            activeFile.loadedContent = content;
+            activeFile.imgDataUrl = imgDataUrl;
+
+            const editorTextarea = document.getElementById('codeEditor');
+            editorTextarea.value = content;
+
+            // Auto-switch to visual preview for visual/renderable files
+            if (isHtml || isMd || isImg || isSvg) {
+                switchEditorTab('preview');
+            } else {
+                switchEditorTab('code');
+            }
+        }
+
+        function switchEditorTab(tab) {
+            currentTab = tab;
+            const textarea = document.getElementById('codeEditor');
+            const visualArea = document.getElementById('visualPreviewArea');
+            const btnCode = document.getElementById('tabBtnCode');
+            const btnPreview = document.getElementById('tabBtnPreview');
+
+            if (tab === 'code') {
+                textarea.classList.remove('hidden');
+                visualArea.classList.add('hidden');
+                btnCode.className = "px-2.5 py-1 text-[11px] font-medium rounded bg-[var(--bg-card)] shadow-xs font-semibold";
+                btnPreview.className = "px-2.5 py-1 text-[11px] font-medium rounded text-[var(--text-muted)] flex items-center gap-1";
+            } else {
+                textarea.classList.add('hidden');
+                visualArea.classList.remove('hidden');
+                btnPreview.className = "px-2.5 py-1 text-[11px] font-medium rounded bg-[var(--bg-card)] shadow-xs font-semibold flex items-center gap-1";
+                btnCode.className = "px-2.5 py-1 text-[11px] font-medium rounded text-[var(--text-muted)]";
+
+                renderVisualPreview();
+            }
+        }
+
+        function renderVisualPreview() {
+            if (!activeFile) return;
+            const visualArea = document.getElementById('visualPreviewArea');
+            const text = document.getElementById('codeEditor').value;
+            const path = activeFile.path.toLowerCase();
+
+            if (path.endsWith('.md')) {
+                visualArea.innerHTML = `<div class="markdown-body p-4 bg-[var(--bg-card)] rounded-lg border border-[var(--border)] shadow-xs">${marked.parse(text)}</div>`;
+            } else if (path.endsWith('.html') || path.endsWith('.htm')) {
+                visualArea.innerHTML = `
+                    <div class="w-full h-full flex flex-col rounded-lg border border-[var(--border)] overflow-hidden shadow-xs">
+                        <div class="text-[11px] font-mono text-[var(--text-muted)] bg-[var(--accent)] px-3 py-1.5 flex justify-between items-center border-b border-[var(--border)]">
+                            <span class="flex items-center gap-1.5"><i data-lucide="globe" class="w-3.5 h-3.5 text-indigo-500"></i> Live Sandboxed Web Preview</span>
+                            <button onclick="renderVisualPreview()" class="btn-icon p-0.5 text-[10px] flex items-center gap-1 hover:underline">
+                                <i data-lucide="rotate-cw" class="w-3 h-3"></i> Refresh
+                            </button>
+                        </div>
+                        <iframe id="liveHtmlPreviewFrame" class="w-full flex-1 border-0 bg-white" sandbox="allow-scripts allow-modals"></iframe>
+                    </div>`;
+                const iframe = document.getElementById('liveHtmlPreviewFrame');
+                if (iframe) {
+                    iframe.srcdoc = text;
+                }
+            } else if (path.endsWith('.svg')) {
+                visualArea.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-full p-6">
+                        <div class="p-8 bg-[var(--accent)] rounded-xl border border-[var(--border)] max-w-full overflow-auto shadow-sm flex items-center justify-center">
+                            ${text}
+                        </div>
+                        <span class="text-xs text-[var(--text-muted)] mt-3 font-mono">${escapeHtml(activeFile.path)} (SVG Vector)</span>
+                    </div>`;
+            } else if (isImgFile(path)) {
+                const imgUrl = activeFile.imgDataUrl || activeFile.loadedContent || "https://placehold.co/600x300?text=Image+Preview";
+                visualArea.innerHTML = `
+                    <div class="flex flex-col items-center justify-center h-full p-4 gap-3">
+                        <div class="p-3 bg-[var(--accent)] rounded-xl border border-[var(--border)] max-h-80 max-w-full flex items-center justify-center shadow-sm">
+                            <img src="${imgUrl}" alt="Preview" class="max-h-72 max-w-full object-contain rounded">
+                        </div>
+                        <span class="text-xs text-[var(--text-muted)] font-mono">${escapeHtml(activeFile.path)}</span>
+                    </div>`;
+            } else if (path.endsWith('.json')) {
+                try {
+                    const formatted = JSON.stringify(JSON.parse(text), null, 2);
+                    visualArea.innerHTML = `<pre class="font-mono text-xs p-4 overflow-auto text-emerald-600 dark:text-emerald-400 bg-[var(--accent)] h-full rounded-lg border border-[var(--border)]">${escapeHtml(formatted)}</pre>`;
+                } catch(e) {
+                    visualArea.innerHTML = `<div class="p-4 text-xs text-red-500 font-mono">Format JSON tidak valid.</div>`;
+                }
+            }
+            lucide.createIcons();
+        }
+
+        document.getElementById('codeEditor').addEventListener('input', () => {
+            if (currentTab === 'preview') {
+                renderVisualPreview();
+            }
+        });
+
+        async function commitEditorChanges() {
+            if (!activeFile) return;
+            const updatedContent = document.getElementById('codeEditor').value;
+            const btnSave = document.getElementById('btnSaveCommit');
+
+            btnSave.disabled = true;
+            btnSave.innerHTML = `<i data-lucide="loader" class="w-3.5 h-3.5 animate-spin"></i> Menyimpan...`;
+            lucide.createIcons();
+
+            if (isMockMode) {
+                setTimeout(() => {
+                    const found = mockFiles.find(f => f.path === activeFile.path);
+                    if (found) found.content = updatedContent;
+                    btnSave.disabled = false;
+                    btnSave.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5"></i> Tersimpan!`;
+                    lucide.createIcons();
+                    setTimeout(() => { btnSave.innerHTML = `<i data-lucide="save" class="w-3.5 h-3.5"></i> Simpan (Ctrl+S)`; lucide.createIcons(); }, 1500);
+                }, 500);
+                return;
+            }
+
+            try {
+                const base64Content = btoa(unescape(encodeURIComponent(updatedContent)));
+                const url = `https://api.github.com/repos/${config.owner}/${config.repo}/contents/${activeFile.path}`;
+                const response = await fetch(url, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${config.token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: `update ${activeFile.path} via GitDrive`,
+                        content: base64Content,
+                        sha: activeFile.sha,
+                        branch: config.branch
+                    })
+                });
+                const resData = await response.json();
+                if (!response.ok) throw new Error(resData.message);
+
+                activeFile.sha = resData.content.sha;
+                btnSave.disabled = false;
+                btnSave.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5"></i> Berhasil!`;
+                lucide.createIcons();
+                setTimeout(() => { btnSave.innerHTML = `<i data-lucide="save" class="w-3.5 h-3.5"></i> Simpan (Ctrl+S)`; lucide.createIcons(); }, 1500);
+            } catch (err) {
+                btnSave.disabled = false;
+                btnSave.innerHTML = `<i data-lucide="save" class="w-3.5 h-3.5"></i> Gagal`;
+                alert(`Gagal commit: ${err.message}`);
+                lucide.createIcons();
+            }
+        }
+
+        function copyEditorCode() {
+            const code = document.getElementById('codeEditor').value;
+            const textarea = document.createElement('textarea');
+            textarea.value = code;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            alert("Kode berhasil disalin ke clipboard!");
+        }
+
+        function downloadActiveFile() {
+            if (!activeFile) return;
+            const code = document.getElementById('codeEditor').value;
+            const blob = new Blob([code], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = activeFile.path.split('/').pop();
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function setupGlobalShortcuts() {
+            window.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                    e.preventDefault();
+                    openCommandPalette();
+                } else if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                    e.preventDefault();
+                    commitEditorChanges();
+                }
+            });
+        }
+
+        function openCommandPalette() {
+            document.getElementById('commandPaletteModal').classList.remove('hidden');
+            const input = document.getElementById('paletteSearchInput');
+            input.value = "";
+            input.focus();
+            runPaletteSearch();
+        }
+
+        function runPaletteSearch() {
+            const query = document.getElementById('paletteSearchInput').value.toLowerCase();
+            const resultsContainer = document.getElementById('paletteResults');
+            resultsContainer.innerHTML = "";
+
+            const filesOnly = currentTreeData.filter(item => item.type === 'blob');
+            const filtered = filesOnly.filter(item => item.path.toLowerCase().includes(query));
+
+            if (filtered.length === 0) {
+                resultsContainer.innerHTML = `<div class="p-3 text-xs text-center text-[var(--text-muted)]">Tidak ada file ditemukan.</div>`;
+                return;
+            }
+
+            filtered.forEach(item => {
+                const div = document.createElement('div');
+                div.className = "p-2 hover:bg-[var(--accent)] rounded-lg cursor-pointer text-xs flex items-center gap-2";
+                div.innerHTML = `<i data-lucide="file-code" class="w-4 h-4 text-[var(--text-muted)]"></i> <span>${escapeHtml(item.path)}</span>`;
+                div.onclick = () => {
+                    closeModal('commandPaletteModal');
+                    openFileInEditor(item);
+                };
+                resultsContainer.appendChild(div);
+            });
+            lucide.createIcons();
+        }
+
+        function openNewFileModal() { document.getElementById('newFileModal').classList.remove('hidden'); }
+        function openNewFolderModal() { document.getElementById('newFolderModal').classList.remove('hidden'); }
+
+        async function createNewFile() {
+            const path = document.getElementById('newFilePathInput').value.trim();
+            const content = document.getElementById('newFileContentInput').value;
+            if (!path) return;
+
+            closeModal('newFileModal');
+            if (isMockMode) {
+                mockFiles.push({ path: path, type: 'blob', sha: `sha_${Date.now()}`, content: content });
+                loadDirectory();
+                return;
+            }
+
+            try {
+                const base64Content = btoa(unescape(encodeURIComponent(content)));
+                const url = `https://api.github.com/repos/${config.owner}/${config.repo}/contents/${path}`;
+                await fetch(url, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${config.token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: `create ${path} via GitDrive`, content: base64Content, branch: config.branch })
+                });
+                loadDirectory();
+            } catch (e) { alert("Gagal membuat berkas baru."); }
+        }
+
+        async function createNewFolder() {
+            const folderPath = document.getElementById('newFolderPathInput').value.trim();
+            if (!folderPath) return;
+
+            const gitkeepPath = `${folderPath.replace(/\/$/, '')}/.gitkeep`;
+            closeModal('newFolderModal');
+
+            if (isMockMode) {
+                mockFiles.push({ path: folderPath, type: 'tree', sha: `dir_${Date.now()}` });
+                mockFiles.push({ path: gitkeepPath, type: 'blob', sha: `sha_${Date.now()}`, content: '' });
+                loadDirectory();
+                return;
+            }
+
+            try {
+                const url = `https://api.github.com/repos/${config.owner}/${config.repo}/contents/${gitkeepPath}`;
+                await fetch(url, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `Bearer ${config.token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: `create folder ${folderPath}`, content: '', branch: config.branch })
+                });
+                loadDirectory();
+            } catch (e) { alert("Gagal membuat folder baru."); }
+        }
+
+        async function openCommitHistoryModal() {
+            document.getElementById('commitHistoryModal').classList.remove('hidden');
+            const listContainer = document.getElementById('commitHistoryList');
+            listContainer.innerHTML = `<div class="p-3 text-xs text-[var(--text-muted)]">Memuat riwayat commit...</div>`;
+
+            let commits = [];
+            if (isMockMode) {
+                commits = mockCommits;
+            } else {
+                try {
+                    const res = await fetch(`https://api.github.com/repos/${config.owner}/${config.repo}/commits?sha=${config.branch}&per_page=10`, {
+                        headers: { 'Authorization': `Bearer ${config.token}` }
+                    });
+                    const data = await res.json();
+                    commits = data.map(c => ({
+                        sha: c.sha.substring(0, 7),
+                        author: c.commit.author.name,
+                        message: c.commit.message,
+                        date: new Date(c.commit.author.date).toLocaleString('id-ID')
+                    }));
+                } catch (e) { commits = []; }
+            }
+
+            listContainer.innerHTML = "";
+            commits.forEach(c => {
+                const div = document.createElement('div');
+                div.className = "p-3 border border-[var(--border)] rounded-lg bg-[var(--bg-main)] text-xs space-y-1";
+                div.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-indigo-500 font-mono">${c.sha}</span>
+                        <span class="text-[10px] text-[var(--text-muted)]">${c.date}</span>
+                    </div>
+                    <div class="font-medium">${escapeHtml(c.message)}</div>
+                    <div class="text-[10px] text-[var(--text-muted)]">Oleh: ${escapeHtml(c.author)}</div>
+                `;
+                listContainer.appendChild(div);
+            });
+        }
+
+        // BATCH MULTI-FILE UPLOAD
+        function displaySelectedFiles() {
+            const input = document.getElementById('fileInput');
+            const container = document.getElementById('selectedFilesContainer');
+            const list = document.getElementById('selectedFilesList');
+
+            if (input.files.length > 0) {
+                container.classList.remove('hidden');
+                list.innerHTML = "";
+                Array.from(input.files).forEach(f => {
+                    const item = document.createElement('div');
+                    item.className = "text-xs p-1.5 bg-[var(--accent)] border border-[var(--border)] rounded flex justify-between items-center";
+                    item.innerHTML = `<span class="truncate">${escapeHtml(f.name)}</span> <span class="text-[10px] text-[var(--text-muted)]">${(f.size/1024).toFixed(1)} KB</span>`;
+                    list.appendChild(item);
+                });
+            }
+        }
+
+        async function executeBatchPush() {
+            const fileInput = document.getElementById('fileInput');
+            const targetPath = document.getElementById('targetPath').value.trim();
+            const commitMsg = document.getElementById('commitMsg').value || 'feat: batch upload files via GitDrive';
+            const statusOutput = document.getElementById('statusOutput');
+
+            if (!fileInput.files.length) { alert('Pilih minimal satu berkas.'); return; }
+
+            statusOutput.className = "text-xs p-2.5 rounded-lg border bg-indigo-500/10 border-indigo-500/30 text-indigo-500 block";
+            statusOutput.innerText = `Memproses ${fileInput.files.length} berkas...`;
+
+            const files = Array.from(fileInput.files);
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const cleanPath = targetPath ? `${targetPath.replace(/\/$/, '')}/${file.name}` : file.name;
+                statusOutput.innerText = `Mengunggah (${i+1}/${files.length}): ${file.name}...`;
+
+                if (isMockMode) {
+                    mockFiles.push({ path: cleanPath, type: 'blob', sha: `sha_${Date.now()}`, content: `// Batch upload: ${file.name}` });
+                } else {
+                    const base64 = await readFileAsBase64(file);
+                    const url = `https://api.github.com/repos/${config.owner}/${config.repo}/contents/${cleanPath}`;
+                    await fetch(url, {
+                        method: 'PUT',
+                        headers: { 'Authorization': `Bearer ${config.token}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ message: commitMsg, content: base64, branch: config.branch })
+                    });
+                }
+            }
+
+            statusOutput.className = "text-xs p-2.5 rounded-lg border bg-emerald-500/10 border-emerald-500/30 text-emerald-500 block";
+            statusOutput.innerText = `Sukses mengunggah seluruh ${files.length} berkas!`;
+            loadDirectory();
+        }
+
+        function readFileAsBase64(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result.split(',')[1]);
+            });
+        }
+
+        // DRAG & DROP & UTILS
+        function initDragAndDropHandlers() {
+            const dropzone = document.getElementById('uploadDropzone');
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eName => {
+                dropzone.addEventListener(eName, preventDefaults, false);
+                document.body.addEventListener(eName, preventDefaults, false);
+            });
+            dropzone.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                if (dt.files.length > 0) {
+                    document.getElementById('fileInput').files = dt.files;
+                    displaySelectedFiles();
+                }
+            });
+        }
+
+        function setupFolderDropZones() {
+            document.querySelectorAll('.tree-item.folder-item').forEach(folderEl => {
+                folderEl.addEventListener('dragover', (e) => { e.preventDefault(); folderEl.classList.add('drag-over'); });
+                folderEl.addEventListener('dragleave', () => { folderEl.classList.remove('drag-over'); });
+                folderEl.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    folderEl.classList.remove('drag-over');
+                    const targetPath = folderEl.getAttribute('data-path');
+                    selectFolderPath(targetPath);
+                    if (e.dataTransfer.files.length > 0) {
+                        document.getElementById('fileInput').files = e.dataTransfer.files;
+                        displaySelectedFiles();
+                    }
+                });
+            });
+        }
+
+        function selectFolderPath(folderPath) {
+            document.getElementById('targetPath').value = folderPath;
+            const hint = document.getElementById('targetFolderHint');
+            hint.innerText = folderPath;
+            hint.classList.remove('hidden');
+        }
+
+        function promptDeleteFile(path, sha) {
+            itemToDelete = { path, sha };
+            document.getElementById('deleteModalText').innerText = `Hapus "${path}" secara permanen?`;
+            document.getElementById('deleteModal').classList.remove('hidden');
+        }
+
+        async function confirmDeleteFile() {
+            if (!itemToDelete) return;
+            const { path, sha } = itemToDelete;
+            closeModal('deleteModal');
+
+            if (isMockMode) {
+                mockFiles = mockFiles.filter(f => f.path !== path);
+                loadDirectory();
+                return;
+            }
+
+            try {
+                const url = `https://api.github.com/repos/${config.owner}/${config.repo}/contents/${path}`;
+                await fetch(url, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${config.token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: `delete ${path}`, sha: sha, branch: config.branch })
+                });
+                loadDirectory();
+            } catch (e) { alert("Gagal menghapus file."); }
+        }
+
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+        function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
+        function isImgFile(filename) { return /\.(png|jpe?g|gif|svg|webp)$/i.test(filename); }
+        function escapeHtml(text) { return text ? text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;") : ''; }
+    </script>
+</body>
+</html>
