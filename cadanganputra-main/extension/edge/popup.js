@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnLogin    = document.getElementById('btn-login-master');
   const btnCancel   = document.getElementById('btn-cancel');
   const btnTogglePw = document.getElementById('toggle-pw');
-  const heroIcon    = document.getElementById('hero-icon');
+  const landingTitle = document.getElementById('landing-title');
 
   // Main
   const passwordListEl = document.getElementById('password-list');
@@ -73,8 +73,8 @@ document.addEventListener('DOMContentLoaded', () => {
   let clickCount   = 0;
   let clickTimer   = null;
 
-  // ── Klik icon 5x ─────────────────────────────────────────────────────────────
-  heroIcon.addEventListener('click', () => {
+  // ── Klik judul 5x ────────────────────────────────────────────────────────────
+  landingTitle.addEventListener('click', () => {
     clickCount++;
     clearTimeout(clickTimer);
     clickTimer = setTimeout(() => { clickCount = 0; }, 3000);

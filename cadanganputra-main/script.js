@@ -85,7 +85,7 @@ function renderProyek() {
             ? `<span class="bg-gradient-to-r from-slate-500 to-slate-400 bg-clip-text text-transparent">${p.titlePrefix}</span>${p.title.replace(p.titlePrefix, '')}`
             : p.title;
         
-        const delay = (idx % 4) * 80; // Stagger animasi per 4 kartu
+        const delay = Math.floor(idx / 4) * 80; // Semua kartu 1 baris muncul barengan
         
         return `
             <a href="${p.link}" target="_blank" class="group block no-underline reveal-on-scroll" data-delay="${delay}" data-category="${p.category}">
@@ -157,16 +157,21 @@ mobileLinks.forEach(link => {
 // ===== ANIMASI MASUK (INTERSECTION OBSERVER) =====
 const revealObserver = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
+        const el = entry.target;
         if (entry.isIntersecting) {
-            const el = entry.target;
-            // Hero pakai data-delay apa adanya (1000ms), elemen lain base 400ms + stagger
+            // Elemen masuk viewport — jalankan animasi muncul
             const isHero = el.closest('#hero') !== null;
             const stagger = parseInt(el.dataset.delay || 0);
             const delay = isHero ? stagger : 200 + stagger;
             setTimeout(() => {
                 el.classList.add('is-visible');
             }, delay);
-            revealObserver.unobserve(el);
+        } else {
+            // Elemen keluar viewport — reset agar animasi bisa muncul lagi
+            // Tapi skip hero supaya tidak berkedip saat scroll kecil
+            if (!el.closest('#hero')) {
+                el.classList.remove('is-visible');
+            }
         }
     });
 }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
@@ -177,7 +182,63 @@ document.querySelectorAll('.reveal-on-scroll').forEach((el) => {
 
 // Init: render proyek dari data, lalu observe kartu-kartunya
 renderProyek();
-// Observe setelah render — kartu yang langsung di viewport akan muncul via observer
+
+// ─── Reveal per-baris (4 kartu sekaligus) ──────────────────────────────
+(function () {
+    var grid = document.getElementById('projects-grid');
+    if (!grid) return;
+
+    function applyRowReveal() {
+        var cards = Array.from(grid.querySelectorAll('a[data-category]'));
+        // Kelompokkan per 4 (1 baris di desktop)
+        var rows = [];
+        for (var i = 0; i < cards.length; i += 4) {
+            rows.push(cards.slice(i, i + 4));
+        }
+
+        rows.forEach(function (row, rowIdx) {
+            // Bungkus baris dengan wrapper agar IntersectionObserver bisa target per baris
+            var wrapper = document.createElement('div');
+            wrapper.className = 'contents project-row-reveal';
+            wrapper.style.setProperty('--row-i', rowIdx);
+
+            // Tandai masing-masing kartu dalam baris
+            row.forEach(function (card) {
+                card.classList.remove('reveal-on-scroll');
+                card.style.opacity    = '0';
+                card.style.transform  = 'translateY(28px)';
+                card.style.transition = 'opacity 0.77s cubic-bezier(0.16,1,0.3,1), transform 0.77s cubic-bezier(0.16,1,0.3,1)';
+            });
+
+            // Observer per baris: gunakan kartu pertama sebagai sentinel
+            var sentinel = row[0];
+            var io = new IntersectionObserver(function (entries) {
+                if (entries[0].isIntersecting) {
+                    // Baris masuk viewport — tampilkan
+                    row.forEach(function (card) {
+                        card.style.opacity   = '1';
+                        card.style.transform = 'translateY(0)';
+                    });
+                } else {
+                    // Baris keluar viewport — reset agar animasi muncul lagi
+                    row.forEach(function (card) {
+                        card.style.opacity   = '0';
+                        card.style.transform = 'translateY(28px)';
+                    });
+                }
+            }, { threshold: 0.12 });
+            io.observe(sentinel);
+        });
+    }
+
+    // Jalankan setelah render — beri sedikit delay agar DOM settled
+    setTimeout(applyRowReveal, 60);
+
+    // Re-apply saat filter/search (kartu berubah)
+    document.addEventListener('projectsFiltered', applyRowReveal);
+})();
+
+// Observe individual reveal (non-proyek)
 document.querySelectorAll('#projects-grid .reveal-on-scroll').forEach(el => {
     revealObserver.observe(el);
 });
@@ -217,6 +278,9 @@ function updateProjectVisibility() {
     } else if (resultInfo) {
         resultInfo.classList.add('hidden');
     }
+
+    // Re-trigger row reveal setelah filter berubah
+    document.dispatchEvent(new Event('projectsFiltered'));
 }
 
 filterBtns.forEach(btn => {
@@ -515,6 +579,37 @@ renderOrganisasi();
 renderPrestasi();
 
 // ============================================================
+// REVEAL PRESTASI & ORGANISASI
+// ============================================================
+function revealSection(type) {
+    const btn = document.getElementById(type + '-reveal-btn');
+    const list = document.getElementById(type + '-list');
+    if (!btn || !list) return;
+
+    // Sembunyikan tombol dengan fade out
+    btn.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+    btn.style.opacity = '0';
+    btn.style.transform = 'scale(0.95)';
+
+    setTimeout(function() {
+        btn.style.display = 'none';
+
+        // Tampilkan list dengan animasi masuk
+        list.style.display = '';
+        list.style.opacity = '0';
+        list.style.transform = 'translateY(16px)';
+        list.style.transition = 'opacity 0.4s ease, transform 0.4s cubic-bezier(0.25,1,0.5,1)';
+
+        requestAnimationFrame(function() {
+            requestAnimationFrame(function() {
+                list.style.opacity = '1';
+                list.style.transform = 'translateY(0)';
+            });
+        });
+    }, 280);
+}
+
+// ============================================================
 // SOSMED COMING SOON TOAST
 // ============================================================
 function sosmedComingSoon(e) {
@@ -686,6 +781,16 @@ function animateCounter(el, target, duration, onDone) {
         navbar.style.pointerEvents = 'all';
     }
 
+    // Helper: sembunyikan tombol skip intro
+    function hideSkipBtn() {
+        var skipBtn = document.getElementById('skip-intro-btn');
+        if (!skipBtn) return;
+        skipBtn.style.opacity = '0';
+        skipBtn.style.transform = 'scale(0.9)';
+        skipBtn.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+        setTimeout(function () { skipBtn.style.display = 'none'; }, 420);
+    }
+
     // Instantly selesaikan semua elemen hero tanpa animasi
     window.__heroSkipAll = function() {
         // Batalkan semua timeout stats chain yang mungkin sedang berjalan
@@ -746,6 +851,9 @@ function animateCounter(el, target, duration, onDone) {
 
         // Mulai typing effect
         setTimeout(typeEffect, 100);
+
+        // Sembunyikan tombol skip — semua animasi selesai
+        hideSkipBtn();
 
         // Trigger modal sapaan setelah 5 detik
         if (window.__openingAllDone) window.__openingAllDone();
@@ -829,6 +937,9 @@ function animateCounter(el, target, duration, onDone) {
                                 .forEach(function(d) { d.classList.add('dot-visible'); });
 
                             window._statsTimeouts.push(setTimeout(typeEffect, getSpeed(100)));
+
+                            // Sembunyikan tombol skip — stats prestasi sudah selesai
+                            hideSkipBtn();
 
                             // Trigger modal sapaan setelah 5 detik
                             if (window.__openingAllDone) window.__openingAllDone();
