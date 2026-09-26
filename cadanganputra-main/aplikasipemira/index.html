@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>pufutaraPemira - Pemilihan Presiden BEM SMP</title>
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome Icons -->
@@ -12,9 +16,16 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SheetJS CDN (Excel Reader) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
+        * {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
         body {
             zoom: 0.9;
+            font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
         .gradient-bg {
@@ -66,6 +77,20 @@
         .candidate-card:hover .img-hover-zoom {
             transform: scale(1.08);
         }
+
+        .student-card {
+            transition: all 0.2s ease;
+        }
+        .student-card:hover:not(.disabled-student) {
+            transform: translateY(-3px);
+            border-color: #0284c7;
+            box-shadow: 0 10px 15px -3px rgba(2, 132, 199, 0.15);
+        }
+        .disabled-student {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background-color: #f8fafc;
+        }
     </style>
 </head>
 <body class="bg-slate-50 font-sans min-h-screen flex flex-col text-slate-800">
@@ -74,8 +99,8 @@
     <header class="gradient-bg text-white shadow-md border-b border-sky-700/30 w-full">
         <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center space-x-2.5 cursor-pointer group" onclick="showWelcomeScreen()">
-                <div class="bg-white/20 p-2 rounded-xl group-hover:scale-110 transition duration-300">
-                    <i class="fa-solid font-bold fa-graduation-cap text-2xl text-sky-200"></i>
+                <div class="bg-white/20 p-1.5 rounded-xl group-hover:scale-110 transition duration-300 flex items-center justify-center">
+                    <img src="logo.png" alt="Logo" class="w-9 h-9 object-contain" onerror="this.onerror=null; this.src='https://placehold.co/100x100/2563eb/ffffff?text=Logo';">
                 </div>
                 <div>
                     <span class="font-extrabold text-xl tracking-wider text-white block leading-tight">pufutaraPemira</span>
@@ -96,30 +121,83 @@
     <!-- Main Content Area -->
     <main class="flex-grow max-w-6xl w-full mx-auto p-4 md:p-6 flex flex-col items-center justify-center">
 
-        <!-- ================= WELCOME / CLASS SELECTION SCREEN ================= -->
+        <!-- ================= STEP 1: WELCOME / GRADE SELECTION SCREEN ================= -->
         <section id="welcomeScreen" class="w-full max-w-4xl space-y-8 animate-fade-in-up my-auto text-center py-6">
             <div class="py-8 px-6 bg-white rounded-3xl shadow-sm border border-slate-100 relative overflow-hidden">
                 <div class="absolute -top-10 -right-10 w-40 h-40 bg-sky-100 rounded-full blur-2xl opacity-60"></div>
                 <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-blue-100 rounded-full blur-2xl opacity-60"></div>
                 
-                <span class="inline-block px-4 py-1.5 bg-sky-100 text-sky-700 font-bold text-xs rounded-full mb-3 uppercase tracking-wider">
-                    Sistem Pemilihan Digital SMP
-                </span>
                 <h1 class="text-3xl md:text-5xl font-extrabold text-slate-900 mb-3 tracking-tight">Pemilihan Presiden BEM</h1>
-                <p class="text-slate-600 max-w-xl mx-auto text-sm md:text-base">Silakan pilih kelas Anda terlebih dahulu untuk memberikan suara pada Pemilihan Presiden BEM SMP.</p>
+                <p class="text-slate-600 max-w-xl mx-auto text-sm md:text-base">Langkah 1: Silakan pilih tingkat kelas Anda terlebih dahulu.</p>
             </div>
 
-            <!-- Class Cards Grid (Default: Kelas 7, Kelas 8, Kelas 9) -->
+            <!-- Grade Cards Grid (Kelas 7, Kelas 8, Kelas 9) -->
             <div>
-                <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">Pilih Kelas Pemilih</h2>
+                <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">Pilih Tingkat Kelas</h2>
                 <div id="classCardGrid" class="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl mx-auto">
-                    <!-- Dynamic Class Cards Loaded Here -->
+                    <!-- Dynamic Grade Cards Loaded Here -->
                 </div>
             </div>
         </section>
 
-        <!-- ================= HOME PAGE ================= -->
+        <!-- ================= STEP 2: STUDENT SEARCH & SELECTION SCREEN (Centered Searchbar) ================= -->
+        <section id="studentSelectScreen" class="w-full max-w-3xl space-y-6 animate-fade-in-up hidden my-auto py-6">
+            <div class="flex items-center justify-between w-full">
+                <button onclick="showWelcomeScreen()" class="text-xs font-semibold text-sky-600 hover:text-sky-800 bg-white px-3.5 py-2 rounded-xl border border-slate-200 shadow-sm flex items-center transition">
+                    <i class="fa-solid fa-arrow-left mr-2"></i> Kembali ke Pilih Kelas
+                </button>
+                <span id="fullClassBadge" class="bg-gradient-to-r from-blue-600 to-sky-600 text-white font-extrabold text-xs px-4 py-1.5 rounded-full shadow-sm"></span>
+            </div>
+
+            <!-- Centered Search Card Header -->
+            <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm text-center space-y-4">
+                <div class="w-14 h-14 bg-sky-100 text-sky-600 rounded-2xl flex items-center justify-center mx-auto text-2xl">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-extrabold text-slate-800 mb-1">Cari Nama Siswa</h2>
+                    <p class="text-xs md:text-sm text-slate-500 max-w-md mx-auto">
+                        Ketik nama Anda di kolom pencarian bawah untuk menemukan dan memilih nama Anda.
+                    </p>
+                </div>
+
+                <!-- Centered Prominent Search Input -->
+                <div class="max-w-md mx-auto relative pt-2">
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-sky-500 text-base"></i>
+                        <input type="text" id="studentSearchInput" oninput="filterStudentList()" placeholder="Ketik nama siswa untuk mencari..." class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border-2 border-sky-100 focus:border-sky-500 rounded-2xl text-sm font-semibold text-slate-800 focus:outline-none focus:bg-white transition shadow-sm">
+                    </div>
+                    <p class="text-[11px] text-slate-400 mt-2 italic">*Ketik minimal 3 karakter untuk menampilkan nama Anda.</p>
+                </div>
+            </div>
+
+            <!-- Student List Cards Grid (Shown ONLY after typing in search input) -->
+            <div id="studentListGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 min-h-[120px]">
+                <!-- Dynamic Student Cards Rendered Here -->
+            </div>
+        </section>
+
+        <!-- ================= HOME PAGE (CANDIDATE SELECTION) ================= -->
         <section id="homePage" class="w-full space-y-6 animate-fade-in-up hidden">
+            <!-- Active Voter Info Bar -->
+            <div id="activeVoterBanner" class="bg-blue-50 border border-blue-200 rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-center gap-2 max-w-5xl mx-auto">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center font-bold">
+                        <i class="fa-solid fa-user-check"></i>
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-bold text-blue-500 uppercase tracking-wider block">Siswa Pemilih</span>
+                        <h4 id="activeVoterName" class="font-extrabold text-slate-800 text-base leading-tight">--</h4>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span id="activeVoterClass" class="bg-white text-blue-700 font-bold text-xs px-3 py-1 rounded-xl border border-blue-200">--</span>
+                    <button onclick="cancelVoterSelection()" class="text-xs font-semibold text-rose-600 hover:text-rose-800 bg-white hover:bg-rose-50 px-3 py-1 rounded-xl border border-rose-200 transition">
+                        Ganti Siswa
+                    </button>
+                </div>
+            </div>
+
             <!-- Candidate Grid -->
             <div class="text-center pt-2">
                 <div class="mb-6 flex flex-col items-center justify-center space-y-1">
@@ -152,11 +230,14 @@
                         <button onclick="openAddCandidateModal()" class="w-full gradient-btn text-white px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center shadow-md">
                             <i class="fa-solid fa-user-plus mr-2 text-sm"></i> Tambah Kandidat
                         </button>
-                        <button onclick="openAddClassModal()" class="w-full bg-sky-50 hover:bg-sky-100 text-sky-700 px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center">
-                            <i class="fa-solid fa-folder-plus mr-2 text-sm"></i> Kelola Daftar Kelas
+                        <button onclick="openStudentManageModal()" class="w-full bg-sky-50 hover:bg-sky-100 text-sky-700 px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center">
+                            <i class="fa-solid fa-users-gear mr-2 text-sm"></i> Kelola Data Siswa
+                        </button>
+                        <button onclick="openAddClassModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center">
+                            <i class="fa-solid fa-folder-plus mr-2 text-sm"></i> Kelola Tingkat Kelas
                         </button>
                         <button onclick="resetVotesConfirm()" class="w-full bg-rose-50 hover:bg-rose-100 text-rose-600 px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center">
-                            <i class="fa-solid fa-rotate-left mr-2 text-sm"></i> Reset Suara
+                            <i class="fa-solid fa-rotate-left mr-2 text-sm"></i> Reset Suara & Status
                         </button>
                     </nav>
 
@@ -170,7 +251,7 @@
                 <!-- Right Dashboard Main Content -->
                 <div class="flex-grow w-full space-y-6">
                     <!-- Top Stat Overview Cards -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center space-x-4">
                             <div class="p-3 bg-blue-50 text-blue-600 rounded-xl">
                                 <i class="fa-solid fa-user-tie text-2xl"></i>
@@ -178,6 +259,15 @@
                             <div>
                                 <p class="text-xs font-semibold text-slate-400">Total Kandidat</p>
                                 <p id="statTotalCandidates" class="text-2xl font-bold text-slate-800">0</p>
+                            </div>
+                        </div>
+                        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center space-x-4">
+                            <div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
+                                <i class="fa-solid fa-users text-2xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-semibold text-slate-400">Total Siswa Terdaftar</p>
+                                <p id="statTotalStudents" class="text-2xl font-bold text-slate-800">0</p>
                             </div>
                         </div>
                         <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center space-x-4">
@@ -249,6 +339,79 @@
 
     <!-- ================= MODALS ================= -->
 
+    <!-- Student Management Modal (Admin: Pengelolaan Siswa per Kelas) -->
+    <div id="studentManageModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto animate-fade-in-up">
+            <button onclick="closeStudentManageModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="mb-4 pb-3 border-b border-slate-100">
+                <h3 class="text-xl font-bold text-slate-800">Kelola Data Siswa Per Kelas</h3>
+                <p class="text-xs text-slate-500">Pilih kelas untuk memasukkan, mengedit, atau mengisi data siswa secara cepat.</p>
+            </div>
+
+            <!-- Class Selection Dropdown -->
+            <div class="mb-4 bg-slate-50 p-3 rounded-2xl border border-slate-200">
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Pilih Tingkat Kelas</label>
+                <select id="adminStudentGradeSelect" onchange="renderAdminStudentManager()" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs bg-white focus:ring-2 focus:ring-sky-500 font-semibold">
+                    <!-- Grade options -->
+                </select>
+            </div>
+
+            <!-- Add Single Student / Auto Generate Students / Import Excel -->
+            <div class="flex flex-wrap gap-2 mb-4">
+                <form onsubmit="handleAddStudent(event)" class="flex-grow flex space-x-2">
+                    <input type="text" id="newStudentNameInput" placeholder="Nama Siswa Baru..." class="flex-grow px-3 py-2 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-sky-500" required>
+                    <button type="submit" class="gradient-btn text-white px-4 py-2 rounded-xl text-xs font-bold">
+                        <i class="fa-solid fa-plus mr-1"></i> Tambah
+                    </button>
+                </form>
+                <button onclick="autoFillClassStudents()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition flex items-center">
+                    <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> 30 Siswa
+                </button>
+                <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleExcelUpload(event)">
+                <button onclick="document.getElementById('excelFileInput').click()" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition flex items-center">
+                    <i class="fa-solid fa-file-excel mr-1.5"></i> Import Excel
+                </button>
+            </div>
+
+            <!-- Student Count Status -->
+            <div class="flex justify-between items-center text-xs font-bold text-slate-500 mb-2">
+                <span>Daftar Siswa di <span id="adminActiveFullClass" class="text-sky-600">--</span>:</span>
+                <span id="studentCountBadge" class="bg-slate-100 text-slate-700 px-2.5 py-1 rounded-full border border-slate-200">0 Siswa</span>
+            </div>
+
+            <!-- Student List Table -->
+            <div class="border border-slate-100 rounded-2xl overflow-hidden max-h-60 overflow-y-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-slate-50 text-slate-400 text-[11px] uppercase tracking-wider sticky top-0">
+                        <tr>
+                            <th class="p-2.5 pl-4">No</th>
+                            <th class="p-2.5">Nama Siswa</th>
+                            <th class="p-2.5">Status Suara</th>
+                            <th class="p-2.5 text-right pr-4">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminStudentTableBody" class="divide-y divide-slate-100 text-xs">
+                        <!-- Dynamic Student Rows -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap gap-2 justify-between items-center text-xs text-slate-400">
+                <div class="flex items-center space-x-3">
+                    <button onclick="clearStudentsOfActiveGrade()" class="text-amber-600 hover:text-amber-800 font-semibold flex items-center">
+                        <i class="fa-solid fa-eraser mr-1"></i> Kosongkan Kelas Ini
+                    </button>
+                    <button onclick="clearAllStudentsAllGrades()" class="text-rose-600 hover:text-rose-800 font-bold flex items-center">
+                        <i class="fa-solid fa-trash-can mr-1"></i> Hapus Semua Siswa (Semua Kelas)
+                    </button>
+                </div>
+                <button onclick="closeStudentManageModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-medium">Tutup</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Candidate Vision Mission Modal -->
     <div id="candidateModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50 transition-opacity">
         <div class="bg-white rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl relative flex flex-col animate-fade-in-up">
@@ -296,7 +459,7 @@
                 <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
             <h3 class="text-xl font-bold text-slate-800 mb-1">Konfirmasi Pilihan</h3>
-            <p class="text-xs text-slate-500 mb-4">Apakah Anda benar-benar yakin ingin memilih <span id="confirmCandidateName" class="font-bold text-slate-800"></span> sebagai Presiden BEM SMP?</p>
+            <p class="text-xs text-slate-500 mb-4">Atas Nama Siswa: <strong id="confirmStudentNameDisplay" class="text-sky-600">--</strong><br>Apakah Anda benar-benar yakin memilih <span id="confirmCandidateName" class="font-bold text-slate-800"></span>?</p>
 
             <!-- Countdown Display -->
             <div id="countdownBox" class="bg-slate-50 border border-slate-100 rounded-xl p-3 mb-5">
@@ -327,20 +490,16 @@
                     <i class="fa-solid fa-lock"></i>
                 </div>
                 <h3 class="text-xl font-bold text-slate-800">Login Admin</h3>
-                <p class="text-xs text-slate-500">Masukkan akun admin untuk melanjutkan</p>
+                <p class="text-xs text-slate-500">Masukkan kata sandi admin untuk melanjutkan</p>
             </div>
             <form onsubmit="handleAdminLogin(event)" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Email Admin</label>
-                    <input type="email" id="adminEmailInput" placeholder="admin@sekolah.ac.id" class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Kata Sandi Admin</label>
+                    <input type="password" id="adminPasswordInput" placeholder="Password Admin" class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Kata Sandi</label>
-                    <input type="password" id="adminPasswordInput" placeholder="••••••••" class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
-                </div>
-                <div id="loginError" class="text-rose-500 text-xs hidden">Email atau kata sandi salah. Coba lagi!</div>
-                <button type="submit" id="adminLoginBtn" class="w-full gradient-btn text-white font-semibold py-2.5 rounded-xl text-sm transition flex items-center justify-center gap-2">
-                    <span id="adminLoginBtnText">Masuk</span>
+                <div id="loginError" class="text-rose-500 text-xs hidden">Kata sandi salah. Coba lagi!</div>
+                <button type="submit" class="w-full gradient-btn text-white font-semibold py-2.5 rounded-xl text-sm transition">
+                    Masuk
                 </button>
             </form>
         </div>
@@ -397,17 +556,19 @@
             <button onclick="closeAddClassModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
                 <i class="fa-solid fa-xmark"></i>
             </button>
-            <h3 class="text-xl font-bold text-slate-800 mb-4">Kelola Daftar Kelas</h3>
+            <h3 class="text-xl font-bold text-slate-800 mb-4">Kelola Tingkat Kelas</h3>
             
-            <form onsubmit="handleAddClass(event)" class="flex space-x-2 mb-4">
-                <input type="text" id="newClassNameInput" placeholder="Nama kelas (misal: Kelas 7 B)" class="flex-grow px-3 py-2 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
-                <button type="submit" class="gradient-btn text-white px-4 py-2 rounded-xl text-sm font-semibold">Tambah</button>
-            </form>
+            <div class="space-y-4">
+                <form onsubmit="handleAddClass(event)" class="flex space-x-2">
+                    <input type="text" id="newClassNameInput" placeholder="Tambah Tingkat (misal: Kelas 10)" class="flex-grow px-3 py-2 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
+                    <button type="submit" class="gradient-btn text-white px-4 py-2 rounded-xl text-xs font-semibold">Tambah</button>
+                </form>
 
-            <div class="space-y-2 max-h-48 overflow-y-auto pr-1">
-                <label class="block text-xs font-bold text-slate-400 uppercase">Daftar Kelas Saat Ini:</label>
-                <div id="classListContainer" class="space-y-1.5">
-                    <!-- Class items dynamic -->
+                <div class="space-y-2 max-h-48 overflow-y-auto pr-1">
+                    <label class="block text-xs font-bold text-slate-400 uppercase">Tingkat Kelas Saat Ini:</label>
+                    <div id="classListContainer" class="space-y-1.5">
+                        <!-- Class items dynamic -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -425,15 +586,17 @@
 
     <!-- JavaScript App Logic -->
     <script>
-        // Config dimuat dari server — key tidak ada di file ini
-        let SUPABASE_URL = '', SUPABASE_ANON_KEY = '';
+        // Konfigurasi Supabase
+        const SUPABASE_URL = "https://puywjdopumlzvmzbcudr.supabase.co"; 
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1eXdqZG9wdW1senZtemJjdWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDE3MTksImV4cCI6MjA4NzkxNzcxOX0.vvThyjtK2SlA9oA9Mr_XOmt1R_tNZk-ib3PO9XpiiSc"; 
+
         let supabaseClient = null;
         let isSupabaseActive = false;
 
         let voterPieChartInstance = null;
         let candidateBarChartInstance = null;
 
-        // Data Default 3 Kelas SMP
+        // Data Default Tingkat Kelas SMP
         const defaultClasses = ["Kelas 7", "Kelas 8", "Kelas 9"];
         
         // Data Default Candidates
@@ -471,8 +634,12 @@
         // State Global Variables
         let classes = [];
         let candidates = [];
-        let voterStats = {};
-        let currentSelectedClass = "";
+        let students = []; // Data Siswa: [{ id, name, grade, hasVoted, votedFor }]
+        let voterStats = {}; // { "Kelas 7": 12 }
+        
+        let currentSelectedGrade = "";
+        let selectedStudent = null; // Object Siswa yang sedang aktif memilih
+
         let isAdminLoggedIn = false;
         let selectedCandidateId = null;
         let countdownInterval = null;
@@ -497,25 +664,35 @@
 
         // Initialize App
         window.addEventListener('DOMContentLoaded', async () => {
-            // Muat config dari server sebelum init client
-            try {
-                const cfg = await fetch('/api/config').then(r => r.json());
-                SUPABASE_URL = cfg.url;
-                SUPABASE_ANON_KEY = cfg.key;
-            } catch (_) {}
             initSupabaseClient();
-
-            // Task 4: Restore admin session jika Supabase masih aktif dan sesi belum expired
-            if (isSupabaseActive && supabaseClient) {
-                const { data: { session } } = await supabaseClient.auth.getSession();
-                if (session) {
-                    isAdminLoggedIn = true;
-                }
-            }
-
+            renderWelcomeClassesLoading();
             await loadData();
             renderWelcomeClasses();
         });
+
+        function renderWelcomeClassesLoading() {
+            const container = document.getElementById('classCardGrid');
+            if (!container) return;
+            
+            let skeletonHtml = '';
+            for (let i = 0; i < 3; i++) {
+                skeletonHtml += `
+                    <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm flex flex-col items-center justify-center space-y-4 animate-pulse">
+                        <div class="w-16 h-16 bg-sky-50 rounded-2xl flex items-center justify-center text-sky-500">
+                            <i class="fa-solid fa-circle-notch fa-spin text-2xl"></i>
+                        </div>
+                        <div class="w-full text-center space-y-2">
+                            <div class="h-6 bg-slate-200 rounded-lg w-1/2 mx-auto"></div>
+                            <div class="h-3 bg-slate-100 rounded-md w-3/4 mx-auto"></div>
+                        </div>
+                        <div class="h-8 bg-sky-50/70 rounded-full w-3/4 mx-auto mt-2 flex items-center justify-center">
+                            <span class="text-[11px] font-semibold text-sky-400">Memuat Data...</span>
+                        </div>
+                    </div>
+                `;
+            }
+            container.innerHTML = skeletonHtml;
+        }
 
         function initSupabaseClient() {
             if (SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase) {
@@ -531,19 +708,30 @@
         }
 
         async function loadData() {
+            // Load local storage data
+            const storedClasses = localStorage.getItem('pemira_classes');
+            classes = storedClasses ? JSON.parse(storedClasses) : [...defaultClasses];
+
+            const storedCandidates = localStorage.getItem('pemira_candidates');
+            candidates = storedCandidates ? JSON.parse(storedCandidates) : [...defaultCandidates];
+
+            const storedStudents = localStorage.getItem('pemira_students');
+            if (storedStudents) {
+                try { students = JSON.parse(storedStudents); } catch (e) { students = []; }
+            } else {
+                // Generate default sample students per grade
+                students = generateDefaultSampleStudents();
+                saveStudentsLocal();
+            }
+
+            const storedStats = localStorage.getItem('pemira_voter_stats');
+            voterStats = storedStats ? JSON.parse(storedStats) : {};
+
+            // Synchronize Supabase if available
             if (isSupabaseActive && supabaseClient) {
                 try {
-                    // Fetch Classes
-                    const { data: classData, error: classErr } = await supabaseClient.from('classes').select('*');
-                    if (!classErr && classData && classData.length > 0) {
-                        classes = classData.map(c => c.name);
-                    } else {
-                        classes = [...defaultClasses];
-                    }
-
-                    // Fetch Candidates
-                    const { data: candData, error: candErr } = await supabaseClient.from('candidates').select('*').order('no', { ascending: true });
-                    if (!candErr && candData && candData.length > 0) {
+                    const { data: candData } = await supabaseClient.from('candidates').select('*').order('no', { ascending: true });
+                    if (candData && candData.length > 0) {
                         candidates = candData.map(c => ({
                             id: c.id,
                             no: c.no,
@@ -554,56 +742,111 @@
                             votes: c.votes || 0,
                             votes_by_class: c.votes_by_class || {}
                         }));
-                    } else {
-                        candidates = [...defaultCandidates];
                     }
 
-                    // Fetch Voter Stats
-                    const { data: statData, error: statErr } = await supabaseClient.from('voter_stats').select('*');
-                    if (!statErr && statData) {
-                        voterStats = {};
-                        statData.forEach(s => { voterStats[s.class_name] = s.votes_count; });
-                    } else {
-                        voterStats = {};
+                    // Synchronize Students from Supabase
+                    const { data: stdData } = await supabaseClient.from('students').select('*').order('name', { ascending: true });
+                    if (stdData && stdData.length > 0) {
+                        students = stdData.map(s => ({
+                            id: s.id,
+                            name: s.name,
+                            grade: s.grade,
+                            hasVoted: s.has_voted || false,
+                            votedFor: s.voted_for || null
+                        }));
+                        saveStudentsLocal();
                     }
-
-                    return;
                 } catch (e) {
-                    isSupabaseActive = false;
+                    console.log("Local mode prioritized.");
                 }
             }
+        }
 
-            // LocalStorage Backup Handling
-            const storedClasses = localStorage.getItem('pemira_classes');
-            if (storedClasses) {
-                try { 
-                    classes = JSON.parse(storedClasses); 
-                    if (!Array.isArray(classes) || classes.length === 0) {
-                        classes = [...defaultClasses];
-                    }
-                } catch (e) { 
-                    classes = [...defaultClasses]; 
+        async function syncStudentToSupabase(student) {
+            if (!isSupabaseActive || !supabaseClient || !student) return;
+            try {
+                await supabaseClient.from('students').upsert({
+                    id: student.id,
+                    name: student.name,
+                    grade: student.grade,
+                    has_voted: student.hasVoted,
+                    voted_for: student.votedFor
+                });
+            } catch (e) {
+                console.error("Supabase student sync error:", e);
+            }
+        }
+
+        async function syncMultipleStudentsToSupabase(studentList) {
+            if (!isSupabaseActive || !supabaseClient || !studentList || studentList.length === 0) return;
+            try {
+                const payload = studentList.map(s => ({
+                    id: s.id,
+                    name: s.name,
+                    grade: s.grade,
+                    has_voted: s.hasVoted,
+                    voted_for: s.votedFor
+                }));
+                await supabaseClient.from('students').upsert(payload);
+            } catch (e) {
+                console.error("Supabase student batch sync error:", e);
+            }
+        }
+
+        async function deleteStudentFromSupabase(studentId) {
+            if (!isSupabaseActive || !supabaseClient) return;
+            try {
+                await supabaseClient.from('students').delete().eq('id', studentId);
+            } catch (e) {
+                console.error("Supabase student delete error:", e);
+            }
+        }
+
+        async function deleteStudentsByGradeFromSupabase(grade) {
+            if (!isSupabaseActive || !supabaseClient) return;
+            try {
+                await supabaseClient.from('students').delete().eq('grade', grade);
+            } catch (e) {
+                console.error("Supabase student delete by grade error:", e);
+            }
+        }
+
+        async function deleteAllStudentsFromSupabase() {
+            if (!isSupabaseActive || !supabaseClient) return;
+            try {
+                await supabaseClient.from('students').delete().neq('id', '0');
+            } catch (e) {
+                console.error("Supabase all students delete error:", e);
+            }
+        }
+
+        async function resetAllStudentVotesInSupabase() {
+            if (!isSupabaseActive || !supabaseClient) return;
+            try {
+                await supabaseClient.from('students').update({
+                    has_voted: false,
+                    voted_for: null
+                }).neq('id', '0');
+            } catch (e) {
+                console.error("Supabase reset votes error:", e);
+            }
+        }
+
+        function generateDefaultSampleStudents() {
+            const list = [];
+            let count = 1;
+            classes.forEach(g => {
+                for(let i = 1; i <= 10; i++) {
+                    list.push({
+                        id: `std_${count++}`,
+                        name: `Siswa ${i} ${g}`,
+                        grade: g,
+                        hasVoted: false,
+                        votedFor: null
+                    });
                 }
-            } else {
-                classes = [...defaultClasses];
-                saveClassesLocal();
-            }
-
-            const storedCandidates = localStorage.getItem('pemira_candidates');
-            if (storedCandidates) {
-                try { candidates = JSON.parse(storedCandidates); } catch (e) { candidates = [...defaultCandidates]; }
-            } else {
-                candidates = [...defaultCandidates];
-                saveCandidatesLocal();
-            }
-
-            const storedStats = localStorage.getItem('pemira_voter_stats');
-            if (storedStats) {
-                try { voterStats = JSON.parse(storedStats); } catch (e) { voterStats = {}; }
-            } else {
-                voterStats = {};
-                saveVoterStatsLocal();
-            }
+            });
+            return list;
         }
 
         function saveClassesLocal() {
@@ -614,6 +857,10 @@
             localStorage.setItem('pemira_candidates', JSON.stringify(candidates));
         }
 
+        function saveStudentsLocal() {
+            localStorage.setItem('pemira_students', JSON.stringify(students));
+        }
+
         function saveVoterStatsLocal() {
             localStorage.setItem('pemira_voter_stats', JSON.stringify(voterStats));
         }
@@ -622,30 +869,120 @@
             const container = document.getElementById('classCardGrid');
             container.innerHTML = '';
 
-            classes.forEach(cls => {
+            classes.forEach((cls, idx) => {
+                const classStudents = students.filter(st => st.grade === cls);
+                const votedCount = classStudents.filter(st => st.hasVoted).length;
+                const logoFileName = `logo${idx + 1}.png`;
+
                 const card = document.createElement('div');
                 card.className = "class-card bg-white p-8 rounded-3xl border border-slate-100 shadow-sm cursor-pointer flex flex-col items-center justify-center space-y-4";
-                card.onclick = () => selectClassAndProceed(cls);
+                card.onclick = () => showStudentSelectScreen(cls);
                 card.innerHTML = `
-                    <div class="w-16 h-16 bg-sky-50 text-blue-600 rounded-2xl flex items-center justify-center text-3xl">
-                        <i class="fa-solid fa-school"></i>
+                    <div class="w-16 h-16 bg-sky-50 rounded-2xl flex items-center justify-center overflow-hidden p-2">
+                        <img src="${logoFileName}" alt="${cls}" class="w-full h-full object-contain" onerror="this.onerror=null; this.src='https://placehold.co/100x100/0284c7/ffffff?text=${encodeURIComponent(cls)}';">
                     </div>
                     <div>
                         <h3 class="text-2xl font-bold text-slate-800">${cls}</h3>
+                        <p class="text-xs text-slate-400 mt-1">${classStudents.length} Siswa (${votedCount} Memilih)</p>
                     </div>
                     <span class="text-xs font-semibold text-blue-600 bg-blue-50 px-4 py-1.5 rounded-full border border-blue-100">
-                        Masuk & Pilih <i class="fa-solid fa-arrow-right ml-1 text-[10px]"></i>
+                        Masuk & Cari Nama <i class="fa-solid fa-arrow-right ml-1 text-[10px]"></i>
                     </span>
                 `;
                 container.appendChild(card);
             });
         }
 
-        function selectClassAndProceed(className) {
-            currentSelectedClass = className;
-            
-            // Show Home & Nav buttons
+        function showStudentSelectScreen(grade) {
+            currentSelectedGrade = grade;
+            document.getElementById('fullClassBadge').innerText = grade;
+
             document.getElementById('welcomeScreen').classList.add('hidden');
+            document.getElementById('studentSelectScreen').classList.remove('hidden');
+            document.getElementById('homePage').classList.add('hidden');
+            document.getElementById('adminPage').classList.add('hidden');
+
+            const searchInput = document.getElementById('studentSearchInput');
+            searchInput.value = '';
+            renderStudentCards(""); // Clear list initially (do not display cards before search)
+            setTimeout(() => searchInput.focus(), 100);
+        }
+
+        function renderStudentCards(filterQuery = "") {
+            const container = document.getElementById('studentListGrid');
+            container.innerHTML = '';
+
+            const query = filterQuery.trim();
+
+            // Require minimal 3 characters before showing results
+            if (query.length < 3) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-8 bg-white/60 border border-dashed border-slate-200 rounded-2xl p-6 text-slate-400">
+                        <i class="fa-solid fa-keyboard text-3xl mb-2 text-slate-300 block"></i>
+                        <p class="text-xs font-semibold">Ketik minimal 3 karakter nama Anda untuk mencari.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Exclude students who have already voted (!s.hasVoted)
+            const filtered = students.filter(s => 
+                s.grade === currentSelectedGrade && 
+                !s.hasVoted &&
+                s.name.toLowerCase().includes(query.toLowerCase())
+            );
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-8 bg-white rounded-2xl border border-slate-100 p-6 text-slate-400">
+                        <i class="fa-solid fa-user-slash text-3xl mb-2 text-slate-300 block"></i>
+                        <p class="text-xs font-semibold">Tidak ditemukan siswa dengan nama "${query}" di ${currentSelectedGrade}.</p>
+                        <p class="text-[11px] mt-1 text-slate-400">Pastikan penulisan ejaan nama Anda sudah benar atau siswa belum melakukan pemilihan.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filtered.forEach(st => {
+                const card = document.createElement('div');
+                card.className = "student-card bg-white p-4 rounded-2xl border border-sky-100 hover:border-sky-400 cursor-pointer flex items-center justify-between shadow-sm active:scale-[0.98] transition";
+                card.onclick = () => selectStudentAndProceed(st.id);
+                card.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-sky-100 text-sky-700 rounded-xl flex items-center justify-center font-bold text-sm">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <div class="text-left">
+                            <h4 class="font-bold text-slate-800 text-sm leading-tight">${st.name}</h4>
+                            <span class="text-[10px] text-sky-600 font-semibold block mt-0.5">Klik untuk Langsung Memilih <i class="fa-solid fa-arrow-right ml-0.5"></i></span>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-xs text-sky-400"></i>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function filterStudentList() {
+            const query = document.getElementById('studentSearchInput').value;
+            renderStudentCards(query);
+        }
+
+        function selectStudentAndProceed(studentId) {
+            const st = students.find(s => s.id === studentId);
+            if (!st) return;
+
+            if (st.hasVoted) {
+                showAlertModal('Sudah Memilih', `${st.name} sudah memberikan suara sebelumnya. Satu siswa hanya dapat memilih satu kali!`, 'info');
+                return;
+            }
+
+            selectedStudent = st;
+
+            document.getElementById('activeVoterName').innerText = st.name;
+            document.getElementById('activeVoterClass').innerText = st.grade;
+
+            document.getElementById('studentSelectScreen').classList.add('hidden');
             document.getElementById('homePage').classList.remove('hidden');
             document.getElementById('changeClassNavBtn').classList.remove('hidden');
             document.getElementById('homeNavBtn').classList.remove('hidden');
@@ -653,8 +990,15 @@
             renderCandidatesHome();
         }
 
+        function cancelVoterSelection() {
+            selectedStudent = null;
+            showStudentSelectScreen(currentSelectedGrade);
+        }
+
         function showWelcomeScreen() {
+            selectedStudent = null;
             document.getElementById('welcomeScreen').classList.remove('hidden');
+            document.getElementById('studentSelectScreen').classList.add('hidden');
             document.getElementById('homePage').classList.add('hidden');
             document.getElementById('adminPage').classList.add('hidden');
             document.getElementById('changeClassNavBtn').classList.add('hidden');
@@ -674,17 +1018,19 @@
                     return;
                 }
                 welcomeScreen.classList.add('hidden');
+                document.getElementById('studentSelectScreen').classList.add('hidden');
                 homePage.classList.add('hidden');
                 adminPage.classList.remove('hidden');
                 document.getElementById('changeClassNavBtn').classList.remove('hidden');
                 document.getElementById('homeNavBtn').classList.remove('hidden');
                 renderAdminDashboard();
             } else {
-                if (!currentSelectedClass) {
+                if (!selectedStudent) {
                     showWelcomeScreen();
                     return;
                 }
                 welcomeScreen.classList.add('hidden');
+                document.getElementById('studentSelectScreen').classList.add('hidden');
                 homePage.classList.remove('hidden');
                 adminPage.classList.add('hidden');
                 renderCandidatesHome();
@@ -767,11 +1113,13 @@
 
         function openVoteConfirmation() {
             const candidate = candidates.find(c => c.id === selectedCandidateId);
-            if (!candidate) return;
+            if (!candidate || !selectedStudent) return;
 
             closeCandidateModal();
 
+            document.getElementById('confirmStudentNameDisplay').innerText = `${selectedStudent.name} (${selectedStudent.grade})`;
             document.getElementById('confirmCandidateName').innerText = candidate.name;
+            
             const modal = document.getElementById('confirmVoteModal');
             modal.classList.remove('hidden');
             modal.classList.add('flex');
@@ -811,33 +1159,46 @@
 
         async function executeVote() {
             const candidate = candidates.find(c => c.id === selectedCandidateId);
-            if (!candidate) return;
+            if (!candidate || !selectedStudent) return;
 
             if (!candidate.votes_by_class) {
                 candidate.votes_by_class = {};
             }
 
-            candidate.votes += 1;
-            candidate.votes_by_class[currentSelectedClass] = (candidate.votes_by_class[currentSelectedClass] || 0) + 1;
-            voterStats[currentSelectedClass] = (voterStats[currentSelectedClass] || 0) + 1;
+            const activeGrade = selectedStudent.grade;
 
+            // Increment vote count
+            candidate.votes += 1;
+            candidate.votes_by_class[activeGrade] = (candidate.votes_by_class[activeGrade] || 0) + 1;
+            voterStats[activeGrade] = (voterStats[activeGrade] || 0) + 1;
+
+            // Mark student as voted
+            selectedStudent.hasVoted = true;
+            selectedStudent.votedFor = candidate.id;
+
+            // Save to localStorage
+            saveCandidatesLocal();
+            saveStudentsLocal();
+            saveVoterStatsLocal();
+
+            // Synchronize Candidate & Student with Supabase
             if (isSupabaseActive && supabaseClient) {
                 try {
                     await supabaseClient.from('candidates').update({ 
                         votes: candidate.votes,
                         votes_by_class: candidate.votes_by_class
                     }).eq('id', candidate.id);
-                    await supabaseClient.from('voter_stats').upsert({ class_name: currentSelectedClass, votes_count: voterStats[currentSelectedClass] });
                 } catch (err) {
-                    console.error("Error updating Supabase votes:", err);
+                    console.error("Supabase sync error:", err);
                 }
+                syncStudentToSupabase(selectedStudent);
             }
 
-            saveCandidatesLocal();
-            saveVoterStatsLocal();
+            const votedStudentName = selectedStudent.name;
+            selectedStudent = null;
 
             closeConfirmVoteModal();
-            showAlertModal('Berhasil Memilih!', `Terima kasih, suara Anda dari ${currentSelectedClass} untuk ${candidate.name} telah tersimpan.`, 'success');
+            showAlertModal('Berhasil Memilih!', `Suara atas nama ${votedStudentName} (${activeGrade}) untuk ${candidate.name} telah berhasil tersimpan.`, 'success');
             
             showWelcomeScreen();
         }
@@ -851,7 +1212,6 @@
         }
 
         function openAdminLoginModal() {
-            document.getElementById('adminEmailInput').value = '';
             document.getElementById('adminPasswordInput').value = '';
             document.getElementById('loginError').classList.add('hidden');
             const modal = document.getElementById('adminLoginModal');
@@ -865,56 +1225,269 @@
             modal.classList.remove('flex');
         }
 
-        // Task 2: Login via Supabase Auth — tidak ada password hardcoded di client
-        async function handleAdminLogin(event) {
+        function handleAdminLogin(event) {
             event.preventDefault();
-
-            // Task 5: Fallback jika Supabase tidak aktif
-            if (!isSupabaseActive || !supabaseClient) {
-                document.getElementById('loginError').innerText = 'Koneksi ke server tidak tersedia. Hubungi administrator.';
+            const pass = document.getElementById('adminPasswordInput').value;
+            
+            if (pass === 'raisarfaketuampm') {
+                isAdminLoggedIn = true;
+                closeAdminLoginModal();
+                showPage('admin');
+                showAlertModal('Login Berhasil', 'Selamat datang di Panel Admin BEM SMP.', 'success');
+            } else {
                 document.getElementById('loginError').classList.remove('hidden');
-                return;
             }
-
-            const email = document.getElementById('adminEmailInput').value.trim();
-            const pass  = document.getElementById('adminPasswordInput').value;
-            const btn   = document.getElementById('adminLoginBtn');
-            const btnText = document.getElementById('adminLoginBtnText');
-            const errEl = document.getElementById('loginError');
-
-            errEl.classList.add('hidden');
-            btn.disabled = true;
-            btnText.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Memeriksa...';
-
-            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password: pass });
-
-            btn.disabled = false;
-            btnText.innerText = 'Masuk';
-
-            if (error || !data.user) {
-                errEl.innerText = 'Email atau kata sandi salah. Coba lagi!';
-                errEl.classList.remove('hidden');
-                return;
-            }
-
-            isAdminLoggedIn = true;
-            closeAdminLoginModal();
-            showPage('admin');
-            showAlertModal('Login Berhasil', 'Selamat datang di Panel Admin BEM SMP.', 'success');
         }
 
-        // Task 3: Logout — cabut session Supabase Auth
-        async function logoutAdmin() {
-            if (isSupabaseActive && supabaseClient) {
-                await supabaseClient.auth.signOut();
-            }
+        function logoutAdmin() {
             isAdminLoggedIn = false;
             showWelcomeScreen();
             showAlertModal('Selesai', 'Anda telah keluar dari mode admin.', 'info');
         }
 
+        // ================= ADMIN STUDENT MANAGEMENT =================
+        function openStudentManageModal() {
+            const gradeSelect = document.getElementById('adminStudentGradeSelect');
+            gradeSelect.innerHTML = classes.map(g => `<option value="${g}">${g}</option>`).join('');
+
+            renderAdminStudentManager();
+
+            const modal = document.getElementById('studentManageModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeStudentManageModal() {
+            const modal = document.getElementById('studentManageModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function renderAdminStudentManager() {
+            const selectedGrade = document.getElementById('adminStudentGradeSelect').value;
+
+            document.getElementById('adminActiveFullClass').innerText = selectedGrade;
+
+            const classStudents = students.filter(st => st.grade === selectedGrade);
+            
+            const badge = document.getElementById('studentCountBadge');
+            badge.innerText = `${classStudents.length} Siswa`;
+
+            const tbody = document.getElementById('adminStudentTableBody');
+            tbody.innerHTML = '';
+
+            if (classStudents.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="4" class="p-4 text-center text-slate-400">Belum ada siswa di kelas ini. Silakan tambah atau klik "Isi Otomatis 30 Siswa".</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            classStudents.forEach((st, idx) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-2.5 pl-4 font-bold text-slate-400">${idx + 1}</td>
+                    <td class="p-2.5 font-bold text-slate-800">${st.name}</td>
+                    <td class="p-2.5">
+                        ${st.hasVoted ? 
+                            '<span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-md font-semibold text-[10px]">Sudah Memilih</span>' : 
+                            '<span class="px-2 py-0.5 bg-slate-100 text-slate-500 rounded-md font-semibold text-[10px]">Belum Memilih</span>'
+                        }
+                    </td>
+                    <td class="p-2.5 text-right pr-4 space-x-1">
+                        <button onclick="editStudentName('${st.id}')" class="text-blue-600 hover:text-blue-800 text-[11px] font-semibold"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+                        ${st.hasVoted ? `<button onclick="resetSingleStudentVote('${st.id}')" class="text-amber-600 hover:text-amber-800 text-[11px] font-semibold"><i class="fa-solid fa-rotate-left"></i> Reset</button>` : ''}
+                        <button onclick="deleteSingleStudent('${st.id}')" class="text-rose-600 hover:text-rose-800 text-[11px] font-semibold"><i class="fa-solid fa-trash"></i> Hapus</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function editStudentName(id) {
+            const st = students.find(s => s.id === id);
+            if (!st) return;
+
+            const newName = prompt("Edit Nama Siswa:", st.name);
+            if (newName && newName.trim() !== "") {
+                st.name = newName.trim();
+                saveStudentsLocal();
+                syncStudentToSupabase(st);
+                renderAdminStudentManager();
+                renderAdminDashboard();
+                showAlertModal('Berhasil', 'Nama siswa berhasil diperbarui.', 'success');
+            }
+        }
+
+        function handleAddStudent(e) {
+            e.preventDefault();
+            const selectedGrade = document.getElementById('adminStudentGradeSelect').value;
+            const input = document.getElementById('newStudentNameInput');
+            const name = input.value.trim();
+
+            if (name) {
+                const newStudent = {
+                    id: `std_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+                    name: name,
+                    grade: selectedGrade,
+                    hasVoted: false,
+                    votedFor: null
+                };
+                students.push(newStudent);
+
+                saveStudentsLocal();
+                syncStudentToSupabase(newStudent);
+                input.value = '';
+                renderAdminStudentManager();
+                renderAdminDashboard();
+            }
+        }
+
+        function handleExcelUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const selectedGrade = document.getElementById('adminStudentGradeSelect').value;
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+                    if (!jsonData || jsonData.length === 0) {
+                        showAlertModal('File Kosong', 'Tidak ada data ditemukan dalam file Excel.', 'info');
+                        return;
+                    }
+
+                    // Scan header row to find column with "Nama" / "Name"
+                    let nameColIdx = 0;
+                    if (jsonData.length > 0 && Array.isArray(jsonData[0])) {
+                        const headerRow = jsonData[0];
+                        const foundIdx = headerRow.findIndex(cell => 
+                            cell && (cell.toString().toLowerCase().includes('nama') || cell.toString().toLowerCase().includes('name'))
+                        );
+                        if (foundIdx !== -1) nameColIdx = foundIdx;
+                    }
+
+                    let addedCount = 0;
+                    const startRow = (jsonData[0] && jsonData[0][nameColIdx] && 
+                        (jsonData[0][nameColIdx].toString().toLowerCase().includes('nama') || 
+                         jsonData[0][nameColIdx].toString().toLowerCase().includes('name'))) ? 1 : 0;
+
+                    const newBatch = [];
+                    for (let i = startRow; i < jsonData.length; i++) {
+                        const row = jsonData[i];
+                        if (row && row[nameColIdx]) {
+                            const studentName = row[nameColIdx].toString().trim();
+                            if (studentName) {
+                                const stObj = {
+                                    id: `std_${Date.now()}_${i}_${Math.random().toString(36).substr(2, 3)}`,
+                                    name: studentName,
+                                    grade: selectedGrade,
+                                    hasVoted: false,
+                                    votedFor: null
+                                };
+                                students.push(stObj);
+                                newBatch.push(stObj);
+                                addedCount++;
+                            }
+                        }
+                    }
+
+                    saveStudentsLocal();
+                    syncMultipleStudentsToSupabase(newBatch);
+                    renderAdminStudentManager();
+                    renderAdminDashboard();
+                    showAlertModal('Import Berhasil', `Berhasil mengimpor ${addedCount} nama siswa ke ${selectedGrade} dari file Excel.`, 'success');
+                } catch (err) {
+                    console.error("Error reading excel:", err);
+                    showAlertModal('Gagal Mengimpor', 'Terjadi kesalahan saat membaca file Excel. Pastikan format file (.xlsx/.csv) valid.', 'info');
+                } finally {
+                    event.target.value = '';
+                }
+            };
+
+            reader.readAsArrayBuffer(file);
+        }
+
+        function autoFillClassStudents() {
+            const selectedGrade = document.getElementById('adminStudentGradeSelect').value;
+            const existingClassStudents = students.filter(st => st.grade === selectedGrade);
+            const currentCount = existingClassStudents.length;
+
+            const needed = 30;
+            const newBatch = [];
+            for(let i = 1; i <= needed; i++) {
+                const stObj = {
+                    id: `std_${Date.now()}_${i}_${Math.random().toString(36).substr(2, 3)}`,
+                    name: `Siswa ${currentCount + i} ${selectedGrade}`,
+                    grade: selectedGrade,
+                    hasVoted: false,
+                    votedFor: null
+                };
+                students.push(stObj);
+                newBatch.push(stObj);
+            }
+
+            saveStudentsLocal();
+            syncMultipleStudentsToSupabase(newBatch);
+            renderAdminStudentManager();
+            renderAdminDashboard();
+            showAlertModal('Berhasil', `Berhasil menambahkan 30 siswa baru untuk ${selectedGrade}.`, 'success');
+        }
+
+        function deleteSingleStudent(id) {
+            students = students.filter(st => st.id !== id);
+            saveStudentsLocal();
+            deleteStudentFromSupabase(id);
+            renderAdminStudentManager();
+            renderAdminDashboard();
+        }
+
+        function resetSingleStudentVote(id) {
+            const st = students.find(s => s.id === id);
+            if (st) {
+                st.hasVoted = false;
+                st.votedFor = null;
+                saveStudentsLocal();
+                syncStudentToSupabase(st);
+                renderAdminStudentManager();
+                renderAdminDashboard();
+            }
+        }
+
+        function clearStudentsOfActiveGrade() {
+            const selectedGrade = document.getElementById('adminStudentGradeSelect').value;
+
+            if (confirm(`Apakah Anda yakin ingin menghapus semua data siswa di ${selectedGrade}?`)) {
+                students = students.filter(st => st.grade !== selectedGrade);
+                saveStudentsLocal();
+                deleteStudentsByGradeFromSupabase(selectedGrade);
+                renderAdminStudentManager();
+                renderAdminDashboard();
+            }
+        }
+
+        function clearAllStudentsAllGrades() {
+            if (confirm("APAKAH ANDA YAKIN? Tindakan ini akan MENGHAPUS SELURUH DATA SISWA dari SEMUA KELAS!")) {
+                students = [];
+                saveStudentsLocal();
+                deleteAllStudentsFromSupabase();
+                renderAdminStudentManager();
+                renderAdminDashboard();
+                showAlertModal('Terhapus', 'Seluruh data siswa dari semua kelas telah berhasil dihapus.', 'info');
+            }
+        }
+
         function renderAdminDashboard() {
             document.getElementById('statTotalCandidates').innerText = candidates.length;
+            document.getElementById('statTotalStudents').innerText = students.length;
             
             const totalVotes = candidates.reduce((sum, c) => sum + c.votes, 0);
             document.getElementById('statTotalVotes').innerText = totalVotes;
@@ -936,10 +1509,16 @@
                     const votesByClass = c.votes_by_class || {};
                     let classBreakdownHtml = '';
                     
-                    classes.forEach(cls => {
-                        const count = votesByClass[cls] || 0;
-                        classBreakdownHtml += `<span class="inline-flex items-center bg-slate-100 text-slate-700 border border-slate-200 text-[11px] font-semibold px-2 py-0.5 rounded-md mr-1 mt-1">${cls}: <strong class="text-blue-600 ml-1">${count}</strong></span>`;
+                    Object.keys(votesByClass).forEach(clsKey => {
+                        const count = votesByClass[clsKey] || 0;
+                        if (count > 0) {
+                            classBreakdownHtml += `<span class="inline-flex items-center bg-slate-100 text-slate-700 border border-slate-200 text-[10px] font-semibold px-2 py-0.5 rounded-md mr-1 mt-1">${clsKey}: <strong class="text-blue-600 ml-1">${count}</strong></span>`;
+                        }
                     });
+
+                    if (!classBreakdownHtml) {
+                        classBreakdownHtml = '<span class="text-[10px] text-slate-400 italic">Belum ada perolehan suara</span>';
+                    }
 
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
@@ -977,8 +1556,14 @@
         function renderPieChart() {
             const ctx = document.getElementById('voterPieChart').getContext('2d');
             
-            const labels = classes;
-            const data = classes.map(cls => voterStats[cls] || 0);
+            const labels = [];
+            const data = [];
+
+            classes.forEach(g => {
+                const count = voterStats[g] || 0;
+                labels.push(g);
+                data.push(count);
+            });
 
             if (voterPieChartInstance) {
                 voterPieChartInstance.destroy();
@@ -991,12 +1576,8 @@
                     datasets: [{
                         data: data,
                         backgroundColor: [
-                            '#0284c7', // Sky Blue
-                            '#0d9488', // Teal
-                            '#2563eb', // Royal Blue
-                            '#f59e0b', // Amber
-                            '#10b981', // Emerald
-                            '#8b5cf6'  // Purple
+                            '#0284c7', '#0d9488', '#2563eb', '#f59e0b', 
+                            '#10b981', '#8b5cf6', '#ec4899', '#6366f1'
                         ],
                         borderWidth: 2,
                         borderColor: '#ffffff'
@@ -1009,8 +1590,8 @@
                         legend: {
                             position: 'bottom',
                             labels: {
-                                font: { size: 11, family: 'sans-serif' },
-                                padding: 15
+                                font: { size: 11, family: "'Plus Jakarta Sans', sans-serif" },
+                                padding: 12
                             }
                         }
                     }
@@ -1048,12 +1629,12 @@
                             beginAtZero: true,
                             ticks: {
                                 precision: 0,
-                                font: { size: 10 }
+                                font: { size: 10, family: "'Plus Jakarta Sans', sans-serif" }
                             }
                         },
                         x: {
                             ticks: {
-                                font: { size: 11 }
+                                font: { size: 11, family: "'Plus Jakarta Sans', sans-serif" }
                             }
                         }
                     },
@@ -1092,49 +1673,28 @@
             });
         }
 
-        async function handleAddClass(e) {
+        function handleAddClass(e) {
             e.preventDefault();
             const input = document.getElementById('newClassNameInput');
             const name = input.value.trim();
 
             if (name && !classes.includes(name)) {
                 classes.push(name);
-
-                if (isSupabaseActive && supabaseClient) {
-                    try {
-                        await supabaseClient.from('classes').insert({ name: name });
-                    } catch (err) {
-                        console.error("Supabase insert class error:", err);
-                    }
-                }
-
                 saveClassesLocal();
                 renderClassList();
                 renderWelcomeClasses();
                 input.value = '';
-                showAlertModal('Berhasil', `Kelas "${name}" telah ditambahkan.`, 'success');
+                showAlertModal('Berhasil', `Tingkat "${name}" telah ditambahkan.`, 'success');
             }
         }
 
-        async function deleteClass(className) {
-            if (confirm(`Hapus kelas "${className}"?`)) {
+        function deleteClass(className) {
+            if (confirm(`Hapus tingkat "${className}"?`)) {
                 classes = classes.filter(c => c !== className);
-                
-                if (currentSelectedClass === className) currentSelectedClass = classes[0] || "";
-
-                if (isSupabaseActive && supabaseClient) {
-                    try {
-                        await supabaseClient.from('classes').delete().eq('name', className);
-                    } catch (err) {
-                        console.error("Supabase delete class error:", err);
-                    }
-                }
-
                 saveClassesLocal();
                 renderClassList();
                 renderWelcomeClasses();
                 renderAdminDashboard();
-                renderCandidatesHome();
             }
         }
 
@@ -1187,7 +1747,7 @@
 
             const misiList = misiRaw.split('\n').filter(m => m.trim() !== '');
 
-            const processSave = async (imageUrl) => {
+            const processSave = (imageUrl) => {
                 if (id) {
                     const candidate = candidates.find(c => c.id === id);
                     if (candidate) {
@@ -1196,12 +1756,6 @@
                         candidate.visi = visi;
                         candidate.misi = misiList;
                         if (imageUrl) candidate.image = imageUrl;
-
-                        if (isSupabaseActive && supabaseClient) {
-                            const payload = { no, name, visi, misi: misiList };
-                            if (imageUrl) payload.image = imageUrl;
-                            await supabaseClient.from('candidates').update(payload).eq('id', id);
-                        }
                     }
                 } else {
                     const newCandidate = {
@@ -1215,10 +1769,6 @@
                         votes_by_class: {}
                     };
                     candidates.push(newCandidate);
-
-                    if (isSupabaseActive && supabaseClient) {
-                        await supabaseClient.from('candidates').insert(newCandidate);
-                    }
                 }
 
                 saveCandidatesLocal();
@@ -1239,17 +1789,12 @@
             }
         }
 
-        async function deleteCandidateConfirm(id) {
+        function deleteCandidateConfirm(id) {
             const candidate = candidates.find(c => c.id === id);
             if (!candidate) return;
 
             if (confirm(`Apakah Anda yakin ingin menghapus kandidat "${candidate.name}"?`)) {
                 candidates = candidates.filter(c => c.id !== id);
-
-                if (isSupabaseActive && supabaseClient) {
-                    await supabaseClient.from('candidates').delete().eq('id', id);
-                }
-
                 saveCandidatesLocal();
                 renderAdminDashboard();
                 renderCandidatesHome();
@@ -1257,26 +1802,25 @@
             }
         }
 
-        async function resetVotesConfirm() {
-            if (confirm(`PERINGATAN: Apakah Anda yakin ingin mereset seluruh perolehan suara menjadi 0?`)) {
+        function resetVotesConfirm() {
+            if (confirm(`PERINGATAN: Apakah Anda yakin ingin mereset seluruh perolehan suara dan status pemilih siswa menjadi 0 / Belum Memilih?`)) {
                 candidates.forEach(c => {
                     c.votes = 0;
                     c.votes_by_class = {};
                 });
+                students.forEach(st => {
+                    st.hasVoted = false;
+                    st.votedFor = null;
+                });
                 voterStats = {};
-                classes = [...defaultClasses];
-
-                if (isSupabaseActive && supabaseClient) {
-                    await supabaseClient.from('candidates').update({ votes: 0, votes_by_class: {} }).neq('id', 'null');
-                    await supabaseClient.from('voter_stats').delete().neq('class_name', 'null');
-                }
-
-                saveClassesLocal();
+                
                 saveCandidatesLocal();
+                saveStudentsLocal();
                 saveVoterStatsLocal();
+                resetAllStudentVotesInSupabase();
                 renderWelcomeClasses();
                 renderAdminDashboard();
-                showAlertModal('Berhasil Reset', 'Seluruh hasil perolehan suara telah direset ke nol dan kelas dikembalikan ke default (Kelas 7, 8, 9).', 'info');
+                showAlertModal('Berhasil Reset', 'Seluruh suara dan status pemilihan siswa telah berhasil direset.', 'info');
             }
         }
 
