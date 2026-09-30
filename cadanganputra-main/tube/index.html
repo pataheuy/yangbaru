@@ -461,6 +461,10 @@
     async function getFeed(gridId, uploaderEmail = null, searchTerm = null) {
         const grid = document.getElementById(gridId);
         grid.innerHTML = '<p class="loader-text">Memuat video...</p>';
+        if (!_sb) {
+            grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><span class="material-symbols-outlined">wifi_off</span><h3>Tidak dapat terhubung</h3><p>Gagal memuat konfigurasi server.</p></div>`;
+            return;
+        }
         let q = _sb.from('pufutaratube_videos').select('*').order('id', { ascending: false });
         if (uploaderEmail) q = q.eq('uploader', uploaderEmail);
         if (searchTerm) q = q.ilike('title', `%${searchTerm}%`);
@@ -678,18 +682,24 @@
     }
 
     // ── INIT ──
-    // ── INIT ──
     // Fetch config dulu, baru init client dan cek session
     (async () => {
-        try {
-            const cfg = await fetch('/api/config').then(r => r.json());
-            _sb = supabase.createClient(cfg.url, cfg.key);
-        } catch (_) { return; }
-
-        const { data } = await _sb.auth.getSession();
+        // Langsung tampilkan app tanpa menunggu login
         document.getElementById('appHeader').style.display = 'flex';
         document.getElementById('appBody').style.display   = 'block';
         document.getElementById('authScreen').style.display = 'none';
+        // Tampilkan home screen kosong dulu agar layout langsung muncul
+        showScreen('screenHome');
+
+        try {
+            const cfg = await fetch('/api/config').then(r => r.json());
+            _sb = supabase.createClient(cfg.url, cfg.key);
+        } catch (_) {
+            document.getElementById('mainGrid').innerHTML = `<div class="empty-state" style="grid-column:1/-1"><span class="material-symbols-outlined">wifi_off</span><h3>Tidak dapat terhubung</h3><p>Gagal memuat konfigurasi server.</p></div>`;
+            return;
+        }
+
+        const { data } = await _sb.auth.getSession();
 
         if (data.session) {
             _me = data.session.user;

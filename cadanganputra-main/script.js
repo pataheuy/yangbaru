@@ -808,6 +808,9 @@ function animateCounter(el, target, duration, onDone) {
             statsEl.classList.remove('stats-displaced', 'stats-flyback');
             statsEl.style.transition = 'none';
             statsEl.style.transform  = '';
+            statsEl.style.height     = '';
+            statsEl.style.overflow   = '';
+            statsEl.style.margin     = '';
         }
 
         // Tiap stat item — langsung muncul
@@ -868,6 +871,13 @@ function animateCounter(el, target, duration, onDone) {
         function run() {
             var statsEl = document.getElementById('hero-stats');
             var descEl  = document.getElementById('hero-desc');
+
+            // Kembalikan hero-stats ke flow normal (sebelumnya height:0 agar h1 benar-benar di tengah)
+            if (statsEl) {
+                statsEl.style.height   = '';
+                statsEl.style.overflow = '';
+                statsEl.style.margin   = '';
+            }
 
             // Hitung offset: seberapa jauh stats harus naik ke posisi desc
             var offsetY = 0;

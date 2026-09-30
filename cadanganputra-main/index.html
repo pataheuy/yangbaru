@@ -566,7 +566,7 @@
                 Seorang santri developer yang mendedikasikan waktu di sela-sela mengaji untuk merakit aplikasi desktop yang powerful menggunakan Electron, bereksperimen dengan Next.js, dan menguasai dasar web HTML/CSS/JS.
             </p>
             <!-- Stats muncul satu per satu setelah Elfathin selesai, dikontrol JS -->
-            <div class="flex items-center justify-center gap-6 mb-8" id="hero-stats">
+            <div class="flex items-center justify-center gap-6 mb-8" id="hero-stats" style="height:0;overflow:hidden;margin:0;">
                 <!-- Tiap stat dimulai tersembunyi, JS yang munculkan satu per satu -->
                 <div class="text-center hero-stat-item" id="stat-item-proyek" style="opacity:0;transform:translateY(20px);filter:blur(4px);transition:opacity 0.5s cubic-bezier(0.34,1.56,0.64,1),transform 0.5s cubic-bezier(0.34,1.56,0.64,1),filter 0.4s ease">
                     <div class="text-2xl font-extrabold text-primary hero-counter" data-count="38" id="stat-proyek">0</div>
@@ -1600,6 +1600,10 @@
         // Kunjungan ulang: skip opening, langsung tampilkan semua hero instant
         if (sessionStorage.getItem('pufutara_intro_shown')) {
             el.style.display = 'none';
+
+            // Restore hero-stats ke flow normal (awalnya height:0)
+            var heroStatsEl = document.getElementById('hero-stats');
+            if (heroStatsEl) { heroStatsEl.style.height=''; heroStatsEl.style.overflow=''; heroStatsEl.style.margin=''; }
 
             var heroLines = document.querySelectorAll('.hero-line');
             var dotGrids  = document.querySelectorAll('.dot-grid-topleft, .dot-grid-botright');
