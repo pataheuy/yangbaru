@@ -768,7 +768,16 @@ async function executeVote() {
     const voter = currentRole === 'guru' ? activeTeacher : selectedStudent;
     if (!voter || !selectedCandidate || voter.hasVoted) return;
 
-    closeConfirmVoteModal();
+    // ── Tampilkan status loading di tombol, modal tetap terbuka ─────────────
+    const finalBtn  = document.getElementById('finalVoteBtn');
+    const finalText = document.getElementById('finalVoteText');
+    const cancelBtn = document.querySelector('#confirmVoteModal button[onclick="closeConfirmVoteModal()"]');
+    if (finalBtn) {
+        finalBtn.disabled = true;
+        finalBtn.className = 'w-full bg-amber-400 text-white font-bold py-3.5 rounded-xl transition flex items-center justify-center space-x-2 cursor-not-allowed';
+    }
+    if (finalText) finalText.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1.5"></i>Sedang Menyimpan...';
+    if (cancelBtn) cancelBtn.disabled = true;
 
     // Update kandidat
     const c = candidates.find(c => c.id === selectedCandidate.id);
@@ -811,6 +820,7 @@ async function executeVote() {
         insertVoteLogToSupabase(log)
     ]);
 
+    closeConfirmVoteModal();
     showVoteSuccessScreen(voter, c);
 }
 

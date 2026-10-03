@@ -348,25 +348,104 @@ function renderAdminDashboard() {
     renderBarChart(sorted);
 }
 
+// ── Warna tetap per kelompok untuk grafik ──────────────────────────────────────
+// Warna cerah: Kelas 7 = biru langit, Kelas 8 = hijau toska, Kelas 9 = oranye, Guru = hijau
+const CLASS_COLOR_MAP = {
+    '7': '#38bdf8',  // sky-400 — biru langit cerah
+    '8': '#34d399',  // emerald-400 — hijau toska cerah
+    '9': '#fb923c',  // orange-400 — oranye cerah
+};
+const CLASS_COLOR_FALLBACK = ['#a78bfa','#f472b6','#facc15','#4ade80','#60a5fa','#f87171'];
+const GURU_BAR_COLOR = '#4ade80';  // green-400 — hijau cerah
+const NOT_YET_COLOR  = '#e2e8f0';
+
+function getClassBarColor(label, idx) {
+    for (const [digit, color] of Object.entries(CLASS_COLOR_MAP)) {
+        if (label.includes(digit)) return color;
+    }
+    if (label.toLowerCase().includes('guru') || label.toLowerCase().includes('staf')) return GURU_BAR_COLOR;
+    return CLASS_COLOR_FALLBACK[idx % CLASS_COLOR_FALLBACK.length];
+}
+
+// Urutkan labels: kelas dari kecil ke besar (7→8→9), lalu guru di bawah
+function getSortedGroupLabels() {
+    const sorted = [...classes].sort((a, b) => {
+        const numA = parseInt(a.replace(/\D/g, '')) || 0;
+        const numB = parseInt(b.replace(/\D/g, '')) || 0;
+        return numA - numB;
+    });
+    return [...sorted, 'Guru / Staf'];
+}
+
 function renderPieChart() {
     const canvas = getEl('voterPieChart');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     if (voterPieChartInstance) voterPieChartInstance.destroy();
+
+    // Reset tinggi ke fixed
+    canvas.parentElement.style.height = '224px';
+
+    // Hitung sudah memilih per kelas + guru — gunakan urutan kelas 7→8→9→guru
+    const allLabels = getSortedGroupLabels();
+    const classLabels = allLabels.filter(l => !l.toLowerCase().includes('guru') && !l.toLowerCase().includes('staf'));
+    const classVoted  = classLabels.map(g => voterStats[g] || 0);
+    const guruVoted   = teachers.filter(t => t.hasVoted).length;
+
+    const allVoted  = [...classVoted, guruVoted];
+    const allColors = allLabels.map((lbl, i) => getClassBarColor(lbl, i));
+
+    // Hanya tampilkan segmen yang > 0 agar pie tidak kosong
+    const filtered = allLabels
+        .map((lbl, i) => ({ label: lbl, value: allVoted[i], color: allColors[i] }))
+        .filter(d => d.value > 0);
+
+    const hasData = filtered.length > 0;
+
     voterPieChartInstance = new Chart(ctx, {
         type: 'pie',
         data: {
-            labels: classes,
+            labels: hasData ? filtered.map(d => d.label) : ['Belum ada suara'],
             datasets: [{
-                data: classes.map(g => voterStats[g] || 0),
-                backgroundColor: ['#0284c7','#0d9488','#2563eb','#f59e0b','#10b981','#8b5cf6'],
-                borderWidth: 2, borderColor: '#fff'
+                data:            hasData ? filtered.map(d => d.value) : [1],
+                backgroundColor: hasData ? filtered.map(d => d.color) : ['#e2e8f0'],
+                borderWidth: 2,
+                borderColor: '#fff',
+                hoverOffset: 6,
             }]
         },
         options: {
-            responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 10 } } }
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        font: { size: 11 },
+                        padding: 10,
+                        boxWidth: 12,
+                    }
+                },
+                tooltip: {
+                    enabled: hasData,
+                    callbacks: {
+                        label: (ctx) => {
+                            const i = ctx.dataIndex;
+                            const lbl  = filtered[i]?.label || '';
+                            const val  = filtered[i]?.value || 0;
+                            const total = filtered.reduce((s, d) => s + d.value, 0);
+                            const pct  = total > 0 ? Math.round(val / total * 100) : 0;
+                            // Cari total pemilih untuk kelas ini
+                            const classIdx = classLabels.indexOf(lbl);
+                            const classTotal = classIdx >= 0
+                                ? students.filter(s => getParentGrade(s.grade) === lbl).length
+                                : teachers.length;
+                            return ` ${lbl}: ${val} suara (${pct}% dari total) — ${classTotal} pemilih`;
+                        }
+                    }
+                }
+            }
         }
     });
 }
@@ -377,19 +456,69 @@ function renderBarChart(sorted) {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     if (candidateBarChartInstance) candidateBarChartInstance.destroy();
+
+    // Kelompok: tiap kelas + guru (urutan: 7→8→9→guru)
+    const allGroups = getSortedGroupLabels();
+    const classLabels = allGroups.filter(l => !l.toLowerCase().includes('guru') && !l.toLowerCase().includes('staf'));
+
+    // Tiap group jadi 1 dataset (stacked), ambil suara per kandidat per kelas
+    const datasets = allGroups.map(grp => {
+        const isGuru = grp.toLowerCase().includes('guru') || grp.toLowerCase().includes('staf');
+        return {
+            label: grp,
+            data: sorted.map(c => {
+                if (isGuru) {
+                    // suara guru = total votes kandidat dikurangi suara dari semua kelas siswa
+                    const studentVotes = classLabels.reduce((s, cls) => s + (c.votes_by_class?.[cls] || 0), 0);
+                    return Math.max(0, (Number(c.votes) || 0) - studentVotes);
+                }
+                return c.votes_by_class?.[grp] || 0;
+            }),
+            backgroundColor: getClassBarColor(grp, allGroups.indexOf(grp)),
+            borderRadius: 4,
+            borderSkipped: false,
+            barPercentage: 0.7,
+            stack: 'kandidat',
+        };
+    });
+
     candidateBarChartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: sorted.map(c => `No.${c.no} ${c.name.split(' ')[0]}`),
-            datasets: [{
-                label: 'Suara', data: sorted.map(c => Number(c.votes) || 0),
-                backgroundColor: '#2563eb', borderRadius: 8, hoverBackgroundColor: '#1d4ed8'
-            }]
+            datasets,
         },
         options: {
-            responsive: true, maintainAspectRatio: false,
-            scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
-            plugins: { legend: { display: false } }
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { stacked: true },
+                y: { stacked: true, beginAtZero: true, ticks: { precision: 0 } }
+            },
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { font: { size: 11 }, padding: 10, boxWidth: 12 }
+                },
+                tooltip: {
+                    callbacks: {
+                        title: (items) => {
+                            const c = sorted[items[0]?.dataIndex];
+                            return c ? `No.${c.no} — ${c.name}` : '';
+                        },
+                        label: (ctx) => {
+                            const val = ctx.raw;
+                            if (!val) return null;
+                            return ` ${ctx.dataset.label}: ${val} suara`;
+                        },
+                        footer: (items) => {
+                            const total = items.reduce((s, i) => s + (i.raw || 0), 0);
+                            const c = sorted[items[0]?.dataIndex];
+                            return `Total: ${c ? Number(c.votes) || 0 : total} suara`;
+                        }
+                    }
+                }
+            }
         }
     });
 }
@@ -558,18 +687,14 @@ async function showAuditLog() {
     const overlay = getEl('auditLogOverlay');
     if (!overlay) return;
 
-    // Isi dropdown filter kelas (audit log)
+    // Isi dropdown filter kelas audit log — "Semua", kelas-kelas, lalu "Guru / Staf"
     const sel = getEl('auditFilterClass');
     if (sel) {
-        sel.innerHTML = '<option value="">— Semua Kelas —</option>';
+        sel.innerHTML = '<option value="">— Semua —</option>';
         classes.forEach(g => { const o = document.createElement('option'); o.value = g; o.textContent = g; sel.appendChild(o); });
-    }
-
-    // Isi dropdown filter kelas (belum memilih)
-    const selBelum = getEl('belumMemilihFilterClass');
-    if (selBelum) {
-        selBelum.innerHTML = '<option value="">— Semua Kelas —</option>';
-        classes.forEach(g => { const o = document.createElement('option'); o.value = g; o.textContent = g; selBelum.appendChild(o); });
+        const oGuru = document.createElement('option');
+        oGuru.value = '__guru__'; oGuru.textContent = 'Guru / Staf';
+        sel.appendChild(oGuru);
     }
 
     overlay.classList.remove('hidden'); overlay.classList.add('flex');
@@ -577,7 +702,6 @@ async function showAuditLog() {
     loadVoteLogsLocal();
     recalculateDashboardStatsFromVoteLogs();
     renderAuditLog(voteLogs);
-    renderBelumMemilihTable();
     await loadAuditLogFromSupabase();
 }
 
@@ -592,8 +716,10 @@ function renderBelumMemilihTable() {
     if (!tbody) return;
 
     const filterGrade = getEl('belumMemilihFilterClass')?.value || '';
+    const onlyGuru    = getEl('belumMemilihFilterGuru')?.checked || false;
 
-    const belumSiswa = students.filter(s => !s.hasVoted && (!filterGrade || s.grade === filterGrade));
+    const belumSiswa = onlyGuru ? [] :
+        students.filter(s => !s.hasVoted && (!filterGrade || s.grade === filterGrade));
     const belumGuru  = teachers.filter(t => !t.hasVoted && (!filterGrade || filterGrade === ''));
 
     const semua = [
@@ -610,15 +736,19 @@ function renderBelumMemilihTable() {
     }
 
     semua.forEach((p, idx) => {
+        const badgeCls = p.type === 'guru'
+            ? 'bg-emerald-100 text-emerald-700'
+            : p.grade.includes('7') ? 'bg-blue-100 text-blue-700'
+            : p.grade.includes('8') ? 'bg-violet-100 text-violet-700'
+            : p.grade.includes('9') ? 'bg-rose-100 text-rose-700'
+            : 'bg-sky-100 text-sky-700';
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-amber-50/40 transition';
         tr.innerHTML = `
             <td class="p-3 pl-5 font-bold text-slate-400">${idx + 1}</td>
             <td class="p-3 font-semibold text-slate-800">${p.name}</td>
             <td class="p-3">
-                <span class="text-[11px] font-bold px-2 py-0.5 rounded-lg ${p.type === 'guru' ? 'bg-emerald-100 text-emerald-700' : 'bg-sky-100 text-sky-700'}">
-                    ${p.grade}
-                </span>
+                <span class="text-[11px] font-bold px-2 py-0.5 rounded-lg ${badgeCls}">${p.grade}</span>
             </td>
             <td class="p-3 font-mono text-slate-600 text-[11px] bg-slate-50/50">${p.password}</td>`;
         tbody.appendChild(tr);
@@ -632,8 +762,11 @@ function showBelumVotePanel() {
 
     const sel = getEl('belumVoteFilterClass');
     if (sel) {
-        sel.innerHTML = '<option value="">— Semua Kelas —</option>';
+        sel.innerHTML = '<option value="">— Semua —</option>';
         classes.forEach(g => { const o = document.createElement('option'); o.value = g; o.textContent = g; sel.appendChild(o); });
+        const oGuru = document.createElement('option');
+        oGuru.value = '__guru__'; oGuru.textContent = 'Guru / Staf';
+        sel.appendChild(oGuru);
     }
     const search = getEl('belumVoteSearch');
     if (search) search.value = '';
@@ -648,20 +781,24 @@ function hideBelumVotePanel() {
 }
 
 function renderBelumVotePanel() {
-    const tbody      = getEl('belumVoteTableBody');
-    const countEl    = getEl('belumVoteCount');
+    const tbody   = getEl('belumVoteTableBody');
+    const countEl = getEl('belumVoteCount');
     if (!tbody) return;
 
-    const filterGrade = getEl('belumVoteFilterClass')?.value || '';
-    const query       = (getEl('belumVoteSearch')?.value || '').toLowerCase().trim();
+    const filterVal = getEl('belumVoteFilterClass')?.value || '';
+    const query     = (getEl('belumVoteSearch')?.value || '').toLowerCase().trim();
+    const onlyGuru  = filterVal === '__guru__';
+    const filterGrade = onlyGuru ? '' : filterVal;
 
-    // Siswa belum memilih — urutkan per kelas
-    const belumSiswa = students
-        .filter(s => !s.hasVoted && (!filterGrade || s.grade === filterGrade) && (!query || s.name.toLowerCase().includes(query)))
+    // Siswa belum memilih
+    const belumSiswa = onlyGuru ? [] : students
+        .filter(s => !s.hasVoted
+            && (!filterGrade || s.grade === filterGrade)
+            && (!query || s.name.toLowerCase().includes(query)))
         .sort((a, b) => a.grade.localeCompare(b.grade) || a.name.localeCompare(b.name))
         .map(s => ({ name: s.name, grade: s.grade, password: s.password || '—', type: 'siswa' }));
 
-    // Guru belum memilih — selalu di bawah, hanya muncul kalau tidak filter kelas
+    // Guru belum memilih — hanya tampil kalau bukan filter kelas spesifik
     const belumGuru = filterGrade ? [] : teachers
         .filter(t => !t.hasVoted && (!query || t.name.toLowerCase().includes(query)))
         .sort((a, b) => a.name.localeCompare(b.name))
@@ -677,27 +814,19 @@ function renderBelumVotePanel() {
         return;
     }
 
-    // Warna per kelas
     const gradeColor = (grade, type) => {
-        if (type === 'guru') return 'bg-emerald-100 text-emerald-700';
-        if (grade.includes('7'))  return 'bg-blue-100 text-blue-700';
-        if (grade.includes('8'))  return 'bg-violet-100 text-violet-700';
-        if (grade.includes('9'))  return 'bg-rose-100 text-rose-700';
+        if (type === 'guru')      return 'bg-emerald-100 text-emerald-700';
+        if (grade.includes('7')) return 'bg-blue-100 text-blue-700';
+        if (grade.includes('8')) return 'bg-violet-100 text-violet-700';
+        if (grade.includes('9')) return 'bg-rose-100 text-rose-700';
         return 'bg-slate-100 text-slate-600';
     };
 
-    // Warna baris per kelas
-    const rowColor = (grade, type) => {
-        if (type === 'guru') return 'hover:bg-emerald-50/40';
-        if (grade.includes('7'))  return 'hover:bg-blue-50/40';
-        if (grade.includes('8'))  return 'hover:bg-violet-50/40';
-        if (grade.includes('9'))  return 'hover:bg-rose-50/40';
-        return '';
-    };
-
     semua.forEach((p, idx) => {
+        // Selang-seling abu-putih
+        const rowBg = idx % 2 === 0 ? '' : 'bg-slate-50';
         const tr = document.createElement('tr');
-        tr.className = `transition ${rowColor(p.grade, p.type)}`;
+        tr.className = `${rowBg} hover:bg-blue-50/40 transition`;
         tr.innerHTML = `
             <td class="p-3 pl-5 font-bold text-slate-400">${idx + 1}</td>
             <td class="p-3 font-semibold text-slate-800">${p.name}</td>
@@ -759,15 +888,35 @@ function renderAuditLog(entries) {
             day:'2-digit', month:'short', year:'numeric',
             hour:'2-digit', minute:'2-digit', second:'2-digit'
         }) : '—';
+
+        // Selang-seling abu-putih
+        const rowBg = idx % 2 === 0 ? '' : 'bg-slate-50';
+
+        // Warna badge Kelas: berbeda tiap kelompok
+        const gradeLabel = log.student_grade || '—';
+        const isGuru = log.is_teacher || (gradeLabel.toLowerCase().includes('guru') || gradeLabel.toLowerCase().includes('staf') || !classes.some(c => gradeLabel.startsWith(c)));
+        let gradeBadgeClass;
+        if (isGuru) {
+            gradeBadgeClass = 'bg-emerald-100 text-emerald-700';
+        } else if (gradeLabel.includes('7')) {
+            gradeBadgeClass = 'bg-blue-100 text-blue-700';
+        } else if (gradeLabel.includes('8')) {
+            gradeBadgeClass = 'bg-violet-100 text-violet-700';
+        } else if (gradeLabel.includes('9')) {
+            gradeBadgeClass = 'bg-rose-100 text-rose-700';
+        } else {
+            gradeBadgeClass = 'bg-sky-100 text-sky-700';
+        }
+
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-50 transition';
+        tr.className = `${rowBg} hover:bg-blue-50/40 transition`;
         tr.innerHTML = `
             <td class="p-3 pl-5 font-bold text-slate-400">${idx + 1}</td>
             <td class="p-3 text-slate-500 whitespace-nowrap">${waktu}</td>
             <td class="p-3 font-semibold text-slate-800">${log.student_name || '—'}</td>
-            <td class="p-3"><span class="bg-sky-100 text-sky-700 text-[11px] font-bold px-2 py-0.5 rounded-lg">${log.student_grade || '—'}</span></td>
-            <td class="p-3 font-semibold text-blue-700">${log.candidate_name || '—'}</td>
-            <td class="p-3"><span class="bg-blue-100 text-blue-700 text-[11px] font-bold px-2 py-0.5 rounded-lg">No. ${log.candidate_no ?? '—'}</span></td>
+            <td class="p-3"><span class="text-[11px] font-bold px-2 py-0.5 rounded-lg ${gradeBadgeClass}">${gradeLabel}</span></td>
+            <td class="p-3 font-semibold text-slate-700">${log.candidate_name || '—'}</td>
+            <td class="p-3"><span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-2 py-0.5 rounded-lg">No. ${log.candidate_no ?? '—'}</span></td>
         `;
         tbody.appendChild(tr);
     });
@@ -885,11 +1034,16 @@ function filterAuditLog() {
     const qStudent   = (getEl('auditSearchStudent')?.value   || '').toLowerCase();
     const qCandidate = (getEl('auditSearchCandidate')?.value || '').toLowerCase();
     const qClass     = (getEl('auditFilterClass')?.value     || '');
-    const filtered = voteLogs.filter(log =>
-        (!qStudent   || (log.student_name   || '').toLowerCase().includes(qStudent)) &&
-        (!qCandidate || (log.candidate_name || '').toLowerCase().includes(qCandidate)) &&
-        (!qClass     || log.student_grade === qClass)
-    );
+
+    const filtered = voteLogs.filter(log => {
+        const grade  = log.student_grade || '';
+        const isGuru = log.is_teacher || (!classes.some(c => grade.startsWith(c)) && grade !== '');
+        if (qClass === '__guru__' && !isGuru) return false;
+        if (qClass && qClass !== '__guru__' && log.student_grade !== qClass) return false;
+        if (qStudent   && !(log.student_name   || '').toLowerCase().includes(qStudent))   return false;
+        if (qCandidate && !(log.candidate_name || '').toLowerCase().includes(qCandidate)) return false;
+        return true;
+    });
     renderAuditLog(filtered);
 }
 
