@@ -737,11 +737,11 @@ function renderBelumMemilihTable() {
 
     semua.forEach((p, idx) => {
         const badgeCls = p.type === 'guru'
-            ? 'bg-emerald-100 text-emerald-700'
-            : p.grade.includes('7') ? 'bg-blue-100 text-blue-700'
-            : p.grade.includes('8') ? 'bg-violet-100 text-violet-700'
-            : p.grade.includes('9') ? 'bg-rose-100 text-rose-700'
-            : 'bg-sky-100 text-sky-700';
+            ? 'bg-green-100 text-green-700'
+            : p.grade.includes('7') ? 'bg-sky-100 text-sky-600'
+            : p.grade.includes('8') ? 'bg-emerald-100 text-emerald-700'
+            : p.grade.includes('9') ? 'bg-orange-100 text-orange-600'
+            : 'bg-slate-100 text-slate-600';
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-amber-50/40 transition';
         tr.innerHTML = `
@@ -815,10 +815,10 @@ function renderBelumVotePanel() {
     }
 
     const gradeColor = (grade, type) => {
-        if (type === 'guru')      return 'bg-emerald-100 text-emerald-700';
-        if (grade.includes('7')) return 'bg-blue-100 text-blue-700';
-        if (grade.includes('8')) return 'bg-violet-100 text-violet-700';
-        if (grade.includes('9')) return 'bg-rose-100 text-rose-700';
+        if (type === 'guru')      return 'bg-green-100 text-green-700';
+        if (grade.includes('7')) return 'bg-sky-100 text-sky-600';
+        if (grade.includes('8')) return 'bg-emerald-100 text-emerald-700';
+        if (grade.includes('9')) return 'bg-orange-100 text-orange-600';
         return 'bg-slate-100 text-slate-600';
     };
 
@@ -897,15 +897,15 @@ function renderAuditLog(entries) {
         const isGuru = log.is_teacher || (gradeLabel.toLowerCase().includes('guru') || gradeLabel.toLowerCase().includes('staf') || !classes.some(c => gradeLabel.startsWith(c)));
         let gradeBadgeClass;
         if (isGuru) {
-            gradeBadgeClass = 'bg-emerald-100 text-emerald-700';
+            gradeBadgeClass = 'bg-green-100 text-green-700';
         } else if (gradeLabel.includes('7')) {
-            gradeBadgeClass = 'bg-blue-100 text-blue-700';
+            gradeBadgeClass = 'bg-sky-100 text-sky-600';
         } else if (gradeLabel.includes('8')) {
-            gradeBadgeClass = 'bg-violet-100 text-violet-700';
+            gradeBadgeClass = 'bg-emerald-100 text-emerald-700';
         } else if (gradeLabel.includes('9')) {
-            gradeBadgeClass = 'bg-rose-100 text-rose-700';
+            gradeBadgeClass = 'bg-orange-100 text-orange-600';
         } else {
-            gradeBadgeClass = 'bg-sky-100 text-sky-700';
+            gradeBadgeClass = 'bg-slate-100 text-slate-600';
         }
 
         const tr = document.createElement('tr');
