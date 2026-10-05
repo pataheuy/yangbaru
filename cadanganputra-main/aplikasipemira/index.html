@@ -172,7 +172,7 @@
             </div>
 
             <!-- Student List Cards Grid (Shown ONLY after typing in search input) -->
-            <div id="studentListGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 min-h-[120px]">
+            <div id="studentListGrid" class="grid grid-cols-1 gap-3 min-h-[120px]">
                 <!-- Dynamic Student Cards Rendered Here -->
             </div>
         </section>
@@ -360,8 +360,9 @@
 
             <!-- Add Single Student / Auto Generate Students / Import Excel -->
             <div class="flex flex-wrap gap-2 mb-4">
-                <form onsubmit="handleAddStudent(event)" class="flex-grow flex space-x-2">
+                <form onsubmit="handleAddStudent(event)" class="flex-grow flex gap-2 flex-wrap">
                     <input type="text" id="newStudentNameInput" placeholder="Nama Siswa Baru..." class="flex-grow px-3 py-2 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-sky-500" required>
+                    <input type="text" id="newStudentPasswordInput" placeholder="Password Siswa..." class="w-36 px-3 py-2 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-sky-500" required>
                     <button type="submit" class="gradient-btn text-white px-4 py-2 rounded-xl text-xs font-bold">
                         <i class="fa-solid fa-plus mr-1"></i> Tambah
                     </button>
@@ -388,6 +389,7 @@
                         <tr>
                             <th class="p-2.5 pl-4">No</th>
                             <th class="p-2.5">Nama Siswa</th>
+                            <th class="p-2.5">Password</th>
                             <th class="p-2.5">Status Suara</th>
                             <th class="p-2.5 text-right pr-4">Aksi</th>
                         </tr>
@@ -574,6 +576,37 @@
         </div>
     </div>
 
+    <!-- Student Password Verification Modal -->
+    <div id="studentPasswordModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl relative animate-fade-in-up">
+            <button onclick="closeStudentPasswordModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="text-center mb-5">
+                <div class="w-12 h-12 bg-sky-100 text-sky-600 rounded-full flex items-center justify-center mx-auto mb-2 text-xl">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800">Verifikasi Password</h3>
+                <p class="text-xs text-slate-500 mt-1">Masukkan password untuk</p>
+                <p id="passwordModalStudentName" class="text-sm font-extrabold text-sky-700 mt-0.5"></p>
+            </div>
+            <div class="space-y-3">
+                <input type="password" id="studentPasswordInput" placeholder="Masukkan password Anda..." 
+                    class="w-full px-4 py-3 border-2 border-sky-100 focus:border-sky-500 rounded-2xl text-sm font-semibold text-slate-800 focus:outline-none transition"
+                    onkeydown="if(event.key==='Enter') verifyStudentPassword()">
+                <div id="passwordError" class="hidden text-rose-500 text-xs font-semibold text-center">
+                    <i class="fa-solid fa-circle-exclamation mr-1"></i> Password salah. Coba lagi!
+                </div>
+                <button onclick="verifyStudentPassword()" class="w-full gradient-btn text-white font-bold py-3 rounded-2xl text-sm transition">
+                    <i class="fa-solid fa-unlock mr-2"></i> Masuk & Pilih Kandidat
+                </button>
+                <button onclick="closeStudentPasswordModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold py-2.5 rounded-xl text-xs transition">
+                    Batal
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Alert / Toast Modal -->
     <div id="alertModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl max-w-xs w-full p-5 text-center shadow-2xl animate-fade-in-up">
@@ -751,6 +784,7 @@
                             id: s.id,
                             name: s.name,
                             grade: s.grade,
+                            password: s.password || '',
                             hasVoted: s.has_voted || false,
                             votedFor: s.voted_for || null
                         }));
@@ -769,6 +803,7 @@
                     id: student.id,
                     name: student.name,
                     grade: student.grade,
+                    password: student.password || '',
                     has_voted: student.hasVoted,
                     voted_for: student.votedFor
                 });
@@ -784,6 +819,7 @@
                     id: s.id,
                     name: s.name,
                     grade: s.grade,
+                    password: s.password || '',
                     has_voted: s.hasVoted,
                     voted_for: s.votedFor
                 }));
@@ -832,6 +868,91 @@
             }
         }
 
+        // ── Candidate Supabase Sync Helpers ──────────────────────────────────────
+
+        /**
+         * Upload gambar kandidat ke Supabase Storage bucket "candidate-images".
+         * Mengembalikan URL publik, atau null jika gagal / Storage tidak tersedia.
+         */
+        async function uploadCandidateImageToStorage(file, candidateId) {
+            if (!isSupabaseActive || !supabaseClient || !file) return null;
+            try {
+                const ext = file.name.split('.').pop();
+                const filePath = `${candidateId}.${ext}`;
+                const { error: upErr } = await supabaseClient.storage
+                    .from('candidate-images')
+                    .upload(filePath, file, { upsert: true, contentType: file.type });
+
+                if (upErr) {
+                    console.warn("Storage upload error:", upErr.message);
+                    return null;
+                }
+
+                const { data: urlData } = supabaseClient.storage
+                    .from('candidate-images')
+                    .getPublicUrl(filePath);
+
+                return urlData?.publicUrl || null;
+            } catch (e) {
+                console.error("uploadCandidateImageToStorage error:", e);
+                return null;
+            }
+        }
+
+        /**
+         * Upsert satu kandidat ke tabel `candidates` di Supabase.
+         */
+        async function upsertCandidateToSupabase(candidate) {
+            if (!isSupabaseActive || !supabaseClient || !candidate) return;
+            try {
+                await supabaseClient.from('candidates').upsert({
+                    id: candidate.id,
+                    no: candidate.no,
+                    name: candidate.name,
+                    image: candidate.image,
+                    visi: candidate.visi,
+                    misi: candidate.misi,
+                    votes: candidate.votes,
+                    votes_by_class: candidate.votes_by_class
+                });
+            } catch (e) {
+                console.error("upsertCandidateToSupabase error:", e);
+            }
+        }
+
+        /**
+         * Hapus satu kandidat dari tabel `candidates` di Supabase.
+         */
+        async function deleteCandidateFromSupabase(candidateId) {
+            if (!isSupabaseActive || !supabaseClient) return;
+            try {
+                await supabaseClient.from('candidates').delete().eq('id', candidateId);
+                // Hapus juga gambar dari Storage jika ada
+                await supabaseClient.storage
+                    .from('candidate-images')
+                    .remove([`${candidateId}.jpg`, `${candidateId}.jpeg`, `${candidateId}.png`, `${candidateId}.webp`]);
+            } catch (e) {
+                console.error("deleteCandidateFromSupabase error:", e);
+            }
+        }
+
+        /**
+         * Reset votes & votes_by_class semua kandidat di Supabase ke 0 / {}.
+         */
+        async function resetCandidatesInSupabase() {
+            if (!isSupabaseActive || !supabaseClient) return;
+            try {
+                for (const c of candidates) {
+                    await supabaseClient.from('candidates').update({
+                        votes: 0,
+                        votes_by_class: {}
+                    }).eq('id', c.id);
+                }
+            } catch (e) {
+                console.error("resetCandidatesInSupabase error:", e);
+            }
+        }
+
         function generateDefaultSampleStudents() {
             const list = [];
             let count = 1;
@@ -841,6 +962,7 @@
                         id: `std_${count++}`,
                         name: `Siswa ${i} ${g}`,
                         grade: g,
+                        password: `siswa${i}`,
                         hasVoted: false,
                         votedFor: null
                     });
@@ -977,17 +1099,52 @@
                 return;
             }
 
-            selectedStudent = st;
+            // Simpan ID siswa yang hendak memilih, buka modal password dulu
+            openStudentPasswordModal(st);
+        }
 
-            document.getElementById('activeVoterName').innerText = st.name;
-            document.getElementById('activeVoterClass').innerText = st.grade;
+        // State sementara untuk siswa yang sedang diverifikasi
+        let pendingStudentId = null;
 
-            document.getElementById('studentSelectScreen').classList.add('hidden');
-            document.getElementById('homePage').classList.remove('hidden');
-            document.getElementById('changeClassNavBtn').classList.remove('hidden');
-            document.getElementById('homeNavBtn').classList.remove('hidden');
+        function openStudentPasswordModal(st) {
+            pendingStudentId = st.id;
+            document.getElementById('passwordModalStudentName').innerText = `${st.name} — ${st.grade}`;
+            document.getElementById('studentPasswordInput').value = '';
+            document.getElementById('passwordError').classList.add('hidden');
+            const modal = document.getElementById('studentPasswordModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => document.getElementById('studentPasswordInput').focus(), 100);
+        }
 
-            renderCandidatesHome();
+        function closeStudentPasswordModal() {
+            pendingStudentId = null;
+            const modal = document.getElementById('studentPasswordModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function verifyStudentPassword() {
+            const st = students.find(s => s.id === pendingStudentId);
+            if (!st) { closeStudentPasswordModal(); return; }
+
+            const entered = document.getElementById('studentPasswordInput').value;
+            if (entered === st.password) {
+                closeStudentPasswordModal();
+                // Lanjutkan seperti sebelumnya
+                selectedStudent = st;
+                document.getElementById('activeVoterName').innerText = st.name;
+                document.getElementById('activeVoterClass').innerText = st.grade;
+                document.getElementById('studentSelectScreen').classList.add('hidden');
+                document.getElementById('homePage').classList.remove('hidden');
+                document.getElementById('changeClassNavBtn').classList.remove('hidden');
+                document.getElementById('homeNavBtn').classList.remove('hidden');
+                renderCandidatesHome();
+            } else {
+                document.getElementById('passwordError').classList.remove('hidden');
+                document.getElementById('studentPasswordInput').value = '';
+                document.getElementById('studentPasswordInput').focus();
+            }
         }
 
         function cancelVoterSelection() {
@@ -1068,7 +1225,7 @@
                         <div class="p-6">
                             <h3 class="text-xl font-bold text-slate-800 mb-1 group-hover:text-blue-600 transition-colors">${c.name}</h3>
                             <p class="text-[11px] font-bold text-sky-600 uppercase tracking-wider mb-3">Calon Presiden BEM SMP</p>
-                            <p class="text-xs text-slate-500 line-clamp-2 leading-relaxed italic">"${c.visi}"</p>
+                            
                         </div>
                     </div>
                     <div class="p-6 pt-0">
@@ -1291,6 +1448,10 @@
                     <td class="p-2.5 pl-4 font-bold text-slate-400">${idx + 1}</td>
                     <td class="p-2.5 font-bold text-slate-800">${st.name}</td>
                     <td class="p-2.5">
+                        <span class="font-mono text-slate-600 text-[11px] bg-slate-100 px-2 py-0.5 rounded-md">${st.password || '<span class="text-slate-400 italic">—</span>'}</span>
+                        <button onclick="editStudentPassword('${st.id}')" class="ml-1 text-sky-500 hover:text-sky-700 text-[10px]"><i class="fa-solid fa-pen-to-square"></i></button>
+                    </td>
+                    <td class="p-2.5">
                         ${st.hasVoted ? 
                             '<span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-md font-semibold text-[10px]">Sudah Memilih</span>' : 
                             '<span class="px-2 py-0.5 bg-slate-100 text-slate-500 rounded-md font-semibold text-[10px]">Belum Memilih</span>'
@@ -1321,17 +1482,34 @@
             }
         }
 
+        function editStudentPassword(id) {
+            const st = students.find(s => s.id === id);
+            if (!st) return;
+
+            const newPass = prompt("Edit Password Siswa:", st.password || '');
+            if (newPass !== null && newPass.trim() !== "") {
+                st.password = newPass.trim();
+                saveStudentsLocal();
+                syncStudentToSupabase(st);
+                renderAdminStudentManager();
+                showAlertModal('Berhasil', 'Password siswa berhasil diperbarui.', 'success');
+            }
+        }
+
         function handleAddStudent(e) {
             e.preventDefault();
             const selectedGrade = document.getElementById('adminStudentGradeSelect').value;
-            const input = document.getElementById('newStudentNameInput');
-            const name = input.value.trim();
+            const nameInput = document.getElementById('newStudentNameInput');
+            const passInput = document.getElementById('newStudentPasswordInput');
+            const name = nameInput.value.trim();
+            const password = passInput.value.trim();
 
-            if (name) {
+            if (name && password) {
                 const newStudent = {
                     id: `std_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
                     name: name,
                     grade: selectedGrade,
+                    password: password,
                     hasVoted: false,
                     votedFor: null
                 };
@@ -1339,7 +1517,8 @@
 
                 saveStudentsLocal();
                 syncStudentToSupabase(newStudent);
-                input.value = '';
+                nameInput.value = '';
+                passInput.value = '';
                 renderAdminStudentManager();
                 renderAdminDashboard();
             }
@@ -1367,12 +1546,18 @@
 
                     // Scan header row to find column with "Nama" / "Name"
                     let nameColIdx = 0;
+                    let passColIdx = -1;
                     if (jsonData.length > 0 && Array.isArray(jsonData[0])) {
                         const headerRow = jsonData[0];
-                        const foundIdx = headerRow.findIndex(cell => 
+                        const foundName = headerRow.findIndex(cell => 
                             cell && (cell.toString().toLowerCase().includes('nama') || cell.toString().toLowerCase().includes('name'))
                         );
-                        if (foundIdx !== -1) nameColIdx = foundIdx;
+                        if (foundName !== -1) nameColIdx = foundName;
+
+                        const foundPass = headerRow.findIndex(cell =>
+                            cell && (cell.toString().toLowerCase().includes('password') || cell.toString().toLowerCase().includes('pass') || cell.toString().toLowerCase().includes('sandi'))
+                        );
+                        if (foundPass !== -1) passColIdx = foundPass;
                     }
 
                     let addedCount = 0;
@@ -1385,11 +1570,13 @@
                         const row = jsonData[i];
                         if (row && row[nameColIdx]) {
                             const studentName = row[nameColIdx].toString().trim();
+                            const studentPass = (passColIdx !== -1 && row[passColIdx]) ? row[passColIdx].toString().trim() : `pass${i}`;
                             if (studentName) {
                                 const stObj = {
                                     id: `std_${Date.now()}_${i}_${Math.random().toString(36).substr(2, 3)}`,
                                     name: studentName,
                                     grade: selectedGrade,
+                                    password: studentPass,
                                     hasVoted: false,
                                     votedFor: null
                                 };
@@ -1428,6 +1615,7 @@
                     id: `std_${Date.now()}_${i}_${Math.random().toString(36).substr(2, 3)}`,
                     name: `Siswa ${currentCount + i} ${selectedGrade}`,
                     grade: selectedGrade,
+                    password: `siswa${currentCount + i}`,
                     hasVoted: false,
                     votedFor: null
                 };
@@ -1735,7 +1923,7 @@
             modal.classList.remove('flex');
         }
 
-        function handleSaveCandidate(event) {
+        async function handleSaveCandidate(event) {
             event.preventDefault();
 
             const id = document.getElementById('candidateFormId').value;
@@ -1747,62 +1935,86 @@
 
             const misiList = misiRaw.split('\n').filter(m => m.trim() !== '');
 
-            const processSave = (imageUrl) => {
-                if (id) {
-                    const candidate = candidates.find(c => c.id === id);
-                    if (candidate) {
-                        candidate.no = no;
-                        candidate.name = name;
-                        candidate.visi = visi;
-                        candidate.misi = misiList;
-                        if (imageUrl) candidate.image = imageUrl;
-                    }
-                } else {
-                    const newCandidate = {
-                        id: 'c_' + Date.now(),
-                        no: no,
-                        name: name,
-                        image: imageUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=400',
-                        visi: visi,
-                        misi: misiList,
-                        votes: 0,
-                        votes_by_class: {}
-                    };
-                    candidates.push(newCandidate);
-                }
+            // Gunakan ID yang sudah ada atau buat baru sekarang,
+            // agar bisa dipakai sebagai nama file di Supabase Storage
+            const candidateId = id || ('c_' + Date.now());
 
-                saveCandidatesLocal();
-                closeCandidateFormModal();
-                renderAdminDashboard();
-                renderCandidatesHome();
-                showAlertModal('Berhasil', 'Data kandidat telah diperbarui.', 'success');
-            };
+            // Nonaktifkan tombol sementara agar tidak double-submit
+            const submitBtn = event.target.querySelector('[type="submit"]');
+            if (submitBtn) { submitBtn.disabled = true; submitBtn.innerText = 'Menyimpan...'; }
 
-            if (imageFile) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    processSave(e.target.result);
-                };
-                reader.readAsDataURL(imageFile);
-            } else {
-                processSave(null);
+            let imageUrl = null;
+
+            // 1. Upload gambar ke Supabase Storage jika ada file baru
+            if (imageFile && isSupabaseActive) {
+                imageUrl = await uploadCandidateImageToStorage(imageFile, candidateId);
             }
+
+            // 2. Fallback ke base64 lokal jika Storage tidak aktif atau gagal
+            if (!imageUrl && imageFile) {
+                imageUrl = await new Promise(resolve => {
+                    const reader = new FileReader();
+                    reader.onload = e => resolve(e.target.result);
+                    reader.readAsDataURL(imageFile);
+                });
+            }
+
+            // 3. Simpan/update objek kandidat di array lokal
+            let savedCandidate;
+            if (id) {
+                savedCandidate = candidates.find(c => c.id === id);
+                if (savedCandidate) {
+                    savedCandidate.no = no;
+                    savedCandidate.name = name;
+                    savedCandidate.visi = visi;
+                    savedCandidate.misi = misiList;
+                    if (imageUrl) savedCandidate.image = imageUrl;
+                }
+            } else {
+                savedCandidate = {
+                    id: candidateId,
+                    no: no,
+                    name: name,
+                    image: imageUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=400',
+                    visi: visi,
+                    misi: misiList,
+                    votes: 0,
+                    votes_by_class: {}
+                };
+                candidates.push(savedCandidate);
+            }
+
+            // 4. Simpan ke localStorage
+            saveCandidatesLocal();
+
+            // 5. Sync ke Supabase (upsert tabel candidates)
+            if (savedCandidate) {
+                await upsertCandidateToSupabase(savedCandidate);
+            }
+
+            if (submitBtn) { submitBtn.disabled = false; submitBtn.innerText = 'Simpan Data'; }
+            closeCandidateFormModal();
+            renderAdminDashboard();
+            renderCandidatesHome();
+            showAlertModal('Berhasil', 'Data kandidat telah diperbarui.', 'success');
         }
 
-        function deleteCandidateConfirm(id) {
+        async function deleteCandidateConfirm(id) {
             const candidate = candidates.find(c => c.id === id);
             if (!candidate) return;
 
             if (confirm(`Apakah Anda yakin ingin menghapus kandidat "${candidate.name}"?`)) {
                 candidates = candidates.filter(c => c.id !== id);
                 saveCandidatesLocal();
+                // Hapus dari Supabase (tabel + Storage)
+                await deleteCandidateFromSupabase(id);
                 renderAdminDashboard();
                 renderCandidatesHome();
                 showAlertModal('Terhapus', 'Kandidat telah berhasil dihapus.', 'info');
             }
         }
 
-        function resetVotesConfirm() {
+        async function resetVotesConfirm() {
             if (confirm(`PERINGATAN: Apakah Anda yakin ingin mereset seluruh perolehan suara dan status pemilih siswa menjadi 0 / Belum Memilih?`)) {
                 candidates.forEach(c => {
                     c.votes = 0;
@@ -1813,11 +2025,17 @@
                     st.votedFor = null;
                 });
                 voterStats = {};
-                
+
                 saveCandidatesLocal();
                 saveStudentsLocal();
                 saveVoterStatsLocal();
-                resetAllStudentVotesInSupabase();
+
+                // Reset di Supabase: students + candidates
+                await Promise.all([
+                    resetAllStudentVotesInSupabase(),
+                    resetCandidatesInSupabase()
+                ]);
+
                 renderWelcomeClasses();
                 renderAdminDashboard();
                 showAlertModal('Berhasil Reset', 'Seluruh suara dan status pemilihan siswa telah berhasil direset.', 'info');
