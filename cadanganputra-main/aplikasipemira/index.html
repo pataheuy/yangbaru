@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>pufutaraPemira - Pemilihan Presiden BEM SMP</title>
+    <title>Aplikasi Pemira - Pemilihan Presiden BEM SMP</title>
     <!-- Google Fonts: Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -103,7 +103,7 @@
                     <img src="logo.png" alt="Logo" class="w-9 h-9 object-contain" onerror="this.onerror=null; this.src='https://placehold.co/100x100/2563eb/ffffff?text=Logo';">
                 </div>
                 <div>
-                    <span class="font-extrabold text-xl tracking-wider text-white block leading-tight">pufutaraPemira</span>
+                    <span class="font-extrabold text-xl tracking-wider text-white block leading-tight">Aplikasi Pemira BEM Putra</span>
                     <span class="text-[10px] text-sky-200 font-medium tracking-wide block">SMP Pemira Digital System</span>
                 </div>
             </div>
@@ -150,24 +150,14 @@
             </div>
 
             <!-- Centered Search Card Header -->
-            <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm text-center space-y-4">
-                <div class="w-14 h-14 bg-sky-100 text-sky-600 rounded-2xl flex items-center justify-center mx-auto text-2xl">
+            <div class="bg-white px-5 py-4 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
+                <div class="w-9 h-9 bg-sky-100 text-sky-600 rounded-xl flex items-center justify-center shrink-0 text-base">
                     <i class="fa-solid fa-magnifying-glass"></i>
                 </div>
-                <div>
-                    <h2 class="text-2xl font-extrabold text-slate-800 mb-1">Cari Nama Siswa</h2>
-                    <p class="text-xs md:text-sm text-slate-500 max-w-md mx-auto">
-                        Ketik nama Anda di kolom pencarian bawah untuk menemukan dan memilih nama Anda.
-                    </p>
-                </div>
-
-                <!-- Centered Prominent Search Input -->
-                <div class="max-w-md mx-auto relative pt-2">
+                <div class="flex-grow">
                     <div class="relative">
-                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-sky-500 text-base"></i>
-                        <input type="text" id="studentSearchInput" oninput="filterStudentList()" placeholder="Ketik nama siswa untuk mencari..." class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border-2 border-sky-100 focus:border-sky-500 rounded-2xl text-sm font-semibold text-slate-800 focus:outline-none focus:bg-white transition shadow-sm">
+                        <input type="text" id="studentSearchInput" oninput="filterStudentList()" placeholder="Ketik nama siswa (min. 3 karakter)..." class="w-full pl-4 pr-4 py-2.5 bg-slate-50 border-2 border-sky-100 focus:border-sky-500 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:bg-white transition">
                     </div>
-                    <p class="text-[11px] text-slate-400 mt-2 italic">*Ketik minimal 3 karakter untuk menampilkan nama Anda.</p>
                 </div>
             </div>
 
@@ -238,6 +228,9 @@
                         </button>
                         <button onclick="resetVotesConfirm()" class="w-full bg-rose-50 hover:bg-rose-100 text-rose-600 px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center">
                             <i class="fa-solid fa-rotate-left mr-2 text-sm"></i> Reset Suara & Status
+                        </button>
+                        <button onclick="showAuditLog()" class="w-full bg-violet-50 hover:bg-violet-100 text-violet-700 px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center">
+                            <i class="fa-solid fa-clock-rotate-left mr-2 text-sm"></i> Audit Log
                         </button>
                     </nav>
 
@@ -321,6 +314,59 @@
                                 </thead>
                                 <tbody id="adminCandidateTable" class="divide-y divide-slate-100 text-sm">
                                     <!-- Table rows inserted dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Audit Log Panel (hidden by default, shown via showAuditLog()) -->
+                    <div id="auditLogPanel" class="hidden bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                        <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div>
+                                <h2 class="font-bold text-slate-800 flex items-center">
+                                    <i class="fa-solid fa-clock-rotate-left text-violet-600 mr-2"></i> Audit Log Pemungutan Suara
+                                </h2>
+                                <p class="text-[11px] text-slate-400 mt-0.5">Rekaman seluruh aktivitas pemilihan secara real-time</p>
+                            </div>
+                            <button onclick="hideAuditLog()" class="text-xs text-slate-500 hover:text-slate-700 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-xl font-semibold transition self-start sm:self-auto">
+                                <i class="fa-solid fa-xmark mr-1"></i> Tutup
+                            </button>
+                        </div>
+
+                        <!-- Search & Filter Bar -->
+                        <div class="p-4 border-b border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <input type="text" id="auditSearchStudent" oninput="filterAuditLog()" placeholder="🔍 Cari nama siswa..." class="px-3 py-2 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-violet-400 font-medium">
+                            <input type="text" id="auditSearchCandidate" oninput="filterAuditLog()" placeholder="🔍 Cari nama kandidat..." class="px-3 py-2 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-violet-400 font-medium">
+                            <select id="auditFilterClass" onchange="filterAuditLog()" class="px-3 py-2 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-violet-400 font-medium bg-white">
+                                <option value="">— Semua Kelas —</option>
+                            </select>
+                        </div>
+
+                        <!-- Summary bar -->
+                        <div class="px-5 py-2 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
+                            <span id="auditLogCount" class="text-xs font-semibold text-slate-500">0 entri</span>
+                            <button onclick="loadAuditLogFromSupabase()" class="text-xs text-violet-600 hover:text-violet-800 font-semibold flex items-center gap-1">
+                                <i class="fa-solid fa-arrows-rotate"></i> Refresh
+                            </button>
+                        </div>
+
+                        <!-- Log Table -->
+                        <div class="overflow-x-auto max-h-96 overflow-y-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead class="sticky top-0 bg-slate-50 text-slate-400 text-[11px] uppercase tracking-wider">
+                                    <tr>
+                                        <th class="p-3 pl-5">No</th>
+                                        <th class="p-3">Waktu</th>
+                                        <th class="p-3">Nama Siswa</th>
+                                        <th class="p-3">Kelas</th>
+                                        <th class="p-3">Memilih Kandidat</th>
+                                        <th class="p-3">No. Urut</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="auditLogTableBody" class="divide-y divide-slate-100 text-xs">
+                                    <tr>
+                                        <td colspan="6" class="p-6 text-center text-slate-400">Memuat data log...</td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -765,6 +811,9 @@
                     console.log("Local mode prioritized.");
                 }
             }
+
+            // Load vote logs dari localStorage
+            loadVoteLogsLocal();
         }
 
         async function syncStudentToSupabase(student) {
@@ -1038,19 +1087,19 @@
 
             filtered.forEach(st => {
                 const card = document.createElement('div');
-                card.className = "student-card bg-white p-4 rounded-2xl border border-sky-100 hover:border-sky-400 cursor-pointer flex items-center justify-between shadow-sm active:scale-[0.98] transition";
+                card.className = "student-card bg-white px-5 py-4 rounded-2xl border border-sky-100 hover:border-sky-400 cursor-pointer flex items-center justify-between shadow-sm active:scale-[0.98] transition";
                 card.onclick = () => selectStudentAndProceed(st.id);
                 card.innerHTML = `
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 bg-sky-100 text-sky-700 rounded-xl flex items-center justify-center font-bold text-sm">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 bg-sky-100 text-sky-700 rounded-xl flex items-center justify-center font-bold text-lg shrink-0">
                             <i class="fa-solid fa-user"></i>
                         </div>
                         <div class="text-left">
-                            <h4 class="font-bold text-slate-800 text-sm leading-tight">${st.name}</h4>
-                            <span class="text-[10px] text-sky-600 font-semibold block mt-0.5">Klik untuk Langsung Memilih <i class="fa-solid fa-arrow-right ml-0.5"></i></span>
+                            <h4 class="font-bold text-slate-800 text-base leading-tight">${st.name}</h4>
+                            <span class="text-xs text-sky-600 font-semibold block mt-0.5">${st.grade} &nbsp;·&nbsp; Tap untuk memilih <i class="fa-solid fa-arrow-right ml-0.5 text-[10px]"></i></span>
                         </div>
                     </div>
-                    <i class="fa-solid fa-chevron-right text-xs text-sky-400"></i>
+                    <i class="fa-solid fa-chevron-right text-sm text-sky-400"></i>
                 `;
                 container.appendChild(card);
             });
@@ -1183,26 +1232,24 @@
 
             sorted.forEach(c => {
                 const card = document.createElement('div');
-                card.className = "candidate-card bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden flex flex-col justify-between w-full sm:w-80 text-center cursor-pointer group";
+                card.className = "candidate-card bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col justify-between w-56 text-center cursor-pointer group";
                 card.onclick = () => openCandidateModal(c.id);
                 card.innerHTML = `
                     <div>
-                        <div class="relative h-64 w-full overflow-hidden bg-slate-100">
+                        <div class="relative h-56 w-full overflow-hidden bg-slate-100">
                             <img src="${c.image}" alt="${c.name}" class="img-hover-zoom w-full h-full object-cover">
-                            <span class="absolute top-4 left-4 gradient-btn text-white font-black text-xs px-3.5 py-1.5 rounded-full shadow-md">
-                                No. Urut ${c.no}
+                            <span class="absolute top-3 left-3 gradient-btn text-white font-black text-xs px-3 py-1 rounded-full shadow-md">
+                                No. ${c.no}
                             </span>
                         </div>
-                        <div class="p-6">
-                            <h3 class="text-xl font-bold text-slate-800 mb-1 group-hover:text-blue-600 transition-colors">${c.name}</h3>
-                            <p class="text-[11px] font-bold text-sky-600 uppercase tracking-wider mb-3">Calon Presiden BEM SMP</p>
-                            
+                        <div class="px-4 pt-4 pb-3">
+                            <h3 class="text-base font-bold text-slate-800 group-hover:text-blue-600 transition-colors leading-snug">${c.name}</h3>
                         </div>
                     </div>
-                    <div class="p-6 pt-0">
-                        <div class="w-full bg-sky-50 group-hover:bg-sky-100 text-sky-700 font-bold py-3 px-4 rounded-2xl text-sm transition flex items-center justify-center space-x-2">
+                    <div class="px-4 pb-4">
+                        <div class="w-full bg-sky-50 group-hover:bg-sky-100 text-sky-700 font-bold py-2.5 px-3 rounded-xl text-xs transition flex items-center justify-center space-x-1.5">
                             <span>Lihat Visi & Misi</span>
-                            <i class="fa-solid fa-arrow-right text-xs"></i>
+                            <i class="fa-solid fa-arrow-right text-[10px]"></i>
                         </div>
                     </div>
                 `;
@@ -1321,6 +1368,18 @@
                 }
                 syncStudentToSupabase(selectedStudent);
             }
+
+            // Simpan ke audit log
+            const logEntry = {
+                student_id:     selectedStudent.id,
+                student_name:   selectedStudent.name,
+                student_grade:  activeGrade,
+                candidate_id:   candidate.id,
+                candidate_name: candidate.name,
+                candidate_no:   candidate.no,
+                voted_at:       new Date().toISOString()
+            };
+            saveVoteLog(logEntry);
 
             const votedStudentName = selectedStudent.name;
             selectedStudent = null;
@@ -2001,16 +2060,188 @@
                 saveStudentsLocal();
                 saveVoterStatsLocal();
 
-                // Reset di Supabase: students + candidates
+                // Reset di Supabase: students + candidates + vote_logs
                 await Promise.all([
                     resetAllStudentVotesInSupabase(),
-                    resetCandidatesInSupabase()
+                    resetCandidatesInSupabase(),
+                    clearVoteLogsFromSupabase()
                 ]);
+
+                // Kosongkan log lokal juga
+                voteLogs = [];
+                saveVoteLogsLocal();
 
                 renderWelcomeClasses();
                 renderAdminDashboard();
                 showAlertModal('Berhasil Reset', 'Seluruh suara dan status pemilihan siswa telah berhasil direset.', 'info');
             }
+        }
+
+        // ══════════════════════════════════════════════════════════
+        //  AUDIT LOG
+        // ══════════════════════════════════════════════════════════
+
+        let voteLogs = [];          // array of log entries (in-memory + localStorage)
+        let auditLogFiltered = [];  // copy setelah filter diterapkan
+
+        function saveVoteLogsLocal() {
+            localStorage.setItem('pemira_vote_logs', JSON.stringify(voteLogs));
+        }
+
+        function loadVoteLogsLocal() {
+            try {
+                const raw = localStorage.getItem('pemira_vote_logs');
+                voteLogs = raw ? JSON.parse(raw) : [];
+            } catch(e) { voteLogs = []; }
+        }
+
+        /**
+         * Simpan satu entri log: localStorage + Supabase
+         */
+        async function saveVoteLog(entry) {
+            // Pastikan ada id unik
+            entry.id = entry.id || `log_${Date.now()}_${Math.random().toString(36).substr(2,4)}`;
+            voteLogs.push(entry);
+            saveVoteLogsLocal();
+
+            if (isSupabaseActive && supabaseClient) {
+                try {
+                    await supabaseClient.from('vote_logs').insert({
+                        id:             entry.id,
+                        student_id:     entry.student_id,
+                        student_name:   entry.student_name,
+                        student_grade:  entry.student_grade,
+                        candidate_id:   entry.candidate_id,
+                        candidate_name: entry.candidate_name,
+                        candidate_no:   entry.candidate_no,
+                        voted_at:       entry.voted_at
+                    });
+                } catch(e) {
+                    console.error('saveVoteLog Supabase error:', e);
+                }
+            }
+        }
+
+        /**
+         * Muat ulang semua log dari Supabase (jika aktif), fallback ke lokal
+         */
+        async function loadAuditLogFromSupabase() {
+            if (isSupabaseActive && supabaseClient) {
+                try {
+                    const { data, error } = await supabaseClient
+                        .from('vote_logs')
+                        .select('*')
+                        .order('voted_at', { ascending: false });
+                    if (!error && data) {
+                        voteLogs = data.map(r => ({
+                            id:             r.id,
+                            student_id:     r.student_id,
+                            student_name:   r.student_name,
+                            student_grade:  r.student_grade,
+                            candidate_id:   r.candidate_id,
+                            candidate_name: r.candidate_name,
+                            candidate_no:   r.candidate_no,
+                            voted_at:       r.voted_at
+                        }));
+                        saveVoteLogsLocal();
+                    }
+                } catch(e) {
+                    console.error('loadAuditLogFromSupabase error:', e);
+                }
+            }
+            renderAuditLog(voteLogs);
+        }
+
+        async function clearVoteLogsFromSupabase() {
+            if (!isSupabaseActive || !supabaseClient) return;
+            try {
+                await supabaseClient.from('vote_logs').delete().neq('id', '___none___');
+            } catch(e) {
+                console.error('clearVoteLogsFromSupabase error:', e);
+            }
+        }
+
+        /** Tampilkan panel audit log dan load datanya */
+        async function showAuditLog() {
+            const panel = document.getElementById('auditLogPanel');
+            panel.classList.remove('hidden');
+
+            // Isi dropdown kelas
+            const sel = document.getElementById('auditFilterClass');
+            sel.innerHTML = '<option value="">— Semua Kelas —</option>';
+            classes.forEach(g => {
+                const opt = document.createElement('option');
+                opt.value = g; opt.textContent = g;
+                sel.appendChild(opt);
+            });
+
+            // Muat dari lokal dulu, lalu refresh dari Supabase
+            loadVoteLogsLocal();
+            renderAuditLog(voteLogs);
+            await loadAuditLogFromSupabase();
+
+            // Scroll ke panel
+            panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function hideAuditLog() {
+            document.getElementById('auditLogPanel').classList.add('hidden');
+        }
+
+        /** Render baris tabel audit log dari array entries */
+        function renderAuditLog(entries) {
+            auditLogFiltered = entries;
+            const tbody = document.getElementById('auditLogTableBody');
+            const countEl = document.getElementById('auditLogCount');
+            if (!tbody) return;
+
+            countEl.textContent = `${entries.length} entri`;
+
+            if (entries.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400 text-xs italic">Belum ada data pemilihan yang tercatat.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = '';
+            entries.forEach((log, idx) => {
+                const dt = log.voted_at ? new Date(log.voted_at) : null;
+                const waktu = dt ? dt.toLocaleString('id-ID', {
+                    day: '2-digit', month: 'short', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit', second: '2-digit'
+                }) : '—';
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 transition';
+                tr.innerHTML = `
+                    <td class="p-3 pl-5 font-bold text-slate-400">${idx + 1}</td>
+                    <td class="p-3 text-slate-500 whitespace-nowrap">${waktu}</td>
+                    <td class="p-3 font-semibold text-slate-800">${log.student_name || '—'}</td>
+                    <td class="p-3">
+                        <span class="bg-sky-100 text-sky-700 text-[11px] font-bold px-2 py-0.5 rounded-lg">${log.student_grade || '—'}</span>
+                    </td>
+                    <td class="p-3 font-semibold text-blue-700">${log.candidate_name || '—'}</td>
+                    <td class="p-3">
+                        <span class="bg-blue-100 text-blue-700 text-[11px] font-bold px-2 py-0.5 rounded-lg">No. ${log.candidate_no ?? '—'}</span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        /** Filter audit log berdasarkan input search */
+        function filterAuditLog() {
+            const qStudent   = (document.getElementById('auditSearchStudent')?.value   || '').toLowerCase().trim();
+            const qCandidate = (document.getElementById('auditSearchCandidate')?.value || '').toLowerCase().trim();
+            const qClass     = (document.getElementById('auditFilterClass')?.value     || '');
+
+            const filtered = voteLogs.filter(log => {
+                const matchStudent   = !qStudent   || (log.student_name   || '').toLowerCase().includes(qStudent);
+                const matchCandidate = !qCandidate || (log.candidate_name || '').toLowerCase().includes(qCandidate);
+                const matchClass     = !qClass     || log.student_grade === qClass;
+                return matchStudent && matchCandidate && matchClass;
+            });
+
+            renderAuditLog(filtered);
         }
 
         function showAlertModal(title, message, type = 'info') {
