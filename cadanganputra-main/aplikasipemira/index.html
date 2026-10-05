@@ -632,37 +632,8 @@
         // Data Default Tingkat Kelas SMP
         const defaultClasses = ["Kelas 7", "Kelas 8", "Kelas 9"];
         
-        // Data Default Candidates
-        const defaultCandidates = [
-            {
-                id: "c1",
-                no: 1,
-                name: "Ahmad Rizky",
-                image: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=400",
-                visi: "Mewujudkan BEM SMP yang solid, inovatif, berkarakter, dan aktif menampung aspirasi siswa.",
-                misi: [
-                    "Mengadakan program ekstrakurikuler mingguan yang seru.",
-                    "Mengelola kas kegiatan BEM secara transparan.",
-                    "Menciptakan lingkungan sekolah yang bersih, sehat, dan kreatif."
-                ],
-                votes: 0,
-                votes_by_class: {}
-            },
-            {
-                id: "c2",
-                no: 2,
-                name: "Siti Nurhaliza",
-                image: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=400",
-                visi: "Menjadikan BEM SMP sebagai sarana pengembangan bakat dan peningkatan kebersamaan siswa.",
-                misi: [
-                    "Menyelenggarakan lomba seni dan olahraga antar kelas.",
-                    "Mendorong aktifnya kegiatan minat dan bakat siswa.",
-                    "Menjalin komunikasi positif antara siswa, guru, dan pengurus sekolah."
-                ],
-                votes: 0,
-                votes_by_class: {}
-            }
-        ];
+        // Tidak ada kandidat default — data kandidat sepenuhnya dari Supabase
+        const defaultCandidates = [];
 
         // State Global Variables
         let classes = [];
