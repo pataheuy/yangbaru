@@ -1,0 +1,1519 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website PEMIRA Asbosch</title>
+    <!-- Favicon Logo KPU -->
+    <link rel="icon" type="image/png" href="icon.png">
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SheetJS CDN (Excel Reader) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    
+    <style>
+        * {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            zoom: 0.9;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Dark Mode Transitions & Overrides */
+        html.dark body {
+            background-color: #0b0f19 !important;
+            color: #f1f5f9 !important;
+        }
+
+        /* Light Mode: Agak lebih gelap dari putih polos agar tidak silau (#e2e8f0) */
+        body:not(.dark) {
+            background-color: #e2e8f0 !important;
+            color: #0f172a !important;
+        }
+
+        html.dark .bg-white {
+            background-color: #1e293b !important;
+            color: #f8fafc !important;
+            border-color: #334155 !important;
+        }
+
+        html.dark .bg-slate-50 {
+            background-color: #0f172a !important;
+            color: #f1f5f9 !important;
+            border-color: #334155 !important;
+        }
+
+        html.dark .bg-blue-50 {
+            background-color: rgba(30, 58, 138, 0.35) !important;
+            color: #93c5fd !important;
+            border-color: #1e40af !important;
+        }
+
+        html.dark .bg-emerald-50 {
+            background-color: rgba(6, 78, 59, 0.35) !important;
+            color: #6ee7b7 !important;
+            border-color: #047857 !important;
+        }
+
+        html.dark .text-slate-800, 
+        html.dark .text-slate-900 {
+            color: #f8fafc !important;
+        }
+
+        html.dark .text-slate-600, 
+        html.dark .text-slate-700, 
+        html.dark .text-slate-500,
+        html.dark .text-slate-400 {
+            color: #cbd5e1 !important;
+        }
+
+        /* Memastikan teks warna emerald & blue tetap terang dan kontras tinggi di Dark Mode */
+        html.dark .text-emerald-900,
+        html.dark .text-emerald-800 {
+            color: #a7f3d0 !important;
+        }
+
+        html.dark .text-emerald-700,
+        html.dark .text-emerald-600 {
+            color: #6ee7b7 !important;
+        }
+
+        html.dark .text-blue-900,
+        html.dark .text-blue-800 {
+            color: #bfdbfe !important;
+        }
+
+        html.dark .text-blue-700 {
+            color: #93c5fd !important;
+        }
+
+        html.dark .border-slate-100,
+        html.dark .border-slate-200 {
+            border-color: #334155 !important;
+        }
+
+        /* Memastikan kotak logo tetap berwarna putih saat Dark Mode */
+        html.dark .logo-box {
+            background-color: #ffffff !important;
+            border-color: #e2e8f0 !important;
+        }
+
+        html.dark input, 
+        html.dark select, 
+        html.dark textarea {
+            background-color: #0f172a !important;
+            color: #f8fafc !important;
+            border-color: #334155 !important;
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #2563eb 0%, #0284c7 50%, #0d9488 100%);
+        }
+        .gradient-btn {
+            background: linear-gradient(135deg, #2563eb 0%, #0284c7 100%);
+        }
+        .gradient-btn:hover {
+            background: linear-gradient(135deg, #1d4ed8 0%, #0369a1 100%);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .candidate-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .candidate-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans min-h-screen flex flex-col text-slate-800">
+
+    <!-- Header / Navigation Bar -->
+    <header class="gradient-bg text-white shadow-md border-b border-sky-700/30 w-full select-none">
+        <div class="max-w-6xl mx-auto px-4 py-3.5 flex justify-between items-center gap-4">
+            <div class="flex items-center space-x-4 cursor-pointer group" onclick="handleLogoClick()">
+                <!-- Space & Container Khusus Logo KPU -->
+                <div class="bg-white logo-box p-2 sm:p-2.5 rounded-2xl group-hover:scale-105 transition duration-300 flex items-center justify-center shadow-md shrink-0 border border-white/50 min-w-[52px] min-h-[52px] sm:min-w-[60px] sm:min-h-[60px]">
+                    <img src="kpu.png" alt="Logo KPU" class="w-10 h-10 sm:w-12 sm:h-12 object-contain" onerror="this.onerror=null; this.src='https://placehold.co/100x100/dc2626/ffffff?text=KPU';">
+                </div>
+                <div class="space-y-0.5">
+                    <span class="font-extrabold text-sm sm:text-lg tracking-wider text-white block leading-tight">Website Pemilihan Umum Raya SMPIT As-Syifa Boarding School Jalancagak 1</span>
+                    <span class="text-[11px] text-sky-100 font-semibold tracking-wide block">Pemilihan Digital System</span>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-2 shrink-0">
+                <!-- Dropdown Theme Option (Light / Dark Mode) -->
+                <select id="themeSelect" onchange="handleThemeChange(this.value)" class="px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold bg-white/10 hover:bg-white/20 transition border border-white/10 text-white cursor-pointer outline-none">
+                    <option value="light" class="text-slate-800 bg-white">Light Mode</option>
+                    <option value="dark" class="text-slate-800 bg-white">Dark Mode</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-6xl w-full mx-auto p-4 md:p-6 flex flex-col items-center justify-center">
+
+        <!-- ================= STEP 0: LOGIN TYPE SELECTION ================= -->
+        <section id="roleSelectScreen" class="w-full max-w-2xl space-y-8 animate-fade-in-up my-auto text-center py-6">
+            <div class="py-8 px-6 bg-white rounded-3xl shadow-sm border border-slate-100 relative overflow-hidden">
+                <div class="flex items-center justify-center mb-4">
+                    <div class="bg-white logo-box p-3 rounded-2xl shadow-md border border-slate-200/80 inline-flex items-center justify-center">
+                        <img src="kpu.png" alt="Logo KPU" class="w-16 h-16 object-contain" onerror="this.onerror=null; this.src='https://placehold.co/100x100/dc2626/ffffff?text=KPU';">
+                    </div>
+                </div>
+                <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 mb-2 tracking-tight">Selamat Datang di Website Pemilihan Umum Raya SMPIT As-Syifa Boarding School Jalancagak 1</h1>
+                <p class="text-slate-600 max-w-xl mx-auto text-sm md:text-base">Pilih jenis akun Anda untuk melanjutkan proses pemilihan presiden BEM.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-xl mx-auto">
+                <!-- Option Murid -->
+                <div onclick="selectRole('murid')" class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm cursor-pointer flex flex-col items-center justify-center space-y-4 hover:-translate-y-1 transition duration-200">
+                    <div class="w-16 h-16 bg-white text-sky-700 rounded-2xl flex items-center justify-center text-3xl">
+                        <i class="fa-solid fa-user-graduate"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold text-slate-800">Murid / Siswa</h3>
+                        <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">Masuk dengan Username & Password</p>
+                    </div>
+                    <span class="text-xs font-semibold text-blue-700 bg-blue-50 px-4 py-1.5 rounded-full border border-blue-200">
+                        Masuk sebagai Siswa <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </span>
+                </div>
+
+                <!-- Option Guru -->
+                <div onclick="selectRole('guru')" class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm cursor-pointer flex flex-col items-center justify-center space-y-4 hover:-translate-y-1 transition duration-200">
+                    <div class="w-16 h-16 bg-white text-emerald-700 rounded-2xl flex items-center justify-center text-3xl">
+                        <i class="fa-solid fa-chalkboard-user"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold text-slate-800">Guru / Staf</h3>
+                        <p class="text-xs text-slate-600 dark:text-slate-300 mt-1">Masuk dengan NIP / Username & Password</p>
+                    </div>
+                    <span class="text-xs font-semibold text-emerald-800 bg-emerald-50 px-4 py-1.5 rounded-full border border-emerald-200">
+                        Masuk sebagai Guru <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= STEP 1A: STUDENT LOGIN INPUT SCREEN ================= -->
+        <section id="studentLoginScreen" class="w-full max-w-md space-y-6 animate-fade-in-up hidden my-auto py-6">
+            <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm text-center space-y-4">
+                <button onclick="showRoleSelectScreen()" class="text-xs font-semibold text-sky-600 hover:text-sky-800 bg-slate-50 px-3.5 py-1.5 rounded-xl border border-slate-200 flex items-center transition mb-2">
+                    <i class="fa-solid fa-arrow-left mr-2"></i> Kembali
+                </button>
+                <div class="w-16 h-16 bg-sky-100 text-sky-600 rounded-2xl flex items-center justify-center mx-auto text-3xl">
+                    <i class="fa-solid fa-user-lock"></i>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-extrabold text-slate-800 mb-1">Login Pemilih Siswa</h2>
+                    <p class="text-xs text-slate-500">Masukkan Username & Password yang telah terdaftar.</p>
+                </div>
+
+                <form onsubmit="handleStudentLogin(event)" class="space-y-4 text-left pt-2">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Username / NIS</label>
+                        <input type="text" id="studentUsernameInput" placeholder="Contoh: andi01" class="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 focus:border-sky-500 rounded-2xl text-sm font-semibold text-slate-800 focus:outline-none focus:bg-white transition" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Password</label>
+                        <input type="password" id="studentPasswordInput" placeholder="Masukkan password Anda..." class="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 focus:border-sky-500 rounded-2xl text-sm font-semibold text-slate-800 focus:outline-none focus:bg-white transition" required>
+                    </div>
+                    <button type="submit" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3.5 rounded-2xl transition shadow-md flex items-center justify-center space-x-2">
+                        <span>Masuk ke Halaman Pilih</span>
+                        <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- ================= STEP 1B: GURU LOGIN INPUT SCREEN ================= -->
+        <section id="teacherLoginScreen" class="w-full max-w-md space-y-6 animate-fade-in-up hidden my-auto py-6">
+            <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm text-center space-y-4">
+                <button onclick="showRoleSelectScreen()" class="text-xs font-semibold text-sky-600 hover:text-sky-800 bg-slate-50 px-3.5 py-1.5 rounded-xl border border-slate-200 flex items-center transition mb-2">
+                    <i class="fa-solid fa-arrow-left mr-2"></i> Kembali
+                </button>
+                <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto text-3xl">
+                    <i class="fa-solid fa-id-card"></i>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-extrabold text-slate-800 mb-1">Login Guru / Staf</h2>
+                    <p class="text-xs text-slate-500">Masukkan Username / NIP & Password resmi Anda.</p>
+                </div>
+
+                <form onsubmit="handleTeacherLogin(event)" class="space-y-4 text-left pt-2">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Username / NIP Guru</label>
+                        <input type="text" id="teacherUsernameInput" placeholder="Contoh: guru01" class="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 focus:border-emerald-500 rounded-2xl text-sm font-semibold text-slate-800 focus:outline-none focus:bg-white transition" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Password</label>
+                        <input type="password" id="teacherPasswordInput" placeholder="Masukkan password Anda..." class="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 focus:border-emerald-500 rounded-2xl text-sm font-semibold text-slate-800 focus:outline-none focus:bg-white transition" required>
+                    </div>
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-2xl transition shadow-md flex items-center justify-center space-x-2">
+                        <span>Masuk ke Halaman Pilih</span>
+                        <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- ================= HOME PAGE (CANDIDATE SELECTION WITH VISI MISI) ================= -->
+        <section id="homePage" class="w-full space-y-6 animate-fade-in-up hidden">
+            <!-- Active Voter Info Bar -->
+            <div id="activeVoterBanner" class="bg-blue-50 border border-blue-200 rounded-2xl p-4 flex items-center justify-between gap-2 max-w-5xl mx-auto">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center font-bold shrink-0">
+                        <i class="fa-solid fa-user-check"></i>
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-bold text-blue-700 dark:text-blue-300 uppercase tracking-wider block">Pemilih Aktif</span>
+                        <h4 id="activeVoterName" class="font-extrabold text-slate-900 dark:text-slate-100 text-base leading-tight">--</h4>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span id="activeVoterClass" class="bg-white text-blue-800 font-bold text-xs px-3 py-1.5 rounded-xl border border-blue-200 shadow-sm">--</span>
+                    <button id="logoutNavBtn" onclick="requestLogout()" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-white hover:bg-rose-600 hover:text-white text-slate-800 transition flex items-center border border-slate-300 shadow-sm">
+                        <i class="fa-solid fa-right-from-bracket mr-1.5"></i> Keluar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Banner "Sudah Memilih" jika sudah memberikan suara -->
+            <div id="alreadyVotedCard" class="hidden bg-emerald-50 border-2 border-emerald-300 dark:border-emerald-700/60 rounded-3xl p-6 md:p-8 max-w-3xl mx-auto text-center space-y-3 shadow-md animate-fade-in-up">
+                <div class="w-16 h-16 bg-emerald-500 text-white rounded-2xl flex items-center justify-center mx-auto text-3xl shadow-lg">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <h3 class="text-2xl md:text-3xl font-extrabold text-emerald-900 dark:text-emerald-200">Selamat! Anda Sudah Memilih</h3>
+                <p class="text-sm text-emerald-700 dark:text-emerald-300 max-w-md mx-auto">
+                    Hak suara Anda telah berhasil disimpan ke dalam sistem. Terima kasih atas partisipasi Anda dalam Pemira web.
+                </p>
+                <div class="pt-2">
+                    <span class="inline-flex items-center px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs shadow-sm">
+                        <i class="fa-solid fa-lock mr-2"></i> Pemungutan Suara Dikunci
+                    </span>
+                </div>
+            </div>
+
+            <!-- Candidate Grid -->
+            <div class="text-center pt-2">
+                <div class="mb-6 flex flex-col items-center justify-center space-y-1">
+                    <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100 inline-flex items-center justify-center">
+                        <i class="fa-solid fa-users text-blue-600 mr-2.5"></i> Daftar Calon Presiden BEM
+                    </h2>
+                    <p class="text-xs text-slate-600 dark:text-slate-300">Pilih kandidat terbaik Anda untuk kepemimpinan periode mendatang</p>
+                </div>
+
+                <div id="candidateList" class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                    <!-- Dynamic Candidate Cards Loaded Here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= ADMIN DASHBOARD PAGE ================= -->
+        <section id="adminPage" class="w-full hidden animate-fade-in-up">
+            <div class="flex flex-col md:flex-row gap-6 items-start">
+                
+                <!-- Left Sidebar -->
+                <aside class="w-full md:w-64 bg-white p-5 rounded-3xl shadow-sm border border-slate-100 flex flex-col space-y-4 shrink-0">
+                    <div class="pb-3 border-b border-slate-100">
+                        <h2 class="text-lg font-bold text-slate-800 flex items-center">
+                            <i class="fa-solid fa-user-shield text-blue-600 mr-2"></i> Menu Admin
+                        </h2>
+                        <p class="text-[11px] text-slate-600 dark:text-slate-300">Pemira web Dashboard</p>
+                    </div>
+
+                    <nav class="space-y-2">
+                        <button onclick="openAddCandidateModal()" class="w-full gradient-btn text-white px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center shadow-md">
+                            <i class="fa-solid fa-user-plus mr-2 text-sm"></i> Tambah Kandidat
+                        </button>
+                        <button onclick="openStudentManageModal()" class="w-full bg-sky-50 hover:bg-sky-100 text-sky-700 px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center">
+                            <i class="fa-solid fa-users-gear mr-2 text-sm"></i> Kelola Data Pemilih
+                        </button>
+                        <button onclick="resetVotesConfirm()" class="w-full bg-rose-50 hover:bg-rose-100 text-rose-600 px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center">
+                            <i class="fa-solid fa-rotate-left mr-2 text-sm"></i> Reset Suara & Status
+                        </button>
+                    </nav>
+
+                    <div class="pt-4 border-t border-slate-100 mt-auto">
+                        <button onclick="logoutAdmin()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-2 rounded-xl text-xs font-semibold transition flex items-center justify-center">
+                            <i class="fa-solid fa-right-from-bracket mr-1.5"></i> Keluar Admin
+                        </button>
+                    </div>
+                </aside>
+
+                <!-- Right Dashboard Main Content -->
+                <div class="flex-grow w-full space-y-6">
+                    <!-- Top Stat Overview Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center space-x-4">
+                            <div class="p-3 bg-blue-50 text-blue-600 rounded-xl">
+                                <i class="fa-solid fa-user-tie text-2xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-slate-600 dark:text-slate-300">Total Kandidat</p>
+                                <p id="statTotalCandidates" class="text-2xl font-bold text-slate-800">0</p>
+                            </div>
+                        </div>
+                        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center space-x-4">
+                            <div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
+                                <i class="fa-solid fa-users text-2xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-slate-600 dark:text-slate-300">Total Pemilih Terdaftar</p>
+                                <p id="statTotalStudents" class="text-2xl font-bold text-slate-800">0</p>
+                            </div>
+                        </div>
+                        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center space-x-4">
+                            <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
+                                <i class="fa-solid fa-check-double text-2xl"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-bold text-slate-600 dark:text-slate-300">Total Suara Masuk</p>
+                                <p id="statTotalVotes" class="text-2xl font-bold text-slate-800">0</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Realtime Results Chart -->
+                    <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-bold text-slate-800 text-base flex items-center">
+                                <i class="fa-solid fa-chart-pie text-sky-600 mr-2"></i> Hasil Perolehan Suara Realtime
+                            </h3>
+                            <span class="text-[11px] font-semibold bg-emerald-50 text-emerald-600 px-2.5 py-1 rounded-full border border-emerald-100">Live Updating</span>
+                        </div>
+                        <div class="w-full h-64 flex items-center justify-center">
+                            <canvas id="adminVoteChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Candidates Admin Manage Table -->
+                    <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4">
+                        <h3 class="font-bold text-slate-800 text-base flex items-center">
+                            <i class="fa-solid fa-list-ol text-blue-600 mr-2"></i> Daftar Kandidat Terdaftar
+                        </h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs text-slate-700 dark:text-slate-200">
+                                <thead class="bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-100 font-bold uppercase border-b border-slate-200 dark:border-slate-600">
+                                    <tr>
+                                        <th class="p-3">No. Urut</th>
+                                        <th class="p-3">Foto</th>
+                                        <th class="p-3">Nama Kandidat</th>
+                                        <th class="p-3">Perolehan Suara</th>
+                                        <th class="p-3 text-right">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="adminCandidateTable" class="divide-y divide-slate-100">
+                                    <!-- Dynamic rows loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700 py-4 mt-auto">
+        <div class="max-w-6xl mx-auto px-4 text-center text-xs font-semibold text-slate-600 dark:text-slate-300">
+            <p>&copy; 2026 Pemira web. Sistem Pemilihan Digital Terintegrasi.</p>
+        </div>
+    </footer>
+
+    <!-- ================= MODALS ================= -->
+
+    <!-- Candidate Detail Modal (Foto Pas ke Window) -->
+    <div id="candidateDetailModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md z-50 flex items-center justify-center hidden p-3 md:p-6">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl max-w-2xl w-full p-5 sm:p-6 space-y-4 shadow-2xl animate-fade-in-up max-h-[92vh] overflow-y-auto border border-slate-100 dark:border-slate-700 flex flex-col">
+            
+            <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-700 pb-3 shrink-0">
+                <div class="flex items-center space-x-2">
+                    <span id="detailCandidateBadge" class="bg-blue-600 text-white font-extrabold text-xs px-3 py-1 rounded-xl shadow-sm">--</span>
+                    <h3 id="detailCandidateName" class="font-extrabold text-slate-800 dark:text-slate-100 text-base sm:text-lg">--</h3>
+                </div>
+                <button onclick="closeCandidateDetailModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4 flex-grow overflow-y-auto">
+                <!-- Foto Paslon Responsive Container (Fit Smoothly to Window View) -->
+                <div class="w-full max-h-[60vh] sm:max-h-[65vh] rounded-2xl overflow-hidden bg-slate-900 border border-slate-200 dark:border-slate-700 flex items-center justify-center relative group">
+                    <img id="detailCandidatePhoto" src="" alt="Foto Kandidat" class="max-h-[60vh] sm:max-h-[65vh] w-auto max-w-full object-contain mx-auto">
+                </div>
+
+                <div class="space-y-3">
+                    <div>
+                        <h4 class="font-bold text-xs text-blue-600 dark:text-sky-400 uppercase tracking-wider mb-1 flex items-center">
+                            <i class="fa-solid fa-quote-left mr-1.5"></i> Visi Paslon
+                        </h4>
+                        <p id="detailCandidateVision" class="text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-900/60 p-3.5 rounded-2xl italic border border-slate-100 dark:border-slate-700/60 text-xs sm:text-sm leading-relaxed">--</p>
+                    </div>
+
+                    <div>
+                        <h4 class="font-bold text-xs text-blue-600 dark:text-sky-400 uppercase tracking-wider mb-1 flex items-center">
+                            <i class="fa-solid fa-list-check mr-1.5"></i> Misi Paslon
+                        </h4>
+                        <ul id="detailCandidateMission" class="space-y-2 text-xs sm:text-sm text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-900/60 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-700/60">
+                            <!-- Dynamic Mission List -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 pt-2 shrink-0 border-t border-slate-100 dark:border-slate-700">
+                <button onclick="closeCandidateDetailModal()" class="w-full py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-bold text-xs hover:bg-slate-50 dark:hover:bg-slate-700 transition">
+                    Tutup
+                </button>
+                <button id="detailVoteBtn" onclick="" class="w-full py-2.5 rounded-2xl gradient-btn text-white font-bold text-xs shadow-md hover:opacity-90 transition flex items-center justify-center space-x-1.5">
+                    <i class="fa-solid fa-check-to-slot"></i>
+                    <span>Pilih Paslon Ini</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Log Out Confirmation Modal -->
+    <div id="logoutConfirmModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-5 shadow-2xl text-center animate-fade-in-up">
+            <div class="w-16 h-16 bg-rose-50 text-rose-600 rounded-full flex items-center justify-center mx-auto text-3xl">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </div>
+            <div>
+                <h3 class="font-extrabold text-slate-900 text-lg">Konfirmasi Keluar</h3>
+                <p class="text-xs text-slate-500 mt-1">Apakah Anda yakin ingin keluar dari sistem pemilihan?</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 pt-2">
+                <button onclick="closeLogoutModal()" class="w-full py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50 transition">
+                    Batal
+                </button>
+                <button onclick="confirmLogout()" class="w-full py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-md transition">
+                    Ya, Keluar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Login Modal -->
+    <div id="adminModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl animate-fade-in-up">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="font-extrabold text-slate-800 text-lg flex items-center">
+                    <i class="fa-solid fa-user-shield text-blue-600 mr-2"></i> Login Admin
+                </h3>
+                <button onclick="closeAdminModal()" class="text-slate-400 hover:text-slate-600 p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Kata Sandi Admin</label>
+                    <input type="password" id="adminPasswordInput" placeholder="Masukkan password admin..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:border-blue-500" required>
+                    <p class="text-[11px] text-slate-600 font-medium mt-1">*Password bawaan: <code class="bg-slate-100 px-1 py-0.5 rounded text-blue-700 font-mono font-bold">admin123</code></p>
+                </div>
+                <button type="submit" class="w-full gradient-btn text-white font-bold py-3 rounded-xl transition shadow-md">
+                    Masuk Admin
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Vote Confirmation Modal -->
+    <div id="confirmVoteModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 space-y-5 shadow-2xl text-center animate-fade-in-up">
+            <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto text-3xl">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            <div>
+                <h3 class="font-extrabold text-slate-900 text-lg">Konfirmasi Pilihan Suara</h3>
+                <p class="text-xs text-slate-500 mt-1">Apakah Anda yakin ingin memilih kandidat ini? Pilihan tidak dapat diubah setelah dikirim.</p>
+            </div>
+
+            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-left space-y-1">
+                <p class="text-[11px] font-semibold text-slate-400">Kandidat Pilihan:</p>
+                <p id="confirmCandidateName" class="font-bold text-slate-800 text-base">--</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 pt-2">
+                <button onclick="closeConfirmVoteModal()" class="w-full py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50 transition">
+                    Batal
+                </button>
+                <button id="finalSubmitVoteBtn" onclick="submitVote()" class="w-full py-2.5 rounded-xl gradient-btn text-white font-bold text-xs shadow-md hover:opacity-90 transition">
+                    Ya, Pilihan Saya
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Candidate Modal -->
+    <div id="addCandidateModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl animate-fade-in-up max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="font-extrabold text-slate-800 text-lg flex items-center">
+                    <i class="fa-solid fa-user-plus text-blue-600 mr-2"></i> Tambah / Edit Kandidat
+                </h3>
+                <button onclick="closeAddCandidateModal()" class="text-slate-400 hover:text-slate-600 p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <form onsubmit="handleSaveCandidate(event)" class="space-y-3">
+                <input type="hidden" id="candidateEditId">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Nomor Urut</label>
+                    <input type="number" id="candidateNumberInput" min="1" placeholder="1" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-blue-500" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Nama Lengkap Paslon</label>
+                    <input type="text" id="candidateNameInput" placeholder="Contoh: Ahmad Rizky & Nabila" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-blue-500" required>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Foto Paslon</label>
+                    <!-- Tab Pilihan Metode Upload -->
+                    <div class="flex space-x-2 mb-2">
+                        <button type="button" id="photoSourceUrlBtn" onclick="switchPhotoSource('url')" class="px-3 py-1 text-[11px] font-bold rounded-lg bg-blue-600 text-white transition">
+                            <i class="fa-solid fa-link mr-1"></i> Link URL
+                        </button>
+                        <button type="button" id="photoSourceFileBtn" onclick="switchPhotoSource('file')" class="px-3 py-1 text-[11px] font-bold rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition">
+                            <i class="fa-solid fa-upload mr-1"></i> Upload Laptop
+                        </button>
+                    </div>
+
+                    <!-- Option 1: Input Link URL -->
+                    <div id="photoUrlContainer">
+                        <input type="text" id="candidatePhotoInput" placeholder="https://..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-blue-500">
+                    </div>
+
+                    <!-- Option 2: Input Upload File Laptop -->
+                    <div id="photoFileContainer" class="hidden">
+                        <input type="file" id="candidatePhotoFileInput" accept="image/*" onchange="handlePhotoFileUpload(event)" class="block w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer border border-slate-200 rounded-xl bg-slate-50 p-1">
+                        <p class="text-[10px] text-slate-400 mt-1">Pilih foto dari komputer / laptop (.jpg, .png, .webp)</p>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Visi Paslon</label>
+                    <textarea id="candidateVisionInput" rows="2" placeholder="Tuliskan visi kandidat..." class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-blue-500" required></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">Misi Paslon (Enter untuk poin baru)</label>
+                    <textarea id="candidateMissionInput" rows="3" placeholder="Poin 1&#10;Poin 2" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-blue-500" required></textarea>
+                </div>
+                <button type="submit" class="w-full gradient-btn text-white font-bold py-3 rounded-xl transition shadow-md text-xs">
+                    Simpan Data Kandidat
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Student / Teacher Voter Manage Modal -->
+    <div id="studentManageModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-3xl max-w-3xl w-full p-6 space-y-4 shadow-2xl animate-fade-in-up max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3 shrink-0">
+                <div>
+                    <h3 class="font-extrabold text-slate-800 text-lg flex items-center">
+                        <i class="fa-solid fa-users-gear text-sky-600 mr-2"></i> Kelola Data Pemilih
+                    </h3>
+                    <p class="text-[11px] text-slate-400">Atur pemilih untuk kategori Siswa dan Guru / Staf</p>
+                </div>
+                <button onclick="closeStudentManageModal()" class="text-slate-400 hover:text-slate-600 p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Tab Switcher -->
+            <div class="flex space-x-2 border-b border-slate-100 pb-2 shrink-0">
+                <button id="tabSiswaBtn" onclick="switchVoterTab('siswa')" class="px-4 py-2 font-bold text-xs rounded-xl transition bg-sky-600 text-white shadow-sm">
+                    <i class="fa-solid fa-user-graduate mr-1.5"></i> Data Siswa (<span id="countTabSiswa">0</span>)
+                </button>
+                <button id="tabGuruBtn" onclick="switchVoterTab('guru')" class="px-4 py-2 font-bold text-xs rounded-xl transition bg-slate-100 text-slate-600 hover:bg-slate-200">
+                    <i class="fa-solid fa-chalkboard-user mr-1.5"></i> Data Guru / Staf (<span id="countTabGuru">0</span>)
+                </button>
+            </div>
+
+            <!-- Import & Manual Add Bar -->
+            <div class="space-y-3 shrink-0 bg-slate-50 p-3.5 rounded-2xl border border-slate-200">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-2 pb-2 border-b border-slate-200/60">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-700">Import dari Excel (.xlsx / .csv)</label>
+                        <p id="excelFormatHint" class="text-[10px] font-medium text-slate-600">Kolom Excel: Nama | Username | Password | Kelas</p>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="deleteAllVotersConfirm()" class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center shadow-sm">
+                            <i class="fa-solid fa-trash-can mr-1.5"></i> Hapus Semua
+                        </button>
+                        <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" onchange="handleExcelImport(event)" class="block text-xs text-slate-600 file:mr-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer">
+                    </div>
+                </div>
+
+                <!-- Form Add Siswa -->
+                <form id="formAddSiswa" onsubmit="handleManualAddStudent(event)" class="grid grid-cols-1 sm:grid-cols-5 gap-2 items-end">
+                    <div class="sm:col-span-1">
+                        <label class="block text-[10px] font-bold text-slate-600 mb-0.5">Nama Siswa</label>
+                        <input type="text" id="manualStudentName" placeholder="Nama Siswa" class="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none" required>
+                    </div>
+                    <div class="sm:col-span-1">
+                        <label class="block text-[10px] font-bold text-slate-600 mb-0.5">Username</label>
+                        <input type="text" id="manualStudentUsername" placeholder="Username" class="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none" required>
+                    </div>
+                    <div class="sm:col-span-1">
+                        <label class="block text-[10px] font-bold text-slate-600 mb-0.5">Password</label>
+                        <input type="text" id="manualStudentPassword" placeholder="Password" class="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none" required>
+                    </div>
+                    <div class="sm:col-span-1">
+                        <label class="block text-[10px] font-bold text-slate-600 mb-0.5">Kelas</label>
+                        <input type="text" id="manualStudentClass" placeholder="Kelas 7 / 8 / 9" class="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none" required>
+                    </div>
+                    <div class="sm:col-span-1">
+                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1.5 rounded-xl text-xs">
+                            + Siswa
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Form Add Guru -->
+                <form id="formAddGuru" onsubmit="handleManualAddTeacher(event)" class="grid grid-cols-1 sm:grid-cols-4 gap-2 items-end hidden">
+                    <div class="sm:col-span-1">
+                        <label class="block text-[10px] font-bold text-slate-600 mb-0.5">Nama Guru / Staf</label>
+                        <input type="text" id="manualTeacherName" placeholder="Contoh: Budi, S.Pd." class="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none" required>
+                    </div>
+                    <div class="sm:col-span-1">
+                        <label class="block text-[10px] font-bold text-slate-600 mb-0.5">Username / NIP</label>
+                        <input type="text" id="manualTeacherUsername" placeholder="guru01" class="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none" required>
+                    </div>
+                    <div class="sm:col-span-1">
+                        <label class="block text-[10px] font-bold text-slate-600 mb-0.5">Password</label>
+                        <input type="text" id="manualTeacherPassword" placeholder="Password" class="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none" required>
+                    </div>
+                    <div class="sm:col-span-1">
+                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1.5 rounded-xl text-xs">
+                            + Guru
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Student / Teacher List Table -->
+            <div class="overflow-y-auto flex-grow border border-slate-100 rounded-2xl">
+                <table class="w-full text-left text-xs text-slate-700 dark:text-slate-200">
+                    <thead class="bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-100 font-bold uppercase sticky top-0 border-b border-slate-200 dark:border-slate-600">
+                        <tr>
+                            <th id="thVoterName" class="p-3">Nama Pemilih</th>
+                            <th class="p-3">Username / NIP</th>
+                            <th class="p-3">Password</th>
+                            <th id="thVoterClass" class="p-3">Kelas / Role</th>
+                            <th class="p-3">Status</th>
+                            <th class="p-3 text-right">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="manageStudentTableBody" class="divide-y divide-slate-100">
+                        <!-- Dynamic Rows -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Initial Default Data
+        const DEFAULT_CANDIDATES = [
+            {
+                id: "cand-1",
+                number: 1,
+                name: "Ahmad Fauzi & Nabila Putri",
+                photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&auto=format&fit=crop&q=80",
+                vision: "Mewujudkan BEM sekolah yang inklusif, kreatif, adaptif, dan berprestasi berlandaskan asas kekeluargaan.",
+                mission: "1. Mengembangkan minat bakat siswa melalui ekstrakurikuler interaktif.\n2. Mengadakan kegiatan kebersamaan antar tingkat kelas secara rutin.\n3. Menyediakan wadah aspirasi digital yang transparan bagi seluruh siswa."
+            },
+            {
+                id: "cand-2",
+                number: 2,
+                name: "Rian Hidayat & Siti Rahma",
+                photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&auto=format&fit=crop&q=80",
+                vision: "Menjadikan BEM sebagai pusat inovasi dan aksi nyata siswa dalam bidang akademik maupun non-akademik.",
+                mission: "1. Meningkatkan kedisiplinan dan kepedulian lingkungan sekolah.\n2. Melaksanakan program pelatihan kepemimpinan untuk pengurus organisasi.\n3. Memperkuat sinergi antara siswa, guru, dan pengurus BEM."
+            }
+        ];
+
+        const DEFAULT_STUDENTS = [
+            { id: "s1", name: "Andi Wijaya", username: "andi01", password: "123", class: "Kelas 7", hasVoted: false },
+            { id: "s2", name: "Budi Santoso", username: "budi02", password: "123", class: "Kelas 7", hasVoted: false },
+            { id: "s3", name: "Citra Dewi", username: "citra03", password: "123", class: "Kelas 8", hasVoted: false }
+        ];
+
+        const DEFAULT_TEACHERS = [
+            { id: "g1", name: "Budi Santoso, S.Pd.", username: "guru01", password: "123", class: "Guru / Staf", hasVoted: false },
+            { id: "g2", name: "Siti Rahmawati, M.Pd.", username: "guru02", password: "123", class: "Guru / Staf", hasVoted: false }
+        ];
+
+        // Application State
+        let appCandidates = JSON.parse(localStorage.getItem('pemira_candidates')) || DEFAULT_CANDIDATES;
+        let appStudents = JSON.parse(localStorage.getItem('pemira_students')) || DEFAULT_STUDENTS;
+        let appTeachers = JSON.parse(localStorage.getItem('pemira_teachers')) || DEFAULT_TEACHERS;
+        let appVotes = JSON.parse(localStorage.getItem('pemira_votes')) || [];
+
+        let currentRole = null; // 'murid' or 'guru'
+        let activeVoter = null; // Current logged in voter object
+        let selectedCandidateToVote = null;
+        let adminChart = null;
+        let logoClickCounter = 0;
+        let currentVoterTab = 'siswa';
+        let currentPhotoSource = 'url';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+            saveToLocalStorage();
+            showRoleSelectScreen();
+        });
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem('pemira_theme') || 'light';
+            const themeSel = document.getElementById('themeSelect');
+            if (themeSel) themeSel.value = savedTheme;
+            handleThemeChange(savedTheme);
+        }
+
+        function handleThemeChange(themeVal) {
+            localStorage.setItem('pemira_theme', themeVal);
+            if (themeVal === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+            if (adminChart) {
+                initOrUpdateAdminChart();
+            }
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem('pemira_candidates', JSON.stringify(appCandidates));
+            localStorage.setItem('pemira_students', JSON.stringify(appStudents));
+            localStorage.setItem('pemira_teachers', JSON.stringify(appTeachers));
+            localStorage.setItem('pemira_votes', JSON.stringify(appVotes));
+        }
+
+        function hideAllPages() {
+            document.getElementById('roleSelectScreen').classList.add('hidden');
+            document.getElementById('studentLoginScreen').classList.add('hidden');
+            document.getElementById('teacherLoginScreen').classList.add('hidden');
+            document.getElementById('homePage').classList.add('hidden');
+            document.getElementById('adminPage').classList.add('hidden');
+        }
+
+        function showRoleSelectScreen() {
+            hideAllPages();
+            currentRole = null;
+            activeVoter = null;
+            document.getElementById('roleSelectScreen').classList.remove('hidden');
+        }
+
+        function selectRole(role) {
+            currentRole = role;
+            hideAllPages();
+            if (role === 'guru') {
+                document.getElementById('teacherLoginScreen').classList.remove('hidden');
+            } else {
+                document.getElementById('studentLoginScreen').classList.remove('hidden');
+            }
+        }
+
+        function handleStudentLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('studentUsernameInput').value.trim();
+            const password = document.getElementById('studentPasswordInput').value.trim();
+
+            const student = appStudents.find(s => s.username === username && s.password === password);
+
+            if (!student) {
+                alert('Username atau password siswa salah!');
+                return;
+            }
+
+            activeVoter = {
+                id: student.id,
+                name: student.name,
+                class: student.class,
+                hasVoted: student.hasVoted,
+                role: 'murid'
+            };
+
+            document.getElementById('studentUsernameInput').value = '';
+            document.getElementById('studentPasswordInput').value = '';
+            showHomePage();
+        }
+
+        function handleTeacherLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('teacherUsernameInput').value.trim();
+            const password = document.getElementById('teacherPasswordInput').value.trim();
+
+            const teacher = appTeachers.find(g => g.username === username && g.password === password);
+
+            if (!teacher) {
+                alert('Username / NIP atau password guru salah!');
+                return;
+            }
+
+            activeVoter = {
+                id: teacher.id,
+                name: teacher.name,
+                class: teacher.class || 'Guru / Staf',
+                hasVoted: teacher.hasVoted,
+                role: 'guru'
+            };
+
+            document.getElementById('teacherUsernameInput').value = '';
+            document.getElementById('teacherPasswordInput').value = '';
+            showHomePage();
+        }
+
+        function showHomePage() {
+            if (!activeVoter) {
+                showRoleSelectScreen();
+                return;
+            }
+
+            hideAllPages();
+            
+            // Populate Voter Banner
+            document.getElementById('activeVoterName').innerText = activeVoter.name;
+            document.getElementById('activeVoterClass').innerText = activeVoter.class;
+
+            // Check voting status
+            const votedCard = document.getElementById('alreadyVotedCard');
+            if (activeVoter.hasVoted) {
+                votedCard.classList.remove('hidden');
+            } else {
+                votedCard.classList.add('hidden');
+            }
+
+            renderCandidates();
+            document.getElementById('homePage').classList.remove('hidden');
+        }
+
+        function renderCandidates() {
+            const container = document.getElementById('candidateList');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const isVoted = activeVoter && activeVoter.hasVoted;
+            let userVotedCandidateId = null;
+            if (isVoted) {
+                const userVote = appVotes.find(v => v.voterId === activeVoter.id);
+                if (userVote) {
+                    userVotedCandidateId = userVote.candidateId;
+                }
+            }
+
+            appCandidates.forEach(cand => {
+                const isUserChoice = isVoted && cand.id === userVotedCandidateId;
+                const card = document.createElement('div');
+                card.className = `candidate-card bg-white dark:bg-slate-800 p-6 rounded-3xl ${isUserChoice ? 'border-2 border-emerald-500 ring-2 ring-emerald-500/20 shadow-md' : 'border border-slate-100 dark:border-slate-700'} shadow-sm flex flex-col justify-between space-y-4 text-left relative overflow-hidden`;
+                
+                const missions = cand.mission ? cand.mission.split('\n').filter(m => m.trim()) : [];
+                const previewMissions = missions.slice(0, 2);
+                const missionListHtml = previewMissions.map(m => `<li class="flex items-start"><i class="fa-solid fa-circle-check text-sky-600 dark:text-sky-400 mr-2 mt-0.5 text-xs shrink-0"></i><span class="line-clamp-1">${m}</span></li>`).join('');
+
+                card.innerHTML = `
+                    <div class="space-y-4 cursor-pointer" onclick="openCandidateDetailModal('${cand.id}')">
+                        <div class="relative w-full h-80 sm:h-96 rounded-2xl overflow-hidden bg-slate-900 shadow-inner group">
+                            <img src="${cand.photo || 'https://placehold.co/450x600'}" alt="${cand.name}" class="w-full h-full object-cover object-top transition duration-300 group-hover:scale-105">
+                            <span class="absolute top-3 left-3 bg-blue-600 text-white font-extrabold text-xs px-3.5 py-1.5 rounded-xl shadow-md border border-blue-400/30">
+                                Paslon 0${cand.number}
+                            </span>
+                            ${isUserChoice ? `
+                                <span class="absolute top-3 right-3 bg-emerald-600 text-white font-extrabold text-xs px-3.5 py-1.5 rounded-xl shadow-md border border-emerald-400/30 flex items-center space-x-1.5">
+                                    <i class="fa-solid fa-circle-check"></i>
+                                    <span>Pilihan Anda</span>
+                                </span>
+                            ` : ''}
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100">${cand.name}</h3>
+                        </div>
+                        <div class="space-y-2 text-xs">
+                            <p class="font-bold uppercase tracking-wider text-[10px] text-blue-700 dark:text-sky-300">Visi:</p>
+                            <p class="text-slate-700 dark:text-slate-200 bg-slate-50 dark:bg-slate-900/60 p-3 rounded-xl italic border border-slate-200 dark:border-slate-700/60 line-clamp-2">"${cand.vision}"</p>
+                            <p class="font-bold uppercase tracking-wider text-[10px] text-blue-700 dark:text-sky-300 pt-1">Misi Ringkas:</p>
+                            <ul class="space-y-1.5 text-slate-700 dark:text-slate-200">
+                                ${missionListHtml}
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="${isVoted ? '' : 'grid grid-cols-2 gap-2'} pt-1">
+                        <button onclick="openCandidateDetailModal('${cand.id}')" class="w-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-700/70 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-100 font-bold py-3 rounded-2xl transition text-xs flex items-center justify-center space-x-1.5">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <span>Detail Paslon</span>
+                        </button>
+                        ${isVoted ? '' : `
+                            <button onclick="openConfirmVoteModal('${cand.id}')" class="w-full gradient-btn text-white font-bold py-3 rounded-2xl transition shadow-md text-xs flex items-center justify-center space-x-1.5">
+                                <i class="fa-solid fa-check-to-slot"></i>
+                                <span>Pilih Paslon</span>
+                            </button>
+                        `}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function openCandidateDetailModal(candidateId) {
+            const cand = appCandidates.find(c => c.id === candidateId);
+            if (!cand) return;
+
+            document.getElementById('detailCandidateBadge').innerText = `Paslon 0${cand.number}`;
+            document.getElementById('detailCandidateName').innerText = cand.name;
+            document.getElementById('detailCandidatePhoto').src = cand.photo || 'https://placehold.co/450x600';
+            document.getElementById('detailCandidateVision').innerText = `"${cand.vision}"`;
+
+            const missions = cand.mission ? cand.mission.split('\n').filter(m => m.trim()) : [];
+            const missionContainer = document.getElementById('detailCandidateMission');
+            missionContainer.innerHTML = missions.map(m => `
+                <li class="flex items-start space-x-2">
+                    <i class="fa-solid fa-circle-check text-sky-500 dark:text-sky-400 mt-1 shrink-0"></i>
+                    <span>${m}</span>
+                </li>
+            `).join('');
+
+            const voteBtn = document.getElementById('detailVoteBtn');
+            if (activeVoter && activeVoter.hasVoted) {
+                const userVote = appVotes.find(v => v.voterId === activeVoter.id);
+                if (userVote && userVote.candidateId === cand.id) {
+                    voteBtn.style.display = "flex";
+                    voteBtn.disabled = true;
+                    voteBtn.className = "w-full py-2.5 rounded-2xl bg-emerald-600 text-white font-bold text-xs flex items-center justify-center space-x-1.5";
+                    voteBtn.innerHTML = `<i class="fa-solid fa-circle-check"></i><span>Paslon Pilihan Anda</span>`;
+                    voteBtn.onclick = null;
+                } else {
+                    voteBtn.style.display = "none";
+                }
+            } else {
+                voteBtn.style.display = "flex";
+                voteBtn.disabled = false;
+                voteBtn.className = "w-full py-2.5 rounded-2xl gradient-btn text-white font-bold text-xs shadow-md hover:opacity-90 transition flex items-center justify-center space-x-1.5";
+                voteBtn.innerHTML = `<i class="fa-solid fa-check-to-slot"></i><span>Pilih Paslon Ini</span>`;
+                voteBtn.onclick = () => {
+                    closeCandidateDetailModal();
+                    openConfirmVoteModal(cand.id);
+                };
+            }
+
+            document.getElementById('candidateDetailModal').classList.remove('hidden');
+        }
+
+        function closeCandidateDetailModal() {
+            document.getElementById('candidateDetailModal').classList.add('hidden');
+        }
+
+        function openConfirmVoteModal(candidateId) {
+            if (activeVoter && activeVoter.hasVoted) {
+                alert("Anda sudah pernah memberikan suara!");
+                return;
+            }
+            const cand = appCandidates.find(c => c.id === candidateId);
+            if (!cand) return;
+            selectedCandidateToVote = cand;
+            document.getElementById('confirmCandidateName').innerText = `[Paslon 0${cand.number}] ${cand.name}`;
+            document.getElementById('confirmVoteModal').classList.remove('hidden');
+        }
+
+        function closeConfirmVoteModal() {
+            selectedCandidateToVote = null;
+            document.getElementById('confirmVoteModal').classList.add('hidden');
+        }
+
+        function submitVote() {
+            if (!selectedCandidateToVote || !activeVoter || activeVoter.hasVoted) return;
+
+            // Record vote
+            appVotes.push({
+                id: 'vote-' + Date.now(),
+                voterId: activeVoter.id,
+                voterName: activeVoter.name,
+                voterRole: activeVoter.role,
+                voterClass: activeVoter.class,
+                candidateId: selectedCandidateToVote.id,
+                timestamp: new Date().toISOString()
+            });
+
+            // Update voter status
+            activeVoter.hasVoted = true;
+            if (activeVoter.role === 'murid') {
+                const st = appStudents.find(s => s.id === activeVoter.id);
+                if (st) st.hasVoted = true;
+            } else if (activeVoter.role === 'guru') {
+                const tch = appTeachers.find(g => g.id === activeVoter.id);
+                if (tch) tch.hasVoted = true;
+            }
+
+            saveToLocalStorage();
+            closeConfirmVoteModal();
+
+            // Render post-vote view
+            showHomePage();
+
+            // Real-time update admin if chart is active
+            if (adminChart) {
+                updateAdminStats();
+                initOrUpdateAdminChart();
+                renderAdminCandidateTable();
+            }
+        }
+
+        function requestLogout() {
+            document.getElementById('logoutConfirmModal').classList.remove('hidden');
+        }
+
+        function closeLogoutModal() {
+            document.getElementById('logoutConfirmModal').classList.add('hidden');
+        }
+
+        function confirmLogout() {
+            closeLogoutModal();
+            showRoleSelectScreen();
+        }
+
+        function handleLogoClick() {
+            logoClickCounter++;
+            if (logoClickCounter >= 5) {
+                logoClickCounter = 0;
+                openAdminModal();
+            }
+        }
+
+        function openAdminModal() {
+            document.getElementById('adminModal').classList.remove('hidden');
+        }
+
+        function closeAdminModal() {
+            document.getElementById('adminModal').classList.add('hidden');
+        }
+
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            const pass = document.getElementById('adminPasswordInput').value;
+            if (pass === 'admin123') {
+                closeAdminModal();
+                showAdminDashboard();
+                document.getElementById('adminPasswordInput').value = '';
+            } else {
+                alert('Password Admin Salah!');
+            }
+        }
+
+        function logoutAdmin() {
+            showRoleSelectScreen();
+        }
+
+        function showAdminDashboard() {
+            hideAllPages();
+            updateAdminStats();
+            renderAdminCandidateTable();
+            initOrUpdateAdminChart();
+            document.getElementById('adminPage').classList.remove('hidden');
+        }
+
+        function updateAdminStats() {
+            document.getElementById('statTotalCandidates').innerText = appCandidates.length;
+            document.getElementById('statTotalStudents').innerText = (appStudents.length + appTeachers.length);
+            document.getElementById('statTotalVotes').innerText = appVotes.length;
+        }
+
+        function renderAdminCandidateTable() {
+            const tbody = document.getElementById('adminCandidateTable');
+            tbody.innerHTML = '';
+
+            appCandidates.forEach(cand => {
+                const voteCount = appVotes.filter(v => v.candidateId === cand.id).length;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-3 font-bold">#${cand.number}</td>
+                    <td class="p-3">
+                        <img src="${cand.photo || 'https://placehold.co/100'}" class="w-8 h-8 rounded-lg object-cover">
+                    </td>
+                    <td class="p-3 font-semibold text-slate-800">${cand.name}</td>
+                    <td class="p-3 font-bold text-blue-600">${voteCount} Suara</td>
+                    <td class="p-3 text-right space-x-1">
+                        <button onclick="editCandidate('${cand.id}')" class="text-blue-600 hover:text-blue-800 p-1.5"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button onclick="deleteCandidate('${cand.id}')" class="text-rose-600 hover:text-rose-800 p-1.5"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function initOrUpdateAdminChart() {
+            const canvas = document.getElementById('adminVoteChart');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            
+            const labels = appCandidates.map(c => `#${c.number} ${c.name}`);
+            const dataCounts = appCandidates.map(c => appVotes.filter(v => v.candidateId === c.id).length);
+
+            if (adminChart) {
+                adminChart.destroy();
+            }
+
+            adminChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Perolehan Suara',
+                        data: dataCounts,
+                        backgroundColor: ['#2563eb', '#0284c7', '#0d9488', '#e11d48', '#8b5cf6'],
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, ticks: { precision: 0 } }
+                    }
+                }
+            });
+        }
+
+        // Candidate CRUD
+        function switchPhotoSource(source) {
+            currentPhotoSource = source;
+            const urlBtn = document.getElementById('photoSourceUrlBtn');
+            const fileBtn = document.getElementById('photoSourceFileBtn');
+            const urlContainer = document.getElementById('photoUrlContainer');
+            const fileContainer = document.getElementById('photoFileContainer');
+
+            if (source === 'url') {
+                urlBtn.className = "px-3 py-1 text-[11px] font-bold rounded-lg bg-blue-600 text-white transition";
+                fileBtn.className = "px-3 py-1 text-[11px] font-bold rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition";
+                urlContainer.classList.remove('hidden');
+                fileContainer.classList.add('hidden');
+            } else {
+                fileBtn.className = "px-3 py-1 text-[11px] font-bold rounded-lg bg-blue-600 text-white transition";
+                urlBtn.className = "px-3 py-1 text-[11px] font-bold rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition";
+                fileContainer.classList.remove('hidden');
+                urlContainer.classList.add('hidden');
+            }
+        }
+
+        function handlePhotoFileUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('Ukuran file foto terlalu besar! Maksimal 5MB.');
+                    e.target.value = '';
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    document.getElementById('candidatePhotoInput').value = evt.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function openAddCandidateModal() {
+            document.getElementById('candidateEditId').value = '';
+            document.getElementById('candidateNumberInput').value = appCandidates.length + 1;
+            document.getElementById('candidateNameInput').value = '';
+            document.getElementById('candidatePhotoInput').value = '';
+            const fileInput = document.getElementById('candidatePhotoFileInput');
+            if (fileInput) fileInput.value = '';
+            switchPhotoSource('url');
+            document.getElementById('candidateVisionInput').value = '';
+            document.getElementById('candidateMissionInput').value = '';
+            document.getElementById('addCandidateModal').classList.remove('hidden');
+        }
+
+        function closeAddCandidateModal() {
+            document.getElementById('addCandidateModal').classList.add('hidden');
+        }
+
+        function handleSaveCandidate(e) {
+            e.preventDefault();
+            const editId = document.getElementById('candidateEditId').value;
+            const number = parseInt(document.getElementById('candidateNumberInput').value);
+            const name = document.getElementById('candidateNameInput').value.trim();
+            const photo = document.getElementById('candidatePhotoInput').value.trim();
+            const vision = document.getElementById('candidateVisionInput').value.trim();
+            const mission = document.getElementById('candidateMissionInput').value.trim();
+
+            if (editId) {
+                const cand = appCandidates.find(c => c.id === editId);
+                if (cand) {
+                    cand.number = number;
+                    cand.name = name;
+                    cand.photo = photo;
+                    cand.vision = vision;
+                    cand.mission = mission;
+                }
+            } else {
+                appCandidates.push({
+                    id: 'cand-' + Date.now(),
+                    number, name, photo, vision, mission
+                });
+            }
+
+            saveToLocalStorage();
+            closeAddCandidateModal();
+            showAdminDashboard();
+        }
+
+        function editCandidate(id) {
+            const cand = appCandidates.find(c => c.id === id);
+            if (!cand) return;
+
+            document.getElementById('candidateEditId').value = cand.id;
+            document.getElementById('candidateNumberInput').value = cand.number;
+            document.getElementById('candidateNameInput').value = cand.name;
+            document.getElementById('candidatePhotoInput').value = cand.photo || '';
+            const fileInput = document.getElementById('candidatePhotoFileInput');
+            if (fileInput) fileInput.value = '';
+            switchPhotoSource('url');
+            document.getElementById('candidateVisionInput').value = cand.vision;
+            document.getElementById('candidateMissionInput').value = cand.mission;
+            document.getElementById('addCandidateModal').classList.remove('hidden');
+        }
+
+        function deleteCandidate(id) {
+            if (confirm("Apakah Anda yakin ingin menghapus kandidat ini?")) {
+                appCandidates = appCandidates.filter(c => c.id !== id);
+                saveToLocalStorage();
+                showAdminDashboard();
+            }
+        }
+
+        function openStudentManageModal() {
+            switchVoterTab('siswa');
+            document.getElementById('studentManageModal').classList.remove('hidden');
+        }
+
+        function closeStudentManageModal() {
+            document.getElementById('studentManageModal').classList.add('hidden');
+        }
+
+        function switchVoterTab(tab) {
+            currentVoterTab = tab;
+            const tabSiswa = document.getElementById('tabSiswaBtn');
+            const tabGuru = document.getElementById('tabGuruBtn');
+            const formSiswa = document.getElementById('formAddSiswa');
+            const formGuru = document.getElementById('formAddGuru');
+            const hint = document.getElementById('excelFormatHint');
+            const thName = document.getElementById('thVoterName');
+            const thClass = document.getElementById('thVoterClass');
+
+            document.getElementById('countTabSiswa').innerText = appStudents.length;
+            document.getElementById('countTabGuru').innerText = appTeachers.length;
+
+            if (tab === 'siswa') {
+                tabSiswa.className = "px-4 py-2 font-bold text-xs rounded-xl transition bg-sky-600 text-white shadow-sm";
+                tabGuru.className = "px-4 py-2 font-bold text-xs rounded-xl transition bg-slate-100 text-slate-600 hover:bg-slate-200";
+                formSiswa.classList.remove('hidden');
+                formGuru.classList.add('hidden');
+                hint.innerText = "Kolom Excel: Nama | Username | Password | Kelas";
+                thName.innerText = "Nama Siswa";
+                thClass.innerText = "Kelas";
+            } else {
+                tabGuru.className = "px-4 py-2 font-bold text-xs rounded-xl transition bg-emerald-600 text-white shadow-sm";
+                tabSiswa.className = "px-4 py-2 font-bold text-xs rounded-xl transition bg-slate-100 text-slate-600 hover:bg-slate-200";
+                formGuru.classList.remove('hidden');
+                formSiswa.classList.add('hidden');
+                hint.innerText = "Kolom Excel: Nama | Username / NIP | Password";
+                thName.innerText = "Nama Guru / Staf";
+                thClass.innerText = "Role";
+            }
+
+            renderVoterManageTable();
+        }
+
+        function renderVoterManageTable() {
+            const tbody = document.getElementById('manageStudentTableBody');
+            tbody.innerHTML = '';
+
+            const dataset = currentVoterTab === 'siswa' ? appStudents : appTeachers;
+
+            dataset.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-3 font-semibold text-slate-800">${item.name}</td>
+                    <td class="p-3 font-mono text-sky-700 font-bold">${item.username || '-'}</td>
+                    <td class="p-3 font-mono text-slate-600">${item.password || '-'}</td>
+                    <td class="p-3 font-semibold">${item.class || (currentVoterTab === 'guru' ? 'Guru / Staf' : '-')}</td>
+                    <td class="p-3">
+                        ${item.hasVoted ? '<span class="text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">Sudah Memilih</span>' : '<span class="text-slate-600 bg-slate-200 px-2 py-0.5 rounded-md font-semibold">Belum Memilih</span>'}
+                    </td>
+                    <td class="p-3 text-right">
+                        <button onclick="deleteSingleVoter('${item.id}')" class="text-rose-600 hover:text-rose-800 p-1"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function deleteAllVotersConfirm() {
+            const categoryName = currentVoterTab === 'siswa' ? 'Siswa' : 'Guru / Staf';
+            if (confirm(`Apakah Anda yakin ingin MENGHAPUS SEMUA data pemilih ${categoryName}?`)) {
+                if (currentVoterTab === 'siswa') {
+                    appStudents = [];
+                } else {
+                    appTeachers = [];
+                }
+                saveToLocalStorage();
+                switchVoterTab(currentVoterTab);
+                updateAdminStats();
+            }
+        }
+
+        function handleManualAddStudent(e) {
+            e.preventDefault();
+            const name = document.getElementById('manualStudentName').value.trim();
+            const username = document.getElementById('manualStudentUsername').value.trim();
+            const password = document.getElementById('manualStudentPassword').value.trim();
+            const cls = document.getElementById('manualStudentClass').value.trim();
+
+            if (name && username && password) {
+                if (appStudents.some(s => s.username === username)) {
+                    alert('Username tersebut sudah digunakan oleh siswa lain!');
+                    return;
+                }
+
+                appStudents.push({
+                    id: 's-' + Date.now(),
+                    name, username, password, class: cls || 'Kelas 7', hasVoted: false
+                });
+                saveToLocalStorage();
+                document.getElementById('manualStudentName').value = '';
+                document.getElementById('manualStudentUsername').value = '';
+                document.getElementById('manualStudentPassword').value = '';
+                switchVoterTab('siswa');
+                updateAdminStats();
+            }
+        }
+
+        function handleManualAddTeacher(e) {
+            e.preventDefault();
+            const name = document.getElementById('manualTeacherName').value.trim();
+            const username = document.getElementById('manualTeacherUsername').value.trim();
+            const password = document.getElementById('manualTeacherPassword').value.trim();
+
+            if (name && username && password) {
+                if (appTeachers.some(g => g.username === username)) {
+                    alert('Username / NIP tersebut sudah digunakan oleh guru lain!');
+                    return;
+                }
+
+                appTeachers.push({
+                    id: 'g-' + Date.now(),
+                    name, username, password, class: 'Guru / Staf', hasVoted: false
+                });
+                saveToLocalStorage();
+                document.getElementById('manualTeacherName').value = '';
+                document.getElementById('manualTeacherUsername').value = '';
+                document.getElementById('manualTeacherPassword').value = '';
+                switchVoterTab('guru');
+                updateAdminStats();
+            }
+        }
+
+        function deleteSingleVoter(id) {
+            if (currentVoterTab === 'siswa') {
+                appStudents = appStudents.filter(s => s.id !== id);
+            } else {
+                appTeachers = appTeachers.filter(g => g.id !== id);
+            }
+            saveToLocalStorage();
+            switchVoterTab(currentVoterTab);
+            updateAdminStats();
+        }
+
+        function handleExcelImport(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const data = new Uint8Array(evt.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+                let addedCount = 0;
+                json.forEach((row, idx) => {
+                    if (idx === 0) return;
+                    const name = row[0] ? String(row[0]).trim() : '';
+                    const username = row[1] ? String(row[1]).trim() : `user${idx}`;
+                    const password = row[2] ? String(row[2]).trim() : '123';
+
+                    if (currentVoterTab === 'siswa') {
+                        const cls = row[3] ? String(row[3]).trim() : 'Kelas 7';
+                        if (name) {
+                            appStudents.push({ id: 's-ex-' + Date.now() + idx, name, username, password, class: cls, hasVoted: false });
+                            addedCount++;
+                        }
+                    } else {
+                        if (name) {
+                            appTeachers.push({ id: 'g-ex-' + Date.now() + idx, name, username, password, class: 'Guru / Staf', hasVoted: false });
+                            addedCount++;
+                        }
+                    }
+                });
+
+                saveToLocalStorage();
+                alert(`Berhasil mengimpor ${addedCount} data dari Excel!`);
+                switchVoterTab(currentVoterTab);
+                updateAdminStats();
+                e.target.value = '';
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function resetVotesConfirm() {
+            if (confirm("Apakah Anda yakin ingin menghapus semua suara dan mengembalikan status seluruh pemilih menjadi 'Belum Memilih'?")) {
+                appVotes = [];
+                appStudents.forEach(s => s.hasVoted = false);
+                appTeachers.forEach(g => g.hasVoted = false);
+                saveToLocalStorage();
+                showAdminDashboard();
+                alert("Semua suara berhasil di-reset!");
+            }
+        }
+    </script>
+</body>
+</html>
