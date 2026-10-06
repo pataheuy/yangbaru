@@ -111,6 +111,7 @@ async function showDashboard() {
     document.getElementById('dashboardScreen').classList.remove('hidden');
     document.getElementById('logoutBtn').classList.remove('hidden');
     await loadData();
+    await loadTeachers();
     renderAdminDashboard();
 }
 
@@ -335,6 +336,8 @@ async function clearVoteLogsFromSupabase() {
 function renderAdminDashboard() {
     document.getElementById('statTotalCandidates').innerText = candidates.length;
     document.getElementById('statTotalStudents').innerText   = students.length;
+    if (document.getElementById('statTotalTeachers'))
+        document.getElementById('statTotalTeachers').innerText = teachers.length;
     document.getElementById('statTotalVotes').innerText      = candidates.reduce((s, c) => s + c.votes, 0);
 
     // Tabel kandidat
@@ -516,15 +519,17 @@ async function deleteCandidateConfirm(id) {
 }
 
 async function resetVotesConfirm() {
-    if (!confirm("PERINGATAN: Reset semua suara dan status pemilih?")) return;
+    if (!confirm("PERINGATAN: Reset semua suara dan status pemilih (siswa + guru)?")) return;
     candidates.forEach(c => { c.votes = 0; c.votes_by_class = {}; });
     students.forEach(s => { s.hasVoted = false; s.votedFor = null; });
+    teachers.forEach(t => { t.hasVoted = false; t.votedFor = null; });
     voterStats = {};
-    saveCandidatesLocal(); saveStudentsLocal(); saveVoterStatsLocal();
+    saveCandidatesLocal(); saveStudentsLocal(); saveVoterStatsLocal(); saveTeachersLocal();
     await Promise.all([
         resetAllStudentVotesInSupabase(),
         resetCandidatesInSupabase(),
-        clearVoteLogsFromSupabase()
+        clearVoteLogsFromSupabase(),
+        resetAllTeacherVotesInSupabase()
     ]);
     voteLogs = []; saveVoteLogsLocal();
     renderAdminDashboard();
@@ -539,7 +544,11 @@ async function resetVotesConfirm() {
 function openStudentManageModal() {
     const sel = document.getElementById('adminStudentGradeSelect');
     sel.innerHTML = classes.map(g => `<option value="${g}">${g}</option>`).join('');
+    currentVoterTab = 'siswa';
+    // Reset tab ke siswa
+    switchVoterTab('siswa');
     renderAdminStudentManager();
+    updateTabCounts();
     const m = document.getElementById('studentManageModal');
     m.classList.remove('hidden'); m.classList.add('flex');
 }
@@ -947,4 +956,323 @@ function showAlertModal(title, message, type = 'info') {
 function closeAlertModal() {
     const m = document.getElementById('alertModal');
     m.classList.add('hidden'); m.classList.remove('flex');
+}
+
+
+// ============================================================
+// === SECTION TAMBAHAN: GURU / STAF ===
+// ============================================================
+
+// >> teachers array — sumber kebenaran guru di memory
+let teachers = [];
+let currentVoterTab = 'siswa'; // 'siswa' | 'guru'
+
+// >> Load teachers dari localStorage + Supabase
+async function loadTeachers() {
+    const stored = localStorage.getItem('pemira_teachers');
+    try { teachers = stored ? JSON.parse(stored) : []; } catch(e) { teachers = []; }
+
+    if (isSupabaseActive && supabaseClient) {
+        try {
+            const { data } = await supabaseClient
+                .from('teachers').select('*').order('name', { ascending: true });
+            if (data && data.length > 0) {
+                teachers = data.map(t => ({
+                    id:       t.id,
+                    name:     t.name,
+                    username: t.username,
+                    password: t.password || '',
+                    role:     t.role || 'Guru',
+                    hasVoted: t.has_voted || false,
+                    votedFor: t.voted_for || null
+                }));
+                saveTeachersLocal();
+            }
+        } catch(e) { console.log("Supabase teachers unavailable — using local data."); }
+    }
+}
+
+function saveTeachersLocal() {
+    localStorage.setItem('pemira_teachers', JSON.stringify(teachers));
+}
+
+// >> Supabase CRUD teachers
+async function syncTeacherToSupabase(t) {
+    if (!isSupabaseActive || !supabaseClient || !t) return;
+    try {
+        await supabaseClient.from('teachers').upsert({
+            id: t.id, name: t.name, username: t.username,
+            password: t.password || '', role: t.role || 'Guru',
+            has_voted: t.hasVoted, voted_for: t.votedFor
+        });
+    } catch(e) { console.error("syncTeacher:", e); }
+}
+
+async function syncMultipleTeachersToSupabase(list) {
+    if (!isSupabaseActive || !supabaseClient || !list?.length) return;
+    try {
+        await supabaseClient.from('teachers').upsert(
+            list.map(t => ({
+                id: t.id, name: t.name, username: t.username,
+                password: t.password || '', role: t.role || 'Guru',
+                has_voted: t.hasVoted, voted_for: t.votedFor
+            }))
+        );
+    } catch(e) { console.error("syncMultipleTeachers:", e); }
+}
+
+async function deleteTeacherFromSupabase(id) {
+    if (!isSupabaseActive || !supabaseClient) return;
+    try { await supabaseClient.from('teachers').delete().eq('id', id); }
+    catch(e) { console.error("deleteTeacher:", e); }
+}
+
+async function deleteAllTeachersFromSupabase() {
+    if (!isSupabaseActive || !supabaseClient) return;
+    try { await supabaseClient.from('teachers').delete().neq('id', '0'); }
+    catch(e) { console.error("deleteAllTeachers:", e); }
+}
+
+async function resetAllTeacherVotesInSupabase() {
+    if (!isSupabaseActive || !supabaseClient) return;
+    try {
+        await supabaseClient.from('teachers')
+            .update({ has_voted: false, voted_for: null }).neq('id', '0');
+    } catch(e) { console.error("resetTeacherVotes:", e); }
+}
+
+// >> Tab switcher: 'siswa' | 'guru'
+function switchVoterTab(tab) {
+    currentVoterTab = tab;
+    const btnSiswa = document.getElementById('tabSiswaBtn');
+    const btnGuru  = document.getElementById('tabGuruBtn');
+    const panelS   = document.getElementById('panelSiswa');
+    const panelG   = document.getElementById('panelGuru');
+
+    if (tab === 'siswa') {
+        btnSiswa.className = 'px-4 py-2 font-bold text-xs rounded-xl transition bg-sky-600 text-white shadow-sm';
+        btnGuru.className  = 'px-4 py-2 font-bold text-xs rounded-xl transition bg-slate-100 text-slate-600 hover:bg-slate-200';
+        panelS.classList.remove('hidden');
+        panelG.classList.add('hidden');
+    } else {
+        btnGuru.className  = 'px-4 py-2 font-bold text-xs rounded-xl transition bg-emerald-600 text-white shadow-sm';
+        btnSiswa.className = 'px-4 py-2 font-bold text-xs rounded-xl transition bg-slate-100 text-slate-600 hover:bg-slate-200';
+        panelG.classList.remove('hidden');
+        panelS.classList.add('hidden');
+        renderAdminTeacherManager();
+    }
+    updateTabCounts();
+}
+
+function updateTabCounts() {
+    const cS = document.getElementById('countTabSiswa');
+    const cG = document.getElementById('countTabGuru');
+    if (cS) cS.textContent = students.length;
+    if (cG) cG.textContent = teachers.length;
+}
+
+// >> Render tabel guru di admin
+function renderAdminTeacherManager() {
+    const tbody = document.getElementById('adminTeacherTableBody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    if (!teachers.length) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400 text-xs">Belum ada guru. Tambah manual atau import Excel.</td></tr>`;
+        return;
+    }
+
+    teachers.forEach((t, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td class="p-2.5 pl-4 font-bold text-slate-400">${idx + 1}</td>
+            <td class="p-2.5 font-bold text-slate-800">${t.name}</td>
+            <td class="p-2.5 font-mono text-[11px] text-slate-600">${t.username}</td>
+            <td class="p-2.5">
+                <span class="font-mono text-slate-600 text-[11px] bg-slate-100 px-2 py-0.5 rounded-md">${t.password || '—'}</span>
+                <button onclick="editTeacherPassword('${t.id}')" class="ml-1 text-sky-500 hover:text-sky-700 text-[10px]">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+            </td>
+            <td class="p-2.5">
+                ${t.hasVoted
+                    ? '<span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-md font-semibold text-[10px]">Sudah Memilih</span>'
+                    : '<span class="px-2 py-0.5 bg-slate-100 text-slate-500 rounded-md font-semibold text-[10px]">Belum Memilih</span>'
+                }
+            </td>
+            <td class="p-2.5 text-right pr-4 space-x-1">
+                <button onclick="editTeacherName('${t.id}')" class="text-blue-600 hover:text-blue-800 text-[11px] font-semibold">
+                    <i class="fa-solid fa-pen-to-square"></i> Edit
+                </button>
+                ${t.hasVoted
+                    ? `<button onclick="resetSingleTeacherVote('${t.id}')" class="text-amber-600 hover:text-amber-800 text-[11px] font-semibold">
+                           <i class="fa-solid fa-rotate-left"></i> Reset
+                       </button>` : ''}
+                <button onclick="deleteSingleTeacher('${t.id}')" class="text-rose-600 hover:text-rose-800 text-[11px] font-semibold">
+                    <i class="fa-solid fa-trash"></i> Hapus
+                </button>
+            </td>`;
+        tbody.appendChild(tr);
+    });
+}
+
+// >> Tambah guru manual
+function handleAddTeacher(e) {
+    e.preventDefault();
+    const name     = document.getElementById('newTeacherNameInput').value.trim();
+    const username = document.getElementById('newTeacherUsernameInput').value.trim();
+    const password = document.getElementById('newTeacherPasswordInput').value.trim();
+    if (!name || !username || !password) return;
+
+    // Cek username unik
+    if (teachers.find(t => t.username === username)) {
+        showAlertModal('Username Duplikat', `Username "${username}" sudah digunakan.`, 'info');
+        return;
+    }
+
+    const nt = {
+        id: `tch_${Date.now()}_${Math.random().toString(36).substr(2,4)}`,
+        name, username, password, role: 'Guru', hasVoted: false, votedFor: null
+    };
+    teachers.push(nt);
+    saveTeachersLocal();
+    syncTeacherToSupabase(nt);
+
+    document.getElementById('newTeacherNameInput').value     = '';
+    document.getElementById('newTeacherUsernameInput').value = '';
+    document.getElementById('newTeacherPasswordInput').value = '';
+
+    renderAdminTeacherManager();
+    updateTabCounts();
+    renderAdminDashboard();
+    showAlertModal('Berhasil', `Guru "${name}" ditambahkan.`, 'success');
+}
+
+// >> Edit nama guru
+function editTeacherName(id) {
+    const t = teachers.find(t => t.id === id);
+    if (!t) return;
+    const n = prompt("Edit Nama Guru:", t.name);
+    if (n?.trim()) {
+        t.name = n.trim();
+        saveTeachersLocal(); syncTeacherToSupabase(t);
+        renderAdminTeacherManager();
+        showAlertModal('Berhasil', 'Nama guru diperbarui.', 'success');
+    }
+}
+
+// >> Edit password guru
+function editTeacherPassword(id) {
+    const t = teachers.find(t => t.id === id);
+    if (!t) return;
+    const p = prompt("Edit Password Guru:", t.password || '');
+    if (p !== null && p.trim()) {
+        t.password = p.trim();
+        saveTeachersLocal(); syncTeacherToSupabase(t);
+        renderAdminTeacherManager();
+        showAlertModal('Berhasil', 'Password guru diperbarui.', 'success');
+    }
+}
+
+// >> Hapus satu guru
+function deleteSingleTeacher(id) {
+    teachers = teachers.filter(t => t.id !== id);
+    saveTeachersLocal(); deleteTeacherFromSupabase(id);
+    renderAdminTeacherManager(); updateTabCounts(); renderAdminDashboard();
+}
+
+// >> Reset suara satu guru
+function resetSingleTeacherVote(id) {
+    const t = teachers.find(t => t.id === id);
+    if (!t) return;
+    t.hasVoted = false; t.votedFor = null;
+    saveTeachersLocal(); syncTeacherToSupabase(t);
+    renderAdminTeacherManager();
+}
+
+// >> Hapus semua guru
+function clearAllTeachers() {
+    if (!confirm("Hapus SEMUA data guru / staf?")) return;
+    teachers = [];
+    saveTeachersLocal(); deleteAllTeachersFromSupabase();
+    renderAdminTeacherManager(); updateTabCounts(); renderAdminDashboard();
+    showAlertModal('Terhapus', 'Semua data guru telah dihapus.', 'info');
+}
+
+// >> Import Excel guru (kolom: Nama | Username | Password)
+function handleTeacherExcelUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const wb   = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+            const ws   = wb.Sheets[wb.SheetNames[0]];
+            const rows = XLSX.utils.sheet_to_json(ws, { header: 1 });
+            if (!rows?.length) { showAlertModal('File Kosong', 'Tidak ada data.', 'info'); return; }
+
+            const fi = (kws) => rows[0].findIndex(c => c && kws.some(k => c.toString().toLowerCase().includes(k)));
+            const nameCol     = fi(['nama','name']);
+            const usernameCol = fi(['username','user','nip']);
+            const passCol     = fi(['password','pass','sandi']);
+            const startRow    = (nameCol !== -1 && rows[0]?.[nameCol]?.toString().toLowerCase().match(/nama|name/)) ? 1 : 0;
+
+            const batch = [];
+            for (let i = startRow; i < rows.length; i++) {
+                const row      = rows[i];
+                const name     = nameCol !== -1     ? row[nameCol]?.toString().trim()     : row[0]?.toString().trim();
+                const username = usernameCol !== -1 ? row[usernameCol]?.toString().trim() : row[1]?.toString().trim();
+                const pass     = passCol !== -1     ? row[passCol]?.toString().trim()     : row[2]?.toString().trim();
+                if (!name || !username) continue;
+
+                // Skip duplikat username
+                if (teachers.find(t => t.username === username)) continue;
+
+                const nt = {
+                    id: `tch_${Date.now()}_${i}_${Math.random().toString(36).substr(2,3)}`,
+                    name, username, password: pass || `pass${i}`,
+                    role: 'Guru', hasVoted: false, votedFor: null
+                };
+                teachers.push(nt); batch.push(nt);
+            }
+            saveTeachersLocal(); syncMultipleTeachersToSupabase(batch);
+            renderAdminTeacherManager(); updateTabCounts(); renderAdminDashboard();
+            showAlertModal('Import Berhasil', `${batch.length} guru ditambahkan.`, 'success');
+        } catch(err) {
+            showAlertModal('Gagal Import', 'Format file tidak valid.', 'info');
+        } finally { event.target.value = ''; }
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+// >> Unduh template Excel guru
+function downloadTeacherTemplate() {
+    if (!window.XLSX) { showAlertModal('Error', 'SheetJS belum dimuat.', 'info'); return; }
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet([
+        ['No', 'Nama', 'Username', 'Password'],
+        ['1', 'Budi Santoso, S.Pd.', 'guru01', 'pass123'],
+        ['2', 'Siti Rahmawati, M.Pd.', 'guru02', 'pass456'],
+        ['', '← Hapus baris contoh, isi data asli di sini'],
+    ]);
+    ws['!cols'] = [{ wch:6 }, { wch:30 }, { wch:20 }, { wch:20 }];
+    XLSX.utils.book_append_sheet(wb, ws, 'Guru');
+    XLSX.writeFile(wb, 'Template_DataGuru_PEMIRA.xlsx');
+}
+
+// >> Ekspor data guru ke Excel
+function exportTeachersExcel() {
+    if (!window.XLSX) { showAlertModal('Error', 'SheetJS belum dimuat.', 'info'); return; }
+    if (!teachers.length) { showAlertModal('Kosong', 'Belum ada data guru.', 'info'); return; }
+    const rows = [['No', 'Nama', 'Username', 'Password', 'Status Suara']];
+    teachers.forEach((t, i) => rows.push([
+        i + 1, t.name, t.username, t.password || '',
+        t.hasVoted ? 'Sudah Memilih' : 'Belum Memilih'
+    ]));
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    ws['!cols'] = [{ wch:6 }, { wch:30 }, { wch:20 }, { wch:20 }, { wch:18 }];
+    XLSX.utils.book_append_sheet(wb, ws, 'Guru');
+    XLSX.writeFile(wb, `DataGuru_PEMIRA_${new Date().toISOString().slice(0,10)}.xlsx`);
+    showAlertModal('Ekspor Berhasil', `${teachers.length} guru diekspor.`, 'success');
 }

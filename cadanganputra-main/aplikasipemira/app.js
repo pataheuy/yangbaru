@@ -1028,3 +1028,277 @@ async function executeVote() {
 
 
 // ============================================================
+
+// === SECTION: 11. AUTH ADMIN ===
+// ============================================================
+
+function openAdminLoginModal() {
+    const modal = document.getElementById('adminLoginModal');
+    if (!modal) return;
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.getElementById('adminPasswordInput').value = '';
+    document.getElementById('loginError').classList.add('hidden');
+}
+
+function closeAdminLoginModal() {
+    const modal = document.getElementById('adminLoginModal');
+    if (!modal) return;
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+}
+
+// >> Alias dipanggil dari footer click 5x
+function openAdminAuth() { openAdminLoginModal(); }
+
+function handleAdminLogin(event) {
+    event.preventDefault();
+    const pass = document.getElementById('adminPasswordInput').value;
+    if (pass === ADMIN_PASSWORD) {
+        isAdminLoggedIn = true;
+        closeAdminLoginModal();
+        showPage('admin');
+    } else {
+        document.getElementById('loginError').classList.remove('hidden');
+        document.getElementById('adminPasswordInput').value = '';
+    }
+}
+
+
+// ============================================================
+// === SECTION: 12. ADMIN: SISWA ===
+// ============================================================
+
+// >> (Admin di halaman utama tidak dipakai — admin punya halaman sendiri di /admin/)
+// >> Fungsi ini dipertahankan agar tidak ada reference error dari HTML lama.
+function openStudentManageModal()  { /* dikelola di admin/app.js */ }
+function closeStudentManageModal() { /* dikelola di admin/app.js */ }
+
+
+// ============================================================
+// === SECTION: 13. ADMIN: KANDIDAT ===
+// ============================================================
+
+function openCandidateFormModal() {
+    document.getElementById('candidateFormId').value    = '';
+    document.getElementById('formNo').value             = candidates.length + 1;
+    document.getElementById('formName').value           = '';
+    document.getElementById('formVisi').value           = '';
+    document.getElementById('formMisi').value           = '';
+    document.getElementById('formImageFile').value      = '';
+    document.getElementById('formModalTitle').innerText = 'Tambah Kandidat Baru';
+    const m = document.getElementById('candidateFormModal');
+    m.classList.remove('hidden'); m.classList.add('flex');
+}
+
+function closeCandidateFormModal() {
+    const m = document.getElementById('candidateFormModal');
+    m.classList.add('hidden'); m.classList.remove('flex');
+}
+
+async function handleSaveCandidate(event) {
+    event.preventDefault();
+    const id        = document.getElementById('candidateFormId').value;
+    const no        = parseInt(document.getElementById('formNo').value);
+    const name      = document.getElementById('formName').value.trim();
+    const visi      = document.getElementById('formVisi').value.trim();
+    const misiList  = document.getElementById('formMisi').value.trim().split('\n').filter(m => m.trim());
+    const imageFile = document.getElementById('formImageFile').files[0];
+    const candId    = id || ('c_' + Date.now());
+
+    const btn = event.target.querySelector('[type="submit"]');
+    if (btn) { btn.disabled = true; btn.innerText = 'Menyimpan...'; }
+
+    let imageUrl = imageFile && isSupabaseActive
+        ? await uploadCandidateImageToStorage(imageFile, candId) : null;
+
+    if (!imageUrl && imageFile) {
+        imageUrl = await new Promise(resolve => {
+            const r = new FileReader();
+            r.onload = e => resolve(e.target.result);
+            r.readAsDataURL(imageFile);
+        });
+    }
+
+    let saved;
+    if (id) {
+        saved = candidates.find(c => c.id === id);
+        if (saved) {
+            saved.no = no; saved.name = name; saved.visi = visi; saved.misi = misiList;
+            if (imageUrl) saved.image = imageUrl;
+        }
+    } else {
+        saved = {
+            id: candId, no, name,
+            image: imageUrl || `https://placehold.co/400x500/2563eb/fff?text=No.${no}`,
+            visi, misi: misiList, votes: 0, votes_by_class: {}
+        };
+        candidates.push(saved);
+    }
+
+    saveCandidatesLocal();
+    await upsertCandidateToSupabase(saved);
+    if (btn) { btn.disabled = false; btn.innerText = 'Simpan Data'; }
+    closeCandidateFormModal();
+    renderCandidatesHome();
+    showAlertModal('Berhasil', 'Data kandidat telah disimpan.', 'success');
+}
+
+
+// ============================================================
+// === SECTION: 14. ADMIN: KELAS ===
+// ============================================================
+
+function openAddClassModal() {
+    renderClassList();
+    const m = document.getElementById('classManageModal');
+    m.classList.remove('hidden'); m.classList.add('flex');
+}
+
+function closeAddClassModal() {
+    const m = document.getElementById('classManageModal');
+    m.classList.add('hidden'); m.classList.remove('flex');
+}
+
+function renderClassList() {
+    const container = document.getElementById('classListContainer');
+    if (!container) return;
+    container.innerHTML = '';
+    classes.forEach(cls => {
+        const item = document.createElement('div');
+        item.className = "flex justify-between items-center bg-slate-50 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700";
+        item.innerHTML = `
+            <span>${cls}</span>
+            ${classes.length > 1
+                ? `<button onclick="deleteClass('${cls}')" class="text-rose-500 hover:text-rose-700">
+                       <i class="fa-solid fa-trash"></i>
+                   </button>` : ''}
+        `;
+        container.appendChild(item);
+    });
+}
+
+function handleAddClass(e) {
+    e.preventDefault();
+    const input = document.getElementById('newClassNameInput');
+    const name  = input.value.trim();
+    if (name && !classes.includes(name)) {
+        classes.push(name);
+        saveClassesLocal(); renderClassList(); renderWelcomeClasses();
+        input.value = '';
+        showAlertModal('Berhasil', `Tingkat "${name}" ditambahkan.`, 'success');
+    }
+}
+
+function deleteClass(className) {
+    if (!confirm(`Hapus tingkat "${className}"?`)) return;
+    classes = classes.filter(c => c !== className);
+    saveClassesLocal(); renderClassList(); renderWelcomeClasses();
+}
+
+
+// ============================================================
+// === SECTION: 15. ADMIN: DASHBOARD ===
+// ============================================================
+
+// >> (Dashboard dikelola di admin/app.js — fungsi ini untuk index.html admin panel lama)
+function renderAdminDashboard() { /* placeholder */ }
+
+
+// ============================================================
+// === SECTION: 16. AUDIT LOG ===
+// ============================================================
+
+// voteLogs & auditLogFiltered sudah dideklarasikan di Section 6
+
+function loadVoteLogsLocal() {
+    try {
+        const raw = localStorage.getItem('pemira_vote_logs');
+        voteLogs = raw ? JSON.parse(raw) : [];
+    } catch (e) { voteLogs = []; }
+}
+
+function saveVoteLogsLocal() {
+    localStorage.setItem('pemira_vote_logs', JSON.stringify(voteLogs));
+}
+
+async function saveVoteLog(entry) {
+    entry.id = entry.id || `log_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
+    voteLogs.push(entry);
+    saveVoteLogsLocal();
+
+    if (isSupabaseActive && supabaseClient) {
+        try {
+            await supabaseClient.from('vote_logs').insert({
+                id:             entry.id,
+                student_id:     entry.student_id,
+                student_name:   entry.student_name,
+                student_grade:  entry.student_grade,
+                candidate_id:   entry.candidate_id,
+                candidate_name: entry.candidate_name,
+                candidate_no:   entry.candidate_no,
+                voted_at:       entry.voted_at
+            });
+        } catch (e) { console.error('saveVoteLog Supabase error:', e); }
+    }
+}
+
+async function loadAuditLogFromSupabase() {
+    if (isSupabaseActive && supabaseClient) {
+        try {
+            const { data, error } = await supabaseClient
+                .from('vote_logs').select('*').order('voted_at', { ascending: false });
+            if (!error && data) {
+                voteLogs = data.map(r => ({
+                    id:             r.id,
+                    student_id:     r.student_id,
+                    student_name:   r.student_name,
+                    student_grade:  r.student_grade,
+                    candidate_id:   r.candidate_id,
+                    candidate_name: r.candidate_name,
+                    candidate_no:   r.candidate_no,
+                    voted_at:       r.voted_at
+                }));
+                saveVoteLogsLocal();
+            }
+        } catch (e) { console.error('loadAuditLogFromSupabase error:', e); }
+    }
+}
+
+async function clearVoteLogsFromSupabase() {
+    if (!isSupabaseActive || !supabaseClient) return;
+    try {
+        await supabaseClient.from('vote_logs').delete().neq('id', '___none___');
+    } catch (e) { console.error('clearVoteLogsFromSupabase error:', e); }
+}
+
+
+// ============================================================
+// === SECTION: 17-18. EXCEL (tidak dipakai di voter page) ===
+// ============================================================
+// Excel hanya dipakai di admin/app.js
+
+
+// ============================================================
+// === SECTION: 19. UI HELPERS ===
+// ============================================================
+
+function showAlertModal(title, message, type = 'info') {
+    const icon = document.getElementById('alertIcon');
+    document.getElementById('alertTitle').innerText   = title;
+    document.getElementById('alertMessage').innerText = message;
+    if (type === 'success') {
+        icon.className = "w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl bg-emerald-100 text-emerald-600";
+        icon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
+    } else {
+        icon.className = "w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl bg-blue-100 text-blue-600";
+        icon.innerHTML = '<i class="fa-solid fa-circle-info"></i>';
+    }
+    const m = document.getElementById('alertModal');
+    m.classList.remove('hidden'); m.classList.add('flex');
+}
+
+function closeAlertModal() {
+    const m = document.getElementById('alertModal');
+    m.classList.add('hidden'); m.classList.remove('flex');
+}

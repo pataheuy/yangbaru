@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel — PEMIRA BEM SMP</title>
-    <link rel="icon" type="image/png" href="../icon.png">
+    <link rel="icon" type="image/png" href="../gambar/icon.png">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300..800&display=swap" rel="stylesheet">
     <!-- Tailwind CSS -->
@@ -37,7 +37,7 @@
     <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
         <div class="flex items-center gap-3">
             <div class="bg-white p-1.5 rounded-xl">
-                <img src="../logo.png" alt="Logo" class="w-9 h-9 object-contain"
+                <img src="../gambar/logo.png" alt="Logo" class="w-9 h-9 object-contain"
                     onerror="this.src='https://placehold.co/40x40/2563eb/fff?text=P'">
             </div>
             <div>
@@ -91,7 +91,7 @@
     <section id="dashboardScreen" class="hidden animate-fade-in-up space-y-6">
 
         <!-- Stat Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
             <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
                 <div class="p-3 bg-blue-50 text-blue-600 rounded-xl"><i class="fa-solid fa-user-tie text-2xl"></i></div>
                 <div>
@@ -102,12 +102,19 @@
             <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
                 <div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl"><i class="fa-solid fa-users text-2xl"></i></div>
                 <div>
-                    <p class="text-xs font-semibold text-slate-400">Total Siswa Terdaftar</p>
+                    <p class="text-xs font-semibold text-slate-400">Total Siswa</p>
                     <p id="statTotalStudents" class="text-2xl font-bold text-slate-800">0</p>
                 </div>
             </div>
             <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
-                <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl"><i class="fa-solid fa-check-double text-2xl"></i></div>
+                <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl"><i class="fa-solid fa-chalkboard-user text-2xl"></i></div>
+                <div>
+                    <p class="text-xs font-semibold text-slate-400">Total Guru / Staf</p>
+                    <p id="statTotalTeachers" class="text-2xl font-bold text-slate-800">0</p>
+                </div>
+            </div>
+            <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
+                <div class="p-3 bg-amber-50 text-amber-600 rounded-xl"><i class="fa-solid fa-check-double text-2xl"></i></div>
                 <div>
                     <p class="text-xs font-semibold text-slate-400">Total Suara Masuk</p>
                     <p id="statTotalVotes" class="text-2xl font-bold text-slate-800">0</p>
@@ -127,7 +134,7 @@
                 </button>
                 <button onclick="openStudentManageModal()"
                         class="w-full bg-sky-50 hover:bg-sky-100 text-sky-700 px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition">
-                    <i class="fa-solid fa-users-gear"></i> Kelola Siswa
+                    <i class="fa-solid fa-users-gear"></i> Kelola Siswa & Guru
                 </button>
                 <button onclick="openAddClassModal()"
                         class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition">
@@ -242,89 +249,173 @@
 
 <!-- ===== MODALS ===== -->
 
-<!-- Modal: Kelola Siswa -->
+<!-- Modal: Kelola Pemilih (Siswa + Guru) -->
 <div id="studentManageModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
     <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto animate-fade-in-up">
         <button onclick="closeStudentManageModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
             <i class="fa-solid fa-xmark"></i>
         </button>
         <div class="mb-4 pb-3 border-b border-slate-100">
-            <h3 class="text-xl font-bold text-slate-800">Kelola Data Siswa Per Kelas</h3>
-            <p class="text-xs text-slate-500">Tambah, edit, atau impor data siswa per tingkat kelas.</p>
+            <h3 class="text-xl font-bold text-slate-800">Kelola Data Pemilih</h3>
+            <p class="text-xs text-slate-500">Atur data pemilih untuk kategori Siswa dan Guru / Staf.</p>
         </div>
-        <!-- Dropdown kelas -->
-        <div class="mb-4 bg-slate-50 p-3 rounded-2xl border border-slate-200">
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Pilih Tingkat Kelas</label>
-            <select id="adminStudentGradeSelect" onchange="renderAdminStudentManager()"
-                    class="w-full p-2.5 border border-slate-300 rounded-xl text-xs bg-white focus:ring-2 focus:ring-sky-500 font-semibold">
-            </select>
+
+        <!-- Tab Switcher -->
+        <div class="flex space-x-2 mb-4">
+            <button id="tabSiswaBtn" onclick="switchVoterTab('siswa')"
+                    class="px-4 py-2 font-bold text-xs rounded-xl transition bg-sky-600 text-white shadow-sm">
+                <i class="fa-solid fa-user-graduate mr-1.5"></i> Siswa (<span id="countTabSiswa">0</span>)
+            </button>
+            <button id="tabGuruBtn" onclick="switchVoterTab('guru')"
+                    class="px-4 py-2 font-bold text-xs rounded-xl transition bg-slate-100 text-slate-600 hover:bg-slate-200">
+                <i class="fa-solid fa-chalkboard-user mr-1.5"></i> Guru / Staf (<span id="countTabGuru">0</span>)
+            </button>
         </div>
-        <!-- Tambah siswa + actions -->
-        <div class="flex flex-wrap gap-2 mb-3">
-            <form onsubmit="handleAddStudent(event)" class="flex-grow flex gap-2 flex-wrap">
-                <input type="text" id="newStudentNameInput" placeholder="Nama Siswa Baru..."
-                       class="flex-grow px-3 py-2 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-sky-500" required>
-                <input type="text" id="newStudentPasswordInput" placeholder="Password..."
-                       class="w-36 px-3 py-2 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-sky-500" required>
-                <button type="submit" class="gradient-btn text-white px-4 py-2 rounded-xl text-xs font-bold">
-                    <i class="fa-solid fa-plus mr-1"></i> Tambah
+
+        <!-- ===== PANEL SISWA ===== -->
+        <div id="panelSiswa">
+            <!-- Dropdown kelas -->
+            <div class="mb-3 bg-slate-50 p-3 rounded-2xl border border-slate-200">
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Pilih Tingkat Kelas</label>
+                <select id="adminStudentGradeSelect" onchange="renderAdminStudentManager()"
+                        class="w-full p-2.5 border border-slate-300 rounded-xl text-xs bg-white focus:ring-2 focus:ring-sky-500 font-semibold">
+                </select>
+            </div>
+            <!-- Tambah siswa + actions -->
+            <div class="flex flex-wrap gap-2 mb-3">
+                <form onsubmit="handleAddStudent(event)" class="flex-grow flex gap-2 flex-wrap">
+                    <input type="text" id="newStudentNameInput" placeholder="Nama Siswa Baru..."
+                           class="flex-grow px-3 py-2 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-sky-500" required>
+                    <input type="text" id="newStudentPasswordInput" placeholder="Password..."
+                           class="w-36 px-3 py-2 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-sky-500" required>
+                    <button type="submit" class="gradient-btn text-white px-4 py-2 rounded-xl text-xs font-bold">
+                        <i class="fa-solid fa-plus mr-1"></i> Tambah
+                    </button>
+                </form>
+                <button onclick="autoFillClassStudents()"
+                        class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition">
+                    <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> 30 Siswa
                 </button>
-            </form>
-            <button onclick="autoFillClassStudents()"
-                    class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition">
-                <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> 30 Siswa
-            </button>
-            <input type="file" id="excelFileInput" accept=".xlsx,.xls,.csv" class="hidden" onchange="handleExcelUpload(event)">
-            <button onclick="document.getElementById('excelFileInput').click()"
-                    class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition">
-                <i class="fa-solid fa-file-excel mr-1.5"></i> Import Excel
-            </button>
-            <button onclick="downloadStudentTemplate()"
-                    class="bg-violet-600 hover:bg-violet-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition">
-                <i class="fa-solid fa-file-arrow-down mr-1.5"></i> Unduh Template
-            </button>
-        </div>
-        <div class="flex flex-wrap gap-2 mb-3">
-            <button onclick="exportStudentsExcelAll()"
-                    class="bg-teal-600 hover:bg-teal-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition">
-                <i class="fa-solid fa-file-export mr-1.5"></i> Ekspor Semua Kelas
-            </button>
-            <button onclick="exportStudentsExcelCurrentGrade()"
-                    class="bg-sky-600 hover:bg-sky-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition">
-                <i class="fa-solid fa-table mr-1.5"></i> Ekspor Kelas Ini
-            </button>
-        </div>
-        <!-- Badge count -->
-        <div class="flex justify-between items-center text-xs font-bold text-slate-500 mb-2">
-            <span>Siswa di <span id="adminActiveFullClass" class="text-sky-600">--</span>:</span>
-            <span id="studentCountBadge" class="bg-slate-100 text-slate-700 px-2.5 py-1 rounded-full border border-slate-200">0 Siswa</span>
-        </div>
-        <!-- Table -->
-        <div class="border border-slate-100 rounded-2xl overflow-hidden max-h-60 overflow-y-auto">
-            <table class="w-full text-left border-collapse">
-                <thead class="bg-slate-50 text-slate-400 text-[11px] uppercase tracking-wider sticky top-0">
-                    <tr>
-                        <th class="p-2.5 pl-4">No</th>
-                        <th class="p-2.5">Nama Siswa</th>
-                        <th class="p-2.5">Password</th>
-                        <th class="p-2.5">Status</th>
-                        <th class="p-2.5 text-right pr-4">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody id="adminStudentTableBody" class="divide-y divide-slate-100 text-xs"></tbody>
-            </table>
-        </div>
-        <div class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap gap-2 justify-between items-center text-xs">
-            <div class="flex gap-3">
-                <button onclick="clearStudentsOfActiveGrade()" class="text-amber-600 hover:text-amber-800 font-semibold flex items-center">
-                    <i class="fa-solid fa-eraser mr-1"></i> Kosongkan Kelas Ini
+                <input type="file" id="excelFileInput" accept=".xlsx,.xls,.csv" class="hidden" onchange="handleExcelUpload(event)">
+                <button onclick="document.getElementById('excelFileInput').click()"
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition">
+                    <i class="fa-solid fa-file-excel mr-1.5"></i> Import Excel
                 </button>
-                <button onclick="clearAllStudentsAllGrades()" class="text-rose-600 hover:text-rose-800 font-bold flex items-center">
-                    <i class="fa-solid fa-trash-can mr-1"></i> Hapus Semua Siswa
+                <button onclick="downloadStudentTemplate()"
+                        class="bg-violet-600 hover:bg-violet-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition">
+                    <i class="fa-solid fa-file-arrow-down mr-1.5"></i> Unduh Template
                 </button>
             </div>
+            <div class="flex flex-wrap gap-2 mb-3">
+                <button onclick="exportStudentsExcelAll()"
+                        class="bg-teal-600 hover:bg-teal-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition">
+                    <i class="fa-solid fa-file-export mr-1.5"></i> Ekspor Semua Kelas
+                </button>
+                <button onclick="exportStudentsExcelCurrentGrade()"
+                        class="bg-sky-600 hover:bg-sky-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition">
+                    <i class="fa-solid fa-table mr-1.5"></i> Ekspor Kelas Ini
+                </button>
+            </div>
+            <div class="flex justify-between items-center text-xs font-bold text-slate-500 mb-2">
+                <span>Siswa di <span id="adminActiveFullClass" class="text-sky-600">--</span>:</span>
+                <span id="studentCountBadge" class="bg-slate-100 text-slate-700 px-2.5 py-1 rounded-full border border-slate-200">0 Siswa</span>
+            </div>
+            <div class="border border-slate-100 rounded-2xl overflow-hidden max-h-60 overflow-y-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-slate-50 text-slate-400 text-[11px] uppercase tracking-wider sticky top-0">
+                        <tr>
+                            <th class="p-2.5 pl-4">No</th>
+                            <th class="p-2.5">Nama Siswa</th>
+                            <th class="p-2.5">Password</th>
+                            <th class="p-2.5">Status</th>
+                            <th class="p-2.5 text-right pr-4">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminStudentTableBody" class="divide-y divide-slate-100 text-xs"></tbody>
+                </table>
+            </div>
+            <div class="mt-3 pt-3 border-t border-slate-100 flex flex-wrap gap-2 justify-between items-center text-xs">
+                <div class="flex gap-3">
+                    <button onclick="clearStudentsOfActiveGrade()" class="text-amber-600 hover:text-amber-800 font-semibold flex items-center">
+                        <i class="fa-solid fa-eraser mr-1"></i> Kosongkan Kelas Ini
+                    </button>
+                    <button onclick="clearAllStudentsAllGrades()" class="text-rose-600 hover:text-rose-800 font-bold flex items-center">
+                        <i class="fa-solid fa-trash-can mr-1"></i> Hapus Semua Siswa
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== PANEL GURU ===== -->
+        <div id="panelGuru" class="hidden">
+            <!-- Form tambah guru -->
+            <div class="mb-3 bg-emerald-50 p-3 rounded-2xl border border-emerald-200">
+                <form onsubmit="handleAddTeacher(event)" class="grid grid-cols-1 sm:grid-cols-4 gap-2 items-end">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-600 mb-0.5">Nama Guru / Staf</label>
+                        <input type="text" id="newTeacherNameInput" placeholder="Contoh: Budi, S.Pd."
+                               class="w-full px-2.5 py-2 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 bg-white" required>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-600 mb-0.5">Username</label>
+                        <input type="text" id="newTeacherUsernameInput" placeholder="guru01"
+                               class="w-full px-2.5 py-2 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 bg-white" required>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-600 mb-0.5">Password</label>
+                        <input type="text" id="newTeacherPasswordInput" placeholder="Password"
+                               class="w-full px-2.5 py-2 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 bg-white" required>
+                    </div>
+                    <div>
+                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-xs transition">
+                            <i class="fa-solid fa-plus mr-1"></i> Tambah Guru
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <!-- Import / Ekspor Guru -->
+            <div class="flex flex-wrap gap-2 mb-3">
+                <input type="file" id="excelTeacherFileInput" accept=".xlsx,.xls,.csv" class="hidden" onchange="handleTeacherExcelUpload(event)">
+                <button onclick="document.getElementById('excelTeacherFileInput').click()"
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition">
+                    <i class="fa-solid fa-file-excel mr-1.5"></i> Import Excel Guru
+                </button>
+                <button onclick="downloadTeacherTemplate()"
+                        class="bg-violet-600 hover:bg-violet-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition">
+                    <i class="fa-solid fa-file-arrow-down mr-1.5"></i> Unduh Template
+                </button>
+                <button onclick="exportTeachersExcel()"
+                        class="bg-teal-600 hover:bg-teal-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition">
+                    <i class="fa-solid fa-file-export mr-1.5"></i> Ekspor Excel
+                </button>
+            </div>
+            <!-- Table guru -->
+            <div class="border border-slate-100 rounded-2xl overflow-hidden max-h-64 overflow-y-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-slate-50 text-slate-400 text-[11px] uppercase tracking-wider sticky top-0">
+                        <tr>
+                            <th class="p-2.5 pl-4">No</th>
+                            <th class="p-2.5">Nama</th>
+                            <th class="p-2.5">Username</th>
+                            <th class="p-2.5">Password</th>
+                            <th class="p-2.5">Status</th>
+                            <th class="p-2.5 text-right pr-4">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminTeacherTableBody" class="divide-y divide-slate-100 text-xs"></tbody>
+                </table>
+            </div>
+            <div class="mt-3 pt-3 border-t border-slate-100 flex justify-between items-center text-xs">
+                <button onclick="clearAllTeachers()" class="text-rose-600 hover:text-rose-800 font-bold flex items-center">
+                    <i class="fa-solid fa-trash-can mr-1"></i> Hapus Semua Guru
+                </button>
+            </div>
+        </div>
+
+        <!-- Footer modal -->
+        <div class="mt-4 pt-3 border-t border-slate-100 flex justify-end">
             <button onclick="closeStudentManageModal()"
-                    class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-medium">
+                    class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-medium text-xs">
                 Tutup
             </button>
         </div>
