@@ -124,8 +124,89 @@
     <!-- Main Content Area -->
     <main class="flex-grow max-w-6xl w-full mx-auto p-4 md:p-6 flex flex-col items-center justify-center">
 
+            <!-- ================= STEP 0: ROLE SELECTION SCREEN ================= -->
+        <section id="roleSelectScreen" class="w-full max-w-2xl space-y-8 animate-fade-in-up my-auto text-center py-6">
+            <div class="py-8 px-6 bg-white rounded-3xl shadow-sm border border-slate-100 relative overflow-hidden">
+                <div class="absolute -top-10 -right-10 w-40 h-40 bg-sky-100 rounded-full blur-2xl opacity-60"></div>
+                <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-blue-100 rounded-full blur-2xl opacity-60"></div>
+                <div class="flex items-center justify-center mb-4">
+                    <div class="bg-white p-2.5 rounded-2xl shadow-sm border border-slate-200/80 inline-flex">
+                        <img src="logo.png" alt="Logo" class="w-14 h-14 object-contain" onerror="this.onerror=null; this.src='https://placehold.co/100x100/2563eb/ffffff?text=P';">
+                    </div>
+                </div>
+                <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 mb-2 tracking-tight">Pemilihan Presiden BEM</h1>
+                <p class="text-slate-600 max-w-xl mx-auto text-sm md:text-base">Pilih jenis akun Anda untuk melanjutkan proses pemilihan.</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-xl mx-auto">
+                <!-- Option Murid -->
+                <div onclick="selectRole('murid')" class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm cursor-pointer flex flex-col items-center justify-center space-y-4 hover:-translate-y-1 transition duration-200">
+                    <div class="w-16 h-16 text-sky-700 rounded-2xl flex items-center justify-center text-3xl bg-sky-50">
+                        <i class="fa-solid fa-user-graduate"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold text-slate-800">Murid / Siswa</h3>
+                        <p class="text-xs text-slate-500 mt-1">Masuk dengan memilih kelas & nama</p>
+                    </div>
+                    <span class="text-xs font-semibold text-blue-700 bg-blue-50 px-4 py-1.5 rounded-full border border-blue-200">
+                        Masuk sebagai Siswa <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </span>
+                </div>
+
+                <!-- Option Guru -->
+                <div onclick="selectRole('guru')" class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm cursor-pointer flex flex-col items-center justify-center space-y-4 hover:-translate-y-1 transition duration-200">
+                    <div class="w-16 h-16 text-emerald-700 rounded-2xl flex items-center justify-center text-3xl bg-emerald-50">
+                        <i class="fa-solid fa-chalkboard-user"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold text-slate-800">Guru / Staf</h3>
+                        <p class="text-xs text-slate-500 mt-1">Masuk dengan Username & Password</p>
+                    </div>
+                    <span class="text-xs font-semibold text-emerald-800 bg-emerald-50 px-4 py-1.5 rounded-full border border-emerald-200">
+                        Masuk sebagai Guru <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= STEP 0B: GURU LOGIN SCREEN ================= -->
+        <section id="teacherLoginScreen" class="w-full max-w-md space-y-6 animate-fade-in-up hidden my-auto py-6">
+            <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm space-y-4">
+                <button onclick="showRoleSelectScreen()" class="text-xs font-semibold text-sky-600 hover:text-sky-800 bg-slate-50 px-3.5 py-1.5 rounded-xl border border-slate-200 flex items-center transition mb-2">
+                    <i class="fa-solid fa-arrow-left mr-2"></i> Kembali
+                </button>
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto text-3xl mb-3">
+                        <i class="fa-solid fa-id-card"></i>
+                    </div>
+                    <h2 class="text-2xl font-extrabold text-slate-800 mb-1">Login Guru / Staf</h2>
+                    <p class="text-xs text-slate-500">Masukkan Username & Password resmi Anda.</p>
+                </div>
+
+                <form onsubmit="handleTeacherLogin(event)" class="space-y-4 pt-2">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Username</label>
+                        <input type="text" id="teacherUsernameInput" placeholder="Contoh: guru01"
+                            class="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 focus:border-emerald-500 rounded-2xl text-sm font-semibold text-slate-800 focus:outline-none focus:bg-white transition" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Password</label>
+                        <input type="password" id="teacherPasswordInput" placeholder="Masukkan password Anda..."
+                            class="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 focus:border-emerald-500 rounded-2xl text-sm font-semibold text-slate-800 focus:outline-none focus:bg-white transition" required>
+                    </div>
+                    <div id="teacherLoginError" class="hidden text-rose-500 text-xs font-semibold text-center">
+                        <i class="fa-solid fa-circle-exclamation mr-1"></i> Username atau password salah!
+                    </div>
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-2xl transition shadow-md flex items-center justify-center space-x-2">
+                        <span>Masuk & Pilih Kandidat</span>
+                        <i class="fa-solid fa-arrow-right text-xs"></i>
+                    </button>
+                </form>
+            </div>
+        </section>
+
         <!-- ================= STEP 1: WELCOME / GRADE SELECTION SCREEN ================= -->
-        <section id="welcomeScreen" class="w-full max-w-4xl space-y-8 animate-fade-in-up my-auto text-center py-6">
+        <section id="welcomeScreen" class="w-full max-w-4xl space-y-8 animate-fade-in-up my-auto text-center py-6 hidden">
             <div class="py-8 px-6 bg-white rounded-3xl shadow-sm border border-slate-100 relative overflow-hidden">
                 <div class="absolute -top-10 -right-10 w-40 h-40 bg-sky-100 rounded-full blur-2xl opacity-60"></div>
                 <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-blue-100 rounded-full blur-2xl opacity-60"></div>
@@ -175,17 +256,17 @@
             <!-- Active Voter Info Bar -->
             <div id="activeVoterBanner" class="bg-blue-50 border border-blue-200 rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-center gap-2 max-w-5xl mx-auto">
                 <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center font-bold">
+                    <div id="activeVoterIcon" class="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center font-bold">
                         <i class="fa-solid fa-user-check"></i>
                     </div>
                     <div>
-                        <span class="text-[10px] font-bold text-blue-500 uppercase tracking-wider block">Siswa Pemilih</span>
+                        <span id="activeVoterRoleLabel" class="text-[10px] font-bold text-blue-500 uppercase tracking-wider block">Siswa Pemilih</span>
                         <h4 id="activeVoterName" class="font-extrabold text-slate-800 text-base leading-tight">--</h4>
                     </div>
                 </div>
                 <div class="flex items-center space-x-2">
                     <span id="activeVoterClass" class="bg-white text-blue-700 font-bold text-xs px-3 py-1 rounded-xl border border-blue-200">--</span>
-                    <button onclick="cancelVoterSelection()" class="text-xs font-semibold text-rose-600 hover:text-rose-800 bg-white hover:bg-rose-50 px-3 py-1 rounded-xl border border-rose-200 transition">
+                    <button id="changeVoterBtn" onclick="cancelVoterSelection()" class="text-xs font-semibold text-rose-600 hover:text-rose-800 bg-white hover:bg-rose-50 px-3 py-1 rounded-xl border border-rose-200 transition">
                         Ganti Siswa
                     </button>
                 </div>
@@ -209,7 +290,7 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500 mt-auto">
+    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500 mt-auto" onclick="handleFooterClick()">
         <p>&copy; 2026 pufutaraPemira. Sistem Pemilihan Presiden BEM SMP Digital.</p>
     </footer>
 

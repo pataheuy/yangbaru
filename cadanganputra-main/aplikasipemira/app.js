@@ -31,12 +31,10 @@
 // === SECTION: 1. CONFIG & STATE ===
 // ============================================================
 
-// >> Supabase credentials — ganti jika project berubah
-const SUPABASE_URL      = "https://puywjdopumlzvmzbcudr.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1eXdqZG9wdW1senZtemJjdWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDE3MTksImV4cCI6MjA4NzkxNzcxOX0.vvThyjtK2SlA9oA9Mr_XOmt1R_tNZk-ib3PO9XpiiSc";
-
-// >> Admin password (plaintext, dicocokkan langsung)
-const ADMIN_PASSWORD = 'raisarfaketuampm';
+// >> Supabase credentials & admin password — diambil dari /api/config saat init
+let SUPABASE_URL      = null;
+let SUPABASE_ANON_KEY = null;
+let ADMIN_PASSWORD    = null;
 
 // >> Kelas default jika localStorage kosong
 const defaultClasses    = ["Kelas 7", "Kelas 8", "Kelas 9"];
@@ -70,6 +68,11 @@ let countdownInterval  = null;   // interval timer konfirmasi voting
 let footerClickCount = 0;
 let footerClickTimer = null;
 
+// >> Role & teacher state
+let currentRole    = null; // 'murid' | 'guru'
+let teachers       = [];   // [{ id, name, username, password, role, hasVoted, votedFor }]
+let activeTeacher  = null; // guru yang sedang login
+
 
 // ============================================================
 // === SECTION: 2. INIT ===
@@ -77,11 +80,25 @@ let footerClickTimer = null;
 
 // >> Entry point — dipanggil otomatis saat DOM siap
 window.addEventListener('DOMContentLoaded', async () => {
+    await loadConfig();            // ambil kredensial dari /api/config
     initSupabaseClient();
     renderWelcomeClassesLoading(); // tampilkan skeleton dulu
     await loadData();              // fetch data dari localStorage + Supabase
-    renderWelcomeClasses();        // render kartu kelas
+    showRoleSelectScreen();        // tampilkan layar pemilihan role
 });
+
+// >> Ambil Supabase URL, key, dan admin password dari serverless endpoint
+async function loadConfig() {
+    try {
+        const res  = await fetch('/api/config');
+        const data = await res.json();
+        SUPABASE_URL      = data.url;
+        SUPABASE_ANON_KEY = data.key;
+        ADMIN_PASSWORD    = data.adminPassword;
+    } catch (e) {
+        console.warn('Gagal memuat konfigurasi dari /api/config:', e);
+    }
+}
 
 // >> Inisialisasi koneksi Supabase
 function initSupabaseClient() {
@@ -181,6 +198,7 @@ function saveClassesLocal()    { localStorage.setItem('pemira_classes',     JSON
 function saveCandidatesLocal() { localStorage.setItem('pemira_candidates',  JSON.stringify(candidates)); }
 function saveStudentsLocal()   { localStorage.setItem('pemira_students',    JSON.stringify(students));   }
 function saveVoterStatsLocal() { localStorage.setItem('pemira_voter_stats', JSON.stringify(voterStats)); }
+function saveTeachersLocal()   { localStorage.setItem('pemira_teachers',    JSON.stringify(teachers));   }
 
 // >> Buat 10 siswa contoh per kelas jika belum ada data
 function generateDefaultSampleStudents() {

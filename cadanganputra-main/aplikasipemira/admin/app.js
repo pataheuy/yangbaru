@@ -24,9 +24,10 @@
 // === SECTION: 1. CONFIG & STATE ===
 // ============================================================
 
-const SUPABASE_URL      = "https://puywjdopumlzvmzbcudr.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1eXdqZG9wdW1senZtemJjdWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDE3MTksImV4cCI6MjA4NzkxNzcxOX0.vvThyjtK2SlA9oA9Mr_XOmt1R_tNZk-ib3PO9XpiiSc";
-const ADMIN_PASSWORD    = 'raisarfaketuampm';
+// >> Supabase credentials & admin password — diambil dari /api/config saat init
+let SUPABASE_URL      = null;
+let SUPABASE_ANON_KEY = null;
+let ADMIN_PASSWORD    = null;
 
 // >> Default kelas jika localStorage kosong
 const defaultClasses = ["Kelas 7", "Kelas 8", "Kelas 9"];
@@ -54,13 +55,27 @@ let auditLogFiltered = [];
 // === SECTION: 2. INIT ===
 // ============================================================
 
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
+    await loadConfig();            // ambil kredensial dari /api/config
     initSupabaseClient();
     // Cek apakah session admin masih aktif (sessionStorage)
     if (sessionStorage.getItem('pemira_admin_auth') === '1') {
         showDashboard();
     }
 });
+
+// >> Ambil Supabase URL, key, dan admin password dari serverless endpoint
+async function loadConfig() {
+    try {
+        const res  = await fetch('/api/config');
+        const data = await res.json();
+        SUPABASE_URL      = data.url;
+        SUPABASE_ANON_KEY = data.key;
+        ADMIN_PASSWORD    = data.adminPassword;
+    } catch (e) {
+        console.warn('Gagal memuat konfigurasi dari /api/config:', e);
+    }
+}
 
 function initSupabaseClient() {
     if (SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase) {
