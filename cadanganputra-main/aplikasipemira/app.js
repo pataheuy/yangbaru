@@ -185,9 +185,31 @@ async function loadData() {
                 }));
                 saveStudentsLocal();
             }
+
+            // Guru
+            const { data: tchData } = await supabaseClient
+                .from('teachers').select('*').order('name', { ascending: true });
+            if (tchData && tchData.length > 0) {
+                teachers = tchData.map(t => ({
+                    id:       t.id,
+                    name:     t.name,
+                    username: t.username,
+                    password: t.password || '',
+                    role:     t.role || 'Guru',
+                    hasVoted: t.has_voted || false,
+                    votedFor: t.voted_for || null
+                }));
+                saveTeachersLocal();
+            }
         } catch (e) {
             console.log("Supabase unavailable — using local data.");
         }
+    }
+
+    // Load teachers dari localStorage jika Supabase tidak aktif
+    if (!isSupabaseActive) {
+        const storedTeachers = localStorage.getItem('pemira_teachers');
+        try { teachers = storedTeachers ? JSON.parse(storedTeachers) : []; } catch(e) { teachers = []; }
     }
 
     loadVoteLogsLocal(); // load audit log dari localStorage
@@ -217,6 +239,85 @@ function generateDefaultSampleStudents() {
         }
     });
     return list;
+}
+
+
+// ============================================================
+// === SECTION: 3b. ROLE SELECTION & TEACHER AUTH ===
+// ============================================================
+
+// >> Sembunyikan semua screen utama
+function hideAllScreens() {
+    const ids = ['roleSelectScreen','teacherLoginScreen','welcomeScreen','studentSelectScreen','homePage','adminPage'];
+    ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+    });
+}
+
+// >> Tampilkan layar pemilihan role (entry point)
+function showRoleSelectScreen() {
+    hideAllScreens();
+    currentRole   = null;
+    activeTeacher = null;
+    selectedStudent = null;
+    document.getElementById('changeClassNavBtn').classList.add('hidden');
+    document.getElementById('homeNavBtn').classList.add('hidden');
+    const el = document.getElementById('roleSelectScreen');
+    if (el) el.classList.remove('hidden');
+}
+
+// >> Pilih role: 'murid' atau 'guru'
+function selectRole(role) {
+    currentRole = role;
+    hideAllScreens();
+    if (role === 'guru') {
+        document.getElementById('teacherLoginScreen').classList.remove('hidden');
+        document.getElementById('teacherUsernameInput').value = '';
+        document.getElementById('teacherPasswordInput').value = '';
+        document.getElementById('teacherLoginError').classList.add('hidden');
+        setTimeout(() => document.getElementById('teacherUsernameInput').focus(), 100);
+    } else {
+        // Murid — lanjut ke pilih kelas
+        renderWelcomeClasses();
+        document.getElementById('welcomeScreen').classList.remove('hidden');
+    }
+}
+
+// >> Handle form login guru
+function handleTeacherLogin(event) {
+    event.preventDefault();
+    const username = document.getElementById('teacherUsernameInput').value.trim();
+    const password = document.getElementById('teacherPasswordInput').value.trim();
+
+    const teacher = teachers.find(t => t.username === username && t.password === password);
+    if (!teacher) {
+        document.getElementById('teacherLoginError').classList.remove('hidden');
+        document.getElementById('teacherPasswordInput').value = '';
+        return;
+    }
+
+    document.getElementById('teacherLoginError').classList.add('hidden');
+    activeTeacher = teacher;
+
+    // Set active voter banner untuk guru
+    const iconEl  = document.getElementById('activeVoterIcon');
+    const roleEl  = document.getElementById('activeVoterRoleLabel');
+    const nameEl  = document.getElementById('activeVoterName');
+    const classEl = document.getElementById('activeVoterClass');
+    const btnEl   = document.getElementById('changeVoterBtn');
+
+    if (iconEl)  { iconEl.className = 'w-10 h-10 bg-emerald-600 text-white rounded-xl flex items-center justify-center font-bold'; iconEl.innerHTML = '<i class="fa-solid fa-chalkboard-user"></i>'; }
+    if (roleEl)  roleEl.innerText  = 'Guru / Staf Pemilih';
+    if (nameEl)  nameEl.innerText  = teacher.name;
+    if (classEl) { classEl.innerText = teacher.role || 'Guru'; classEl.className = 'bg-white text-emerald-700 font-bold text-xs px-3 py-1 rounded-xl border border-emerald-200'; }
+    if (btnEl)   { btnEl.innerText = 'Ganti Akun'; btnEl.onclick = () => showRoleSelectScreen(); }
+
+    hideAllScreens();
+    document.getElementById('homePage').classList.remove('hidden');
+    document.getElementById('changeClassNavBtn').classList.remove('hidden');
+    document.getElementById('homeNavBtn').classList.remove('hidden');
+    renderCandidatesHome();
 }
 
 
@@ -287,6 +388,59 @@ async function resetAllStudentVotesInSupabase() {
             .update({ has_voted: false, voted_for: null })
             .neq('id', '0');
     } catch (e) { console.error("resetAllStudentVotesInSupabase error:", e); }
+}
+
+
+// ============================================================
+// === SECTION: 4b. SUPABASE: TEACHERS ===
+// ============================================================
+
+async function syncTeacherToSupabase(teacher) {
+    if (!isSupabaseActive || !supabaseClient || !teacher) return;
+    try {
+        await supabaseClient.from('teachers').upsert({
+            id:        teacher.id,
+            name:      teacher.name,
+            username:  teacher.username,
+            password:  teacher.password || '',
+            role:      teacher.role || 'Guru',
+            has_voted: teacher.hasVoted,
+            voted_for: teacher.votedFor
+        });
+    } catch(e) { console.error("syncTeacherToSupabase error:", e); }
+}
+
+async function syncMultipleTeachersToSupabase(list) {
+    if (!isSupabaseActive || !supabaseClient || !list?.length) return;
+    try {
+        await supabaseClient.from('teachers').upsert(
+            list.map(t => ({
+                id: t.id, name: t.name, username: t.username,
+                password: t.password || '', role: t.role || 'Guru',
+                has_voted: t.hasVoted, voted_for: t.votedFor
+            }))
+        );
+    } catch(e) { console.error("syncMultipleTeachersToSupabase error:", e); }
+}
+
+async function deleteTeacherFromSupabase(id) {
+    if (!isSupabaseActive || !supabaseClient) return;
+    try { await supabaseClient.from('teachers').delete().eq('id', id); }
+    catch(e) { console.error("deleteTeacherFromSupabase error:", e); }
+}
+
+async function deleteAllTeachersFromSupabase() {
+    if (!isSupabaseActive || !supabaseClient) return;
+    try { await supabaseClient.from('teachers').delete().neq('id', '0'); }
+    catch(e) { console.error("deleteAllTeachersFromSupabase error:", e); }
+}
+
+async function resetAllTeacherVotesInSupabase() {
+    if (!isSupabaseActive || !supabaseClient) return;
+    try {
+        await supabaseClient.from('teachers')
+            .update({ has_voted: false, voted_for: null }).neq('id', '0');
+    } catch(e) { console.error("resetAllTeacherVotesInSupabase error:", e); }
 }
 
 
@@ -489,11 +643,14 @@ function renderWelcomeClasses() {
 
 // >> Tampilkan halaman selamat datang (reset semua state sementara)
 function showWelcomeScreen() {
+    // Jika guru sedang aktif, kembali ke role select
+    if (currentRole === 'guru') {
+        showRoleSelectScreen();
+        return;
+    }
     selectedStudent = null;
+    hideAllScreens();
     document.getElementById('welcomeScreen').classList.remove('hidden');
-    document.getElementById('studentSelectScreen').classList.add('hidden');
-    document.getElementById('homePage').classList.add('hidden');
-    document.getElementById('adminPage').classList.add('hidden');
     document.getElementById('changeClassNavBtn').classList.add('hidden');
     document.getElementById('homeNavBtn').classList.add('hidden');
     renderWelcomeClasses();
@@ -508,10 +665,8 @@ function showWelcomeScreen() {
 function showStudentSelectScreen(grade) {
     currentSelectedGrade = grade;
     document.getElementById('fullClassBadge').innerText = grade;
-    document.getElementById('welcomeScreen').classList.add('hidden');
+    hideAllScreens();
     document.getElementById('studentSelectScreen').classList.remove('hidden');
-    document.getElementById('homePage').classList.add('hidden');
-    document.getElementById('adminPage').classList.add('hidden');
 
     const searchInput = document.getElementById('studentSearchInput');
     searchInput.value = '';
@@ -623,9 +778,21 @@ function verifyStudentPassword() {
         closeStudentPasswordModal();
         // Lanjut ke halaman kandidat
         selectedStudent = st;
+        currentRole = 'murid';
+
+        // Set banner untuk siswa
+        const iconEl  = document.getElementById('activeVoterIcon');
+        const roleEl  = document.getElementById('activeVoterRoleLabel');
+        const btnEl   = document.getElementById('changeVoterBtn');
+        if (iconEl)  { iconEl.className = 'w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center font-bold'; iconEl.innerHTML = '<i class="fa-solid fa-user-check"></i>'; }
+        if (roleEl)  roleEl.innerText = 'Siswa Pemilih';
+        if (btnEl)   { btnEl.innerText = 'Ganti Siswa'; btnEl.onclick = cancelVoterSelection; }
+
         document.getElementById('activeVoterName').innerText  = st.name;
         document.getElementById('activeVoterClass').innerText = st.grade;
-        document.getElementById('studentSelectScreen').classList.add('hidden');
+        document.getElementById('activeVoterClass').className = 'bg-white text-blue-700 font-bold text-xs px-3 py-1 rounded-xl border border-blue-200';
+
+        hideAllScreens();
         document.getElementById('homePage').classList.remove('hidden');
         document.getElementById('changeClassNavBtn').classList.remove('hidden');
         document.getElementById('homeNavBtn').classList.remove('hidden');
@@ -637,10 +804,15 @@ function verifyStudentPassword() {
     }
 }
 
-// >> Batalkan pilihan siswa, kembali ke halaman search kelas ini
+// >> Batalkan pilihan siswa, kembali ke role select atau search kelas
 function cancelVoterSelection() {
-    selectedStudent = null;
-    showStudentSelectScreen(currentSelectedGrade);
+    if (currentRole === 'guru') {
+        activeTeacher = null;
+        showRoleSelectScreen();
+    } else {
+        selectedStudent = null;
+        showStudentSelectScreen(currentSelectedGrade);
+    }
 }
 
 
@@ -650,25 +822,18 @@ function cancelVoterSelection() {
 
 // >> Navigasi halaman (dipanggil dari tombol navbar)
 function showPage(page) {
-    const homePage    = document.getElementById('homePage');
-    const adminPage   = document.getElementById('adminPage');
-    const welcomeScreen = document.getElementById('welcomeScreen');
-
     if (page === 'admin') {
         if (!isAdminLoggedIn) { openAdminLoginModal(); return; }
-        welcomeScreen.classList.add('hidden');
-        document.getElementById('studentSelectScreen').classList.add('hidden');
-        homePage.classList.add('hidden');
-        adminPage.classList.remove('hidden');
+        hideAllScreens();
+        document.getElementById('adminPage').classList.remove('hidden');
         document.getElementById('changeClassNavBtn').classList.remove('hidden');
         document.getElementById('homeNavBtn').classList.remove('hidden');
         renderAdminDashboard();
     } else {
-        if (!selectedStudent) { showWelcomeScreen(); return; }
-        welcomeScreen.classList.add('hidden');
-        document.getElementById('studentSelectScreen').classList.add('hidden');
-        homePage.classList.remove('hidden');
-        adminPage.classList.add('hidden');
+        const voter = currentRole === 'guru' ? activeTeacher : selectedStudent;
+        if (!voter) { showRoleSelectScreen(); return; }
+        hideAllScreens();
+        document.getElementById('homePage').classList.remove('hidden');
         renderCandidatesHome();
     }
 }
@@ -756,10 +921,14 @@ function closeCandidateModal() {
 // >> Dari modal kandidat → buka modal konfirmasi suara
 function openVoteConfirmation() {
     const candidate = candidates.find(c => c.id === selectedCandidateId);
-    if (!candidate || !selectedStudent) return;
+    const voter     = currentRole === 'guru' ? activeTeacher : selectedStudent;
+    if (!candidate || !voter) return;
 
     closeCandidateModal();
-    document.getElementById('confirmStudentNameDisplay').innerText = `${selectedStudent.name} (${selectedStudent.grade})`;
+    const voterLabel = currentRole === 'guru'
+        ? `${voter.name} (${voter.role || 'Guru'})`
+        : `${voter.name} (${voter.grade})`;
+    document.getElementById('confirmStudentNameDisplay').innerText = voterLabel;
     document.getElementById('confirmCandidateName').innerText      = candidate.name;
 
     // Reset timer
@@ -804,24 +973,26 @@ function closeConfirmVoteModal() {
 // >> Eksekusi suara setelah tombol dikonfirmasi
 async function executeVote() {
     const candidate = candidates.find(c => c.id === selectedCandidateId);
-    if (!candidate || !selectedStudent) return;
+    const isGuru    = currentRole === 'guru';
+    const voter     = isGuru ? activeTeacher : selectedStudent;
+    if (!candidate || !voter) return;
 
-    if (!candidate.votes_by_class) candidate.votes_by_class = {};
-    const activeGrade = selectedStudent.grade;
+    const activeGrade = isGuru ? (voter.role || 'Guru') : voter.grade;
 
     // Update hitungan suara
+    if (!candidate.votes_by_class) candidate.votes_by_class = {};
     candidate.votes++;
     candidate.votes_by_class[activeGrade] = (candidate.votes_by_class[activeGrade] || 0) + 1;
-    voterStats[activeGrade] = (voterStats[activeGrade] || 0) + 1;
+    if (!isGuru) voterStats[activeGrade] = (voterStats[activeGrade] || 0) + 1;
 
-    // Tandai siswa sudah memilih
-    selectedStudent.hasVoted = true;
-    selectedStudent.votedFor = candidate.id;
+    // Tandai voter sudah memilih
+    voter.hasVoted = true;
+    voter.votedFor = candidate.id;
 
     // Simpan ke localStorage
     saveCandidatesLocal();
-    saveStudentsLocal();
-    saveVoterStatsLocal();
+    if (isGuru) saveTeachersLocal(); else saveStudentsLocal();
+    if (!isGuru) saveVoterStatsLocal();
 
     // Sync ke Supabase
     if (isSupabaseActive && supabaseClient) {
@@ -829,14 +1000,15 @@ async function executeVote() {
             await supabaseClient.from('candidates')
                 .update({ votes: candidate.votes, votes_by_class: candidate.votes_by_class })
                 .eq('id', candidate.id);
-        } catch (err) { console.error("Vote sync to Supabase error:", err); }
-        syncStudentToSupabase(selectedStudent);
+        } catch (err) { console.error("Vote sync error:", err); }
+        if (isGuru) syncTeacherToSupabase(voter);
+        else        syncStudentToSupabase(voter);
     }
 
     // Simpan audit log
     await saveVoteLog({
-        student_id:     selectedStudent.id,
-        student_name:   selectedStudent.name,
+        student_id:     voter.id,
+        student_name:   voter.name,
         student_grade:  activeGrade,
         candidate_id:   candidate.id,
         candidate_name: candidate.name,
@@ -844,13 +1016,14 @@ async function executeVote() {
         voted_at:       new Date().toISOString()
     });
 
-    const votedName = selectedStudent.name;
-    selectedStudent = null;
+    const votedName = voter.name;
+    if (isGuru) activeTeacher = null; else selectedStudent = null;
 
     closeConfirmVoteModal();
     showAlertModal('Berhasil Memilih!',
         `Suara atas nama ${votedName} (${activeGrade}) untuk ${candidate.name} telah tersimpan.`, 'success');
-    showWelcomeScreen();
+
+    if (isGuru) showRoleSelectScreen(); else showWelcomeScreen();
 }
 
 
