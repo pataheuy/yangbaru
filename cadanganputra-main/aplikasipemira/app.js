@@ -200,7 +200,6 @@ async function loadData() {
                 teachers = tchData.map(t => ({
                     id:       t.id,
                     name:     t.name,
-                    username: t.username,
                     password: t.password || '',
                     role:     t.role || 'Guru',
                     hasVoted: t.has_voted || false,
@@ -493,7 +492,6 @@ async function syncTeacherToSupabase(teacher) {
         await supabaseClient.from('teachers').upsert({
             id:        teacher.id,
             name:      teacher.name,
-            username:  teacher.username,
             password:  teacher.password || '',
             role:      teacher.role || 'Guru',
             has_voted: teacher.hasVoted,
@@ -507,7 +505,7 @@ async function syncMultipleTeachersToSupabase(list) {
     try {
         await supabaseClient.from('teachers').upsert(
             list.map(t => ({
-                id: t.id, name: t.name, username: t.username,
+                id: t.id, name: t.name,
                 password: t.password || '', role: t.role || 'Guru',
                 has_voted: t.hasVoted, voted_for: t.votedFor
             }))

@@ -1242,12 +1242,12 @@ function downloadTeacherTemplate() {
     if (!window.XLSX) { showAlertModal('Error', 'SheetJS belum dimuat.', 'info'); return; }
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.aoa_to_sheet([
-        ['No', 'Nama', 'Username', 'Password'],
-        ['1', 'Budi Santoso, S.Pd.', 'guru01', 'pass123'],
-        ['2', 'Siti Rahmawati, M.Pd.', 'guru02', 'pass456'],
+        ['No', 'Nama', 'Password'],
+        ['1', 'Budi Santoso, S.Pd.', 'pass123'],
+        ['2', 'Siti Rahmawati, M.Pd.', 'pass456'],
         ['', '← Hapus baris contoh, isi data asli di sini'],
     ]);
-    ws['!cols'] = [{ wch:6 }, { wch:30 }, { wch:20 }, { wch:20 }];
+    ws['!cols'] = [{ wch:6 }, { wch:35 }, { wch:20 }];
     XLSX.utils.book_append_sheet(wb, ws, 'Guru');
     XLSX.writeFile(wb, 'Template_DataGuru_PEMIRA.xlsx');
 }
@@ -1256,14 +1256,14 @@ function downloadTeacherTemplate() {
 function exportTeachersExcel() {
     if (!window.XLSX) { showAlertModal('Error', 'SheetJS belum dimuat.', 'info'); return; }
     if (!teachers.length) { showAlertModal('Kosong', 'Belum ada data guru.', 'info'); return; }
-    const rows = [['No', 'Nama', 'Username', 'Password', 'Status Suara']];
+    const rows = [['No', 'Nama', 'Password', 'Status Suara']];
     teachers.forEach((t, i) => rows.push([
-        i + 1, t.name, t.username, t.password || '',
+        i + 1, t.name, t.password || '',
         t.hasVoted ? 'Sudah Memilih' : 'Belum Memilih'
     ]));
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.aoa_to_sheet(rows);
-    ws['!cols'] = [{ wch:6 }, { wch:30 }, { wch:20 }, { wch:20 }, { wch:18 }];
+    ws['!cols'] = [{ wch:6 }, { wch:35 }, { wch:20 }, { wch:18 }];
     XLSX.utils.book_append_sheet(wb, ws, 'Guru');
     XLSX.writeFile(wb, `DataGuru_PEMIRA_${new Date().toISOString().slice(0,10)}.xlsx`);
     showAlertModal('Ekspor Berhasil', `${teachers.length} guru diekspor.`, 'success');
