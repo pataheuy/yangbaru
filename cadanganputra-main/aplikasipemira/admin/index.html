@@ -350,15 +350,10 @@
         <div id="panelGuru" class="hidden">
             <!-- Form tambah guru -->
             <div class="mb-3 bg-emerald-50 p-3 rounded-2xl border border-emerald-200">
-                <form onsubmit="handleAddTeacher(event)" class="grid grid-cols-1 sm:grid-cols-4 gap-2 items-end">
+                <form onsubmit="handleAddTeacher(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-end">
                     <div>
                         <label class="block text-[10px] font-bold text-slate-600 mb-0.5">Nama Guru / Staf</label>
                         <input type="text" id="newTeacherNameInput" placeholder="Contoh: Budi, S.Pd."
-                               class="w-full px-2.5 py-2 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 bg-white" required>
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-slate-600 mb-0.5">Username</label>
-                        <input type="text" id="newTeacherUsernameInput" placeholder="guru01"
                                class="w-full px-2.5 py-2 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 bg-white" required>
                     </div>
                     <div>
@@ -396,7 +391,6 @@
                         <tr>
                             <th class="p-2.5 pl-4">No</th>
                             <th class="p-2.5">Nama</th>
-                            <th class="p-2.5">Username</th>
                             <th class="p-2.5">Password</th>
                             <th class="p-2.5">Status</th>
                             <th class="p-2.5 text-right pr-4">Aksi</th>

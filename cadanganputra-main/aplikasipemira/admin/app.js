@@ -987,7 +987,6 @@ async function loadTeachers() {
                 teachers = data.map(t => ({
                     id:       t.id,
                     name:     t.name,
-                    username: t.username,
                     password: t.password || '',
                     role:     t.role || 'Guru',
                     hasVoted: t.has_voted || false,
@@ -1008,7 +1007,7 @@ async function syncTeacherToSupabase(t) {
     if (!isSupabaseActive || !supabaseClient || !t) return;
     try {
         await supabaseClient.from('teachers').upsert({
-            id: t.id, name: t.name, username: t.username,
+            id: t.id, name: t.name,
             password: t.password || '', role: t.role || 'Guru',
             has_voted: t.hasVoted, voted_for: t.votedFor
         });
@@ -1020,7 +1019,7 @@ async function syncMultipleTeachersToSupabase(list) {
     try {
         await supabaseClient.from('teachers').upsert(
             list.map(t => ({
-                id: t.id, name: t.name, username: t.username,
+                id: t.id, name: t.name,
                 password: t.password || '', role: t.role || 'Guru',
                 has_voted: t.hasVoted, voted_for: t.votedFor
             }))
@@ -1085,7 +1084,7 @@ function renderAdminTeacherManager() {
     tbody.innerHTML = '';
 
     if (!teachers.length) {
-        tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400 text-xs">Belum ada guru. Tambah manual atau import Excel.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400 text-xs">Belum ada guru. Tambah manual atau import Excel.</td></tr>`;
         return;
     }
 
@@ -1094,7 +1093,6 @@ function renderAdminTeacherManager() {
         tr.innerHTML = `
             <td class="p-2.5 pl-4 font-bold text-slate-400">${idx + 1}</td>
             <td class="p-2.5 font-bold text-slate-800">${t.name}</td>
-            <td class="p-2.5 font-mono text-[11px] text-slate-600">${t.username}</td>
             <td class="p-2.5">
                 <span class="font-mono text-slate-600 text-[11px] bg-slate-100 px-2 py-0.5 rounded-md">${t.password || '—'}</span>
                 <button onclick="editTeacherPassword('${t.id}')" class="ml-1 text-sky-500 hover:text-sky-700 text-[10px]">
@@ -1127,26 +1125,18 @@ function renderAdminTeacherManager() {
 function handleAddTeacher(e) {
     e.preventDefault();
     const name     = document.getElementById('newTeacherNameInput').value.trim();
-    const username = document.getElementById('newTeacherUsernameInput').value.trim();
     const password = document.getElementById('newTeacherPasswordInput').value.trim();
-    if (!name || !username || !password) return;
-
-    // Cek username unik
-    if (teachers.find(t => t.username === username)) {
-        showAlertModal('Username Duplikat', `Username "${username}" sudah digunakan.`, 'info');
-        return;
-    }
+    if (!name || !password) return;
 
     const nt = {
         id: `tch_${Date.now()}_${Math.random().toString(36).substr(2,4)}`,
-        name, username, password, role: 'Guru', hasVoted: false, votedFor: null
+        name, password, role: 'Guru', hasVoted: false, votedFor: null
     };
     teachers.push(nt);
     saveTeachersLocal();
     syncTeacherToSupabase(nt);
 
     document.getElementById('newTeacherNameInput').value     = '';
-    document.getElementById('newTeacherUsernameInput').value = '';
     document.getElementById('newTeacherPasswordInput').value = '';
 
     renderAdminTeacherManager();
@@ -1206,7 +1196,7 @@ function clearAllTeachers() {
     showAlertModal('Terhapus', 'Semua data guru telah dihapus.', 'info');
 }
 
-// >> Import Excel guru (kolom: Nama | Username | Password)
+// >> Import Excel guru (kolom: Nama | Password)
 function handleTeacherExcelUpload(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -1219,25 +1209,20 @@ function handleTeacherExcelUpload(event) {
             if (!rows?.length) { showAlertModal('File Kosong', 'Tidak ada data.', 'info'); return; }
 
             const fi = (kws) => rows[0].findIndex(c => c && kws.some(k => c.toString().toLowerCase().includes(k)));
-            const nameCol     = fi(['nama','name']);
-            const usernameCol = fi(['username','user','nip']);
-            const passCol     = fi(['password','pass','sandi']);
-            const startRow    = (nameCol !== -1 && rows[0]?.[nameCol]?.toString().toLowerCase().match(/nama|name/)) ? 1 : 0;
+            const nameCol = fi(['nama','name']);
+            const passCol = fi(['password','pass','sandi']);
+            const startRow = (nameCol !== -1 && rows[0]?.[nameCol]?.toString().toLowerCase().match(/nama|name/)) ? 1 : 0;
 
             const batch = [];
             for (let i = startRow; i < rows.length; i++) {
-                const row      = rows[i];
-                const name     = nameCol !== -1     ? row[nameCol]?.toString().trim()     : row[0]?.toString().trim();
-                const username = usernameCol !== -1 ? row[usernameCol]?.toString().trim() : row[1]?.toString().trim();
-                const pass     = passCol !== -1     ? row[passCol]?.toString().trim()     : row[2]?.toString().trim();
-                if (!name || !username) continue;
-
-                // Skip duplikat username
-                if (teachers.find(t => t.username === username)) continue;
+                const row  = rows[i];
+                const name = nameCol !== -1 ? row[nameCol]?.toString().trim() : row[0]?.toString().trim();
+                const pass = passCol !== -1 ? row[passCol]?.toString().trim() : row[1]?.toString().trim();
+                if (!name) continue;
 
                 const nt = {
                     id: `tch_${Date.now()}_${i}_${Math.random().toString(36).substr(2,3)}`,
-                    name, username, password: pass || `pass${i}`,
+                    name, password: pass || `pass${i}`,
                     role: 'Guru', hasVoted: false, votedFor: null
                 };
                 teachers.push(nt); batch.push(nt);

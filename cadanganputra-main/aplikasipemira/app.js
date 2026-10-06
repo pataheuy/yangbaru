@@ -255,7 +255,7 @@ function generateDefaultSampleStudents() {
 
 // >> Sembunyikan semua screen utama
 function hideAllScreens() {
-    const ids = ['roleSelectScreen','teacherLoginScreen','welcomeScreen','studentSelectScreen','homePage','adminPage'];
+    const ids = ['roleSelectScreen','teacherSelectScreen','welcomeScreen','studentSelectScreen','homePage','adminPage'];
     ids.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.add('hidden');
@@ -268,8 +268,10 @@ function showRoleSelectScreen() {
     currentRole   = null;
     activeTeacher = null;
     selectedStudent = null;
-    document.getElementById('changeClassNavBtn').classList.add('hidden');
-    document.getElementById('homeNavBtn').classList.add('hidden');
+    const changeBtn = document.getElementById('changeClassNavBtn');
+    const homeBtn   = document.getElementById('homeNavBtn');
+    if (changeBtn) changeBtn.classList.add('hidden');
+    if (homeBtn)   homeBtn.classList.add('hidden');
     const el = document.getElementById('roleSelectScreen');
     if (el) el.classList.remove('hidden');
 }
@@ -279,11 +281,9 @@ function selectRole(role) {
     currentRole = role;
     hideAllScreens();
     if (role === 'guru') {
-        document.getElementById('teacherLoginScreen').classList.remove('hidden');
-        document.getElementById('teacherUsernameInput').value = '';
-        document.getElementById('teacherPasswordInput').value = '';
-        document.getElementById('teacherLoginError').classList.add('hidden');
-        setTimeout(() => document.getElementById('teacherUsernameInput').focus(), 100);
+        document.getElementById('teacherSelectScreen').classList.remove('hidden');
+        const inp = document.getElementById('teacherSearchInput');
+        if (inp) { inp.value = ''; renderTeacherCards(''); setTimeout(() => inp.focus(), 100); }
     } else {
         // Murid — lanjut ke pilih kelas
         renderWelcomeClasses();
@@ -291,40 +291,125 @@ function selectRole(role) {
     }
 }
 
-// >> Handle form login guru
-function handleTeacherLogin(event) {
-    event.preventDefault();
-    const username = document.getElementById('teacherUsernameInput').value.trim();
-    const password = document.getElementById('teacherPasswordInput').value.trim();
+// >> Filter guru saat ketik di search
+function filterTeacherList() {
+    renderTeacherCards(document.getElementById('teacherSearchInput').value);
+}
 
-    const teacher = teachers.find(t => t.username === username && t.password === password);
-    if (!teacher) {
-        document.getElementById('teacherLoginError').classList.remove('hidden');
-        document.getElementById('teacherPasswordInput').value = '';
+// >> Render kartu guru yang cocok dengan query
+function renderTeacherCards(filterQuery = '') {
+    const container = document.getElementById('teacherListGrid');
+    if (!container) return;
+    container.innerHTML = '';
+    const query = filterQuery.trim();
+
+    if (query.length < 3) {
+        container.innerHTML = `
+            <div class="col-span-full text-center py-8 bg-white/60 border border-dashed border-emerald-200 rounded-2xl p-6 text-slate-400">
+                <i class="fa-solid fa-keyboard text-3xl mb-2 text-slate-300 block"></i>
+                <p class="text-xs font-semibold">Ketik minimal 3 karakter nama untuk mencari.</p>
+            </div>`;
         return;
     }
 
-    document.getElementById('teacherLoginError').classList.add('hidden');
-    activeTeacher = teacher;
+    const filtered = teachers.filter(t =>
+        !t.hasVoted &&
+        t.name.toLowerCase().includes(query.toLowerCase())
+    );
 
-    // Set active voter banner untuk guru
-    const iconEl  = document.getElementById('activeVoterIcon');
-    const roleEl  = document.getElementById('activeVoterRoleLabel');
-    const nameEl  = document.getElementById('activeVoterName');
-    const classEl = document.getElementById('activeVoterClass');
-    const btnEl   = document.getElementById('changeVoterBtn');
+    if (filtered.length === 0) {
+        container.innerHTML = `
+            <div class="col-span-full text-center py-8 bg-white rounded-2xl border border-slate-100 p-6 text-slate-400">
+                <i class="fa-solid fa-user-slash text-3xl mb-2 text-slate-300 block"></i>
+                <p class="text-xs font-semibold">Tidak ditemukan guru "${query}".</p>
+                <p class="text-[11px] mt-1 text-slate-400">Periksa ejaan atau hubungi admin.</p>
+            </div>`;
+        return;
+    }
 
-    if (iconEl)  { iconEl.className = 'w-10 h-10 bg-emerald-600 text-white rounded-xl flex items-center justify-center font-bold'; iconEl.innerHTML = '<i class="fa-solid fa-chalkboard-user"></i>'; }
-    if (roleEl)  roleEl.innerText  = 'Guru / Staf Pemilih';
-    if (nameEl)  nameEl.innerText  = teacher.name;
-    if (classEl) { classEl.innerText = teacher.role || 'Guru'; classEl.className = 'bg-white text-emerald-700 font-bold text-xs px-3 py-1 rounded-xl border border-emerald-200'; }
-    if (btnEl)   { btnEl.innerText = 'Ganti Akun'; btnEl.onclick = () => showRoleSelectScreen(); }
+    filtered.forEach(t => {
+        const card = document.createElement('div');
+        card.className = "bg-white px-5 py-4 rounded-2xl border border-emerald-100 hover:border-emerald-400 cursor-pointer flex items-center justify-between shadow-sm active:scale-[0.98] transition";
+        card.onclick = () => selectTeacherAndProceed(t.id);
+        card.innerHTML = `
+            <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-xl flex items-center justify-center font-bold text-lg shrink-0">
+                    <i class="fa-solid fa-chalkboard-user"></i>
+                </div>
+                <div class="text-left">
+                    <h4 class="font-bold text-slate-800 text-base leading-tight">${t.name}</h4>
+                    <span class="text-xs text-emerald-600 font-semibold block mt-0.5">
+                        ${t.role || 'Guru / Staf'} &nbsp;·&nbsp; Tap untuk memilih
+                        <i class="fa-solid fa-arrow-right ml-0.5 text-[10px]"></i>
+                    </span>
+                </div>
+            </div>
+            <i class="fa-solid fa-chevron-right text-sm text-emerald-400"></i>`;
+        container.appendChild(card);
+    });
+}
 
-    hideAllScreens();
-    document.getElementById('homePage').classList.remove('hidden');
-    document.getElementById('changeClassNavBtn').classList.remove('hidden');
-    document.getElementById('homeNavBtn').classList.remove('hidden');
-    renderCandidatesHome();
+// >> Guru diklik → cek status → buka modal verifikasi password
+function selectTeacherAndProceed(teacherId) {
+    const t = teachers.find(t => t.id === teacherId);
+    if (!t) return;
+    if (t.hasVoted) {
+        showAlertModal('Sudah Memilih', `${t.name} sudah memberikan suara sebelumnya.`, 'info');
+        return;
+    }
+    openTeacherPasswordModal(t);
+}
+
+// >> Buka modal password guru
+let pendingTeacherId = null;
+function openTeacherPasswordModal(t) {
+    pendingTeacherId = t.id;
+    document.getElementById('passwordModalTeacherName').innerText = `${t.name} — ${t.role || 'Guru / Staf'}`;
+    document.getElementById('teacherPasswordVerifyInput').value   = '';
+    document.getElementById('teacherPasswordError').classList.add('hidden');
+    const modal = document.getElementById('teacherPasswordModal');
+    modal.classList.remove('hidden'); modal.classList.add('flex');
+    setTimeout(() => document.getElementById('teacherPasswordVerifyInput').focus(), 100);
+}
+
+function closeTeacherPasswordModal() {
+    pendingTeacherId = null;
+    const modal = document.getElementById('teacherPasswordModal');
+    modal.classList.add('hidden'); modal.classList.remove('flex');
+}
+
+// >> Verifikasi password guru
+function verifyTeacherPassword() {
+    const t = teachers.find(t => t.id === pendingTeacherId);
+    if (!t) { closeTeacherPasswordModal(); return; }
+
+    const entered = document.getElementById('teacherPasswordVerifyInput').value;
+    if (entered === t.password) {
+        closeTeacherPasswordModal();
+        activeTeacher = t;
+
+        // Set banner guru
+        const iconEl  = document.getElementById('activeVoterIcon');
+        const roleEl  = document.getElementById('activeVoterRoleLabel');
+        const btnEl   = document.getElementById('changeVoterBtn');
+        const classEl = document.getElementById('activeVoterClass');
+        if (iconEl)  { iconEl.className = 'w-10 h-10 bg-emerald-600 text-white rounded-xl flex items-center justify-center font-bold'; iconEl.innerHTML = '<i class="fa-solid fa-chalkboard-user"></i>'; }
+        if (roleEl)  roleEl.innerText  = 'Guru / Staf Pemilih';
+        if (classEl) { classEl.innerText = t.role || 'Guru / Staf'; classEl.className = 'bg-white text-emerald-700 font-bold text-xs px-3 py-1 rounded-xl border border-emerald-200'; }
+        if (btnEl)   { btnEl.innerText = 'Ganti Akun'; btnEl.onclick = () => showRoleSelectScreen(); }
+
+        document.getElementById('activeVoterName').innerText = t.name;
+
+        hideAllScreens();
+        document.getElementById('homePage').classList.remove('hidden');
+        document.getElementById('changeClassNavBtn').classList.remove('hidden');
+        document.getElementById('homeNavBtn').classList.remove('hidden');
+        renderCandidatesHome();
+    } else {
+        document.getElementById('teacherPasswordError').classList.remove('hidden');
+        document.getElementById('teacherPasswordVerifyInput').value = '';
+        document.getElementById('teacherPasswordVerifyInput').focus();
+    }
 }
 
 

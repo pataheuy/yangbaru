@@ -160,7 +160,7 @@
                     </div>
                     <div>
                         <h3 class="text-2xl font-bold text-slate-800">Guru / Staf</h3>
-                        <p class="text-xs text-slate-500 mt-1">Masuk dengan Username & Password</p>
+                        <p class="text-xs text-slate-500 mt-1">Masuk dengan mencari nama & password</p>
                     </div>
                     <span class="text-xs font-semibold text-emerald-800 bg-emerald-50 px-4 py-1.5 rounded-full border border-emerald-200">
                         Masuk sebagai Guru <i class="fa-solid fa-arrow-right ml-1"></i>
@@ -169,39 +169,31 @@
             </div>
         </section>
 
-        <!-- ================= STEP 0B: GURU LOGIN SCREEN ================= -->
-        <section id="teacherLoginScreen" class="w-full max-w-md space-y-6 animate-fade-in-up hidden my-auto py-6">
-            <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm space-y-4">
-                <button onclick="showRoleSelectScreen()" class="text-xs font-semibold text-sky-600 hover:text-sky-800 bg-slate-50 px-3.5 py-1.5 rounded-xl border border-slate-200 flex items-center transition mb-2">
+        <!-- ================= STEP 0B: GURU SEARCH SCREEN ================= -->
+        <section id="teacherSelectScreen" class="w-full max-w-3xl space-y-6 animate-fade-in-up hidden my-auto py-6">
+            <div class="flex items-center justify-between w-full">
+                <button onclick="showRoleSelectScreen()" class="text-xs font-semibold text-emerald-600 hover:text-emerald-800 bg-white px-3.5 py-2 rounded-xl border border-slate-200 shadow-sm flex items-center transition">
                     <i class="fa-solid fa-arrow-left mr-2"></i> Kembali
                 </button>
-                <div class="text-center">
-                    <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto text-3xl mb-3">
-                        <i class="fa-solid fa-id-card"></i>
-                    </div>
-                    <h2 class="text-2xl font-extrabold text-slate-800 mb-1">Login Guru / Staf</h2>
-                    <p class="text-xs text-slate-500">Masukkan Username & Password resmi Anda.</p>
-                </div>
+                <span class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-extrabold text-xs px-4 py-1.5 rounded-full shadow-sm">
+                    <i class="fa-solid fa-chalkboard-user mr-1"></i> Guru / Staf
+                </span>
+            </div>
 
-                <form onsubmit="handleTeacherLogin(event)" class="space-y-4 pt-2">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Username</label>
-                        <input type="text" id="teacherUsernameInput" placeholder="Contoh: guru01"
-                            class="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 focus:border-emerald-500 rounded-2xl text-sm font-semibold text-slate-800 focus:outline-none focus:bg-white transition" required>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">Password</label>
-                        <input type="password" id="teacherPasswordInput" placeholder="Masukkan password Anda..."
-                            class="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 focus:border-emerald-500 rounded-2xl text-sm font-semibold text-slate-800 focus:outline-none focus:bg-white transition" required>
-                    </div>
-                    <div id="teacherLoginError" class="hidden text-rose-500 text-xs font-semibold text-center">
-                        <i class="fa-solid fa-circle-exclamation mr-1"></i> Username atau password salah!
-                    </div>
-                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-2xl transition shadow-md flex items-center justify-center space-x-2">
-                        <span>Masuk & Pilih Kandidat</span>
-                        <i class="fa-solid fa-arrow-right text-xs"></i>
-                    </button>
-                </form>
+            <!-- Search Bar -->
+            <div class="bg-white px-5 py-4 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
+                <div class="w-9 h-9 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center shrink-0 text-base">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </div>
+                <div class="flex-grow">
+                    <input type="text" id="teacherSearchInput" oninput="filterTeacherList()" placeholder="Ketik nama guru / staf (min. 3 karakter)..."
+                        class="w-full pl-4 pr-4 py-2.5 bg-slate-50 border-2 border-emerald-100 focus:border-emerald-500 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:bg-white transition">
+                </div>
+            </div>
+
+            <!-- Teacher List Cards -->
+            <div id="teacherListGrid" class="grid grid-cols-1 gap-3 min-h-[120px]">
+                <!-- Dynamic Teacher Cards -->
             </div>
         </section>
 
@@ -483,6 +475,37 @@
                     <i class="fa-solid fa-unlock mr-2"></i> Masuk & Pilih Kandidat
                 </button>
                 <button onclick="closeStudentPasswordModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold py-2.5 rounded-xl text-xs transition">
+                    Batal
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Teacher Password Verification Modal -->
+    <div id="teacherPasswordModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl relative animate-fade-in-up">
+            <button onclick="closeTeacherPasswordModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="text-center mb-5">
+                <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-2 text-xl">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800">Verifikasi Password</h3>
+                <p class="text-xs text-slate-500 mt-1">Masukkan password untuk</p>
+                <p id="passwordModalTeacherName" class="text-sm font-extrabold text-emerald-700 mt-0.5"></p>
+            </div>
+            <div class="space-y-3">
+                <input type="password" id="teacherPasswordVerifyInput" placeholder="Masukkan password Anda..."
+                    class="w-full px-4 py-3 border-2 border-emerald-100 focus:border-emerald-500 rounded-2xl text-sm font-semibold text-slate-800 focus:outline-none transition"
+                    onkeydown="if(event.key==='Enter') verifyTeacherPassword()">
+                <div id="teacherPasswordError" class="hidden text-rose-500 text-xs font-semibold text-center">
+                    <i class="fa-solid fa-circle-exclamation mr-1"></i> Password salah. Coba lagi!
+                </div>
+                <button onclick="verifyTeacherPassword()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-2xl text-sm transition">
+                    <i class="fa-solid fa-unlock mr-2"></i> Masuk & Pilih Kandidat
+                </button>
+                <button onclick="closeTeacherPasswordModal()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-semibold py-2.5 rounded-xl text-xs transition">
                     Batal
                 </button>
             </div>
