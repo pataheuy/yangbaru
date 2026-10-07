@@ -30,6 +30,13 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
+        /* Scrollbar tipis */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        * { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
@@ -293,7 +300,7 @@
 
     <!-- Candidate Vision Mission Modal -->
     <div id="candidateModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50 transition-opacity">
-        <div class="bg-white rounded-3xl max-w-lg w-full max-h-[90vh] overflow-y-auto shadow-2xl relative flex flex-col animate-fade-in-up">
+        <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl relative flex flex-col animate-fade-in-up">
             <button onclick="closeCandidateModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-full w-9 h-9 flex items-center justify-center transition z-10">
                 <i class="fa-solid fa-xmark"></i>
             </button>

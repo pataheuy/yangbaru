@@ -20,6 +20,13 @@
     <style>
         * { font-family: 'Plus Jakarta Sans', sans-serif; }
         body { zoom: 0.9; }
+
+        /* Scrollbar tipis */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        * { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
         .gradient-bg  { background: linear-gradient(135deg, #2563eb 0%, #0284c7 50%, #0d9488 100%); }
         .gradient-btn { background: linear-gradient(135deg, #2563eb 0%, #0284c7 100%); }
         .gradient-btn:hover { background: linear-gradient(135deg, #1d4ed8 0%, #0369a1 100%); }
@@ -251,7 +258,7 @@
 
 <!-- Modal: Kelola Pemilih (Siswa + Guru) -->
 <div id="studentManageModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto animate-fade-in-up">
+    <div class="bg-white rounded-3xl max-w-3xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto animate-fade-in-up">
         <button onclick="closeStudentManageModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
             <i class="fa-solid fa-xmark"></i>
         </button>
@@ -418,7 +425,7 @@
 
 <!-- Modal: Tambah/Edit Kandidat -->
 <div id="candidateFormModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto animate-fade-in-up">
+    <div class="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto animate-fade-in-up">
         <button onclick="closeCandidateFormModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
             <i class="fa-solid fa-xmark"></i>
         </button>
