@@ -99,10 +99,81 @@ function handleAdminLogin(event) {
     }
 }
 
+// ============================================================
+// === SECTION: 4. DATA LAYER ===
+// ============================================================
+
+async function loadData() {
+    // localStorage sebagai fallback
+    const sc = localStorage.getItem('pemira_classes');
+    classes = sc ? JSON.parse(sc) : [...defaultClasses];
+
+    const scd = localStorage.getItem('pemira_candidates');
+    candidates = scd ? JSON.parse(scd) : [];
+
+    const ss = localStorage.getItem('pemira_students');
+    try { students = ss ? JSON.parse(ss) : []; } catch(e) { students = []; }
+
+    const sv = localStorage.getItem('pemira_voter_stats');
+    voterStats = sv ? JSON.parse(sv) : {};
+
+    // Timpa dengan data Supabase jika aktif
+    if (isSupabaseActive && supabaseClient) {
+        try {
+            const { data: cData } = await supabaseClient
+                .from('candidates').select('*').order('no', { ascending: true });
+            if (cData?.length) {
+                candidates = cData.map(c => ({
+                    id:             c.id,
+                    no:             c.no,
+                    name:           c.name,
+                    image:          c.image,
+                    visi:           c.visi,
+                    misi:           Array.isArray(c.misi) ? c.misi : (typeof c.misi === 'string' ? JSON.parse(c.misi) : []),
+                    votes:          c.votes || 0,
+                    votes_by_class: c.votes_by_class || {}
+                }));
+            }
+
+            const { data: sData } = await supabaseClient
+                .from('students').select('*').order('name', { ascending: true });
+            if (sData?.length) {
+                students = sData.map(s => ({
+                    id:       s.id,
+                    name:     s.name,
+                    grade:    s.grade,
+                    password: s.password || '',
+                    hasVoted: s.has_voted || false,
+                    votedFor: s.voted_for || null
+                }));
+                saveStudentsLocal();
+            }
+        } catch(e) { console.log("Supabase unavailable — using local data."); }
+    }
+
+    loadVoteLogsLocal();
+}
+
+function saveClassesLocal()    { localStorage.setItem('pemira_classes',     JSON.stringify(classes));    }
+function saveCandidatesLocal() { localStorage.setItem('pemira_candidates',  JSON.stringify(candidates)); }
+function saveStudentsLocal()   { localStorage.setItem('pemira_students',    JSON.stringify(students));   }
+function saveVoterStatsLocal() { localStorage.setItem('pemira_voter_stats', JSON.stringify(voterStats)); }
+
+function loadVoteLogsLocal() {
+    try {
+        const raw = localStorage.getItem('pemira_vote_logs');
+        voteLogs = raw ? JSON.parse(raw) : [];
+    } catch(e) { voteLogs = []; }
+}
+
+function saveVoteLogsLocal() {
+    localStorage.setItem('pemira_vote_logs', JSON.stringify(voteLogs));
+}
+
 async function showDashboard() {
-    const loginScreen = getEl('loginScreen');
+    const loginScreen     = getEl('loginScreen');
     const dashboardScreen = getEl('dashboardScreen');
-    const logoutBtn = getEl('logoutBtn');
+    const logoutBtn       = getEl('logoutBtn');
 
     if (!loginScreen || !dashboardScreen || !logoutBtn) return;
 
