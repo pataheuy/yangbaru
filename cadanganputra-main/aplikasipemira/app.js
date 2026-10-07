@@ -857,3 +857,28 @@ function handleFooterClick() {
     }
     footerClickTimer = setTimeout(() => { footerClickCount = 0; }, 2000);
 }
+
+function showAlertModal(title, message, type = 'info') {
+    const icon      = document.getElementById('alertIcon');
+    const titleEl   = document.getElementById('alertTitle');
+    const messageEl = document.getElementById('alertMessage');
+    const modal     = document.getElementById('alertModal');
+    if (!modal) return;
+    if (titleEl)   titleEl.innerText   = title;
+    if (messageEl) messageEl.innerText = message;
+    if (icon) {
+        if (type === 'success') {
+            icon.className = 'w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl bg-emerald-100 text-emerald-600';
+            icon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
+        } else {
+            icon.className = 'w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl bg-blue-100 text-blue-600';
+            icon.innerHTML = '<i class="fa-solid fa-circle-info"></i>';
+        }
+    }
+    modal.classList.remove('hidden'); modal.classList.add('flex');
+}
+
+function closeAlertModal() {
+    const modal = document.getElementById('alertModal');
+    if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+}

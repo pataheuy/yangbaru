@@ -476,8 +476,487 @@ function renderAuditLog(entries) {
 
 
 // ============================================================
+// === SECTION: 5. SUPABASE: STUDENTS ===
+// ============================================================
+
+async function syncStudentToSupabase(s) {
+    if (!isSupabaseActive || !supabaseClient || !s) return;
+    try { await supabaseClient.from('students').upsert({ id: s.id, name: s.name, grade: s.grade, password: s.password || '', has_voted: s.hasVoted, voted_for: s.votedFor }); }
+    catch(e) { console.error('syncStudent:', e); }
+}
+
+async function syncMultipleStudentsToSupabase(list) {
+    if (!isSupabaseActive || !supabaseClient || !list?.length) return;
+    try { await supabaseClient.from('students').upsert(list.map(s => ({ id: s.id, name: s.name, grade: s.grade, password: s.password || '', has_voted: s.hasVoted, voted_for: s.votedFor }))); }
+    catch(e) { console.error('syncMultipleStudents:', e); }
+}
+
+async function deleteStudentFromSupabase(id) {
+    if (!isSupabaseActive || !supabaseClient) return;
+    try { await supabaseClient.from('students').delete().eq('id', id); } catch(e) {}
+}
+
+async function deleteStudentsByGradeFromSupabase(grade) {
+    if (!isSupabaseActive || !supabaseClient) return;
+    try { await supabaseClient.from('students').delete().eq('grade', grade); } catch(e) {}
+}
+
+async function deleteAllStudentsFromSupabase() {
+    if (!isSupabaseActive || !supabaseClient) return;
+    try { await supabaseClient.from('students').delete().neq('id', '___none___'); } catch(e) {}
+}
+
+async function resetAllStudentVotesInSupabase() {
+    if (!isSupabaseActive || !supabaseClient) return;
+    try { await supabaseClient.from('students').update({ has_voted: false, voted_for: null }).neq('id', '___none___'); } catch(e) {}
+}
+
+
+// ============================================================
+// === SECTION: 6. SUPABASE: CANDIDATES ===
+// ============================================================
+
+async function uploadCandidateImageToStorage(file, candidateId) {
+    if (!isSupabaseActive || !supabaseClient || !file) return null;
+    try {
+        const ext  = file.name.split('.').pop();
+        const path = `${candidateId}.${ext}`;
+        const { error } = await supabaseClient.storage.from('candidate-images').upload(path, file, { upsert: true, contentType: file.type });
+        if (error) return null;
+        const { data } = supabaseClient.storage.from('candidate-images').getPublicUrl(path);
+        return data?.publicUrl || null;
+    } catch(e) { return null; }
+}
+
+async function upsertCandidateToSupabase(c) {
+    if (!isSupabaseActive || !supabaseClient || !c) return;
+    try { await supabaseClient.from('candidates').upsert({ id: c.id, no: c.no, name: c.name, image: c.image, visi: c.visi, misi: c.misi, votes: c.votes, votes_by_class: c.votes_by_class }); }
+    catch(e) { console.error('upsertCandidate:', e); }
+}
+
+async function deleteCandidateFromSupabase(id) {
+    if (!isSupabaseActive || !supabaseClient) return;
+    try {
+        await supabaseClient.from('candidates').delete().eq('id', id);
+        await supabaseClient.storage.from('candidate-images').remove([`${id}.jpg`, `${id}.jpeg`, `${id}.png`, `${id}.webp`]);
+    } catch(e) {}
+}
+
+async function resetCandidatesInSupabase() {
+    if (!isSupabaseActive || !supabaseClient) return;
+    try { for (const c of candidates) { await supabaseClient.from('candidates').update({ votes: 0, votes_by_class: {} }).eq('id', c.id); } }
+    catch(e) {}
+}
+
+
+// ============================================================
+// === SECTION: 7. SUPABASE: VOTE LOGS ===
+// ============================================================
+
+async function loadAuditLogFromSupabase() {
+    if (isSupabaseActive && supabaseClient) {
+        try {
+            const { data, error } = await supabaseClient.from('vote_logs').select('*').order('voted_at', { ascending: false });
+            if (!error && data) {
+                voteLogs = data.map(r => ({ id: r.id, student_id: r.student_id, student_name: r.student_name, student_grade: r.student_grade, candidate_id: r.candidate_id, candidate_name: r.candidate_name, candidate_no: r.candidate_no, voted_at: r.voted_at }));
+                saveVoteLogsLocal();
+            }
+        } catch(e) {}
+    }
+    renderAuditLog(voteLogs);
+}
+
+async function clearVoteLogsFromSupabase() {
+    if (!isSupabaseActive || !supabaseClient) return;
+    try { await supabaseClient.from('vote_logs').delete().neq('id', '___none___'); } catch(e) {}
+}
+
+function filterAuditLog() {
+    const qStudent   = (getEl('auditSearchStudent')?.value   || '').toLowerCase();
+    const qCandidate = (getEl('auditSearchCandidate')?.value || '').toLowerCase();
+    const qClass     = (getEl('auditFilterClass')?.value     || '');
+    const filtered = voteLogs.filter(log =>
+        (!qStudent   || (log.student_name   || '').toLowerCase().includes(qStudent)) &&
+        (!qCandidate || (log.candidate_name || '').toLowerCase().includes(qCandidate)) &&
+        (!qClass     || log.student_grade === qClass)
+    );
+    renderAuditLog(filtered);
+}
+
+
+// ============================================================
+// === SECTION: 9. ADMIN: KANDIDAT ===
+// ============================================================
+
+function openAddCandidateModal() {
+    if (getEl('candidateFormId'))    getEl('candidateFormId').value    = '';
+    if (getEl('formNo'))             getEl('formNo').value             = candidates.length + 1;
+    if (getEl('formName'))           getEl('formName').value           = '';
+    if (getEl('formVisi'))           getEl('formVisi').value           = '';
+    if (getEl('formMisi'))           getEl('formMisi').value           = '';
+    if (getEl('formImageFile'))      getEl('formImageFile').value      = '';
+    if (getEl('formModalTitle'))     getEl('formModalTitle').innerText = 'Tambah Kandidat Baru';
+    const m = getEl('candidateFormModal');
+    if (m) { m.classList.remove('hidden'); m.classList.add('flex'); }
+}
+
+function editCandidate(id) {
+    const c = candidates.find(c => c.id === id);
+    if (!c) return;
+    if (getEl('candidateFormId'))  getEl('candidateFormId').value    = c.id;
+    if (getEl('formNo'))           getEl('formNo').value             = c.no;
+    if (getEl('formName'))         getEl('formName').value           = c.name;
+    if (getEl('formVisi'))         getEl('formVisi').value           = c.visi;
+    if (getEl('formMisi'))         getEl('formMisi').value           = (Array.isArray(c.misi) ? c.misi : []).join('\n');
+    if (getEl('formImageFile'))    getEl('formImageFile').value      = '';
+    if (getEl('formModalTitle'))   getEl('formModalTitle').innerText = 'Edit Kandidat';
+    const m = getEl('candidateFormModal');
+    if (m) { m.classList.remove('hidden'); m.classList.add('flex'); }
+}
+
+function closeCandidateFormModal() {
+    const m = getEl('candidateFormModal');
+    if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
+}
+
+async function handleSaveCandidate(event) {
+    event.preventDefault();
+    const id        = getEl('candidateFormId')?.value || '';
+    const no        = parseInt(getEl('formNo')?.value || '1');
+    const name      = getEl('formName')?.value.trim() || '';
+    const visi      = getEl('formVisi')?.value.trim() || '';
+    const misiList  = (getEl('formMisi')?.value.trim() || '').split('\n').filter(m => m.trim());
+    const imageFile = getEl('formImageFile')?.files[0];
+    const candId    = id || ('c_' + Date.now());
+
+    const btn = event.target.querySelector('[type="submit"]');
+    if (btn) { btn.disabled = true; btn.innerText = 'Menyimpan...'; }
+
+    let imageUrl = imageFile && isSupabaseActive ? await uploadCandidateImageToStorage(imageFile, candId) : null;
+    if (!imageUrl && imageFile) {
+        imageUrl = await new Promise(resolve => {
+            const r = new FileReader();
+            r.onload = e => resolve(e.target.result);
+            r.readAsDataURL(imageFile);
+        });
+    }
+
+    let saved;
+    if (id) {
+        saved = candidates.find(c => c.id === id);
+        if (saved) { saved.no = no; saved.name = name; saved.visi = visi; saved.misi = misiList; if (imageUrl) saved.image = imageUrl; }
+    } else {
+        saved = { id: candId, no, name, image: imageUrl || `https://placehold.co/400x500/2563eb/fff?text=No.${no}`, visi, misi: misiList, votes: 0, votes_by_class: {} };
+        candidates.push(saved);
+    }
+
+    saveCandidatesLocal();
+    await upsertCandidateToSupabase(saved);
+
+    if (btn) { btn.disabled = false; btn.innerText = 'Simpan Data'; }
+    closeCandidateFormModal();
+    renderAdminDashboard();
+    showAlertModal('Berhasil', 'Data kandidat telah disimpan.', 'success');
+}
+
+async function deleteCandidateConfirm(id) {
+    const c = candidates.find(c => c.id === id);
+    if (!c || !confirm(`Hapus kandidat "${c.name}"?`)) return;
+    candidates = candidates.filter(c => c.id !== id);
+    saveCandidatesLocal();
+    await deleteCandidateFromSupabase(id);
+    renderAdminDashboard();
+    showAlertModal('Terhapus', 'Kandidat berhasil dihapus.', 'info');
+}
+
+async function resetVotesConfirm() {
+    if (!confirm('PERINGATAN: Reset semua suara dan status pemilih (siswa + guru)?')) return;
+    candidates.forEach(c => { c.votes = 0; c.votes_by_class = {}; });
+    students.forEach(s => { s.hasVoted = false; s.votedFor = null; });
+    teachers.forEach(t => { t.hasVoted = false; t.votedFor = null; });
+    voterStats = {};
+    saveCandidatesLocal(); saveStudentsLocal(); saveVoterStatsLocal(); saveTeachersLocal();
+    await Promise.all([
+        resetAllStudentVotesInSupabase(),
+        resetCandidatesInSupabase(),
+        clearVoteLogsFromSupabase(),
+        resetAllTeacherVotesInSupabase()
+    ]);
+    voteLogs = []; saveVoteLogsLocal();
+    renderAdminDashboard();
+    showAlertModal('Berhasil Reset', 'Semua suara dan status pemilihan telah direset.', 'info');
+}
+
+
+// ============================================================
+// === SECTION: 10 (lanjutan). ADMIN: SISWA ===
+// ============================================================
+
+function handleAddStudent(e) {
+    e.preventDefault();
+    const grade    = getEl('adminStudentGradeSelect')?.value;
+    const nameEl   = getEl('newStudentNameInput');
+    const passEl   = getEl('newStudentPasswordInput');
+    if (!grade || !nameEl || !passEl) return;
+    const name = nameEl.value.trim();
+    const password = passEl.value.trim();
+    if (!name || !password) return;
+
+    const ns = { id: `std_${Date.now()}_${Math.random().toString(36).substr(2,4)}`, name, grade, password, hasVoted: false, votedFor: null };
+    students.push(ns);
+    saveStudentsLocal(); syncStudentToSupabase(ns);
+    nameEl.value = ''; passEl.value = '';
+    renderAdminStudentManager(); renderAdminDashboard(); updateTabCounts();
+}
+
+function editStudentName(id) {
+    const s = students.find(s => s.id === id);
+    if (!s) return;
+    const n = prompt('Edit Nama Siswa:', s.name);
+    if (n?.trim()) { s.name = n.trim(); saveStudentsLocal(); syncStudentToSupabase(s); renderAdminStudentManager(); showAlertModal('Berhasil', 'Nama siswa diperbarui.', 'success'); }
+}
+
+function editStudentPassword(id) {
+    const s = students.find(s => s.id === id);
+    if (!s) return;
+    const p = prompt('Edit Password Siswa:', s.password || '');
+    if (p !== null && p.trim()) { s.password = p.trim(); saveStudentsLocal(); syncStudentToSupabase(s); renderAdminStudentManager(); showAlertModal('Berhasil', 'Password diperbarui.', 'success'); }
+}
+
+function deleteSingleStudent(id) {
+    students = students.filter(s => s.id !== id);
+    saveStudentsLocal(); deleteStudentFromSupabase(id);
+    renderAdminStudentManager(); renderAdminDashboard(); updateTabCounts();
+}
+
+function resetSingleStudentVote(id) {
+    const s = students.find(s => s.id === id);
+    if (!s) return;
+    s.hasVoted = false; s.votedFor = null;
+    saveStudentsLocal(); syncStudentToSupabase(s);
+    renderAdminStudentManager();
+}
+
+function clearStudentsOfActiveGrade() {
+    const grade = getEl('adminStudentGradeSelect')?.value;
+    if (!grade || !confirm(`Kosongkan semua siswa di ${grade}?`)) return;
+    students = students.filter(s => s.grade !== grade);
+    saveStudentsLocal(); deleteStudentsByGradeFromSupabase(grade);
+    renderAdminStudentManager(); renderAdminDashboard(); updateTabCounts();
+    showAlertModal('Berhasil', `Semua siswa di ${grade} dihapus.`, 'info');
+}
+
+function clearAllStudentsAllGrades() {
+    if (!confirm('Hapus SEMUA data siswa dari semua kelas?')) return;
+    students = [];
+    saveStudentsLocal(); deleteAllStudentsFromSupabase();
+    renderAdminStudentManager(); renderAdminDashboard(); updateTabCounts();
+    showAlertModal('Terhapus', 'Semua data siswa dihapus.', 'info');
+}
+
+function autoFillClassStudents() {
+    const grade = getEl('adminStudentGradeSelect')?.value;
+    if (!grade) return;
+    const cur = students.filter(s => s.grade === grade).length;
+    const batch = [];
+    for (let i = 1; i <= 30; i++) {
+        const ns = { id: `std_${Date.now()}_${i}_${Math.random().toString(36).substr(2,3)}`, name: `Siswa ${cur + i} ${grade}`, grade, password: `siswa${cur + i}`, hasVoted: false, votedFor: null };
+        students.push(ns); batch.push(ns);
+    }
+    saveStudentsLocal(); syncMultipleStudentsToSupabase(batch);
+    renderAdminStudentManager(); renderAdminDashboard(); updateTabCounts();
+    showAlertModal('Berhasil', `30 siswa baru ditambahkan ke ${grade}.`, 'success');
+}
+
+function handleExcelUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const grade  = getEl('adminStudentGradeSelect')?.value;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const wb   = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+            const ws   = wb.Sheets[wb.SheetNames[0]];
+            const rows = XLSX.utils.sheet_to_json(ws, { header: 1 });
+            if (!rows?.length) { showAlertModal('File Kosong', 'Tidak ada data dalam file.', 'info'); return; }
+
+            let nameCol = 0, passCol = -1;
+            if (Array.isArray(rows[0])) {
+                const fi = (kws) => rows[0].findIndex(c => c && kws.some(k => c.toString().toLowerCase().includes(k)));
+                const fn = fi(['nama','name']); const fp = fi(['password','pass','sandi']);
+                if (fn !== -1) nameCol = fn;
+                if (fp !== -1) passCol = fp;
+            }
+            const startRow = rows[0]?.[nameCol]?.toString().toLowerCase().match(/nama|name/) ? 1 : 0;
+            const batch = [];
+            for (let i = startRow; i < rows.length; i++) {
+                const row  = rows[i];
+                const name = row?.[nameCol]?.toString().trim();
+                if (!name) continue;
+                const pass = passCol !== -1 ? row[passCol]?.toString().trim() : `pass${i}`;
+                const ns = { id: `std_${Date.now()}_${i}_${Math.random().toString(36).substr(2,3)}`, name, grade, password: pass || `pass${i}`, hasVoted: false, votedFor: null };
+                students.push(ns); batch.push(ns);
+            }
+            saveStudentsLocal(); syncMultipleStudentsToSupabase(batch);
+            renderAdminStudentManager(); renderAdminDashboard(); updateTabCounts();
+            showAlertModal('Import Berhasil', `${batch.length} siswa ditambahkan ke ${grade}.`, 'success');
+        } catch(err) {
+            showAlertModal('Gagal Import', 'Format file tidak valid. Gunakan .xlsx atau .csv.', 'info');
+        } finally { event.target.value = ''; }
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+
+// ============================================================
+// === SECTION: 11 (lanjutan). ADMIN: KELAS ===
+// ============================================================
+
+function handleAddClass(e) {
+    e.preventDefault();
+    const inp = getEl('newClassNameInput');
+    if (!inp) return;
+    const name = inp.value.trim();
+    if (!name || classes.includes(name)) return;
+    classes.push(name);
+    saveClassesLocal();
+    inp.value = '';
+    renderClassList();
+}
+
+function deleteClass(name) {
+    if (classes.length <= 1) { showAlertModal('Tidak Bisa', 'Minimal harus ada 1 kelas.', 'info'); return; }
+    classes = classes.filter(g => g !== name);
+    saveClassesLocal();
+    renderClassList();
+}
+
+function updateTabCounts() {
+    const cSiswa = getEl('countTabSiswa');
+    const cGuru  = getEl('countTabGuru');
+    if (cSiswa) cSiswa.textContent = students.length;
+    if (cGuru)  cGuru.textContent  = teachers.length;
+}
+
+
+// ============================================================
 // === SECTION: 13. EXCEL: TEMPLATE & EKSPOR ===
 // ============================================================
+
+function downloadStudentTemplate() {
+    if (!window.XLSX) { showAlertModal('Error', 'SheetJS belum dimuat.', 'info'); return; }
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet([
+        ['No', 'Nama', 'Password'],
+        ['1', 'Budi Santoso', 'budi123'],
+        ['2', 'Ani Rahayu', 'ani456'],
+        ['', '← Hapus baris contoh, isi data asli di sini'],
+    ]);
+    ws['!cols'] = [{ wch:6 }, { wch:35 }, { wch:20 }];
+    XLSX.utils.book_append_sheet(wb, ws, 'Siswa');
+    XLSX.writeFile(wb, 'Template_DataSiswa_PEMIRA.xlsx');
+}
+
+function exportStudentsExcelAll() {
+    if (!window.XLSX) { showAlertModal('Error', 'SheetJS belum dimuat.', 'info'); return; }
+    if (!students.length) { showAlertModal('Kosong', 'Belum ada data siswa.', 'info'); return; }
+    const wb = XLSX.utils.book_new();
+    classes.forEach(grade => {
+        const kelasData = students.filter(s => s.grade === grade);
+        const rows = [['No', 'Nama', 'Password', 'Status Suara']];
+        kelasData.forEach((s, i) => rows.push([i + 1, s.name, s.password || '', s.hasVoted ? 'Sudah Memilih' : 'Belum Memilih']));
+        const ws = XLSX.utils.aoa_to_sheet(rows);
+        ws['!cols'] = [{ wch:6 }, { wch:35 }, { wch:20 }, { wch:18 }];
+        XLSX.utils.book_append_sheet(wb, ws, grade.replace('Kelas ', 'Kls'));
+    });
+    XLSX.writeFile(wb, `DataSiswa_SemuaKelas_${new Date().toISOString().slice(0,10)}.xlsx`);
+    showAlertModal('Ekspor Berhasil', `${students.length} siswa dari semua kelas diekspor.`, 'success');
+}
+
+function exportStudentsExcelCurrentGrade() {
+    if (!window.XLSX) { showAlertModal('Error', 'SheetJS belum dimuat.', 'info'); return; }
+    const grade = getEl('adminStudentGradeSelect')?.value;
+    if (!grade) return;
+    const kelasData = students.filter(s => s.grade === grade);
+    if (!kelasData.length) { showAlertModal('Kosong', `Belum ada siswa di ${grade}.`, 'info'); return; }
+    const rows = [['No', 'Nama', 'Password', 'Status Suara']];
+    kelasData.forEach((s, i) => rows.push([i + 1, s.name, s.password || '', s.hasVoted ? 'Sudah Memilih' : 'Belum Memilih']));
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    ws['!cols'] = [{ wch:6 }, { wch:35 }, { wch:20 }, { wch:18 }];
+    XLSX.utils.book_append_sheet(wb, ws, grade.replace('Kelas ', 'Kls'));
+    XLSX.writeFile(wb, `DataSiswa_${grade.replace(' ','')}_${new Date().toISOString().slice(0,10)}.xlsx`);
+    showAlertModal('Ekspor Berhasil', `${kelasData.length} siswa di ${grade} diekspor.`, 'success');
+}
+
+
+// Supabase teacher sync functions
+async function syncTeacherToSupabase(t) {
+    if (!isSupabaseActive || !supabaseClient || !t) return;
+    try { await supabaseClient.from('teachers').upsert({ id: t.id, name: t.name, password: t.password || '', role: t.role || 'Guru', has_voted: t.hasVoted, voted_for: t.votedFor }); }
+    catch(e) { console.error('syncTeacher:', e); }
+}
+
+async function syncMultipleTeachersToSupabase(list) {
+    if (!isSupabaseActive || !supabaseClient || !list?.length) return;
+    try { await supabaseClient.from('teachers').upsert(list.map(t => ({ id: t.id, name: t.name, password: t.password || '', role: t.role || 'Guru', has_voted: t.hasVoted, voted_for: t.votedFor }))); }
+    catch(e) { console.error('syncMultipleTeachers:', e); }
+}
+
+async function deleteTeacherFromSupabase(id) {
+    if (!isSupabaseActive || !supabaseClient) return;
+    try { await supabaseClient.from('teachers').delete().eq('id', id); } catch(e) {}
+}
+
+async function deleteAllTeachersFromSupabase() {
+    if (!isSupabaseActive || !supabaseClient) return;
+    try { await supabaseClient.from('teachers').delete().neq('id', '___none___'); } catch(e) {}
+}
+
+async function resetAllTeacherVotesInSupabase() {
+    if (!isSupabaseActive || !supabaseClient) return;
+    try { await supabaseClient.from('teachers').update({ has_voted: false, voted_for: null }).neq('id', '___none___'); } catch(e) {}
+}
+
+function renderAdminTeacherManager() {
+    const tbody = getEl('adminTeacherTableBody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    if (!teachers.length) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">Belum ada guru / staf. Tambah manual atau impor Excel.</td></tr>`;
+        return;
+    }
+    teachers.forEach((t, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td class="p-2.5 pl-4 font-bold text-slate-400">${idx + 1}</td>
+            <td class="p-2.5 font-bold text-slate-800">${t.name}</td>
+            <td class="p-2.5">
+                <span class="font-mono text-slate-600 text-[11px] bg-slate-100 px-2 py-0.5 rounded-md">${t.password || '—'}</span>
+                <button onclick="editTeacherPassword('${t.id}')" class="ml-1 text-sky-500 hover:text-sky-700 text-[10px]">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+            </td>
+            <td class="p-2.5">
+                ${t.hasVoted
+                    ? '<span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-md font-semibold text-[10px]">Sudah Memilih</span>'
+                    : '<span class="px-2 py-0.5 bg-slate-100 text-slate-500 rounded-md font-semibold text-[10px]">Belum Memilih</span>'}
+            </td>
+            <td class="p-2.5 text-right pr-4 space-x-1">
+                <button onclick="editTeacherName('${t.id}')" class="text-blue-600 hover:text-blue-800 text-[11px] font-semibold">
+                    <i class="fa-solid fa-pen-to-square"></i> Edit
+                </button>
+                ${t.hasVoted
+                    ? `<button onclick="resetSingleTeacherVote('${t.id}')" class="text-amber-600 hover:text-amber-800 text-[11px] font-semibold">
+                           <i class="fa-solid fa-rotate-left"></i> Reset
+                       </button>` : ''}
+                <button onclick="deleteSingleTeacher('${t.id}')" class="text-rose-600 hover:text-rose-800 text-[11px] font-semibold">
+                    <i class="fa-solid fa-trash"></i> Hapus
+                </button>
+            </td>`;
+        tbody.appendChild(tr);
+    });
+}
 
 
 // ============================================================
