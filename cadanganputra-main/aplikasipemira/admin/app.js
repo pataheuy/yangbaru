@@ -24,10 +24,10 @@
 // === SECTION: 1. CONFIG & STATE ===
 // ============================================================
 
-// >> Supabase credentials & admin password — diambil dari /api/config saat init
-let SUPABASE_URL      = null;
-let SUPABASE_ANON_KEY = null;
-let ADMIN_PASSWORD    = null;
+// >> Supabase credentials & admin password — hardcoded langsung
+let SUPABASE_URL      = 'https://puywjdopumlzvmzbcudr.supabase.co';
+let SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1eXdqZG9wdW1senZtemJjdWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDE3MTksImV4cCI6MjA4NzkxNzcxOX0.vvThyjtK2SlA9oA9Mr_XOmt1R_tNZk-ib3PO9XpiiSc';
+let ADMIN_PASSWORD    = 'kpu2026';
 
 // >> Default kelas jika localStorage kosong
 const defaultClasses = ["Kelas 7", "Kelas 8", "Kelas 9"];
@@ -58,33 +58,15 @@ const getEl = (id) => document.getElementById(id);
 // === SECTION: 2. INIT ===
 // ============================================================
 
-window.addEventListener('DOMContentLoaded', async () => {
-    await loadConfig();
+window.addEventListener('DOMContentLoaded', () => {
     initSupabaseClient();
     if (sessionStorage.getItem('pemira_admin_auth') === '1') {
         showDashboard();
     }
 });
 
-// >> Ambil Supabase URL, key, dan admin password dari serverless endpoint
-// >> Env var diutamakan. Fallback hardcoded selalu jalan untuk nilai yang masih null.
-async function loadConfig() {
-    try {
-        const res = await fetch('/api/config');
-        if (res.ok) {
-            const data = await res.json();
-            if (data.url)           SUPABASE_URL      = data.url;
-            if (data.key)           SUPABASE_ANON_KEY = data.key;
-            if (data.adminPassword) ADMIN_PASSWORD    = data.adminPassword;
-        }
-    } catch (e) {
-        // fetch gagal total (misal local dev tanpa server)
-    }
-    // Fallback — selalu aktif untuk nilai yang masih null setelah fetch
-    if (!SUPABASE_URL)      SUPABASE_URL      = 'https://puywjdopumlzvmzbcudr.supabase.co';
-    if (!SUPABASE_ANON_KEY) SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1eXdqZG9wdW1senZtemJjdWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDE3MTksImV4cCI6MjA4NzkxNzcxOX0.vvThyjtK2SlA9oA9Mr_XOmt1R_tNZk-ib3PO9XpiiSc';
-    if (!ADMIN_PASSWORD)    ADMIN_PASSWORD    = 'raisarfaketuampm';
-}
+// >> loadConfig tidak dipakai lagi — semua nilai hardcoded di atas
+async function loadConfig() {}
 
 function initSupabaseClient() {
     if (SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase) {
