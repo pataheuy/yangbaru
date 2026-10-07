@@ -44,11 +44,15 @@ let candidateBarChartInstance = null;
 let classes    = [];
 let candidates = [];
 let students   = [];
+let teachers   = [];
 let voterStats = {};
 
 // >> Audit log
 let voteLogs         = [];
 let auditLogFiltered = [];
+
+// >> Tab state
+let currentVoterTab = 'siswa';
 
 // Safe DOM helper to prevent null classList errors on admin pages
 const getEl = (id) => document.getElementById(id);
@@ -175,15 +179,22 @@ async function showDashboard() {
     const dashboardScreen = getEl('dashboardScreen');
     const logoutBtn       = getEl('logoutBtn');
 
-    if (!loginScreen || !dashboardScreen || !logoutBtn) return;
+    if (!loginScreen || !dashboardScreen || !logoutBtn) {
+        console.error('showDashboard: elemen tidak ditemukan', { loginScreen, dashboardScreen, logoutBtn });
+        return;
+    }
 
     loginScreen.classList.add('hidden');
     dashboardScreen.classList.remove('hidden');
     logoutBtn.classList.remove('hidden');
 
-    await loadData();
-    await loadTeachers();
-    renderAdminDashboard();
+    try {
+        await loadData();
+        await loadTeachers();
+        renderAdminDashboard();
+    } catch(e) {
+        console.error('showDashboard error:', e);
+    }
 }
 
 function adminLogout() {
@@ -994,9 +1005,6 @@ function closeAlertModal() {
 // ============================================================
 // === SECTION: GURU / STAF — State & Load ===
 // ============================================================
-
-let teachers        = [];
-let currentVoterTab = 'siswa';
 
 async function loadTeachers() {
     const stored = localStorage.getItem('pemira_teachers');

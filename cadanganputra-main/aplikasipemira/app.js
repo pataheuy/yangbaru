@@ -130,6 +130,15 @@ function showPage(page) {
         if (typeof renderAdminDashboard === 'function') renderAdminDashboard();
         return;
     }
+    if (page === 'home') {
+        const voter = currentRole === 'guru' ? activeTeacher : selectedStudent;
+        if (!voter) { showRoleSelectScreen(); return; }
+        hideAllScreens();
+        const homePage = document.getElementById('homePage');
+        if (homePage) homePage.classList.remove('hidden');
+        renderCandidatesHome();
+        return;
+    }
     const voter = currentRole === 'guru' ? activeTeacher : selectedStudent;
     if (!voter) { showRoleSelectScreen(); return; }
     hideAllScreens();
