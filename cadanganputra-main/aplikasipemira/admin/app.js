@@ -67,22 +67,23 @@ window.addEventListener('DOMContentLoaded', async () => {
 });
 
 // >> Ambil Supabase URL, key, dan admin password dari serverless endpoint
+// >> Env var diutamakan. Fallback hardcoded selalu jalan untuk nilai yang masih null.
 async function loadConfig() {
     try {
         const res = await fetch('/api/config');
         if (res.ok) {
             const data = await res.json();
-            SUPABASE_URL      = data.url           || SUPABASE_URL;
-            SUPABASE_ANON_KEY = data.key           || SUPABASE_ANON_KEY;
-            ADMIN_PASSWORD    = data.adminPassword || ADMIN_PASSWORD;
-            return;
+            if (data.url)           SUPABASE_URL      = data.url;
+            if (data.key)           SUPABASE_ANON_KEY = data.key;
+            if (data.adminPassword) ADMIN_PASSWORD    = data.adminPassword;
         }
     } catch (e) {
-        // fallback
+        // fetch gagal total (misal local dev tanpa server)
     }
-    SUPABASE_URL      = SUPABASE_URL      || 'https://puywjdopumlzvmzbcudr.supabase.co';
-    SUPABASE_ANON_KEY = SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1eXdqZG9wdW1senZtemJjdWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDE3MTksImV4cCI6MjA4N[...]
-    ADMIN_PASSWORD    = ADMIN_PASSWORD    || 'raisarfaketuampm';
+    // Fallback — selalu aktif untuk nilai yang masih null setelah fetch
+    if (!SUPABASE_URL)      SUPABASE_URL      = 'https://puywjdopumlzvmzbcudr.supabase.co';
+    if (!SUPABASE_ANON_KEY) SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1eXdqZG9wdW1senZtemJjdWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDE3MTksImV4cCI6MjA4NzkxNzcxOX0.vvThyjtK2SlA9oA9Mr_XOmt1R_tNZk-ib3PO9XpiiSc';
+    if (!ADMIN_PASSWORD)    ADMIN_PASSWORD    = 'raisarfaketuampm';
 }
 
 function initSupabaseClient() {
