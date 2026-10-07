@@ -988,11 +988,14 @@ function closeAlertModal() {
 }
 
 
+
+
+
 // ============================================================
-// === SECTION TAMBAHAN: GURU / STAF ===
+// === SECTION: GURU / STAF — State & Load ===
 // ============================================================
 
-let teachers = [];
+let teachers        = [];
 let currentVoterTab = 'siswa';
 
 async function loadTeachers() {
@@ -1003,7 +1006,7 @@ async function loadTeachers() {
         try {
             const { data } = await supabaseClient
                 .from('teachers').select('*').order('name', { ascending: true });
-            if (data && data.length > 0) {
+            if (data?.length) {
                 teachers = data.map(t => ({
                     id:       t.id,
                     name:     t.name,
@@ -1014,7 +1017,7 @@ async function loadTeachers() {
                 }));
                 saveTeachersLocal();
             }
-        } catch(e) { console.log("Supabase teachers unavailable — using local data."); }
+        } catch(e) { console.log('Supabase teachers unavailable.'); }
     }
 }
 
@@ -1025,19 +1028,18 @@ function saveTeachersLocal() {
 function switchVoterTab(tab) {
     currentVoterTab = tab;
     const btnSiswa = getEl('tabSiswaBtn');
-    const btnGuru = getEl('tabGuruBtn');
-    const panelS = getEl('panelSiswa');
-    const panelG = getEl('panelGuru');
-
+    const btnGuru  = getEl('tabGuruBtn');
+    const panelS   = getEl('panelSiswa');
+    const panelG   = getEl('panelGuru');
     if (!btnSiswa || !btnGuru || !panelS || !panelG) return;
 
     if (tab === 'siswa') {
         btnSiswa.className = 'px-4 py-2 font-bold text-xs rounded-xl transition bg-sky-600 text-white shadow-sm';
-        btnGuru.className = 'px-4 py-2 font-bold text-xs rounded-xl transition bg-slate-100 text-slate-600 hover:bg-slate-200';
+        btnGuru.className  = 'px-4 py-2 font-bold text-xs rounded-xl transition bg-slate-100 text-slate-600 hover:bg-slate-200';
         panelS.classList.remove('hidden');
         panelG.classList.add('hidden');
     } else {
-        btnGuru.className = 'px-4 py-2 font-bold text-xs rounded-xl transition bg-emerald-600 text-white shadow-sm';
+        btnGuru.className  = 'px-4 py-2 font-bold text-xs rounded-xl transition bg-emerald-600 text-white shadow-sm';
         btnSiswa.className = 'px-4 py-2 font-bold text-xs rounded-xl transition bg-slate-100 text-slate-600 hover:bg-slate-200';
         panelG.classList.remove('hidden');
         panelS.classList.add('hidden');
@@ -1046,63 +1048,12 @@ function switchVoterTab(tab) {
     updateTabCounts();
 }
 
-function updateTabCounts() {
-    const cS = getEl('countTabSiswa');
-    const cG = getEl('countTabGuru');
-    if (cS) cS.textContent = students.length;
-    if (cG) cG.textContent = teachers.length;
-}
-
-function renderAdminTeacherManager() {
-    const tbody = getEl('adminTeacherTableBody');
-    if (!tbody) return;
-    tbody.innerHTML = '';
-
-    if (!teachers.length) {
-        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400 text-xs">Belum ada guru. Tambah manual atau import Excel.</td></tr>`;
-        return;
-    }
-
-    teachers.forEach((t, idx) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td class="p-2.5 pl-4 font-bold text-slate-400">${idx + 1}</td>
-            <td class="p-2.5 font-bold text-slate-800">${t.name}</td>
-            <td class="p-2.5">
-                <span class="font-mono text-slate-600 text-[11px] bg-slate-100 px-2 py-0.5 rounded-md">${t.password || '—'}</span>
-                <button onclick="editTeacherPassword('${t.id}')" class="ml-1 text-sky-500 hover:text-sky-700 text-[10px]">
-                    <i class="fa-solid fa-pen-to-square"></i>
-                </button>
-            </td>
-            <td class="p-2.5">
-                ${t.hasVoted
-                    ? '<span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-md font-semibold text-[10px]">Sudah Memilih</span>'
-                    : '<span class="px-2 py-0.5 bg-slate-100 text-slate-500 rounded-md font-semibold text-[10px]">Belum Memilih</span>'
-                }
-            </td>
-            <td class="p-2.5 text-right pr-4 space-x-1">
-                <button onclick="editTeacherName('${t.id}')" class="text-blue-600 hover:text-blue-800 text-[11px] font-semibold">
-                    <i class="fa-solid fa-pen-to-square"></i> Edit
-                </button>
-                ${t.hasVoted
-                    ? `<button onclick="resetSingleTeacherVote('${t.id}')" class="text-amber-600 hover:text-amber-800 text-[11px] font-semibold">
-                           <i class="fa-solid fa-rotate-left"></i> Reset
-                       </button>` : ''}
-                <button onclick="deleteSingleTeacher('${t.id}')" class="text-rose-600 hover:text-rose-800 text-[11px] font-semibold">
-                    <i class="fa-solid fa-trash"></i> Hapus
-                </button>
-            </td>`;
-        tbody.appendChild(tr);
-    });
-}
-
 function handleAddTeacher(e) {
     e.preventDefault();
     const nameInput = getEl('newTeacherNameInput');
     const passInput = getEl('newTeacherPasswordInput');
     if (!nameInput || !passInput) return;
-
-    const name = nameInput.value.trim();
+    const name     = nameInput.value.trim();
     const password = passInput.value.trim();
     if (!name || !password) return;
 
@@ -1113,60 +1064,9 @@ function handleAddTeacher(e) {
     teachers.push(nt);
     saveTeachersLocal();
     syncTeacherToSupabase(nt);
-
-    nameInput.value = '';
-    passInput.value = '';
-
-    renderAdminTeacherManager();
-    updateTabCounts();
-    renderAdminDashboard();
+    nameInput.value = ''; passInput.value = '';
+    renderAdminTeacherManager(); updateTabCounts(); renderAdminDashboard();
     showAlertModal('Berhasil', `Guru "${name}" ditambahkan.`, 'success');
-}
-
-function editTeacherName(id) {
-    const t = teachers.find(t => t.id === id);
-    if (!t) return;
-    const n = prompt("Edit Nama Guru:", t.name);
-    if (n?.trim()) {
-        t.name = n.trim();
-        saveTeachersLocal(); syncTeacherToSupabase(t);
-        renderAdminTeacherManager();
-        showAlertModal('Berhasil', 'Nama guru diperbarui.', 'success');
-    }
-}
-
-function editTeacherPassword(id) {
-    const t = teachers.find(t => t.id === id);
-    if (!t) return;
-    const p = prompt("Edit Password Guru:", t.password || '');
-    if (p !== null && p.trim()) {
-        t.password = p.trim();
-        saveTeachersLocal(); syncTeacherToSupabase(t);
-        renderAdminTeacherManager();
-        showAlertModal('Berhasil', 'Password guru diperbarui.', 'success');
-    }
-}
-
-function deleteSingleTeacher(id) {
-    teachers = teachers.filter(t => t.id !== id);
-    saveTeachersLocal(); deleteTeacherFromSupabase(id);
-    renderAdminTeacherManager(); updateTabCounts(); renderAdminDashboard();
-}
-
-function resetSingleTeacherVote(id) {
-    const t = teachers.find(t => t.id === id);
-    if (!t) return;
-    t.hasVoted = false; t.votedFor = null;
-    saveTeachersLocal(); syncTeacherToSupabase(t);
-    renderAdminTeacherManager();
-}
-
-function clearAllTeachers() {
-    if (!confirm("Hapus SEMUA data guru / staf?")) return;
-    teachers = [];
-    saveTeachersLocal(); deleteAllTeachersFromSupabase();
-    renderAdminTeacherManager(); updateTabCounts(); renderAdminDashboard();
-    showAlertModal('Terhapus', 'Semua data guru telah dihapus.', 'info');
 }
 
 function handleTeacherExcelUpload(event) {
@@ -1175,28 +1075,23 @@ function handleTeacherExcelUpload(event) {
     const reader = new FileReader();
     reader.onload = function(e) {
         try {
-            const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
-            const ws = wb.Sheets[wb.SheetNames[0]];
+            const wb   = XLSX.read(new Uint8Array(e.target.result), { type: 'array' });
+            const ws   = wb.Sheets[wb.SheetNames[0]];
             const rows = XLSX.utils.sheet_to_json(ws, { header: 1 });
             if (!rows?.length) { showAlertModal('File Kosong', 'Tidak ada data.', 'info'); return; }
 
-            const fi = (kws) => rows[0].findIndex(c => c && kws.some(k => c.toString().toLowerCase().includes(k)));
-            const nameCol = fi(['nama','name']);
-            const passCol = fi(['password','pass','sandi']);
+            const fi       = (kws) => rows[0].findIndex(c => c && kws.some(k => c.toString().toLowerCase().includes(k)));
+            const nameCol  = fi(['nama','name']);
+            const passCol  = fi(['password','pass','sandi']);
             const startRow = (nameCol !== -1 && rows[0]?.[nameCol]?.toString().toLowerCase().match(/nama|name/)) ? 1 : 0;
 
             const batch = [];
             for (let i = startRow; i < rows.length; i++) {
-                const row = rows[i];
+                const row  = rows[i];
                 const name = nameCol !== -1 ? row[nameCol]?.toString().trim() : row[0]?.toString().trim();
                 const pass = passCol !== -1 ? row[passCol]?.toString().trim() : row[1]?.toString().trim();
                 if (!name) continue;
-
-                const nt = {
-                    id: `tch_${Date.now()}_${i}_${Math.random().toString(36).substr(2,3)}`,
-                    name, password: pass || `pass${i}`,
-                    role: 'Guru', hasVoted: false, votedFor: null
-                };
+                const nt = { id: `tch_${Date.now()}_${i}_${Math.random().toString(36).substr(2,3)}`, name, password: pass || `pass${i}`, role: 'Guru', hasVoted: false, votedFor: null };
                 teachers.push(nt); batch.push(nt);
             }
             saveTeachersLocal(); syncMultipleTeachersToSupabase(batch);
@@ -1227,10 +1122,7 @@ function exportTeachersExcel() {
     if (!window.XLSX) { showAlertModal('Error', 'SheetJS belum dimuat.', 'info'); return; }
     if (!teachers.length) { showAlertModal('Kosong', 'Belum ada data guru.', 'info'); return; }
     const rows = [['No', 'Nama', 'Password', 'Status Suara']];
-    teachers.forEach((t, i) => rows.push([
-        i + 1, t.name, t.password || '',
-        t.hasVoted ? 'Sudah Memilih' : 'Belum Memilih'
-    ]));
+    teachers.forEach((t, i) => rows.push([i + 1, t.name, t.password || '', t.hasVoted ? 'Sudah Memilih' : 'Belum Memilih']));
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.aoa_to_sheet(rows);
     ws['!cols'] = [{ wch:6 }, { wch:35 }, { wch:20 }, { wch:18 }];
