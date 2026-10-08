@@ -173,9 +173,9 @@ async function loadData() {
 
     if (isSupabaseActive && supabaseClient) {
         try {
-            const { data: cData } = await supabaseClient
+            const { data: cData, error: cErr } = await supabaseClient
                 .from('candidates').select('*').order('no', { ascending: true });
-            if (cData?.length) {
+            if (!cErr && cData) {
                 candidates = cData.map(c => ({
                     id:             c.id,
                     no:             c.no,
@@ -189,9 +189,10 @@ async function loadData() {
                 saveCandidatesLocal();
             }
 
-            const { data: sData } = await supabaseClient
+            const { data: sData, error: sErr } = await supabaseClient
                 .from('students').select('*').order('name', { ascending: true });
-            if (sData?.length) {
+            if (!sErr && sData) {
+                // Selalu pakai data Supabase — termasuk kalau kosong (siswa dihapus)
                 students = sData.map(s => ({
                     id:       s.id,
                     name:     s.name,
@@ -213,9 +214,10 @@ async function loadTeachers() {
 
     if (isSupabaseActive && supabaseClient) {
         try {
-            const { data } = await supabaseClient
+            const { data, error } = await supabaseClient
                 .from('teachers').select('*').order('name', { ascending: true });
-            if (data?.length) {
+            if (!error && data) {
+                // Selalu pakai data Supabase — termasuk kalau kosong
                 teachers = data.map(t => ({
                     id:       t.id,
                     name:     t.name,

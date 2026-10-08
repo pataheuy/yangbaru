@@ -196,59 +196,104 @@
                     </div>
                 </div>
 
-                <!-- Audit Log Panel -->
-                <div id="auditLogPanel" class="hidden bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                    <div class="p-4 border-b border-slate-100 flex items-center justify-between gap-3 flex-wrap">
-                        <div>
-                            <h2 class="font-bold text-slate-800 flex items-center">
-                                <i class="fa-solid fa-clock-rotate-left text-violet-600 mr-2"></i> Audit Log
-                            </h2>
-                            <p class="text-[11px] text-slate-400 mt-0.5">Rekaman seluruh aktivitas pemilihan</p>
-                        </div>
-                        <button onclick="hideAuditLog()"
-                                class="text-xs text-slate-500 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-xl font-semibold transition">
-                            <i class="fa-solid fa-xmark mr-1"></i> Tutup
-                        </button>
-                    </div>
-                    <div class="p-3 border-b border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-2">
-                        <input type="text" id="auditSearchStudent" oninput="filterAuditLog()" placeholder="🔍 Nama siswa..."
-                               class="px-3 py-2 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-violet-400">
-                        <input type="text" id="auditSearchCandidate" oninput="filterAuditLog()" placeholder="🔍 Nama kandidat..."
-                               class="px-3 py-2 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-violet-400">
-                        <select id="auditFilterClass" onchange="filterAuditLog()"
-                                class="px-3 py-2 border border-slate-200 rounded-xl text-xs focus:outline-none bg-white">
-                            <option value="">— Semua Kelas —</option>
-                        </select>
-                    </div>
-                    <div class="px-4 py-2 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
-                        <span id="auditLogCount" class="text-xs font-semibold text-slate-500">0 entri</span>
-                        <button onclick="loadAuditLogFromSupabase()"
-                                class="text-xs text-violet-600 hover:text-violet-800 font-semibold flex items-center gap-1">
-                            <i class="fa-solid fa-arrows-rotate"></i> Refresh
-                        </button>
-                    </div>
-                    <div class="overflow-x-auto max-h-96 overflow-y-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead class="sticky top-0 bg-slate-50 text-slate-400 text-[11px] uppercase tracking-wider">
-                                <tr>
-                                    <th class="p-3 pl-5">No</th>
-                                    <th class="p-3">Waktu</th>
-                                    <th class="p-3">Nama Siswa</th>
-                                    <th class="p-3">Kelas</th>
-                                    <th class="p-3">Kandidat</th>
-                                    <th class="p-3">No. Urut</th>
-                                </tr>
-                            </thead>
-                            <tbody id="auditLogTableBody" class="divide-y divide-slate-100 text-xs"></tbody>
-                        </table>
-                    </div>
-                </div>
+
 
             </div>
         </div>
     </section>
 
 </main>
+
+<!-- ===== AUDIT LOG OVERLAY ===== -->
+<div id="auditLogOverlay" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-3xl w-full max-w-6xl max-h-[92vh] flex flex-col shadow-2xl animate-fade-in-up overflow-hidden">
+
+        <!-- Header -->
+        <div class="p-5 border-b border-slate-100 flex items-center justify-between gap-3 shrink-0">
+            <div>
+                <h2 class="font-bold text-slate-800 text-lg flex items-center">
+                    <i class="fa-solid fa-clock-rotate-left text-violet-600 mr-2"></i> Audit Log Pemilihan
+                </h2>
+                <p class="text-[11px] text-slate-400 mt-0.5">Rekaman seluruh aktivitas pemilihan</p>
+            </div>
+            <button onclick="hideAuditLog()" class="text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 w-9 h-9 rounded-xl flex items-center justify-center transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- Scrollable content -->
+        <div class="overflow-y-auto flex-grow p-5 space-y-6">
+
+            <!-- Filter audit log -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <input type="text" id="auditSearchStudent" oninput="filterAuditLog()" placeholder="🔍 Nama siswa..."
+                       class="px-3 py-2 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-violet-400">
+                <input type="text" id="auditSearchCandidate" oninput="filterAuditLog()" placeholder="🔍 Nama kandidat..."
+                       class="px-3 py-2 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-violet-400">
+                <select id="auditFilterClass" onchange="filterAuditLog()"
+                        class="px-3 py-2 border border-slate-200 rounded-xl text-xs focus:outline-none bg-white">
+                    <option value="">— Semua Kelas —</option>
+                </select>
+            </div>
+
+            <!-- Count + Refresh -->
+            <div class="flex items-center justify-between">
+                <span id="auditLogCount" class="text-xs font-semibold text-slate-500">0 entri</span>
+                <button onclick="loadAuditLogFromSupabase()"
+                        class="text-xs text-violet-600 hover:text-violet-800 font-semibold flex items-center gap-1">
+                    <i class="fa-solid fa-arrows-rotate"></i> Refresh
+                </button>
+            </div>
+
+            <!-- Tabel audit log -->
+            <div class="rounded-2xl border border-slate-100 overflow-hidden">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-slate-50 text-slate-400 text-[11px] uppercase tracking-wider">
+                        <tr>
+                            <th class="p-3 pl-5">No</th>
+                            <th class="p-3">Waktu</th>
+                            <th class="p-3">Nama</th>
+                            <th class="p-3">Kelas</th>
+                            <th class="p-3">Kandidat</th>
+                            <th class="p-3">No. Urut</th>
+                        </tr>
+                    </thead>
+                    <tbody id="auditLogTableBody" class="divide-y divide-slate-100 text-xs"></tbody>
+                </table>
+            </div>
+
+            <!-- Tabel belum memilih -->
+            <div class="rounded-2xl border border-amber-100 overflow-hidden">
+                <div class="px-4 py-3 bg-amber-50 border-b border-amber-100 flex items-center justify-between">
+                    <h3 class="text-sm font-bold text-amber-700 flex items-center gap-2">
+                        <i class="fa-solid fa-user-clock"></i> Belum Memilih
+                    </h3>
+                    <span id="belumMemilihCount" class="text-xs font-semibold text-amber-600 bg-amber-100 px-2.5 py-1 rounded-full">0 orang</span>
+                </div>
+                <div class="px-4 py-2 bg-amber-50/50 border-b border-amber-100">
+                    <select id="belumMemilihFilterClass" onchange="renderBelumMemilihTable()"
+                            class="px-3 py-1.5 border border-amber-200 rounded-xl text-xs focus:outline-none bg-white">
+                        <option value="">— Semua Kelas —</option>
+                    </select>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-amber-50/50 text-slate-400 text-[11px] uppercase tracking-wider">
+                            <tr>
+                                <th class="p-3 pl-5">No</th>
+                                <th class="p-3">Nama</th>
+                                <th class="p-3">Kelas</th>
+                                <th class="p-3">Password</th>
+                            </tr>
+                        </thead>
+                        <tbody id="belumMemilihTableBody" class="divide-y divide-slate-100 text-xs"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
 
 <footer class="bg-white border-t border-slate-200 py-3 text-center text-xs text-slate-400">
     &copy; 2026 pufutaraPemira &mdash; Panel Admin
