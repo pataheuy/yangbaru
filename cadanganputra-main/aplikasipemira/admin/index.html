@@ -200,42 +200,7 @@
                     </div>
                 </div>
 
-                <!-- Panel: Belum Vote -->
-                <div id="belumVotePanel" class="hidden bg-white rounded-2xl shadow-sm border border-amber-100 overflow-hidden">
-                    <div class="p-4 border-b border-amber-100 flex items-center justify-between gap-3 flex-wrap">
-                        <div>
-                            <h2 class="font-bold text-slate-800 flex items-center">
-                                <i class="fa-solid fa-user-clock text-amber-500 mr-2"></i> Daftar Belum Vote
-                            </h2>
-                            <p class="text-[11px] text-slate-400 mt-0.5">Siswa & guru yang belum menggunakan hak pilih</p>
-                        </div>
-                        <button onclick="hideBelumVotePanel()"
-                                class="text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 w-8 h-8 rounded-xl flex items-center justify-center transition text-xs">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
-                    </div>
-                    <!-- Filter kelas -->
-                    <div class="px-4 py-3 border-b border-amber-50 flex items-center gap-3 flex-wrap bg-amber-50/40">
-                        <select id="belumVoteFilterClass" onchange="renderBelumVotePanel()"
-                                class="px-3 py-1.5 border border-amber-200 rounded-xl text-xs focus:outline-none bg-white">
-                            <option value="">— Semua Kelas —</option>
-                        </select>
-                        <span id="belumVoteCount" class="text-xs font-semibold text-amber-600 bg-amber-100 px-2.5 py-1 rounded-full">0 orang</span>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead class="bg-amber-50/50 text-slate-400 text-[11px] uppercase tracking-wider">
-                                <tr>
-                                    <th class="p-3 pl-5">No</th>
-                                    <th class="p-3">Nama</th>
-                                    <th class="p-3">Kelas</th>
-                                    <th class="p-3">Password</th>
-                                </tr>
-                            </thead>
-                            <tbody id="belumVoteTableBody" class="divide-y divide-slate-100 text-xs"></tbody>
-                        </table>
-                    </div>
-                </div>
+                <!-- Panel Belum Vote sudah dipindah ke overlay -->
 
 
 
@@ -267,10 +232,16 @@
 
             <!-- Filter audit log -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                <input type="text" id="auditSearchStudent" oninput="filterAuditLog()" placeholder="🔍 Nama siswa..."
-                       class="px-3 py-2 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-violet-400">
-                <input type="text" id="auditSearchCandidate" oninput="filterAuditLog()" placeholder="🔍 Nama kandidat..."
-                       class="px-3 py-2 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-violet-400">
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+                    <input type="text" id="auditSearchStudent" oninput="filterAuditLog()" placeholder="Nama siswa..."
+                           class="w-full pl-8 pr-3 py-2 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-violet-400">
+                </div>
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+                    <input type="text" id="auditSearchCandidate" oninput="filterAuditLog()" placeholder="Nama kandidat..."
+                           class="w-full pl-8 pr-3 py-2 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-violet-400">
+                </div>
                 <select id="auditFilterClass" onchange="filterAuditLog()"
                         class="px-3 py-2 border border-slate-200 rounded-xl text-xs focus:outline-none bg-white">
                     <option value="">— Semua Kelas —</option>
@@ -332,6 +303,61 @@
                 </div>
             </div>
 
+        </div>
+    </div>
+</div>
+
+<!-- ===== BELUM VOTE OVERLAY ===== -->
+<div id="belumVoteOverlay" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-3xl w-full max-w-5xl max-h-[92vh] flex flex-col shadow-2xl animate-fade-in-up overflow-hidden">
+
+        <!-- Header -->
+        <div class="p-5 border-b border-slate-100 flex items-center justify-between gap-3 shrink-0">
+            <div>
+                <h2 class="font-bold text-slate-800 text-lg flex items-center">
+                    <i class="fa-solid fa-user-clock text-amber-500 mr-2"></i> Daftar Belum Vote
+                </h2>
+                <p class="text-[11px] text-slate-400 mt-0.5">Siswa & guru yang belum menggunakan hak pilih</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="exportBelumVoteExcel()"
+                        class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-file-excel"></i> Ekspor Excel
+                </button>
+                <button onclick="hideBelumVotePanel()"
+                        class="text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 w-9 h-9 rounded-xl flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Filter + search -->
+        <div class="px-5 py-3 border-b border-slate-100 flex flex-wrap items-center gap-3 bg-amber-50/30 shrink-0">
+            <select id="belumVoteFilterClass" onchange="renderBelumVotePanel()"
+                    class="px-3 py-1.5 border border-amber-200 rounded-xl text-xs focus:outline-none bg-white">
+                <option value="">— Semua Kelas —</option>
+            </select>
+            <div class="relative flex-grow max-w-xs">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                <input type="text" id="belumVoteSearch" oninput="renderBelumVotePanel()" placeholder="Cari nama..."
+                       class="w-full pl-8 pr-3 py-1.5 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white">
+            </div>
+            <span id="belumVoteCount" class="text-xs font-semibold text-amber-600 bg-amber-100 px-2.5 py-1 rounded-full ml-auto">0 orang</span>
+        </div>
+
+        <!-- Tabel -->
+        <div class="overflow-y-auto flex-grow">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-slate-50 text-slate-400 text-[11px] uppercase tracking-wider sticky top-0">
+                    <tr>
+                        <th class="p-3 pl-5">No</th>
+                        <th class="p-3">Nama</th>
+                        <th class="p-3">Kelas</th>
+                        <th class="p-3">Password</th>
+                    </tr>
+                </thead>
+                <tbody id="belumVoteTableBody" class="divide-y divide-slate-100 text-xs"></tbody>
+            </table>
         </div>
     </div>
 </div>

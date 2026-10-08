@@ -594,65 +594,120 @@ function renderBelumMemilihTable() {
     });
 }
 
-// Panel belum vote di dashboard (bukan overlay)
+// Panel belum vote — fullscreen overlay
 function showBelumVotePanel() {
-    const panel = getEl('belumVotePanel');
-    if (!panel) return;
+    const overlay = getEl('belumVoteOverlay');
+    if (!overlay) return;
 
-    // Isi dropdown filter kelas
     const sel = getEl('belumVoteFilterClass');
     if (sel) {
         sel.innerHTML = '<option value="">— Semua Kelas —</option>';
         classes.forEach(g => { const o = document.createElement('option'); o.value = g; o.textContent = g; sel.appendChild(o); });
     }
+    const search = getEl('belumVoteSearch');
+    if (search) search.value = '';
 
-    panel.classList.remove('hidden');
+    overlay.classList.remove('hidden'); overlay.classList.add('flex');
     renderBelumVotePanel();
-    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function hideBelumVotePanel() {
-    const panel = getEl('belumVotePanel');
-    if (panel) panel.classList.add('hidden');
+    const overlay = getEl('belumVoteOverlay');
+    if (overlay) { overlay.classList.add('hidden'); overlay.classList.remove('flex'); }
 }
 
 function renderBelumVotePanel() {
-    const tbody   = getEl('belumVoteTableBody');
-    const countEl = getEl('belumVoteCount');
+    const tbody      = getEl('belumVoteTableBody');
+    const countEl    = getEl('belumVoteCount');
     if (!tbody) return;
 
     const filterGrade = getEl('belumVoteFilterClass')?.value || '';
+    const query       = (getEl('belumVoteSearch')?.value || '').toLowerCase().trim();
 
-    const belumSiswa = students.filter(s => !s.hasVoted && (!filterGrade || s.grade === filterGrade));
-    const belumGuru  = teachers.filter(t => !t.hasVoted && (!filterGrade || filterGrade === ''));
+    // Siswa belum memilih — urutkan per kelas
+    const belumSiswa = students
+        .filter(s => !s.hasVoted && (!filterGrade || s.grade === filterGrade) && (!query || s.name.toLowerCase().includes(query)))
+        .sort((a, b) => a.grade.localeCompare(b.grade) || a.name.localeCompare(b.name))
+        .map(s => ({ name: s.name, grade: s.grade, password: s.password || '—', type: 'siswa' }));
 
-    const semua = [
-        ...belumSiswa.map(s => ({ name: s.name, grade: s.grade,          password: s.password || '—', type: 'siswa' })),
-        ...belumGuru.map(t  => ({ name: t.name, grade: t.role || 'Guru', password: t.password || '—', type: 'guru'  }))
-    ].sort((a, b) => a.grade.localeCompare(b.grade) || a.name.localeCompare(b.name));
+    // Guru belum memilih — selalu di bawah, hanya muncul kalau tidak filter kelas
+    const belumGuru = filterGrade ? [] : teachers
+        .filter(t => !t.hasVoted && (!query || t.name.toLowerCase().includes(query)))
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map(t => ({ name: t.name, grade: t.role || 'Guru', password: t.password || '—', type: 'guru' }));
+
+    const semua = [...belumSiswa, ...belumGuru];
 
     if (countEl) countEl.textContent = `${semua.length} orang`;
     tbody.innerHTML = '';
 
     if (!semua.length) {
-        tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-emerald-600 font-semibold text-xs">🎉 Semua sudah memilih!</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-emerald-600 font-semibold text-sm">🎉 Semua sudah memilih!</td></tr>`;
         return;
     }
 
+    // Warna per kelas
+    const gradeColor = (grade, type) => {
+        if (type === 'guru') return 'bg-emerald-100 text-emerald-700';
+        if (grade.includes('7'))  return 'bg-blue-100 text-blue-700';
+        if (grade.includes('8'))  return 'bg-violet-100 text-violet-700';
+        if (grade.includes('9'))  return 'bg-rose-100 text-rose-700';
+        return 'bg-slate-100 text-slate-600';
+    };
+
+    // Warna baris per kelas
+    const rowColor = (grade, type) => {
+        if (type === 'guru') return 'hover:bg-emerald-50/40';
+        if (grade.includes('7'))  return 'hover:bg-blue-50/40';
+        if (grade.includes('8'))  return 'hover:bg-violet-50/40';
+        if (grade.includes('9'))  return 'hover:bg-rose-50/40';
+        return '';
+    };
+
     semua.forEach((p, idx) => {
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-amber-50/40 transition';
+        tr.className = `transition ${rowColor(p.grade, p.type)}`;
         tr.innerHTML = `
             <td class="p-3 pl-5 font-bold text-slate-400">${idx + 1}</td>
             <td class="p-3 font-semibold text-slate-800">${p.name}</td>
             <td class="p-3">
-                <span class="text-[11px] font-bold px-2 py-0.5 rounded-lg ${p.type === 'guru' ? 'bg-emerald-100 text-emerald-700' : 'bg-sky-100 text-sky-700'}">
+                <span class="text-[11px] font-bold px-2 py-0.5 rounded-lg ${gradeColor(p.grade, p.type)}">
                     ${p.grade}
                 </span>
             </td>
             <td class="p-3 font-mono text-slate-600 text-[11px]">${p.password}</td>`;
         tbody.appendChild(tr);
     });
+}
+
+function exportBelumVoteExcel() {
+    if (!window.XLSX) { showAlertModal('Error', 'SheetJS belum dimuat.', 'info'); return; }
+
+    const filterGrade = getEl('belumVoteFilterClass')?.value || '';
+    const query       = (getEl('belumVoteSearch')?.value || '').toLowerCase().trim();
+
+    const belumSiswa = students
+        .filter(s => !s.hasVoted && (!filterGrade || s.grade === filterGrade) && (!query || s.name.toLowerCase().includes(query)))
+        .sort((a, b) => a.grade.localeCompare(b.grade) || a.name.localeCompare(b.name));
+
+    const belumGuru = filterGrade ? [] : teachers
+        .filter(t => !t.hasVoted && (!query || t.name.toLowerCase().includes(query)))
+        .sort((a, b) => a.name.localeCompare(b.name));
+
+    if (!belumSiswa.length && !belumGuru.length) {
+        showAlertModal('Kosong', 'Tidak ada data untuk diekspor.', 'info'); return;
+    }
+
+    const rows = [['No', 'Nama', 'Kelas / Kategori', 'Password']];
+    belumSiswa.forEach((s, i) => rows.push([i + 1, s.name, s.grade, s.password || '']));
+    belumGuru.forEach((t, i)  => rows.push([belumSiswa.length + i + 1, t.name, t.role || 'Guru', t.password || '']));
+
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    ws['!cols'] = [{ wch: 5 }, { wch: 35 }, { wch: 15 }, { wch: 20 }];
+    XLSX.utils.book_append_sheet(wb, ws, 'Belum Vote');
+    XLSX.writeFile(wb, `BelumVote_${filterGrade || 'Semua'}_${new Date().toISOString().slice(0,10)}.xlsx`);
+    showAlertModal('Ekspor Berhasil', `${belumSiswa.length + belumGuru.length} data diekspor.`, 'success');
 }
 
 function renderAuditLog(entries) {
