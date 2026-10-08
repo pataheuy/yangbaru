@@ -1138,3 +1138,71 @@ function exportTeachersExcel() {
     XLSX.writeFile(wb, `DataGuru_PEMIRA_${new Date().toISOString().slice(0,10)}.xlsx`);
     showAlertModal('Ekspor Berhasil', `${teachers.length} guru diekspor.`, 'success');
 }
+
+function switchVoterTab(tab) {
+    currentVoterTab = tab;
+    const btnSiswa = getEl('tabSiswaBtn');
+    const btnGuru  = getEl('tabGuruBtn');
+    const panelS   = getEl('panelSiswa');
+    const panelG   = getEl('panelGuru');
+    if (!btnSiswa || !btnGuru || !panelS || !panelG) return;
+    if (tab === 'siswa') {
+        btnSiswa.className = 'px-4 py-2 font-bold text-xs rounded-xl transition bg-sky-600 text-white shadow-sm';
+        btnGuru.className  = 'px-4 py-2 font-bold text-xs rounded-xl transition bg-slate-100 text-slate-600 hover:bg-slate-200';
+        panelS.classList.remove('hidden');
+        panelG.classList.add('hidden');
+    } else {
+        btnGuru.className  = 'px-4 py-2 font-bold text-xs rounded-xl transition bg-emerald-600 text-white shadow-sm';
+        btnSiswa.className = 'px-4 py-2 font-bold text-xs rounded-xl transition bg-slate-100 text-slate-600 hover:bg-slate-200';
+        panelG.classList.remove('hidden');
+        panelS.classList.add('hidden');
+        renderAdminTeacherManager();
+    }
+    updateTabCounts();
+}
+
+function editTeacherName(id) {
+    const t = teachers.find(t => t.id === id);
+    if (!t) return;
+    const n = prompt('Edit Nama Guru:', t.name);
+    if (n?.trim()) {
+        t.name = n.trim();
+        saveTeachersLocal(); syncTeacherToSupabase(t);
+        renderAdminTeacherManager();
+        showAlertModal('Berhasil', 'Nama guru diperbarui.', 'success');
+    }
+}
+
+function editTeacherPassword(id) {
+    const t = teachers.find(t => t.id === id);
+    if (!t) return;
+    const p = prompt('Edit Password Guru:', t.password || '');
+    if (p !== null && p.trim()) {
+        t.password = p.trim();
+        saveTeachersLocal(); syncTeacherToSupabase(t);
+        renderAdminTeacherManager();
+        showAlertModal('Berhasil', 'Password guru diperbarui.', 'success');
+    }
+}
+
+function deleteSingleTeacher(id) {
+    teachers = teachers.filter(t => t.id !== id);
+    saveTeachersLocal(); deleteTeacherFromSupabase(id);
+    renderAdminTeacherManager(); updateTabCounts(); renderAdminDashboard();
+}
+
+function resetSingleTeacherVote(id) {
+    const t = teachers.find(t => t.id === id);
+    if (!t) return;
+    t.hasVoted = false; t.votedFor = null;
+    saveTeachersLocal(); syncTeacherToSupabase(t);
+    renderAdminTeacherManager();
+}
+
+function clearAllTeachers() {
+    if (!confirm('Hapus SEMUA data guru / staf?')) return;
+    teachers = [];
+    saveTeachersLocal(); deleteAllTeachersFromSupabase();
+    renderAdminTeacherManager(); updateTabCounts(); renderAdminDashboard();
+    showAlertModal('Terhapus', 'Semua data guru telah dihapus.', 'info');
+}
