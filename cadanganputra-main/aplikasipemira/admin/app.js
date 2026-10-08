@@ -615,7 +615,9 @@ async function loadAuditLogFromSupabase() {
     if (isSupabaseActive && supabaseClient) {
         try {
             const { data, error } = await supabaseClient.from('vote_logs').select('*').order('voted_at', { ascending: false });
-            if (!error && data) {
+            if (error) {
+                console.error('loadAuditLog error:', error);
+            } else if (data) {
                 voteLogs = data.map(r => ({
                     id: r.id,
                     student_id: r.student_id,
@@ -629,7 +631,7 @@ async function loadAuditLogFromSupabase() {
                 saveVoteLogsLocal();
                 recalculateDashboardStatsFromVoteLogs();
             }
-        } catch(e) {}
+        } catch(e) { console.error('loadAuditLog exception:', e); }
     }
     renderAuditLog(voteLogs);
     renderAdminDashboard();
