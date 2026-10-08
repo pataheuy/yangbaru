@@ -348,16 +348,36 @@ function renderAdminStudentManager() {
     const grade = gradeEl.value;
     titleEl.innerText = grade;
 
+    // Reset searchbar saat ganti kelas
+    const searchEl = getEl('adminStudentSearchInput');
+    if (searchEl) searchEl.value = '';
+
     const kelasData = students.filter(s => s.grade === grade);
     badgeEl.innerText = `${kelasData.length} Siswa`;
+    renderStudentRows(kelasData);
+}
+
+function filterAdminStudentTable() {
+    const grade    = getEl('adminStudentGradeSelect')?.value;
+    const query    = (getEl('adminStudentSearchInput')?.value || '').toLowerCase().trim();
+    const badgeEl  = getEl('studentCountBadge');
+    const kelasData = students.filter(s => s.grade === grade);
+    const filtered  = query ? kelasData.filter(s => s.name.toLowerCase().includes(query)) : kelasData;
+    if (badgeEl) badgeEl.innerText = `${filtered.length} Siswa`;
+    renderStudentRows(filtered);
+}
+
+function renderStudentRows(data) {
+    const tbody = getEl('adminStudentTableBody');
+    if (!tbody) return;
     tbody.innerHTML = '';
 
-    if (!kelasData.length) {
-        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">Belum ada siswa. Tambah manual, impor Excel, atau klik "30 Siswa".</td></tr>`;
+    if (!data.length) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">Tidak ada siswa yang cocok.</td></tr>`;
         return;
     }
 
-    kelasData.forEach((s, idx) => {
+    data.forEach((s, idx) => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td class="p-2.5 pl-4 font-bold text-slate-400">${idx + 1}</td>
@@ -930,14 +950,24 @@ async function resetAllTeacherVotesInSupabase() {
 }
 
 function renderAdminTeacherManager() {
+    const query = (getEl('adminTeacherSearchInput')?.value || '').toLowerCase().trim();
+    const data  = query ? teachers.filter(t => t.name.toLowerCase().includes(query)) : teachers;
+    renderTeacherRows(data);
+}
+
+function filterAdminTeacherTable() {
+    renderAdminTeacherManager();
+}
+
+function renderTeacherRows(data) {
     const tbody = getEl('adminTeacherTableBody');
     if (!tbody) return;
     tbody.innerHTML = '';
-    if (!teachers.length) {
-        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">Belum ada guru / staf. Tambah manual atau impor Excel.</td></tr>`;
+    if (!data.length) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">${teachers.length ? 'Tidak ada guru yang cocok.' : 'Belum ada guru / staf. Tambah manual atau impor Excel.'}</td></tr>`;
         return;
     }
-    teachers.forEach((t, idx) => {
+    data.forEach((t, idx) => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td class="p-2.5 pl-4 font-bold text-slate-400">${idx + 1}</td>
