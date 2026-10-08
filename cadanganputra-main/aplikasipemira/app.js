@@ -291,7 +291,6 @@ async function insertVoteLogToSupabase(log) {
             voted_at:       log.voted_at
         }]);
     } catch(e) { console.error('insertVoteLog error:', e); }
-    } catch(e) {}
 }
 
 
