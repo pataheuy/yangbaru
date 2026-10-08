@@ -258,7 +258,7 @@ async function syncStudentVoteToSupabase(s) {
     try {
         await supabaseClient.from('students')
             .update({ has_voted: s.hasVoted, voted_for: s.votedFor }).eq('id', s.id);
-    } catch(e) {}
+    } catch(e) { console.error('syncStudentVote error:', e); }
 }
 
 async function syncTeacherVoteToSupabase(t) {
@@ -266,7 +266,7 @@ async function syncTeacherVoteToSupabase(t) {
     try {
         await supabaseClient.from('teachers')
             .update({ has_voted: t.hasVoted, voted_for: t.votedFor }).eq('id', t.id);
-    } catch(e) {}
+    } catch(e) { console.error('syncTeacherVote error:', e); }
 }
 
 async function syncCandidateVotesToSupabase(c) {
@@ -274,7 +274,7 @@ async function syncCandidateVotesToSupabase(c) {
     try {
         await supabaseClient.from('candidates')
             .update({ votes: c.votes, votes_by_class: c.votes_by_class }).eq('id', c.id);
-    } catch(e) {}
+    } catch(e) { console.error('syncCandidateVotes error:', e); }
 }
 
 async function insertVoteLogToSupabase(log) {
@@ -290,6 +290,7 @@ async function insertVoteLogToSupabase(log) {
             candidate_no:   log.candidate_no,
             voted_at:       log.voted_at
         }]);
+    } catch(e) { console.error('insertVoteLog error:', e); }
     } catch(e) {}
 }
 
