@@ -151,6 +151,10 @@
                         class="w-full bg-violet-50 hover:bg-violet-100 text-violet-700 px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition">
                     <i class="fa-solid fa-clock-rotate-left"></i> Audit Log
                 </button>
+                <button onclick="showBelumVotePanel()"
+                        class="w-full bg-amber-50 hover:bg-amber-100 text-amber-700 px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition">
+                    <i class="fa-solid fa-user-clock"></i> Belum Vote
+                </button>
                 <button onclick="resetVotesConfirm()"
                         class="w-full bg-rose-50 hover:bg-rose-100 text-rose-600 px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition">
                     <i class="fa-solid fa-rotate-left"></i> Reset Suara
@@ -192,6 +196,43 @@
                                 </tr>
                             </thead>
                             <tbody id="adminCandidateTable" class="divide-y divide-slate-100 text-sm"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Panel: Belum Vote -->
+                <div id="belumVotePanel" class="hidden bg-white rounded-2xl shadow-sm border border-amber-100 overflow-hidden">
+                    <div class="p-4 border-b border-amber-100 flex items-center justify-between gap-3 flex-wrap">
+                        <div>
+                            <h2 class="font-bold text-slate-800 flex items-center">
+                                <i class="fa-solid fa-user-clock text-amber-500 mr-2"></i> Daftar Belum Vote
+                            </h2>
+                            <p class="text-[11px] text-slate-400 mt-0.5">Siswa & guru yang belum menggunakan hak pilih</p>
+                        </div>
+                        <button onclick="hideBelumVotePanel()"
+                                class="text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 w-8 h-8 rounded-xl flex items-center justify-center transition text-xs">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    <!-- Filter kelas -->
+                    <div class="px-4 py-3 border-b border-amber-50 flex items-center gap-3 flex-wrap bg-amber-50/40">
+                        <select id="belumVoteFilterClass" onchange="renderBelumVotePanel()"
+                                class="px-3 py-1.5 border border-amber-200 rounded-xl text-xs focus:outline-none bg-white">
+                            <option value="">— Semua Kelas —</option>
+                        </select>
+                        <span id="belumVoteCount" class="text-xs font-semibold text-amber-600 bg-amber-100 px-2.5 py-1 rounded-full">0 orang</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-amber-50/50 text-slate-400 text-[11px] uppercase tracking-wider">
+                                <tr>
+                                    <th class="p-3 pl-5">No</th>
+                                    <th class="p-3">Nama</th>
+                                    <th class="p-3">Kelas</th>
+                                    <th class="p-3">Password</th>
+                                </tr>
+                            </thead>
+                            <tbody id="belumVoteTableBody" class="divide-y divide-slate-100 text-xs"></tbody>
                         </table>
                     </div>
                 </div>

@@ -594,6 +594,67 @@ function renderBelumMemilihTable() {
     });
 }
 
+// Panel belum vote di dashboard (bukan overlay)
+function showBelumVotePanel() {
+    const panel = getEl('belumVotePanel');
+    if (!panel) return;
+
+    // Isi dropdown filter kelas
+    const sel = getEl('belumVoteFilterClass');
+    if (sel) {
+        sel.innerHTML = '<option value="">— Semua Kelas —</option>';
+        classes.forEach(g => { const o = document.createElement('option'); o.value = g; o.textContent = g; sel.appendChild(o); });
+    }
+
+    panel.classList.remove('hidden');
+    renderBelumVotePanel();
+    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function hideBelumVotePanel() {
+    const panel = getEl('belumVotePanel');
+    if (panel) panel.classList.add('hidden');
+}
+
+function renderBelumVotePanel() {
+    const tbody   = getEl('belumVoteTableBody');
+    const countEl = getEl('belumVoteCount');
+    if (!tbody) return;
+
+    const filterGrade = getEl('belumVoteFilterClass')?.value || '';
+
+    const belumSiswa = students.filter(s => !s.hasVoted && (!filterGrade || s.grade === filterGrade));
+    const belumGuru  = teachers.filter(t => !t.hasVoted && (!filterGrade || filterGrade === ''));
+
+    const semua = [
+        ...belumSiswa.map(s => ({ name: s.name, grade: s.grade,          password: s.password || '—', type: 'siswa' })),
+        ...belumGuru.map(t  => ({ name: t.name, grade: t.role || 'Guru', password: t.password || '—', type: 'guru'  }))
+    ].sort((a, b) => a.grade.localeCompare(b.grade) || a.name.localeCompare(b.name));
+
+    if (countEl) countEl.textContent = `${semua.length} orang`;
+    tbody.innerHTML = '';
+
+    if (!semua.length) {
+        tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-emerald-600 font-semibold text-xs">🎉 Semua sudah memilih!</td></tr>`;
+        return;
+    }
+
+    semua.forEach((p, idx) => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-amber-50/40 transition';
+        tr.innerHTML = `
+            <td class="p-3 pl-5 font-bold text-slate-400">${idx + 1}</td>
+            <td class="p-3 font-semibold text-slate-800">${p.name}</td>
+            <td class="p-3">
+                <span class="text-[11px] font-bold px-2 py-0.5 rounded-lg ${p.type === 'guru' ? 'bg-emerald-100 text-emerald-700' : 'bg-sky-100 text-sky-700'}">
+                    ${p.grade}
+                </span>
+            </td>
+            <td class="p-3 font-mono text-slate-600 text-[11px]">${p.password}</td>`;
+        tbody.appendChild(tr);
+    });
+}
+
 function renderAuditLog(entries) {
     auditLogFiltered = entries;
     const tbody = getEl('auditLogTableBody');
