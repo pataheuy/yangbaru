@@ -53,6 +53,9 @@ let auditLogFiltered = [];
 // >> Tab state
 let currentVoterTab = 'siswa';
 
+// >> Auto-refresh interval
+let dashboardRefreshInterval = null;
+
 // Safe DOM helper to prevent null classList errors on admin pages
 const getEl = (id) => document.getElementById(id);
 
@@ -226,10 +229,52 @@ async function showDashboard() {
     } catch(e) {
         console.error('showDashboard error:', e);
     }
+
+    startDashboardAutoRefresh();
+}
+
+// >> Auto-refresh dashboard setiap 15 detik — ambil vote_logs terbaru dari Supabase
+function startDashboardAutoRefresh() {
+    stopDashboardAutoRefresh(); // clear dulu kalau ada yang jalan
+    dashboardRefreshInterval = setInterval(async () => {
+        if (!isSupabaseActive || !supabaseClient) return;
+        try {
+            const { data, error } = await supabaseClient
+                .from('vote_logs').select('*').order('voted_at', { ascending: false });
+            if (!error && data) {
+                voteLogs = data.map(r => ({
+                    id:             r.id,
+                    student_id:     r.student_id,
+                    student_name:   r.student_name,
+                    student_grade:  r.student_grade,
+                    candidate_id:   r.candidate_id,
+                    candidate_name: r.candidate_name,
+                    candidate_no:   r.candidate_no,
+                    voted_at:       r.voted_at
+                }));
+                saveVoteLogsLocal();
+                recalculateDashboardStatsFromVoteLogs();
+                renderAdminDashboard();
+                // Update audit log kalau sedang terbuka
+                const auditPanel = getEl('auditLogPanel');
+                if (auditPanel && !auditPanel.classList.contains('hidden')) {
+                    filterAuditLog();
+                }
+            }
+        } catch(e) { console.error('auto-refresh error:', e); }
+    }, 15000); // setiap 15 detik
+}
+
+function stopDashboardAutoRefresh() {
+    if (dashboardRefreshInterval) {
+        clearInterval(dashboardRefreshInterval);
+        dashboardRefreshInterval = null;
+    }
 }
 
 function adminLogout() {
     sessionStorage.removeItem('pemira_admin_auth');
+    stopDashboardAutoRefresh();
 
     const dashboardScreen = getEl('dashboardScreen');
     const loginScreen = getEl('loginScreen');
