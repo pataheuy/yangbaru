@@ -393,12 +393,22 @@
 
         <!-- ===== PANEL SISWA ===== -->
         <div id="panelSiswa">
-            <!-- Dropdown kelas -->
+            <!-- Dropdown kelas + sub kelas -->
             <div class="mb-3 bg-slate-50 p-3 rounded-2xl border border-slate-200">
-                <label class="block text-xs font-semibold text-slate-600 mb-1">Pilih Tingkat Kelas</label>
-                <select id="adminStudentGradeSelect" onchange="renderAdminStudentManager()"
-                        class="w-full p-2.5 border border-slate-300 rounded-xl text-xs bg-white focus:ring-2 focus:ring-sky-500 font-semibold">
-                </select>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Pilih Tingkat Kelas</label>
+                        <select id="adminStudentGradeSelect" onchange="renderAdminStudentManager()"
+                                class="w-full p-2.5 border border-slate-300 rounded-xl text-xs bg-white focus:ring-2 focus:ring-sky-500 font-semibold">
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Sub Kelas <span class="text-slate-400 font-normal">(opsional, mis: A, B)</span></label>
+                        <input type="text" id="adminStudentSubClassInput" oninput="renderAdminStudentManager()"
+                               placeholder="Contoh: A" maxlength="3"
+                               class="w-full p-2.5 border border-slate-300 rounded-xl text-xs bg-white focus:ring-2 focus:ring-sky-500 font-semibold uppercase">
+                    </div>
+                </div>
             </div>
             <!-- Tambah siswa + actions -->
             <div class="flex flex-wrap gap-2 mb-3">

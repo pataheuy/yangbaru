@@ -402,6 +402,9 @@ function openStudentManageModal() {
     const sel = getEl('adminStudentGradeSelect');
     if (!sel) return;
     sel.innerHTML = classes.map(g => `<option value="${g}">${g}</option>`).join('');
+    // Reset sub kelas
+    const subEl = getEl('adminStudentSubClassInput');
+    if (subEl) subEl.value = '';
     currentVoterTab = 'siswa';
     switchVoterTab('siswa');
     renderAdminStudentManager();
@@ -415,30 +418,58 @@ function closeStudentManageModal() {
     if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
 }
 
+// Helper: ambil kelas induk dari grade string
+function getParentGrade(grade) {
+    for (const cls of classes) {
+        if (grade === cls) return cls;
+        if (grade.startsWith(cls) && grade.length > cls.length) return cls;
+    }
+    return grade;
+}
+
+// Helper: build full grade dari dropdown + input sub kelas
+function buildFullGrade() {
+    const base = getEl('adminStudentGradeSelect')?.value || '';
+    const sub  = (getEl('adminStudentSubClassInput')?.value || '').trim().toUpperCase();
+    return sub ? base + sub : base;
+}
+
 function renderAdminStudentManager() {
     const gradeEl = getEl('adminStudentGradeSelect');
     const titleEl = getEl('adminActiveFullClass');
     const badgeEl = getEl('studentCountBadge');
-    const tbody = getEl('adminStudentTableBody');
-    if (!gradeEl || !titleEl || !badgeEl || !tbody) return;
+    if (!gradeEl || !titleEl || !badgeEl) return;
 
-    const grade = gradeEl.value;
-    titleEl.innerText = grade;
+    const baseGrade = gradeEl.value;
+    const sub       = (getEl('adminStudentSubClassInput')?.value || '').trim().toUpperCase();
+    const fullGrade = sub ? baseGrade + sub : baseGrade;
+
+    titleEl.innerText = fullGrade;
 
     const searchEl = getEl('adminStudentSearchInput');
     if (searchEl) searchEl.value = '';
 
-    const kelasData = students.filter(s => s.grade === grade);
+    // Kalau sub kelas diisi → filter exact, kalau kosong → tampilkan semua sub kelas dalam kelas ini
+    const kelasData = sub
+        ? students.filter(s => s.grade === fullGrade)
+        : students.filter(s => getParentGrade(s.grade) === baseGrade);
+
     badgeEl.innerText = `${kelasData.length} Siswa`;
     renderStudentRows(kelasData);
 }
 
 function filterAdminStudentTable() {
-    const grade    = getEl('adminStudentGradeSelect')?.value;
-    const query    = (getEl('adminStudentSearchInput')?.value || '').toLowerCase().trim();
-    const badgeEl  = getEl('studentCountBadge');
-    const kelasData = students.filter(s => s.grade === grade);
-    const filtered  = query ? kelasData.filter(s => s.name.toLowerCase().includes(query)) : kelasData;
+    const baseGrade = getEl('adminStudentGradeSelect')?.value || '';
+    const sub       = (getEl('adminStudentSubClassInput')?.value || '').trim().toUpperCase();
+    const fullGrade = sub ? baseGrade + sub : baseGrade;
+    const query     = (getEl('adminStudentSearchInput')?.value || '').toLowerCase().trim();
+    const badgeEl   = getEl('studentCountBadge');
+
+    const kelasData = sub
+        ? students.filter(s => s.grade === fullGrade)
+        : students.filter(s => getParentGrade(s.grade) === baseGrade);
+
+    const filtered = query ? kelasData.filter(s => s.name.toLowerCase().includes(query)) : kelasData;
     if (badgeEl) badgeEl.innerText = `${filtered.length} Siswa`;
     renderStudentRows(filtered);
 }
@@ -974,7 +1005,7 @@ async function resetVotesConfirm() {
 
 function handleAddStudent(e) {
     e.preventDefault();
-    const grade    = getEl('adminStudentGradeSelect')?.value;
+    const grade    = buildFullGrade();
     const nameEl   = getEl('newStudentNameInput');
     const passEl   = getEl('newStudentPasswordInput');
     if (!grade || !nameEl || !passEl) return;
@@ -1018,12 +1049,21 @@ function resetSingleStudentVote(id) {
 }
 
 function clearStudentsOfActiveGrade() {
-    const grade = getEl('adminStudentGradeSelect')?.value;
-    if (!grade || !confirm(`Kosongkan semua siswa di ${grade}?`)) return;
-    students = students.filter(s => s.grade !== grade);
-    saveStudentsLocal(); deleteStudentsByGradeFromSupabase(grade);
+    const grade = buildFullGrade();
+    const isSubClass = grade !== getEl('adminStudentGradeSelect')?.value;
+    const label = grade;
+    if (!grade || !confirm(`Kosongkan semua siswa di ${label}?`)) return;
+    if (isSubClass) {
+        students = students.filter(s => s.grade !== grade);
+        deleteStudentsByGradeFromSupabase(grade);
+    } else {
+        // Hapus semua sub kelas dalam kelas ini juga
+        students = students.filter(s => getParentGrade(s.grade) !== grade);
+        deleteStudentsByGradeFromSupabase(grade);
+    }
+    saveStudentsLocal();
     renderAdminStudentManager(); renderAdminDashboard(); updateTabCounts();
-    showAlertModal('Berhasil', `Semua siswa di ${grade} dihapus.`, 'info');
+    showAlertModal('Berhasil', `Semua siswa di ${label} dihapus.`, 'info');
 }
 
 function clearAllStudentsAllGrades() {
@@ -1035,7 +1075,7 @@ function clearAllStudentsAllGrades() {
 }
 
 function autoFillClassStudents() {
-    const grade = getEl('adminStudentGradeSelect')?.value;
+    const grade = buildFullGrade();
     if (!grade) return;
     const cur = students.filter(s => s.grade === grade).length;
     const batch = [];
@@ -1051,7 +1091,8 @@ function autoFillClassStudents() {
 function handleExcelUpload(event) {
     const file = event.target.files[0];
     if (!file) return;
-    const grade  = getEl('adminStudentGradeSelect')?.value;
+    const baseGrade = getEl('adminStudentGradeSelect')?.value || '';
+    const subInput  = (getEl('adminStudentSubClassInput')?.value || '').trim().toUpperCase();
     const reader = new FileReader();
     reader.onload = function(e) {
         try {
@@ -1060,12 +1101,14 @@ function handleExcelUpload(event) {
             const rows = XLSX.utils.sheet_to_json(ws, { header: 1 });
             if (!rows?.length) { showAlertModal('File Kosong', 'Tidak ada data dalam file.', 'info'); return; }
 
-            let nameCol = 0, passCol = -1;
+            let nameCol = 0, passCol = -1, subCol = -1;
             if (Array.isArray(rows[0])) {
                 const fi = (kws) => rows[0].findIndex(c => c && kws.some(k => c.toString().toLowerCase().includes(k)));
                 const fn = fi(['nama','name']); const fp = fi(['password','pass','sandi']);
+                const fs = fi(['sub','kelas sub','sub kelas','subkelas']);
                 if (fn !== -1) nameCol = fn;
                 if (fp !== -1) passCol = fp;
+                if (fs !== -1) subCol  = fs;
             }
             const startRow = rows[0]?.[nameCol]?.toString().toLowerCase().match(/nama|name/) ? 1 : 0;
             const batch = [];
@@ -1073,13 +1116,17 @@ function handleExcelUpload(event) {
                 const row  = rows[i];
                 const name = row?.[nameCol]?.toString().trim();
                 if (!name) continue;
-                const pass = passCol !== -1 ? row[passCol]?.toString().trim() : `pass${i}`;
+                const pass   = passCol !== -1 ? row[passCol]?.toString().trim() : `pass${i}`;
+                // Sub kelas: dari kolom file atau dari input, atau dari dropdown
+                const fileSub = subCol !== -1 ? (row[subCol]?.toString().trim().toUpperCase() || '') : '';
+                const sub     = fileSub || subInput || '';
+                const grade   = sub ? baseGrade + sub : baseGrade;
                 const ns = { id: `std_${Date.now()}_${i}_${Math.random().toString(36).substr(2,3)}`, name, grade, password: pass || `pass${i}`, hasVoted: false, votedFor: null };
                 students.push(ns); batch.push(ns);
             }
             saveStudentsLocal(); syncMultipleStudentsToSupabase(batch);
             renderAdminStudentManager(); renderAdminDashboard(); updateTabCounts();
-            showAlertModal('Import Berhasil', `${batch.length} siswa ditambahkan ke ${grade}.`, 'success');
+            showAlertModal('Import Berhasil', `${batch.length} siswa ditambahkan.`, 'success');
         } catch(err) {
             showAlertModal('Gagal Import', 'Format file tidak valid. Gunakan .xlsx atau .csv.', 'info');
         } finally { event.target.value = ''; }
@@ -1125,12 +1172,13 @@ function downloadStudentTemplate() {
     if (!window.XLSX) { showAlertModal('Error', 'SheetJS belum dimuat.', 'info'); return; }
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.aoa_to_sheet([
-        ['No', 'Nama', 'Password'],
-        ['1', 'Budi Santoso', 'budi123'],
-        ['2', 'Ani Rahayu', 'ani456'],
-        ['', '← Hapus baris contoh, isi data asli di sini'],
+        ['No', 'Nama', 'Password', 'Sub Kelas'],
+        ['1', 'Budi Santoso', 'budi123', 'A'],
+        ['2', 'Ani Rahayu', 'ani456', 'A'],
+        ['3', 'Dedi Kurniawan', 'dedi789', 'B'],
+        ['', '← Hapus baris contoh, isi data asli di sini', '', '← Opsional, kosongkan jika tidak ada sub kelas'],
     ]);
-    ws['!cols'] = [{ wch:6 }, { wch:35 }, { wch:20 }];
+    ws['!cols'] = [{ wch:5 }, { wch:35 }, { wch:20 }, { wch:15 }];
     XLSX.utils.book_append_sheet(wb, ws, 'Siswa');
     XLSX.writeFile(wb, 'Template_DataSiswa_PEMIRA.xlsx');
 }

@@ -75,7 +75,7 @@ function initSupabaseClient() {
 // ============================================================
 
 function hideAllScreens() {
-    ['roleSelectScreen','teacherSelectScreen','welcomeScreen','studentSelectScreen','homePage','adminPage']
+    ['roleSelectScreen','teacherSelectScreen','welcomeScreen','subClassScreen','studentSelectScreen','homePage','adminPage']
         .forEach(id => {
             const el = document.getElementById(id);
             if (el) el.classList.add('hidden');
@@ -433,8 +433,13 @@ function renderWelcomeClasses() {
     if (!grid) return;
     grid.innerHTML = '';
     classes.forEach(grade => {
-        const total  = students.filter(s => s.grade === grade).length;
-        const voted  = students.filter(s => s.grade === grade && s.hasVoted).length;
+        // Hitung siswa yang grade-nya startsWith kelas ini (termasuk sub kelas)
+        const gradeStudents = students.filter(s => s.grade === grade || s.grade.startsWith(grade + ' ') || s.grade.startsWith(grade.replace(' ', '')));
+        // Normalisasi: "Kelas 7" cocok dengan "Kelas 7", "Kelas 7A", "Kelas 7 A"
+        const gradeNorm = grade.trim();
+        const allInGrade = students.filter(s => getParentGrade(s.grade) === gradeNorm);
+        const total  = allInGrade.length;
+        const voted  = allInGrade.filter(s => s.hasVoted).length;
         const pct    = total ? Math.round((voted / total) * 100) : 0;
         const div    = document.createElement('div');
         div.className = 'class-card bg-white rounded-3xl border border-slate-100 p-8 cursor-pointer flex flex-col items-center space-y-4 shadow-sm';
@@ -457,15 +462,109 @@ function renderWelcomeClasses() {
     });
 }
 
+// Helper: ambil kelas induk dari grade string
+// "Kelas 7A" → "Kelas 7", "Kelas 7" → "Kelas 7", "Kelas 8B" → "Kelas 8"
+function getParentGrade(grade) {
+    // Cek apakah grade cocok dengan salah satu kelas induk
+    for (const cls of classes) {
+        if (grade === cls) return cls;
+        // "Kelas 7A", "Kelas 7 A", "Kelas 7-A"
+        if (grade.startsWith(cls) && grade.length > cls.length) return cls;
+    }
+    return grade; // fallback: grade itu sendiri
+}
+
+// Helper: ambil sub kelas dari grade string
+// "Kelas 7A" → "A", "Kelas 7" → ""
+function getSubClass(grade) {
+    for (const cls of classes) {
+        if (grade === cls) return '';
+        if (grade.startsWith(cls) && grade.length > cls.length) {
+            return grade.slice(cls.length).trim().toUpperCase();
+        }
+    }
+    return '';
+}
+
 function selectGrade(grade) {
+    // Cek apakah ada sub kelas untuk kelas ini
+    const subClasses = [...new Set(
+        students
+            .filter(s => getParentGrade(s.grade) === grade && getSubClass(s.grade) !== '')
+            .map(s => getSubClass(s.grade))
+    )].sort();
+
+    if (subClasses.length > 0) {
+        // Tampilkan layar pilih sub kelas
+        showSubClassScreen(grade, subClasses);
+    } else {
+        // Tidak ada sub kelas, langsung ke pencarian siswa
+        goToStudentSelect(grade);
+    }
+}
+
+function showSubClassScreen(grade, subClasses) {
     hideAllScreens();
-    const screen = document.getElementById('studentSelectScreen');
-    const badge  = document.getElementById('fullClassBadge');
+    const screen = document.getElementById('subClassScreen');
+    const badge  = document.getElementById('subClassParentBadge');
     if (screen) screen.classList.remove('hidden');
     if (badge)  badge.textContent = grade;
 
+    const grid = document.getElementById('subClassCardGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    subClasses.forEach(sub => {
+        const fullGrade  = grade + sub;
+        const total      = students.filter(s => s.grade === fullGrade).length;
+        const voted      = students.filter(s => s.grade === fullGrade && s.hasVoted).length;
+        const pct        = total ? Math.round((voted / total) * 100) : 0;
+        const div        = document.createElement('div');
+        div.className    = 'class-card bg-white rounded-3xl border border-slate-100 p-6 cursor-pointer flex flex-col items-center space-y-3 shadow-sm';
+        div.onclick      = () => goToStudentSelect(fullGrade);
+        div.innerHTML    = `
+            <div class="w-12 h-12 gradient-btn text-white rounded-2xl flex items-center justify-center text-xl font-black shadow-md">${sub}</div>
+            <div class="text-center">
+                <h3 class="text-lg font-bold text-slate-800">${grade} ${sub}</h3>
+                <p class="text-xs text-slate-500 mt-0.5">${total} siswa</p>
+            </div>
+            <div class="w-full">
+                <div class="flex justify-between text-[10px] font-semibold text-slate-400 mb-1">
+                    <span>Partisipasi</span><span>${voted}/${total}</span>
+                </div>
+                <div class="w-full bg-slate-100 rounded-full h-1.5">
+                    <div class="gradient-btn h-1.5 rounded-full transition-all" style="width:${pct}%"></div>
+                </div>
+            </div>`;
+        grid.appendChild(div);
+    });
+}
+
+function goToStudentSelect(fullGrade) {
+    hideAllScreens();
+    const screen = document.getElementById('studentSelectScreen');
+    const badge  = document.getElementById('fullClassBadge');
+    const backBtn = document.getElementById('studentSelectBackBtn');
+
+    if (screen) screen.classList.remove('hidden');
+    if (badge)  badge.textContent = fullGrade;
+
+    // Tombol kembali: kalau ada sub kelas → kembali ke sub kelas screen, kalau tidak → welcome
+    const parentGrade = getParentGrade(fullGrade);
+    if (backBtn) {
+        if (fullGrade !== parentGrade) {
+            // Ada sub kelas — kembali ke sub class screen
+            backBtn.onclick = () => selectGrade(parentGrade);
+            backBtn.querySelector ? null : null;
+            backBtn.innerHTML = `<i class="fa-solid fa-arrow-left mr-2"></i> Kembali ke ${parentGrade}`;
+        } else {
+            backBtn.onclick = () => showWelcomeScreen();
+            backBtn.innerHTML = `<i class="fa-solid fa-arrow-left mr-2"></i> Kembali ke Pilih Kelas`;
+        }
+    }
+
     const inp = document.getElementById('studentSearchInput');
-    if (inp)  { inp.value = ''; renderStudentList(grade, ''); setTimeout(() => inp.focus(), 100); }
+    if (inp) { inp.value = ''; renderStudentList(fullGrade, ''); setTimeout(() => inp.focus(), 100); }
 }
 
 function filterStudentList() {
