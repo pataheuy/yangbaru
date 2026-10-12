@@ -1795,10 +1795,10 @@ function clearAllTeachers() {
 function onLoginPasswordInput() {
     const inp = getEl('adminPasswordInput');
     const panel = getEl('loginBelumVotePanel');
-    if (!panel) return;
+    if (!panel || !inp) return;
 
-    if (inp && inp.value.length > 0) {
-        // Load data dari Supabase kalau belum pernah load
+    // Hanya tampilkan kalau password sudah benar
+    if (inp.value === ADMIN_PASSWORD) {
         const needsLoad = !students.length && !teachers.length;
         if (needsLoad) {
             initSupabaseClient();
@@ -1811,6 +1811,9 @@ function onLoginPasswordInput() {
             renderLoginBelumVote();
         }
         panel.classList.remove('hidden'); panel.classList.add('flex');
+    } else {
+        // Sembunyikan kalau password salah atau belum lengkap
+        panel.classList.add('hidden'); panel.classList.remove('flex');
     }
 }
 
