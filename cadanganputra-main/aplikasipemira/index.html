@@ -136,6 +136,12 @@
 
             <!-- ================= STEP 0: ROLE SELECTION SCREEN ================= -->
         <section id="roleSelectScreen" class="w-full max-w-2xl space-y-8 animate-fade-in-up my-auto text-center py-6">
+
+            <!-- Banner pemilihan ditutup (muncul kalau sudah lewat waktu) -->
+            <div id="roleSelectClosedBanner" class="hidden bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl px-5 py-4 text-sm font-semibold flex items-center justify-center gap-2">
+                <i class="fa-solid fa-lock text-base"></i>
+                <span>Pemilihan telah ditutup. Terima kasih atas partisipasi Anda.</span>
+            </div>
             <div class="py-8 px-6 bg-white rounded-3xl shadow-sm border border-slate-100 relative overflow-hidden">
                 <div class="absolute -top-10 -right-10 w-40 h-40 bg-sky-100 rounded-full blur-2xl opacity-60"></div>
                 <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-blue-100 rounded-full blur-2xl opacity-60"></div>
@@ -297,6 +303,15 @@
                         Ganti Siswa
                     </button>
                 </div>
+            </div>
+
+            <!-- Banner Waktu Tutup Pemilihan -->
+            <div id="closingTimeBanner" class="hidden max-w-5xl mx-auto rounded-2xl px-5 py-3 flex flex-col sm:flex-row items-center justify-between gap-2 text-sm font-semibold">
+                <div class="flex items-center gap-2">
+                    <i id="closingTimeBannerIcon" class="fa-solid fa-clock text-base"></i>
+                    <span id="closingTimeBannerText">—</span>
+                </div>
+                <span id="closingTimeCountdown" class="font-mono text-base font-black tracking-wider">--:--:--</span>
             </div>
 
             <!-- Candidate Grid -->

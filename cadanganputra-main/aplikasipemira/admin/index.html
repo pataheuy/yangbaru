@@ -20,6 +20,9 @@
     <style>
         * { font-family: 'Plus Jakarta Sans', sans-serif; }
         body { zoom: 0.9; }
+        @media (max-width: 640px) {
+            body { zoom: 0.7; }
+        }
 
         /* Scrollbar tipis */
         ::-webkit-scrollbar { width: 4px; height: 4px; }
@@ -65,37 +68,81 @@
     </div>
 </header>
 
-<main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-6 flex flex-col">
+<main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-6">
 
     <!-- ===== LOGIN SCREEN ===== -->
     <section id="loginScreen" class="flex-grow flex items-center justify-center animate-fade-in-up">
-        <div class="bg-white rounded-3xl shadow-lg border border-slate-100 p-8 w-full max-w-sm">
-            <div class="text-center mb-6">
-                <div class="w-14 h-14 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl">
-                    <i class="fa-solid fa-user-shield"></i>
+        <div class="flex flex-col lg:flex-row gap-6 w-full items-start justify-center">
+
+            <!-- Form login -->
+            <div class="bg-white rounded-3xl shadow-lg border border-slate-100 p-8 w-full max-w-sm shrink-0">
+                <div class="text-center mb-6">
+                    <div class="w-14 h-14 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl">
+                        <i class="fa-solid fa-user-shield"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-slate-800">Login Admin</h2>
+                    <p class="text-xs text-slate-500 mt-1">Masukkan kata sandi untuk mengakses dashboard</p>
                 </div>
-                <h2 class="text-xl font-bold text-slate-800">Login Admin</h2>
-                <p class="text-xs text-slate-500 mt-1">Masukkan kata sandi untuk mengakses dashboard</p>
+                <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Kata Sandi Admin</label>
+                        <input type="password" id="adminPasswordInput" placeholder="Password Admin"
+                               oninput="onLoginPasswordInput()"
+                               class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
+                    </div>
+                    <p id="loginError" class="text-rose-500 text-xs hidden">
+                        <i class="fa-solid fa-circle-exclamation mr-1"></i> Kata sandi salah. Coba lagi!
+                    </p>
+                    <button type="submit"
+                            class="w-full gradient-btn text-white font-semibold py-2.5 rounded-xl text-sm transition">
+                        <i class="fa-solid fa-unlock mr-2"></i> Masuk
+                    </button>
+                </form>
             </div>
-            <form onsubmit="handleAdminLogin(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Kata Sandi Admin</label>
-                    <input type="password" id="adminPasswordInput" placeholder="Password Admin"
-                           class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
+
+            <!-- Tabel belum vote (muncul saat ngetik password) -->
+            <div id="loginBelumVotePanel" class="hidden bg-white rounded-3xl shadow-lg border border-slate-100 w-full max-w-2xl overflow-hidden animate-fade-in-up">
+                <!-- Header -->
+                <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                            <i class="fa-solid fa-user-clock text-amber-500"></i> Belum Vote
+                        </h3>
+                        <p id="loginBelumVoteCount" class="text-[11px] text-slate-400 mt-0.5">0 orang</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <!-- Filter kelas -->
+                        <select id="loginBelumVoteFilter" onchange="renderLoginBelumVote()"
+                                class="px-2.5 py-1.5 border border-slate-200 rounded-xl text-xs focus:outline-none bg-slate-50">
+                            <option value="">— Semua —</option>
+                        </select>
+                        <button onclick="closeLoginBelumVotePanel()"
+                                class="text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 w-8 h-8 rounded-xl flex items-center justify-center transition">
+                            <i class="fa-solid fa-xmark text-xs"></i>
+                        </button>
+                    </div>
                 </div>
-                <p id="loginError" class="text-rose-500 text-xs hidden">
-                    <i class="fa-solid fa-circle-exclamation mr-1"></i> Kata sandi salah. Coba lagi!
-                </p>
-                <button type="submit"
-                        class="w-full gradient-btn text-white font-semibold py-2.5 rounded-xl text-sm transition">
-                    <i class="fa-solid fa-unlock mr-2"></i> Masuk
-                </button>
-            </form>
+                <!-- Tabel -->
+                <div class="overflow-y-auto max-h-80">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-50 text-slate-400 text-[11px] uppercase tracking-wider sticky top-0">
+                            <tr>
+                                <th class="p-3 pl-4">No</th>
+                                <th class="p-3">Nama</th>
+                                <th class="p-3">Kelas</th>
+                                <th class="p-3">Password</th>
+                            </tr>
+                        </thead>
+                        <tbody id="loginBelumVoteBody" class="divide-y divide-slate-100 text-xs"></tbody>
+                    </table>
+                </div>
+            </div>
+
         </div>
     </section>
 
     <!-- ===== DASHBOARD (hidden until login) ===== -->
-    <section id="dashboardScreen" class="hidden animate-fade-in-up space-y-6">
+    <section id="dashboardScreen" class="hidden animate-fade-in-up space-y-6 flex-grow">
 
         <!-- Stat Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
@@ -155,6 +202,12 @@
                         class="w-full bg-amber-50 hover:bg-amber-100 text-amber-700 px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition">
                     <i class="fa-solid fa-user-clock"></i> Belum Vote
                 </button>
+                <div class="border-t border-slate-100 my-1"></div>
+                <button onclick="openClosingTimeModal()"
+                        class="w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition">
+                    <i class="fa-solid fa-clock"></i> Waktu Vote
+                </button>
+                <div class="border-t border-slate-100 my-1"></div>
                 <button onclick="resetVotesConfirm()"
                         class="w-full bg-rose-50 hover:bg-rose-100 text-rose-600 px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition">
                     <i class="fa-solid fa-rotate-left"></i> Reset Suara
@@ -168,15 +221,15 @@
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
                         <h2 class="text-sm font-bold text-slate-800 mb-3 flex items-center">
-                            <i class="fa-solid fa-chart-pie text-blue-600 mr-2"></i> Partisipasi Pemilih
+                            <i class="fa-solid fa-chart-pie text-blue-600 mr-2"></i> Partisipasi per Kelas
                         </h2>
-                        <div class="relative h-56" id="voterPieChartWrap"><canvas id="voterPieChart"></canvas></div>
+                        <div class="relative h-56"><canvas id="voterPieChart"></canvas></div>
                     </div>
                     <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
                         <h2 class="text-sm font-bold text-slate-800 mb-3 flex items-center">
                             <i class="fa-solid fa-chart-simple text-blue-600 mr-2"></i> Perolehan Suara Kandidat
                         </h2>
-                        <div class="relative h-64"><canvas id="candidateBarChart"></canvas></div>
+                        <div class="relative h-56"><canvas id="candidateBarChart"></canvas></div>
                     </div>
                 </div>
 
@@ -207,7 +260,7 @@
             </div>
         </div>
     </section>
-
+    `
 </main>
 
 <!-- ===== AUDIT LOG OVERLAY ===== -->
@@ -231,10 +284,10 @@
         <div class="overflow-y-auto flex-grow p-5 space-y-6">
 
             <!-- Filter audit log -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-end">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 <div class="relative">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
-                    <input type="text" id="auditSearchStudent" oninput="filterAuditLog()" placeholder="Nama pemilih..."
+                    <input type="text" id="auditSearchStudent" oninput="filterAuditLog()" placeholder="Nama siswa..."
                            class="w-full pl-8 pr-3 py-2 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-violet-400">
                 </div>
                 <div class="relative">
@@ -244,8 +297,7 @@
                 </div>
                 <select id="auditFilterClass" onchange="filterAuditLog()"
                         class="px-3 py-2 border border-slate-200 rounded-xl text-xs focus:outline-none bg-white">
-                    <option value="">— Semua —</option>
-                    <option value="__guru__">Guru / Staf</option>
+                    <option value="">— Semua Kelas —</option>
                 </select>
             </div>
 
@@ -273,6 +325,35 @@
                     </thead>
                     <tbody id="auditLogTableBody" class="divide-y divide-slate-100 text-xs"></tbody>
                 </table>
+            </div>
+
+            <!-- Tabel belum memilih -->
+            <div class="rounded-2xl border border-amber-100 overflow-hidden">
+                <div class="px-4 py-3 bg-amber-50 border-b border-amber-100 flex items-center justify-between">
+                    <h3 class="text-sm font-bold text-amber-700 flex items-center gap-2">
+                        <i class="fa-solid fa-user-clock"></i> Belum Memilih
+                    </h3>
+                    <span id="belumMemilihCount" class="text-xs font-semibold text-amber-600 bg-amber-100 px-2.5 py-1 rounded-full">0 orang</span>
+                </div>
+                <div class="px-4 py-2 bg-amber-50/50 border-b border-amber-100">
+                    <select id="belumMemilihFilterClass" onchange="renderBelumMemilihTable()"
+                            class="px-3 py-1.5 border border-amber-200 rounded-xl text-xs focus:outline-none bg-white">
+                        <option value="">— Semua Kelas —</option>
+                    </select>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-amber-50/50 text-slate-400 text-[11px] uppercase tracking-wider">
+                            <tr>
+                                <th class="p-3 pl-5">No</th>
+                                <th class="p-3">Nama</th>
+                                <th class="p-3">Kelas</th>
+                                <th class="p-3">Password</th>
+                            </tr>
+                        </thead>
+                        <tbody id="belumMemilihTableBody" class="divide-y divide-slate-100 text-xs"></tbody>
+                    </table>
+                </div>
             </div>
 
         </div>
@@ -307,8 +388,7 @@
         <div class="px-5 py-3 border-b border-slate-100 flex flex-wrap items-center gap-3 bg-amber-50/30 shrink-0">
             <select id="belumVoteFilterClass" onchange="renderBelumVotePanel()"
                     class="px-3 py-1.5 border border-amber-200 rounded-xl text-xs focus:outline-none bg-white">
-                <option value="">— Semua —</option>
-                <option value="__guru__">Guru / Staf</option>
+                <option value="">— Semua Kelas —</option>
             </select>
             <div class="relative flex-grow max-w-xs">
                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
@@ -339,7 +419,94 @@
     &copy; 2026 pufutaraPemira &mdash; Panel Admin
 </footer>
 
+<!-- ===== VOTER DRILL-DOWN MODAL ===== -->
+<div id="voterDrillModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-3xl w-full max-w-lg max-h-[85vh] flex flex-col shadow-2xl animate-fade-in-up overflow-hidden">
+
+        <!-- Header -->
+        <div class="p-5 border-b border-slate-100 flex items-start justify-between gap-3 shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 gradient-btn text-white rounded-xl flex items-center justify-center text-base shrink-0">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+                <div>
+                    <h2 id="drillModalTitle" class="font-bold text-slate-800 text-base leading-tight">—</h2>
+                    <p id="drillModalSubtitle" class="text-[11px] text-slate-400 mt-0.5">—</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+                <span id="drillModalBadge" class="text-[11px] font-bold px-3 py-1 rounded-full">—</span>
+                <span id="drillModalCount" class="text-[11px] font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">0 suara</span>
+                <button onclick="closeVoterDrillModal()"
+                        class="text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 w-8 h-8 rounded-xl flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark text-xs"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="overflow-y-auto flex-grow">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-slate-50 text-slate-400 text-[11px] uppercase tracking-wider sticky top-0">
+                    <tr>
+                        <th class="p-3 pl-4">No</th>
+                        <th class="p-3">Nama Pemilih</th>
+                        <th class="p-3">Waktu</th>
+                    </tr>
+                </thead>
+                <tbody id="drillModalTableBody" class="divide-y divide-slate-100 text-xs"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
 <!-- ===== MODALS ===== -->
+
+<!-- Modal: Atur Waktu Vote -->
+<div id="closingTimeModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl relative animate-fade-in-up">
+        <button onclick="closeClosingTimeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+        <div class="text-center mb-5">
+            <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl">
+                <i class="fa-solid fa-calendar-check"></i>
+            </div>
+            <h3 class="text-lg font-bold text-slate-800">Atur Waktu Vote</h3>
+            <p class="text-xs text-slate-500 mt-1">Voting hanya bisa dilakukan dalam rentang waktu ini</p>
+        </div>
+
+        <!-- Status saat ini -->
+        <div id="closingTimeStatus" class="mb-4 p-3 rounded-xl text-xs font-semibold text-center bg-slate-50 border border-slate-200 text-slate-500">
+            Belum diatur
+        </div>
+
+        <div class="space-y-3">
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">
+                    <i class="fa-solid fa-play text-emerald-500 mr-1"></i> Mulai Vote
+                </label>
+                <input type="datetime-local" id="openingTimeInput"
+                       class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">
+                    <i class="fa-solid fa-stop text-rose-500 mr-1"></i> Tutup Vote
+                </label>
+                <input type="datetime-local" id="closingTimeInput"
+                       class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-rose-500 focus:outline-none">
+            </div>
+            <button onclick="saveVoteTime()"
+                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-xl text-sm transition">
+                <i class="fa-solid fa-floppy-disk mr-2"></i> Simpan Waktu Vote
+            </button>
+            <button onclick="clearClosingTime()"
+                    class="w-full bg-slate-100 hover:bg-slate-200 text-slate-500 font-semibold py-2 rounded-xl text-xs transition">
+                <i class="fa-solid fa-trash mr-1"></i> Hapus / Tanpa Batas Waktu
+            </button>
+        </div>
+    </div>
+</div>
 
 <!-- Modal: Kelola Pemilih (Siswa + Guru) -->
 <div id="studentManageModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
@@ -383,8 +550,8 @@
                     </div>
                 </div>
             </div>
-            <!-- Tambah siswa -->
-            <div class="flex gap-2 mb-3">
+            <!-- Tambah siswa + actions -->
+            <div class="flex flex-wrap gap-2 mb-3">
                 <form onsubmit="handleAddStudent(event)" class="flex-grow flex gap-2 flex-wrap">
                     <input type="text" id="newStudentNameInput" placeholder="Nama Siswa Baru..."
                            class="flex-grow px-3 py-2 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-sky-500" required>
@@ -394,25 +561,28 @@
                         <i class="fa-solid fa-plus mr-1"></i> Tambah
                     </button>
                 </form>
-            </div>
-            <!-- Ekspor / Impor / Template — 1 baris -->
-            <div class="flex flex-wrap gap-2 mb-3">
+                <button onclick="autoFillClassStudents()"
+                        class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition">
+                    <i class="fa-solid fa-wand-magic-sparkles mr-1"></i> 30 Siswa
+                </button>
                 <input type="file" id="excelFileInput" accept=".xlsx,.xls,.csv" class="hidden" onchange="handleExcelUpload(event)">
                 <button onclick="document.getElementById('excelFileInput').click()"
-                        class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-file-excel"></i> Impor Excel
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition">
+                    <i class="fa-solid fa-file-excel mr-1.5"></i> Import Excel
                 </button>
                 <button onclick="downloadStudentTemplate()"
-                        class="bg-violet-600 hover:bg-violet-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-file-arrow-down"></i> Unduh Template
+                        class="bg-violet-600 hover:bg-violet-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition">
+                    <i class="fa-solid fa-file-arrow-down mr-1.5"></i> Unduh Template
+                </button>
+            </div>
+            <div class="flex flex-wrap gap-2 mb-3">
+                <button onclick="exportStudentsExcelAll()"
+                        class="bg-teal-600 hover:bg-teal-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition">
+                    <i class="fa-solid fa-file-export mr-1.5"></i> Ekspor Semua Kelas
                 </button>
                 <button onclick="exportStudentsExcelCurrentGrade()"
-                        class="bg-sky-600 hover:bg-sky-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-table"></i> Ekspor Kelas Ini
-                </button>
-                <button onclick="exportStudentsExcelAll()"
-                        class="bg-teal-600 hover:bg-teal-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-file-export"></i> Ekspor Semua Kelas
+                        class="bg-sky-600 hover:bg-sky-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition">
+                    <i class="fa-solid fa-table mr-1.5"></i> Ekspor Kelas Ini
                 </button>
             </div>
             <div class="flex justify-between items-center text-xs font-bold text-slate-500 mb-2">
@@ -439,16 +609,15 @@
                     <tbody id="adminStudentTableBody" class="divide-y divide-slate-100 text-xs"></tbody>
                 </table>
             </div>
-            <!-- Tombol destruktif di bawah tabel -->
-            <div class="mt-3 pt-3 border-t border-slate-100 flex flex-wrap gap-2 text-xs">
-                <button onclick="clearStudentsOfActiveGrade()"
-                        class="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100 font-semibold transition">
-                    <i class="fa-solid fa-eraser"></i> Kosongkan Kelas Ini
-                </button>
-                <button onclick="clearAllStudentsAllGrades()"
-                        class="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100 font-bold transition">
-                    <i class="fa-solid fa-trash-can"></i> Hapus Seluruh Data Siswa
-                </button>
+            <div class="mt-3 pt-3 border-t border-slate-100 flex flex-wrap gap-2 justify-between items-center text-xs">
+                <div class="flex gap-3">
+                    <button onclick="clearStudentsOfActiveGrade()" class="text-amber-600 hover:text-amber-800 font-semibold flex items-center">
+                        <i class="fa-solid fa-eraser mr-1"></i> Kosongkan Kelas Ini
+                    </button>
+                    <button onclick="clearAllStudentsAllGrades()" class="text-rose-600 hover:text-rose-800 font-bold flex items-center">
+                        <i class="fa-solid fa-trash-can mr-1"></i> Hapus Semua Siswa
+                    </button>
+                </div>
             </div>
         </div>
 

@@ -89,6 +89,8 @@ function initSupabaseClient() {
 function handleAdminLogin(event) {
     event.preventDefault();
     const passInput = getEl('adminPasswordInput');
+    // Tutup panel belum vote saat login
+    closeLoginBelumVotePanel();
     const loginError = getEl('loginError');
     if (!passInput || !loginError) return;
 
@@ -468,7 +470,6 @@ function renderBarChart(sorted) {
             label: grp,
             data: sorted.map(c => {
                 if (isGuru) {
-                    // suara guru = total votes kandidat dikurangi suara dari semua kelas siswa
                     const studentVotes = classLabels.reduce((s, cls) => s + (c.votes_by_class?.[cls] || 0), 0);
                     return Math.max(0, (Number(c.votes) || 0) - studentVotes);
                 }
@@ -491,6 +492,15 @@ function renderBarChart(sorted) {
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            onClick: (evt, elements) => {
+                if (!elements.length) return;
+                const el          = elements[0];
+                const candidateIdx = el.index;
+                const datasetIdx   = el.datasetIndex;
+                const grpLabel     = allGroups[datasetIdx];
+                const candidate    = sorted[candidateIdx];
+                if (candidate && grpLabel) openVoterDrillModal(candidate, grpLabel);
+            },
             scales: {
                 x: { stacked: true },
                 y: { stacked: true, beginAtZero: true, ticks: { precision: 0 } }
@@ -509,7 +519,7 @@ function renderBarChart(sorted) {
                         label: (ctx) => {
                             const val = ctx.raw;
                             if (!val) return null;
-                            return ` ${ctx.dataset.label}: ${val} suara`;
+                            return ` ${ctx.dataset.label}: ${val} suara (klik untuk detail)`;
                         },
                         footer: (items) => {
                             const total = items.reduce((s, i) => s + (i.raw || 0), 0);
@@ -521,6 +531,85 @@ function renderBarChart(sorted) {
             }
         }
     });
+
+    // Ubah cursor jadi pointer saat hover bar
+    canvas.style.cursor = 'pointer';
+}
+
+// ============================================================
+// === VOTER DRILL-DOWN MODAL ===
+// ============================================================
+
+function openVoterDrillModal(candidate, grpLabel) {
+    const isGuru    = grpLabel.toLowerCase().includes('guru') || grpLabel.toLowerCase().includes('staf');
+    const classLabels = getSortedGroupLabels().filter(l => !l.toLowerCase().includes('guru') && !l.toLowerCase().includes('staf'));
+
+    // Ambil log yang sesuai kandidat & grup ini
+    let filtered;
+    if (isGuru) {
+        // Suara guru = yang milih kandidat ini tapi bukan dari kelas siswa manapun
+        const studentGrades = new Set(students.map(s => s.grade));
+        filtered = voteLogs.filter(l =>
+            l.candidate_id === candidate.id &&
+            !classLabels.some(cls => (l.student_grade || '').startsWith(cls))
+        );
+    } else {
+        filtered = voteLogs.filter(l =>
+            l.candidate_id === candidate.id &&
+            (l.student_grade || '').startsWith(grpLabel)
+        );
+    }
+
+    // Warna badge sesuai grup
+    const color = getClassBarColor(grpLabel, getSortedGroupLabels().indexOf(grpLabel));
+
+    // Update modal header
+    const titleEl   = getEl('drillModalTitle');
+    const subtitleEl = getEl('drillModalSubtitle');
+    const badgeEl   = getEl('drillModalBadge');
+    const countEl   = getEl('drillModalCount');
+    const tbodyEl   = getEl('drillModalTableBody');
+
+    if (titleEl)    titleEl.textContent    = candidate.name;
+    if (subtitleEl) subtitleEl.textContent = `No. ${candidate.no} — pemilih dari ${grpLabel}`;
+    if (badgeEl) {
+        badgeEl.textContent  = grpLabel;
+        badgeEl.style.background = color;
+        badgeEl.style.color      = '#fff';
+    }
+    if (countEl) countEl.textContent = `${filtered.length} suara`;
+
+    if (tbodyEl) {
+        tbodyEl.innerHTML = '';
+        if (!filtered.length) {
+            tbodyEl.innerHTML = `<tr><td colspan="3" class="p-6 text-center text-slate-400 text-xs italic">Belum ada suara dari ${grpLabel}</td></tr>`;
+        } else {
+            filtered
+                .sort((a, b) => new Date(a.voted_at) - new Date(b.voted_at))
+                .forEach((log, idx) => {
+                    const dt = log.voted_at ? new Date(log.voted_at) : null;
+                    const waktu = dt ? dt.toLocaleString('id-ID', {
+                        day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
+                    }) : '—';
+                    const tr = document.createElement('tr');
+                    tr.className = idx % 2 === 0 ? '' : 'bg-slate-50';
+                    tr.innerHTML = `
+                        <td class="p-3 pl-4 font-bold text-slate-400 text-xs">${idx + 1}</td>
+                        <td class="p-3 font-semibold text-slate-800 text-xs">${log.student_name || '—'}</td>
+                        <td class="p-3 text-slate-500 text-xs whitespace-nowrap">${waktu}</td>`;
+                    tbodyEl.appendChild(tr);
+                });
+        }
+    }
+
+    // Tampilkan modal
+    const modal = getEl('voterDrillModal');
+    if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
+}
+
+function closeVoterDrillModal() {
+    const modal = getEl('voterDrillModal');
+    if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
 }
 
 // ============================================================
@@ -843,13 +932,19 @@ function renderBelumVotePanel() {
 function exportBelumVoteExcel() {
     if (!window.XLSX) { showAlertModal('Error', 'SheetJS belum dimuat.', 'info'); return; }
 
-    const filterGrade = getEl('belumVoteFilterClass')?.value || '';
+    const filterVal   = getEl('belumVoteFilterClass')?.value || '';
     const query       = (getEl('belumVoteSearch')?.value || '').toLowerCase().trim();
+    const onlyGuru    = filterVal === '__guru__';
+    const filterGrade = onlyGuru ? '' : filterVal;
 
-    const belumSiswa = students
-        .filter(s => !s.hasVoted && (!filterGrade || s.grade === filterGrade) && (!query || s.name.toLowerCase().includes(query)))
+    // Siswa — skip semua kalau filter guru
+    const belumSiswa = onlyGuru ? [] : students
+        .filter(s => !s.hasVoted
+            && (!filterGrade || s.grade === filterGrade)
+            && (!query || s.name.toLowerCase().includes(query)))
         .sort((a, b) => a.grade.localeCompare(b.grade) || a.name.localeCompare(b.name));
 
+    // Guru — skip kalau filter kelas spesifik
     const belumGuru = filterGrade ? [] : teachers
         .filter(t => !t.hasVoted && (!query || t.name.toLowerCase().includes(query)))
         .sort((a, b) => a.name.localeCompare(b.name));
@@ -864,10 +959,11 @@ function exportBelumVoteExcel() {
 
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.aoa_to_sheet(rows);
-    ws['!cols'] = [{ wch: 5 }, { wch: 35 }, { wch: 15 }, { wch: 20 }];
+    ws['!cols'] = [{ wch: 5 }, { wch: 35 }, { wch: 20 }, { wch: 20 }];
     XLSX.utils.book_append_sheet(wb, ws, 'Belum Vote');
-    XLSX.writeFile(wb, `BelumVote_${filterGrade || 'Semua'}_${new Date().toISOString().slice(0,10)}.xlsx`);
-    showAlertModal('Ekspor Berhasil', `${belumSiswa.length + belumGuru.length} data diekspor.`, 'success');
+    const labelFile = onlyGuru ? 'Guru' : (filterGrade || 'Semua');
+    XLSX.writeFile(wb, `BelumVote_${labelFile}_${new Date().toISOString().slice(0,10)}.xlsx`);
+    showAlertModal('Ekspor Berhasil', `${belumSiswa.length + belumGuru.length} data diekspor (${onlyGuru ? 'Guru / Staf' : filterGrade || 'Semua'}).`, 'success');
 }
 
 function renderAuditLog(entries) {
@@ -1656,4 +1752,194 @@ function clearAllTeachers() {
     saveTeachersLocal(); deleteAllTeachersFromSupabase();
     renderAdminTeacherManager(); updateTabCounts(); renderAdminDashboard();
     showAlertModal('Terhapus', 'Semua data guru telah dihapus.', 'info');
+}
+
+// ============================================================
+// === LOGIN PAGE: QUICK BELUM VOTE PANEL ===
+// ============================================================
+
+function onLoginPasswordInput() {
+    const inp = getEl('adminPasswordInput');
+    const panel = getEl('loginBelumVotePanel');
+    if (!panel) return;
+
+    if (inp && inp.value.length > 0) {
+        // Isi filter dropdown kalau belum
+        const sel = getEl('loginBelumVoteFilter');
+        if (sel && sel.options.length <= 1) {
+            sel.innerHTML = '<option value="">— Semua —</option>';
+            classes.forEach(g => {
+                const o = document.createElement('option');
+                o.value = g; o.textContent = g;
+                sel.appendChild(o);
+            });
+            const oGuru = document.createElement('option');
+            oGuru.value = '__guru__'; oGuru.textContent = 'Guru / Staf';
+            sel.appendChild(oGuru);
+        }
+        panel.classList.remove('hidden');
+        renderLoginBelumVote();
+    }
+}
+
+function closeLoginBelumVotePanel() {
+    const panel = getEl('loginBelumVotePanel');
+    if (panel) panel.classList.add('hidden');
+}
+
+function renderLoginBelumVote() {
+    const tbody   = getEl('loginBelumVoteBody');
+    const countEl = getEl('loginBelumVoteCount');
+    if (!tbody) return;
+
+    const filterVal   = getEl('loginBelumVoteFilter')?.value || '';
+    const onlyGuru    = filterVal === '__guru__';
+    const filterGrade = onlyGuru ? '' : filterVal;
+
+    const belumSiswa = onlyGuru ? [] : students
+        .filter(s => !s.hasVoted && (!filterGrade || s.grade === filterGrade))
+        .sort((a, b) => a.grade.localeCompare(b.grade) || a.name.localeCompare(b.name))
+        .map(s => ({ name: s.name, grade: s.grade, password: s.password || '—', type: 'siswa' }));
+
+    const belumGuru = filterGrade ? [] : teachers
+        .filter(t => !t.hasVoted)
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map(t => ({ name: t.name, grade: t.role || 'Guru', password: t.password || '—', type: 'guru' }));
+
+    const semua = [...belumSiswa, ...belumGuru];
+    if (countEl) countEl.textContent = `${semua.length} orang belum vote`;
+
+    tbody.innerHTML = '';
+    if (!semua.length) {
+        tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-emerald-600 font-semibold text-xs">🎉 Semua sudah memilih!</td></tr>`;
+        return;
+    }
+
+    const gradeColor = (grade, type) => {
+        if (type === 'guru')         return 'bg-green-100 text-green-700';
+        if (grade.includes('7'))     return 'bg-sky-100 text-sky-600';
+        if (grade.includes('8'))     return 'bg-emerald-100 text-emerald-700';
+        if (grade.includes('9'))     return 'bg-orange-100 text-orange-600';
+        return 'bg-slate-100 text-slate-600';
+    };
+
+    semua.forEach((p, idx) => {
+        const tr = document.createElement('tr');
+        tr.className = idx % 2 === 0 ? '' : 'bg-slate-50';
+        tr.innerHTML = `
+            <td class="p-2.5 pl-4 font-bold text-slate-400">${idx + 1}</td>
+            <td class="p-2.5 font-semibold text-slate-800">${p.name}</td>
+            <td class="p-2.5">
+                <span class="text-[11px] font-bold px-2 py-0.5 rounded-lg ${gradeColor(p.grade, p.type)}">${p.grade}</span>
+            </td>
+            <td class="p-2.5 font-mono text-slate-500 text-[11px]">${p.password}</td>`;
+        tbody.appendChild(tr);
+    });
+}
+
+// ============================================================
+// === WAKTU VOTE ===
+// ============================================================
+
+const CLOSE_TIME_KEY   = 'pemira_close_time';
+const OPEN_TIME_KEY    = 'pemira_open_time';
+
+function loadCloseTime()  { return localStorage.getItem(CLOSE_TIME_KEY) || ''; }
+function loadOpenTime()   { return localStorage.getItem(OPEN_TIME_KEY)  || ''; }
+
+function saveCloseTimeLocal(iso) {
+    iso ? localStorage.setItem(CLOSE_TIME_KEY, iso) : localStorage.removeItem(CLOSE_TIME_KEY);
+}
+function saveOpenTimeLocal(iso) {
+    iso ? localStorage.setItem(OPEN_TIME_KEY, iso) : localStorage.removeItem(OPEN_TIME_KEY);
+}
+
+function isPemiraClosed() {
+    const ct = loadCloseTime();
+    if (!ct) return false;
+    return new Date() >= new Date(ct);
+}
+function isPemiraNotYetOpen() {
+    const ot = loadOpenTime();
+    if (!ot) return false;
+    return new Date() < new Date(ot);
+}
+
+// Helper: format datetime-local value dari ISO string
+function isoToDatetimeLocal(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    const p = n => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
+function openClosingTimeModal() {
+    const modal    = getEl('closingTimeModal');
+    const inpOpen  = getEl('openingTimeInput');
+    const inpClose = getEl('closingTimeInput');
+    const statusEl = getEl('closingTimeStatus');
+    if (!modal) return;
+
+    if (inpOpen)  inpOpen.value  = isoToDatetimeLocal(loadOpenTime());
+    if (inpClose) inpClose.value = isoToDatetimeLocal(loadCloseTime());
+
+    // Status
+    if (statusEl) {
+        const ot = loadOpenTime();
+        const ct = loadCloseTime();
+        if (!ot && !ct) {
+            statusEl.className = 'mb-4 p-3 rounded-xl text-xs font-semibold text-center bg-slate-50 border border-slate-200 text-slate-500';
+            statusEl.textContent = 'Belum diatur — voting buka terus';
+        } else {
+            const now = new Date();
+            const fmt = iso => iso ? new Date(iso).toLocaleString('id-ID', { weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) : '—';
+            let state, cls, icon;
+            if (ct && now >= new Date(ct)) {
+                state = 'Voting DITUTUP'; cls = 'bg-rose-50 border-rose-200 text-rose-600'; icon = 'fa-lock';
+            } else if (ot && now < new Date(ot)) {
+                state = 'Voting BELUM MULAI'; cls = 'bg-amber-50 border-amber-200 text-amber-700'; icon = 'fa-hourglass-start';
+            } else {
+                state = 'Voting BERLANGSUNG'; cls = 'bg-emerald-50 border-emerald-200 text-emerald-700'; icon = 'fa-check-circle';
+            }
+            statusEl.className = `mb-4 p-3 rounded-xl text-xs font-semibold text-center ${cls} border`;
+            statusEl.innerHTML = `<i class="fa-solid ${icon} mr-1"></i> ${state}<br>
+                <span class="font-normal">Mulai: <strong>${fmt(ot)}</strong> &nbsp;|&nbsp; Tutup: <strong>${fmt(ct)}</strong></span>`;
+        }
+    }
+
+    modal.classList.remove('hidden'); modal.classList.add('flex');
+}
+
+function closeClosingTimeModal() {
+    const modal = getEl('closingTimeModal');
+    if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+}
+
+function saveVoteTime() {
+    const inpOpen  = getEl('openingTimeInput');
+    const inpClose = getEl('closingTimeInput');
+    const valOpen  = inpOpen?.value  || '';
+    const valClose = inpClose?.value || '';
+
+    if (valOpen && valClose && new Date(valOpen) >= new Date(valClose)) {
+        showAlertModal('Peringatan', 'Waktu mulai harus sebelum waktu tutup.', 'info');
+        return;
+    }
+
+    saveOpenTimeLocal(valOpen  ? new Date(valOpen).toISOString()  : '');
+    saveCloseTimeLocal(valClose ? new Date(valClose).toISOString() : '');
+    closeClosingTimeModal();
+
+    const fmt = iso => iso ? new Date(iso).toLocaleString('id-ID', { weekday:'long', day:'numeric', month:'long', hour:'2-digit', minute:'2-digit' }) : 'tidak diatur';
+    showAlertModal('Tersimpan', `Mulai: <strong>${fmt(valOpen ? new Date(valOpen).toISOString() : '')}</strong><br>Tutup: <strong>${fmt(valClose ? new Date(valClose).toISOString() : '')}</strong>`, 'success');
+}
+
+// Tetap ada agar tombol "Simpan Waktu Tutup" lama tidak error
+function saveClosingTime() { saveVoteTime(); }
+
+function clearClosingTime() {
+    saveOpenTimeLocal('');
+    saveCloseTimeLocal('');
+    closeClosingTimeModal();
+    showAlertModal('Dihapus', 'Waktu vote dihapus. Voting tidak memiliki batas waktu.', 'info');
 }

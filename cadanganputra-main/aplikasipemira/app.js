@@ -55,9 +55,15 @@ let countdownInterval = null;
 window.addEventListener('DOMContentLoaded', async () => {
     initSupabaseClient();
     renderWelcomeClassesLoading();
+    showRoleSelectScreen(); // tampilkan dulu, jangan tunggu Supabase
     await loadData();
     await loadTeachers();
-    showRoleSelectScreen();
+    // Refresh kelas di welcome screen kalau user masih di sana,
+    // tapi JANGAN redirect kalau user sudah pindah screen
+    const welcomeScreen = document.getElementById('welcomeScreen');
+    if (welcomeScreen && !welcomeScreen.classList.contains('hidden')) {
+        renderWelcomeClasses();
+    }
 });
 
 function initSupabaseClient() {
@@ -93,6 +99,8 @@ function showRoleSelectScreen() {
     if (homeBtn)   homeBtn.classList.add('hidden');
     const el = document.getElementById('roleSelectScreen');
     if (el) el.classList.remove('hidden');
+    stopClosingTimer();
+    updateClosingTimeUI();
 }
 
 function selectRole(role) {
@@ -676,10 +684,8 @@ function showHomePage() {
     if (btnEl)   btnEl.textContent   = currentRole === 'guru' ? 'Ganti Guru' : 'Ganti Siswa';
 
     renderCandidatesHome();
-}
-
-
-// ============================================================
+    updateClosingTimeUI();
+}// ============================================================
 // === SECTION: 8. VOTING ===
 // ============================================================
 
@@ -720,6 +726,19 @@ function closeCandidateModal() {
 function openVoteConfirmation() {
     const voter = currentRole === 'guru' ? activeTeacher : selectedStudent;
     if (!voter || !selectedCandidate) return;
+
+    // Cek waktu vote
+    if (isPemiraClosed()) {
+        closeCandidateModal();
+        showAlertModal('Pemilihan Ditutup', 'Maaf, waktu pemilihan telah berakhir.', 'info');
+        return;
+    }
+    if (isPemiraNotYetOpen()) {
+        closeCandidateModal();
+        const ot = new Date(loadOpenTime()).toLocaleString('id-ID', { weekday:'long', day:'numeric', month:'long', hour:'2-digit', minute:'2-digit' });
+        showAlertModal('Belum Dimulai', `Pemilihan belum dibuka. Dibuka pada <strong>${ot}</strong>`, 'info');
+        return;
+    }
 
     // Cek sudah memilih
     if (voter.hasVoted) {
@@ -767,6 +786,18 @@ function closeConfirmVoteModal() {
 async function executeVote() {
     const voter = currentRole === 'guru' ? activeTeacher : selectedStudent;
     if (!voter || !selectedCandidate || voter.hasVoted) return;
+
+    // Guard waktu vote (safety net kedua)
+    if (isPemiraClosed()) {
+        closeConfirmVoteModal();
+        showAlertModal('Pemilihan Ditutup', 'Maaf, waktu pemilihan telah berakhir.', 'info');
+        return;
+    }
+    if (isPemiraNotYetOpen()) {
+        closeConfirmVoteModal();
+        showAlertModal('Belum Dimulai', 'Pemilihan belum dibuka.', 'info');
+        return;
+    }
 
     // ── Tampilkan status loading di tombol, modal tetap terbuka ─────────────
     const finalBtn  = document.getElementById('finalVoteBtn');
@@ -1000,13 +1031,7 @@ function deleteClass(name) {
 // ============================================================
 
 function handleFooterClick() {
-    footerClickCount++;
-    clearTimeout(footerClickTimer);
-    if (footerClickCount >= 5) {
-        footerClickCount = 0;
-        openAdminLoginModal();
-    }
-    footerClickTimer = setTimeout(() => { footerClickCount = 0; }, 2000);
+    // easter egg dihapus
 }
 
 function showAlertModal(title, message, type = 'info') {
@@ -1032,4 +1057,155 @@ function showAlertModal(title, message, type = 'info') {
 function closeAlertModal() {
     const modal = document.getElementById('alertModal');
     if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+}
+
+// ============================================================
+// === WAKTU VOTE (mulai + tutup) ===
+// ============================================================
+
+const CLOSE_TIME_KEY = 'pemira_close_time';
+const OPEN_TIME_KEY  = 'pemira_open_time';
+let closingTimerInterval = null;
+
+function loadCloseTime() { return localStorage.getItem(CLOSE_TIME_KEY) || ''; }
+function loadOpenTime()  { return localStorage.getItem(OPEN_TIME_KEY)  || ''; }
+
+function isPemiraClosed() {
+    const ct = loadCloseTime();
+    return ct ? new Date() >= new Date(ct) : false;
+}
+function isPemiraNotYetOpen() {
+    const ot = loadOpenTime();
+    return ot ? new Date() < new Date(ot) : false;
+}
+function isVotingBlocked() {
+    return isPemiraClosed() || isPemiraNotYetOpen();
+}
+
+// Dipanggil saat showHomePage() dan showRoleSelectScreen()
+function updateClosingTimeUI() {
+    const ct  = loadCloseTime();
+    const ot  = loadOpenTime();
+    const now = new Date();
+
+    // --- roleSelectScreen banner ---
+    const roleBanner = document.getElementById('roleSelectClosedBanner');
+    if (roleBanner) {
+        if (isPemiraClosed()) {
+            roleBanner.classList.remove('hidden');
+            roleBanner.innerHTML = '<i class="fa-solid fa-lock text-base"></i><span>Pemilihan telah ditutup. Terima kasih atas partisipasi Anda.</span>';
+        } else if (isPemiraNotYetOpen()) {
+            roleBanner.classList.remove('hidden');
+            const openDate = new Date(ot).toLocaleString('id-ID', { weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+            roleBanner.innerHTML = `<i class="fa-solid fa-hourglass-start text-base"></i><span>Pemilihan belum dimulai. Dibuka pada <strong>${openDate}</strong></span>`;
+            roleBanner.className = 'bg-amber-50 border border-amber-200 text-amber-700 rounded-2xl px-5 py-4 text-sm font-semibold flex items-center justify-center gap-2';
+        } else {
+            roleBanner.classList.add('hidden');
+            roleBanner.className = 'hidden bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl px-5 py-4 text-sm font-semibold flex items-center justify-center gap-2';
+        }
+    }
+
+    // --- homePage countdown banner ---
+    const banner      = document.getElementById('closingTimeBanner');
+    const bannerText  = document.getElementById('closingTimeBannerText');
+    const bannerIcon  = document.getElementById('closingTimeBannerIcon');
+    const countdownEl = document.getElementById('closingTimeCountdown');
+    if (!banner) return;
+
+    // Kalau tidak ada waktu sama sekali → sembunyikan
+    if (!ct && !ot) {
+        banner.classList.add('hidden');
+        stopClosingTimer();
+        return;
+    }
+
+    banner.classList.remove('hidden');
+
+    if (isPemiraClosed()) {
+        banner.className = 'max-w-5xl mx-auto rounded-2xl px-5 py-3 flex flex-col sm:flex-row items-center justify-between gap-2 text-sm font-semibold bg-rose-50 border border-rose-200 text-rose-700';
+        if (bannerIcon)  bannerIcon.className  = 'fa-solid fa-lock text-base';
+        if (bannerText)  bannerText.textContent = 'Pemilihan telah ditutup';
+        if (countdownEl) countdownEl.textContent = '';
+        stopClosingTimer();
+    } else if (isPemiraNotYetOpen()) {
+        // Belum mulai — hitung mundur ke waktu mulai
+        banner.className = 'max-w-5xl mx-auto rounded-2xl px-5 py-3 flex flex-col sm:flex-row items-center justify-between gap-2 text-sm font-semibold bg-amber-50 border border-amber-200 text-amber-700';
+        if (bannerIcon) bannerIcon.className = 'fa-solid fa-hourglass-start text-base';
+        const openLabel = new Date(ot).toLocaleString('id-ID', { weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+        if (bannerText) bannerText.textContent = `Mulai: ${openLabel}`;
+        startClosingTimer(); // timer akan hitung mundur ke ot dulu
+    } else {
+        // Sedang berlangsung — hitung mundur ke waktu tutup (kalau ada)
+        if (ct) {
+            banner.className = 'max-w-5xl mx-auto rounded-2xl px-5 py-3 flex flex-col sm:flex-row items-center justify-between gap-2 text-sm font-semibold bg-emerald-50 border border-emerald-200 text-emerald-700';
+            if (bannerIcon) bannerIcon.className = 'fa-solid fa-circle-check text-base';
+            const closeLabel = new Date(ct).toLocaleString('id-ID', { weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+            if (bannerText) bannerText.textContent = `Tutup: ${closeLabel}`;
+            startClosingTimer();
+        } else if (ot) {
+            // Hanya ada waktu mulai, sudah lewat → berlangsung tanpa batas tutup
+            banner.className = 'max-w-5xl mx-auto rounded-2xl px-5 py-3 flex flex-col sm:flex-row items-center justify-between gap-2 text-sm font-semibold bg-emerald-50 border border-emerald-200 text-emerald-700';
+            if (bannerIcon)  bannerIcon.className  = 'fa-solid fa-circle-check text-base';
+            if (bannerText)  bannerText.textContent = 'Voting sedang berlangsung';
+            if (countdownEl) countdownEl.textContent = '';
+            stopClosingTimer();
+        }
+    }
+}
+
+function startClosingTimer() {
+    stopClosingTimer();
+    closingTimerInterval = setInterval(() => {
+        const ct  = loadCloseTime();
+        const ot  = loadOpenTime();
+        const now = new Date();
+        const countdownEl = document.getElementById('closingTimeCountdown');
+
+        // Tentukan target waktu: kalau belum mulai → hitung ke ot, kalau sudah mulai → ke ct
+        let target = null;
+        let mode   = '';
+        if (ot && now < new Date(ot)) {
+            target = new Date(ot);
+            mode   = 'opening';
+        } else if (ct) {
+            target = new Date(ct);
+            mode   = 'closing';
+        }
+
+        if (!target) { stopClosingTimer(); updateClosingTimeUI(); return; }
+
+        const diff = target - now;
+
+        if (diff <= 0) {
+            stopClosingTimer();
+            updateClosingTimeUI();
+            const homePage = document.getElementById('homePage');
+            if (mode === 'closing' && homePage && !homePage.classList.contains('hidden')) {
+                showAlertModal('Pemilihan Ditutup', 'Waktu pemilihan telah habis. Terima kasih!', 'info');
+                setTimeout(() => showRoleSelectScreen(), 2000);
+            } else if (mode === 'opening') {
+                // Baru mulai — refresh UI tanpa redirect
+                updateClosingTimeUI();
+            }
+            return;
+        }
+
+        const totalSec = Math.floor(diff / 1000);
+        const h = Math.floor(totalSec / 3600);
+        const m = Math.floor((totalSec % 3600) / 60);
+        const s = totalSec % 60;
+        const pad = n => String(n).padStart(2, '0');
+        if (countdownEl) {
+            countdownEl.textContent = h > 0
+                ? `${pad(h)}:${pad(m)}:${pad(s)}`
+                : `${pad(m)}:${pad(s)}`;
+        }
+    }, 1000);
+}
+
+function stopClosingTimer() {
+    if (closingTimerInterval) {
+        clearInterval(closingTimerInterval);
+        closingTimerInterval = null;
+    }
 }
