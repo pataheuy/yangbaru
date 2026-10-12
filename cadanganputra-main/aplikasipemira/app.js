@@ -42,9 +42,6 @@ let currentRole      = null;
 let selectedCandidate = null;
 let pendingStudentId  = null;
 let pendingTeacherId  = null;
-let isAdminLoggedIn   = false;
-let footerClickCount  = 0;
-let footerClickTimer  = null;
 let countdownInterval = null;
 
 
@@ -81,7 +78,7 @@ function initSupabaseClient() {
 // ============================================================
 
 function hideAllScreens() {
-    ['roleSelectScreen','teacherSelectScreen','welcomeScreen','subClassScreen','studentSelectScreen','homePage','adminPage']
+    ['roleSelectScreen','teacherSelectScreen','welcomeScreen','subClassScreen','studentSelectScreen','homePage']
         .forEach(id => {
             const el = document.getElementById(id);
             if (el) el.classList.add('hidden');
@@ -126,18 +123,6 @@ function showWelcomeScreen() {
 }
 
 function showPage(page) {
-    if (page === 'admin') {
-        if (!isAdminLoggedIn) { openAdminLoginModal(); return; }
-        hideAllScreens();
-        const adminPage = document.getElementById('adminPage');
-        const changeBtn = document.getElementById('changeClassNavBtn');
-        const homeBtn   = document.getElementById('homeNavBtn');
-        if (adminPage) adminPage.classList.remove('hidden');
-        if (changeBtn) changeBtn.classList.remove('hidden');
-        if (homeBtn)   homeBtn.classList.remove('hidden');
-        if (typeof renderAdminDashboard === 'function') renderAdminDashboard();
-        return;
-    }
     if (page === 'home') {
         const voter = currentRole === 'guru' ? activeTeacher : selectedStudent;
         if (!voter) { showRoleSelectScreen(); return; }
@@ -947,34 +932,9 @@ function renderCandidatesHome() {
 // === SECTION: 10. ADMIN (in-page) ===
 // ============================================================
 
-function openAdminLoginModal() {
-    const inp = document.getElementById('adminPasswordInput');
-    const err = document.getElementById('loginError');
-    if (inp) inp.value = '';
-    if (err) err.classList.add('hidden');
-    const modal = document.getElementById('adminLoginModal');
-    if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); setTimeout(() => inp?.focus(), 100); }
-}
-
-function closeAdminLoginModal() {
-    const modal = document.getElementById('adminLoginModal');
-    if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
-}
-
-function handleAdminLogin(event) {
-    event.preventDefault();
-    const inp = document.getElementById('adminPasswordInput');
-    const err = document.getElementById('loginError');
-    if (!inp) return;
-    if (inp.value.trim() === ADMIN_PASSWORD) {
-        isAdminLoggedIn = true;
-        closeAdminLoginModal();
-        showPage('admin');
-    } else {
-        if (err) err.classList.remove('hidden');
-        inp.value = '';
-    }
-}
+// ============================================================
+// === SECTION: 10. ADMIN (stub — full logic di admin/app.js) ===
+// ============================================================
 
 // Fungsi admin kandidat — stub (full logic di admin/app.js)
 function openAddCandidateModal()          { alert('Gunakan halaman admin terpisah.'); }

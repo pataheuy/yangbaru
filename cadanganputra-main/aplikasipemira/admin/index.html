@@ -72,74 +72,73 @@
 
     <!-- ===== LOGIN SCREEN ===== -->
     <section id="loginScreen" class="flex-grow flex items-center justify-center animate-fade-in-up">
-        <div class="flex flex-col lg:flex-row gap-6 w-full items-start justify-center">
 
-            <!-- Form login -->
-            <div class="bg-white rounded-3xl shadow-lg border border-slate-100 p-8 w-full max-w-sm shrink-0">
-                <div class="text-center mb-6">
-                    <div class="w-14 h-14 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl">
-                        <i class="fa-solid fa-user-shield"></i>
-                    </div>
-                    <h2 class="text-xl font-bold text-slate-800">Login Admin</h2>
-                    <p class="text-xs text-slate-500 mt-1">Masukkan kata sandi untuk mengakses dashboard</p>
+        <!-- Form login — selalu di tengah -->
+        <div class="bg-white rounded-3xl shadow-lg border border-slate-100 p-8 w-full max-w-sm">
+            <div class="text-center mb-6">
+                <div class="w-14 h-14 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl">
+                    <i class="fa-solid fa-user-shield"></i>
                 </div>
-                <form onsubmit="handleAdminLogin(event)" class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Kata Sandi Admin</label>
-                        <input type="password" id="adminPasswordInput" placeholder="Password Admin"
-                               oninput="onLoginPasswordInput()"
-                               class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
-                    </div>
-                    <p id="loginError" class="text-rose-500 text-xs hidden">
-                        <i class="fa-solid fa-circle-exclamation mr-1"></i> Kata sandi salah. Coba lagi!
-                    </p>
-                    <button type="submit"
-                            class="w-full gradient-btn text-white font-semibold py-2.5 rounded-xl text-sm transition">
-                        <i class="fa-solid fa-unlock mr-2"></i> Masuk
-                    </button>
-                </form>
+                <h2 class="text-xl font-bold text-slate-800">Login Admin</h2>
+                <p class="text-xs text-slate-500 mt-1">Masukkan kata sandi untuk mengakses dashboard</p>
             </div>
-
-            <!-- Tabel belum vote (muncul saat ngetik password) -->
-            <div id="loginBelumVotePanel" class="hidden bg-white rounded-3xl shadow-lg border border-slate-100 w-full max-w-2xl overflow-hidden animate-fade-in-up">
-                <!-- Header -->
-                <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-                    <div>
-                        <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
-                            <i class="fa-solid fa-user-clock text-amber-500"></i> Belum Vote
-                        </h3>
-                        <p id="loginBelumVoteCount" class="text-[11px] text-slate-400 mt-0.5">0 orang</p>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <!-- Filter kelas -->
-                        <select id="loginBelumVoteFilter" onchange="renderLoginBelumVote()"
-                                class="px-2.5 py-1.5 border border-slate-200 rounded-xl text-xs focus:outline-none bg-slate-50">
-                            <option value="">— Semua —</option>
-                        </select>
-                        <button onclick="closeLoginBelumVotePanel()"
-                                class="text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 w-8 h-8 rounded-xl flex items-center justify-center transition">
-                            <i class="fa-solid fa-xmark text-xs"></i>
-                        </button>
-                    </div>
+            <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Kata Sandi Admin</label>
+                    <input type="password" id="adminPasswordInput" placeholder="Password Admin"
+                           oninput="onLoginPasswordInput()"
+                           class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
                 </div>
-                <!-- Tabel -->
-                <div class="overflow-y-auto max-h-80">
-                    <table class="w-full text-left border-collapse">
-                        <thead class="bg-slate-50 text-slate-400 text-[11px] uppercase tracking-wider sticky top-0">
-                            <tr>
-                                <th class="p-3 pl-4">No</th>
-                                <th class="p-3">Nama</th>
-                                <th class="p-3">Kelas</th>
-                                <th class="p-3">Password</th>
-                            </tr>
-                        </thead>
-                        <tbody id="loginBelumVoteBody" class="divide-y divide-slate-100 text-xs"></tbody>
-                    </table>
-                </div>
-            </div>
-
+                <p id="loginError" class="text-rose-500 text-xs hidden">
+                    <i class="fa-solid fa-circle-exclamation mr-1"></i> Kata sandi salah. Coba lagi!
+                </p>
+                <button type="submit"
+                        class="w-full gradient-btn text-white font-semibold py-2.5 rounded-xl text-sm transition">
+                    <i class="fa-solid fa-unlock mr-2"></i> Masuk
+                </button>
+            </form>
         </div>
+
     </section>
+
+    <!-- ===== PANEL BELUM VOTE (overlay, muncul saat ngetik password di login) ===== -->
+    <div id="loginBelumVotePanel" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-40 p-4">
+        <div class="bg-white rounded-3xl w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl animate-fade-in-up overflow-hidden">
+            <!-- Header -->
+            <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
+                <div>
+                    <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-user-clock text-amber-500"></i> Belum Vote
+                    </h3>
+                    <p id="loginBelumVoteCount" class="text-[11px] text-slate-400 mt-0.5">0 orang</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <select id="loginBelumVoteFilter" onchange="renderLoginBelumVote()"
+                            class="px-2.5 py-1.5 border border-slate-200 rounded-xl text-xs focus:outline-none bg-slate-50">
+                        <option value="">— Semua —</option>
+                    </select>
+                    <button onclick="closeLoginBelumVotePanel()"
+                            class="text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 w-8 h-8 rounded-xl flex items-center justify-center transition">
+                        <i class="fa-solid fa-xmark text-xs"></i>
+                    </button>
+                </div>
+            </div>
+            <!-- Tabel -->
+            <div class="overflow-y-auto flex-grow">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-slate-50 text-slate-400 text-[11px] uppercase tracking-wider sticky top-0">
+                        <tr>
+                            <th class="p-3 pl-4">No</th>
+                            <th class="p-3">Nama</th>
+                            <th class="p-3">Kelas</th>
+                            <th class="p-3">Password</th>
+                        </tr>
+                    </thead>
+                    <tbody id="loginBelumVoteBody" class="divide-y divide-slate-100 text-xs"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
     <!-- ===== DASHBOARD (hidden until login) ===== -->
     <section id="dashboardScreen" class="hidden animate-fade-in-up space-y-6 flex-grow">
@@ -260,7 +259,7 @@
             </div>
         </div>
     </section>
-    `
+
 </main>
 
 <!-- ===== AUDIT LOG OVERLAY ===== -->
@@ -508,6 +507,34 @@
     </div>
 </div>
 
+<!-- Modal: Password Gate — Kelola Data Pemilih -->
+<div id="voterGateModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-[60]">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl relative animate-fade-in-up">
+        <button onclick="closeVoterGateModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+        <div class="text-center mb-5">
+            <div class="w-12 h-12 bg-sky-100 text-sky-600 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl">
+                <i class="fa-solid fa-users-gear"></i>
+            </div>
+            <h3 class="text-lg font-bold text-slate-800">Akses Data Pemilih</h3>
+            <p class="text-xs text-slate-500 mt-1">Masukkan kata sandi untuk mengelola data pemilih</p>
+        </div>
+        <div class="space-y-3">
+            <input type="password" id="voterGateInput" placeholder="Kata sandi..."
+                   onkeydown="if(event.key==='Enter')verifyVoterGate()"
+                   class="w-full px-3 py-2.5 border border-slate-300 rounded-xl text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none">
+            <p id="voterGateError" class="text-rose-500 text-xs hidden">
+                <i class="fa-solid fa-circle-exclamation mr-1"></i> Kata sandi salah.
+            </p>
+            <button onclick="verifyVoterGate()"
+                    class="w-full bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2.5 rounded-xl text-sm transition">
+                <i class="fa-solid fa-unlock mr-2"></i> Buka
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- Modal: Kelola Pemilih (Siswa + Guru) -->
 <div id="studentManageModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
     <div class="bg-white rounded-3xl max-w-3xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto animate-fade-in-up">
@@ -672,7 +699,6 @@
                         <tr>
                             <th class="p-2.5 pl-4">No</th>
                             <th class="p-2.5">Nama</th>
-                            <th class="p-2.5">Password</th>
                             <th class="p-2.5">Status</th>
                             <th class="p-2.5 text-right pr-4">Aksi</th>
                         </tr>

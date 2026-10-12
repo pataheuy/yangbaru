@@ -232,7 +232,8 @@ async function showDashboard() {
         console.error('showDashboard error:', e);
     }
 
-    startDashboardAutoRefresh();
+    startVoterDataPolling();
+    startRealtimeSubscription();
 }
 
 // >> Auto-refresh dashboard setiap 15 detik — ambil vote_logs terbaru dari Supabase
@@ -277,6 +278,8 @@ function stopDashboardAutoRefresh() {
 function adminLogout() {
     sessionStorage.removeItem('pemira_admin_auth');
     stopDashboardAutoRefresh();
+    stopVoterDataPolling();
+    stopRealtimeSubscription();
 
     const dashboardScreen = getEl('dashboardScreen');
     const loginScreen = getEl('loginScreen');
@@ -512,19 +515,15 @@ function renderBarChart(sorted) {
                 },
                 tooltip: {
                     callbacks: {
-                        title: (items) => {
-                            const c = sorted[items[0]?.dataIndex];
-                            return c ? `No.${c.no} — ${c.name}` : '';
-                        },
+                        title: () => '',
                         label: (ctx) => {
                             const val = ctx.raw;
                             if (!val) return null;
                             return ` ${ctx.dataset.label}: ${val} suara (klik untuk detail)`;
                         },
                         footer: (items) => {
-                            const total = items.reduce((s, i) => s + (i.raw || 0), 0);
                             const c = sorted[items[0]?.dataIndex];
-                            return `Total: ${c ? Number(c.votes) || 0 : total} suara`;
+                            return `Total: ${c ? Number(c.votes) || 0 : 0} suara`;
                         }
                     }
                 }
@@ -617,10 +616,40 @@ function closeVoterDrillModal() {
 // ============================================================
 
 function openStudentManageModal() {
+    // Tampilkan password gate dulu
+    const gateModal = getEl('voterGateModal');
+    const inp       = getEl('voterGateInput');
+    const err       = getEl('voterGateError');
+    if (inp) inp.value = '';
+    if (err) err.classList.add('hidden');
+    if (gateModal) { gateModal.classList.remove('hidden'); gateModal.classList.add('flex'); setTimeout(() => inp?.focus(), 100); }
+}
+
+function closeVoterGateModal() {
+    const m = getEl('voterGateModal');
+    if (m) { m.classList.add('hidden'); m.classList.remove('flex'); }
+}
+
+const VOTER_GATE_PASSWORD = 'jujurdanintegritas';
+
+function verifyVoterGate() {
+    const inp = getEl('voterGateInput');
+    const err = getEl('voterGateError');
+    if (!inp) return;
+    if (inp.value.trim() === VOTER_GATE_PASSWORD) {
+        closeVoterGateModal();
+        _openStudentManageModalDirect();
+    } else {
+        if (err) err.classList.remove('hidden');
+        inp.value = '';
+        setTimeout(() => inp.focus(), 50);
+    }
+}
+
+function _openStudentManageModalDirect() {
     const sel = getEl('adminStudentGradeSelect');
     if (!sel) return;
     sel.innerHTML = classes.map(g => `<option value="${g}">${g}</option>`).join('');
-    // Reset sub kelas
     const subEl = getEl('adminStudentSubClassInput');
     if (subEl) subEl.value = '';
     currentVoterTab = 'siswa';
@@ -786,6 +815,16 @@ async function showAuditLog() {
         sel.appendChild(oGuru);
     }
 
+    // Isi dropdown filter kelas di tabel "belum memilih" dalam audit log
+    const selBelum = getEl('belumMemilihFilterClass');
+    if (selBelum) {
+        selBelum.innerHTML = '<option value="">— Semua Kelas —</option>';
+        classes.forEach(g => { const o = document.createElement('option'); o.value = g; o.textContent = g; selBelum.appendChild(o); });
+        const oGuru2 = document.createElement('option');
+        oGuru2.value = '__guru__'; oGuru2.textContent = 'Guru / Staf';
+        selBelum.appendChild(oGuru2);
+    }
+
     overlay.classList.remove('hidden'); overlay.classList.add('flex');
 
     loadVoteLogsLocal();
@@ -804,16 +843,17 @@ function renderBelumMemilihTable() {
     const countEl = getEl('belumMemilihCount');
     if (!tbody) return;
 
-    const filterGrade = getEl('belumMemilihFilterClass')?.value || '';
-    const onlyGuru    = getEl('belumMemilihFilterGuru')?.checked || false;
+    const filterVal   = getEl('belumMemilihFilterClass')?.value || '';
+    const onlyGuru    = filterVal === '__guru__';
+    const filterGrade = onlyGuru ? '' : filterVal;
 
     const belumSiswa = onlyGuru ? [] :
         students.filter(s => !s.hasVoted && (!filterGrade || s.grade === filterGrade));
-    const belumGuru  = teachers.filter(t => !t.hasVoted && (!filterGrade || filterGrade === ''));
+    const belumGuru  = filterGrade ? [] : teachers.filter(t => !t.hasVoted);
 
     const semua = [
         ...belumSiswa.map(s => ({ name: s.name, grade: s.grade,          password: s.password || '—', type: 'siswa' })),
-        ...belumGuru.map(t  => ({ name: t.name, grade: t.role || 'Guru', password: t.password || '—', type: 'guru'  }))
+        ...belumGuru.map(t  => ({ name: t.name, grade: t.role || 'Guru', password: '',               type: 'guru'  }))
     ].sort((a, b) => a.grade.localeCompare(b.grade) || a.name.localeCompare(b.name));
 
     if (countEl) countEl.textContent = `${semua.length} orang`;
@@ -839,7 +879,7 @@ function renderBelumMemilihTable() {
             <td class="p-3">
                 <span class="text-[11px] font-bold px-2 py-0.5 rounded-lg ${badgeCls}">${p.grade}</span>
             </td>
-            <td class="p-3 font-mono text-slate-600 text-[11px] bg-slate-50/50">${p.password}</td>`;
+            <td class="p-3 font-mono text-slate-600 text-[11px] bg-slate-50/50">${p.type === 'guru' ? '—' : p.password}</td>`;
         tbody.appendChild(tr);
     });
 }
@@ -891,7 +931,7 @@ function renderBelumVotePanel() {
     const belumGuru = filterGrade ? [] : teachers
         .filter(t => !t.hasVoted && (!query || t.name.toLowerCase().includes(query)))
         .sort((a, b) => a.name.localeCompare(b.name))
-        .map(t => ({ name: t.name, grade: t.role || 'Guru', password: t.password || '—', type: 'guru' }));
+        .map(t => ({ name: t.name, grade: t.role || 'Guru', password: '', type: 'guru' }));
 
     const semua = [...belumSiswa, ...belumGuru];
 
@@ -924,7 +964,7 @@ function renderBelumVotePanel() {
                     ${p.grade}
                 </span>
             </td>
-            <td class="p-3 font-mono text-slate-600 text-[11px]">${p.password}</td>`;
+            <td class="p-3 font-mono text-slate-600 text-[11px]">${p.type === 'guru' ? '—' : p.password}</td>`;
         tbody.appendChild(tr);
     });
 }
@@ -955,7 +995,7 @@ function exportBelumVoteExcel() {
 
     const rows = [['No', 'Nama', 'Kelas / Kategori', 'Password']];
     belumSiswa.forEach((s, i) => rows.push([i + 1, s.name, s.grade, s.password || '']));
-    belumGuru.forEach((t, i)  => rows.push([belumSiswa.length + i + 1, t.name, t.role || 'Guru', t.password || '']));
+    belumGuru.forEach((t, i)  => rows.push([belumSiswa.length + i + 1, t.name, t.role || 'Guru', '']));
 
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.aoa_to_sheet(rows);
@@ -1517,12 +1557,6 @@ function renderTeacherRows(data) {
             <td class="p-2.5 pl-4 font-bold text-slate-400">${idx + 1}</td>
             <td class="p-2.5 font-bold text-slate-800">${t.name}</td>
             <td class="p-2.5">
-                <span class="font-mono text-slate-600 text-[11px] bg-slate-100 px-2 py-0.5 rounded-md">${t.password || '—'}</span>
-                <button onclick="editTeacherPassword('${t.id}')" class="ml-1 text-sky-500 hover:text-sky-700 text-[10px]">
-                    <i class="fa-solid fa-pen-to-square"></i>
-                </button>
-            </td>
-            <td class="p-2.5">
                 ${t.hasVoted
                     ? '<span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-md font-semibold text-[10px]">Sudah Memilih</span>'
                     : '<span class="px-2 py-0.5 bg-slate-100 text-slate-500 rounded-md font-semibold text-[10px]">Belum Memilih</span>'}
@@ -1685,12 +1719,12 @@ function downloadTeacherTemplate() {
     if (!window.XLSX) { showAlertModal('Error', 'SheetJS belum dimuat.', 'info'); return; }
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.aoa_to_sheet([
-        ['No', 'Nama', 'Password'],
-        ['1', 'Budi Santoso, S.Pd.', 'pass123'],
-        ['2', 'Siti Rahmawati, M.Pd.', 'pass456'],
+        ['No', 'Nama'],
+        ['1', 'Budi Santoso, S.Pd.'],
+        ['2', 'Siti Rahmawati, M.Pd.'],
         ['', '← Hapus baris contoh, isi data asli di sini'],
     ]);
-    ws['!cols'] = [{ wch:6 }, { wch:35 }, { wch:20 }];
+    ws['!cols'] = [{ wch:6 }, { wch:35 }];
     XLSX.utils.book_append_sheet(wb, ws, 'Guru');
     XLSX.writeFile(wb, 'Template_DataGuru_PEMIRA.xlsx');
 }
@@ -1698,11 +1732,11 @@ function downloadTeacherTemplate() {
 function exportTeachersExcel() {
     if (!window.XLSX) { showAlertModal('Error', 'SheetJS belum dimuat.', 'info'); return; }
     if (!teachers.length) { showAlertModal('Kosong', 'Belum ada data guru.', 'info'); return; }
-    const rows = [['No', 'Nama', 'Password', 'Status Suara']];
-    teachers.forEach((t, i) => rows.push([i + 1, t.name, t.password || '', t.hasVoted ? 'Sudah Memilih' : 'Belum Memilih']));
+    const rows = [['No', 'Nama', 'Status Suara']];
+    teachers.forEach((t, i) => rows.push([i + 1, t.name, t.hasVoted ? 'Sudah Memilih' : 'Belum Memilih']));
     const wb = XLSX.utils.book_new();
     const ws = XLSX.utils.aoa_to_sheet(rows);
-    ws['!cols'] = [{ wch:6 }, { wch:35 }, { wch:20 }, { wch:18 }];
+    ws['!cols'] = [{ wch:6 }, { wch:35 }, { wch:18 }];
     XLSX.utils.book_append_sheet(wb, ws, 'Guru');
     XLSX.writeFile(wb, `DataGuru_PEMIRA_${new Date().toISOString().slice(0,10)}.xlsx`);
     showAlertModal('Ekspor Berhasil', `${teachers.length} guru diekspor.`, 'success');
@@ -1764,27 +1798,39 @@ function onLoginPasswordInput() {
     if (!panel) return;
 
     if (inp && inp.value.length > 0) {
-        // Isi filter dropdown kalau belum
-        const sel = getEl('loginBelumVoteFilter');
-        if (sel && sel.options.length <= 1) {
-            sel.innerHTML = '<option value="">— Semua —</option>';
-            classes.forEach(g => {
-                const o = document.createElement('option');
-                o.value = g; o.textContent = g;
-                sel.appendChild(o);
+        // Load data dari Supabase kalau belum pernah load
+        const needsLoad = !students.length && !teachers.length;
+        if (needsLoad) {
+            initSupabaseClient();
+            loadData().then(() => loadTeachers()).then(() => {
+                populateLoginBelumVoteFilter();
+                renderLoginBelumVote();
             });
-            const oGuru = document.createElement('option');
-            oGuru.value = '__guru__'; oGuru.textContent = 'Guru / Staf';
-            sel.appendChild(oGuru);
+        } else {
+            populateLoginBelumVoteFilter();
+            renderLoginBelumVote();
         }
-        panel.classList.remove('hidden');
-        renderLoginBelumVote();
+        panel.classList.remove('hidden'); panel.classList.add('flex');
     }
+}
+
+function populateLoginBelumVoteFilter() {
+    const sel = getEl('loginBelumVoteFilter');
+    if (!sel) return;
+    sel.innerHTML = '<option value="">— Semua —</option>';
+    classes.forEach(g => {
+        const o = document.createElement('option');
+        o.value = g; o.textContent = g;
+        sel.appendChild(o);
+    });
+    const oGuru = document.createElement('option');
+    oGuru.value = '__guru__'; oGuru.textContent = 'Guru / Staf';
+    sel.appendChild(oGuru);
 }
 
 function closeLoginBelumVotePanel() {
     const panel = getEl('loginBelumVotePanel');
-    if (panel) panel.classList.add('hidden');
+    if (panel) { panel.classList.add('hidden'); panel.classList.remove('flex'); }
 }
 
 function renderLoginBelumVote() {
@@ -1804,7 +1850,7 @@ function renderLoginBelumVote() {
     const belumGuru = filterGrade ? [] : teachers
         .filter(t => !t.hasVoted)
         .sort((a, b) => a.name.localeCompare(b.name))
-        .map(t => ({ name: t.name, grade: t.role || 'Guru', password: t.password || '—', type: 'guru' }));
+        .map(t => ({ name: t.name, grade: t.role || 'Guru', password: '', type: 'guru' }));
 
     const semua = [...belumSiswa, ...belumGuru];
     if (countEl) countEl.textContent = `${semua.length} orang belum vote`;
@@ -1832,7 +1878,7 @@ function renderLoginBelumVote() {
             <td class="p-2.5">
                 <span class="text-[11px] font-bold px-2 py-0.5 rounded-lg ${gradeColor(p.grade, p.type)}">${p.grade}</span>
             </td>
-            <td class="p-2.5 font-mono text-slate-500 text-[11px]">${p.password}</td>`;
+            <td class="p-2.5 font-mono text-slate-500 text-[11px]">${p.type === 'guru' ? '—' : p.password}</td>`;
         tbody.appendChild(tr);
     });
 }
@@ -1942,4 +1988,137 @@ function clearClosingTime() {
     saveCloseTimeLocal('');
     closeClosingTimeModal();
     showAlertModal('Dihapus', 'Waktu vote dihapus. Voting tidak memiliki batas waktu.', 'info');
+}
+
+// ============================================================
+// === REALTIME & POLLING — Data Pemilih, Belum Vote, Audit Log ===
+// ============================================================
+
+let voterDataPollInterval  = null;
+let realtimeChannel        = null;
+
+// ── Fungsi inti: tarik data terbaru dari Supabase ────────────────────────────
+async function refreshVoterData() {
+    if (!isSupabaseActive || !supabaseClient) return;
+    try {
+        // 1. students
+        const { data: sData } = await supabaseClient
+            .from('students').select('*').order('name', { ascending: true });
+        if (sData) {
+            students = sData.map(s => ({
+                id:       s.id,
+                name:     s.name,
+                grade:    s.grade,
+                password: s.password || '',
+                hasVoted: s.has_voted || false,
+                votedFor: s.voted_for || null
+            }));
+            saveStudentsLocal();
+        }
+
+        // 2. teachers
+        const { data: tData } = await supabaseClient
+            .from('teachers').select('*').order('name', { ascending: true });
+        if (tData) {
+            teachers = tData.map(t => ({
+                id:       t.id,
+                name:     t.name,
+                password: t.password || '',
+                role:     t.role || 'Guru',
+                hasVoted: t.has_voted || false,
+                votedFor: t.voted_for || null
+            }));
+            saveTeachersLocal();
+        }
+
+        // 3. vote_logs
+        const { data: vData } = await supabaseClient
+            .from('vote_logs').select('*').order('voted_at', { ascending: false });
+        if (vData) {
+            voteLogs = vData.map(r => ({
+                id:             r.id,
+                student_id:     r.student_id,
+                student_name:   r.student_name,
+                student_grade:  r.student_grade,
+                candidate_id:   r.candidate_id,
+                candidate_name: r.candidate_name,
+                candidate_no:   r.candidate_no,
+                voted_at:       r.voted_at
+            }));
+            saveVoteLogsLocal();
+        }
+
+        recalculateDashboardStatsFromVoteLogs();
+        _applyVoterDataToOpenPanels();
+
+    } catch(e) { console.error('refreshVoterData error:', e); }
+}
+
+// ── Terapkan data segar ke panel yang sedang terbuka ─────────────────────────
+function _applyVoterDataToOpenPanels() {
+    // Dashboard stat cards + charts (selalu)
+    renderAdminDashboard();
+
+    // Kelola siswa/guru — kalau modal terbuka
+    const studentModal = getEl('studentManageModal');
+    if (studentModal && !studentModal.classList.contains('hidden')) {
+        renderAdminStudentManager();
+        renderAdminTeacherManager();
+        updateTabCounts();
+    }
+
+    // Belum Vote overlay
+    const belumVoteOverlay = getEl('belumVoteOverlay');
+    if (belumVoteOverlay && !belumVoteOverlay.classList.contains('hidden')) {
+        renderBelumVotePanel();
+    }
+
+    // Audit Log overlay
+    const auditOverlay = getEl('auditLogOverlay');
+    if (auditOverlay && !auditOverlay.classList.contains('hidden')) {
+        filterAuditLog();
+    }
+}
+
+// ── Mulai polling 5 detik ─────────────────────────────────────────────────────
+function startVoterDataPolling() {
+    stopVoterDataPolling();
+    voterDataPollInterval = setInterval(() => {
+        refreshVoterData();
+    }, 5000);
+}
+
+function stopVoterDataPolling() {
+    if (voterDataPollInterval) {
+        clearInterval(voterDataPollInterval);
+        voterDataPollInterval = null;
+    }
+}
+
+// ── Supabase Realtime ─────────────────────────────────────────────────────────
+function startRealtimeSubscription() {
+    if (!isSupabaseActive || !supabaseClient) return;
+    // Unsubscribe dulu kalau sudah ada
+    if (realtimeChannel) {
+        supabaseClient.removeChannel(realtimeChannel);
+        realtimeChannel = null;
+    }
+
+    realtimeChannel = supabaseClient
+        .channel('voter-changes')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'students' },   () => refreshVoterData())
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'teachers' },   () => refreshVoterData())
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'vote_logs' },  () => refreshVoterData())
+        .subscribe((status) => {
+            if (status === 'SUBSCRIBED') {
+                console.log('Supabase Realtime: subscribed to voter changes');
+            }
+        });
+}
+
+function stopRealtimeSubscription() {
+    if (realtimeChannel && supabaseClient) {
+        supabaseClient.removeChannel(realtimeChannel);
+        realtimeChannel = null;
+    }
 }
