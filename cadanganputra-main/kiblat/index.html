@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pufutara Kiblat - Arah Kiblat Digital Minimalis</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Smooth compass dial animation */
+    .compass-dial {
+      transition: transform 0.12s cubic-bezier(0.1, 0.4, 0.2, 1);
+      will-change: transform;
+    }
+    .kiblat-glow {
+      animation: pulse-light 1.8s infinite ease-in-out;
+    }
+    @keyframes pulse-light {
+      0%, 100% { box-shadow: 0 0 0 3px rgba(0,0,0,0.15); }
+      50% { box-shadow: 0 0 0 6px rgba(0,0,0,0.85); }
+    }
+    .dark .kiblat-glow {
+      animation: pulse-dark 1.8s infinite ease-in-out;
+    }
+    @keyframes pulse-dark {
+      0%, 100% { box-shadow: 0 0 0 3px rgba(255,255,255,0.2); }
+      50% { box-shadow: 0 0 0 6px rgba(255,255,255,0.85); }
+    }
+  </style>
+</head>
+<body class="bg-white dark:bg-zinc-950 text-zinc-950 dark:text-zinc-100 font-sans min-h-screen flex flex-col antialiased selection:bg-zinc-900 selection:text-white dark:selection:bg-zinc-100 dark:selection:text-zinc-950 transition-colors duration-300">
+
+  <!-- Minimalist Permission Request Modal -->
+  <div id="welcomeModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/40 dark:bg-black/70 backdrop-blur-sm transition-opacity duration-300">
+    <div class="max-w-sm w-full bg-white dark:bg-zinc-900 rounded-3xl p-6 sm:p-7 shadow-2xl border border-zinc-200 dark:border-zinc-800 text-zinc-950 dark:text-zinc-100">
+      
+      <div class="text-center mb-6">
+        <div class="w-12 h-12 rounded-2xl bg-zinc-950 dark:bg-zinc-100 text-white dark:text-zinc-950 flex items-center justify-center mx-auto mb-3 shadow-md">
+          <i class="fa-solid fa-kaaba text-lg"></i>
+        </div>
+        <h2 class="text-lg font-extrabold tracking-tight">Pufutara Kiblat</h2>
+        <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed">Penentu Arah Kiblat Presisi & Jadwal Sholat Minimalis</p>
+      </div>
+
+      <div class="space-y-3 mb-6 text-xs">
+        <div id="permGpsCard" class="flex items-center justify-between p-3 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800">
+          <div class="flex items-center gap-3">
+            <div id="permGpsIcon" class="w-8 h-8 rounded-xl bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 flex items-center justify-center">
+              <i class="fa-solid fa-location-dot"></i>
+            </div>
+            <div>
+              <div class="font-bold text-zinc-900 dark:text-zinc-100">Akses GPS</div>
+              <div id="permGpsText" class="text-[11px] text-zinc-500 dark:text-zinc-400">Kalkulasi koordinat & derajat</div>
+            </div>
+          </div>
+          <span id="permGpsBadge" class="text-[10px] px-2 py-0.5 rounded-full bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-medium">Siap</span>
+        </div>
+
+        <div id="permSensorCard" class="flex items-center justify-between p-3 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800">
+          <div class="flex items-center gap-3">
+            <div id="permSensorIcon" class="w-8 h-8 rounded-xl bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 flex items-center justify-center">
+              <i class="fa-solid fa-compass"></i>
+            </div>
+            <div>
+              <div class="font-bold text-zinc-900 dark:text-zinc-100">Sensor Kompas</div>
+              <div id="permSensorText" class="text-[11px] text-zinc-500 dark:text-zinc-400">Orientasi perangkat otomatis</div>
+            </div>
+          </div>
+          <span id="permSensorBadge" class="text-[10px] px-2 py-0.5 rounded-full bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-medium">Siap</span>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <button id="btnGrantPermissions" onclick="requestAllPermissions()" class="w-full py-3 px-4 bg-zinc-950 dark:bg-zinc-100 hover:bg-zinc-800 dark:hover:bg-zinc-200 active:scale-[0.98] text-white dark:text-zinc-950 font-bold rounded-2xl text-xs transition flex items-center justify-center gap-2 shadow-sm">
+          <i class="fa-solid fa-circle-check"></i> Izinkan Akses & Lanjut
+        </button>
+        <button onclick="closePermissionModal()" class="w-full py-2.5 px-4 bg-transparent hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 text-xs rounded-xl transition text-center font-medium">
+          Gunakan Kota Manual
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="appMainContent" class="flex-1 flex flex-col max-w-3xl w-full mx-auto px-4 py-6 sm:py-8 gap-6">
+
+    <header class="flex items-center justify-between pb-4 border-b border-zinc-200 dark:border-zinc-800">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-zinc-950 dark:bg-zinc-100 text-white dark:text-zinc-950 flex items-center justify-center shadow-sm">
+          <i class="fa-solid fa-kaaba text-base"></i>
+        </div>
+        <div>
+          <h1 class="text-base sm:text-lg font-black tracking-tight text-zinc-950 dark:text-zinc-100">
+            Pufutara <span class="font-normal text-zinc-500 dark:text-zinc-400">Kiblat</span>
+          </h1>
+          <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Arah Kiblat Digital</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button id="themeToggleBtn" onclick="toggleDarkMode()" title="Toggle Mode Malam" class="p-2.5 rounded-2xl bg-zinc-100 dark:bg-zinc-900 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-900 dark:text-zinc-100 text-xs border border-zinc-200 dark:border-zinc-800 transition flex items-center justify-center gap-1.5 font-semibold">
+          <i id="themeToggleIcon" class="fa-solid fa-moon text-xs"></i>
+        </button>
+        <button onclick="openPermissionModal()" title="Pengaturan Perizinan" class="p-2.5 rounded-2xl bg-zinc-100 dark:bg-zinc-900 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-900 dark:text-zinc-100 text-xs border border-zinc-200 dark:border-zinc-800 transition flex items-center gap-1.5 font-semibold">
+          <i class="fa-solid fa-sliders text-xs"></i>
+          <span class="hidden sm:inline text-[11px]">Izin</span>
+        </button>
+        <span id="deviceModeBadge" class="text-xs px-3 py-1.5 rounded-2xl bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-zinc-100 font-semibold flex items-center gap-1.5">
+          <i class="fa-solid fa-desktop text-xs"></i> <span id="deviceModeText">Desktop</span>
+        </span>
+      </div>
+    </header>
+
+    <section class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-4 sm:p-5 shadow-sm transition-colors duration-300">
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+        
+        <div class="flex items-center gap-3.5">
+          <div class="w-10 h-10 rounded-2xl bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 text-zinc-900 dark:text-zinc-100 flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-location-dot"></i>
+          </div>
+          <div>
+            <div class="text-[10px] uppercase font-extrabold tracking-wider text-zinc-400 dark:text-zinc-500">Lokasi Saat Ini</div>
+            <div id="cityName" class="text-base font-bold text-zinc-950 dark:text-zinc-100 flex items-center gap-2">
+              Mendeteksi...
+            </div>
+            <div class="text-[11px] text-zinc-500 dark:text-zinc-400 font-mono mt-0.5">
+              Lat: <strong id="latVal" class="text-zinc-900 dark:text-zinc-200 font-sans">-</strong> • Long: <strong id="lngVal" class="text-zinc-900 dark:text-zinc-200 font-sans">-</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button id="btnGpsRefresh" onclick="getUserLocation(false)" class="flex-1 sm:flex-initial px-4 py-2.5 bg-zinc-950 dark:bg-zinc-100 hover:bg-zinc-800 dark:hover:bg-zinc-200 active:scale-95 text-white dark:text-zinc-950 font-bold rounded-2xl text-xs transition flex items-center justify-center gap-1.5 shadow-sm">
+            <i class="fa-solid fa-crosshairs"></i> GPS
+          </button>
+          
+          <select id="citySelect" onchange="changeCity(this.value)" class="bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 text-xs font-semibold rounded-2xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-zinc-950 dark:focus:ring-zinc-100 transition-colors duration-300">
+            <option value="" disabled selected>Pilih Kota...</option>
+            <optgroup label="Indonesia">
+              <option value="-6.2088,106.8456,Jakarta">Jakarta</option>
+              <option value="-7.2575,112.7521,Surabaya">Surabaya</option>
+              <option value="-6.9175,107.6191,Bandung">Bandung</option>
+              <option value="-3.5952,98.6722,Medan">Medan</option>
+              <option value="-6.9667,110.4167,Semarang">Semarang</option>
+              <option value="-5.1477,119.4327,Makassar">Makassar</option>
+              <option value="-2.9761,104.7754,Palembang">Palembang</option>
+              <option value="-7.7956,110.3695,Yogyakarta">Yogyakarta</option>
+              <option value="5.5483,95.3238,Banda Aceh">Banda Aceh</option>
+              <option value="-8.6705,115.2126,Denpasar">Denpasar</option>
+            </optgroup>
+            <optgroup label="Dunia">
+              <option value="21.4225,39.8262,Makkah">Makkah Al Mukarramah</option>
+              <option value="3.1390,101.6869,Kuala Lumpur">Kuala Lumpur</option>
+              <option value="1.3521,103.8198,Singapura">Singapura</option>
+              <option value="41.0082,28.9784,Istanbul">Istanbul</option>
+              <option value="51.5074,-0.1278,London">London</option>
+            </optgroup>
+          </select>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+      
+      <!-- COMPASS CARD -->
+      <div class="lg:col-span-7 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-6 flex flex-col items-center justify-between shadow-sm relative transition-colors duration-300">
+        
+        <div id="sensorNotice" class="w-full text-center py-2 px-3 rounded-2xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-800 text-[11px] text-zinc-600 dark:text-zinc-400 mb-2 font-medium">
+          <span id="sensorNoticeText" class="flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-circle-info text-zinc-950 dark:text-zinc-100"></i> Mode Desktop: Lihat Azimut atau putar slider manual.
+          </span>
+        </div>
+
+        <!-- ROTATING COMPASS DIAL -->
+        <div class="relative w-64 h-64 sm:w-72 sm:h-72 my-4 flex items-center justify-center select-none">
+          
+          <div id="compassContainer" class="w-full h-full rounded-full border-2 border-zinc-900 dark:border-zinc-100 bg-white dark:bg-zinc-950 shadow-md flex items-center justify-center relative p-2 transition-all duration-300">
+            
+            <!-- Heading Pointer -->
+            <div class="absolute -top-3 left-1/2 -translate-x-1/2 z-30">
+              <div class="w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[14px] border-t-zinc-950 dark:border-t-zinc-100"></div>
+            </div>
+
+            <!-- Dial Plate -->
+            <div id="compassDial" class="compass-dial w-full h-full rounded-full relative flex items-center justify-center">
+              
+              <div class="absolute inset-2 rounded-full border border-zinc-200 dark:border-zinc-800 flex items-center justify-center">
+                <span class="absolute top-2.5 text-zinc-950 dark:text-zinc-100 font-black text-xs tracking-widest">U</span>
+                <span class="absolute right-3.5 text-zinc-400 dark:text-zinc-500 font-bold text-[11px]">T</span>
+                <span class="absolute bottom-2.5 text-zinc-400 dark:text-zinc-500 font-bold text-[11px]">S</span>
+                <span class="absolute left-3.5 text-zinc-400 dark:text-zinc-500 font-bold text-[11px]">B</span>
+                
+                <div class="absolute inset-0 rounded-full border border-dashed border-zinc-200 dark:border-zinc-800"></div>
+              </div>
+
+              <!-- Kaaba Direction Pointer Needle -->
+              <div id="qiblaNeedle" class="absolute w-full h-full flex flex-col items-center justify-start pointer-events-none transition-transform duration-200 z-20">
+                <div class="mt-4 flex flex-col items-center">
+                  <div class="w-8 h-8 rounded-xl bg-zinc-950 dark:bg-zinc-100 text-white dark:text-zinc-950 flex items-center justify-center shadow-md">
+                    <i class="fa-solid fa-kaaba text-sm"></i>
+                  </div>
+                  <div class="w-0.5 h-24 bg-gradient-to-b from-zinc-950 dark:from-zinc-100 via-zinc-600 dark:via-zinc-400 to-transparent"></div>
+                </div>
+              </div>
+
+              <!-- North Pointer -->
+              <div id="northNeedle" class="absolute w-full h-full flex flex-col items-center justify-start pointer-events-none z-10 opacity-40">
+                <div class="mt-8 w-1 h-20 bg-zinc-400 dark:bg-zinc-600 rounded-full"></div>
+              </div>
+
+              <!-- Center Cap Pin -->
+              <div class="w-9 h-9 rounded-full bg-white dark:bg-zinc-900 border-2 border-zinc-950 dark:border-zinc-100 shadow-sm flex items-center justify-center z-30">
+                <div class="w-2.5 h-2.5 rounded-full bg-zinc-950 dark:bg-zinc-100"></div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Alignment Status Indicator Badge -->
+        <div id="alignmentBadge" class="mt-1 text-center px-4 py-2.5 rounded-2xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-800 transition-all duration-300 w-full">
+          <span id="alignmentText" class="text-xs font-semibold text-zinc-700 dark:text-zinc-300 flex items-center justify-center gap-2">
+            <i class="fa-solid fa-arrows-spin animate-spin text-zinc-950 dark:text-zinc-100"></i> Memuat Arah Kiblat...
+          </span>
+        </div>
+
+        <!-- Manual Desktop Control Slider -->
+        <div id="manualControls" class="w-full mt-3 pt-3 border-t border-zinc-200 dark:border-zinc-800 flex flex-col gap-1.5">
+          <div class="flex items-center justify-between text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">
+            <span><i class="fa-solid fa-sliders text-zinc-950 dark:text-zinc-100"></i> Putar Kompas (Simulasi PC):</span>
+            <span id="manualHeadingVal" class="font-mono font-bold text-zinc-950 dark:text-zinc-100">0°</span>
+          </div>
+          <input type="range" id="headingSlider" min="0" max="360" value="0" step="1" oninput="updateManualHeading(this.value)" class="w-full h-1.5 bg-zinc-200 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-zinc-950 dark:accent-zinc-100">
+          <div class="flex justify-between text-[9px] text-zinc-400 dark:text-zinc-500 font-mono">
+            <span>0° (U)</span>
+            <span>90° (T)</span>
+            <span>180° (S)</span>
+            <span>270° (B)</span>
+            <span>360°</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- BEARING & DISTANCE INFO COLUMN -->
+      <div class="lg:col-span-5 flex flex-col gap-4">
+        
+        <!-- Qibla Degree Card -->
+        <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-5 shadow-sm flex flex-col justify-between transition-colors duration-300">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-extrabold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Arah Kiblat (Azimut)</span>
+            <span class="w-7 h-7 rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700/50 text-zinc-900 dark:text-zinc-100 flex items-center justify-center text-xs">
+              <i class="fa-solid fa-compass"></i>
+            </span>
+          </div>
+
+          <div class="my-4 flex items-baseline gap-2">
+            <span id="qiblaDegree" class="text-4xl sm:text-5xl font-black text-zinc-950 dark:text-zinc-100 tracking-tight">295.2°</span>
+            <span id="qiblaDirectionText" class="text-base font-bold text-zinc-600 dark:text-zinc-400">Barat Laut</span>
+          </div>
+
+          <p class="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed bg-zinc-50 dark:bg-zinc-800/50 p-3 rounded-2xl border border-zinc-200 dark:border-zinc-800">
+            Arahkan kompas ke <strong id="qiblaDegreeDetail" class="text-zinc-950 dark:text-zinc-100">295.2°</strong> dari arah Utara Sejati.
+          </p>
+        </div>
+
+        <!-- Kaaba Distance Card -->
+        <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-5 shadow-sm flex items-center justify-between transition-colors duration-300">
+          <div class="flex items-center gap-3.5">
+            <div class="w-10 h-10 rounded-2xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700/50 text-zinc-900 dark:text-zinc-100 flex items-center justify-center text-lg">
+              <i class="fa-solid fa-route"></i>
+            </div>
+            <div>
+              <div class="text-[11px] text-zinc-400 dark:text-zinc-500 font-medium">Jarak ke Kakbah</div>
+              <div id="distanceKm" class="text-xl font-extrabold text-zinc-950 dark:text-zinc-100 tracking-tight">7,920 km</div>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="text-[10px] text-zinc-400 dark:text-zinc-500 block font-medium">Koordinat</span>
+            <span class="text-[11px] font-mono font-semibold text-zinc-700 dark:text-zinc-300">21.42° N, 39.82° E</span>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <section class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-6 shadow-sm transition-colors duration-300">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-zinc-200 dark:border-zinc-800">
+        <div>
+          <h3 class="text-base font-extrabold text-zinc-950 dark:text-zinc-100 flex items-center gap-2">
+            <i class="fa-solid fa-clock text-zinc-900 dark:text-zinc-100"></i> Jadwal Sholat Hari Ini
+          </h3>
+          <p id="todayDate" class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Memuat tanggal...</p>
+        </div>
+        <span class="text-[11px] bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 font-bold px-3 py-1 rounded-full border border-zinc-200 dark:border-zinc-700/60">
+          Presisi Lokasi Real-time
+        </span>
+      </div>
+
+      <!-- Prayer Times Grid -->
+      <div class="grid grid-cols-2 sm:grid-cols-5 gap-3" id="prayerTimesGrid">
+        <div class="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800 p-3.5 rounded-2xl text-center hover:border-zinc-400 dark:hover:border-zinc-600 transition">
+          <div class="text-[11px] text-zinc-400 dark:text-zinc-500 font-medium mb-1">Subuh</div>
+          <div id="timeSubuh" class="text-lg font-black text-zinc-950 dark:text-zinc-100 font-mono">--:--</div>
+        </div>
+        <div class="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800 p-3.5 rounded-2xl text-center hover:border-zinc-400 dark:hover:border-zinc-600 transition">
+          <div class="text-[11px] text-zinc-400 dark:text-zinc-500 font-medium mb-1">Dzuhur</div>
+          <div id="timeDzuhur" class="text-lg font-black text-zinc-950 dark:text-zinc-100 font-mono">--:--</div>
+        </div>
+        <div class="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800 p-3.5 rounded-2xl text-center hover:border-zinc-400 dark:hover:border-zinc-600 transition">
+          <div class="text-[11px] text-zinc-400 dark:text-zinc-500 font-medium mb-1">Ashar</div>
+          <div id="timeAshar" class="text-lg font-black text-zinc-950 dark:text-zinc-100 font-mono">--:--</div>
+        </div>
+        <div class="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800 p-3.5 rounded-2xl text-center hover:border-zinc-400 dark:hover:border-zinc-600 transition">
+          <div class="text-[11px] text-zinc-400 dark:text-zinc-500 font-medium mb-1">Maghrib</div>
+          <div id="timeMaghrib" class="text-lg font-black text-zinc-950 dark:text-zinc-100 font-mono">--:--</div>
+        </div>
+        <div class="bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800 p-3.5 rounded-2xl text-center hover:border-zinc-400 dark:hover:border-zinc-600 transition col-span-2 sm:col-span-1">
+          <div class="text-[11px] text-zinc-400 dark:text-zinc-500 font-medium mb-1">Isya</div>
+          <div id="timeIsya" class="text-lg font-black text-zinc-950 dark:text-zinc-100 font-mono">--:--</div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-zinc-200 dark:border-zinc-800 py-6 mt-auto bg-white dark:bg-zinc-950 text-center text-xs text-zinc-400 dark:text-zinc-500 transition-colors duration-300">
+    <div class="max-w-3xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <div><strong class="text-zinc-900 dark:text-zinc-200">Pufutara Kiblat</strong> &copy; 2026 • Modern & Minimalist</div>
+      <div class="flex items-center gap-4 text-zinc-500 dark:text-zinc-400 text-[11px]">
+        <span><i class="fa-solid fa-shield text-zinc-900 dark:text-zinc-100"></i> Bebas Iklan</span>
+        <span><i class="fa-solid fa-bolt text-zinc-900 dark:text-zinc-100"></i> Presisi Bola Bumi</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Kaaba Coordinates
+    const KAABA_LAT = 21.422487;
+    const KAABA_LNG = 39.826206;
+
+    // State Variables
+    let currentLat = -6.2088; // Default: Jakarta
+    let currentLng = 106.8456;
+    let currentCity = "Jakarta";
+    
+    let qiblaBearing = 0;
+    let currentHeading = 0;
+    let isMobileSensorActive = false;
+    let audioContext = null;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initTheme();
+
+      const dateElem = document.getElementById('todayDate');
+      if (dateElem) {
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        dateElem.innerText = new Date().toLocaleDateString('id-ID', options);
+      }
+
+      detectDeviceType();
+      calculateAll(currentLat, currentLng, currentCity);
+      checkInitialPermissions();
+    });
+
+    function initTheme() {
+      const savedTheme = localStorage.getItem('pufutara_theme');
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      
+      if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+        document.documentElement.classList.add('dark');
+        updateThemeIcon(true);
+      } else {
+        document.documentElement.classList.remove('dark');
+        updateThemeIcon(false);
+      }
+    }
+
+    function toggleDarkMode() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('pufutara_theme', isDark ? 'dark' : 'light');
+      updateThemeIcon(isDark);
+    }
+
+    function updateThemeIcon(isDark) {
+      const icon = document.getElementById('themeToggleIcon');
+      if (icon) {
+        icon.className = isDark ? 'fa-solid fa-sun text-xs text-amber-400' : 'fa-solid fa-moon text-xs text-zinc-700';
+      }
+    }
+
+    function detectDeviceType() {
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || (window.innerWidth <= 768);
+      const badgeText = document.getElementById('deviceModeText');
+      const badgeIcon = document.querySelector('#deviceModeBadge i');
+
+      if (badgeText && badgeIcon) {
+        if (isMobile) {
+          badgeText.innerText = "Mobile";
+          badgeIcon.className = "fa-solid fa-mobile-screen text-zinc-950 dark:text-zinc-100";
+        } else {
+          badgeText.innerText = "Desktop";
+          badgeIcon.className = "fa-solid fa-desktop text-zinc-950 dark:text-zinc-100";
+        }
+      }
+    }
+
+    function checkInitialPermissions() {
+      const completed = sessionStorage.getItem('pufutara_onboarding_done');
+      if (completed === 'true') {
+        closePermissionModal();
+        getUserLocation(true);
+        setupOrientationListeners();
+      } else {
+        openPermissionModal();
+      }
+    }
+
+    function openPermissionModal() {
+      const modal = document.getElementById('welcomeModal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closePermissionModal() {
+      const modal = document.getElementById('welcomeModal');
+      if (modal) modal.classList.add('hidden');
+      sessionStorage.setItem('pufutara_onboarding_done', 'true');
+    }
+
+    async function requestAllPermissions() {
+      const btn = document.getElementById('btnGrantPermissions');
+      if (btn) {
+        btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Meminta Perizinan...';
+        btn.disabled = true;
+      }
+
+      if ('geolocation' in navigator) {
+        try {
+          await new Promise((resolve) => {
+            navigator.geolocation.getCurrentPosition(
+              (pos) => {
+                currentLat = pos.coords.latitude;
+                currentLng = pos.coords.longitude;
+                calculateAll(currentLat, currentLng, "Lokasi GPS Anda");
+                updateGpsBadge(true);
+                resolve();
+              },
+              (err) => {
+                updateGpsBadge(false);
+                resolve();
+              },
+              { enableHighAccuracy: true, timeout: 8000 }
+            );
+          });
+        } catch (e) {
+          updateGpsBadge(false);
+        }
+      }
+
+      if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+        try {
+          const state = await DeviceOrientationEvent.requestPermission();
+          if (state === 'granted') {
+            setupOrientationListeners();
+            updateSensorBadge(true);
+          } else {
+            updateSensorBadge(false);
+          }
+        } catch (e) {
+          console.warn("Sensor request failed:", e);
+        }
+      } else {
+        setupOrientationListeners();
+        updateSensorBadge(true);
+      }
+
+      closePermissionModal();
+    }
+
+    function updateGpsBadge(isGranted) {
+      const badge = document.getElementById('permGpsBadge');
+      if (badge) {
+        badge.innerText = isGranted ? "Diizinkan" : "Manual";
+        badge.className = isGranted ? "text-[10px] px-2 py-0.5 rounded-full bg-zinc-950 dark:bg-zinc-100 text-white dark:text-zinc-950 font-medium" : "text-[10px] px-2 py-0.5 rounded-full bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-medium";
+      }
+    }
+
+    function updateSensorBadge(isGranted) {
+      const badge = document.getElementById('permSensorBadge');
+      if (badge) {
+        badge.innerText = isGranted ? "Aktif" : "Mode PC";
+        badge.className = isGranted ? "text-[10px] px-2 py-0.5 rounded-full bg-zinc-950 dark:bg-zinc-100 text-white dark:text-zinc-950 font-medium" : "text-[10px] px-2 py-0.5 rounded-full bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-medium";
+      }
+    }
+
+    function calculateQiblaBearing(lat, lng) {
+      const phi1 = lat * Math.PI / 180;
+      const phi2 = KAABA_LAT * Math.PI / 180;
+      const deltaLambda = (KAABA_LNG - lng) * Math.PI / 180;
+
+      const y = Math.sin(deltaLambda) * Math.cos(phi2);
+      const x = Math.cos(phi1) * Math.sin(phi2) - Math.sin(phi1) * Math.cos(phi2) * Math.cos(deltaLambda);
+
+      let bearingRad = Math.atan2(y, x);
+      return (bearingRad * 180 / Math.PI + 360) % 360;
+    }
+
+    function calculateDistanceToKaaba(lat, lng) {
+      const R = 6371;
+      const dLat = (KAABA_LAT - lat) * Math.PI / 180;
+      const dLng = (KAABA_LNG - lng) * Math.PI / 180;
+      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat * Math.PI / 180) * Math.cos(KAABA_LAT * Math.PI / 180) *
+                Math.sin(dLng / 2) * Math.sin(dLng / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    }
+
+    function getDirectionCardinalText(degree) {
+      const directions = ["Utara", "Timur Laut", "Timur", "Tenggara", "Selatan", "Barat Daya", "Barat", "Barat Laut"];
+      const index = Math.round(degree / 45) % 8;
+      return directions[index];
+    }
+
+    function calculateAll(lat, lng, cityName) {
+      currentLat = lat;
+      currentLng = lng;
+
+      qiblaBearing = calculateQiblaBearing(lat, lng);
+      const distance = calculateDistanceToKaaba(lat, lng);
+
+      const cityElem = document.getElementById('cityName');
+      const latElem = document.getElementById('latVal');
+      const lngElem = document.getElementById('lngVal');
+      const degElem = document.getElementById('qiblaDegree');
+      const degDetail = document.getElementById('qiblaDegreeDetail');
+      const dirText = document.getElementById('qiblaDirectionText');
+      const distElem = document.getElementById('distanceKm');
+
+      if (cityElem) cityElem.innerText = cityName;
+      if (latElem) latElem.innerText = lat.toFixed(4);
+      if (lngElem) lngElem.innerText = lng.toFixed(4);
+      
+      if (degElem) degElem.innerText = qiblaBearing.toFixed(1) + '°';
+      if (degDetail) degDetail.innerText = qiblaBearing.toFixed(1) + '°';
+      if (dirText) dirText.innerText = getDirectionCardinalText(qiblaBearing);
+      if (distElem) distElem.innerText = Math.round(distance).toLocaleString('id-ID') + ' km';
+
+      updateCompassUI();
+      calculatePrayerTimes(lat, lng);
+    }
+
+    function updateCompassUI() {
+      const dial = document.getElementById('compassDial');
+      const qiblaNeedle = document.getElementById('qiblaNeedle');
+
+      if (dial) dial.style.transform = `rotate(${-currentHeading}deg)`;
+      if (qiblaNeedle) qiblaNeedle.style.transform = `rotate(${qiblaBearing}deg)`;
+
+      const diff = Math.abs((currentHeading - qiblaBearing + 360) % 360);
+      const isAligned = diff < 3.5 || diff > 356.5;
+
+      const container = document.getElementById('compassContainer');
+      const badge = document.getElementById('alignmentBadge');
+      const badgeText = document.getElementById('alignmentText');
+
+      if (container && badge && badgeText) {
+        if (isAligned) {
+          container.classList.add('kiblat-glow');
+          badge.className = "mt-1 text-center px-4 py-2.5 rounded-2xl bg-zinc-950 dark:bg-zinc-100 text-white dark:text-zinc-950 transition-all duration-300 w-full shadow-md border border-zinc-950 dark:border-zinc-100";
+          badgeText.innerHTML = '<i class="fa-solid fa-circle-check text-white dark:text-zinc-950 text-sm"></i> <span class="font-extrabold tracking-wide">TEPAT MENGARAH KE KIBLAT!</span>';
+          triggerFeedback();
+        } else {
+          container.classList.remove('kiblat-glow');
+          badge.className = "mt-1 text-center px-4 py-2.5 rounded-2xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-800 transition-all duration-300 w-full";
+          
+          if (isMobileSensorActive) {
+            badgeText.innerHTML = `<i class="fa-solid fa-compass text-zinc-950 dark:text-zinc-100"></i> Orientasi: <strong class="text-zinc-950 dark:text-zinc-100">${Math.round(currentHeading)}°</strong> (Kiblat: <strong class="text-zinc-950 dark:text-zinc-100">${qiblaBearing.toFixed(1)}°</strong>)`;
+          } else {
+            badgeText.innerHTML = `<i class="fa-solid fa-location-arrow text-zinc-950 dark:text-zinc-100"></i> Azimut Kiblat: <strong class="text-zinc-950 dark:text-zinc-100">${qiblaBearing.toFixed(1)}° (${getDirectionCardinalText(qiblaBearing)})</strong>`;
+          }
+        }
+      }
+    }
+
+    function updateManualHeading(val) {
+      currentHeading = parseFloat(val);
+      const valElem = document.getElementById('manualHeadingVal');
+      if (valElem) valElem.innerText = Math.round(currentHeading) + '°';
+      updateCompassUI();
+    }
+
+    function setupOrientationListeners() {
+      if (window.DeviceOrientationEvent) {
+        if ('ondeviceorientationabsolute' in window) {
+          window.addEventListener('deviceorientationabsolute', handleOrientation, true);
+        } else {
+          window.addEventListener('deviceorientation', handleOrientation, true);
+        }
+      }
+    }
+
+    function handleOrientation(event) {
+      let heading = null;
+
+      if (event.webkitCompassHeading) {
+        heading = event.webkitCompassHeading;
+      } else if (event.alpha !== null) {
+        heading = (360 - event.alpha) % 360;
+      }
+
+      if (heading !== null && !isNaN(heading)) {
+        isMobileSensorActive = true;
+        currentHeading = heading;
+        const slider = document.getElementById('headingSlider');
+        const valElem = document.getElementById('manualHeadingVal');
+        const noticeElem = document.getElementById('sensorNoticeText');
+
+        if (slider) slider.value = Math.round(heading);
+        if (valElem) valElem.innerText = Math.round(heading) + '°';
+        if (noticeElem) noticeElem.innerHTML = '<i class="fa-solid fa-circle-check text-zinc-950 dark:text-zinc-100"></i> Sensor Kompas Smartphone Aktif';
+
+        updateCompassUI();
+      }
+    }
+
+    function getUserLocation(isSilent = false) {
+      const btn = document.getElementById('btnGpsRefresh');
+      if (!isSilent && btn) {
+        btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Locating...';
+        btn.disabled = true;
+      }
+
+      if ('geolocation' in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            calculateAll(lat, lng, "Lokasi GPS Anda");
+            
+            if (!isSilent && btn) {
+              btn.innerHTML = '<i class="fa-solid fa-check"></i> Aktif';
+              setTimeout(() => {
+                btn.innerHTML = '<i class="fa-solid fa-crosshairs"></i> GPS';
+                btn.disabled = false;
+              }, 2500);
+            }
+          },
+          (error) => {
+            if (!isSilent && btn) {
+              btn.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Gagal';
+              setTimeout(() => {
+                btn.innerHTML = '<i class="fa-solid fa-crosshairs"></i> GPS';
+                btn.disabled = false;
+              }, 2500);
+            }
+          },
+          { enableHighAccuracy: true, timeout: 10000 }
+        );
+      }
+    }
+
+    function changeCity(val) {
+      if (!val) return;
+      const parts = val.split(',');
+      const lat = parseFloat(parts[0]);
+      const lng = parseFloat(parts[1]);
+      const name = parts[2];
+      calculateAll(lat, lng, name);
+    }
+
+    let lastFeedbackTime = 0;
+    function triggerFeedback() {
+      const now = Date.now();
+      if (now - lastFeedbackTime < 2500) return;
+      lastFeedbackTime = now;
+
+      if ('vibrate' in navigator) {
+        try { navigator.vibrate([120, 60, 120]); } catch (e) {}
+      }
+
+      try {
+        if (!audioContext) {
+          audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioContext.state === 'suspended') {
+          audioContext.resume();
+        }
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(523.25, audioContext.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(783.99, audioContext.currentTime + 0.35);
+        gain.gain.setValueAtTime(0.12, audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.5);
+
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+        osc.start();
+        osc.stop(audioContext.currentTime + 0.5);
+      } catch (e) {}
+    }
+
+    function calculatePrayerTimes(lat, lng) {
+      const date = new Date();
+      const julianDate = getJulianDate(date.getFullYear(), date.getMonth() + 1, date.getDate());
+      const d = julianDate - 2451545.0;
+
+      const g = 357.529 + 0.98560028 * d;
+      const q = 280.459 + 0.98564736 * d;
+      const L = (q + 1.915 * Math.sin(g * Math.PI / 180) + 0.020 * Math.sin(2 * g * Math.PI / 180)) % 360;
+      const e = 23.439 - 0.00000036 * d;
+
+      const RA = Math.atan2(Math.cos(e * Math.PI / 180) * Math.sin(L * Math.PI / 180), Math.cos(L * Math.PI / 180)) * 180 / Math.PI / 15;
+      const EqT = q / 15 - (RA < 0 ? RA + 24 : RA);
+      const decl = Math.asin(Math.sin(e * Math.PI / 180) * Math.sin(L * Math.PI / 180)) * 180 / Math.PI;
+
+      const timezone = -date.getTimezoneOffset() / 60;
+      const dhuhr = 12 + timezone - lng / 15 - EqT;
+
+      const fajrT = dhuhr - hourAngle(-20, lat, decl) / 15;
+      const asrT = dhuhr + hourAngleAsr(1, lat, decl) / 15;
+      const maghribT = dhuhr + hourAngle(-0.8333, lat, decl) / 15;
+      const ishaT = dhuhr + hourAngle(-18, lat, decl) / 15;
+
+      const subuhElem = document.getElementById('timeSubuh');
+      const dzuhurElem = document.getElementById('timeDzuhur');
+      const asharElem = document.getElementById('timeAshar');
+      const maghribElem = document.getElementById('timeMaghrib');
+      const isyaElem = document.getElementById('timeIsya');
+
+      if (subuhElem) subuhElem.innerText = formatTime(fajrT);
+      if (dzuhurElem) dzuhurElem.innerText = formatTime(dhuhr);
+      if (asharElem) asharElem.innerText = formatTime(asrT);
+      if (maghribElem) maghribElem.innerText = formatTime(maghribT);
+      if (isyaElem) isyaElem.innerText = formatTime(ishaT);
+    }
+
+    function hourAngle(angle, lat, decl) {
+      const radLat = lat * Math.PI / 180;
+      const radDecl = decl * Math.PI / 180;
+      const radAngle = angle * Math.PI / 180;
+      const cosH = (Math.sin(radAngle) - Math.sin(radLat) * Math.sin(radDecl)) / (Math.cos(radLat) * Math.cos(radDecl));
+      if (cosH > 1) return 0;
+      if (cosH < -1) return 180;
+      return Math.acos(cosH) * 180 / Math.PI;
+    }
+
+    function hourAngleAsr(shadowLength, lat, decl) {
+      const radLat = lat * Math.PI / 180;
+      const radDecl = decl * Math.PI / 180;
+      const phi = Math.abs(radLat - radDecl);
+      const angle = -Math.atan(1 / (shadowLength + Math.tan(phi))) * 180 / Math.PI;
+      return hourAngle(angle, lat, decl);
+    }
+
+    function getJulianDate(year, month, day) {
+      if (month <= 2) {
+        year -= 1;
+        month += 12;
+      }
+      const A = Math.floor(year / 100);
+      const B = 2 - A + Math.floor(A / 4);
+      return Math.floor(365.25 * (year + 4716)) + Math.floor(30.6001 * (month + 1)) + day + B - 1524.5;
+    }
+
+    function formatTime(decimalHours) {
+      if (isNaN(decimalHours)) return "--:--";
+      let hours = Math.floor(decimalHours);
+      let minutes = Math.floor((decimalHours - hours) * 60);
+      if (minutes < 0) minutes = 0;
+      if (hours < 0) hours = (hours % 24) + 24;
+      hours = hours % 24;
+
+      const hStr = hours < 10 ? '0' + hours : hours;
+      const mStr = minutes < 10 ? '0' + minutes : minutes;
+      return `${hStr}:${mStr}`;
+    }
+  </script>
+</body>
+</html>
