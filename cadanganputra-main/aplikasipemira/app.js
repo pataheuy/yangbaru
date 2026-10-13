@@ -83,6 +83,8 @@ function hideAllScreens() {
             const el = document.getElementById(id);
             if (el) el.classList.add('hidden');
         });
+    // Bersihkan countdown modal kalau masih jalan
+    clearInterval(countdownInterval);
 }
 
 function showRoleSelectScreen() {
@@ -426,10 +428,7 @@ function renderWelcomeClasses() {
     if (!grid) return;
     grid.innerHTML = '';
     classes.forEach(grade => {
-        // Hitung siswa yang grade-nya startsWith kelas ini (termasuk sub kelas)
-        const gradeStudents = students.filter(s => s.grade === grade || s.grade.startsWith(grade + ' ') || s.grade.startsWith(grade.replace(' ', '')));
-        // Normalisasi: "Kelas 7" cocok dengan "Kelas 7", "Kelas 7A", "Kelas 7 A"
-        const gradeNorm = grade.trim();
+        const gradeNorm  = grade.trim();
         const allInGrade = students.filter(s => getParentGrade(s.grade) === gradeNorm);
         const total  = allInGrade.length;
         const voted  = allInGrade.filter(s => s.hasVoted).length;
@@ -548,7 +547,6 @@ function goToStudentSelect(fullGrade) {
         if (fullGrade !== parentGrade) {
             // Ada sub kelas — kembali ke sub class screen
             backBtn.onclick = () => selectGrade(parentGrade);
-            backBtn.querySelector ? null : null;
             backBtn.innerHTML = `<i class="fa-solid fa-arrow-left mr-2"></i> Kembali ke ${parentGrade}`;
         } else {
             backBtn.onclick = () => showWelcomeScreen();
@@ -770,15 +768,20 @@ function closeConfirmVoteModal() {
 
 async function executeVote() {
     const voter = currentRole === 'guru' ? activeTeacher : selectedStudent;
+    // Guard: cek hasVoted DAN flag isVoting untuk cegah double-click race condition
     if (!voter || !selectedCandidate || voter.hasVoted) return;
+    if (executeVote._running) return;
+    executeVote._running = true;
 
     // Guard waktu vote (safety net kedua)
     if (isPemiraClosed()) {
+        executeVote._running = false;
         closeConfirmVoteModal();
         showAlertModal('Pemilihan Ditutup', 'Maaf, waktu pemilihan telah berakhir.', 'info');
         return;
     }
     if (isPemiraNotYetOpen()) {
+        executeVote._running = false;
         closeConfirmVoteModal();
         showAlertModal('Belum Dimulai', 'Pemilihan belum dibuka.', 'info');
         return;
@@ -837,6 +840,7 @@ async function executeVote() {
     ]);
 
     closeConfirmVoteModal();
+    executeVote._running = false;
     showVoteSuccessScreen(voter, c);
 }
 
