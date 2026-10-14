@@ -170,6 +170,7 @@ async function loadData() {
 
     loadVoteLogsLocal();
     recalculateDashboardStatsFromVoteLogs();
+    await loadVoteTimeFromSupabase();
 }
 
 function saveClassesLocal()    { localStorage.setItem('pemira_classes',     JSON.stringify(classes));    }
@@ -1975,7 +1976,7 @@ function closeClosingTimeModal() {
     if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
 }
 
-function saveVoteTime() {
+async function saveVoteTime() {
     const inpOpen  = getEl('openingTimeInput');
     const inpClose = getEl('closingTimeInput');
     const valOpen  = inpOpen?.value  || '';
@@ -1988,6 +1989,7 @@ function saveVoteTime() {
 
     saveOpenTimeLocal(valOpen  ? new Date(valOpen).toISOString()  : '');
     saveCloseTimeLocal(valClose ? new Date(valClose).toISOString() : '');
+    await syncVoteTimeToSupabase();
     closeClosingTimeModal();
 
     const fmt = iso => iso ? new Date(iso).toLocaleString('id-ID', { weekday:'long', day:'numeric', month:'long', hour:'2-digit', minute:'2-digit' }) : 'tidak diatur';
@@ -2000,8 +2002,40 @@ function saveClosingTime() { saveVoteTime(); }
 function clearClosingTime() {
     saveOpenTimeLocal('');
     saveCloseTimeLocal('');
+    syncVoteTimeToSupabase();
     closeClosingTimeModal();
     showAlertModal('Dihapus', 'Waktu vote dihapus. Voting tidak memiliki batas waktu.', 'info');
+}
+
+// ── Sync waktu vote ke Supabase settings ─────────────────────────────────────
+async function syncVoteTimeToSupabase() {
+    if (!isSupabaseActive || !supabaseClient) return;
+    try {
+        await supabaseClient.from('settings').upsert([
+            { key: 'pemira_open_time',  value: loadOpenTime()  || '' },
+            { key: 'pemira_close_time', value: loadCloseTime() || '' },
+        ]);
+    } catch(e) { console.error('syncVoteTime error:', e); }
+}
+
+// ── Load waktu vote dari Supabase (dipanggil saat loadData) ──────────────────
+async function loadVoteTimeFromSupabase() {
+    if (!isSupabaseActive || !supabaseClient) return;
+    try {
+        const { data, error } = await supabaseClient
+            .from('settings')
+            .select('key, value')
+            .in('key', ['pemira_open_time', 'pemira_close_time']);
+        if (error || !data) return;
+        data.forEach(row => {
+            if (row.key === 'pemira_open_time') {
+                row.value ? localStorage.setItem(OPEN_TIME_KEY, row.value) : localStorage.removeItem(OPEN_TIME_KEY);
+            }
+            if (row.key === 'pemira_close_time') {
+                row.value ? localStorage.setItem(CLOSE_TIME_KEY, row.value) : localStorage.removeItem(CLOSE_TIME_KEY);
+            }
+        });
+    } catch(e) { console.error('loadVoteTime error:', e); }
 }
 
 // ============================================================

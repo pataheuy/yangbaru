@@ -201,6 +201,24 @@ async function loadData() {
         } catch(e) { console.log('Supabase unavailable — using local data.'); }
     }
     loadVoteLogsLocal();
+
+    // Load waktu vote dari Supabase
+    if (isSupabaseActive && supabaseClient) {
+        try {
+            const { data } = await supabaseClient
+                .from('settings')
+                .select('key, value')
+                .in('key', ['pemira_open_time', 'pemira_close_time']);
+            if (data) {
+                data.forEach(row => {
+                    if (row.key === 'pemira_open_time')
+                        row.value ? localStorage.setItem('pemira_open_time', row.value) : localStorage.removeItem('pemira_open_time');
+                    if (row.key === 'pemira_close_time')
+                        row.value ? localStorage.setItem('pemira_close_time', row.value) : localStorage.removeItem('pemira_close_time');
+                });
+            }
+        } catch(e) {}
+    }
 }
 
 async function loadTeachers() {
