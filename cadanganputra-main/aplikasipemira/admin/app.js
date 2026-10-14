@@ -46,6 +46,10 @@ let students   = [];
 let teachers   = [];
 let voterStats = {};
 
+// >> Multi-periode
+let periods          = [];
+let currentPeriodId  = null;
+
 // >> Audit log
 let voteLogs         = [];
 let auditLogFiltered = [];
@@ -133,12 +137,14 @@ async function loadData() {
     const sv = localStorage.getItem('pemira_voter_stats');
     voterStats = sv ? JSON.parse(sv) : {};
 
-    // Timpa dengan data Supabase jika aktif
-    if (isSupabaseActive && supabaseClient) {
+    // Timpa dengan data Supabase jika aktif - filter per periode
+    if (isSupabaseActive && supabaseClient && currentPeriodId) {
         try {
             const { data: cData } = await supabaseClient
-                .from('candidates').select('*').order('no', { ascending: true });
-            if (cData?.length) {
+                .from('candidates').select('*')
+                .eq('period_id', currentPeriodId)
+                .order('no', { ascending: true });
+            if (cData) {
                 candidates = cData.map(c => ({
                     id:             c.id,
                     no:             c.no,
@@ -153,8 +159,10 @@ async function loadData() {
             }
 
             const { data: sData } = await supabaseClient
-                .from('students').select('*').order('name', { ascending: true });
-            if (sData?.length) {
+                .from('students').select('*')
+                .eq('period_id', currentPeriodId)
+                .order('name', { ascending: true });
+            if (sData) {
                 students = sData.map(s => ({
                     id:       s.id,
                     name:     s.name,
@@ -165,10 +173,31 @@ async function loadData() {
                 }));
                 saveStudentsLocal();
             }
-        } catch(e) { console.log("Supabase unavailable â€” using local data."); }
+
+            const { data: vData } = await supabaseClient
+                .from('vote_logs').select('*')
+                .eq('period_id', currentPeriodId)
+                .order('voted_at', { ascending: false });
+            if (vData) {
+                voteLogs = vData.map(r => ({
+                    id:             r.id,
+                    student_id:     r.student_id,
+                    student_name:   r.student_name,
+                    student_grade:  r.student_grade,
+                    candidate_id:   r.candidate_id,
+                    candidate_name: r.candidate_name,
+                    candidate_no:   r.candidate_no,
+                    voted_at:       r.voted_at
+                }));
+                saveVoteLogsLocal();
+            }
+        } catch(e) { console.log('Supabase unavailable - using local data.'); }
+    } else {
+        loadVoteLogsLocal();
     }
 
-    loadVoteLogsLocal();
+    recalculateDashboardStatsFromVoteLogs();
+    await loadVoteTimeFromSupabase();
     recalculateDashboardStatsFromVoteLogs();
     await loadVoteTimeFromSupabase();
 }
@@ -236,6 +265,7 @@ async function showDashboard() {
     logoutBtn.classList.remove('hidden');
 
     try {
+        await loadPeriods();
         await loadData();
         await loadTeachers();
         renderAdminDashboard();
@@ -1075,13 +1105,13 @@ function renderAuditLog(entries) {
 
 async function syncStudentToSupabase(s) {
     if (!isSupabaseActive || !supabaseClient || !s) return;
-    try { await supabaseClient.from('students').upsert({ id: s.id, name: s.name, grade: s.grade, password: s.password || '', has_voted: s.hasVoted, voted_for: s.votedFor }); }
+    try { await supabaseClient.from('students').upsert({ id: s.id, name: s.name, grade: s.grade, password: s.password || '', has_voted: s.hasVoted, voted_for: s.votedFor, period_id: currentPeriodId }); }
     catch(e) { console.error('syncStudent:', e); }
 }
 
 async function syncMultipleStudentsToSupabase(list) {
     if (!isSupabaseActive || !supabaseClient || !list?.length) return;
-    try { await supabaseClient.from('students').upsert(list.map(s => ({ id: s.id, name: s.name, grade: s.grade, password: s.password || '', has_voted: s.hasVoted, voted_for: s.votedFor }))); }
+    try { await supabaseClient.from('students').upsert(list.map(s => ({ id: s.id, name: s.name, grade: s.grade, password: s.password || '', has_voted: s.hasVoted, voted_for: s.votedFor, period_id: currentPeriodId }))); }
     catch(e) { console.error('syncMultipleStudents:', e); }
 }
 
@@ -1092,17 +1122,17 @@ async function deleteStudentFromSupabase(id) {
 
 async function deleteStudentsByGradeFromSupabase(grade) {
     if (!isSupabaseActive || !supabaseClient) return;
-    try { await supabaseClient.from('students').delete().eq('grade', grade); } catch(e) {}
+    try { await supabaseClient.from('students').delete().eq('grade', grade).eq('period_id', currentPeriodId); } catch(e) {}
 }
 
 async function deleteAllStudentsFromSupabase() {
     if (!isSupabaseActive || !supabaseClient) return;
-    try { await supabaseClient.from('students').delete().neq('id', '___none___'); } catch(e) {}
+    try { await supabaseClient.from('students').delete().eq('period_id', currentPeriodId); } catch(e) {}
 }
 
 async function resetAllStudentVotesInSupabase() {
     if (!isSupabaseActive || !supabaseClient) return;
-    try { await supabaseClient.from('students').update({ has_voted: false, voted_for: null }).neq('id', '___none___'); } catch(e) {}
+    try { await supabaseClient.from('students').update({ has_voted: false, voted_for: null }).eq('period_id', currentPeriodId); } catch(e) {}
 }
 
 // ============================================================
@@ -1123,7 +1153,7 @@ async function uploadCandidateImageToStorage(file, candidateId) {
 
 async function upsertCandidateToSupabase(c) {
     if (!isSupabaseActive || !supabaseClient || !c) return;
-    try { await supabaseClient.from('candidates').upsert({ id: c.id, no: c.no, name: c.name, image: c.image, visi: c.visi, misi: c.misi, votes: c.votes, votes_by_class: c.votes_by_class }); }
+    try { await supabaseClient.from('candidates').upsert({ id: c.id, no: c.no, name: c.name, image: c.image, visi: c.visi, misi: c.misi, votes: c.votes, votes_by_class: c.votes_by_class, period_id: currentPeriodId }); }
     catch(e) { console.error('upsertCandidate:', e); }
 }
 
@@ -1137,7 +1167,7 @@ async function deleteCandidateFromSupabase(id) {
 
 async function resetCandidatesInSupabase() {
     if (!isSupabaseActive || !supabaseClient) return;
-    try { for (const c of candidates) { await supabaseClient.from('candidates').update({ votes: 0, votes_by_class: {} }).eq('id', c.id); } }
+    try { for (const c of candidates) { await supabaseClient.from('candidates').update({ votes: 0, votes_by_class: {} }).eq('id', c.id).eq('period_id', currentPeriodId); } }
     catch(e) {}
 }
 
@@ -1148,7 +1178,7 @@ async function resetCandidatesInSupabase() {
 async function loadAuditLogFromSupabase() {
     if (isSupabaseActive && supabaseClient) {
         try {
-            const { data, error } = await supabaseClient.from('vote_logs').select('*').order('voted_at', { ascending: false });
+            const { data, error } = await supabaseClient.from('vote_logs').select('*').eq('period_id', currentPeriodId).order('voted_at', { ascending: false });
             if (error) {
                 console.error('loadAuditLog error:', error);
             } else if (data) {
@@ -1174,7 +1204,7 @@ async function loadAuditLogFromSupabase() {
 
 async function clearVoteLogsFromSupabase() {
     if (!isSupabaseActive || !supabaseClient) return;
-    try { await supabaseClient.from('vote_logs').delete().neq('id', '___none___'); } catch(e) {}
+    try { await supabaseClient.from('vote_logs').delete().eq('period_id', currentPeriodId); } catch(e) {}
 }
 
 function filterAuditLog() {
@@ -1520,13 +1550,13 @@ function exportStudentsExcelCurrentGrade() {
 // Supabase teacher sync functions
 async function syncTeacherToSupabase(t) {
     if (!isSupabaseActive || !supabaseClient || !t) return;
-    try { await supabaseClient.from('teachers').upsert({ id: t.id, name: t.name, password: t.password || '', role: t.role || 'Guru', has_voted: t.hasVoted, voted_for: t.votedFor }); }
+    try { await supabaseClient.from('teachers').upsert({ id: t.id, name: t.name, password: t.password || '', role: t.role || 'Guru', has_voted: t.hasVoted, voted_for: t.votedFor, period_id: currentPeriodId }); }
     catch(e) { console.error('syncTeacher:', e); }
 }
 
 async function syncMultipleTeachersToSupabase(list) {
     if (!isSupabaseActive || !supabaseClient || !list?.length) return;
-    try { await supabaseClient.from('teachers').upsert(list.map(t => ({ id: t.id, name: t.name, password: t.password || '', role: t.role || 'Guru', has_voted: t.hasVoted, voted_for: t.votedFor }))); }
+    try { await supabaseClient.from('teachers').upsert(list.map(t => ({ id: t.id, name: t.name, password: t.password || '', role: t.role || 'Guru', has_voted: t.hasVoted, voted_for: t.votedFor, period_id: currentPeriodId }))); }
     catch(e) { console.error('syncMultipleTeachers:', e); }
 }
 
@@ -1625,11 +1655,13 @@ async function loadTeachers() {
     const stored = localStorage.getItem('pemira_teachers');
     try { teachers = stored ? JSON.parse(stored) : []; } catch(e) { teachers = []; }
 
-    if (isSupabaseActive && supabaseClient) {
+    if (isSupabaseActive && supabaseClient && currentPeriodId) {
         try {
             const { data } = await supabaseClient
-                .from('teachers').select('*').order('name', { ascending: true });
-            if (data?.length) {
+                .from('teachers').select('*')
+                .eq('period_id', currentPeriodId)
+                .order('name', { ascending: true });
+            if (data) {
                 teachers = data.map(t => ({
                     id:       t.id,
                     name:     t.name,
@@ -1642,6 +1674,7 @@ async function loadTeachers() {
             }
         } catch(e) { console.log('Supabase teachers unavailable.'); }
     }
+}
 }
 
 function saveTeachersLocal() {
@@ -2012,8 +2045,8 @@ async function syncVoteTimeToSupabase() {
     if (!isSupabaseActive || !supabaseClient) return;
     try {
         await supabaseClient.from('settings').upsert([
-            { key: 'pemira_open_time',  value: loadOpenTime()  || '' },
-            { key: 'pemira_close_time', value: loadCloseTime() || '' },
+            { key: 'pemira_open_time',  value: loadOpenTime()  || '', period_id: currentPeriodId },
+            { key: 'pemira_close_time', value: loadCloseTime() || '', period_id: currentPeriodId },
         ]);
     } catch(e) { console.error('syncVoteTime error:', e); }
 }
@@ -2591,4 +2624,227 @@ async function exportToDocx() {
         showAlertModal('Gagal', 'Gagal membuat DOCX: ' + e.message, 'info');
     }
 
+}
+
+// ============================================================
+// === MULTI-PERIODE ===
+// ============================================================
+
+async function loadPeriods() {
+    if (!isSupabaseActive || !supabaseClient) {
+        // Fallback: buat periode default lokal
+        if (!periods.length) {
+            periods = [{ id: 'local-default', name: '2026-2027', is_active: true }];
+        }
+        currentPeriodId = currentPeriodId || periods[0].id;
+        renderPeriodTabBar();
+        return;
+    }
+    try {
+        const { data, error } = await supabaseClient
+            .from('periods').select('*').order('created_at', { ascending: true });
+        if (error) throw error;
+        if (data && data.length) {
+            periods = data;
+        } else {
+            // Buat periode default jika belum ada
+            const { data: newP } = await supabaseClient
+                .from('periods').insert({ name: '2026-2027', is_active: true }).select().single();
+            if (newP) periods = [newP];
+        }
+        // Set currentPeriodId ke periode yang disimpan, atau aktif, atau pertama
+        const saved = localStorage.getItem('pemira_current_period_id');
+        if (saved && periods.find(p => p.id === saved)) {
+            currentPeriodId = saved;
+        } else {
+            const active = periods.find(p => p.is_active) || periods[0];
+            currentPeriodId = active?.id || null;
+        }
+        renderPeriodTabBar();
+    } catch(e) {
+        console.error('loadPeriods error:', e);
+        if (!periods.length) periods = [{ id: 'local-default', name: '2026-2027', is_active: true }];
+        currentPeriodId = periods[0].id;
+        renderPeriodTabBar();
+    }
+}
+
+async function switchToPeriod(id) {
+    if (id === currentPeriodId) return;
+    currentPeriodId = id;
+    localStorage.setItem('pemira_current_period_id', id);
+    renderPeriodTabBar();
+    // Reset data lokal
+    candidates = []; students = []; teachers = []; voteLogs = []; voterStats = {};
+    await loadData();
+    await loadTeachers();
+    renderAdminDashboard();
+}
+
+async function createPeriod() {
+    const inp = getEl('newPeriodNameInput');
+    if (!inp) return;
+    const name = inp.value.trim();
+    if (!name) { showAlertModal('Peringatan', 'Masukkan nama tahun ajaran.', 'info'); return; }
+    if (!/^\d{4}-\d{4}$/.test(name)) {
+        showAlertModal('Format Salah', 'Format tahun ajaran: XXXX-XXXX, contoh: 2026-2027', 'info'); return;
+    }
+    if (periods.find(p => p.name === name)) {
+        showAlertModal('Sudah Ada', `Periode ${name} sudah terdaftar.`, 'info'); return;
+    }
+
+    if (isSupabaseActive && supabaseClient) {
+        try {
+            const { data, error } = await supabaseClient
+                .from('periods').insert({ name, is_active: false }).select().single();
+            if (error) throw error;
+            periods.push(data);
+            inp.value = '';
+            closeAddPeriodModal();
+            renderPeriodTabBar();
+            await switchToPeriod(data.id);
+            showAlertModal('Berhasil', `Periode ${name} berhasil ditambahkan.`, 'success');
+        } catch(e) { showAlertModal('Gagal', 'Gagal membuat periode: ' + e.message, 'info'); }
+    }
+}
+
+async function setActivePeriod(id) {
+    if (!isSupabaseActive || !supabaseClient) return;
+    try {
+        // Set semua is_active = false
+        await supabaseClient.from('periods').update({ is_active: false }).neq('id', '___none___');
+        // Set periode ini aktif
+        await supabaseClient.from('periods').update({ is_active: true }).eq('id', id);
+        periods = periods.map(p => ({ ...p, is_active: p.id === id }));
+        renderPeriodTabBar();
+        showAlertModal('Berhasil', `Periode ${periods.find(p=>p.id===id)?.name} ditetapkan sebagai aktif untuk voting.`, 'success');
+    } catch(e) { showAlertModal('Gagal', 'Gagal mengatur periode aktif.', 'info'); }
+}
+
+async function renamePeriod(id, newName) {
+    if (!newName?.trim()) return;
+    if (!/^\d{4}-\d{4}$/.test(newName.trim())) {
+        showAlertModal('Format Salah', 'Format: XXXX-XXXX', 'info'); return;
+    }
+    if (isSupabaseActive && supabaseClient) {
+        try {
+            await supabaseClient.from('periods').update({ name: newName.trim() }).eq('id', id);
+            const p = periods.find(p => p.id === id);
+            if (p) p.name = newName.trim();
+            renderPeriodTabBar();
+            closePeriodSettingsModal();
+            showAlertModal('Berhasil', 'Nama periode diperbarui.', 'success');
+        } catch(e) { showAlertModal('Gagal', 'Gagal mengubah nama.', 'info'); }
+    }
+}
+
+async function deletePeriod(id) {
+    const p = periods.find(p => p.id === id);
+    if (!p) return;
+    if (periods.length <= 1) { showAlertModal('Tidak Bisa', 'Minimal harus ada satu periode.', 'info'); return; }
+    if (!confirm(`Hapus periode "${p.name}"? Semua data kandidat, siswa, guru, dan suara di periode ini akan DIHAPUS PERMANEN.`)) return;
+    if (isSupabaseActive && supabaseClient) {
+        try {
+            await supabaseClient.from('periods').delete().eq('id', id);
+            periods = periods.filter(p => p.id !== id);
+            closePeriodSettingsModal();
+            if (currentPeriodId === id) {
+                const fallback = periods.find(p => p.is_active) || periods[0];
+                await switchToPeriod(fallback.id);
+            } else {
+                renderPeriodTabBar();
+            }
+            showAlertModal('Terhapus', `Periode "${p.name}" dihapus.`, 'info');
+        } catch(e) { showAlertModal('Gagal', 'Gagal menghapus periode.', 'info'); }
+    }
+}
+
+// ── Render tab bar periode ────────────────────────────────────────────────────
+function renderPeriodTabBar() {
+    const bar = getEl('periodTabBar');
+    if (!bar) return;
+    bar.innerHTML = '';
+
+    periods.forEach(p => {
+        const isCurrentTab = p.id === currentPeriodId;
+        const isActiveVoting = p.is_active;
+
+        const btn = document.createElement('button');
+        btn.onclick = () => switchToPeriod(p.id);
+        btn.className = [
+            'relative px-4 py-2 text-xs font-semibold rounded-xl border transition flex items-center gap-1.5',
+            isCurrentTab
+                ? 'bg-white text-blue-700 border-blue-300 shadow-sm'
+                : 'bg-slate-100 text-slate-500 border-transparent hover:bg-white hover:text-slate-700'
+        ].join(' ');
+        btn.innerHTML = `
+            ${isActiveVoting ? '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>' : ''}
+            <span>${p.name}</span>
+            <button onclick="event.stopPropagation(); openPeriodSettingsModal('${p.id}')"
+                    class="ml-1 text-slate-400 hover:text-slate-600 transition">
+                <i class="fa-solid fa-ellipsis text-[10px]"></i>
+            </button>`;
+        bar.appendChild(btn);
+    });
+
+    // Tombol tambah periode
+    const addBtn = document.createElement('button');
+    addBtn.onclick = openAddPeriodModal;
+    addBtn.className = 'px-3 py-2 text-xs font-semibold rounded-xl border border-dashed border-slate-300 text-slate-400 hover:border-slate-400 hover:text-slate-600 transition flex items-center gap-1';
+    addBtn.innerHTML = '<i class="fa-solid fa-plus text-[10px]"></i> Periode Baru';
+    bar.appendChild(addBtn);
+}
+
+// ── Modal tambah periode ──────────────────────────────────────────────────────
+function openAddPeriodModal() {
+    const inp = getEl('newPeriodNameInput');
+    if (inp) inp.value = '';
+    const modal = getEl('addPeriodModal');
+    if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); setTimeout(() => inp?.focus(), 100); }
+}
+function closeAddPeriodModal() {
+    const modal = getEl('addPeriodModal');
+    if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+}
+
+// ── Modal pengaturan periode ──────────────────────────────────────────────────
+let _editingPeriodId = null;
+function openPeriodSettingsModal(id) {
+    _editingPeriodId = id;
+    const p = periods.find(p => p.id === id);
+    if (!p) return;
+
+    const nameEl   = getEl('editPeriodNameInput');
+    const titleEl  = getEl('periodSettingsTitle');
+    const activeEl = getEl('periodIsActiveInfo');
+    if (nameEl)   nameEl.value     = p.name;
+    if (titleEl)  titleEl.textContent = p.name;
+    if (activeEl) {
+        activeEl.textContent = p.is_active ? 'Aktif untuk voting' : 'Tidak aktif';
+        activeEl.className   = p.is_active
+            ? 'text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full'
+            : 'text-[11px] font-semibold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full';
+    }
+
+    // Sembunyikan tombol "Jadikan Aktif" kalau sudah aktif
+    const setActiveBtn = getEl('setPeriodActiveBtn');
+    if (setActiveBtn) setActiveBtn.style.display = p.is_active ? 'none' : '';
+
+    const modal = getEl('periodSettingsModal');
+    if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); }
+}
+function closePeriodSettingsModal() {
+    const modal = getEl('periodSettingsModal');
+    if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+    _editingPeriodId = null;
+}
+function savePeriodRename() {
+    const inp = getEl('editPeriodNameInput');
+    if (_editingPeriodId && inp) renamePeriod(_editingPeriodId, inp.value);
+}
+function confirmSetActivePeriod() {
+    if (_editingPeriodId) setActivePeriod(_editingPeriodId);
+}
+function confirmDeletePeriod() {
+    if (_editingPeriodId) deletePeriod(_editingPeriodId);
 }
