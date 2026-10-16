@@ -2278,8 +2278,10 @@
             cardW        = getCardW();
             visibleCount = Math.floor(wrapper.offsetWidth / cardW) || 1;
             maxPos       = Math.max(0, (cardCount - visibleCount) * cardW);
-            // Wrapper cukup 100vh — scroll dikontrol JS bukan sticky offset
-            stickyWrap.style.height = '100vh';
+            // Beri tinggi = 100vh + maxPos agar section punya "scroll budget" vertikal
+            // yang setara dengan panjang konten horizontal, sehingga pengguna tidak
+            // bisa melompati section ini saat scroll cepat.
+            stickyWrap.style.height = (window.innerHeight + maxPos) + 'px';
         }
 
         function clamp(v) { return Math.max(0, Math.min(v, maxPos)); }
@@ -2354,65 +2356,23 @@
             checkTrap();
         }
 
-        // Wheel intercept — non-passive wajib
-        window.addEventListener('wheel', function (e) {
+        // ─── Scroll-driven horizontal position ──────────────────────
+        // Pendekatan: section punya tinggi 100vh + maxPos.
+        // Inner sticky tetap di viewport. Posisi kartu = scrollY - bounds.top,
+        // sehingga scroll alami 1px → kartu geser 1px. Tidak perlu intercept/preventDefault.
+        function syncFromScroll() {
             if (!stickyWrap || maxPos <= 0) return;
-
-            var bounds  = getSectionBounds();
             var scrollY = window.scrollY || window.pageYOffset;
-            var onSection = scrollY >= bounds.top - 10 && scrollY <= bounds.bottom + 10;
-            if (!onSection) return;
+            var bounds  = getSectionBounds();
+            var progress = scrollY - bounds.top;
+            if (progress < 0 || scrollY > bounds.bottom) return;
+            setTarget(clamp(progress));
+        }
 
-            var goingDown = e.deltaY > 0;
-            var goingUp   = e.deltaY < 0;
-
-            if (goingDown && pos < maxPos) {
-                e.preventDefault();
-                var step = Math.abs(e.deltaY) * 1.2;
-                setTarget(Math.min(maxPos, targetPos + step));
-                window.scrollTo(0, bounds.top);
-            } else if (goingUp && pos > 0) {
-                e.preventDefault();
-                var step = Math.abs(e.deltaY) * 1.2;
-                setTarget(Math.max(0, targetPos - step));
-                window.scrollTo(0, bounds.top);
-            }
-            // Kalau pos >= maxPos (kartu habis) dan goingDown → biarkan scroll normal
-            // Kalau pos <= 0 dan goingUp → biarkan scroll normal
-        }, { passive: false });
-
-        // Touch intercept
-        var touchStartY = 0;
-        window.addEventListener('touchstart', function (e) {
-            touchStartY = e.touches[0].clientY;
+        window.addEventListener('scroll', function () {
+            syncFromScroll();
+            onScroll();
         }, { passive: true });
-
-        window.addEventListener('touchmove', function (e) {
-            if (!stickyWrap || maxPos <= 0) return;
-
-            var bounds  = getSectionBounds();
-            var scrollY = window.scrollY || window.pageYOffset;
-            var onSection = scrollY >= bounds.top - 10 && scrollY <= bounds.bottom + 10;
-            if (!onSection) return;
-
-            var delta     = touchStartY - e.touches[0].clientY; // positif = scroll bawah
-            var goingDown = delta > 0;
-            var goingUp   = delta < 0;
-
-            if (goingDown && pos < maxPos) {
-                e.preventDefault();
-                setTarget(Math.min(maxPos, targetPos + Math.abs(delta) * 0.8));
-                window.scrollTo(0, bounds.top);
-                touchStartY = e.touches[0].clientY;
-            } else if (goingUp && pos > 0) {
-                e.preventDefault();
-                setTarget(Math.max(0, targetPos - Math.abs(delta) * 0.8));
-                window.scrollTo(0, bounds.top);
-                touchStartY = e.touches[0].clientY;
-            }
-        }, { passive: false });
-
-        window.addEventListener('scroll', onScroll, { passive: true });
 
         // ─── Drag manual ────────────────────────────────────────────
         var dragging = false, startX = 0, startPos = 0, lastX = 0, velX = 0, lastT = 0;
@@ -2458,15 +2418,20 @@
         function init() {
             calcMax();
             pos = 0;
+            targetPos = 0;
             track.style.transform = 'translateX(0)';
             buildDots();
+            // Sinkronkan posisi kartu jika halaman di-reload di tengah section
+            setTimeout(syncFromScroll, 50);
         }
 
         window.addEventListener('resize', function () {
             calcMax();
             pos = clamp(pos);
+            targetPos = pos;
             track.style.transform = 'translateX(-' + pos + 'px)';
             buildDots();
+            syncFromScroll();
         });
 
         // Tunggu font/ikon load

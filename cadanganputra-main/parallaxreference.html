@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mastering Parallax Effects - Ultimate 12-in-1 Web Showcase</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <!-- GSAP & ScrollTrigger -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                    },
+                    colors: {
+                        darkBg: '#090D16',
+                        cardBg: '#131A29',
+                        accentBlue: '#3B82F6',
+                        accentPurple: '#8B5CF6',
+                        accentCyan: '#06B6D4',
+                        accentPink: '#EC4899',
+                        accentEmerald: '#10B981',
+                        accentAmber: '#F59E0B'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #090D16;
+            color: #F3F4F6;
+            overflow-x: hidden;
+        }
+
+        /* Custom Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #090D16;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1F2937;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3B82F6;
+        }
+
+        /* Glassmorphism Classes */
+        .glass-panel {
+            background: rgba(19, 26, 41, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Glow Effects */
+        .glow-purple {
+            box-shadow: 0 0 50px -10px rgba(139, 92, 246, 0.3);
+        }
+        .glow-blue {
+            box-shadow: 0 0 50px -10px rgba(59, 130, 246, 0.3);
+        }
+        .glow-emerald {
+            box-shadow: 0 0 50px -10px rgba(16, 185, 129, 0.3);
+        }
+
+        /* Sticky Stack Section Setup */
+        .stack-card {
+            position: sticky;
+            top: 120px;
+        }
+
+        /* 3D Tilt Card Base */
+        .tilt-card-wrapper {
+            perspective: 1000px;
+        }
+        .tilt-card {
+            transform-style: preserve-3d;
+            transition: transform 0.1s ease-out;
+        }
+        .tilt-card-layer {
+            transform: translateZ(40px);
+        }
+
+        /* Spotlight Torch Parallax */
+        .spotlight-container {
+            position: relative;
+            background: #05070d;
+            overflow: hidden;
+        }
+
+        .spotlight-mask {
+            pointer-events: none;
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(
+                600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+                rgba(255, 255, 255, 0.15),
+                transparent 80%
+            );
+        }
+
+        /* Velocity Skew Container */
+        .skew-item {
+            will-change: transform;
+            transition: transform 0.1s ease-out;
+        }
+
+        /* Letter Assembly Span */
+        .split-char {
+            display: inline-block;
+            will-change: transform, opacity;
+            background: linear-gradient(135deg, #60A5FA, #C084FC, #F472B6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 12px rgba(139, 92, 246, 0.4));
+        }
+    </style>
+</head>
+<body class="font-sans antialiased text-gray-200">
+
+    <header class="fixed top-0 left-0 w-full z-50 px-4 py-4">
+        <div class="max-w-7xl mx-auto glass-panel rounded-2xl px-6 py-3 flex items-center justify-between shadow-2xl">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 via-purple-600 to-pink-600 flex items-center justify-center font-display font-bold text-white text-lg shadow-lg">
+                    P
+                </div>
+                <span class="font-display font-bold text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-200 to-gray-400">
+                    Parallax<span class="text-blue-500">Lab 12x</span>
+                </span>
+            </div>
+
+            <!-- Desktop Nav Quick Links -->
+            <div class="hidden xl:flex items-center space-x-1 text-xs font-medium text-gray-300">
+                <a href="#hero" class="px-2 py-1 rounded hover:text-white hover:bg-white/5 transition">1. Multi-Layer</a>
+                <a href="#stack-parallax" class="px-2 py-1 rounded hover:text-white hover:bg-white/5 transition">2. Stack</a>
+                <a href="#marquee-parallax" class="px-2 py-1 rounded hover:text-white hover:bg-white/5 transition">3. Marquee</a>
+                <a href="#tilt-parallax" class="px-2 py-1 rounded hover:text-white hover:bg-white/5 transition">4. 3D Tilt</a>
+                <a href="#horizontal-parallax" class="px-2 py-1 rounded hover:text-white hover:bg-white/5 transition">5. Horizontal</a>
+                <a href="#canvas-scrub" class="px-2 py-1 rounded hover:text-white hover:bg-white/5 transition">6. Canvas 3D</a>
+                <a href="#curtain-section" class="px-2 py-1 rounded hover:text-white hover:bg-white/5 transition">7. Curtain</a>
+                <a href="#spotlight-section" class="px-2 py-1 rounded hover:text-white hover:bg-white/5 transition">8. Spotlight</a>
+                <a href="#velocity-skew" class="px-2 py-1 rounded hover:text-white hover:bg-white/5 transition">9. Velocity Skew</a>
+                <a href="#focal-blur" class="px-2 py-1 rounded hover:text-white hover:bg-white/5 transition">10. Focal Blur</a>
+                <a href="#text-assembly" class="px-2 py-1 rounded hover:text-white hover:bg-white/5 transition">11. Text Split</a>
+                <a href="#card-expand" class="px-2 py-1 rounded hover:text-white hover:bg-white/5 transition">12. Fullscreen Zoom</a>
+            </div>
+
+            <a href="#code-modal" onclick="openCodeModal()" class="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white rounded-xl text-xs sm:text-sm font-semibold transition flex items-center space-x-2 shadow-lg shadow-blue-600/30">
+                <i class="fa-solid fa-code"></i>
+                <span>Panduan Kode</span>
+            </a>
+        </div>
+    </header>
+
+    <section id="hero" class="relative min-h-screen flex items-center justify-center overflow-hidden pt-28 pb-12">
+        <!-- Background Orbs -->
+        <div class="parallax-layer absolute top-10 left-10 w-96 h-96 bg-purple-600/20 rounded-full blur-[120px] pointer-events-none" data-speed="-0.2"></div>
+        <div class="parallax-layer absolute bottom-10 right-10 w-[500px] h-[500px] bg-blue-600/20 rounded-full blur-[150px] pointer-events-none" data-speed="-0.3"></div>
+        
+        <!-- Grid Lines Background -->
+        <div class="parallax-layer absolute inset-0 opacity-20 pointer-events-none" data-speed="-0.1" style="background-image: radial-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 1px); background-size: 32px 32px;"></div>
+
+        <!-- Floating Decorative Objects -->
+        <div class="parallax-layer absolute top-1/4 left-8 md:left-20 glass-panel p-4 rounded-2xl hidden lg:block glow-purple" data-speed="0.4">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-400">
+                    <i class="fa-solid fa-layer-group text-lg"></i>
+                </div>
+                <div>
+                    <div class="text-xs text-gray-400">Teknik #1</div>
+                    <div class="text-sm font-bold">Multi-Layer Depth</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="parallax-layer absolute bottom-1/4 right-8 md:right-20 glass-panel p-4 rounded-2xl hidden lg:block glow-blue" data-speed="0.6">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-400">
+                    <i class="fa-solid fa-bolt text-lg"></i>
+                </div>
+                <div>
+                    <div class="text-xs text-gray-400">Teknologi</div>
+                    <div class="text-sm font-bold">GSAP 3 + ScrollTrigger</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Hero Content -->
+        <div class="parallax-layer relative z-10 max-w-4xl mx-auto text-center px-6" data-speed="0.1">
+            <div class="inline-flex items-center space-x-2 px-4 py-2 rounded-full glass-card border border-white/10 text-xs font-semibold text-blue-400 mb-6">
+                <span class="w-2 h-2 rounded-full bg-blue-500 animate-ping"></span>
+                <span>12 Teknik Parallax Web Modern Terlengkap</span>
+            </div>
+
+            <h1 class="font-display text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white mb-6 leading-tight">
+                Galeri Efek <br/>
+                <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">
+                    Parallax Tingkat Lanjut
+                </span>
+            </h1>
+
+            <p class="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed">
+                Eksplorasi kumpulan teknik parallax tingkat tinggi dari dasar hingga interaksi 3D, Velocity Skew, Focal Blur, dan Frame Scrubbing untuk web standar dunia.
+            </p>
+
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <a href="#stack-parallax" class="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white rounded-2xl font-bold shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                    Mulai Eksplorasi
+                </a>
+                <a href="#velocity-skew" class="w-full sm:w-auto px-8 py-4 glass-panel hover:bg-white/10 text-white rounded-2xl font-semibold transition border border-white/10">
+                    Lihat Velocity Skew
+                </a>
+            </div>
+
+            <!-- Scroll Indicator -->
+            <div class="mt-16 flex flex-col items-center justify-center text-gray-500 animate-bounce">
+                <span class="text-xs tracking-widest uppercase mb-2">Scroll Ke Bawah</span>
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+        </div>
+    </section>
+
+    <section id="stack-parallax" class="py-24 px-4 relative max-w-5xl mx-auto">
+        <div class="text-center mb-16">
+            <div class="text-blue-500 font-semibold text-sm tracking-wider uppercase mb-2">Teknik #2</div>
+            <h2 class="font-display text-3xl sm:text-5xl font-bold text-white mb-4">Stacking Cards Parallax</h2>
+            <p class="text-gray-400 max-w-xl mx-auto">
+                Kartu-kartu menumpuk secara berurutan saat di-scroll dengan efek skala dan redup otomatis (*Apple & Stripe style*).
+            </p>
+        </div>
+
+        <div class="space-y-12 relative pb-24">
+            <!-- Card 1 -->
+            <div class="stack-card glass-panel p-8 sm:p-12 rounded-3xl border border-white/10 bg-gradient-to-br from-gray-900 to-slate-900 shadow-2xl flex flex-col md:flex-row items-center gap-8">
+                <div class="w-full md:w-1/2">
+                    <div class="w-12 h-12 rounded-2xl bg-blue-500/20 text-blue-400 flex items-center justify-center text-xl font-bold mb-6">01</div>
+                    <h3 class="text-2xl sm:text-3xl font-bold text-white mb-4">Design System Hierarchy</h3>
+                    <p class="text-gray-400 leading-relaxed mb-6">Menjaga hirarki visual yang selaras dan transisi antar halaman yang sangat responsif di semua resolusi perangkat.</p>
+                </div>
+                <div class="w-full md:w-1/2 h-64 rounded-2xl bg-blue-600/10 border border-blue-500/20 flex items-center justify-center relative overflow-hidden">
+                    <i class="fa-solid fa-compass-drafting text-7xl text-blue-500/40"></i>
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="stack-card glass-panel p-8 sm:p-12 rounded-3xl border border-white/10 bg-gradient-to-br from-gray-900 to-indigo-950 shadow-2xl flex flex-col md:flex-row items-center gap-8">
+                <div class="w-full md:w-1/2">
+                    <div class="w-12 h-12 rounded-2xl bg-purple-500/20 text-purple-400 flex items-center justify-center text-xl font-bold mb-6">02</div>
+                    <h3 class="text-2xl sm:text-3xl font-bold text-white mb-4">GPU Hardware Acceleration</h3>
+                    <p class="text-gray-400 leading-relaxed mb-6">Animasi diolah langsung oleh GPU menggunakan CSS Transform `translate3d` untuk mempertahankan kestabilan di 60 FPS.</p>
+                </div>
+                <div class="w-full md:w-1/2 h-64 rounded-2xl bg-purple-600/10 border border-purple-500/20 flex items-center justify-center relative overflow-hidden">
+                    <i class="fa-solid fa-microchip text-7xl text-purple-500/40"></i>
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="stack-card glass-panel p-8 sm:p-12 rounded-3xl border border-white/10 bg-gradient-to-br from-gray-900 to-cyan-950 shadow-2xl flex flex-col md:flex-row items-center gap-8">
+                <div class="w-full md:w-1/2">
+                    <div class="w-12 h-12 rounded-2xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xl font-bold mb-6">03</div>
+                    <h3 class="text-2xl sm:text-3xl font-bold text-white mb-4">Focused Storytelling</h3>
+                    <p class="text-gray-400 leading-relaxed mb-6">Membantu audiens mencerna informasi poin demi poin tanpa terganggu oleh elemen visual lain yang bertumpukan.</p>
+                </div>
+                <div class="w-full md:w-1/2 h-64 rounded-2xl bg-cyan-600/10 border border-cyan-500/20 flex items-center justify-center relative overflow-hidden">
+                    <i class="fa-solid fa-users-viewfinder text-7xl text-cyan-500/40"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="marquee-parallax" class="py-20 relative overflow-hidden bg-slate-950/60 my-12 border-y border-white/10">
+        <div class="text-center mb-8 px-4">
+            <div class="text-pink-400 font-semibold text-sm tracking-wider uppercase mb-2">Teknik #3</div>
+            <h2 class="font-display text-3xl sm:text-5xl font-bold text-white mb-2">Kinetic Typography Marquee</h2>
+            <p class="text-gray-400 max-w-lg mx-auto text-sm">Teks horizontal berukuran raksasa yang meluncur dengan kecepatan dinamis saat scroll.</p>
+        </div>
+
+        <div class="marquee-track-1 flex whitespace-nowrap opacity-25 font-display text-6xl sm:text-8xl md:text-9xl font-extrabold uppercase tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 my-2 select-none">
+            <span class="mx-6">INNOVATIVE DESIGN</span> • <span class="mx-6">PARALLAX MOTION</span> • <span class="mx-6">ULTRA SMOOTH</span> • <span class="mx-6">CREATIVE WEB</span> •
+        </div>
+
+        <div class="marquee-track-2 flex whitespace-nowrap opacity-20 font-display text-6xl sm:text-8xl md:text-9xl font-extrabold uppercase tracking-tighter text-white my-2 select-none">
+            <span class="mx-6">HIGH PERFORMANCE</span> • <span class="mx-6">STORYTELLING</span> • <span class="mx-6">INTERACTIVE EXPERIENCE</span> •
+        </div>
+    </section>
+
+    <section id="tilt-parallax" class="py-24 px-4 relative max-w-7xl mx-auto">
+        <div class="text-center mb-16">
+            <div class="text-purple-400 font-semibold text-sm tracking-wider uppercase mb-2">Teknik #4</div>
+            <h2 class="font-display text-3xl sm:text-5xl font-bold text-white mb-4">3D Interactive Mouse Tilt</h2>
+            <p class="text-gray-400 max-w-xl mx-auto">
+                Arahkan kursor mouse Anda di atas kartu untuk merasakan efek rotasi perspektif 3D yang mulus.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="tilt-card-wrapper">
+                <div class="tilt-card glass-panel p-8 rounded-3xl h-full border border-white/10 flex flex-col justify-between hover:border-blue-500/50 transition-colors">
+                    <div class="tilt-card-layer">
+                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-blue-600 to-cyan-500 flex items-center justify-center text-white text-2xl shadow-lg mb-6">
+                            <i class="fa-solid fa-cube"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-3">Spatial Perspective</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed mb-6">
+                            Memisahkan elemen teks dan ikon ke dalam Z-axis terpisah untuk menciptakan ilusi timbul 3D nyata.
+                        </p>
+                    </div>
+                    <div class="tilt-card-layer pt-4 border-t border-white/10 flex items-center justify-between">
+                        <span class="text-xs text-blue-400 font-mono">perspective(1000px)</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-gray-500"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tilt-card-wrapper">
+                <div class="tilt-card glass-panel p-8 rounded-3xl h-full border border-white/10 flex flex-col justify-between hover:border-purple-500/50 transition-colors">
+                    <div class="tilt-card-layer">
+                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-purple-600 to-pink-500 flex items-center justify-center text-white text-2xl shadow-lg mb-6">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-3">Dynamic Physics</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed mb-6">
+                            Menghitung nilai sudut rotasi `rotateX` dan `rotateY` secara *real-time* dari titik tengah bounding box.
+                        </p>
+                    </div>
+                    <div class="tilt-card-layer pt-4 border-t border-white/10 flex items-center justify-between">
+                        <span class="text-xs text-purple-400 font-mono">rotateX() rotateY()</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-gray-500"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tilt-card-wrapper">
+                <div class="tilt-card glass-panel p-8 rounded-3xl h-full border border-white/10 flex flex-col justify-between hover:border-pink-500/50 transition-colors">
+                    <div class="tilt-card-layer">
+                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-pink-600 to-rose-500 flex items-center justify-center text-white text-2xl shadow-lg mb-6">
+                            <i class="fa-solid fa-gem"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-3">Micro Interactions</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed mb-6">
+                            Sangat cocok diterapkan pada *showcase produk*, kartu portofolio, dan elemen *call-to-action* bernilai tinggi.
+                        </p>
+                    </div>
+                    <div class="tilt-card-layer pt-4 border-t border-white/10 flex items-center justify-between">
+                        <span class="text-xs text-pink-400 font-mono">Zero Latency</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-gray-500"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="horizontal-parallax" class="py-20 relative bg-slate-950/50 my-12">
+        <div class="px-6 max-w-7xl mx-auto mb-8">
+            <div class="text-cyan-400 font-semibold text-sm tracking-wider uppercase mb-2">Teknik #5</div>
+            <h2 class="font-display text-3xl sm:text-5xl font-bold text-white">Horizontal Gallery Parallax</h2>
+            <p class="text-gray-400 mt-2">Scroll halaman secara vertikal untuk menggeser galeri di bawah ini secara horizontal.</p>
+        </div>
+
+        <div id="horizontal-wrapper" class="overflow-hidden relative w-full h-[60vh]">
+            <div id="horizontal-track" class="flex gap-8 px-6 absolute top-0 left-0 h-full items-center">
+                <div class="w-[80vw] sm:w-[450px] h-[360px] glass-panel rounded-3xl p-6 flex-shrink-0 flex flex-col justify-between relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-gradient-to-t from-blue-950 to-transparent opacity-60"></div>
+                    <div class="relative z-10">
+                        <span class="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-xs font-semibold">Proyek 01</span>
+                        <h4 class="text-2xl font-bold text-white mt-4">Cyberpunk Interface</h4>
+                    </div>
+                    <p class="relative z-10 text-gray-300 text-sm">Antarmuka futuristik bertema neon cyan & dark mode glassmorphism.</p>
+                </div>
+
+                <div class="w-[80vw] sm:w-[450px] h-[360px] glass-panel rounded-3xl p-6 flex-shrink-0 flex flex-col justify-between relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-gradient-to-t from-purple-950 to-transparent opacity-60"></div>
+                    <div class="relative z-10">
+                        <span class="px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full text-xs font-semibold">Proyek 02</span>
+                        <h4 class="text-2xl font-bold text-white mt-4">Fintech Mobile Dashboard</h4>
+                    </div>
+                    <p class="relative z-10 text-gray-300 text-sm">Visualisasi keuangan real-time dengan grafik animasi interaktif.</p>
+                </div>
+
+                <div class="w-[80vw] sm:w-[450px] h-[360px] glass-panel rounded-3xl p-6 flex-shrink-0 flex flex-col justify-between relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-gradient-to-t from-emerald-950 to-transparent opacity-60"></div>
+                    <div class="relative z-10">
+                        <span class="px-3 py-1 bg-emerald-500/20 text-emerald-300 rounded-full text-xs font-semibold">Proyek 03</span>
+                        <h4 class="text-2xl font-bold text-white mt-4">Eco-Smart Energy App</h4>
+                    </div>
+                    <p class="relative z-10 text-gray-300 text-sm">Pemetaan data energi ramah lingkungan berbasiskan koordinat geospasial.</p>
+                </div>
+
+                <div class="w-[80vw] sm:w-[450px] h-[360px] glass-panel rounded-3xl p-6 flex-shrink-0 flex flex-col justify-between relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-gradient-to-t from-rose-950 to-transparent opacity-60"></div>
+                    <div class="relative z-10">
+                        <span class="px-3 py-1 bg-rose-500/20 text-rose-300 rounded-full text-xs font-semibold">Proyek 04</span>
+                        <h4 class="text-2xl font-bold text-white mt-4">3D Spatial Studio</h4>
+                    </div>
+                    <p class="relative z-10 text-gray-300 text-sm">Ruang belanja virtual 3D dalam lingkungan browser web standar.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="canvas-scrub" class="py-24 px-4 relative max-w-5xl mx-auto text-center">
+        <div class="mb-8">
+            <div class="text-blue-400 font-semibold text-sm tracking-wider uppercase mb-2">Teknik #6</div>
+            <h2 class="font-display text-3xl sm:text-5xl font-bold text-white mb-4">Canvas 3D Frame Scrubbing</h2>
+            <p class="text-gray-400 max-w-xl mx-auto">
+                Scroll perlahan ke bawah untuk melihat bentuk geometri 3D berputar secara presisi sesuai titik scroll layar Anda (*Apple AirPods Style*).
+            </p>
+        </div>
+
+        <div class="relative w-full h-[480px] glass-panel rounded-3xl border border-white/10 flex items-center justify-center overflow-hidden shadow-2xl">
+            <canvas id="scrub-canvas" class="w-full h-full block"></canvas>
+            <div class="absolute bottom-6 left-1/2 transform -translate-x-1/2 glass-card px-6 py-2 rounded-full text-xs text-gray-300 border border-white/10">
+                <i class="fa-solid fa-arrows-up-down mr-2 text-blue-400"></i> Scroll vertikal untuk memutar objek 3D
+            </div>
+        </div>
+    </section>
+
+    <section id="curtain-section" class="relative py-28 px-4 bg-gradient-to-b from-gray-900 via-purple-950 to-black my-12 overflow-hidden">
+        <div class="max-w-5xl mx-auto relative z-10">
+            <div class="text-purple-400 font-semibold text-sm tracking-wider uppercase mb-2">Teknik #7</div>
+            <h2 class="font-display text-3xl sm:text-5xl font-bold text-white mb-6">Curtain Wipe Overlay Parallax</h2>
+            <p class="text-gray-300 max-w-xl leading-relaxed mb-8">
+                Section ini muncul seperti tirai yang menyapu section sebelumnya (*Curtain Effect*), memberikan kontras visual dramatis saat berpindah topik pembahasan.
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div class="glass-card p-6 rounded-2xl border border-white/10">
+                    <h4 class="font-bold text-white text-lg mb-2"><i class="fa-solid fa-layer-group text-purple-400 mr-2"></i>Layer Pinning</h4>
+                    <p class="text-gray-400 text-sm">Menahan posisi background utama sementara section baru bergeser mulus di atasnya.</p>
+                </div>
+                <div class="glass-card p-6 rounded-2xl border border-white/10">
+                    <h4 class="font-bold text-white text-lg mb-2"><i class="fa-solid fa-eye text-pink-400 mr-2"></i>Seamless Contrast</h4>
+                    <p class="text-gray-400 text-sm">Meningkatkan retensi fokus audiens melalui transisi adegan yang terkesan cinematik.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="spotlight-section" class="spotlight-container py-28 px-4 my-12 border-y border-white/10">
+        <div class="spotlight-mask"></div>
+        <div class="max-w-4xl mx-auto text-center relative z-10">
+            <div class="text-cyan-400 font-semibold text-sm tracking-wider uppercase mb-2">Teknik #8</div>
+            <h2 class="font-display text-3xl sm:text-5xl font-bold text-white mb-6">Interactive Spotlight Torch Parallax</h2>
+            <p class="text-gray-400 max-w-xl mx-auto mb-10">
+                Gerakkan kursor mouse Anda di area ini untuk menyingkap efek pencahayaan lensa sorot interaktif.
+            </p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 text-left">
+                <div class="glass-panel p-6 rounded-2xl border border-white/10">
+                    <div class="text-cyan-400 font-mono text-xs mb-2">01. CURSOR TRACKING</div>
+                    <h4 class="text-lg font-bold text-white mb-2">Mouse Coordinate</h4>
+                    <p class="text-gray-400 text-xs leading-relaxed">Menghitung variabel CSS `--mouse-x` dan `--mouse-y` secara realtime.</p>
+                </div>
+                <div class="glass-panel p-6 rounded-2xl border border-white/10">
+                    <div class="text-purple-400 font-mono text-xs mb-2">02. RADIAL GRADIENT</div>
+                    <h4 class="text-lg font-bold text-white mb-2">Dynamic Torch</h4>
+                    <p class="text-gray-400 text-xs leading-relaxed">Efek pendaran cahaya lensa transparan mengikuti pergerakan kursor.</p>
+                </div>
+                <div class="glass-panel p-6 rounded-2xl border border-white/10">
+                    <div class="text-pink-400 font-mono text-xs mb-2">03. DEPTH SHADOW</div>
+                    <h4 class="text-lg font-bold text-white mb-2">Illusion Of Lighting</h4>
+                    <p class="text-gray-400 text-xs leading-relaxed">Memberikan ilusi ruang gelap bertekstur yang hidup saat disinari.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="velocity-skew" class="py-24 px-4 relative max-w-6xl mx-auto">
+        <div class="text-center mb-16">
+            <div class="text-emerald-400 font-semibold text-sm tracking-wider uppercase mb-2">Teknik #9</div>
+            <h2 class="font-display text-3xl sm:text-5xl font-bold text-white mb-4">Scroll Velocity Skew & Warp</h2>
+            <p class="text-gray-400 max-w-xl mx-auto">
+                Makin cepat Anda melakukan scroll, semakin miring (*skew Y*) kartu-kartu di bawah ini secara elastis.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="skew-item glass-panel p-8 rounded-3xl border border-white/10 bg-gradient-to-b from-slate-900 to-emerald-950/40">
+                <div class="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl mb-4">
+                    <i class="fa-solid fa-gauge-high"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">Velocity Calculation</h3>
+                <p class="text-xs text-gray-400 leading-relaxed">Mendeteksi Delta kecepatan scroll pengguna dan mengubahnya menjadi derajat kemiringan CSS transform.</p>
+            </div>
+
+            <div class="skew-item glass-panel p-8 rounded-3xl border border-white/10 bg-gradient-to-b from-slate-900 to-teal-950/40">
+                <div class="w-12 h-12 rounded-xl bg-teal-500/20 text-teal-400 flex items-center justify-center text-xl mb-4">
+                    <i class="fa-solid fa-wave-square"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">Inertia Spring back</h3>
+                <p class="text-xs text-gray-400 leading-relaxed">Kartu kembali berdiri tegak dengan transisi pegas (*elastic damping*) saat kecepatan scroll melambat.</p>
+            </div>
+
+            <div class="skew-item glass-panel p-8 rounded-3xl border border-white/10 bg-gradient-to-b from-slate-900 to-cyan-950/40">
+                <div class="w-12 h-12 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xl mb-4">
+                    <i class="fa-solid fa-wind"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">Awwwards Style Motion</h3>
+                <p class="text-xs text-gray-400 leading-relaxed">Teknik andalan website kreatif internasional untuk menciptakan impresi situs yang hidup & organik.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="focal-blur" class="py-24 px-4 relative max-w-5xl mx-auto">
+        <div class="text-center mb-16">
+            <div class="text-amber-400 font-semibold text-sm tracking-wider uppercase mb-2">Teknik #10</div>
+            <h2 class="font-display text-3xl sm:text-5xl font-bold text-white mb-4">Depth-of-Field Focal Blur</h2>
+            <p class="text-gray-400 max-w-xl mx-auto">
+                Simulasi lensa kamera DSLR: Kartu akan otomatis kabur (*blurred*) saat berada di pinggir viewport, dan fokus tajam saat tepat di tengah.
+            </p>
+        </div>
+
+        <div class="space-y-8">
+            <div class="focal-card glass-panel p-8 rounded-3xl border border-white/10 flex items-center justify-between transition-all duration-300">
+                <div>
+                    <span class="text-amber-400 text-xs font-mono uppercase">Focal Range: Center Viewport</span>
+                    <h3 class="text-2xl font-bold text-white mt-1">Adaptive Blur Layer A</h3>
+                    <p class="text-sm text-gray-400 mt-2">`backdrop-filter: blur(0px)` saat difokuskan oleh viewport kamera.</p>
+                </div>
+                <i class="fa-solid fa-camera text-4xl text-amber-500/40"></i>
+            </div>
+
+            <div class="focal-card glass-panel p-8 rounded-3xl border border-white/10 flex items-center justify-between transition-all duration-300">
+                <div>
+                    <span class="text-amber-400 text-xs font-mono uppercase">Focal Range: Center Viewport</span>
+                    <h3 class="text-2xl font-bold text-white mt-1">Adaptive Blur Layer B</h3>
+                    <p class="text-sm text-gray-400 mt-2">Membantu perhatian mata pembaca tertuju tepat pada informasi utama.</p>
+                </div>
+                <i class="fa-solid fa-sliders text-4xl text-amber-500/40"></i>
+            </div>
+
+            <div class="focal-card glass-panel p-8 rounded-3xl border border-white/10 flex items-center justify-between transition-all duration-300">
+                <div>
+                    <span class="text-amber-400 text-xs font-mono uppercase">Focal Range: Center Viewport</span>
+                    <h3 class="text-2xl font-bold text-white mt-1">Adaptive Blur Layer C</h3>
+                    <p class="text-sm text-gray-400 mt-2">Efek depth cinematic yang sangat halus tanpa mengganggu performa rendering.</p>
+                </div>
+                <i class="fa-solid fa-eye text-4xl text-amber-500/40"></i>
+            </div>
+        </div>
+    </section>
+
+    <section id="text-assembly" class="py-28 px-4 relative max-w-5xl mx-auto text-center">
+        <div class="mb-8">
+            <div class="text-pink-400 font-semibold text-sm tracking-wider uppercase mb-2">Teknik #11</div>
+            <h2 class="font-display text-3xl sm:text-5xl font-bold text-white mb-4">Text Split & Letter Kinetic Assembly</h2>
+            <p class="text-gray-400 max-w-xl mx-auto">
+                Scroll untuk melihat huruf-huruf di bawah ini berkumpul dari posisi acak 3D menjadi kata yang utuh, atau klik tombol replay di bawah.
+            </p>
+        </div>
+
+        <div class="py-16 px-4 glass-panel rounded-3xl border border-white/10 overflow-hidden shadow-2xl relative">
+            <h1 id="split-text-target" class="font-display text-3xl sm:text-6xl md:text-7xl font-extrabold tracking-wider">
+                FUTURE DIGITAL MOTION
+            </h1>
+            <div class="mt-8">
+                <button onclick="replayTextAssembly()" class="px-5 py-2.5 bg-pink-500/20 hover:bg-pink-500/30 text-pink-300 border border-pink-500/30 rounded-xl text-xs font-semibold transition inline-flex items-center space-x-2">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span>Replay Animasi Huruf</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <section id="card-expand" class="py-24 px-4 relative min-h-screen flex flex-col items-center justify-center">
+        <div class="text-center mb-12">
+            <div class="text-blue-400 font-semibold text-sm tracking-wider uppercase mb-2">Teknik #12</div>
+            <h2 class="font-display text-3xl sm:text-5xl font-bold text-white mb-4">Card-to-Fullscreen Zoom</h2>
+            <p class="text-gray-400 max-w-xl mx-auto">
+                Scroll perlahan untuk melihat kartu di bawah ini membesar secara ekstrim hingga memenuhi layar (*Hero Zoom Transition*).
+            </p>
+        </div>
+
+        <div id="expand-wrapper" class="w-full max-w-2xl h-[350px] relative rounded-3xl overflow-hidden glass-panel border border-white/20 flex items-center justify-center p-8 text-center shadow-2xl">
+            <div class="absolute inset-0 bg-gradient-to-tr from-blue-900 via-purple-900 to-slate-950 opacity-90"></div>
+            <div class="relative z-10 max-w-md">
+                <span class="w-12 h-12 rounded-2xl bg-blue-500/30 text-blue-300 flex items-center justify-center mx-auto text-2xl font-bold mb-4">
+                    <i class="fa-solid fa-expand"></i>
+                </span>
+                <h3 class="text-2xl sm:text-4xl font-extrabold text-white mb-4">Immersive Fullscreen Experience</h3>
+                <p class="text-gray-300 text-sm leading-relaxed mb-6">Kartu memperluas skala `width` dan `height` hingga 100vw/100vh tanpa disrupsi halaman.</p>
+                <button class="px-6 py-2.5 bg-white text-slate-950 font-bold rounded-xl text-xs uppercase tracking-wider">
+                    Showcase Feature
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <div id="code-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="glass-panel w-full max-w-3xl rounded-3xl p-6 sm:p-8 max-h-[85vh] overflow-y-auto border border-white/20 shadow-2xl relative">
+            <button onclick="closeCodeModal()" class="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <h3 class="text-2xl font-bold text-white mb-2 flex items-center space-x-3">
+                <i class="fa-solid fa-code text-blue-400"></i>
+                <span>Panduan 12 Rumus & Logika Parallax</span>
+            </h3>
+            <p class="text-gray-400 text-sm mb-6">Ringkasan kode dan logika matematika di balik seluruh 12 teknik Parallax:</p>
+
+            <div class="space-y-6 text-sm">
+                <div class="bg-slate-900/80 p-4 rounded-xl border border-white/5">
+                    <h4 class="font-bold text-blue-400 mb-1">1. Multi-Layer Scroll Offset</h4>
+                    <pre class="bg-black/50 p-2.5 rounded-lg text-green-400 font-mono text-xs overflow-x-auto">element.style.transform = `translate3d(0, ${scrolled * speed}px, 0)`;</pre>
+                </div>
+
+                <div class="bg-slate-900/80 p-4 rounded-xl border border-white/5">
+                    <h4 class="font-bold text-purple-400 mb-1">2. Stacking Cards (Sticky Pinning)</h4>
+                    <pre class="bg-black/50 p-2.5 rounded-lg text-green-400 font-mono text-xs overflow-x-auto">gsap.to(card, { scale: 0.9, opacity: 0.3, scrollTrigger: { scrub: true } });</pre>
+                </div>
+
+                <div class="bg-slate-900/80 p-4 rounded-xl border border-white/5">
+                    <h4 class="font-bold text-emerald-400 mb-1">9. Scroll Velocity Skew Distortion</h4>
+                    <pre class="bg-black/50 p-2.5 rounded-lg text-green-400 font-mono text-xs overflow-x-auto">let skew = self.getVelocity() / 300; gsap.to('.skew-item', { skewY: skew });</pre>
+                </div>
+
+                <div class="bg-slate-900/80 p-4 rounded-xl border border-white/5">
+                    <h4 class="font-bold text-amber-400 mb-1">10. Depth-of-Field Viewport Blur</h4>
+                    <pre class="bg-black/50 p-2.5 rounded-lg text-green-400 font-mono text-xs overflow-x-auto">const blurAmount = Math.abs(distFromCenter) * 0.05; el.style.filter = `blur(${blurAmount}px)`;</pre>
+                </div>
+
+                <div class="bg-slate-900/80 p-4 rounded-xl border border-white/5">
+                    <h4 class="font-bold text-pink-400 mb-1">11. Text Split Character Assembly</h4>
+                    <pre class="bg-black/50 p-2.5 rounded-lg text-green-400 font-mono text-xs overflow-x-auto">gsap.from(chars, { y: 100, opacity: 0, stagger: 0.05, scrollTrigger: { scrub: true } });</pre>
+                </div>
+
+                <div class="bg-slate-900/80 p-4 rounded-xl border border-white/5">
+                    <h4 class="font-bold text-cyan-400 mb-1">12. Card Fullscreen Expansion</h4>
+                    <pre class="bg-black/50 p-2.5 rounded-lg text-green-400 font-mono text-xs overflow-x-auto">gsap.to('#expand-card', { width: '100vw', height: '100vh', scrollTrigger: { scrub: true } });</pre>
+                </div>
+            </div>
+
+            <div class="mt-8 text-center">
+                <button onclick="closeCodeModal()" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-sm font-semibold transition">
+                    Tutup Panduan Kode
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="py-12 border-t border-white/10 text-center text-gray-500 text-sm">
+        <p>© 2026 Parallax Master Showcase Lab. Dibuat dengan HTML5, Tailwind CSS, GSAP & HTML5 Canvas API.</p>
+    </footer>
+
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+
+        window.addEventListener('DOMContentLoaded', () => {
+
+            /* 1. MULTI-LAYER SCROLL PARALLAX */
+            window.addEventListener('scroll', () => {
+                const scrolled = window.pageYOffset;
+                document.querySelectorAll('.parallax-layer').forEach(layer => {
+                    const speed = parseFloat(layer.getAttribute('data-speed') || '0');
+                    if (speed !== 0) {
+                        layer.style.transform = `translate3d(0px, ${-(scrolled * speed)}px, 0px)`;
+                    }
+                });
+            });
+
+            /* 2. STACK PARALLAX CARDS */
+            const stackCards = gsap.utils.toArray('.stack-card');
+            stackCards.forEach((card, index) => {
+                if (index < stackCards.length - 1) {
+                    gsap.to(card, {
+                        scale: 0.9,
+                        opacity: 0.3,
+                        ease: "none",
+                        scrollTrigger: {
+                            trigger: stackCards[index + 1],
+                            start: "top bottom-=100",
+                            end: "top top+=120",
+                            scrub: true,
+                        }
+                    });
+                }
+            });
+
+            /* 3. KINETIC MARQUEE TYPOGRAPHY PARALLAX */
+            gsap.to('.marquee-track-1', {
+                xPercent: -15,
+                ease: 'none',
+                scrollTrigger: {
+                    trigger: '#marquee-parallax',
+                    start: 'top bottom',
+                    end: 'bottom top',
+                    scrub: 0.5
+                }
+            });
+
+            gsap.to('.marquee-track-2', {
+                xPercent: 15,
+                ease: 'none',
+                scrollTrigger: {
+                    trigger: '#marquee-parallax',
+                    start: 'top bottom',
+                    end: 'bottom top',
+                    scrub: 0.5
+                }
+            });
+
+            /* 4. 3D INTERACTIVE MOUSE TILT PARALLAX */
+            document.querySelectorAll('.tilt-card-wrapper').forEach(wrapper => {
+                const card = wrapper.querySelector('.tilt-card');
+                wrapper.addEventListener('mousemove', (e) => {
+                    const rect = wrapper.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    const rotateX = ((y - centerY) / centerY) * -15;
+                    const rotateY = ((x - centerX) / centerX) * 15;
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+                });
+                wrapper.addEventListener('mouseleave', () => {
+                    card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+                });
+            });
+
+            /* 5. HORIZONTAL GALLERY PARALLAX */
+            const horizontalTrack = document.getElementById('horizontal-track');
+            const horizontalWrapper = document.getElementById('horizontal-wrapper');
+            if (horizontalTrack && horizontalWrapper) {
+                gsap.to(horizontalTrack, {
+                    x: () => -(horizontalTrack.scrollWidth - window.innerWidth + 48),
+                    ease: "none",
+                    scrollTrigger: {
+                        trigger: horizontalWrapper,
+                        start: "top center",
+                        end: () => `+=${horizontalTrack.scrollWidth}`,
+                        scrub: 1,
+                        invalidateOnRefresh: true,
+                    }
+                });
+            }
+
+            /* 6. CANVAS 3D FRAME SCRUBBING PARALLAX */
+            const canvas = document.getElementById('scrub-canvas');
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+                let rotationAngle = 0;
+
+                const resizeCanvas = () => {
+                    canvas.width = canvas.parentElement.clientWidth;
+                    canvas.height = canvas.parentElement.clientHeight;
+                    drawGeometry(rotationAngle);
+                };
+
+                const drawGeometry = (angle) => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    const cx = canvas.width / 2;
+                    const cy = canvas.height / 2;
+                    const radius = Math.min(cx, cy) * 0.4;
+
+                    ctx.save();
+                    ctx.translate(cx, cy);
+                    ctx.rotate(angle);
+
+                    for (let i = 0; i < 8; i++) {
+                        ctx.beginPath();
+                        ctx.strokeStyle = i % 2 === 0 ? '#3B82F6' : '#8B5CF6';
+                        ctx.lineWidth = 2;
+                        const ringR = radius * (0.3 + (i * 0.1));
+                        const radiusY = Math.abs(ringR * Math.cos(angle + i * 0.4));
+                        ctx.ellipse(0, 0, ringR, radiusY, angle * 0.5, 0, Math.PI * 2);
+                        ctx.stroke();
+                    }
+
+                    ctx.restore();
+                };
+
+                resizeCanvas();
+                window.addEventListener('resize', resizeCanvas);
+
+                ScrollTrigger.create({
+                    trigger: '#canvas-scrub',
+                    start: 'top bottom',
+                    end: 'bottom top',
+                    scrub: 0.5,
+                    onUpdate: (self) => {
+                        rotationAngle = self.progress * Math.PI * 4;
+                        drawGeometry(rotationAngle);
+                    }
+                });
+            }
+
+            /* 8. SPOTLIGHT MOUSE TORCH PARALLAX */
+            const spotlightContainer = document.querySelector('.spotlight-container');
+            if (spotlightContainer) {
+                spotlightContainer.addEventListener('mousemove', (e) => {
+                    const rect = spotlightContainer.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    spotlightContainer.style.setProperty('--mouse-x', `${x}px`);
+                    spotlightContainer.style.setProperty('--mouse-y', `${y}px`);
+                });
+            }
+
+            /* 9. VELOCITY SKEW PARALLAX */
+            const skewItems = document.querySelectorAll('.skew-item');
+            let skewSetter = gsap.quickSetter(skewItems, "skewY", "deg");
+            let clampSkew = gsap.utils.clamp(-12, 12);
+
+            ScrollTrigger.create({
+                onUpdate: (self) => {
+                    let skew = clampSkew(self.getVelocity() / -250);
+                    if (Math.abs(skew) > 0.2) {
+                        skewSetter(skew);
+                        gsap.to(skewItems, { skewY: 0, duration: 0.8, ease: "power2.out", overwrite: "auto" });
+                    }
+                }
+            });
+
+            /* 10. DEPTH-OF-FIELD FOCAL BLUR PARALLAX */
+            const focalCards = document.querySelectorAll('.focal-card');
+            window.addEventListener('scroll', () => {
+                const viewportCenter = window.innerHeight / 2;
+                focalCards.forEach(card => {
+                    const rect = card.getBoundingClientRect();
+                    const cardCenter = rect.top + rect.height / 2;
+                    const distanceFromCenter = Math.abs(viewportCenter - cardCenter);
+                    const blurAmount = Math.min(Math.max((distanceFromCenter - 100) / 40, 0), 8);
+                    const opacity = Math.min(Math.max(1 - (distanceFromCenter - 150) / 600, 0.4), 1);
+                    card.style.filter = `blur(${blurAmount.toFixed(1)}px)`;
+                    card.style.opacity = opacity.toFixed(2);
+                });
+            });
+
+            /* 11. TEXT SPLIT & LETTER ASSEMBLY PARALLAX */
+            const splitTarget = document.getElementById('split-text-target');
+            if (splitTarget) {
+                const text = splitTarget.textContent.trim();
+                splitTarget.innerHTML = '';
+                [...text].forEach(char => {
+                    const span = document.createElement('span');
+                    span.className = 'split-char';
+                    span.textContent = char === ' ' ? '\u00A0' : char;
+                    splitTarget.appendChild(span);
+                });
+
+                window.splitTextAnim = gsap.from('.split-char', {
+                    y: () => (Math.random() - 0.5) * 350,
+                    x: () => (Math.random() - 0.5) * 350,
+                    z: () => (Math.random() - 0.5) * 500,
+                    rotateX: () => (Math.random() - 0.5) * 360,
+                    rotateY: () => (Math.random() - 0.5) * 360,
+                    scale: () => 0.2 + Math.random() * 2,
+                    opacity: 0,
+                    ease: "power3.out",
+                    stagger: 0.03,
+                    scrollTrigger: {
+                        trigger: '#text-assembly',
+                        start: 'top 80%',
+                        end: 'center 50%',
+                        scrub: 1
+                    }
+                });
+            }
+
+            /* 12. CARD-TO-FULLSCREEN ZOOM PARALLAX */
+            const expandWrapper = document.getElementById('expand-wrapper');
+            if (expandWrapper) {
+                gsap.to(expandWrapper, {
+                    maxWidth: "100%",
+                    width: "100vw",
+                    height: "80vh",
+                    borderRadius: "0px",
+                    ease: "none",
+                    scrollTrigger: {
+                        trigger: '#card-expand',
+                        start: 'top center',
+                        end: 'bottom bottom',
+                        scrub: true
+                    }
+                });
+            }
+        });
+
+        /* MODAL CONTROLLER */
+        function openCodeModal() {
+            const modal = document.getElementById('code-modal');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modal.classList.add('opacity-100', 'pointer-events-auto');
+        }
+
+        function closeCodeModal() {
+            const modal = document.getElementById('code-modal');
+            modal.classList.remove('opacity-100', 'pointer-events-auto');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        function replayTextAssembly() {
+            gsap.fromTo('.split-char', 
+                {
+                    y: () => (Math.random() - 0.5) * 300,
+                    x: () => (Math.random() - 0.5) * 300,
+                    rotate: () => (Math.random() - 0.5) * 180,
+                    scale: 0.3,
+                    opacity: 0
+                },
+                {
+                    y: 0,
+                    x: 0,
+                    rotate: 0,
+                    scale: 1,
+                    opacity: 1,
+                    duration: 1.2,
+                    ease: "back.out(1.7)",
+                    stagger: 0.04
+                }
+            );
+        }
+    </script>
+</body>
+</html>

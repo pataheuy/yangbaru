@@ -1,5 +1,5 @@
 ﻿// ============================================================
-//  admin/app.js â€” Logic Panel Admin PEMIRA BEM SMP
+//  admin/app.js  -  Logic Panel Admin PEMIRA BEM SMP
 //  Di-load oleh admin/index.html
 //
 //  SECTION MAP:
@@ -23,7 +23,7 @@
 // === SECTION: 1. CONFIG & STATE ===
 // ============================================================
 
-// >> Supabase credentials & admin password â€” hardcoded langsung
+// >> Supabase credentials & admin password  -  hardcoded langsung
 let SUPABASE_URL      = 'https://puywjdopumlzvmzbcudr.supabase.co';
 let SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1eXdqZG9wdW1senZtemJjdWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDE3MTksImV4cCI6MjA4NzkxNzcxOX0.vvThyjtK2SlA9oA9Mr_XOmt1R_tNZk-ib3PO9XpiiSc';
 let ADMIN_PASSWORD    = 'kpu2026';
@@ -74,7 +74,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// >> loadConfig tidak dipakai lagi â€” semua nilai hardcoded di atas
+// >> loadConfig tidak dipakai lagi  -  semua nilai hardcoded di atas
 async function loadConfig() {}
 
 function initSupabaseClient() {
@@ -198,8 +198,6 @@ async function loadData() {
 
     recalculateDashboardStatsFromVoteLogs();
     await loadVoteTimeFromSupabase();
-    recalculateDashboardStatsFromVoteLogs();
-    await loadVoteTimeFromSupabase();
 }
 
 function saveClassesLocal()    { localStorage.setItem('pemira_classes',     JSON.stringify(classes));    }
@@ -277,44 +275,9 @@ async function showDashboard() {
     startRealtimeSubscription();
 }
 
-// >> Auto-refresh dashboard setiap 15 detik â€” ambil vote_logs terbaru dari Supabase
-function startDashboardAutoRefresh() {
-    stopDashboardAutoRefresh(); // clear dulu kalau ada yang jalan
-    dashboardRefreshInterval = setInterval(async () => {
-        if (!isSupabaseActive || !supabaseClient) return;
-        try {
-            const { data, error } = await supabaseClient
-                .from('vote_logs').select('*').order('voted_at', { ascending: false });
-            if (!error && data) {
-                voteLogs = data.map(r => ({
-                    id:             r.id,
-                    student_id:     r.student_id,
-                    student_name:   r.student_name,
-                    student_grade:  r.student_grade,
-                    candidate_id:   r.candidate_id,
-                    candidate_name: r.candidate_name,
-                    candidate_no:   r.candidate_no,
-                    voted_at:       r.voted_at
-                }));
-                saveVoteLogsLocal();
-                recalculateDashboardStatsFromVoteLogs();
-                renderAdminDashboard();
-                // Update audit log kalau sedang terbuka
-                const auditPanel = getEl('auditLogOverlay');
-                if (auditPanel && !auditPanel.classList.contains('hidden')) {
-                    filterAuditLog();
-                }
-            }
-        } catch(e) { console.error('auto-refresh error:', e); }
-    }, 15000); // setiap 15 detik
-}
-
-function stopDashboardAutoRefresh() {
-    if (dashboardRefreshInterval) {
-        clearInterval(dashboardRefreshInterval);
-        dashboardRefreshInterval = null;
-    }
-}
+// >> Auto-refresh digantikan oleh startVoterDataPolling() yang sudah filter per period_id
+function startDashboardAutoRefresh() { startVoterDataPolling(); }
+function stopDashboardAutoRefresh()  { stopVoterDataPolling(); }
 
 function adminLogout() {
     sessionStorage.removeItem('pemira_admin_auth');
@@ -394,15 +357,15 @@ function renderAdminDashboard() {
     renderBarChart(sorted);
 }
 
-// â”€â”€ Warna tetap per kelompok untuk grafik â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// "?"? Warna tetap per kelompok untuk grafik "?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?
 // Warna cerah: Kelas 7 = biru langit, Kelas 8 = hijau toska, Kelas 9 = oranye, Guru = hijau
 const CLASS_COLOR_MAP = {
-    '7': '#38bdf8',  // sky-400 â€” biru langit cerah
-    '8': '#34d399',  // emerald-400 â€” hijau toska cerah
-    '9': '#fb923c',  // orange-400 â€” oranye cerah
+    '7': '#38bdf8',  // sky-400  -  biru langit cerah
+    '8': '#34d399',  // emerald-400  -  hijau toska cerah
+    '9': '#fb923c',  // orange-400  -  oranye cerah
 };
 const CLASS_COLOR_FALLBACK = ['#a78bfa','#f472b6','#facc15','#4ade80','#60a5fa','#f87171'];
-const GURU_BAR_COLOR = '#4ade80';  // green-400 â€” hijau cerah
+const GURU_BAR_COLOR = '#4ade80';  // green-400  -  hijau cerah
 const NOT_YET_COLOR  = '#e2e8f0';
 
 function getClassBarColor(label, idx) {
@@ -413,7 +376,7 @@ function getClassBarColor(label, idx) {
     return CLASS_COLOR_FALLBACK[idx % CLASS_COLOR_FALLBACK.length];
 }
 
-// Urutkan labels: kelas dari kecil ke besar (7â†’8â†’9), lalu guru di bawah
+// Urutkan labels: kelas dari kecil ke besar (7?'8?'9), lalu guru di bawah
 function getSortedGroupLabels() {
     const sorted = [...classes].sort((a, b) => {
         const numA = parseInt(a.replace(/\D/g, '')) || 0;
@@ -433,7 +396,7 @@ function renderPieChart() {
     // Reset tinggi ke fixed
     canvas.parentElement.style.height = '224px';
 
-    // Hitung sudah memilih per kelas + guru â€” gunakan urutan kelas 7â†’8â†’9â†’guru
+    // Hitung sudah memilih per kelas + guru  -  gunakan urutan kelas 7?'8?'9?'guru
     const allLabels = getSortedGroupLabels();
     const classLabels = allLabels.filter(l => !l.toLowerCase().includes('guru') && !l.toLowerCase().includes('staf'));
     const classVoted  = classLabels.map(g => voterStats[g] || 0);
@@ -487,7 +450,7 @@ function renderPieChart() {
                             const classTotal = classIdx >= 0
                                 ? students.filter(s => getParentGrade(s.grade) === lbl).length
                                 : teachers.length;
-                            return ` ${lbl}: ${val} suara (${pct}% dari total) â€” ${classTotal} pemilih`;
+                            return ` ${lbl}: ${val} suara (${pct}% dari total)  -  ${classTotal} pemilih`;
                         }
                     }
                 }
@@ -503,7 +466,7 @@ function renderBarChart(sorted) {
     if (!ctx) return;
     if (candidateBarChartInstance) candidateBarChartInstance.destroy();
 
-    // Kelompok: tiap kelas + guru (urutan: 7â†’8â†’9â†’guru)
+    // Kelompok: tiap kelas + guru (urutan: 7?'8?'9?'guru)
     const allGroups = getSortedGroupLabels();
     const classLabels = allGroups.filter(l => !l.toLowerCase().includes('guru') && !l.toLowerCase().includes('staf'));
 
@@ -611,7 +574,7 @@ function openVoterDrillModal(candidate, grpLabel) {
     const tbodyEl   = getEl('drillModalTableBody');
 
     if (titleEl)    titleEl.textContent    = candidate.name;
-    if (subtitleEl) subtitleEl.textContent = `No. ${candidate.no} â€” pemilih dari ${grpLabel}`;
+    if (subtitleEl) subtitleEl.textContent = `No. ${candidate.no}  -  pemilih dari ${grpLabel}`;
     if (badgeEl) {
         badgeEl.textContent  = grpLabel;
         badgeEl.style.background = color;
@@ -630,12 +593,12 @@ function openVoterDrillModal(candidate, grpLabel) {
                     const dt = log.voted_at ? new Date(log.voted_at) : null;
                     const waktu = dt ? dt.toLocaleString('id-ID', {
                         day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
-                    }) : 'â€”';
+                    }) : ' - ';
                     const tr = document.createElement('tr');
                     tr.className = idx % 2 === 0 ? '' : 'bg-slate-50';
                     tr.innerHTML = `
                         <td class="p-3 pl-4 font-bold text-slate-400 text-xs">${idx + 1}</td>
-                        <td class="p-3 font-semibold text-slate-800 text-xs">${log.student_name || 'â€”'}</td>
+                        <td class="p-3 font-semibold text-slate-800 text-xs">${log.student_name || ' - '}</td>
                         <td class="p-3 text-slate-500 text-xs whitespace-nowrap">${waktu}</td>`;
                     tbodyEl.appendChild(tr);
                 });
@@ -737,7 +700,7 @@ function renderAdminStudentManager() {
     const searchEl = getEl('adminStudentSearchInput');
     if (searchEl) searchEl.value = '';
 
-    // Kalau sub kelas diisi â†’ filter exact, kalau kosong â†’ tampilkan semua sub kelas dalam kelas ini
+    // Kalau sub kelas diisi ?' filter exact, kalau kosong ?' tampilkan semua sub kelas dalam kelas ini
     const kelasData = sub
         ? students.filter(s => s.grade === fullGrade)
         : students.filter(s => getParentGrade(s.grade) === baseGrade);
@@ -778,7 +741,7 @@ function renderStudentRows(data) {
             <td class="p-2.5 pl-4 font-bold text-slate-400">${idx + 1}</td>
             <td class="p-2.5 font-bold text-slate-800">${s.name}</td>
             <td class="p-2.5">
-                <span class="font-mono text-slate-600 text-[11px] bg-slate-100 px-2 py-0.5 rounded-md">${s.password || 'â€”'}</span>
+                <span class="font-mono text-slate-600 text-[11px] bg-slate-100 px-2 py-0.5 rounded-md">${s.password || ' - '}</span>
                 <button onclick="editStudentPassword('${s.id}')" class="ml-1 text-sky-500 hover:text-sky-700 text-[10px]">
                     <i class="fa-solid fa-pen-to-square"></i>
                 </button>
@@ -846,10 +809,10 @@ async function showAuditLog() {
     const overlay = getEl('auditLogOverlay');
     if (!overlay) return;
 
-    // Isi dropdown filter kelas audit log â€” "Semua", kelas-kelas, lalu "Guru / Staf"
+    // Isi dropdown filter kelas audit log  -  "Semua", kelas-kelas, lalu "Guru / Staf"
     const sel = getEl('auditFilterClass');
     if (sel) {
-        sel.innerHTML = '<option value="">â€” Semua â€”</option>';
+        sel.innerHTML = '<option value=""> -  Semua  - </option>';
         classes.forEach(g => { const o = document.createElement('option'); o.value = g; o.textContent = g; sel.appendChild(o); });
         const oGuru = document.createElement('option');
         oGuru.value = '__guru__'; oGuru.textContent = 'Guru / Staf';
@@ -859,7 +822,7 @@ async function showAuditLog() {
     // Isi dropdown filter kelas di tabel "belum memilih" dalam audit log
     const selBelum = getEl('belumMemilihFilterClass');
     if (selBelum) {
-        selBelum.innerHTML = '<option value="">â€” Semua Kelas â€”</option>';
+        selBelum.innerHTML = '<option value=""> -  Semua Kelas  - </option>';
         classes.forEach(g => { const o = document.createElement('option'); o.value = g; o.textContent = g; selBelum.appendChild(o); });
         const oGuru2 = document.createElement('option');
         oGuru2.value = '__guru__'; oGuru2.textContent = 'Guru / Staf';
@@ -889,11 +852,11 @@ function renderBelumMemilihTable() {
     const filterGrade = onlyGuru ? '' : filterVal;
 
     const belumSiswa = onlyGuru ? [] :
-        students.filter(s => !s.hasVoted && (!filterGrade || s.grade === filterGrade));
+        students.filter(s => !s.hasVoted && (!filterGrade || s.grade === filterGrade || s.grade.startsWith(filterGrade)));
     const belumGuru  = filterGrade ? [] : teachers.filter(t => !t.hasVoted);
 
     const semua = [
-        ...belumSiswa.map(s => ({ name: s.name, grade: s.grade,          password: s.password || 'â€”', type: 'siswa' })),
+        ...belumSiswa.map(s => ({ name: s.name, grade: s.grade,          password: s.password || ' - ', type: 'siswa' })),
         ...belumGuru.map(t  => ({ name: t.name, grade: t.role || 'Guru', password: '',               type: 'guru'  }))
     ].sort((a, b) => a.grade.localeCompare(b.grade) || a.name.localeCompare(b.name));
 
@@ -901,7 +864,7 @@ function renderBelumMemilihTable() {
     tbody.innerHTML = '';
 
     if (!semua.length) {
-        tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-emerald-600 font-semibold text-xs">ðŸŽ‰ Semua sudah memilih!</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-emerald-600 font-semibold text-xs">YZ? Semua sudah memilih!</td></tr>`;
         return;
     }
 
@@ -920,19 +883,19 @@ function renderBelumMemilihTable() {
             <td class="p-3">
                 <span class="text-[11px] font-bold px-2 py-0.5 rounded-lg ${badgeCls}">${p.grade}</span>
             </td>
-            <td class="p-3 font-mono text-slate-600 text-[11px] bg-slate-50/50">${p.type === 'guru' ? 'â€”' : p.password}</td>`;
+            <td class="p-3 font-mono text-slate-600 text-[11px] bg-slate-50/50">${p.type === 'guru' ? ' - ' : p.password}</td>`;
         tbody.appendChild(tr);
     });
 }
 
-// Panel belum vote â€” fullscreen overlay
+// Panel belum vote  -  fullscreen overlay
 function showBelumVotePanel() {
     const overlay = getEl('belumVoteOverlay');
     if (!overlay) return;
 
     const sel = getEl('belumVoteFilterClass');
     if (sel) {
-        sel.innerHTML = '<option value="">â€” Semua â€”</option>';
+        sel.innerHTML = '<option value=""> -  Semua  - </option>';
         classes.forEach(g => { const o = document.createElement('option'); o.value = g; o.textContent = g; sel.appendChild(o); });
         const oGuru = document.createElement('option');
         oGuru.value = '__guru__'; oGuru.textContent = 'Guru / Staf';
@@ -963,12 +926,12 @@ function renderBelumVotePanel() {
     // Siswa belum memilih
     const belumSiswa = onlyGuru ? [] : students
         .filter(s => !s.hasVoted
-            && (!filterGrade || s.grade === filterGrade)
+            && (!filterGrade || s.grade === filterGrade || s.grade.startsWith(filterGrade))
             && (!query || s.name.toLowerCase().includes(query)))
         .sort((a, b) => a.grade.localeCompare(b.grade) || a.name.localeCompare(b.name))
-        .map(s => ({ name: s.name, grade: s.grade, password: s.password || 'â€”', type: 'siswa' }));
+        .map(s => ({ name: s.name, grade: s.grade, password: s.password || ' - ', type: 'siswa' }));
 
-    // Guru belum memilih â€” hanya tampil kalau bukan filter kelas spesifik
+    // Guru belum memilih  -  hanya tampil kalau bukan filter kelas spesifik
     const belumGuru = filterGrade ? [] : teachers
         .filter(t => !t.hasVoted && (!query || t.name.toLowerCase().includes(query)))
         .sort((a, b) => a.name.localeCompare(b.name))
@@ -980,7 +943,7 @@ function renderBelumVotePanel() {
     tbody.innerHTML = '';
 
     if (!semua.length) {
-        tbody.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-emerald-600 font-semibold text-sm">ðŸŽ‰ Semua sudah memilih!</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="4" class="p-8 text-center text-emerald-600 font-semibold text-sm">YZ? Semua sudah memilih!</td></tr>`;
         return;
     }
 
@@ -1005,7 +968,7 @@ function renderBelumVotePanel() {
                     ${p.grade}
                 </span>
             </td>
-            <td class="p-3 font-mono text-slate-600 text-[11px]">${p.type === 'guru' ? 'â€”' : p.password}</td>`;
+            <td class="p-3 font-mono text-slate-600 text-[11px]">${p.type === 'guru' ? ' - ' : p.password}</td>`;
         tbody.appendChild(tr);
     });
 }
@@ -1018,14 +981,14 @@ function exportBelumVoteExcel() {
     const onlyGuru    = filterVal === '__guru__';
     const filterGrade = onlyGuru ? '' : filterVal;
 
-    // Siswa â€” skip semua kalau filter guru
+    // Siswa  -  skip semua kalau filter guru
     const belumSiswa = onlyGuru ? [] : students
         .filter(s => !s.hasVoted
-            && (!filterGrade || s.grade === filterGrade)
+            && (!filterGrade || s.grade === filterGrade || s.grade.startsWith(filterGrade))
             && (!query || s.name.toLowerCase().includes(query)))
         .sort((a, b) => a.grade.localeCompare(b.grade) || a.name.localeCompare(b.name));
 
-    // Guru â€” skip kalau filter kelas spesifik
+    // Guru  -  skip kalau filter kelas spesifik
     const belumGuru = filterGrade ? [] : teachers
         .filter(t => !t.hasVoted && (!query || t.name.toLowerCase().includes(query)))
         .sort((a, b) => a.name.localeCompare(b.name));
@@ -1064,13 +1027,13 @@ function renderAuditLog(entries) {
         const waktu = dt ? dt.toLocaleString('id-ID', {
             day:'2-digit', month:'short', year:'numeric',
             hour:'2-digit', minute:'2-digit', second:'2-digit'
-        }) : 'â€”';
+        }) : ' - ';
 
         // Selang-seling abu-putih
         const rowBg = idx % 2 === 0 ? '' : 'bg-slate-50';
 
         // Warna badge Kelas: berbeda tiap kelompok
-        const gradeLabel = log.student_grade || 'â€”';
+        const gradeLabel = log.student_grade || ' - ';
         const isGuru = log.is_teacher || (gradeLabel.toLowerCase().includes('guru') || gradeLabel.toLowerCase().includes('staf') || !classes.some(c => gradeLabel.startsWith(c)));
         let gradeBadgeClass;
         if (isGuru) {
@@ -1090,10 +1053,10 @@ function renderAuditLog(entries) {
         tr.innerHTML = `
             <td class="p-3 pl-5 font-bold text-slate-400">${idx + 1}</td>
             <td class="p-3 text-slate-500 whitespace-nowrap">${waktu}</td>
-            <td class="p-3 font-semibold text-slate-800">${log.student_name || 'â€”'}</td>
+            <td class="p-3 font-semibold text-slate-800">${log.student_name || ' - '}</td>
             <td class="p-3"><span class="text-[11px] font-bold px-2 py-0.5 rounded-lg ${gradeBadgeClass}">${gradeLabel}</span></td>
-            <td class="p-3 font-semibold text-slate-700">${log.candidate_name || 'â€”'}</td>
-            <td class="p-3"><span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-2 py-0.5 rounded-lg">No. ${log.candidate_no ?? 'â€”'}</span></td>
+            <td class="p-3 font-semibold text-slate-700">${log.candidate_name || ' - '}</td>
+            <td class="p-3"><span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-2 py-0.5 rounded-lg">No. ${log.candidate_no ?? ' - '}</span></td>
         `;
         tbody.appendChild(tr);
     });
@@ -1216,7 +1179,8 @@ function filterAuditLog() {
         const grade  = log.student_grade || '';
         const isGuru = log.is_teacher || (!classes.some(c => grade.startsWith(c)) && grade !== '');
         if (qClass === '__guru__' && !isGuru) return false;
-        if (qClass && qClass !== '__guru__' && log.student_grade !== qClass) return false;
+        // Gunakan startsWith agar Kelas 7A tertangkap saat filter "Kelas 7"
+        if (qClass && qClass !== '__guru__' && !grade.startsWith(qClass)) return false;
         if (qStudent   && !(log.student_name   || '').toLowerCase().includes(qStudent))   return false;
         if (qCandidate && !(log.candidate_name || '').toLowerCase().includes(qCandidate)) return false;
         return true;
@@ -1507,7 +1471,7 @@ function downloadStudentTemplate() {
         ['1', 'Budi Santoso', 'budi123', 'A'],
         ['2', 'Ani Rahayu', 'ani456', 'A'],
         ['3', 'Dedi Kurniawan', 'dedi789', 'B'],
-        ['', 'â† Hapus baris contoh, isi data asli di sini', '', 'â† Opsional, kosongkan jika tidak ada sub kelas'],
+        ['', '? Hapus baris contoh, isi data asli di sini', '', '? Opsional, kosongkan jika tidak ada sub kelas'],
     ]);
     ws['!cols'] = [{ wch:5 }, { wch:35 }, { wch:20 }, { wch:15 }];
     XLSX.utils.book_append_sheet(wb, ws, 'Siswa');
@@ -1566,13 +1530,13 @@ async function deleteTeacherFromSupabase(id) {
 }
 
 async function deleteAllTeachersFromSupabase() {
-    if (!isSupabaseActive || !supabaseClient) return;
-    try { await supabaseClient.from('teachers').delete().neq('id', '___none___'); } catch(e) {}
+    if (!isSupabaseActive || !supabaseClient || !currentPeriodId) return;
+    try { await supabaseClient.from('teachers').delete().eq('period_id', currentPeriodId); } catch(e) {}
 }
 
 async function resetAllTeacherVotesInSupabase() {
-    if (!isSupabaseActive || !supabaseClient) return;
-    try { await supabaseClient.from('teachers').update({ has_voted: false, voted_for: null }).neq('id', '___none___'); } catch(e) {}
+    if (!isSupabaseActive || !supabaseClient || !currentPeriodId) return;
+    try { await supabaseClient.from('teachers').update({ has_voted: false, voted_for: null }).eq('period_id', currentPeriodId); } catch(e) {}
 }
 
 function renderAdminTeacherManager() {
@@ -1648,7 +1612,7 @@ function closeAlertModal() {
 }
 
 // ============================================================
-// === SECTION: GURU / STAF â€” State & Load ===
+// === SECTION: GURU / STAF  -  State & Load ===
 // ============================================================
 
 async function loadTeachers() {
@@ -1674,7 +1638,6 @@ async function loadTeachers() {
             }
         } catch(e) { console.log('Supabase teachers unavailable.'); }
     }
-}
 }
 
 function saveTeachersLocal() {
@@ -1767,7 +1730,7 @@ function downloadTeacherTemplate() {
         ['No', 'Nama'],
         ['1', 'Budi Santoso, S.Pd.'],
         ['2', 'Siti Rahmawati, M.Pd.'],
-        ['', 'â† Hapus baris contoh, isi data asli di sini'],
+        ['', '? Hapus baris contoh, isi data asli di sini'],
     ]);
     ws['!cols'] = [{ wch:6 }, { wch:35 }];
     XLSX.utils.book_append_sheet(wb, ws, 'Guru');
@@ -1865,7 +1828,7 @@ function onLoginPasswordInput() {
 function populateLoginBelumVoteFilter() {
     const sel = getEl('loginBelumVoteFilter');
     if (!sel) return;
-    sel.innerHTML = '<option value="">â€” Semua â€”</option>';
+    sel.innerHTML = '<option value=""> -  Semua  - </option>';
     classes.forEach(g => {
         const o = document.createElement('option');
         o.value = g; o.textContent = g;
@@ -1891,9 +1854,9 @@ function renderLoginBelumVote() {
     const filterGrade = onlyGuru ? '' : filterVal;
 
     const belumSiswa = onlyGuru ? [] : students
-        .filter(s => !s.hasVoted && (!filterGrade || s.grade === filterGrade))
+        .filter(s => !s.hasVoted && (!filterGrade || s.grade === filterGrade || s.grade.startsWith(filterGrade)))
         .sort((a, b) => a.grade.localeCompare(b.grade) || a.name.localeCompare(b.name))
-        .map(s => ({ name: s.name, grade: s.grade, password: s.password || 'â€”', type: 'siswa' }));
+        .map(s => ({ name: s.name, grade: s.grade, password: s.password || ' - ', type: 'siswa' }));
 
     const belumGuru = filterGrade ? [] : teachers
         .filter(t => !t.hasVoted)
@@ -1905,7 +1868,7 @@ function renderLoginBelumVote() {
 
     tbody.innerHTML = '';
     if (!semua.length) {
-        tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-emerald-600 font-semibold text-xs">ðŸŽ‰ Semua sudah memilih!</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-emerald-600 font-semibold text-xs">YZ? Semua sudah memilih!</td></tr>`;
         return;
     }
 
@@ -1926,7 +1889,7 @@ function renderLoginBelumVote() {
             <td class="p-2.5">
                 <span class="text-[11px] font-bold px-2 py-0.5 rounded-lg ${gradeColor(p.grade, p.type)}">${p.grade}</span>
             </td>
-            <td class="p-2.5 font-mono text-slate-500 text-[11px]">${p.type === 'guru' ? 'â€”' : p.password}</td>`;
+            <td class="p-2.5 font-mono text-slate-500 text-[11px]">${p.type === 'guru' ? ' - ' : p.password}</td>`;
         tbody.appendChild(tr);
     });
 }
@@ -1983,10 +1946,10 @@ function openClosingTimeModal() {
         const ct = loadCloseTime();
         if (!ot && !ct) {
             statusEl.className = 'mb-4 p-3 rounded-xl text-xs font-semibold text-center bg-slate-50 border border-slate-200 text-slate-500';
-            statusEl.textContent = 'Belum diatur â€” voting buka terus';
+            statusEl.textContent = 'Belum diatur  -  voting buka terus';
         } else {
             const now = new Date();
-            const fmt = iso => iso ? new Date(iso).toLocaleString('id-ID', { weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) : 'â€”';
+            const fmt = iso => iso ? new Date(iso).toLocaleString('id-ID', { weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) : ' - ';
             let state, cls, icon;
             if (ct && now >= new Date(ct)) {
                 state = 'Voting DITUTUP'; cls = 'bg-rose-50 border-rose-200 text-rose-600'; icon = 'fa-lock';
@@ -2040,9 +2003,9 @@ function clearClosingTime() {
     showAlertModal('Dihapus', 'Waktu vote dihapus. Voting tidak memiliki batas waktu.', 'info');
 }
 
-// ── Sync waktu vote ke Supabase settings ─────────────────────────────────────
+// ?? Sync waktu vote ke Supabase settings ?????????????????????????????????????
 async function syncVoteTimeToSupabase() {
-    if (!isSupabaseActive || !supabaseClient) return;
+    if (!isSupabaseActive || !supabaseClient || !currentPeriodId) return;
     try {
         await supabaseClient.from('settings').upsert([
             { key: 'pemira_open_time',  value: loadOpenTime()  || '', period_id: currentPeriodId },
@@ -2051,13 +2014,14 @@ async function syncVoteTimeToSupabase() {
     } catch(e) { console.error('syncVoteTime error:', e); }
 }
 
-// ── Load waktu vote dari Supabase (dipanggil saat loadData) ──────────────────
+// ?? Load waktu vote dari Supabase (dipanggil saat loadData) ??????????????????
 async function loadVoteTimeFromSupabase() {
-    if (!isSupabaseActive || !supabaseClient) return;
+    if (!isSupabaseActive || !supabaseClient || !currentPeriodId) return;
     try {
         const { data, error } = await supabaseClient
             .from('settings')
             .select('key, value')
+            .eq('period_id', currentPeriodId)
             .in('key', ['pemira_open_time', 'pemira_close_time']);
         if (error || !data) return;
         data.forEach(row => {
@@ -2072,21 +2036,23 @@ async function loadVoteTimeFromSupabase() {
 }
 
 // ============================================================
-// === REALTIME & POLLING â€” Data Pemilih, Belum Vote, Audit Log ===
+// === REALTIME & POLLING  -  Data Pemilih, Belum Vote, Audit Log ===
 // ============================================================
 
 let voterDataPollInterval  = null;
 let realtimeChannel        = null;
 
-// â”€â”€ Fungsi inti: tarik data terbaru dari Supabase â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// "?"? Fungsi inti: tarik data terbaru dari Supabase "?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?
 async function refreshVoterData() {
     if (!isSupabaseActive || !supabaseClient) return;
     if (refreshVoterData._running) return;
     refreshVoterData._running = true;
     try {
-        // 1. students
-        const { data: sData } = await supabaseClient
+        // 1. students - filter per periode aktif
+        const studentsQuery = supabaseClient
             .from('students').select('*').order('name', { ascending: true });
+        if (currentPeriodId) studentsQuery.eq('period_id', currentPeriodId);
+        const { data: sData } = await studentsQuery;
         if (sData) {
             students = sData.map(s => ({
                 id:       s.id,
@@ -2099,9 +2065,11 @@ async function refreshVoterData() {
             saveStudentsLocal();
         }
 
-        // 2. teachers
-        const { data: tData } = await supabaseClient
+        // 2. teachers - filter per periode aktif
+        const teachersQuery = supabaseClient
             .from('teachers').select('*').order('name', { ascending: true });
+        if (currentPeriodId) teachersQuery.eq('period_id', currentPeriodId);
+        const { data: tData } = await teachersQuery;
         if (tData) {
             teachers = tData.map(t => ({
                 id:       t.id,
@@ -2114,9 +2082,11 @@ async function refreshVoterData() {
             saveTeachersLocal();
         }
 
-        // 3. vote_logs
-        const { data: vData } = await supabaseClient
+        // 3. vote_logs - filter per periode aktif
+        const logsQuery = supabaseClient
             .from('vote_logs').select('*').order('voted_at', { ascending: false });
+        if (currentPeriodId) logsQuery.eq('period_id', currentPeriodId);
+        const { data: vData } = await logsQuery;
         if (vData) {
             voteLogs = vData.map(r => ({
                 id:             r.id,
@@ -2138,12 +2108,12 @@ async function refreshVoterData() {
     finally { refreshVoterData._running = false; }
 }
 
-// â”€â”€ Terapkan data segar ke panel yang sedang terbuka â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// "?"? Terapkan data segar ke panel yang sedang terbuka "?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?
 function _applyVoterDataToOpenPanels() {
     // Dashboard stat cards + charts (selalu)
     renderAdminDashboard();
 
-    // Kelola siswa/guru â€” kalau modal terbuka
+    // Kelola siswa/guru  -  kalau modal terbuka
     const studentModal = getEl('studentManageModal');
     if (studentModal && !studentModal.classList.contains('hidden')) {
         renderAdminStudentManager();
@@ -2164,7 +2134,7 @@ function _applyVoterDataToOpenPanels() {
     }
 }
 
-// â”€â”€ Mulai polling 5 detik â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// "?"? Mulai polling 5 detik "?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?
 function startVoterDataPolling() {
     stopVoterDataPolling();
     voterDataPollInterval = setInterval(() => {
@@ -2179,7 +2149,7 @@ function stopVoterDataPolling() {
     }
 }
 
-// â”€â”€ Supabase Realtime â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// "?"? Supabase Realtime "?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?
 function startRealtimeSubscription() {
     if (!isSupabaseActive || !supabaseClient) return;
     // Unsubscribe dulu kalau sudah ada
@@ -2259,22 +2229,23 @@ function _exportSetStatus(show, text = '') {
     else       { el.classList.add('hidden'); }
 }
 
-// â”€â”€ Bangun data laporan â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// "?"? Bangun data laporan "?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?
 function _buildReportData() {
-    const sorted  = [...candidates].sort((a, b) => (b.votes || 0) - (a.votes || 0));
-    const winner  = sorted[0];
-    const total   = sorted.reduce((s, c) => s + (Number(c.votes) || 0), 0);
+    const sorted   = [...candidates].sort((a, b) => (b.votes || 0) - (a.votes || 0));
+    const winner   = sorted[0];
+    const total    = sorted.reduce((s, c) => s + (Number(c.votes) || 0), 0);
     const allGroups = getSortedGroupLabels();
+    const periode  = periods.find(p => p.id === currentPeriodId)?.name || '-';
 
     const tanggal = new Date().toLocaleString('id-ID', {
         weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
         hour: '2-digit', minute: '2-digit'
     });
 
-    return { sorted, winner, total, allGroups, tanggal };
+    return { sorted, winner, total, allGroups, tanggal, periode };
 }
 
-// â”€â”€ EKSPOR PDF â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// "?"? EKSPOR PDF "?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?
 async function exportToPDF() {
     if (!window.jspdf || !window.html2canvas) {
         showAlertModal('Library Belum Siap', 'jsPDF atau html2canvas belum dimuat. Coba refresh halaman.', 'info');
@@ -2314,16 +2285,16 @@ async function exportToPDF() {
 
         _exportSetStatus(true, 'Membuat PDF...');
 
-        // â”€â”€ Kepala dokumen â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // "?"? Kepala dokumen "?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?
         txt('LAPORAN HASIL PEMILIHAN UMUM RAYA', 14, true, 'center');
         y += 6;
-        txt('Badan Eksekutif Mahasiswa â€” SMP', 10, false, 'center');
+        txt('Badan Eksekutif Mahasiswa  -  SMP', 10, false, 'center');
         y += 5;
         line();
         txt(`Tanggal cetak: ${tanggal}`, 9, false, 'left');
         y += 5; line(); gap(3);
 
-        // â”€â”€ Kandidat terpilih â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // "?"? Kandidat terpilih "?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?
         txt('I. KANDIDAT TERPILIH', 11, true);
         y += 6;
         txt(`Nama       : ${winner ? winner.name : 'Belum ada data'}`, 10);
@@ -2333,7 +2304,7 @@ async function exportToPDF() {
         txt(`Perolehan  : ${winner ? (Number(winner.votes) || 0) + ' suara (' + (total > 0 ? Math.round((winner.votes / total) * 100) : 0) + '% dari total)' : '-'}`, 10);
         y += 7; line(); gap(3);
 
-        // â”€â”€ Ringkasan statistik â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // "?"? Ringkasan statistik "?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?
         txt('II. RINGKASAN STATISTIK', 11, true);
         y += 6;
         const stats = [
@@ -2351,7 +2322,7 @@ async function exportToPDF() {
         });
         y += 4; line(); gap(3);
 
-        // â”€â”€ Tabel perolehan suara â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // "?"? Tabel perolehan suara "?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?
         txt('III. PEROLEHAN SUARA PER KANDIDAT', 11, true);
         y += 6;
 
@@ -2388,7 +2359,7 @@ async function exportToPDF() {
         });
         y += 6; line(); gap(3);
 
-        // â”€â”€ Grafik â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // "?"? Grafik "?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?
         if (barImg) {
             if (y + 65 > 280) { doc.addPage(); y = 20; }
             txt('IV. GRAFIK PEROLEHAN SUARA', 11, true);
@@ -2407,7 +2378,7 @@ async function exportToPDF() {
             gap(4); line(); gap(3);
         }
 
-        // â”€â”€ Tabel partisipasi â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // "?"? Tabel partisipasi "?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?
         const secNum = barImg && pieImg ? 'VI' : (barImg || pieImg) ? 'V' : 'IV';
         if (y + 15 > 280) { doc.addPage(); y = 20; }
         txt(`${secNum}. TINGKAT PARTISIPASI PEMILIH`, 11, true);
@@ -2440,7 +2411,7 @@ async function exportToPDF() {
             y += rH;
         });
 
-        // â”€â”€ Footer tiap halaman â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // "?"? Footer tiap halaman "?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?
         const pageCount = doc.internal.getNumberOfPages();
         for (let i = 1; i <= pageCount; i++) {
             doc.setPage(i);
@@ -2462,7 +2433,7 @@ async function exportToPDF() {
     }
 }
 
-// â”€â”€ EKSPOR DOCX â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// "?"? EKSPOR DOCX "?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?"?
 async function exportToDocx() {
     if (!window.docx) {
         showAlertModal('Library Belum Siap', 'docx.js belum dimuat. Coba refresh halaman.', 'info');
@@ -2522,7 +2493,7 @@ async function exportToDocx() {
         // Judul
         sections.push(
             p('LAPORAN HASIL PEMILIHAN UMUM RAYA', 28, true, AlignmentType.CENTER, 80),
-            p('Badan Eksekutif Mahasiswa â€” SMP', 22, false, AlignmentType.CENTER, 80),
+            p('Badan Eksekutif Mahasiswa  -  SMP', 22, false, AlignmentType.CENTER, 80),
             p(`Tanggal cetak: ${tanggal}`, 18, false, AlignmentType.CENTER, 240),
         );
 
@@ -2632,11 +2603,12 @@ async function exportToDocx() {
 
 async function loadPeriods() {
     if (!isSupabaseActive || !supabaseClient) {
-        // Fallback: buat periode default lokal
+        // Supabase tidak aktif - gunakan mode lokal murni tanpa period_id
         if (!periods.length) {
             periods = [{ id: 'local-default', name: '2026-2027', is_active: true }];
         }
-        currentPeriodId = currentPeriodId || periods[0].id;
+        // currentPeriodId = null agar tidak ada query Supabase dengan ID palsu
+        currentPeriodId = null;
         renderPeriodTabBar();
         return;
     }
@@ -2663,8 +2635,10 @@ async function loadPeriods() {
         renderPeriodTabBar();
     } catch(e) {
         console.error('loadPeriods error:', e);
+        // Tabel periods belum dibuat (jalankan migration_periods.sql di Supabase)
+        // Fallback ke mode lokal - currentPeriodId = null agar tidak kirim ID palsu ke Supabase
         if (!periods.length) periods = [{ id: 'local-default', name: '2026-2027', is_active: true }];
-        currentPeriodId = periods[0].id;
+        currentPeriodId = null;
         renderPeriodTabBar();
     }
 }
@@ -2759,7 +2733,7 @@ async function deletePeriod(id) {
     }
 }
 
-// ── Render tab bar periode ────────────────────────────────────────────────────
+// ?? Render tab bar periode ????????????????????????????????????????????????????
 function renderPeriodTabBar() {
     const bar = getEl('periodTabBar');
     if (!bar) return;
@@ -2795,7 +2769,7 @@ function renderPeriodTabBar() {
     bar.appendChild(addBtn);
 }
 
-// ── Modal tambah periode ──────────────────────────────────────────────────────
+// ?? Modal tambah periode ??????????????????????????????????????????????????????
 function openAddPeriodModal() {
     const inp = getEl('newPeriodNameInput');
     if (inp) inp.value = '';
@@ -2807,7 +2781,7 @@ function closeAddPeriodModal() {
     if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
 }
 
-// ── Modal pengaturan periode ──────────────────────────────────────────────────
+// ?? Modal pengaturan periode ??????????????????????????????????????????????????
 let _editingPeriodId = null;
 function openPeriodSettingsModal(id) {
     _editingPeriodId = id;

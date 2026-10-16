@@ -168,57 +168,62 @@ async function loadData() {
 
     if (isSupabaseActive && supabaseClient) {
         try {
-            const { data: cData, error: cErr } = await supabaseClient
-                .from('candidates').select('*').order('no', { ascending: true });
-            if (!cErr && cData) {
-                candidates = cData.map(c => ({
-                    id:             c.id,
-                    no:             c.no,
-                    name:           c.name,
-                    image:          c.image,
-                    visi:           c.visi,
-                    misi:           Array.isArray(c.misi) ? c.misi : (typeof c.misi === 'string' ? JSON.parse(c.misi) : []),
-                    votes:          c.votes || 0,
-                    votes_by_class: c.votes_by_class || {}
-                }));
-                saveCandidatesLocal();
-            }
+            // 1. Ambil periode aktif
+            const { data: pData } = await supabaseClient
+                .from('periods').select('id').eq('is_active', true).limit(1).single();
+            const activePeriodId = pData?.id || null;
+            if (activePeriodId) localStorage.setItem('pemira_active_period_id', activePeriodId);
 
-            const { data: sData, error: sErr } = await supabaseClient
-                .from('students').select('*').order('name', { ascending: true });
-            if (!sErr && sData) {
-                // Selalu pakai data Supabase — termasuk kalau kosong (siswa dihapus)
-                students = sData.map(s => ({
-                    id:       s.id,
-                    name:     s.name,
-                    grade:    s.grade,
-                    password: s.password || '',
-                    hasVoted: s.has_voted || false,
-                    votedFor: s.voted_for || null
-                }));
-                saveStudentsLocal();
+            if (activePeriodId) {
+                const { data: cData } = await supabaseClient
+                    .from('candidates').select('*')
+                    .eq('period_id', activePeriodId)
+                    .order('no', { ascending: true });
+                if (cData) {
+                    candidates = cData.map(c => ({
+                        id:             c.id,
+                        no:             c.no,
+                        name:           c.name,
+                        image:          c.image,
+                        visi:           c.visi,
+                        misi:           Array.isArray(c.misi) ? c.misi : (typeof c.misi === 'string' ? JSON.parse(c.misi) : []),
+                        votes:          c.votes || 0,
+                        votes_by_class: c.votes_by_class || {}
+                    }));
+                    saveCandidatesLocal();
+                }
+
+                const { data: sData } = await supabaseClient
+                    .from('students').select('*')
+                    .eq('period_id', activePeriodId)
+                    .order('name', { ascending: true });
+                if (sData) {
+                    students = sData.map(s => ({
+                        id:       s.id,
+                        name:     s.name,
+                        grade:    s.grade,
+                        password: s.password || '',
+                        hasVoted: s.has_voted || false,
+                        votedFor: s.voted_for || null
+                    }));
+                    saveStudentsLocal();
+                }
+
+                // Load waktu vote dari settings periode aktif
+                const { data: stData } = await supabaseClient
+                    .from('settings')
+                    .select('key, value')
+                    .eq('period_id', activePeriodId)
+                    .in('key', ['pemira_open_time', 'pemira_close_time']);
+                if (stData) {
+                    stData.forEach(row => {
+                        row.value ? localStorage.setItem(row.key, row.value) : localStorage.removeItem(row.key);
+                    });
+                }
             }
-        } catch(e) { console.log('Supabase unavailable — using local data.'); }
+        } catch(e) { console.log('Supabase unavailable - using local data.'); }
     }
     loadVoteLogsLocal();
-
-    // Load waktu vote dari Supabase
-    if (isSupabaseActive && supabaseClient) {
-        try {
-            const { data } = await supabaseClient
-                .from('settings')
-                .select('key, value')
-                .in('key', ['pemira_open_time', 'pemira_close_time']);
-            if (data) {
-                data.forEach(row => {
-                    if (row.key === 'pemira_open_time')
-                        row.value ? localStorage.setItem('pemira_open_time', row.value) : localStorage.removeItem('pemira_open_time');
-                    if (row.key === 'pemira_close_time')
-                        row.value ? localStorage.setItem('pemira_close_time', row.value) : localStorage.removeItem('pemira_close_time');
-                });
-            }
-        } catch(e) {}
-    }
 }
 
 async function loadTeachers() {
@@ -227,10 +232,14 @@ async function loadTeachers() {
 
     if (isSupabaseActive && supabaseClient) {
         try {
+            const activePeriodId = localStorage.getItem('pemira_active_period_id');
+            if (!activePeriodId) { saveTeachersLocal(); return; }
+
             const { data, error } = await supabaseClient
-                .from('teachers').select('*').order('name', { ascending: true });
+                .from('teachers').select('*')
+                .eq('period_id', activePeriodId)
+                .order('name', { ascending: true });
             if (!error && data) {
-                // Selalu pakai data Supabase — termasuk kalau kosong
                 teachers = data.map(t => ({
                     id:       t.id,
                     name:     t.name,
@@ -303,7 +312,8 @@ async function insertVoteLogToSupabase(log) {
             candidate_id:   log.candidate_id,
             candidate_name: log.candidate_name,
             candidate_no:   log.candidate_no,
-            voted_at:       log.voted_at
+            voted_at:       log.voted_at,
+            period_id:      log.period_id || null
         }]);
     } catch(e) { console.error('insertVoteLog error:', e); }
 }
@@ -791,6 +801,20 @@ async function executeVote() {
     if (executeVote._running) return;
     executeVote._running = true;
 
+    // Helper: reset state tombol saat error/abort sebelum Supabase sync
+    function _abortVote() {
+        executeVote._running = false;
+        const cancelBtn = document.querySelector('#confirmVoteModal button[onclick="closeConfirmVoteModal()"]');
+        if (cancelBtn) cancelBtn.disabled = false;
+        const finalBtn  = document.getElementById('finalVoteBtn');
+        const finalText = document.getElementById('finalVoteText');
+        if (finalBtn) {
+            finalBtn.disabled = false;
+            finalBtn.className = 'w-full gradient-btn text-white font-bold py-3.5 rounded-xl transition flex items-center justify-center space-x-2';
+        }
+        if (finalText) finalText.textContent = 'Ya, Saya Yakin Memilih!';
+    }
+
     // Guard waktu vote (safety net kedua)
     if (isPemiraClosed()) {
         executeVote._running = false;
@@ -818,7 +842,12 @@ async function executeVote() {
 
     // Update kandidat
     const c = candidates.find(c => c.id === selectedCandidate.id);
-    if (!c) return;
+    if (!c) {
+        // Kandidat tidak ditemukan (data belum sync) — reset state agar user bisa coba lagi
+        _abortVote();
+        showAlertModal('Gagal', 'Data kandidat tidak ditemukan. Coba lagi.', 'info');
+        return;
+    }
     c.votes = (c.votes || 0) + 1;
     c.votes_by_class = c.votes_by_class || {};
     const gradeKey = currentRole === 'guru' ? (voter.role || 'Guru') : voter.grade;
@@ -833,6 +862,7 @@ async function executeVote() {
 
     // Vote log
     const log = {
+        period_id:      localStorage.getItem('pemira_active_period_id') || null,
         id:             `log_${Date.now()}_${Math.random().toString(36).substr(2,5)}`,
         student_id:     voter.id,
         student_name:   voter.name,
@@ -850,12 +880,17 @@ async function executeVote() {
     saveVoteLogsLocal();
     if (currentRole === 'guru') saveTeachersLocal(); else saveStudentsLocal();
 
-    // Sync Supabase
-    await Promise.all([
-        syncCandidateVotesToSupabase(c),
-        currentRole === 'guru' ? syncTeacherVoteToSupabase(voter) : syncStudentVoteToSupabase(voter),
-        insertVoteLogToSupabase(log)
-    ]);
+    // Sync Supabase — bungkus try/catch agar error jaringan tidak crash tanpa reset
+    try {
+        await Promise.all([
+            syncCandidateVotesToSupabase(c),
+            currentRole === 'guru' ? syncTeacherVoteToSupabase(voter) : syncStudentVoteToSupabase(voter),
+            insertVoteLogToSupabase(log)
+        ]);
+    } catch(e) {
+        // Suara sudah disimpan lokal — tetap lanjut ke sukses, tapi log errornya
+        console.error('executeVote sync error (data sudah tersimpan lokal):', e);
+    }
 
     closeConfirmVoteModal();
     executeVote._running = false;
@@ -871,7 +906,7 @@ function showVoteSuccessScreen(voter, candidate) {
 
     // Buat layar sukses sementara
     const main = document.querySelector('main');
-    if (!main) return;
+    if (!main) { showRoleSelectScreen(); return; }
 
     const existingSuccess = document.getElementById('successScreen');
     if (existingSuccess) existingSuccess.remove();
