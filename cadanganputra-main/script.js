@@ -2,6 +2,20 @@
 // SCRIPT UTAMA — Putra Azzam Elfathin Portfolio
 // ============================================================
 
+// ===== READING PROGRESS BAR =====
+(function () {
+    var bar = document.getElementById('reading-progress');
+    if (!bar) return;
+    function updateProgress() {
+        var scrollTop = window.scrollY || document.documentElement.scrollTop;
+        var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        var pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+        bar.style.width = pct + '%';
+    }
+    window.addEventListener('scroll', updateProgress, { passive: true });
+    updateProgress();
+})();
+
 // ===== DATA PROYEK =====
 // Untuk nambah proyek baru, copy salah satu blok di bawah dan isi:
 //   no        : nomor urut
@@ -103,10 +117,13 @@ function renderProyek() {
             // Header grup: col-span penuh (gunakan wrapper tersendiri)
             parts.push(`
                 <div class="col-span-2 md:col-span-4 flex items-center gap-3 mt-8 mb-1 reveal-on-scroll" data-delay="0" data-group-header="${currentGroup}">
-                    <span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-slate-100 border border-slate-200 text-slate-500 text-xs flex-shrink-0">
-                        <i class="${icon}"></i>
+                    <span class="flex-1 h-px bg-slate-200"></span>
+                    <span class="inline-flex items-center gap-2 flex-shrink-0">
+                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-slate-100 border border-slate-200 text-slate-500 text-xs">
+                            <i class="${icon}"></i>
+                        </span>
+                        <span style="font-size:0.875rem;font-weight:700;background:linear-gradient(to right,#0f172a,#475569);-webkit-background-clip:text;background-clip:text;color:transparent;display:inline-block;letter-spacing:-0.025em;">${currentGroup}</span>
                     </span>
-                    <span class="text-sm font-bold text-slate-700 tracking-tight">${currentGroup}</span>
                     <span class="flex-1 h-px bg-slate-200"></span>
                 </div>
             `);
@@ -203,8 +220,9 @@ const revealObserver = new IntersectionObserver((entries) => {
             }, delay);
         } else {
             // Elemen keluar viewport — reset agar animasi bisa muncul lagi
-            // Tapi skip hero supaya tidak berkedip saat scroll kecil
-            if (!el.closest('#hero')) {
+            // Skip hero (agar tidak berkedip) dan section proyek (kartu tetap terlihat)
+            const inProyek = el.closest('#proyek') || el.closest('#proyek-terbaik');
+            if (!el.closest('#hero') && !inProyek) {
                 el.classList.remove('is-visible');
             }
         }
@@ -249,18 +267,13 @@ renderProyek();
             var sentinel = row[0];
             var io = new IntersectionObserver(function (entries) {
                 if (entries[0].isIntersecting) {
-                    // Baris masuk viewport — tampilkan
+                    // Baris masuk viewport — tampilkan (tidak pernah disembunyikan lagi)
                     row.forEach(function (card) {
                         card.style.opacity   = '1';
                         card.style.transform = 'translateY(0)';
                     });
-                } else {
-                    // Baris keluar viewport — reset agar animasi muncul lagi
-                    row.forEach(function (card) {
-                        card.style.opacity   = '0';
-                        card.style.transform = 'translateY(28px)';
-                    });
                 }
+                // Tidak reset saat keluar viewport — kartu tetap terlihat
             }, { threshold: 0.12 });
             io.observe(sentinel);
         });
