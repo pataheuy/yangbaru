@@ -435,16 +435,31 @@
         let SUPABASE_URL = '', SUPABASE_KEY = '';
         let _client;
         const BUCKET_NAME = 'pufutara-gallery';
+        let _configReady = false;
 
         // Init: fetch config dulu, baru init client dan load gallery
         (async () => {
             try {
-                const cfg = await fetch('/api/config').then(r => r.json());
+                const res = await fetch('/api/config');
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const cfg = await res.json();
+                if (!cfg.url || !cfg.key) throw new Error('Config tidak lengkap');
                 SUPABASE_URL = cfg.url;
                 SUPABASE_KEY = cfg.key;
-            } catch (_) {}
-            _client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-            fetchImages();
+                _configReady = true;
+            } catch (err) {
+                console.error('Gagal memuat config Supabase:', err.message);
+                const grid = document.getElementById('galleryGrid');
+                if (grid) grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:80px;color:#999;">
+                    <span class="material-symbols-outlined" style="font-size:48px;display:block;margin-bottom:12px;">cloud_off</span>
+                    <p style="font-size:0.9rem;line-height:1.6;">Gagal memuat konfigurasi server.<br>Pastikan aplikasi dijalankan lewat Vercel.</p>
+                </div>`;
+            }
+            _client = window.supabase.createClient(
+                SUPABASE_URL || 'https://placeholder.supabase.co',
+                SUPABASE_KEY || 'placeholder'
+            );
+            if (_configReady) fetchImages();
         })();
 
         let folders = JSON.parse(localStorage.getItem('pufutara_folders')) || [{ id: 'semua', name: 'Semua Foto' }];
@@ -653,6 +668,12 @@
         async function doUpload() {
             if (!pendingFiles.length) return;
 
+            // Cek apakah Supabase client siap
+            if (!_configReady) {
+                alert('Koneksi ke server belum siap. Pastikan aplikasi dijalankan lewat Vercel, lalu coba lagi.');
+                return;
+            }
+
             const title = document.getElementById('uploadTitle').value.trim();
             const uploader = document.getElementById('uploadUploader').value.trim();
             const targetFolder = activeFolderId === 'semua' ? 'general' : activeFolderId;
@@ -662,25 +683,37 @@
             const loadingText = document.getElementById('loadingText');
             loadingEl.style.display = 'flex';
 
+            let successCount = 0;
+            let failCount = 0;
+
             for (let i = 0; i < pendingFiles.length; i++) {
                 const file = pendingFiles[i];
                 loadingText.textContent = `Mengupload ${i + 1} / ${pendingFiles.length}...`;
                 const path = `${targetFolder}/${Date.now()}_${file.name}`;
                 const { error: upErr } = await _client.storage.from(BUCKET_NAME).upload(path, file);
 
-                if (!upErr) {
+                if (upErr) {
+                    console.error('Upload gagal:', upErr.message);
+                    failCount++;
+                } else {
                     const { data: urlData } = _client.storage.from(BUCKET_NAME).getPublicUrl(path);
                     // Setiap foto dapat judul yang sama (atau judul + nomor kalau multi)
                     const photoTitle = pendingFiles.length === 1
                         ? (title || null)
                         : (title ? `${title} (${i + 1})` : null);
 
-                    await _client.from('gallery_images').insert([{
+                    const { error: dbErr } = await _client.from('gallery_images').insert([{
                         folder_id: targetFolder,
                         image_url: urlData.publicUrl,
                         title: photoTitle,
                         uploader_name: uploader || null
                     }]);
+                    if (dbErr) {
+                        console.error('Insert metadata gagal:', dbErr.message);
+                        failCount++;
+                    } else {
+                        successCount++;
+                    }
                 }
             }
 
@@ -689,6 +722,13 @@
             pendingFiles = [];
             document.getElementById('fileInput').value = '';
             document.getElementById('fileInputSidebar').value = '';
+
+            if (failCount > 0 && successCount === 0) {
+                alert(`Upload gagal (${failCount} foto). Periksa: bucket "pufutara-gallery" sudah dibuat di Supabase Storage dan izin upload sudah diaktifkan.`);
+            } else if (failCount > 0) {
+                alert(`${successCount} foto berhasil diupload, ${failCount} foto gagal.`);
+            }
+
             fetchImages();
         }
 

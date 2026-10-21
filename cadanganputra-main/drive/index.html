@@ -181,6 +181,32 @@
         @keyframes slideInRight { from{opacity:0;transform:translateX(40px)} to{opacity:1;transform:translateX(0)} }
         @keyframes spinIn { from{opacity:0;transform:rotate(-15deg) scale(.8)} to{opacity:1;transform:rotate(0deg) scale(1)} }
         @keyframes spin { 100%{transform:rotate(360deg)} }
+        /* FAB (Floating Action Button) — hanya muncul di mobile */
+        .fab-upload {
+            display:none;
+            position:fixed; bottom:24px; right:24px; z-index:300;
+            background:var(--primary); color:var(--on-primary);
+            border:none; border-radius:20px; padding:14px 20px;
+            font-size:.9rem; font-weight:700; cursor:pointer;
+            box-shadow:0 8px 24px rgba(0,0,0,.25);
+            align-items:center; gap:10px;
+            transition:.3s;
+        }
+        .fab-upload:active { transform:scale(.96); }
+        .fab-upload .material-symbols-outlined { font-size:20px; }
+        /* Dropdown FAB */
+        .fab-dropdown {
+            position:fixed; bottom:80px; right:24px; z-index:301;
+            background:var(--surface); border:1px solid var(--border);
+            border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,.12);
+            display:none; flex-direction:column; overflow:hidden;
+            animation:fadeIn .15s ease;
+            min-width:180px;
+        }
+        .fab-dropdown.open { display:flex; }
+        .fab-dropdown-option { padding:13px 18px; display:flex; align-items:center; gap:10px; font-size:.9rem; font-weight:500; cursor:pointer; color:var(--text-main); transition:.15s; }
+        .fab-dropdown-option:hover { background:var(--hover-bg); }
+        .fab-dropdown-option .material-symbols-outlined { font-size:18px; color:var(--text-muted); }
         @media (max-width:768px) {
             .auth-container { padding:40px 24px; border-radius:16px; border:none; }
             .top-header { flex-wrap:wrap; height:auto; padding:12px 16px; gap:8px; }
@@ -201,6 +227,7 @@
             .modal-box { padding:24px; width:92%; }
             .preview-box { width:100%; height:100%; border-radius:0; }
             .selection-bar { padding:10px 16px; gap:6px; flex-wrap:wrap; }
+            .fab-upload { display:flex; }
         }
         @media (hover:none) {
             .card-actions-overlay, .folder-actions-overlay { opacity:1; background:rgba(255,255,255,.95); box-shadow:0 2px 10px rgba(0,0,0,.1); }
@@ -312,6 +339,18 @@
             <div id="fileGrid" class="file-grid"></div>
         </main>
     </div>
+    <!-- FAB Upload (mobile only) -->
+    <div class="fab-dropdown" id="fabDropdown">
+        <div class="fab-dropdown-option" onclick="document.getElementById('fileUpload').click();closeFabDropdown()">
+            <span class="material-symbols-outlined">upload_file</span> Upload File
+        </div>
+        <div class="fab-dropdown-option" onclick="openCreateFolderModal();closeFabDropdown()">
+            <span class="material-symbols-outlined">create_new_folder</span> Buat Folder Baru
+        </div>
+    </div>
+    <button class="fab-upload" id="fabUploadBtn" onclick="toggleFabDropdown()" aria-label="Tambah">
+        <span class="material-symbols-outlined">add</span> Baru
+    </button>
 </div>
 
 <!-- MODAL Preview -->
@@ -470,9 +509,14 @@ let _currentPath=[];
 function toggleSidebar(){document.getElementById('appSidebar').classList.toggle('active');document.getElementById('sidebarOverlay').classList.toggle('active');}
 function toggleUploadDropdown(){document.getElementById('uploadDropdown').classList.toggle('open');}
 function closeUploadDropdown(){document.getElementById('uploadDropdown').classList.remove('open');}
+// FAB mobile
+function toggleFabDropdown(){document.getElementById('fabDropdown').classList.toggle('open');}
+function closeFabDropdown(){document.getElementById('fabDropdown').classList.remove('open');}
 document.addEventListener('click',e=>{
     const wrap=document.getElementById('uploadDropdownWrap');
     if(!wrap.contains(e.target))closeUploadDropdown();
+    const fabBtn=document.getElementById('fabUploadBtn'),fabDd=document.getElementById('fabDropdown');
+    if(fabDd.classList.contains('open')&&!fabDd.contains(e.target)&&e.target!==fabBtn&&!fabBtn.contains(e.target))closeFabDropdown();
     const menu=document.getElementById('profileMenu'),avatar=document.getElementById('userAvatar');
     if(menu.style.display==='flex'&&!menu.contains(e.target)&&e.target!==avatar)menu.style.display='none';
 });

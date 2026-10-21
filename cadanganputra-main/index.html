@@ -238,8 +238,21 @@
 
         /* ===== H1 FLYBACK SETELAH SAPAAN ===== */
         #hero h1.h1-flyback {
-            transition: transform 1.08s cubic-bezier(0.4, 0, 0.2, 1),
+            transition: transform 1.1s cubic-bezier(0.4, 0, 0.2, 1),
                         opacity 0.72s ease !important;
+        }
+
+        /* h1 saat di tengah layar = fixed */
+        #hero h1.h1-centered {
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            z-index: 9998;
+            width: max-content;
+            max-width: 90vw;
+            text-align: center;
+            margin: 0 !important;
         }
 
         /* ===== STATS POSITIONING ANIMATION ===== */
@@ -1550,6 +1563,7 @@
         var h1 = document.querySelector('#hero h1');
         if (h1) {
             h1.classList.remove('h1-flyback');
+            h1.classList.remove('h1-centered');
             h1.style.transition = 'none';
             h1.style.transform  = '';
             h1.style.zIndex     = '';
@@ -1661,16 +1675,8 @@
                 var h1 = document.querySelector('#hero h1');
                 if (!h1) return;
 
-                // Rekam posisi h1 di flow, hitung offset ke tengah layar
-                var rect    = h1.getBoundingClientRect();
-                var offsetX = (window.innerWidth  / 2) - (rect.left + rect.width  / 2);
-                var offsetY = (window.innerHeight / 2) - (rect.top  + rect.height / 2);
-
-                // Teleport h1 ke tengah (tanpa transisi)
-                h1.style.transition = 'none';
-                h1.style.transform  = 'translate(' + offsetX + 'px, ' + offsetY + 'px) scale(1.05)';
-                h1.style.zIndex     = '9998';
-                h1.style.position   = 'relative';
+                // Pasang h1 ke tengah layar pakai position: fixed
+                h1.classList.add('h1-centered');
 
                 // Animasi kata-kata satu per satu
                 h1.querySelectorAll('.hero-line').forEach(function(span) {
@@ -1680,19 +1686,33 @@
 
                 // Setelah kata terakhir (Elfathin: 2200ms delay + 700ms transisi = 2900ms)
                 window._introTimeouts.push(setTimeout(function() {
-                    h1.classList.add('h1-flyback');
-                    h1.getBoundingClientRect(); // force repaint
-                    h1.style.transform = 'translate(0, 0) scale(1)';
+                    // Hitung posisi h1 di flow normal (tanpa fixed)
+                    h1.classList.remove('h1-centered');
+                    var rect = h1.getBoundingClientRect();
+                    var fromY = (window.innerHeight / 2) - (rect.top + rect.height / 2);
 
-                    window._introTimeouts.push(setTimeout(function() {
-                        h1.classList.remove('h1-flyback');
-                        h1.style.transform = '';
-                        h1.style.zIndex    = '';
-                        h1.style.position  = '';
-                        // Tombol skip disembunyikan oleh __openingAllDone (setelah stats selesai)
-                        // Signal ke script.js bahwa flyback selesai
-                        if (window.__heroFlybackDone) window.__heroFlybackDone();
-                    }, spd(950)));
+                    // Set posisi awal (dari tengah layar) — tanpa transisi dulu
+                    h1.style.transition = 'none';
+                    h1.style.transform  = 'translateY(' + fromY + 'px)';
+                    h1.style.position   = 'relative';
+                    h1.style.zIndex     = '9998';
+
+                    // Dua frame RAF: pastikan browser commit posisi awal dulu
+                    requestAnimationFrame(function() {
+                        requestAnimationFrame(function() {
+                            // Baru pasang transisi dan gerakkan ke posisi asli
+                            h1.style.transition = 'transform 1.1s cubic-bezier(0.22, 1, 0.36, 1)';
+                            h1.style.transform  = 'translateY(0)';
+
+                            window._introTimeouts.push(setTimeout(function() {
+                                h1.style.transition = '';
+                                h1.style.transform  = '';
+                                h1.style.zIndex     = '';
+                                h1.style.position   = '';
+                                if (window.__heroFlybackDone) window.__heroFlybackDone();
+                            }, spd(1100)));
+                        });
+                    });
                 }, spd(2900)));
 
             }, spd(500)));
