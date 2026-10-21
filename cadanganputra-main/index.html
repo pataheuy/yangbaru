@@ -233,7 +233,7 @@
             align-items: center;
             justify-content: center;
             padding-top: 5rem;    /* kompensasi navbar fixed */
-            padding-bottom: 4rem;
+            padding-bottom: 5rem; /* imbangi padding-top agar konten benar-benar center */
         }
 
         /* ===== H1 FLYBACK SETELAH SAPAAN ===== */
@@ -1525,7 +1525,7 @@
         };
 
         // Untuk returning visitor: opening langsung skip, jadi trigger dari sini
-        if (sessionStorage.getItem('pufutara_intro_shown')) {
+        if (window.__ssGet('pufutara_intro_shown')) {
             document.addEventListener('DOMContentLoaded', function () {
                 _wmTimer = setTimeout(showWelcomeModal, 5000);
             });
@@ -1536,6 +1536,11 @@
     <!-- Toast Notifikasi -->
     <div id="kolaborasi-toast" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#111;color:white;padding:12px 24px;border-radius:60px;font-size:0.9rem;z-index:1000;opacity:0;transition:opacity 0.2s;pointer-events:none;white-space:nowrap;font-family:'Plus Jakarta Sans',sans-serif;"></div>
 
+    <script>
+    // -- sessionStorage wrapper (aman dari Tracking Prevention) --
+    window.__ssSet = function(k, v) { try { sessionStorage.setItem(k, v); } catch(e) { try { window.__ssMem = window.__ssMem || {}; window.__ssMem[k] = v; } catch(e2){} } };
+    window.__ssGet = function(k) { try { return sessionStorage.getItem(k); } catch(e) { return (window.__ssMem && window.__ssMem[k]) || null; } };
+    </script>
     <script>
     // -- Skip intro --
     window._introTimeouts = [];
@@ -1557,7 +1562,7 @@
             setTimeout(function(){ opening.style.display = 'none'; }, 300);
         }
 
-        sessionStorage.setItem('pufutara_intro_shown', '1');
+        window.__ssSet('pufutara_intro_shown', '1');
 
         // Reset h1 ke posisi asli tanpa animasi (apapun posisinya sekarang)
         var h1 = document.querySelector('#hero h1');
@@ -1617,13 +1622,13 @@
 
         // Fade-in tombol skip setelah 1.2 detik
         var skipBtn = document.getElementById('skip-intro-btn');
-        if (skipBtn && !sessionStorage.getItem('pufutara_intro_shown')) {
+        if (skipBtn && !window.__ssGet('pufutara_intro_shown')) {
             skipBtn.style.display = 'flex';
             setTimeout(function() { skipBtn.style.opacity = '1'; }, 1200);
         }
 
         // Kunjungan ulang: skip opening, langsung tampilkan semua hero instant
-        if (sessionStorage.getItem('pufutara_intro_shown')) {
+        if (window.__ssGet('pufutara_intro_shown')) {
             el.style.display = 'none';
 
             // Restore hero-stats ke flow normal (awalnya height:0)
@@ -1670,7 +1675,7 @@
             el.classList.add('hiding');
             window._introTimeouts.push(setTimeout(function() {
                 el.style.display = 'none';
-                sessionStorage.setItem('pufutara_intro_shown', '1');
+                window.__ssSet('pufutara_intro_shown', '1');
 
                 var h1 = document.querySelector('#hero h1');
                 if (!h1) return;
