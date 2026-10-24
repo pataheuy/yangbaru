@@ -1,1091 +1,522 @@
 <!DOCTYPE html>
-<html lang="id" class="h-full">
+<html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pufutara Launcher - Ekosistem Digital</title>
-
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        brand: {
-                            50: '#fafafa',
-                            100: '#f4f4f5',
-                            800: '#27272a',
-                            900: '#18181b',
-                            950: '#09090b',
-                        }
-                    }
-                }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pufutara Launcher</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            pufutara: {
+              50: '#f9f9f9',
+              100: '#f0f0f0',
+              800: '#1a1a1a',
+              900: '#111111',
+              950: '#0a0a0a',
             }
+          }
         }
-    </script>
+      }
+    };
+  </script>
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- Google Fonts Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-
-    <!-- Supabase JS Client v2 -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-javascript@2"></script>
-
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-        /* Custom scrollbars */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(160, 160, 160, 0.3);
-            border-radius: 9999px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(160, 160, 160, 0.5);
-        }
-    </style>
+  <!-- Google Font -->
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+  </style>
 </head>
-<body class="h-full bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 flex flex-col transition-colors duration-200 selection:bg-zinc-200 dark:selection:bg-zinc-800">
+<body class="bg-white dark:bg-pufutara-950 text-pufutara-900 dark:text-pufutara-50 min-h-screen flex flex-col transition-colors duration-200">
 
-    <!-- Navigation Header -->
-    <header class="border-b border-zinc-200/80 dark:border-zinc-800/80 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md sticky top-0 z-30">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            
-            <!-- Logo Brand (Secret 3x click trigger) -->
-            <div id="logoContainer" class="flex items-center space-x-3 cursor-pointer select-none group" title="Pufutara Launcher (Klik 3x untuk Admin)">
-                <div class="w-9 h-9 rounded-xl bg-black dark:bg-white text-white dark:text-black flex items-center justify-center font-black text-lg shadow-sm group-hover:scale-105 transition-transform">
-                    P
-                </div>
-                <div>
-                    <div class="flex items-center space-x-2">
-                        <span class="font-bold text-base tracking-tight group-hover:opacity-80 transition-opacity">pufutara</span>
-                        <span class="text-[10px] font-semibold uppercase tracking-widest px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">launcher</span>
-                    </div>
-                    <p class="text-[10px] text-zinc-500 dark:text-zinc-400 -mt-0.5 font-medium">DIGITAL ECOSYSTEM</p>
-                </div>
-            </div>
-
-            <!-- Header Right Info & Secret Trigger -->
-            <div class="flex items-center space-x-3">
-                <!-- Clock -->
-                <div class="hidden sm:flex flex-col items-end text-right border-r border-zinc-200 dark:border-zinc-800 pr-4">
-                    <span id="digitalClock" class="text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">00:00:00</span>
-                    <span id="digitalDate" class="text-[11px] text-zinc-500 dark:text-zinc-400">Hari, 00 Bln 0000</span>
-                </div>
-
-                <!-- Dark Mode / Theme Toggle -->
-                <button id="themeToggleBtn" onclick="cycleTheme()" class="p-2 rounded-xl text-zinc-500 dark:text-zinc-400 hover:text-black dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800/80 transition-colors flex items-center space-x-1" title="Ganti Mode Tema (Auto / Terang / Gelap)">
-                    <i id="themeIcon" data-lucide="sun-moon" class="w-5 h-5"></i>
-                    <span id="themeLabel" class="text-xs font-medium hidden md:inline ml-1">Auto</span>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- Main Content Container -->
-    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 flex flex-col justify-start">
-        
-        <!-- Hero Header -->
-        <div class="text-center max-w-2xl mx-auto mb-8 sm:mb-10">
-            <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-white mb-2">
-                Pufutara Workspace Portal
-            </h1>
-            <p class="text-sm sm:text-base text-zinc-500 dark:text-zinc-400 font-normal">
-                Pusat kendali & peluncur aplikasi ekosistem digital Pufutara.
-            </p>
-        </div>
-
-        <!-- Search Bar & Category Dropdown Section -->
-        <div class="max-w-2xl w-full mx-auto mb-10 space-y-4">
-            <div class="relative flex items-center">
-                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-zinc-400 dark:text-zinc-500">
-                    <i data-lucide="search" class="w-5 h-5"></i>
-                </div>
-                <input 
-                    type="text" 
-                    id="searchInput" 
-                    placeholder="Cari aplikasi atau tekan Enter untuk cari di web..."
-                    class="w-full pl-11 pr-24 py-3.5 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl text-sm font-medium text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-100 focus:border-transparent transition-all shadow-sm"
-                    onkeyup="handleSearchKeyup(event)"
-                    oninput="handleSearchInput(event)"
-                >
-                <div class="absolute inset-y-0 right-1.5 flex items-center">
-                    <button 
-                        onclick="executeWebSearch()" 
-                        class="px-3 py-1.5 text-xs font-semibold bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors shadow-xs"
-                        title="Cari kata kunci di Google"
-                    >
-                        Web
-                    </button>
-                </div>
-            </div>
-
-            <!-- Category Filter Dropdown -->
-            <div class="flex items-center justify-between pt-1">
-                <div class="flex items-center space-x-2 text-xs font-medium text-zinc-500 dark:text-zinc-400">
-                    <i data-lucide="filter" class="w-4 h-4"></i>
-                    <span>Kategori:</span>
-                </div>
-                <div class="relative min-w-[180px]">
-                    <select 
-                        id="categorySelect" 
-                        onchange="handleCategoryChange(this.value)" 
-                        class="w-full appearance-none bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 text-xs font-medium rounded-xl py-2 pl-3 pr-8 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-100 transition-all cursor-pointer shadow-xs"
-                    >
-                        <option value="Semua">Semua Kategori</option>
-                    </select>
-                    <div class="absolute inset-y-0 right-0 flex items-center pr-2.5 pointer-events-none text-zinc-400">
-                        <i data-lucide="chevron-down" class="w-4 h-4"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Apps Section Header -->
-        <div class="flex items-center justify-between mb-6 pb-2 border-b border-zinc-100 dark:border-zinc-900">
-            <div class="flex items-center space-x-2">
-                <h2 class="text-xs font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
-                    Aplikasi Terhubung
-                </h2>
-                <span id="appCountBadge" class="text-xs font-bold px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">0</span>
-            </div>
-        </div>
-
-        <!-- Desktop App Icons Grid -->
-        <div id="appsGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
-            <!-- App cards generated dynamically -->
-        </div>
-
-        <!-- Empty State -->
-        <div id="emptyState" class="hidden flex-col items-center justify-center py-16 text-center">
-            <div class="w-16 h-16 rounded-2xl bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center text-zinc-400 mb-4">
-                <i data-lucide="search-x" class="w-8 h-8"></i>
-            </div>
-            <h3 class="text-base font-bold text-zinc-900 dark:text-zinc-100 mb-1">Aplikasi Tidak Ditemukan</h3>
-            <p class="text-xs text-zinc-500 dark:text-zinc-400 max-w-sm">
-                Coba sesuaikan kata kunci pencarian atau ubah filter kategori.
-            </p>
-        </div>
-
-    </main>
-
-    <!-- Footer -->
-    <footer class="border-t border-zinc-100 dark:border-zinc-800/60 py-6 bg-white dark:bg-zinc-950 text-xs text-zinc-400 dark:text-zinc-500">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
-            <div class="flex items-center space-x-2">
-                <span id="footerLauncherText" onclick="handleFooterClick()" class="font-semibold text-zinc-700 dark:text-zinc-300 cursor-pointer select-none transition-colors hover:text-black dark:hover:text-white" title="Klik 5x untuk membuka Admin Panel">pufutara launcher</span>
-                <span>&bull;</span>
-                <span>Ekosistem Aplikasi Terintegrasi</span>
-            </div>
-            <div>
-                &copy; <span id="yearSpan">2026</span> Pufutara Digital Inc. All rights reserved.
-            </div>
-        </div>
-    </footer>
-
-    <!-- MODAL 1: Secret Admin Auth Modal -->
-    <div id="adminAuthModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
-        <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-xl max-w-md w-full p-6 relative">
-            <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200">
-                <i data-lucide="x" class="w-5 h-5"></i>
-            </button>
-            <div class="flex items-center space-x-3 mb-4">
-                <div class="w-10 h-10 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-900 dark:text-zinc-100">
-                    <i data-lucide="shield-check" class="w-5 h-5"></i>
-                </div>
-                <div>
-                    <h3 class="font-bold text-base text-zinc-900 dark:text-zinc-100">Verifikasi Akses Admin</h3>
-                    <p class="text-xs text-zinc-500 dark:text-zinc-400">Masukkan PIN Keamanan untuk membuka Admin Panel</p>
-                </div>
-            </div>
-            <form onsubmit="verifyAdminPin(event)" class="space-y-4">
-                <div>
-                    <input type="password" id="adminPinInput" placeholder="Masukkan PIN Admin" class="w-full px-4 py-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-center text-lg tracking-widest font-mono text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-100" required autofocus />
-                </div>
-                <div class="flex justify-end space-x-2">
-                    <button type="button" onclick="closeAuthModal()" class="px-4 py-2 text-xs font-semibold text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl">Batal</button>
-                    <button type="submit" class="px-5 py-2 text-xs font-semibold bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-xl hover:opacity-90 transition-opacity">Masuk</button>
-                </div>
-            </form>
-        </div>
+  <!-- Header / Navigation -->
+  <header class="border-b border-gray-200 dark:border-neutral-800 px-6 py-4 flex items-center justify-between sticky top-0 z-20 bg-white/90 dark:bg-pufutara-950/90 backdrop-blur-md">
+    <div class="flex items-center space-x-3">
+      <div class="w-9 h-9 bg-black dark:bg-white text-white dark:text-black rounded-lg flex items-center justify-center font-bold text-xl shadow-sm">
+        P
+      </div>
+      <div>
+        <h1 class="font-bold text-base leading-none tracking-tight">pufutara</h1>
+        <span class="text-[10px] text-gray-500 dark:text-neutral-400 font-medium tracking-wider uppercase">Digital Ecosystem</span>
+      </div>
     </div>
 
-    <!-- MODAL 2: Admin Panel Modal -->
-    <div id="adminPanelModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 sm:p-6">
-        <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden">
-            <!-- Header -->
-            <div class="px-6 py-4 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="w-9 h-9 rounded-xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 flex items-center justify-center font-bold">
-                        <i data-lucide="settings" class="w-5 h-5"></i>
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-base text-zinc-900 dark:text-zinc-100">Kelola Aplikasi Ekosistem</h3>
-                        <p class="text-xs text-zinc-500 dark:text-zinc-400">Atur tautan, ikon, kategori, dan konfigurasi peluncur</p>
-                    </div>
-                </div>
-                <button onclick="closeAdminPanelModal()" class="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1.5 rounded-lg">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
+    <div class="flex items-center space-x-6">
+      <!-- Live Clock & Date -->
+      <div class="text-right hidden sm:block">
+        <div id="liveClock" class="text-sm font-semibold tracking-wide">00:00:00</div>
+        <div id="liveDate" class="text-xs text-gray-500 dark:text-neutral-400">Senin, 1 Jan 2026</div>
+      </div>
 
-            <!-- Body -->
-            <div class="p-6 overflow-y-auto space-y-6 flex-grow">
-                <!-- Actions Toolbar -->
-                <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-zinc-50 dark:bg-zinc-800/50 p-3 rounded-2xl border border-zinc-200/60 dark:border-zinc-800">
-                    <button onclick="openAppFormModal()" class="px-4 py-2 bg-zinc-900 dark:bg-zinc-100 hover:bg-black dark:hover:bg-white text-white dark:text-zinc-900 rounded-xl font-medium text-xs flex items-center justify-center space-x-2 transition-all shadow-sm">
-                        <i data-lucide="plus" class="w-4 h-4"></i>
-                        <span>Tambah Aplikasi Baru</span>
-                    </button>
-                    <div class="flex items-center space-x-2">
-                        <button onclick="promptChangePin()" class="px-3 py-2 bg-white dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 rounded-xl font-medium text-xs flex items-center space-x-1.5 transition-colors">
-                            <i data-lucide="key" class="w-3.5 h-3.5"></i>
-                            <span>Ubah PIN</span>
-                        </button>
-                        <button onclick="resetDefaultApps()" class="px-3 py-2 bg-white dark:bg-zinc-800 hover:bg-red-50 dark:hover:bg-red-950/30 text-red-600 dark:text-red-400 border border-zinc-200 dark:border-zinc-700 rounded-xl font-medium text-xs flex items-center space-x-1.5 transition-colors">
-                            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
-                            <span>Reset Data</span>
-                        </button>
-                    </div>
-                </div>
+      <!-- Minimalist Theme Switcher Dropdown -->
+      <div class="relative flex items-center">
+        <select 
+          id="themeSelect" 
+          class="appearance-none bg-gray-100/80 dark:bg-neutral-800/80 hover:bg-gray-200/80 dark:hover:bg-neutral-700/80 text-gray-700 dark:text-neutral-300 text-[11px] font-semibold rounded-full py-1.5 pl-3.5 pr-8 outline-none cursor-pointer transition-all border border-transparent focus:border-gray-300 dark:focus:border-neutral-600"
+        >
+          <option value="auto" class="bg-white dark:bg-neutral-900 text-gray-900 dark:text-white">Auto</option>
+          <option value="light" class="bg-white dark:bg-neutral-900 text-gray-900 dark:text-white">Terang</option>
+          <option value="dark" class="bg-white dark:bg-neutral-900 text-gray-900 dark:text-white">Gelap</option>
+        </select>
+        <i data-lucide="sun-moon" class="w-3.5 h-3.5 absolute right-3 pointer-events-none text-gray-400 dark:text-neutral-500"></i>
+      </div>
+    </div>
+  </header>
 
-                <!-- Admin Apps Table -->
-                <div class="border border-zinc-200 dark:border-zinc-800 rounded-2xl overflow-hidden">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs">
-                            <thead class="bg-zinc-100/70 dark:bg-zinc-800/80 text-zinc-500 dark:text-zinc-400 font-semibold border-b border-zinc-200 dark:border-zinc-800">
-                                <tr>
-                                    <th class="p-3 w-10 text-center">Urutan</th>
-                                    <th class="p-3">Aplikasi</th>
-                                    <th class="p-3">Kategori</th>
-                                    <th class="p-3">URL</th>
-                                    <th class="p-3 text-right">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody id="adminAppTableBody" class="divide-y divide-zinc-100 dark:divide-zinc-800/60 font-medium">
-                                <!-- Dynamic rows -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Backup / Restore -->
-                <div class="pt-4 border-t border-zinc-100 dark:border-zinc-800 flex flex-col sm:flex-row items-center justify-between text-xs text-zinc-500 dark:text-zinc-400 gap-3">
-                    <div class="flex items-center space-x-2">
-                        <i data-lucide="database" class="w-4 h-4 text-zinc-400"></i>
-                        <span>Penyimpanan Ekosistem</span>
-                    </div>
-                    <div class="flex items-center space-x-2">
-                        <button onclick="exportDataJSON()" class="px-3 py-1.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-lg font-medium transition-colors flex items-center space-x-1">
-                            <i data-lucide="download" class="w-3.5 h-3.5"></i>
-                            <span>Ekspor JSON</span>
-                        </button>
-                        <label class="px-3 py-1.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-lg font-medium cursor-pointer transition-colors flex items-center space-x-1">
-                            <i data-lucide="upload" class="w-3.5 h-3.5"></i>
-                            <span>Impor JSON</span>
-                            <input type="file" id="importFileInput" accept=".json" class="hidden" onchange="importDataJSON(event)">
-                        </label>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Footer -->
-            <div class="px-6 py-3 bg-zinc-50 dark:bg-zinc-950 border-t border-zinc-100 dark:border-zinc-800/80 flex items-center justify-between text-xs text-zinc-500">
-                <span>Pufutara Launcher Admin Panel</span>
-                <button onclick="closeAdminPanelModal()" class="px-4 py-1.5 bg-zinc-200 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 rounded-lg font-semibold hover:bg-zinc-300 dark:hover:bg-zinc-700 transition-colors">Tutup</button>
-            </div>
-        </div>
+  <!-- Main Content -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-6 py-10 flex flex-col items-center">
+    
+    <!-- Hero Section -->
+    <div class="text-center max-w-2xl mb-8">
+      <h2 class="text-3xl font-extrabold tracking-tight sm:text-4xl">
+        Pufutara Workspace Portal
+      </h2>
+      <p class="mt-2 text-sm text-gray-600 dark:text-neutral-400">
+        Pusat kendali & peluncur aplikasi ekosistem digital Pufutara.
+      </p>
     </div>
 
-    <!-- MODAL 3: Add / Edit App Form Modal -->
-    <div id="appFormModal" class="fixed inset-0 z-[60] hidden flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-        <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl shadow-2xl max-w-lg w-full p-6 relative my-auto max-h-[90vh] flex flex-col">
-            <button onclick="closeAppFormModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200">
-                <i data-lucide="x" class="w-5 h-5"></i>
-            </button>
-            <h3 id="formModalTitle" class="text-base font-bold text-zinc-900 dark:text-zinc-100 mb-4">Tambah Aplikasi Baru</h3>
-            
-            <form id="appForm" onsubmit="saveAppForm(event)" class="space-y-4 overflow-y-auto pr-1 flex-grow">
-                <input type="hidden" id="formAppId" value="">
-                
-                <div>
-                    <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Nama Aplikasi *</label>
-                    <input type="text" id="formAppTitle" placeholder="Contoh: Pufutara AI" class="w-full px-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-medium text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-100" required>
-                </div>
+    <!-- Search & Filter Controls -->
+    <div class="w-full max-w-2xl space-y-4 mb-8">
+      
+      <!-- Search Input Box -->
+      <div class="relative flex items-center shadow-sm">
+        <i data-lucide="search" class="absolute left-4 w-5 h-5 text-gray-400"></i>
+        <input 
+          type="text" 
+          id="searchInput" 
+          placeholder="Cari aplikasi atau tekan Enter untuk cari di web..." 
+          class="w-full pl-12 pr-20 py-3.5 bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white transition-all"
+        />
+        <button 
+          id="btnWebSearch" 
+          title="Cari di Google Web" 
+          class="absolute right-2 px-3 py-1.5 bg-black dark:bg-white text-white dark:text-black text-xs font-semibold rounded-lg hover:opacity-80 transition"
+        >
+          Web
+        </button>
+      </div>
 
-                <div>
-                    <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">URL / Link Tautan *</label>
-                    <input type="url" id="formAppUrl" placeholder="https://..." class="w-full px-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-medium text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-100" required>
-                </div>
+      <!-- Category Dropdown Filter -->
+      <div class="flex items-center justify-between text-xs text-gray-500 dark:text-neutral-400 px-1">
+        <span class="font-medium flex items-center space-x-1.5">
+          <i data-lucide="filter" class="w-3.5 h-3.5"></i>
+          <span>Filter Kategori:</span>
+        </span>
+        <select 
+          id="categoryDropdown" 
+          class="bg-gray-100 dark:bg-neutral-800 text-gray-900 dark:text-gray-100 font-medium px-3 py-1.5 rounded-lg border border-gray-200 dark:border-neutral-700 outline-none cursor-pointer transition"
+        >
+          <!-- Auto-populated via JS -->
+        </select>
+      </div>
 
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Kategori</label>
-                        <input type="text" id="formAppCategory" placeholder="Utama / Tools / Dev" class="w-full px-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-medium text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-100">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Nama Ikon Lucide</label>
-                        <input type="text" id="formAppIcon" placeholder="globe" class="w-full px-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-medium text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-100" oninput="updateIconPreview(this.value)">
-                    </div>
-                </div>
-
-                <!-- Icon Preset Selector Grid -->
-                <div>
-                    <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1.5">Pilih Preset Ikon Quick-Pick:</label>
-                    <div id="iconPickerGrid" class="grid grid-cols-8 gap-1.5 bg-zinc-50 dark:bg-zinc-800/60 p-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 max-h-32 overflow-y-auto">
-                        <!-- Icon buttons generated via JS -->
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Deskripsi Ringkas</label>
-                    <textarea id="formAppDesc" rows="2" placeholder="Deskripsi singkat mengenai kegunaan aplikasi ini..." class="w-full px-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-medium text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-100"></textarea>
-                </div>
-
-                <div class="flex items-center justify-end space-x-2 pt-2 border-t border-zinc-100 dark:border-zinc-800">
-                    <button type="button" onclick="closeAppFormModal()" class="px-4 py-2 text-xs font-semibold text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl">Batal</button>
-                    <button type="submit" class="px-5 py-2 text-xs font-semibold bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-xl hover:opacity-90 transition-opacity">Simpan Aplikasi</button>
-                </div>
-            </form>
-        </div>
     </div>
 
-    <!-- MODAL 4: Custom Confirm Dialog Modal -->
-    <div id="confirmModal" class="fixed inset-0 z-[70] hidden flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
-        <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-xl max-w-sm w-full p-5 relative">
-            <h4 id="confirmTitle" class="font-bold text-sm text-zinc-900 dark:text-zinc-100 mb-2">Konfirmasi</h4>
-            <p id="confirmMessage" class="text-xs text-zinc-500 dark:text-zinc-400 mb-5">Apakah Anda yakin ingin melanjutkan?</p>
-            <div class="flex items-center justify-end space-x-2">
-                <button id="confirmCancelBtn" class="px-3.5 py-1.5 text-xs font-semibold text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl">Batal</button>
-                <button id="confirmOkBtn" class="px-4 py-1.5 text-xs font-semibold bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors">Hapus</button>
+    <!-- Stats Counter -->
+    <div class="w-full flex items-center justify-between mb-2 border-b border-gray-100 dark:border-neutral-800 pb-2">
+      <span class="text-xs font-semibold uppercase tracking-wider text-gray-400">Ekosistem Aplikasi</span>
+      <span id="appCount" class="text-xs font-semibold text-gray-500 dark:text-neutral-400">0 Aplikasi</span>
+    </div>
+
+    <!-- Grouped Apps Sections Container -->
+    <div id="appsSectionsContainer" class="w-full space-y-6">
+      <!-- Dynamic Category Sections Rendered Here -->
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="hidden text-center py-16 w-full">
+      <i data-lucide="search-x" class="w-12 h-12 mx-auto text-gray-300 dark:text-neutral-700 mb-3"></i>
+      <p class="text-sm font-medium text-gray-500 dark:text-neutral-400">Aplikasi tidak ditemukan.</p>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-gray-200 dark:border-neutral-800 py-6 text-center text-xs text-gray-400 dark:text-neutral-600">
+    <p>pufutara launcher &bull; Digital Ecosystem Portal</p>
+  </footer>
+
+  <script>
+    // HARDCODED APPLICATION DATA — URL disesuaikan dengan path di script.js root
+    const APPS_DATA = [
+      // --- PLATFORM PUFUTARA ---
+      {
+        id: 'pf-browser',
+        title: 'Pufutara Browser',
+        url: '/browser/index.html',
+        icon: 'compass',
+        category: 'Platform Pufutara',
+        description: 'Browser cepat, ringan dan modern! dibuat dari framework electron.'
+      },
+      {
+        id: 'pf-drive',
+        title: 'PufutaraDrive',
+        url: '/drive/index.html',
+        icon: 'hard-drive',
+        category: 'Platform Pufutara',
+        description: 'Simpan file-file penting proyek kodingan kamu dengan aman dan mudah diakses di mana saja.'
+      },
+      {
+        id: 'pf-chat',
+        title: 'PufutaraChat',
+        url: '/chat/index.html',
+        icon: 'message-square',
+        category: 'Platform Pufutara',
+        description: 'Obrolan Simple, tambah akun, login, langsung chat ke semua orang secara real-time.'
+      },
+      {
+        id: 'pf-tube',
+        title: 'PufutaraTube',
+        url: '/tube/index.html',
+        icon: 'tv-2',
+        category: 'Platform Pufutara',
+        description: 'Tempat nonton video favorit tanpa iklan yang mengganggu fokus koding kamu.'
+      },
+      {
+        id: 'pf-gallery',
+        title: 'PufutaraGallery',
+        url: '/gallery/index.html',
+        icon: 'image',
+        category: 'Platform Pufutara',
+        description: 'Proyek Full Stack pertama Putra! Upload foto otomatis tersimpan ke server untuk dilihat semua orang.'
+      },
+
+      // --- KREATIVITAS & KONTEN ---
+      {
+        id: 'pf-ai',
+        title: 'Pufutara AI',
+        url: 'https://pufutaraai.vercel.app',
+        icon: 'sparkles',
+        category: 'Kreativitas & Konten',
+        description: 'AI chatbot menggunakan Gemini API key sebagai dasar AI nya.'
+      },
+      {
+        id: 'pf-propaint',
+        title: 'Pufutara ProPaint',
+        url: '/paint/index.html',
+        icon: 'palette',
+        category: 'Kreativitas & Konten',
+        description: 'Gambar dan sketsa apa saja dengan mudah. Aplikasi simpel, tapi tools-nya profesional.'
+      },
+      {
+        id: 'pf-cahier',
+        title: 'Pufutara Cahier',
+        url: '/kasir/index.html',
+        icon: 'book-open',
+        category: 'Kreativitas & Konten',
+        description: 'Jurnal digital minimalis. Catat ide atau tugas sekolah dengan antarmuka menenangkan.'
+      },
+      {
+        id: 'pf-writer',
+        title: 'Pufutara Writer',
+        url: '/write/index.html',
+        icon: 'file-text',
+        category: 'Kreativitas & Konten',
+        description: 'Pengolahan kata yang cepat dan ringan. Cocok buat nulis ide proyek yang tiba-tiba muncul.'
+      },
+
+      // --- PRODUKTIVITAS & EDUKASI ---
+      {
+        id: 'pf-habit',
+        title: 'Pufutara Habit Tracker',
+        url: '/habit/index.html',
+        icon: 'target',
+        category: 'Produktivitas & Edukasi',
+        description: 'Pantau proses membangun kebiasaan baik dan hilangkan kebiasaan buruk setiap hari.'
+      },
+      {
+        id: 'pf-news',
+        title: 'Pufutara News & Calc',
+        url: '/news/landing.html',
+        icon: 'newspaper',
+        category: 'Produktivitas & Edukasi',
+        description: 'Baca berita terbaru atau pakai kalkulator sains akurat buat bantu tugas Labkom kamu.'
+      },
+      {
+        id: 'pf-quiz',
+        title: 'Pufutara Quiz App',
+        url: '/quiz/index.html',
+        icon: 'graduation-cap',
+        category: 'Produktivitas & Edukasi',
+        description: 'Uji pengetahuanmu lewat kuis interaktif. Pilihan gacor dan leaderboard seru.'
+      },
+      {
+        id: 'pf-vote',
+        title: 'Pufutara Vote System',
+        url: '/vote/index.html',
+        icon: 'check-square',
+        category: 'Produktivitas & Edukasi',
+        description: 'Sistem voting sederhana untuk menentukan pilihan kelas atau keputusan bersama.'
+      },
+
+      // --- TOOLS & UTILITAS ---
+      {
+        id: 'pf-diglib',
+        title: 'Pufutara DigLib',
+        url: '/library/index.html',
+        icon: 'library',
+        category: 'Tools & Utilitas',
+        description: 'Perpustakaan digital dan info cuaca Jalancagak biar tau kapan harus bawa payung ke Labkom.'
+      },
+      {
+        id: 'pf-spin',
+        title: 'Pufutara SpinWheel',
+        url: '/spin/index.html',
+        icon: 'disc',
+        category: 'Tools & Utilitas',
+        description: 'Putuskan kelompok belajar atau pilihan sulit lainnya dengan roda tak terduga ini.'
+      },
+      {
+        id: 'pf-todo',
+        title: 'Pufutara ToDo List',
+        url: '/todo/index.html',
+        icon: 'list-todo',
+        category: 'Tools & Utilitas',
+        description: 'List tugas simpel dan modern untuk Putra yang pelupa biar jadwal tetap teratur.'
+      },
+      {
+        id: 'pf-workspace',
+        title: 'Pufutara Workspace',
+        url: '/work/index.html',
+        icon: 'briefcase',
+        category: 'Tools & Utilitas',
+        description: 'Hub pusat aplikasi produktivitas Pufutara, gabungan dari berbagai proyek jadi satu.'
+      },
+      {
+        id: 'pf-kiblat',
+        title: 'Pufutara Kiblat',
+        url: '/kiblat/index.html',
+        icon: 'compass',
+        category: 'Tools & Utilitas',
+        description: 'Arah kiblat digital dari mana saja. Panduan ibadah praktis untuk santri developer.'
+      },
+
+      // --- FUN & HIBURAN ---
+      {
+        id: 'pf-calc',
+        title: 'Pufutara Calc Pro',
+        url: '/calc/index.html',
+        icon: 'calculator',
+        category: 'Fun & Hiburan',
+        description: 'Kalkulator modern dengan fungsi sains, persentase, dan riwayat perhitungan.'
+      },
+      {
+        id: 'pf-minigames',
+        title: 'Pufutara MiniGames',
+        url: '/game/index.html',
+        icon: 'gamepad-2',
+        category: 'Fun & Hiburan',
+        description: 'Kumpulan game ringan buat refreshing otak setelah pusing ngurusin bug di HTML.'
+      },
+      {
+        id: 'pf-webv1',
+        title: 'Pufutara Web V1',
+        url: 'https://kanay.vercel.app',
+        icon: 'history',
+        category: 'Fun & Hiburan',
+        description: 'Saksi bisu perjalanan di BEM. Tanya anak BEM se-Sikma kalau mau tau sejarah web ini!'
+      },
+      {
+        id: 'pf-webv2',
+        title: 'Pufutara Web V2',
+        url: 'https://pufuta.vercel.app',
+        icon: 'globe',
+        category: 'Fun & Hiburan',
+        description: "Website utama Putra versi terbaru. Modern, cepat, dan pastinya tetap 'putraganteng'."
+      },
+      {
+        id: 'pf-launcher',
+        title: 'Pufutara Launcher',
+        url: '/launcher/index.html',
+        icon: 'rocket',
+        category: 'Fun & Hiburan',
+        description: 'Pusat kendali & peluncur semua aplikasi ekosistem digital Pufutara dalam satu halaman.'
+      }
+    ];
+
+    // Category Icons Mapping for Divider Badges
+    const CATEGORY_ICONS = {
+      'Platform Pufutara': 'layers',
+      'Kreativitas & Konten': 'palette',
+      'Produktivitas & Edukasi': 'book-open-check',
+      'Tools & Utilitas': 'wrench',
+      'Fun & Hiburan': 'gamepad-2'
+    };
+
+    // State Variables
+    let currentCategory = 'Semua';
+    let searchQuery = '';
+
+    // DOM Elements
+    const appsSectionsContainer = document.getElementById('appsSectionsContainer');
+    const emptyState = document.getElementById('emptyState');
+    const appCount = document.getElementById('appCount');
+    const searchInput = document.getElementById('searchInput');
+    const btnWebSearch = document.getElementById('btnWebSearch');
+    const categoryDropdown = document.getElementById('categoryDropdown');
+    const themeSelect = document.getElementById('themeSelect');
+
+    // Populate Category Dropdown Dynamically
+    function populateCategoryDropdown() {
+      const categories = ['Semua', ...new Set(APPS_DATA.map(app => app.category))];
+      categoryDropdown.innerHTML = categories.map(cat => `
+        <option value="${cat}">${cat === 'Semua' ? 'Semua Kategori' : cat}</option>
+      `).join('');
+    }
+
+    // Live Clock Function
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('liveClock').textContent = now.toLocaleTimeString('id-ID', {
+        hour: '2-digit', minute: '2-digit', second: '2-digit'
+      });
+      document.getElementById('liveDate').textContent = now.toLocaleDateString('id-ID', {
+        weekday: 'short', day: 'numeric', month: 'short', year: 'numeric'
+      });
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Theme Management
+    function applyTheme(mode) {
+      if (mode === 'dark' || (mode === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+
+    themeSelect.addEventListener('change', (e) => {
+      const mode = e.target.value;
+      localStorage.setItem('pufutara_theme', mode);
+      applyTheme(mode);
+    });
+
+    // Initialize Saved Theme
+    const savedTheme = localStorage.getItem('pufutara_theme') || 'auto';
+    themeSelect.value = savedTheme;
+    applyTheme(savedTheme);
+
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      if (themeSelect.value === 'auto') applyTheme('auto');
+    });
+
+    // Render Apps Grid with Category Dividers
+    function renderApps() {
+      // Filter items
+      const filtered = APPS_DATA.filter(app => {
+        const matchesCategory = currentCategory === 'Semua' || app.category === currentCategory;
+        const matchesSearch = app.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                              app.description.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchesCategory && matchesSearch;
+      });
+
+      appCount.textContent = `${filtered.length} Aplikasi`;
+
+      if (filtered.length === 0) {
+        appsSectionsContainer.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+
+      // Group filtered apps by category
+      const categoriesMap = {};
+      filtered.forEach(app => {
+        if (!categoriesMap[app.category]) {
+          categoriesMap[app.category] = [];
+        }
+        categoriesMap[app.category].push(app);
+      });
+
+      // Build HTML with Category Dividers
+      let htmlContent = '';
+
+      Object.keys(categoriesMap).forEach(catName => {
+        const catApps = categoriesMap[catName];
+        const catIcon = CATEGORY_ICONS[catName] || 'folder';
+
+        htmlContent += `
+          <div class="category-section pt-2">
+            <!-- Category Section Divider -->
+            <div class="relative flex py-4 items-center">
+              <div class="flex-grow border-t border-gray-200/80 dark:border-neutral-800"></div>
+              <span class="flex-shrink mx-4 px-4 py-1.5 bg-gray-100/90 dark:bg-neutral-800/90 text-gray-700 dark:text-neutral-300 text-xs font-semibold rounded-full border border-gray-200 dark:border-neutral-700/70 flex items-center gap-2 shadow-sm">
+                <i data-lucide="${catIcon}" class="w-3.5 h-3.5 text-black dark:text-white"></i>
+                <span>${catName}</span>
+              </span>
+              <div class="flex-grow border-t border-gray-200/80 dark:border-neutral-800"></div>
             </div>
-        </div>
-    </div>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none flex items-center space-x-2.5 px-4 py-3 rounded-2xl shadow-lg border text-xs font-medium bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 border-zinc-800 dark:border-zinc-200">
-        <i id="toastIcon" data-lucide="info" class="w-4 h-4 shrink-0"></i>
-        <span id="toastMessage">Pesan pemberitahuan</span>
-    </div>
-
-    <script>
-        
-        // Storage Key Constants
-        const LOCAL_STORAGE_APPS_KEY = 'pufutara_launcher_apps_v1';
-        const LOCAL_STORAGE_PIN_KEY = 'pufutara_launcher_pin_v1';
-        const LOCAL_STORAGE_THEME_KEY = 'pufutara_launcher_theme_v1';
-
-        // Hardcoded Supabase Credentials
-        const SUPABASE_URL = "https://puywjdopumlzvmzbcudr.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1eXdqZG9wdW1senZtemJjdWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDE3MTksImV4cCI6MjA4NzkxNzcxOX0.vvThyjtK2SlA9oA9Mr_XOmt1R_tNZk-ib3PO9XpiiSc";
-
-        // Active Supabase Instance
-        let supabaseClient = null;
-
-        // Rich preset list of Lucide icons for icon picker
-        const PRESET_ICONS = [
-            'sparkles', 'cloud', 'briefcase', 'bar-chart-3', 'shield-check', 
-            'code', 'mail', 'lock', 'terminal', 'layout-grid', 'layers', 
-            'database', 'cpu', 'zap', 'globe', 'compass', 'box', 'package', 
-            'server', 'hard-drive', 'settings', 'user', 'users', 'folder', 
-            'file-text', 'calendar', 'clock', 'bookmark', 'link', 'key', 
-            'shield', 'camera', 'music', 'video', 'message-square', 'external-link', 'app-window'
-        ];
-
-        // Default ecosystem applications
-        const DEFAULT_APPS = [
-            { id: 'app-1', title: 'Pufutara AI', url: 'https://ai.pufutara.com', category: 'Utama', icon: 'sparkles', description: 'Asisten kecerdasan buatan terpadu untuk tim Pufutara.' },
-            { id: 'app-2', title: 'Pufutara Cloud', url: 'https://cloud.pufutara.com', category: 'Utama', icon: 'cloud', description: 'Penyimpanan awan terenkripsi & berbagi dokumen internal.' },
-            { id: 'app-3', title: 'Pufutara Workspace', url: 'https://workspace.pufutara.com', category: 'Produktivitas', icon: 'briefcase', description: 'Ruang kolaborasi tim, tugas harian, dan manajemen proyek.' },
-            { id: 'app-4', title: 'Pufutara Analytics', url: 'https://analytics.pufutara.com', category: 'Tools', icon: 'bar-chart-3', description: 'Dashboard pemantauan performa dan analitik real-time.' },
-            { id: 'app-5', title: 'Pufutara ID', url: 'https://id.pufutara.com', category: 'Keamanan', icon: 'shield-check', description: 'Layanan Single Sign-On (SSO) dan otentikasi akun.' },
-            { id: 'app-6', title: 'Pufutara Developer', url: 'https://dev.pufutara.com', category: 'Dev & API', icon: 'code', description: 'Portal dokumentasi API, SDK, dan lingkungan sandbox.' },
-            { id: 'app-7', title: 'Pufutara Mail', url: 'https://mail.pufutara.com', category: 'Produktivitas', icon: 'mail', description: 'Layanan surat elektronik profesional domain pufutara.com.' },
-            { id: 'app-8', title: 'Pufutara Vault', url: 'https://vault.pufutara.com', category: 'Keamanan', icon: 'lock', description: 'Manajer kata sandi dan kredensial sensitif perusahaan.' }
-        ];
-
-        // Application State
-        let appsList = [];
-        let currentCategory = 'Semua';
-        let searchQuery = '';
-        let adminPin = 'kamusiapa';
-        let logoClickCount = 0;
-        let logoClickTimer = null;
-        let footerClickCount = 0;
-        let footerClickTimer = null;
-        let currentThemeMode = 'auto'; // 'auto' | 'light' | 'dark'
-
-        window.addEventListener('DOMContentLoaded', async () => {
-            initTheme();
-            initSupabaseClient();
-            await loadInitialState();
-            setupClock();
-            setupEventListeners();
-            renderCategorySelectOptions();
-            renderApps();
-            renderIconPickerGrid();
-            lucide.createIcons();
-        });
-
-        function initSupabaseClient() {
-            if (SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase) {
-                try {
-                    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                } catch (e) {
-                    console.error('Gagal menginisialisasi client Supabase:', e);
-                    supabaseClient = null;
-                }
-            } else {
-                supabaseClient = null;
-            }
-        }
-
-        function initTheme() {
-            const savedTheme = localStorage.getItem(LOCAL_STORAGE_THEME_KEY) || 'auto';
-            setTheme(savedTheme);
-
-            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-                if (currentThemeMode === 'auto') {
-                    applyThemeToDOM(e.matches ? 'dark' : 'light');
-                }
-            });
-        }
-
-        function cycleTheme() {
-            if (currentThemeMode === 'auto') setTheme('light');
-            else if (currentThemeMode === 'light') setTheme('dark');
-            else setTheme('auto');
-        }
-
-        function setTheme(mode) {
-            currentThemeMode = mode;
-            localStorage.setItem(LOCAL_STORAGE_THEME_KEY, mode);
-            
-            const labelEl = document.getElementById('themeLabel');
-            const iconEl = document.getElementById('themeIcon');
-
-            if (mode === 'auto') {
-                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                applyThemeToDOM(prefersDark ? 'dark' : 'light');
-                if (labelEl) labelEl.textContent = 'Auto';
-                if (iconEl) iconEl.setAttribute('data-lucide', 'sun-moon');
-            } else if (mode === 'dark') {
-                applyThemeToDOM('dark');
-                if (labelEl) labelEl.textContent = 'Gelap';
-                if (iconEl) iconEl.setAttribute('data-lucide', 'moon');
-            } else {
-                applyThemeToDOM('light');
-                if (labelEl) labelEl.textContent = 'Terang';
-                if (iconEl) iconEl.setAttribute('data-lucide', 'sun');
-            }
-            lucide.createIcons();
-        }
-
-        function applyThemeToDOM(theme) {
-            if (theme === 'dark') {
-                document.documentElement.classList.add('dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-            }
-        }
-
-        async function loadInitialState() {
-            const savedPin = localStorage.getItem(LOCAL_STORAGE_PIN_KEY);
-            if (savedPin) adminPin = savedPin;
-
-            const localAppsJson = localStorage.getItem(LOCAL_STORAGE_APPS_KEY);
-            if (localAppsJson) {
-                try {
-                    appsList = JSON.parse(localAppsJson);
-                } catch (e) {
-                    appsList = [...DEFAULT_APPS];
-                }
-            } else {
-                appsList = [...DEFAULT_APPS];
-            }
-
-            if (supabaseClient) {
-                try {
-                    const { data, error } = await supabaseClient
-                        .from('apps')
-                        .select('*')
-                        .order('created_at', { ascending: true });
-                    
-                    if (!error && data && data.length > 0) {
-                        appsList = data.map(item => ({
-                            id: item.id,
-                            title: item.title,
-                            url: item.url,
-                            category: item.category || 'Umum',
-                            icon: item.icon || 'globe',
-                            description: item.description || ''
-                        }));
-                        saveAppsToLocalStorage();
-                    }
-                } catch (err) {
-                    console.warn('Gagal memuat data dari Supabase cloud:', err);
-                }
-            }
-        }
-
-        function saveAppsToLocalStorage() {
-            localStorage.setItem(LOCAL_STORAGE_APPS_KEY, JSON.stringify(appsList));
-        }
-
-        async function syncAppsToSupabase() {
-            if (!supabaseClient) return;
-            try {
-                for (const app of appsList) {
-                    await supabaseClient.from('apps').upsert({
-                        id: app.id,
-                        title: app.title,
-                        url: app.url,
-                        category: app.category,
-                        icon: app.icon,
-                        description: app.description
-                    });
-                }
-            } catch (e) {
-                console.error('Error syncing apps to Supabase:', e);
-            }
-        }
-
-        async function deleteAppFromSupabase(appId) {
-            if (!supabaseClient) return;
-            try {
-                await supabaseClient.from('apps').delete().eq('id', appId);
-            } catch (e) {
-                console.error('Error deleting app from Supabase:', e);
-            }
-        }
-
-        // Clock logic
-        function setupClock() {
-            const clockEl = document.getElementById('digitalClock');
-            const dateEl = document.getElementById('digitalDate');
-            const yearSpan = document.getElementById('yearSpan');
-            
-            if (yearSpan) yearSpan.textContent = new Date().getFullYear();
-
-            function update() {
-                const now = new Date();
-                if (clockEl) {
-                    clockEl.textContent = now.toLocaleTimeString('id-ID', { hour12: false });
-                }
-                if (dateEl) {
-                    dateEl.textContent = now.toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
-                }
-            }
-            update();
-            setInterval(update, 1000);
-        }
-
-        function setupEventListeners() {
-            // Secret 3x logo click trigger
-            const logoBtn = document.getElementById('logoContainer');
-            if (logoBtn) {
-                logoBtn.addEventListener('click', () => {
-                    logoClickCount++;
-                    if (logoClickCount === 1) {
-                        logoClickTimer = setTimeout(() => { logoClickCount = 0; }, 1000);
-                    } else if (logoClickCount >= 3) {
-                        clearTimeout(logoClickTimer);
-                        logoClickCount = 0;
-                        requestAdminAccess();
-                    }
-                });
-            }
-
-            // Keyboard shortcut Ctrl + Shift + A
-            document.addEventListener('keydown', (e) => {
-                if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
-                    e.preventDefault();
-                    requestAdminAccess();
-                }
-                if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
-                    e.preventDefault();
-                    document.getElementById('searchInput').focus();
-                }
-            });
-        }
-
-        // 5x Click Footer Trigger for Secret Admin Access
-        function handleFooterClick() {
-            footerClickCount++;
-            if (footerClickCount === 1) {
-                footerClickTimer = setTimeout(() => { footerClickCount = 0; }, 1500);
-            } else if (footerClickCount >= 5) {
-                clearTimeout(footerClickTimer);
-                footerClickCount = 0;
-                requestAdminAccess();
-            }
-        }
-
-        function getCategories() {
-            const categories = ['Semua'];
-            appsList.forEach(app => {
-                if (app.category && !categories.includes(app.category)) {
-                    categories.push(app.category);
-                }
-            });
-            return categories;
-        }
-
-        function renderCategorySelectOptions() {
-            const selectEl = document.getElementById('categorySelect');
-            if (!selectEl) return;
-
-            const categories = getCategories();
-            selectEl.innerHTML = categories.map(cat => `
-                <option value="${cat}" ${currentCategory === cat ? 'selected' : ''}>
-                    ${cat === 'Semua' ? 'Semua Kategori' : cat}
-                </option>
-            `).join('');
-        }
-
-        function handleCategoryChange(val) {
-            currentCategory = val;
-            renderApps();
-        }
-
-        function handleSearchInput(e) {
-            searchQuery = e.target.value.toLowerCase().trim();
-            renderApps();
-        }
-
-        function handleSearchKeyup(e) {
-            if (e.key === 'Enter' && searchQuery) {
-                executeWebSearch();
-            }
-        }
-
-        function executeWebSearch() {
-            const inputVal = document.getElementById('searchInput').value.trim();
-            if (inputVal) {
-                window.open(`https://www.google.com/search?q=${encodeURIComponent(inputVal)}`, '_blank');
-            }
-        }
-
-        function renderApps() {
-            const grid = document.getElementById('appsGrid');
-            const emptyState = document.getElementById('emptyState');
-            const countBadge = document.getElementById('appCountBadge');
-
-            const filtered = appsList.filter(app => {
-                const matchesCat = currentCategory === 'Semua' || app.category === currentCategory;
-                const matchesSearch = !searchQuery || 
-                    app.title.toLowerCase().includes(searchQuery) || 
-                    (app.description && app.description.toLowerCase().includes(searchQuery)) ||
-                    (app.category && app.category.toLowerCase().includes(searchQuery));
-                return matchesCat && matchesSearch;
-            });
-
-            if (countBadge) countBadge.textContent = filtered.length;
-
-            if (filtered.length === 0) {
-                grid.innerHTML = '';
-                grid.classList.add('hidden');
-                emptyState.classList.remove('hidden');
-                emptyState.classList.add('flex');
-                return;
-            }
-
-            emptyState.classList.add('hidden');
-            emptyState.classList.remove('flex');
-            grid.classList.remove('hidden');
-
-            grid.innerHTML = filtered.map(app => `
+            <!-- Apps Grid for this Category -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-2">
+              ${catApps.map(app => `
                 <a 
-                    href="${app.url}" 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    class="group relative flex flex-col items-center justify-between text-center bg-zinc-50/60 dark:bg-zinc-900/60 hover:bg-white dark:hover:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800/80 hover:border-zinc-300 dark:hover:border-zinc-700 rounded-3xl p-5 transition-all duration-200 shadow-xs hover:shadow-md hover:-translate-y-1"
+                  href="${app.url}" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  class="group flex flex-col items-center text-center p-4 rounded-2xl bg-gray-50/60 dark:bg-neutral-900/60 hover:bg-gray-100 dark:hover:bg-neutral-800 border border-gray-100 dark:border-neutral-800/80 hover:border-gray-300 dark:hover:border-neutral-700 transition-all duration-200 hover:-translate-y-1 shadow-sm"
                 >
-                    <div class="flex flex-col items-center w-full">
-                        <!-- Desktop OS Icon Box -->
-                        <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl sm:rounded-3xl bg-white dark:bg-zinc-800 border border-zinc-200/80 dark:border-zinc-700/80 flex items-center justify-center text-zinc-800 dark:text-zinc-100 mb-3 shadow-xs group-hover:scale-105 group-hover:bg-zinc-900 group-hover:text-white dark:group-hover:bg-white dark:group-hover:text-zinc-900 transition-all duration-200">
-                            <i data-lucide="${app.icon || 'globe'}" class="w-8 h-8 sm:w-10 sm:h-10"></i>
-                        </div>
-                        
-                        <!-- Title -->
-                        <h3 class="font-bold text-xs sm:text-sm text-zinc-900 dark:text-zinc-100 group-hover:text-black dark:group-hover:text-white line-clamp-1 w-full px-1">
-                            ${app.title}
-                        </h3>
-
-                        <!-- Description -->
-                        <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1 line-clamp-2 w-full leading-relaxed font-normal">
-                            ${app.description || app.category || 'Aplikasi Pufutara'}
-                        </p>
-                    </div>
-
-                    <!-- External Link Indicator -->
-                    <div class="mt-3 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-semibold text-zinc-400 dark:text-zinc-500 flex items-center space-x-1">
-                        <span>Buka</span>
-                        <i data-lucide="arrow-up-right" class="w-3 h-3"></i>
-                    </div>
+                  <div class="w-14 h-14 rounded-2xl bg-white dark:bg-neutral-800 border border-gray-200/80 dark:border-neutral-700/80 flex items-center justify-center mb-3 group-hover:scale-105 group-hover:shadow-md transition-all">
+                    <i data-lucide="${app.icon || 'globe'}" class="w-7 h-7 text-pufutara-900 dark:text-pufutara-50"></i>
+                  </div>
+                  <h3 class="font-bold text-sm text-gray-900 dark:text-white group-hover:text-black dark:group-hover:text-white transition line-clamp-1 w-full">
+                    ${app.title}
+                  </h3>
+                  <p class="text-[11px] text-gray-500 dark:text-neutral-400 mt-1 line-clamp-2 leading-snug font-normal w-full">
+                    ${app.description}
+                  </p>
                 </a>
-            `).join('');
+              `).join('')}
+            </div>
+          </div>
+        `;
+      });
 
-            lucide.createIcons();
-        }
+      appsSectionsContainer.innerHTML = htmlContent;
+      lucide.createIcons();
+    }
 
-        function renderIconPickerGrid() {
-            const container = document.getElementById('iconPickerGrid');
-            if (!container) return;
+    // Event Listeners
+    searchInput.addEventListener('input', (e) => {
+      searchQuery = e.target.value.trim();
+      renderApps();
+    });
 
-            container.innerHTML = PRESET_ICONS.map(iconName => `
-                <button 
-                    type="button" 
-                    onclick="selectIconPreset('${iconName}')" 
-                    class="p-2 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 flex items-center justify-center text-zinc-700 dark:text-zinc-300 transition-colors"
-                    title="${iconName}"
-                >
-                    <i data-lucide="${iconName}" class="w-4 h-4"></i>
-                </button>
-            `).join('');
-        }
+    searchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && searchQuery) {
+        window.open(`https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`, '_blank');
+      }
+    });
 
-        function selectIconPreset(iconName) {
-            const iconInput = document.getElementById('formAppIcon');
-            if (iconInput) {
-                iconInput.value = iconName;
-            }
-        }
+    btnWebSearch.addEventListener('click', () => {
+      if (searchQuery) {
+        window.open(`https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`, '_blank');
+      } else {
+        searchInput.focus();
+      }
+    });
 
-        function updateIconPreview(val) {
-            // dynamic icon update if needed
-        }
+    categoryDropdown.addEventListener('change', (e) => {
+      currentCategory = e.target.value;
+      renderApps();
+    });
 
-        function requestAdminAccess() {
-            document.getElementById('adminAuthModal').classList.remove('hidden');
-            const pinInput = document.getElementById('adminPinInput');
-            pinInput.value = '';
-            pinInput.focus();
-        }
-
-        function closeAuthModal() {
-            document.getElementById('adminAuthModal').classList.add('hidden');
-        }
-
-        function verifyAdminPin(e) {
-            e.preventDefault();
-            const pinInput = document.getElementById('adminPinInput').value;
-            if (pinInput === adminPin) {
-                closeAuthModal();
-                openAdminPanel();
-                showToast('Akses Admin Diberikan', 'success');
-            } else {
-                showToast('PIN Admin salah!', 'error');
-            }
-        }
-
-        function openAdminPanel() {
-            document.getElementById('adminPanelModal').classList.remove('hidden');
-            renderAdminAppTable();
-        }
-
-        function closeAdminPanelModal() {
-            document.getElementById('adminPanelModal').classList.add('hidden');
-        }
-
-        function renderAdminAppTable() {
-            const tbody = document.getElementById('adminAppTableBody');
-            if (!tbody) return;
-
-            tbody.innerHTML = appsList.map((app, index) => `
-                <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors">
-                    <td class="p-3 text-center text-zinc-400 font-mono text-[11px]">
-                        <div class="flex items-center justify-center space-x-1">
-                            <button onclick="moveAppOrder(${index}, -1)" ${index === 0 ? 'disabled class="opacity-30"' : 'class="hover:text-black dark:hover:text-white"'}>&uarr;</button>
-                            <span>${index + 1}</span>
-                            <button onclick="moveAppOrder(${index}, 1)" ${index === appsList.length - 1 ? 'disabled class="opacity-30"' : 'class="hover:text-black dark:hover:text-white"'}>&darr;</button>
-                        </div>
-                    </td>
-                    <td class="p-3">
-                        <div class="flex items-center space-x-2.5">
-                            <div class="w-7 h-7 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-700 dark:text-zinc-300">
-                                <i data-lucide="${app.icon || 'globe'}" class="w-3.5 h-3.5"></i>
-                            </div>
-                            <div>
-                                <div class="font-bold text-zinc-900 dark:text-zinc-100">${app.title}</div>
-                                <div class="text-[10px] text-zinc-400 line-clamp-1">${app.description || '-'}</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td class="p-3">
-                        <span class="px-2 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 text-[10px] font-semibold">${app.category || 'Umum'}</span>
-                    </td>
-                    <td class="p-3 text-zinc-500 max-w-[180px] truncate text-[11px]">
-                        <a href="${app.url}" target="_blank" class="hover:underline text-zinc-600 dark:text-zinc-400">${app.url}</a>
-                    </td>
-                    <td class="p-3 text-right">
-                        <div class="flex items-center justify-end space-x-1">
-                            <button onclick="editAppModal('${app.id}')" class="p-1.5 text-zinc-500 hover:text-black dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg">
-                                <i data-lucide="edit-3" class="w-4 h-4"></i>
-                            </button>
-                            <button onclick="deleteAppPrompt('${app.id}')" class="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg">
-                                <i data-lucide="trash-2" class="w-4 h-4"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
-
-            lucide.createIcons();
-        }
-
-        async function moveAppOrder(index, direction) {
-            const targetIndex = index + direction;
-            if (targetIndex < 0 || targetIndex >= appsList.length) return;
-
-            const temp = appsList[index];
-            appsList[index] = appsList[targetIndex];
-            appsList[targetIndex] = temp;
-
-            saveAppsToLocalStorage();
-            if (supabaseClient) {
-                await syncAppsToSupabase();
-            }
-            renderAdminAppTable();
-            renderApps();
-        }
-
-        function openAppFormModal(appId = null) {
-            const form = document.getElementById('appForm');
-            form.reset();
-
-            if (appId) {
-                const app = appsList.find(a => a.id === appId);
-                if (app) {
-                    document.getElementById('formModalTitle').textContent = 'Edit Aplikasi';
-                    document.getElementById('formAppId').value = app.id;
-                    document.getElementById('formAppTitle').value = app.title;
-                    document.getElementById('formAppUrl').value = app.url;
-                    document.getElementById('formAppCategory').value = app.category || '';
-                    document.getElementById('formAppIcon').value = app.icon || 'globe';
-                    document.getElementById('formAppDesc').value = app.description || '';
-                }
-            } else {
-                document.getElementById('formModalTitle').textContent = 'Tambah Aplikasi Baru';
-                document.getElementById('formAppId').value = '';
-            }
-
-            document.getElementById('appFormModal').classList.remove('hidden');
-        }
-
-        function editAppModal(appId) {
-            openAppFormModal(appId);
-        }
-
-        function closeAppFormModal() {
-            document.getElementById('appFormModal').classList.add('hidden');
-        }
-
-        async function saveAppForm(e) {
-            e.preventDefault();
-            const appId = document.getElementById('formAppId').value;
-            const title = document.getElementById('formAppTitle').value.trim();
-            const url = document.getElementById('formAppUrl').value.trim();
-            const category = document.getElementById('formAppCategory').value.trim() || 'Umum';
-            const icon = document.getElementById('formAppIcon').value.trim() || 'globe';
-            const description = document.getElementById('formAppDesc').value.trim();
-
-            if (!title || !url) return;
-
-            if (appId) {
-                const index = appsList.findIndex(a => a.id === appId);
-                if (index !== -1) {
-                    appsList[index] = { ...appsList[index], title, url, category, icon, description };
-                }
-            } else {
-                const newApp = {
-                    id: 'app-' + Date.now(),
-                    title,
-                    url,
-                    category,
-                    icon,
-                    description
-                };
-                appsList.unshift(newApp);
-            }
-
-            saveAppsToLocalStorage();
-            
-            if (supabaseClient) {
-                await syncAppsToSupabase();
-            }
-            showToast('Aplikasi berhasil disimpan', 'success');
-
-            closeAppFormModal();
-            renderCategorySelectOptions();
-            renderAdminAppTable();
-            renderApps();
-        }
-
-        // Custom Confirm Dialog Modal Handler
-        function customConfirm(title, message, onOk) {
-            const modal = document.getElementById('confirmModal');
-            document.getElementById('confirmTitle').textContent = title;
-            document.getElementById('confirmMessage').textContent = message;
-
-            const okBtn = document.getElementById('confirmOkBtn');
-            const cancelBtn = document.getElementById('confirmCancelBtn');
-
-            const cleanup = () => {
-                modal.classList.add('hidden');
-                okBtn.onclick = null;
-                cancelBtn.onclick = null;
-            };
-
-            okBtn.onclick = () => {
-                cleanup();
-                onOk();
-            };
-
-            cancelBtn.onclick = () => {
-                cleanup();
-            };
-
-            modal.classList.remove('hidden');
-        }
-
-        function deleteAppPrompt(appId) {
-            const app = appsList.find(a => a.id === appId);
-            if (!app) return;
-            
-            customConfirm(
-                'Hapus Aplikasi',
-                `Apakah Anda yakin ingin menghapus "${app.title}" dari ekosistem Pufutara?`,
-                async () => {
-                    appsList = appsList.filter(a => a.id !== appId);
-                    saveAppsToLocalStorage();
-                    
-                    if (supabaseClient) {
-                        await deleteAppFromSupabase(appId);
-                    }
-                    showToast('Aplikasi berhasil dihapus', 'info');
-
-                    renderCategorySelectOptions();
-                    renderAdminAppTable();
-                    renderApps();
-                }
-            );
-        }
-
-        // Change Admin PIN
-        function promptChangePin() {
-            const newPin = prompt('Masukkan PIN Admin Baru:');
-            if (newPin && newPin.trim().length >= 4) {
-                adminPin = newPin.trim();
-                localStorage.setItem(LOCAL_STORAGE_PIN_KEY, adminPin);
-                showToast('PIN Admin berhasil diubah', 'success');
-            } else if (newPin !== null) {
-                showToast('PIN minimal 4 karakter!', 'error');
-            }
-        }
-
-        // Reset to default
-        function resetDefaultApps() {
-            customConfirm(
-                'Reset Data Ekosistem',
-                'Kembalikan daftar aplikasi ke data awal pabrikan Pufutara?',
-                async () => {
-                    appsList = [...DEFAULT_APPS];
-                    saveAppsToLocalStorage();
-                    if (supabaseClient) {
-                        await syncAppsToSupabase();
-                    }
-                    showToast('Data berhasil di-reset ke default', 'success');
-                    renderCategorySelectOptions();
-                    renderAdminAppTable();
-                    renderApps();
-                }
-            );
-        }
-
-        // JSON Export & Import
-        function exportDataJSON() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appsList, null, 2));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `pufutara_launcher_backup_${Date.now()}.json`);
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-            showToast('Data berhasil diekspor', 'success');
-        }
-
-        function importDataJSON(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = async function(evt) {
-                try {
-                    const imported = JSON.parse(evt.target.result);
-                    if (Array.isArray(imported)) {
-                        appsList = imported;
-                        saveAppsToLocalStorage();
-                        if (supabaseClient) {
-                            await syncAppsToSupabase();
-                        }
-                        showToast('Data berhasil diimpor', 'success');
-                        renderCategorySelectOptions();
-                        renderAdminAppTable();
-                        renderApps();
-                    } else {
-                        showToast('Format file JSON tidak valid', 'error');
-                    }
-                } catch (err) {
-                    showToast('Gagal membaca file JSON', 'error');
-                }
-            };
-            reader.readAsText(file);
-        }
-
-        function showToast(message, type = 'info') {
-            const toast = document.getElementById('toast');
-            const toastMsg = document.getElementById('toastMessage');
-            const toastIcon = document.getElementById('toastIcon');
-
-            toastMsg.textContent = message;
-
-            if (type === 'success') {
-                toastIcon.setAttribute('data-lucide', 'check-circle-2');
-            } else if (type === 'error') {
-                toastIcon.setAttribute('data-lucide', 'alert-triangle');
-            } else {
-                toastIcon.setAttribute('data-lucide', 'info');
-            }
-
-            lucide.createIcons();
-
-            toast.classList.remove('translate-y-20', 'opacity-0');
-            toast.classList.add('translate-y-0', 'opacity-100');
-
-            setTimeout(() => {
-                toast.classList.remove('translate-y-0', 'opacity-100');
-                toast.classList.add('translate-y-20', 'opacity-0');
-            }, 3000);
-        }
-
-    </script>
+    // Initial Setup
+    populateCategoryDropdown();
+    renderApps();
+  </script>
 </body>
 </html>
