@@ -574,15 +574,24 @@ CREATE POLICY "Akses Hapus Publik" ON certificates FOR DELETE USING (true);</tex
             document.getElementById('passwordModal').classList.add('hidden');
         }
 
-        function verifyPassword(e) {
+        async function verifyPassword(e) {
             e.preventDefault();
             const pass = document.getElementById('adminPasswordInput').value;
-            if (pass === "rais") {
-                closePasswordModal();
-                showAdminDashboard();
-                showToast("Selamat datang, Admin!");
-            } else {
-                showToast("Password salah!");
+            try {
+                const res = await fetch('/api/sb', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ path: '/admin/verify-password', body: { password: pass } })
+                });
+                if (res.ok) {
+                    closePasswordModal();
+                    showAdminDashboard();
+                    showToast("Selamat datang, Admin!");
+                } else {
+                    showToast("Password salah!");
+                }
+            } catch (_) {
+                showToast("Gagal menghubungi server. Coba lagi.");
             }
         }
 

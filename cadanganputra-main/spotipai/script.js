@@ -1,8 +1,9 @@
 // ==========================================
 // KONFIGURASI CLOUDINARY
+// Nilai dimuat dari server via /api/config — tidak hardcoded di sini.
 // ==========================================
-const CLOUDINARY_CLOUD_NAME = 'ydj9xhqk';
-const CLOUDINARY_UPLOAD_PRESET = 'upload lagu spotipai';
+let CLOUDINARY_CLOUD_NAME   = '';
+let CLOUDINARY_UPLOAD_PRESET = '';
 
 /**
  * Upload file ke Cloudinary menggunakan unsigned upload preset.
@@ -36,11 +37,12 @@ async function uploadToCloudinary(file, folder = 'covers') {
 
 // ==========================================
 // KONFIGURASI SUPABASE
+// Nilai dimuat dari server via /api/config — tidak hardcoded di sini.
 // ==========================================
-const SUPABASE_URL = 'https://xhgwgdsurorujsvwzdpi.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhoZ3dnZHN1cm9ydWpzdnd6ZHBpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMwMzUxMzEsImV4cCI6MjA5ODYxMTEzMX0.Az8W5OaQEpZHCtmJ1mUvRAF_O8jlOFAM3zDIE3KTfew';
+let SUPABASE_URL      = '';
+let SUPABASE_ANON_KEY = '';
 
-// supabaseClient diinisialisasi di window.onload agar CDN pasti sudah siap
+// supabaseClient diinisialisasi setelah loadConfig() selesai
 let supabaseClient = null;
 
 // --- Data & State ---
@@ -894,6 +896,23 @@ function initEasterEgg() {
 // ==========================================
 // AUTHENTICATION (sadmin only)
 // ==========================================
+
+/**
+ * Muat konfigurasi dari Vercel serverless function.
+ * Jalankan sebelum inisialisasi Supabase dan Cloudinary.
+ */
+async function loadConfig() {
+    try {
+        const cfg = await fetch('/api/config').then(r => r.json());
+        if (cfg.url)    SUPABASE_URL            = cfg.url;
+        if (cfg.key)    SUPABASE_ANON_KEY        = cfg.key;
+        if (cfg.cloud)  CLOUDINARY_CLOUD_NAME    = cfg.cloud;
+        if (cfg.preset) CLOUDINARY_UPLOAD_PRESET = cfg.preset;
+    } catch (_) {
+        // Config gagal dimuat — Supabase dan upload tidak akan aktif
+    }
+}
+
 function initLoginForm() {
     const form = document.getElementById('login-form');
     if (!form) return;
@@ -907,15 +926,29 @@ function initLoginForm() {
         const origText = submitBtn.innerText;
         submitBtn.innerText = "Memuat..."; submitBtn.disabled = true;
 
-        if (user === 'sadmin' && pass === 'sadmin') {
-            currentUser = { username: user, role: 'admin' };
-            isUploaderMode = true;
-            showMessage('Berhasil login sebagai Admin');
-        } else {
+        try {
+            const res = await fetch('/api/sb', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ path: '/admin/verify-password', body: { password: pass } })
+            });
+            if (!res.ok) {
+                submitBtn.innerText = origText; submitBtn.disabled = false;
+                return showMessage('Username atau password salah', 'error');
+            }
+            // Username tetap dicocokkan di client hanya untuk UX (bukan keamanan)
+            if (user !== 'sadmin') {
+                submitBtn.innerText = origText; submitBtn.disabled = false;
+                return showMessage('Username atau password salah', 'error');
+            }
+        } catch (_) {
             submitBtn.innerText = origText; submitBtn.disabled = false;
-            return showMessage('Username atau password salah', 'error');
+            return showMessage('Gagal menghubungi server. Coba lagi.', 'error');
         }
 
+        currentUser = { username: user, role: 'admin' };
+        isUploaderMode = true;
+        showMessage('Berhasil login sebagai Admin');
         updateUploadBtn();
         document.getElementById('auth-login-btn').classList.add('hidden');
         document.getElementById('auth-user-info').classList.remove('hidden');
@@ -3876,7 +3909,10 @@ function initPlaylistForms() {
 // ==========================================
 // WINDOW ONLOAD
 // ==========================================
-window.onload = () => {
+window.onload = async () => {
+    // Muat config dari server dulu, baru inisialisasi client
+    await loadConfig();
+
     // Inisialisasi DOM elements
     playerTitle   = document.getElementById('player-title');
     playerArtist  = document.getElementById('player-artist');
@@ -3894,8 +3930,8 @@ window.onload = () => {
     lyricsArtist  = document.getElementById('lyrics-artist');
     lyricsContent = document.getElementById('lyrics-content');
 
-    // Inisialisasi Supabase client setelah CDN pasti siap
-    if (typeof supabase !== 'undefined' && SUPABASE_URL !== 'TARUH_URL_SUPABASE_KAMU_DISINI') {
+    // Inisialisasi Supabase client setelah config dimuat
+    if (typeof supabase !== 'undefined' && SUPABASE_URL) {
         supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     }
 

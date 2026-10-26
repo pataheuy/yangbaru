@@ -20,9 +20,10 @@
 // === SECTION: 1. CONFIG & STATE ===
 // ============================================================
 
-let SUPABASE_URL      = 'https://puywjdopumlzvmzbcudr.supabase.co';
-let SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1eXdqZG9wdW1senZtemJjdWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDE3MTksImV4cCI6MjA4NzkxNzcxOX0.vvThyjtK2SlA9oA9Mr_XOmt1R_tNZk-ib3PO9XpiiSc';
-let ADMIN_PASSWORD    = 'kpu2026';
+// Credentials dimuat dari server via /api/config — tidak hardcoded di sini.
+// ADMIN_PASSWORD tidak pernah dikirim ke client; verifikasi lewat /api/sb.
+let SUPABASE_URL      = '';
+let SUPABASE_ANON_KEY = '';
 
 const defaultClasses = ['Kelas 7', 'Kelas 8', 'Kelas 9'];
 
@@ -50,6 +51,7 @@ let countdownInterval = null;
 // ============================================================
 
 window.addEventListener('DOMContentLoaded', async () => {
+    await loadConfig();
     initSupabaseClient();
     renderWelcomeClassesLoading();
     showRoleSelectScreen(); // tampilkan dulu, jangan tunggu Supabase
@@ -63,6 +65,16 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
+async function loadConfig() {
+    try {
+        const cfg = await fetch('/api/config').then(r => r.json());
+        if (cfg.url)  SUPABASE_URL      = cfg.url;
+        if (cfg.key)  SUPABASE_ANON_KEY = cfg.key;
+    } catch (_) {
+        // Jika gagal, Supabase tidak aktif — app tetap berjalan offline
+    }
+}
+
 function initSupabaseClient() {
     if (SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase) {
         try {
@@ -71,10 +83,6 @@ function initSupabaseClient() {
         } catch (e) { isSupabaseActive = false; }
     }
 }
-
-
-// ============================================================
-// === SECTION: 3. NAVIGATION & SCREEN ===
 // ============================================================
 
 function hideAllScreens() {

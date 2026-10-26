@@ -458,10 +458,10 @@
 </div>
 
 <script>
-const _CONFIG={URL:'https://puywjdopumlzvmzbcudr.supabase.co',KEY:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1eXdqZG9wdW1senZtemJjdWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDE3MTksImV4cCI6MjA4NzkxNzcxOX0.vvThyjtK2SlA9oA9Mr_XOmt1R_tNZk-ib3PO9XpiiSc'};
-const _client=window.supabase.createClient(_CONFIG.URL,_CONFIG.KEY);
-const CLOUDINARY_CLOUD_NAME='ydj9xhqk';
-const CLOUDINARY_UPLOAD_PRESET='upload lagu spotipai';
+let _CONFIG = { URL: '', KEY: '' };
+let _client = null;
+let CLOUDINARY_CLOUD_NAME  = '';
+let CLOUDINARY_UPLOAD_PRESET = '';
 
 async function uploadToCloudinary(file,folderPath){
     const fd=new FormData();fd.append('file',file);fd.append('upload_preset',CLOUDINARY_UPLOAD_PRESET);fd.append('folder',`pufutara/${folderPath}`);
@@ -1116,18 +1116,31 @@ function openModal(id){document.getElementById(id).style.display='flex';}
 function closeModal(e,id){if(e.target.id===id)document.getElementById(id).style.display='none';}
 function closeModalBtn(id){document.getElementById(id).style.display='none';}
 
-// SESSION
-_client.auth.getSession().then(({data})=>{
-    if(data.session){
-        _userEmail=data.session.user.email;
-        document.getElementById('authScreen').style.display='none';
-        document.getElementById('driveScreen').style.display='flex';
-        _userFolder=_userEmail.split('@')[0];
-        document.getElementById('userAvatar').innerText=_userEmail.charAt(0).toUpperCase();
-        document.getElementById('dropdownEmail').innerText=_userEmail;
-        loadFilesSharedWithMe().then(()=>loadAll());
-    }else{document.getElementById('authScreen').style.display='flex';}
-});
+// SESSION — diinisialisasi setelah config dimuat dari server
+(async () => {
+    try {
+        const cfg = await fetch('/api/config').then(r => r.json());
+        if (cfg.url)    _CONFIG.URL              = cfg.url;
+        if (cfg.key)    _CONFIG.KEY              = cfg.key;
+        if (cfg.cloud)  CLOUDINARY_CLOUD_NAME    = cfg.cloud;
+        if (cfg.preset) CLOUDINARY_UPLOAD_PRESET = cfg.preset;
+    } catch (_) { /* Config gagal — app tetap tampil tapi upload tidak aktif */ }
+
+    _client = window.supabase.createClient(_CONFIG.URL, _CONFIG.KEY);
+
+    const { data } = await _client.auth.getSession();
+    if (data.session) {
+        _userEmail = data.session.user.email;
+        document.getElementById('authScreen').style.display = 'none';
+        document.getElementById('driveScreen').style.display = 'flex';
+        _userFolder = _userEmail.split('@')[0];
+        document.getElementById('userAvatar').innerText = _userEmail.charAt(0).toUpperCase();
+        document.getElementById('dropdownEmail').innerText = _userEmail;
+        loadFilesSharedWithMe().then(() => loadAll());
+    } else {
+        document.getElementById('authScreen').style.display = 'flex';
+    }
+})();
 </script>
 </body>
 </html>

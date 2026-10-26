@@ -377,6 +377,16 @@
             }
         }
 
+        /* Pricing cards: 3 kolom default, 1 kolom di mobile */
+        #pricing-cards {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+        @media (max-width: 767px) {
+            #pricing-cards {
+                grid-template-columns: repeat(1, minmax(0, 1fr));
+            }
+        }
+
         /* Dot grid behind terminal card */
         .dot-grid-bg {
             background-image: radial-gradient(circle, #94a3b8 3px, transparent 3px);
@@ -572,6 +582,7 @@
                 <a href="#keahlian" class="text-sm font-semibold text-slate-600 hover:text-primary transition-colors">Keahlian</a>
                 <a href="#proyek" class="text-sm font-semibold text-slate-600 hover:text-primary transition-colors">Proyek</a>
                 <a href="#prestasi" class="text-sm font-semibold text-slate-600 hover:text-primary transition-colors">Prestasi</a>
+                <a href="#pricing" class="text-sm font-semibold text-slate-600 hover:text-primary transition-colors">Pricing</a>
                 <a href="#pesantren" class="text-sm font-semibold text-slate-600 hover:text-primary transition-colors">Kisah Santri</a>
                 <a href="#galeri" class="text-sm font-semibold text-slate-600 hover:text-primary transition-colors">Galeri</a>
                 <a href="#kontak" id="nav-kontak-btn" class="px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-secondary text-white text-sm font-semibold hover:opacity-90 transition-all shadow-lg shadow-slate-300">
@@ -605,6 +616,10 @@
                 <a href="#prestasi" class="flex items-center gap-3 text-slate-600 hover:text-primary hover:bg-slate-50 font-medium py-3 px-3 rounded-xl text-sm transition-all">
                     <i class="fa-solid fa-trophy w-4 text-slate-400 text-xs"></i>
                     Prestasi
+                </a>
+                <a href="#pricing" class="flex items-center gap-3 text-slate-600 hover:text-primary hover:bg-slate-50 font-medium py-3 px-3 rounded-xl text-sm transition-all">
+                    <i class="fa-solid fa-tags w-4 text-slate-400 text-xs"></i>
+                    Pricing
                 </a>
                 <a href="#pesantren" class="flex items-center gap-3 text-slate-600 hover:text-primary hover:bg-slate-50 font-medium py-3 px-3 rounded-xl text-sm transition-all">
                     <i class="fa-solid fa-mosque w-4 text-slate-400 text-xs"></i>
@@ -1109,7 +1124,7 @@
             <div class="text-center max-w-2xl mx-auto mb-12 reveal-on-scroll" data-delay="0">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Rekam Jejak</p>
                 <h2 class="text-3xl font-extrabold tracking-tight mb-4">Prestasi &amp; Organisasi</h2>
-                <p class="text-slate-500 leading-relaxed">Perjalanan di luar layar — dari hafalan Al-Qur'an hingga kepemimpinan organisasi.</p>
+                <p class="text-slate-500 leading-relaxed">Perjalanan di luar layar &mdash; dari hafalan Al-Qur'an hingga kepemimpinan organisasi.</p>
             </div>
 
             <div class="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10">
@@ -1117,22 +1132,153 @@
                 <!-- Kolom Organisasi -->
                 <div class="reveal-on-scroll" data-delay="100">
                     <div class="flex items-center gap-3 mb-6">
-                        <div class="w-8 h-8 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-sm">🏛️</div>
+                        <div class="w-8 h-8 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-sm text-slate-500"><i class="fa-solid fa-building-columns text-xs"></i></div>
                         <h3 class="font-extrabold text-xl tracking-tight">Organisasi</h3>
                     </div>
-                    <div id="organisasi-list" class="flex flex-col divide-y divide-slate-100"></div>
+                    <!-- Tombol reveal organisasi -->
+                    <div id="organisasi-reveal-btn" class="flex flex-col items-center justify-center py-10 gap-3 border border-slate-200 rounded-2xl bg-slate-50">
+                        <p class="text-sm text-slate-500">Ada <strong class="text-primary">7 organisasi</strong> yang pernah diikuti</p>
+                        <button onclick="revealSection('organisasi')" class="inline-flex items-center gap-2 px-5 py-2 border border-slate-900 text-slate-900 text-sm font-semibold rounded-xl transition-all hover:bg-slate-900 hover:text-white">
+                            Lihat Organisasi
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                        </button>
+                    </div>
+                    <div id="organisasi-list" class="flex flex-col divide-y divide-slate-100" style="display:none;"></div>
                 </div>
 
                 <!-- Kolom Prestasi -->
                 <div class="reveal-on-scroll" data-delay="200">
                     <div class="flex items-center gap-3 mb-6">
-                        <div class="w-8 h-8 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-sm">🏆</div>
+                        <div class="w-8 h-8 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-sm text-slate-500"><i class="fa-solid fa-trophy text-xs"></i></div>
                         <h3 class="font-extrabold text-xl tracking-tight">Prestasi</h3>
                     </div>
-                    <div id="prestasi-list" style="display:grid; grid-template-columns:repeat(1,1fr); gap:0.75rem;"></div>
+                    <!-- Tombol reveal prestasi -->
+                    <div id="prestasi-reveal-btn" class="flex flex-col items-center justify-center py-10 gap-3 border border-slate-200 rounded-2xl bg-slate-50">
+                        <p class="text-sm text-slate-500">Ada <strong class="text-primary">12 prestasi</strong> yang diraih</p>
+                        <button onclick="revealSection('prestasi')" class="inline-flex items-center gap-2 px-5 py-2 border border-slate-900 text-slate-900 text-sm font-semibold rounded-xl transition-all hover:bg-slate-900 hover:text-white">
+                            Lihat Prestasi
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                        </button>
+                    </div>
+                    <div id="prestasi-list" style="display:none;"></div>
                 </div>
 
             </div>
+        </div>
+    </section>
+
+<section id="pricing" class="py-20 bg-white border-t border-slate-200 relative overflow-hidden reveal-on-scroll" data-delay="0">
+        <div class="dot-b-left" aria-hidden="true"></div>
+        <div class="dot-b-right" aria-hidden="true"></div>
+        <div class="dot-center" aria-hidden="true"></div>
+
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <!-- Header -->
+            <div class="text-center max-w-xl mx-auto mb-10 reveal-on-scroll" data-delay="0">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Jasa Pembuatan Website! / Aplikasi</p>
+                <h2 class="text-3xl font-extrabold tracking-tight mb-3">Harga Transparan, Hasil Nyata. kapan lagi wak!</h2>
+                <p class="text-slate-500 text-sm leading-relaxed">38+ proyek selesai. Semua dibuat dari nol, bukan template. Pilih paket sesuai kebutuhan.</p>
+                <!-- Promo badge -->
+                <div class="inline-flex items-center gap-1.5 mt-4 bg-slate-50 border border-slate-200 text-slate-600 text-xs font-semibold px-3 py-1.5 rounded-full">
+                    <span class="relative flex h-1.5 w-1.5"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span><span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-red-500"></span></span>
+                    Promo aktif &middot; diskon 75% untuk semua paket
+                </div>
+            </div>
+
+            <!-- Cards -->
+            <div id="pricing-cards" class="grid gap-5 mb-8">
+
+                <!-- Basic -->
+                <div class="reveal-on-scroll" data-delay="0">
+                    <div class="bg-white border border-slate-200 rounded-2xl p-6 h-full flex flex-col transition-all duration-300 hover:shadow-lg hover:border-slate-300">
+                        <div class="mb-5">
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Basic</p>
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-3xl font-extrabold tracking-tight">Rp 62K</span>
+                                <span class="text-slate-400 text-sm line-through">Rp 250K</span>
+                            </div>
+                            <p class="text-slate-500 text-xs mt-1">Landing page &ndash; 1&ndash;3 halaman</p>
+                        </div>
+
+                        <ul class="space-y-2 mb-6 flex-1 text-sm text-slate-600">
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-500 text-xs w-3"></i>Desain responsif mobile</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-500 text-xs w-3"></i>HTML &middot; CSS &middot; JavaScript</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-500 text-xs w-3"></i>Revisi 2&times; &ndash; Selesai 3&ndash;5 hari</li>
+                        </ul>
+
+                        <a href="#kontak" class="block w-full py-2.5 border border-slate-900 text-slate-900 text-sm font-semibold rounded-xl text-center transition-all hover:bg-slate-900 hover:text-white">
+                            Pilih Paket
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Standard (featured) -->
+                <div class="reveal-on-scroll" data-delay="100">
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 h-full flex flex-col transition-all duration-300 hover:shadow-xl relative">
+                        <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-slate-900 border border-slate-700 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest whitespace-nowrap">Terlaris</div>
+
+                        <div class="mb-5">
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Standard</p>
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-3xl font-extrabold tracking-tight text-white">Rp 125K</span>
+                                <span class="text-slate-500 text-sm line-through">Rp 500K</span>
+                            </div>
+                            <p class="text-slate-400 text-xs mt-1">Portofolio &middot; Company profile &ndash; 4&ndash;7 halaman</p>
+                        </div>
+
+                        <ul class="space-y-2 mb-6 flex-1 text-sm text-slate-300">
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400 text-xs w-3"></i>Desain custom & animasi</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400 text-xs w-3"></i>Form kontak fungsional</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400 text-xs w-3"></i>SEO dasar + meta tags</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-400 text-xs w-3"></i>Revisi 3&times; &ndash; Selesai 5&ndash;7 hari</li>
+                        </ul>
+
+                        <a href="#kontak" class="block w-full py-2.5 bg-white text-slate-900 text-sm font-semibold rounded-xl text-center transition-all hover:bg-slate-100">
+                            Pilih Paket
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Premium -->
+                <div class="reveal-on-scroll" data-delay="200">
+                    <div class="bg-white border border-slate-200 rounded-2xl p-6 h-full flex flex-col transition-all duration-300 hover:shadow-lg hover:border-slate-300">
+                        <div class="mb-5">
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Premium</p>
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-3xl font-extrabold tracking-tight">Rp 250K</span>
+                                <span class="text-slate-400 text-sm line-through">Rp 1JT</span>
+                            </div>
+                            <p class="text-slate-500 text-xs mt-1">Solusi bisnis &ndash; 8+ halaman unlimited</p>
+                        </div>
+
+                        <ul class="space-y-2 mb-6 flex-1 text-sm text-slate-600">
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-500 text-xs w-3"></i>Full custom design</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-500 text-xs w-3"></i>CMS / Admin panel + database</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-500 text-xs w-3"></i>SEO advanced + analytics</li>
+                            <li class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-500 text-xs w-3"></i>Revisi unlimited &ndash; Support 1 bulan</li>
+                        </ul>
+
+                        <a href="#kontak" class="block w-full py-2.5 bg-slate-900 text-white text-sm font-semibold rounded-xl text-center transition-all hover:bg-slate-800">
+                            Pilih Paket
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Footer note + CTA -->
+            <div class="flex flex-col items-center gap-3 text-center reveal-on-scroll" data-delay="300">
+                <p class="text-slate-400 text-xs">
+                    <i class="fa-solid fa-circle-info mr-1"></i>
+                    Harga belum termasuk domain & hosting &middot; tersedia mulai <strong class="text-slate-600">Rp 25K/tahun</strong>
+                </p>
+                <a href="#kontak" class="inline-flex items-center gap-2 px-5 py-2.5 bg-slate-900 text-white font-semibold text-sm rounded-xl transition-all hover:bg-slate-800 hover:scale-105">
+                    <i class="fa-solid fa-paper-plane text-xs"></i>
+                    Hubungi Sekarang
+                </a>
+            </div>
+
         </div>
     </section>
 
@@ -1186,6 +1332,180 @@
         </div>
     </section>
 
+    <script>
+    // -- sessionStorage wrapper (aman dari Tracking Prevention) --
+    window.__ssSet = function(k, v) { try { sessionStorage.setItem(k, v); } catch(e) { try { window.__ssMem = window.__ssMem || {}; window.__ssMem[k] = v; } catch(e2){} } };
+    window.__ssGet = function(k) { try { return sessionStorage.getItem(k); } catch(e) { return (window.__ssMem && window.__ssMem[k]) || null; } };
+    </script>
+
+    <!-- ===== WELCOME + CHANGELOG MODAL ===== -->
+    <div id="welcome-modal" style="
+        position:fixed;inset:0;z-index:99990;
+        display:flex;align-items:center;justify-content:center;
+        padding:1rem;
+        pointer-events:none;opacity:0;
+        transition:opacity 0.45s cubic-bezier(0.16,1,0.3,1);
+    " aria-modal="true" role="dialog" aria-labelledby="wm-title">
+        <!-- Backdrop blur ringan -->
+        <div id="welcome-modal-backdrop" onclick="closeWelcomeModal()" style="
+            position:absolute;inset:0;
+            background:rgba(15,23,42,0.18);
+            backdrop-filter:blur(3px);
+            -webkit-backdrop-filter:blur(3px);
+        "></div>
+
+        <!-- Card -->
+        <div id="welcome-modal-card" style="
+            position:relative;
+            width:100%;max-width:430px;
+            background:#fff;
+            border-radius:20px;
+            box-shadow:0 24px 60px -8px rgba(15,23,42,0.18),0 0 0 1px rgba(15,23,42,0.06);
+            padding:1.5rem;
+            transform:translateY(32px) scale(0.97);
+            transition:transform 0.5s cubic-bezier(0.34,1.56,0.64,1);
+            overflow:hidden;
+        ">
+            <!-- Ambient gradient dekor -->
+            <div style="position:absolute;top:-60px;right:-60px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(148,163,184,0.22) 0%,transparent 70%);pointer-events:none;"></div>
+
+            <!-- Header baris: sapaan + tombol tutup -->
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.75rem;margin-bottom:1rem;">
+                <div>
+                    <p style="font-size:0.7rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#94a3b8;margin-bottom:4px;">Selamat Datang 👋</p>
+                    <h2 id="wm-title" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.2rem;font-weight:800;color:#0f172a;line-height:1.2;letter-spacing:-0.02em;">
+                        Hai! Ada yang baru nih<span id="wm-wave" style="display:inline-block;animation:wmWave 1.4s ease-in-out 0.6s 2 both;">.</span>
+                    </h2>
+                    <p style="font-size:0.8rem;color:#64748b;margin-top:4px;line-height:1.4;">Beberapa fitur baru udah di-push. Cek update-nya yuk!</p>
+                </div>
+                <button onclick="closeWelcomeModal()" aria-label="Tutup" style="
+                    flex-shrink:0;width:32px;height:32px;border-radius:9999px;
+                    background:#f1f5f9;border:none;cursor:pointer;
+                    display:flex;align-items:center;justify-content:center;
+                    color:#475569;font-size:1rem;transition:background 0.15s;
+                " onmouseenter="this.style.background='#e2e8f0'" onmouseleave="this.style.background='#f1f5f9'">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1L13 13M13 1L1 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                </button>
+            </div>
+
+            <!-- Divider -->
+            <div style="height:1px;background:linear-gradient(to right,#e2e8f0,transparent);margin-bottom:1rem;"></div>
+
+            <!-- Badge versi -->
+            <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.875rem;">
+                <span style="font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:#0f172a;color:#fff;padding:3px 9px;border-radius:9999px;">Changelog</span>
+                <span style="font-size:0.7rem;font-weight:600;color:#94a3b8;">Update terbaru · September 2026</span>
+            </div>
+
+            <!-- Changelog list -->
+            <ul style="display:flex;flex-direction:column;gap:0.6rem;margin:0;padding:0;list-style:none;max-height:55vh;overflow-y:auto;padding-right:4px;">
+                <!-- Keamanan -->
+                <li style="display:flex;align-items:flex-start;gap:0.625rem;">
+                    <span style="flex-shrink:0;width:28px;height:28px;border-radius:8px;background:#fef3c7;display:flex;align-items:center;justify-content:center;font-size:0.85rem;">🔐</span>
+                    <div>
+                        <p style="font-size:0.82rem;font-weight:700;color:#0f172a;margin:0 0 1px;">Keamanan — Supabase Key</p>
+                        <p style="font-size:0.75rem;color:#64748b;margin:0;line-height:1.4;">Key tidak lagi hardcoded di HTML. Semua app (chat, gallery, quiz, tube, shop, pemira) kini fetch config lewat Vercel Edge Function.</p>
+                    </div>
+                </li>
+                <!-- Shop -->
+                <li style="display:flex;align-items:flex-start;gap:0.625rem;">
+                    <span style="flex-shrink:0;width:28px;height:28px;border-radius:8px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:0.85rem;">🛒</span>
+                    <div>
+                        <p style="font-size:0.82rem;font-weight:700;color:#0f172a;margin:0 0 1px;">Pufutara Shop — Admin Panel</p>
+                        <p style="font-size:0.75rem;color:#64748b;margin:0;line-height:1.4;">Password admin hardcoded dihapus. Login pakai Supabase Auth, username tidak perlu diketik lagi.</p>
+                    </div>
+                </li>
+                <!-- Drive -->
+                <li style="display:flex;align-items:flex-start;gap:0.625rem;">
+                    <span style="flex-shrink:0;width:28px;height:28px;border-radius:8px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:0.85rem;">☁️</span>
+                    <div>
+                        <p style="font-size:0.82rem;font-weight:700;color:#0f172a;margin:0 0 1px;">Pufutara Drive</p>
+                        <p style="font-size:0.75rem;color:#64748b;margin:0;line-height:1.4;">Upload file, manajemen folder, dan berbagi link makin mulus dengan UI baru.</p>
+                    </div>
+                </li>
+                <!-- Gallery -->
+                <li style="display:flex;align-items:flex-start;gap:0.625rem;">
+                    <span style="flex-shrink:0;width:28px;height:28px;border-radius:8px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:0.85rem;">🖼️</span>
+                    <div>
+                        <p style="font-size:0.82rem;font-weight:700;color:#0f172a;margin:0 0 1px;">Pufutara Gallery</p>
+                        <p style="font-size:0.75rem;color:#64748b;margin:0;line-height:1.4;">Tampilan grid baru, filter album, rating & komentar, dan lightbox yang lebih responsif.</p>
+                    </div>
+                </li>
+            </ul>
+
+            <!-- CTA -->
+            <div style="margin-top:1.125rem;display:flex;gap:0.5rem;">
+                <a href="#proyek" onclick="closeWelcomeModal()" style="
+                    flex:1;text-align:center;padding:0.6rem 1rem;
+                    background:#0f172a;color:#fff;border-radius:12px;
+                    font-size:0.8rem;font-weight:700;text-decoration:none;
+                    transition:opacity 0.15s;
+                " onmouseenter="this.style.opacity='0.85'" onmouseleave="this.style.opacity='1'">Lihat Proyek</a>
+                <button onclick="closeWelcomeModal()" style="
+                    padding:0.6rem 1rem;border-radius:12px;
+                    border:1.5px solid #e2e8f0;background:transparent;
+                    font-size:0.8rem;font-weight:600;color:#475569;cursor:pointer;
+                    transition:background 0.15s;font-family:'Plus Jakarta Sans',sans-serif;
+                " onmouseenter="this.style.background='#f1f5f9'" onmouseleave="this.style.background='transparent'">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Welcome Modal -->
+    <script>
+    (function () {
+        var _wmShown = false;
+        var _wmTimer = null;
+
+        // Animasi wave titik
+        var style = document.createElement('style');
+        style.textContent = '@keyframes wmWave{0%,100%{transform:rotate(0deg)}25%{transform:rotate(-8deg)}75%{transform:rotate(8deg)}}';
+        document.head.appendChild(style);
+
+        function showWelcomeModal() {
+            if (_wmShown) return;
+            _wmShown = true;
+            var modal = document.getElementById('welcome-modal');
+            var card  = document.getElementById('welcome-modal-card');
+            if (!modal || !card) return;
+            modal.style.pointerEvents = 'all';
+            modal.style.opacity = '1';
+            setTimeout(function () {
+                card.style.transform = 'translateY(0) scale(1)';
+            }, 20);
+        }
+
+        window.closeWelcomeModal = function () {
+            var modal = document.getElementById('welcome-modal');
+            var card  = document.getElementById('welcome-modal-card');
+            if (!modal) return;
+            card.style.transform = 'translateY(32px) scale(0.97)';
+            modal.style.opacity = '0';
+            setTimeout(function () { modal.style.pointerEvents = 'none'; }, 450);
+        };
+
+        // Escape key tutup modal
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') window.closeWelcomeModal();
+        });
+
+        // Tentukan kapan modal tampil:
+        // - Returning visitor (opening di-skip/tidak ada): 5 detik dari DOMContentLoaded
+        // - First visit: 5 detik setelah flyback/skip selesai via __openingAllDone
+        window.__openingAllDone = function () {
+            clearTimeout(_wmTimer);
+            _wmTimer = setTimeout(showWelcomeModal, 5000);
+        };
+
+        // Untuk returning visitor: opening langsung skip, jadi trigger dari sini
+        if (window.__ssGet('pufutara_intro_shown')) {
+            document.addEventListener('DOMContentLoaded', function () {
+                _wmTimer = setTimeout(showWelcomeModal, 5000);
+            });
+        }
+    })();
+    </script>
+
     <!-- Toast Notifikasi -->
     <div id="kolaborasi-toast" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#111;color:white;padding:12px 24px;border-radius:60px;font-size:0.9rem;z-index:1000;opacity:0;transition:opacity 0.2s;pointer-events:none;white-space:nowrap;font-family:'Plus Jakarta Sans',sans-serif;"></div>
 
@@ -1213,11 +1533,6 @@
         </svg>
     </button>
 
-    <script>
-    // -- sessionStorage wrapper (aman dari Tracking Prevention) --
-    window.__ssSet = function(k, v) { try { sessionStorage.setItem(k, v); } catch(e) { try { window.__ssMem = window.__ssMem || {}; window.__ssMem[k] = v; } catch(e2){} } };
-    window.__ssGet = function(k) { try { return sessionStorage.getItem(k); } catch(e) { return (window.__ssMem && window.__ssMem[k]) || null; } };
-    </script>
     <script>
     // -- Skip intro --
     window._introTimeouts = [];
@@ -1291,6 +1606,7 @@
     })();
 
     // -- Opening PUFUTARA --
+    window.__introReturning = !!window.__ssGet('pufutara_intro_shown');
     (function() {
         function spd(d) { return Math.round(d / (window.animationSpeedMultiplier || 1)); }
 
@@ -1391,7 +1707,7 @@
                                 h1.style.transform  = '';
                                 h1.style.zIndex     = '';
                                 h1.style.position   = '';
-                                if (window.__heroFlybackDone) window.__heroFlybackDone();
+                                if (window.__heroFlybackDone) window.__heroFlybackDone(); else window.__heroFlybackPending = true;
                             }, spd(1100)));
                         });
                     });
@@ -1975,6 +2291,7 @@
 
         function updateFromScroll() {
             if (isMobile.matches || isReduced.matches) return;
+            sectionTop = section.getBoundingClientRect().top + window.scrollY;
             var sy = window.scrollY;
             var scrollIn = sy - sectionTop;
             var maxScroll = sectionH - pinH;
@@ -2009,6 +2326,7 @@
                         var maxT = (cardCount-1)*(cardW+GAP);
                         targetT = Math.max(0, Math.min(maxT, pad + idx*(cardW+GAP) - (pinW-cardW)/2));
                         scheduleRaf();
+                        sectionTop = section.getBoundingClientRect().top + window.scrollY;
                         var prog = maxT>0 ? targetT/maxT : 0;
                         window.scrollTo({top: sectionTop + prog*(sectionH-pinH), behavior:'smooth'});
                     });

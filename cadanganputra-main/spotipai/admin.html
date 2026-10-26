@@ -133,7 +133,7 @@
         </div>
         <div style="margin-bottom:14px;">
             <div class="form-label">Username</div>
-            <input id="login-username" type="text" class="form-input" placeholder="sadmin" autocomplete="username">
+            <input id="login-username" type="text" class="form-input" placeholder="Username" autocomplete="username">
         </div>
         <div style="margin-bottom:22px;">
             <div class="form-label">Password</div>
@@ -311,8 +311,9 @@
 // ─────────────────────────────────────────
 // CONFIG & STATE
 // ─────────────────────────────────────────
-const SUPABASE_URL  = 'https://xhgwgdsurorujsvwzdpi.supabase.co';
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhoZ3dnZHN1cm9ydWpzdnd6ZHBpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMwMzUxMzEsImV4cCI6MjA5ODYxMTEzMX0.Az8W5OaQEpZHCtmJ1mUvRAF_O8jlOFAM3zDIE3KTfew';
+// Kredensial dimuat dari server via /api/config — tidak hardcoded di sini.
+let SUPABASE_URL  = '';
+let SUPABASE_ANON = '';
 let sb = null;
 let allRequests  = [];
 let filteredReqs = [];
@@ -326,23 +327,35 @@ let dirtyMap = {};
 document.getElementById('login-password').addEventListener('keydown', e => { if (e.key==='Enter') doLogin(); });
 document.getElementById('login-username').addEventListener('keydown', e => { if (e.key==='Enter') document.getElementById('login-password').focus(); });
 
-function doLogin() {
+async function doLogin() {
     const u = document.getElementById('login-username').value.trim();
     const p = document.getElementById('login-password').value;
-    if (u === 'sadmin' && p === 'sadmin') {
-        sessionStorage.setItem('admin_auth','1');
-        document.getElementById('login-overlay').style.display = 'none';
-        init();
-    } else {
-        document.getElementById('login-error').classList.remove('hidden');
+    const errEl = document.getElementById('login-error');
+    errEl.classList.add('hidden');
+    try {
+        const res = await fetch('/api/sb', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ path: '/admin/verify-password', body: { password: p } })
+        });
+        if (res.ok && u === 'sadmin') {
+            sessionStorage.setItem('admin_auth','1');
+            document.getElementById('login-overlay').style.display = 'none';
+            await init();
+        } else {
+            errEl.classList.remove('hidden');
+        }
+    } catch (_) {
+        errEl.textContent = 'Gagal menghubungi server. Coba lagi.';
+        errEl.classList.remove('hidden');
     }
 }
 function doLogout() { sessionStorage.removeItem('admin_auth'); location.reload(); }
 
-window.onload = () => {
+window.onload = async () => {
     if (sessionStorage.getItem('admin_auth') === '1') {
         document.getElementById('login-overlay').style.display = 'none';
-        init();
+        await init();
     }
 };
 
@@ -350,6 +363,11 @@ window.onload = () => {
 // INIT
 // ─────────────────────────────────────────
 async function init() {
+    try {
+        const cfg = await fetch('/api/config').then(r => r.json());
+        if (cfg.url)  SUPABASE_URL  = cfg.url;
+        if (cfg.key)  SUPABASE_ANON = cfg.key;
+    } catch (_) { /* Supabase tidak aktif */ }
     sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
     switchTab('requests');
     await loadRequests();

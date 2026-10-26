@@ -1031,12 +1031,13 @@ function animateCounter(el, target, duration, onDone) {
 
         // Jika opening sudah selesai (returning visitor), run langsung
         // Jika belum, daftarkan sebagai callback yang dipanggil flyback
-        if (sessionStorage.getItem('pufutara_intro_shown')) {
+        if (window.__introReturning) {
             // returning visitor: semua sudah instant, skip animasi stats
             return;
         } else {
             window.__heroFlybackDone = run;
             window.__skipToStats = run; // fallback untuk tombol skip
+            if (window.__heroFlybackPending) { window.__heroFlybackPending = false; run(); }
         }
     }
 

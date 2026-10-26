@@ -544,7 +544,6 @@
                 <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1">Kata Sandi Admin</label>
                     <input type="password" id="adminPasswordInput" placeholder="Masukkan password admin..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold focus:outline-none focus:border-blue-500" required>
-                    <p class="text-[11px] text-slate-600 font-medium mt-1">*Password bawaan: <code class="bg-slate-100 px-1 py-0.5 rounded text-blue-700 font-mono font-bold">admin123</code></p>
                 </div>
                 <button type="submit" class="w-full gradient-btn text-white font-bold py-3 rounded-xl transition shadow-md">
                     Masuk Admin
@@ -1123,15 +1122,25 @@
             document.getElementById('adminModal').classList.add('hidden');
         }
 
-        function handleAdminLogin(e) {
+        async function handleAdminLogin(e) {
             e.preventDefault();
             const pass = document.getElementById('adminPasswordInput').value;
-            if (pass === 'admin123') {
-                closeAdminModal();
-                showAdminDashboard();
+            try {
+                const res = await fetch('/api/sb', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ path: '/admin/verify-password', body: { password: pass } })
+                });
                 document.getElementById('adminPasswordInput').value = '';
-            } else {
-                alert('Password Admin Salah!');
+                if (res.ok) {
+                    closeAdminModal();
+                    showAdminDashboard();
+                } else {
+                    alert('Password Admin Salah!');
+                }
+            } catch (_) {
+                document.getElementById('adminPasswordInput').value = '';
+                alert('Gagal menghubungi server. Coba lagi.');
             }
         }
 

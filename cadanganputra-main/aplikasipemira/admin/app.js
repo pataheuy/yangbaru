@@ -23,10 +23,10 @@
 // === SECTION: 1. CONFIG & STATE ===
 // ============================================================
 
-// >> Supabase credentials & admin password  -  hardcoded langsung
-let SUPABASE_URL      = 'https://puywjdopumlzvmzbcudr.supabase.co';
-let SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1eXdqZG9wdW1senZtemJjdWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDE3MTksImV4cCI6MjA4NzkxNzcxOX0.vvThyjtK2SlA9oA9Mr_XOmt1R_tNZk-ib3PO9XpiiSc';
-let ADMIN_PASSWORD    = 'kpu2026';
+// >> Credentials dimuat dari server via /api/config — tidak hardcoded di sini.
+// >> ADMIN_PASSWORD tidak pernah dikirim ke client; verifikasi lewat /api/sb.
+let SUPABASE_URL      = '';
+let SUPABASE_ANON_KEY = '';
 
 // >> Default kelas jika localStorage kosong
 const defaultClasses = ["Kelas 7", "Kelas 8", "Kelas 9"];
@@ -67,15 +67,24 @@ const getEl = (id) => document.getElementById(id);
 // === SECTION: 2. INIT ===
 // ============================================================
 
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
+    await loadConfig();
     initSupabaseClient();
     if (sessionStorage.getItem('pemira_admin_auth') === '1') {
         showDashboard();
     }
 });
 
-// >> loadConfig tidak dipakai lagi  -  semua nilai hardcoded di atas
-async function loadConfig() {}
+// >> Muat Supabase URL & key dari server. ADMIN_PASSWORD tidak dikirim ke client.
+async function loadConfig() {
+    try {
+        const cfg = await fetch('/api/config').then(r => r.json());
+        if (cfg.url)  SUPABASE_URL      = cfg.url;
+        if (cfg.key)  SUPABASE_ANON_KEY = cfg.key;
+    } catch (_) {
+        // Jika gagal, Supabase tidak aktif
+    }
+}
 
 function initSupabaseClient() {
     if (SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase) {
@@ -90,7 +99,7 @@ function initSupabaseClient() {
 // === SECTION: 3. AUTH ADMIN ===
 // ============================================================
 
-function handleAdminLogin(event) {
+async function handleAdminLogin(event) {
     event.preventDefault();
     const passInput  = getEl('adminPasswordInput');
     const loginError = getEl('loginError');
@@ -108,14 +117,23 @@ function handleAdminLogin(event) {
     // Tutup panel belum vote sebelum proses login
     closeLoginBelumVotePanel();
 
-    if (pass === ADMIN_PASSWORD) {
-        sessionStorage.setItem('pemira_admin_auth', '1');
-        loginError.classList.add('hidden');
+    try {
+        const res = await fetch('/api/sb', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ path: '/admin/verify-password', body: { password: pass } })
+        });
         passInput.value = '';
-        showDashboard();
-    } else {
+        if (res.ok) {
+            sessionStorage.setItem('pemira_admin_auth', '1');
+            loginError.classList.add('hidden');
+            showDashboard();
+        } else {
+            loginError.classList.remove('hidden');
+        }
+    } catch (_) {
+        passInput.value = '';
         loginError.classList.remove('hidden');
-        passInput.value = '';
     }
 }
 

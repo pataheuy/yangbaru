@@ -40,6 +40,21 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'path required' });
   }
 
+  // ── Verifikasi password admin — client kirim password, server cocokkan ──
+  if (path === '/admin/verify-password') {
+    const password = body && body.password;
+    if (!password) return res.status(400).json({ error: 'password required' });
+
+    const ADMIN_PASSWORD = (process.env.ADMIN_PASSWORD || '').trim();
+    if (!ADMIN_PASSWORD) return res.status(500).json({ error: 'Admin password not configured' });
+
+    if (password === ADMIN_PASSWORD) {
+      return res.status(200).json({ ok: true });
+    } else {
+      return res.status(401).json({ error: 'Password salah' });
+    }
+  }
+
   // ── Login khusus: inject email dari server, client hanya kirim password ──
   if (path === '/auth/v1/login') {
     const password = body && body.password;

@@ -422,13 +422,24 @@
             const user = document.getElementById('admin-username').value.trim();
             const pass = document.getElementById('admin-password').value.trim();
 
-            // Super admin (hardcoded)
-            if (user === 'admin' && pass === 'admin') {
-                currentAdmin = null; // null = super admin, akses semua sekolah
-                showToast("Berhasil Masuk", "Selamat datang, Super Admin!", "success");
-                switchView('view-admin-dashboard');
-                document.getElementById('form-login-admin').reset();
-                renderAllAdminViews();
+            // Super admin — verifikasi ke server, tidak hardcoded di client
+            if (user === 'admin') {
+                try {
+                    const res = await fetch('/api/sb', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ path: '/admin/verify-password', body: { password: pass } })
+                    });
+                    if (res.ok) {
+                        currentAdmin = null; // null = super admin, akses semua sekolah
+                        showToast("Berhasil Masuk", "Selamat datang, Super Admin!", "success");
+                        switchView('view-admin-dashboard');
+                        document.getElementById('form-login-admin').reset();
+                        renderAllAdminViews();
+                        return;
+                    }
+                } catch (_) {}
+                showToast("Gagal Masuk", "Username atau password salah.", "danger");
                 return;
             }
 
