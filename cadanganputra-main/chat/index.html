@@ -580,16 +580,21 @@
         // Config dimuat dari server — key tidak ada di file ini
         let _client;
         (async () => {
-            const cfg = await fetch('/api/config').then(r => r.json());
-            _client = window.supabase.createClient(cfg.url, cfg.key);
-            // Cek session setelah client siap
-            const { data } = await _client.auth.getSession();
-            if (data.session) {
-                _userEmail = data.session.user.email;
-                const { data: prof } = await _client.from('user_profiles').select('username, display_name').eq('email', _userEmail).maybeSingle();
-                _userUsername = prof?.username || '';
-                _userDisplayName = prof?.display_name || _userEmail.split('@')[0];
-                enterDashboard();
+            try {
+                const cfg = await fetch('/api/config').then(r => r.json());
+                if (!cfg.url || !cfg.key) return; // env var belum di-set, stop
+                _client = window.supabase.createClient(cfg.url, cfg.key);
+                // Cek session setelah client siap
+                const { data } = await _client.auth.getSession();
+                if (data.session) {
+                    _userEmail = data.session.user.email;
+                    const { data: prof } = await _client.from('user_profiles').select('username, display_name').eq('email', _userEmail).maybeSingle();
+                    _userUsername = prof?.username || '';
+                    _userDisplayName = prof?.display_name || _userEmail.split('@')[0];
+                    enterDashboard();
+                }
+            } catch (_) {
+                // Supabase tidak aktif — halaman tetap tampil
             }
         })();
         let _userEmail = '';
