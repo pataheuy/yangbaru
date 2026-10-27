@@ -1164,6 +1164,7 @@
                     body  : { password: pwInput.value }
                 });
                 setAdminAuthed();
+                document.body.classList.add('admin-mode'); // langsung set sebelum re-render
                 closePasswordModal();
                 renderArticles(currentFilter); // re-render supaya tombol edit/hapus muncul
                 uploadModal.style.display = 'flex';
@@ -1705,16 +1706,16 @@
                     if (!btnAdd.classList.contains('unlocked')) {
                         btnAdd.classList.add('unlocked');
                         sessionStorage.setItem(UNLOCK_KEY, '1');
-                        showToast('Mode penulis aktif ✍️');
-                        renderArticles(currentFilter); // tampilkan tombol edit/hapus
+                        showToast('Mode penulis aktif ✍️ — masukkan password untuk mulai');
+                        // Jangan renderArticles di sini — tombol edit/hapus baru muncul setelah password benar
                     } else {
                         // Klik 5x lagi = logout → mode pembaca
                         btnAdd.classList.remove('unlocked');
                         sessionStorage.removeItem(UNLOCK_KEY);
-                        // Cabut sesi admin supaya tombol edit/hapus hilang
                         sessionStorage.removeItem(ADMIN_SESSION_KEY);
+                        document.body.classList.remove('admin-mode');
                         showToast('Keluar dari mode penulis 👁️');
-                        renderArticles(currentFilter); // sembunyikan tombol edit/hapus
+                        renderArticles(currentFilter); // re-render untuk sembunyikan tombol edit/hapus
                     }
                 }
             });
