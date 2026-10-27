@@ -640,13 +640,13 @@
     </header>
 
     <!-- Hero Section -->
-    <section id="hero" class="pt-24 sm:pt-28 md:pt-32 pb-20 relative overflow-hidden bg-gradient-to-b from-slate-50 to-white">
+    <section id="hero" class="relative overflow-hidden bg-gradient-to-b from-slate-50 to-white min-h-screen flex flex-col items-center justify-center pt-20 pb-16">
         <!-- ===== DOT GRID POJOK KIRI ATAS ===== -->
         <div class="dot-grid-topleft pointer-events-none" aria-hidden="true"></div>
         <!-- ===== DOT GRID POJOK KANAN BAWAH ===== -->
         <div class="dot-grid-botright pointer-events-none" aria-hidden="true"></div>
 
-        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center w-full">
             <!-- Heading — setiap KATA muncul sendiri -->
             <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight mb-4 leading-tight">
                 <!-- "Halo," — langsung muncul saat trigger (0ms) -->
@@ -1493,6 +1493,8 @@
         // - Returning visitor (opening di-skip/tidak ada): 5 detik dari DOMContentLoaded
         // - First visit: 5 detik setelah flyback/skip selesai via __openingAllDone
         window.__openingAllDone = function () {
+            // Intro selesai normal — batalkan safety timer
+            clearTimeout(window._introSafetyTimer);
             clearTimeout(_wmTimer);
             _wmTimer = setTimeout(showWelcomeModal, 5000);
         };
@@ -1536,10 +1538,19 @@
     <script>
     // -- Skip intro --
     window._introTimeouts = [];
+
+    // Safety net: kalau seluruh intro macet lebih dari 9 detik, paksa skip
+    window._introSafetyTimer = setTimeout(function() {
+        if (window.__heroSkipAll) {
+            window.__heroSkipAll();
+        }
+    }, 9000);
+
     window.skipIntro = function() {
         // Batalkan SEMUA pending timeout intro
         window._introTimeouts.forEach(function(id) { clearTimeout(id); });
         window._introTimeouts = [];
+        clearTimeout(window._introSafetyTimer);
 
         // Sembunyikan tombol skip
         var skipBtn = document.getElementById('skip-intro-btn');
@@ -1684,31 +1695,51 @@
 
                 // Setelah kata terakhir (Elfathin: 2200ms delay + 700ms transisi = 2900ms)
                 window._introTimeouts.push(setTimeout(function() {
-                    // Hitung posisi h1 di flow normal (tanpa fixed)
+                    // LANGKAH 1: Hapus kelas fixed — h1 kembali ke flow normal
                     h1.classList.remove('h1-centered');
-                    var rect = h1.getBoundingClientRect();
-                    var fromY = (window.innerHeight / 2) - (rect.top + rect.height / 2);
 
-                    // Set posisi awal (dari tengah layar) — tanpa transisi dulu
-                    h1.style.transition = 'none';
-                    h1.style.transform  = 'translateY(' + fromY + 'px)';
-                    h1.style.position   = 'relative';
-                    h1.style.zIndex     = '9998';
+                    // LANGKAH 2: Force reflow sebelum getBoundingClientRect
+                    // offsetHeight memaksa browser commit layout baru sebelum kita baca rect
+                    void h1.offsetHeight;
 
-                    // Dua frame RAF: pastikan browser commit posisi awal dulu
+                    // LANGKAH 3: Baca posisi di frame berikutnya agar reflow benar-benar selesai
                     requestAnimationFrame(function() {
+                        var rect   = h1.getBoundingClientRect();
+                        var fromY  = (window.innerHeight / 2) - (rect.top + rect.height / 2);
+
+                        // Safety: kalau fromY tidak masuk akal (monitor aneh / font belum load),
+                        // fallback ke 0 agar h1 tetap tampil di tempat yang benar
+                        if (!isFinite(fromY) || Math.abs(fromY) > window.innerHeight * 2) {
+                            fromY = 0;
+                        }
+
+                        // Set posisi awal tanpa transisi
+                        h1.style.transition = 'none';
+                        h1.style.transform  = 'translateY(' + fromY + 'px)';
+                        h1.style.position   = 'relative';
+                        h1.style.zIndex     = '9998';
+
+                        // Satu frame lagi: pastikan browser commit posisi awal sebelum animasi
                         requestAnimationFrame(function() {
-                            // Baru pasang transisi dan gerakkan ke posisi asli
+                            // Pasang transisi dan gerakkan ke posisi asli
                             h1.style.transition = 'transform 1.1s cubic-bezier(0.22, 1, 0.36, 1)';
                             h1.style.transform  = 'translateY(0)';
 
-                            window._introTimeouts.push(setTimeout(function() {
+                            // Safety fallback: kalau transitionend tidak fire (browser quirk),
+                            // pastikan heroFlybackDone tetap dipanggil setelah 1300ms
+                            var flybackDone = false;
+                            function doFlybackDone() {
+                                if (flybackDone) return;
+                                flybackDone = true;
                                 h1.style.transition = '';
                                 h1.style.transform  = '';
                                 h1.style.zIndex     = '';
                                 h1.style.position   = '';
                                 if (window.__heroFlybackDone) window.__heroFlybackDone(); else window.__heroFlybackPending = true;
-                            }, spd(1100)));
+                            }
+
+                            h1.addEventListener('transitionend', doFlybackDone, { once: true });
+                            window._introTimeouts.push(setTimeout(doFlybackDone, spd(1300)));
                         });
                     });
                 }, spd(2900)));

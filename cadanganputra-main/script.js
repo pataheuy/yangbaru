@@ -243,41 +243,81 @@ renderProyek();
     var grid = document.getElementById('projects-grid');
     if (!grid) return;
 
+    // Simpan set kartu yang sudah pernah di-reveal agar tidak di-reset ulang
+    var revealedCards = new Set();
+    // Simpan active observers agar bisa di-disconnect saat re-apply
+    var activeObservers = [];
+
     function applyRowReveal() {
-        var cards = Array.from(grid.querySelectorAll('a[data-category]'));
-        // Kelompokkan per 4 (1 baris di desktop)
+        // Disconnect semua observer lama sebelum buat yang baru
+        activeObservers.forEach(function(io) { io.disconnect(); });
+        activeObservers = [];
+
+        // Hanya ambil kartu yang sedang tampil (tidak di-hide oleh filter/search)
+        var allCards = Array.from(grid.querySelectorAll('a[data-category]'));
+        var visibleCards = allCards.filter(function(card) {
+            return card.style.display !== 'none';
+        });
+
+        // Kartu yang sudah pernah di-reveal: langsung tampilkan
+        allCards.forEach(function(card) {
+            if (revealedCards.has(card)) {
+                card.style.opacity   = '1';
+                card.style.transform = 'translateY(0)';
+            }
+        });
+
+        // Kelompokkan kartu visible per 4 (1 baris di desktop)
         var rows = [];
-        for (var i = 0; i < cards.length; i += 4) {
-            rows.push(cards.slice(i, i + 4));
+        for (var i = 0; i < visibleCards.length; i += 4) {
+            rows.push(visibleCards.slice(i, i + 4));
         }
 
         rows.forEach(function (row, rowIdx) {
-            // Bungkus baris dengan wrapper agar IntersectionObserver bisa target per baris
-            var wrapper = document.createElement('div');
-            wrapper.className = 'contents project-row-reveal';
-            wrapper.style.setProperty('--row-i', rowIdx);
-
-            // Tandai masing-masing kartu dalam baris
+            // Set opacity awal hanya untuk kartu yang belum pernah di-reveal
             row.forEach(function (card) {
-                card.classList.remove('reveal-on-scroll');
-                card.style.opacity    = '0';
-                card.style.transform  = 'translateY(28px)';
-                card.style.transition = 'opacity 0.77s cubic-bezier(0.16,1,0.3,1), transform 0.77s cubic-bezier(0.16,1,0.3,1)';
+                if (!revealedCards.has(card)) {
+                    card.classList.remove('reveal-on-scroll');
+                    card.style.opacity    = '0';
+                    card.style.transform  = 'translateY(28px)';
+                    card.style.transition = 'opacity 0.77s cubic-bezier(0.16,1,0.3,1), transform 0.77s cubic-bezier(0.16,1,0.3,1)';
+                }
             });
 
-            // Observer per baris: gunakan kartu pertama sebagai sentinel
+            // Cek apakah semua kartu dalam baris ini sudah di-reveal
+            var allRevealed = row.every(function(card) { return revealedCards.has(card); });
+            if (allRevealed) return; // Skip observer, sudah visible
+
+            // Cek langsung apakah sentinel sudah di viewport
             var sentinel = row[0];
+            var rect = sentinel.getBoundingClientRect();
+            var inViewport = rect.top < window.innerHeight && rect.bottom > 0;
+            if (inViewport) {
+                row.forEach(function (card) {
+                    card.style.opacity   = '1';
+                    card.style.transform = 'translateY(0)';
+                    revealedCards.add(card);
+                });
+                return;
+            }
+
+            // Observer per baris: gunakan kartu pertama sebagai sentinel
             var io = new IntersectionObserver(function (entries) {
                 if (entries[0].isIntersecting) {
-                    // Baris masuk viewport — tampilkan (tidak pernah disembunyikan lagi)
+                    // Baris masuk viewport — tampilkan dan catat
                     row.forEach(function (card) {
                         card.style.opacity   = '1';
                         card.style.transform = 'translateY(0)';
+                        revealedCards.add(card);
                     });
+                    io.disconnect();
+                    // Hapus dari array aktif
+                    var idx = activeObservers.indexOf(io);
+                    if (idx > -1) activeObservers.splice(idx, 1);
                 }
-                // Tidak reset saat keluar viewport — kartu tetap terlihat
             }, { threshold: 0.12 });
             io.observe(sentinel);
+            activeObservers.push(io);
         });
     }
 
@@ -285,7 +325,10 @@ renderProyek();
     setTimeout(applyRowReveal, 60);
 
     // Re-apply saat filter/search (kartu berubah)
-    document.addEventListener('projectsFiltered', applyRowReveal);
+    document.addEventListener('projectsFiltered', function() {
+        // Beri sedikit delay agar display:none sudah terapply
+        setTimeout(applyRowReveal, 30);
+    });
 })();
 
 // Observe individual reveal (non-proyek)
