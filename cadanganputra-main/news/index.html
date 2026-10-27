@@ -29,6 +29,40 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        @keyframes shimmer {
+            0%   { background-position: -600px 0; }
+            100% { background-position: 600px 0; }
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 600px 100%;
+            animation: shimmer 1.4s infinite linear;
+            border-radius: 6px;
+        }
+
+        .skeleton-card {
+            grid-column: span 4;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .skeleton-card.featured-sk {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 3rem;
+            margin-bottom: 2rem;
+        }
+
+        .skeleton-img       { aspect-ratio: 16/10; border-radius: 8px; }
+        .skeleton-img.large { aspect-ratio: 16/9; }
+        .skeleton-line      { height: 14px; border-radius: 4px; }
+        .skeleton-title     { height: 22px; border-radius: 4px; }
+        .skeleton-title.big { height: 48px; }
+        .skeleton-lines     { display: flex; flex-direction: column; gap: 0.6rem; justify-content: center; }
+
         body {
             background-color: var(--bg-body);
             color: var(--text-main);
@@ -139,28 +173,32 @@
         .current-date { font-size: 0.9rem; font-weight: 500; color: var(--text-muted); margin-bottom: 0.2rem; display: block; }
         .headline { font-size: 3.5rem; font-weight: 800; letter-spacing: -2px; line-height: 1; }
 
-        .article-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 2.5rem; }
-        .article-card { grid-column: span 4; cursor: pointer; transition: var(--transition); opacity: 0; animation: fadeInUp 0.8s ease-out forwards; }
-        .article-card.featured { grid-column: 1 / -1; display: grid; grid-template-columns: 1.5fr 1fr; gap: 3rem; margin-bottom: 2rem; align-items: center; }
+        .article-grid { display: flex; flex-direction: column; gap: 0; }
+        .article-card {
+            cursor: pointer;
+            transition: var(--transition);
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out forwards;
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 3rem;
+            align-items: center;
+            padding: 2.5rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .article-card:first-child { border-top: 1px solid var(--border-color); }
 
-        .article-image-box { position: relative; aspect-ratio: 16 / 10; background: #eee; border-radius: 8px; overflow: hidden; margin-bottom: 1.5rem; }
-        .article-card.featured .article-image-box { margin-bottom: 0; aspect-ratio: 16 / 9; }
+        .article-image-box { position: relative; aspect-ratio: 16 / 9; background: #eee; border-radius: 8px; overflow: hidden; margin-bottom: 0; }
         .article-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
-        .article-card:hover .article-img { transform: scale(1.08); }
-
-        /* Non-featured cards — 3 per row, centered if fewer than 3 */
-        .article-grid .article-card:not(.featured):nth-child(2) { grid-column: 1 / span 4; }
-        .article-grid .article-card:not(.featured):nth-child(3) { grid-column: 5 / span 4; }
-        .article-grid .article-card:not(.featured):nth-child(4) { grid-column: 9 / span 4; }
+        .article-card:hover .article-img { transform: scale(1.05); }
 
         .cat-tag { position: absolute; top: 1rem; left: 1rem; background: white; color: black; padding: 0.4rem 1rem; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .article-title { font-size: 1.4rem; font-weight: 700; line-height: 1.3; margin-bottom: 0.8rem; letter-spacing: -0.5px; }
-        .article-card.featured .article-title { font-size: 3rem; line-height: 1.1; }
-        .article-excerpt { color: var(--text-muted); font-size: 1rem; margin-bottom: 1.5rem; }
+        .article-title { font-size: 2.6rem; font-weight: 800; line-height: 1.1; margin-bottom: 1rem; letter-spacing: -1.5px; }
+        .article-excerpt { color: var(--text-muted); font-size: 1rem; margin-bottom: 1.5rem; line-height: 1.6; }
         .article-meta { font-size: 0.8rem; font-weight: 600; color: #999; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 10px; }
         .meta-divider { width: 3px; height: 3px; background: #ccc; border-radius: 50%; }
 
-        /* --- Admin action buttons (edit/hapus) muncul saat hover di mode penulis --- */
+        /* --- Admin action buttons (edit/hapus) HANYA muncul saat mode penulis --- */
         .admin-actions {
             position: absolute;
             top: 0.75rem; right: 0.75rem;
@@ -170,8 +208,14 @@
             transform: translateY(-4px);
             transition: opacity 0.2s ease, transform 0.2s ease;
             z-index: 10;
+            pointer-events: none; /* nonaktif di mode pembaca */
         }
-        .article-card:hover .admin-actions { opacity: 1; transform: translateY(0); }
+        /* Hanya tampil saat body punya class admin-mode DAN card di-hover */
+        body.admin-mode .article-card:hover .admin-actions {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
         .admin-btn {
             width: 32px; height: 32px;
             border-radius: 6px;
@@ -385,8 +429,9 @@
 
         @media (max-width: 768px) {
             .headline { font-size: 2.5rem; }
-            .article-card { grid-column: span 12; }
-            .article-card.featured { grid-template-columns: 1fr; }
+            .article-card { grid-template-columns: 1fr; }
+            .article-card .article-image-box { aspect-ratio: 16 / 9; margin-bottom: 1.2rem; }
+            .article-title { font-size: 1.8rem; }
             .footer-grid { grid-template-columns: 1fr; gap: 2rem; }
         }
     </style>
@@ -642,6 +687,13 @@
             currentFilter = filter;
             grid.innerHTML = '';
 
+            // Tandai body sesuai status admin — dipakai CSS untuk show/hide tombol edit/hapus
+            if (isAdminAuthed()) {
+                document.body.classList.add('admin-mode');
+            } else {
+                document.body.classList.remove('admin-mode');
+            }
+
             const filtered = filter === 'all'
                 ? articles
                 : articles.filter(a => a.category === filter);
@@ -652,15 +704,14 @@
             }
 
             filtered.forEach((art, index) => {
-                const isFeatured = art.featured && index === 0;
                 const card = document.createElement('article');
-                card.className = `article-card ${isFeatured ? 'featured' : ''}`;
+                card.className = `article-card`;
                 card.style.animationDelay = `${index * 0.05}s`;
 
                 const imgSrc = art.image_url || `https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1200&q=80`;
 
-                // Tombol admin — hanya render saat mode penulis aktif
-                const adminHtml = isAdminAuthed() ? `
+                // Tombol admin — selalu ada di DOM, visibilitas dikontrol CSS (body.admin-mode)
+                const adminHtml = `
                     <div class="admin-actions">
                         <button class="admin-btn edit" title="Edit artikel">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -668,7 +719,7 @@
                         <button class="admin-btn del" title="Hapus artikel">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
                         </button>
-                    </div>` : '';
+                    </div>`;
 
                 card.innerHTML = `
                     <div class="article-image-box" style="position:relative;">
@@ -690,17 +741,17 @@
                 // Klik artikel → buka reader
                 card.onclick = () => openReader(art);
 
-                // Klik tombol edit — stop propagation supaya reader tidak ikut terbuka
-                if (isAdminAuthed()) {
-                    card.querySelector('.admin-btn.edit').addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        openEditModal(art);
-                    });
-                    card.querySelector('.admin-btn.del').addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        deleteArticle(art, card);
-                    });
-                }
+                // Tombol edit & hapus — listener selalu terpasang, guard di dalam handler
+                card.querySelector('.admin-btn.edit').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (!isAdminAuthed()) return;
+                    openEditModal(art);
+                });
+                card.querySelector('.admin-btn.del').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (!isAdminAuthed()) return;
+                    deleteArticle(art, card);
+                });
 
                 grid.appendChild(card);
             });
@@ -1128,9 +1179,36 @@
             t._timer = setTimeout(() => { t.style.transform = 'translateX(-50%) translateY(80px)'; }, 3000);
         }
 
+        // ── Skeleton loading ──────────────────────────────────────────────────
+        function showSkeletonLoading() {
+            grid.innerHTML = `
+                <!-- Featured skeleton -->
+                <div class="skeleton-card featured-sk">
+                    <div class="skeleton skeleton-img large"></div>
+                    <div class="skeleton-lines">
+                        <div class="skeleton skeleton-line" style="width:30%"></div>
+                        <div class="skeleton skeleton-title big"></div>
+                        <div class="skeleton skeleton-title big" style="width:80%"></div>
+                        <div class="skeleton skeleton-line" style="width:60%;margin-top:.5rem"></div>
+                        <div class="skeleton skeleton-line" style="width:40%"></div>
+                        <div class="skeleton skeleton-line" style="width:25%;margin-top:.8rem"></div>
+                    </div>
+                </div>
+                <!-- Regular card skeletons -->
+                ${[1,2,3].map(() => `
+                <div class="skeleton-card">
+                    <div class="skeleton skeleton-img"></div>
+                    <div class="skeleton skeleton-title" style="width:90%"></div>
+                    <div class="skeleton skeleton-title" style="width:70%"></div>
+                    <div class="skeleton skeleton-line" style="width:55%"></div>
+                    <div class="skeleton skeleton-line" style="width:35%;margin-top:.4rem"></div>
+                </div>`).join('')}
+            `;
+        }
+
         // ── Muat artikel dari Supabase ────────────────────────────────────────
         async function loadArticles() {
-            grid.innerHTML = `<p style="grid-column:span 12;text-align:center;color:#999;padding:3rem 0;">Memuat artikel...</p>`;
+            showSkeletonLoading();
             try {
                 const data = await sbRequest({
                     path  : '/rest/v1/articles?select=*&order=created_at.desc&published=eq.true',
@@ -1250,12 +1328,12 @@
                         showToast('Mode penulis aktif ✍️');
                         renderArticles(currentFilter); // tampilkan tombol edit/hapus
                     } else {
-                        // Klik 5x lagi = sembunyikan lagi (toggle)
+                        // Klik 5x lagi = logout → mode pembaca
                         btnAdd.classList.remove('unlocked');
                         sessionStorage.removeItem(UNLOCK_KEY);
-                        // Juga cabut sesi admin supaya tombol benar-benar hilang
+                        // Cabut sesi admin supaya tombol edit/hapus hilang
                         sessionStorage.removeItem(ADMIN_SESSION_KEY);
-                        showToast('Mode penulis dinonaktifkan');
+                        showToast('Keluar dari mode penulis 👁️');
                         renderArticles(currentFilter); // sembunyikan tombol edit/hapus
                     }
                 }
