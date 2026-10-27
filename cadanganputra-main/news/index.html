@@ -108,12 +108,16 @@
             background: var(--accent);
             color: white;
             border: none;
-            display: flex;
+            display: none; /* tersembunyi by default, muncul setelah unlock */
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: transform 0.3s ease, background 0.3s ease;
+            transition: transform 0.3s ease, background 0.3s ease, opacity 0.4s ease;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .btn-add.unlocked {
+            display: flex;
         }
 
         .btn-add:hover {
@@ -241,6 +245,16 @@
         .footer-links a:hover { color: var(--accent); }
         .footer-bottom { max-width: var(--container-width); margin: 4rem auto 0; padding-top: 2rem; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; font-size: 0.8rem; color: #bbb; }
 
+        /* Footer logo unlock hint */
+        .footer-brand .logo {
+            cursor: default;
+            user-select: none;
+        }
+        .footer-brand .logo.tapping {
+            opacity: 0.6;
+            transition: opacity 0.1s;
+        }
+
         @media (max-width: 768px) {
             .headline { font-size: 2.5rem; }
             .article-card { grid-column: span 12; }
@@ -350,7 +364,7 @@
     <footer>
         <div class="footer-grid">
             <div class="footer-brand">
-                <div class="logo">PUFUTARA<span>NEWS</span></div>
+                <div class="logo" id="footerLogo">PUFUTARA<span>NEWS</span></div>
                 <p class="footer-desc">Platform jurnalisme independen yang fokus pada perkembangan teknologi dan gaya hidup digital modern.</p>
             </div>
             <div>
@@ -473,6 +487,14 @@
         }
 
         // ── Reader view ───────────────────────────────────────────────────────
+        // Selalu kembalikan root path /news, tidak peduli URL saat ini
+        function getNewsRoot() {
+            const p   = window.location.pathname;
+            const idx = p.indexOf('/news');
+            if (idx !== -1) return p.slice(0, idx + 5); // "/news"
+            return p.replace(/\/(article|filter)(\/.*)?$/, '') || '/news';
+        }
+
         function openReader(art) {
             document.getElementById('readTitle').textContent  = art.title;
             document.getElementById('readCat').textContent    = art.tag || art.category;
@@ -481,20 +503,17 @@
                  <div class="meta-divider"></div>
                  <span>${readTime(art.content)}</span>`;
 
-            // Content sudah tersimpan sebagai HTML di Supabase
             document.getElementById('readContent').innerHTML  = art.content || '';
             reader.classList.add('open');
             document.body.style.overflow = 'hidden';
 
-            const basePath = window.location.pathname.replace(/\/[^/]*$/, '');
-            history.pushState({ view: 'article', articleId: art.id }, '', `${basePath}/article/${art.id}`);
+            history.pushState({ view: 'article', articleId: art.id }, art.title, `${getNewsRoot()}/article/${art.id}`);
         }
 
         document.getElementById('closeReader').onclick = () => {
             reader.classList.remove('open');
             document.body.style.overflow = '';
-            const basePath = window.location.pathname.replace(/\/[^/]*$/, '');
-            history.pushState({ view: 'home' }, '', basePath || '/news');
+            history.pushState({ view: 'home' }, 'Pufutara News', getNewsRoot());
         };
 
         // ── Category nav ──────────────────────────────────────────────────────
@@ -513,8 +532,8 @@
                 moveIndicator(link);
 
                 const filter = link.dataset.filter;
-                const basePath = window.location.pathname.replace(/\/[^/]*$/, '');
-                const url = filter !== 'all' ? `${basePath}/filter/${filter}` : basePath || '/news';
+                const root   = getNewsRoot();
+                const url    = filter !== 'all' ? `${root}/filter/${filter}` : root;
                 history.pushState({ filter }, '', url);
 
                 renderArticles(filter);
@@ -744,7 +763,60 @@
             const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             document.getElementById('currentDate').textContent = new Date().toLocaleDateString('id-ID', opts);
             moveIndicator(document.querySelector('.nav-link.active'));
-            loadArticles();
+
+            // ── Unlock tombol + dengan klik footer logo 5x ────────────────────
+            const footerLogo    = document.getElementById('footerLogo');
+            const btnAdd        = document.getElementById('openUpload');
+            const UNLOCK_KEY    = 'news_btn_unlocked';
+            let   tapCount      = 0;
+            let   tapTimer      = null;
+
+            // Pertahankan unlock jika sudah pernah unlock di session ini
+            if (sessionStorage.getItem(UNLOCK_KEY) === '1') {
+                btnAdd.classList.add('unlocked');
+            }
+
+            footerLogo.addEventListener('click', () => {
+                tapCount++;
+
+                // Visual feedback tiap ketukan
+                footerLogo.classList.add('tapping');
+                setTimeout(() => footerLogo.classList.remove('tapping'), 100);
+
+                // Reset counter kalau tidak ada ketukan >2 detik
+                clearTimeout(tapTimer);
+                tapTimer = setTimeout(() => { tapCount = 0; }, 2000);
+
+                if (tapCount >= 5) {
+                    tapCount = 0;
+                    clearTimeout(tapTimer);
+
+                    if (!btnAdd.classList.contains('unlocked')) {
+                        btnAdd.classList.add('unlocked');
+                        sessionStorage.setItem(UNLOCK_KEY, '1');
+                        showToast('Mode penulis aktif ✍️');
+                    } else {
+                        // Klik 5x lagi = sembunyikan lagi (toggle)
+                        btnAdd.classList.remove('unlocked');
+                        sessionStorage.removeItem(UNLOCK_KEY);
+                        showToast('Mode penulis dinonaktifkan');
+                    }
+                }
+            });
+
+            // ── Load artikel ──────────────────────────────────────────────────
+            loadArticles().then(() => {
+                // Handle deep-link saat pertama load (setelah artikel dimuat)
+                const path  = window.location.pathname;
+                const parts = path.split('/').filter(p => p);
+                if (parts.length >= 2 && parts[parts.length - 2] === 'article') {
+                    const articleId = parts[parts.length - 1];
+                    const art = articles.find(a => String(a.id) === articleId);
+                    if (art) openReader(art);
+                } else if (parts.length >= 2 && parts[parts.length - 2] === 'filter') {
+                    renderArticles(parts[parts.length - 1]);
+                }
+            });
 
             window.addEventListener('popstate', (event) => {
                 if (!event.state) return;
@@ -758,15 +830,6 @@
                     renderArticles(event.state.filter);
                 }
             });
-
-            const path  = window.location.pathname;
-            const parts = path.split('/').filter(p => p);
-            if (parts.length >= 2 && parts[parts.length - 2] === 'article') {
-                const articleId = parseInt(parts[parts.length - 1]);
-                setTimeout(() => { const art = articles.find(a => a.id == articleId); if (art) openReader(art); }, 500);
-            } else if (parts.length >= 2 && parts[parts.length - 2] === 'filter') {
-                setTimeout(() => renderArticles(parts[parts.length - 1]), 100);
-            }
         };
     </script>
 </body>
