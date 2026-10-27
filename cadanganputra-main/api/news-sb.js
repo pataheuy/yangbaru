@@ -83,7 +83,7 @@ export default async function handler(req, res) {
   }
 
   // ── Whitelist path Supabase yang diizinkan ────────────────────────────────
-  if (!/^\/rest\/v1\/articles/.test(path)) {
+  if (!/^\/rest\/v1\/(articles|comments)/.test(path)) {
     return res.status(403).json({ error: 'Path not allowed' });
   }
 
@@ -109,12 +109,16 @@ export default async function handler(req, res) {
     });
 
     const ct   = upstream.headers.get('content-type') || '';
-    const data = ct.includes('application/json')
-      ? await upstream.json()
-      : await upstream.text();
+    const text = await upstream.text();
+    const data = ct.includes('application/json') && text ? JSON.parse(text) : (text || null);
 
     const cr = upstream.headers.get('content-range');
     if (cr) res.setHeader('x-content-range', cr);
+
+    // 204 No Content (DELETE) — kembalikan ok:true supaya frontend tidak throw
+    if (upstream.status === 204) {
+      return res.status(200).json({ ok: true });
+    }
 
     return res.status(upstream.status).json(data);
   } catch (err) {

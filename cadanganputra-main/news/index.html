@@ -110,7 +110,10 @@
             display: flex;
             gap: 1.5rem;
             position: relative;
+            overflow-x: auto;
+            scrollbar-width: none; /* Firefox */
         }
+        .category-nav::-webkit-scrollbar { display: none; } /* Chrome/Safari */
 
         .nav-link {
             background: none;
@@ -416,6 +419,101 @@
             color: #ccc;
         }
 
+        /* --- Comments --- */
+        .comments-section {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 0 2rem 4rem;
+        }
+        .comments-title {
+            font-size: 1.2rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #eee;
+        }
+        .comment-form {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            margin-bottom: 2.5rem;
+        }
+        .comment-form input,
+        .comment-form textarea {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+            resize: none;
+        }
+        .comment-form input:focus,
+        .comment-form textarea:focus {
+            outline: none;
+            border-color: #111;
+        }
+        .comment-form textarea { height: 100px; }
+        .comment-submit {
+            align-self: flex-end;
+            background: #111;
+            color: white;
+            border: none;
+            padding: 0.7rem 1.8rem;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.15s;
+        }
+        .comment-submit:hover { background: #333; transform: translateY(-1px); }
+        .comment-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        .comment-list { display: flex; flex-direction: column; gap: 1.5rem; }
+        .comment-item {
+            display: flex;
+            gap: 1rem;
+            animation: fadeInUp 0.4s ease forwards;
+        }
+        .comment-avatar {
+            width: 38px; height: 38px;
+            border-radius: 50%;
+            background: #111;
+            color: white;
+            font-weight: 800;
+            font-size: 0.9rem;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+        }
+        .comment-bubble { flex: 1; }
+        .comment-meta {
+            display: flex;
+            align-items: baseline;
+            gap: 0.8rem;
+            margin-bottom: 0.3rem;
+        }
+        .comment-name { font-weight: 700; font-size: 0.9rem; }
+        .comment-date { font-size: 0.78rem; color: #aaa; }
+        .comment-body { font-size: 0.95rem; color: #444; line-height: 1.6; }
+        .comment-del-btn {
+            background: none;
+            border: none;
+            color: #ccc;
+            cursor: pointer;
+            font-size: 0.75rem;
+            padding: 0;
+            margin-left: auto;
+            transition: color 0.2s;
+            display: none; /* hanya tampil saat admin-mode */
+        }
+        body.admin-mode .comment-del-btn { display: inline-block; }
+        .comment-del-btn:hover { color: #e53e3e; }
+        .comments-empty { color: #bbb; font-size: 0.9rem; text-align: center; padding: 1.5rem 0; }
+        .comments-loading { color: #ccc; font-size: 0.9rem; text-align: center; padding: 1rem 0; }
+
         /* --- Footer --- */
         footer { background: #fafafa; border-top: 1px solid var(--border-color); padding: 5rem 2rem; margin-top: 4rem; }
         .footer-grid { max-width: var(--container-width); margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 4rem; }
@@ -438,13 +536,112 @@
             transition: opacity 0.1s;
         }
 
-        @media (max-width: 768px) {
-            .headline { font-size: 2.5rem; }
-            .article-grid { grid-template-columns: 1fr; }
-            .article-card.featured { grid-template-columns: 1fr; }
+        @media (max-width: 480px) {
+            /* ── Ekstra kecil (HP kecil) ── */
+            .nav-container { padding: 0.8rem 1rem; }
+            .logo { font-size: 1.1rem; }
+            .category-nav { gap: 0.8rem; overflow-x: auto; padding-bottom: 2px; }
+            .nav-link { font-size: 0.72rem; padding: 0.6rem 0; white-space: nowrap; }
+
+            main { padding: 1.2rem 1rem 3rem; }
+            .headline { font-size: 1.8rem; letter-spacing: -1px; }
+            .current-date { font-size: 0.8rem; }
+            .section-header { margin-bottom: 1.5rem; }
+
+            .article-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+            .article-card.featured { grid-template-columns: 1fr; gap: 0; padding-bottom: 1.5rem; }
+            .article-card.featured .article-image-box { margin-bottom: 1rem; }
+            .article-card.featured .article-title { font-size: 1.5rem; letter-spacing: -0.8px; margin-bottom: 0.6rem; }
+            .article-card.featured .article-excerpt { font-size: 0.9rem; margin-bottom: 0.8rem; }
+            .article-card:not(.featured) .article-title { font-size: 1.1rem; }
+
+            .read-title { font-size: 1.8rem; letter-spacing: -1px; }
+            .read-content { font-size: 1rem; padding: 1rem 1rem 5rem; }
+            .reader-header { padding: 1.5rem 1rem 1rem; }
+            .reader-hero { padding: 0 1rem; }
+            .comments-section { padding: 0 1rem 3rem; }
+            .reader-topbar { padding: 0.8rem 1rem; }
+
+            .modal-content { padding: 1.5rem; margin: 0.5rem; border-radius: 10px; }
+
+            footer { padding: 3rem 1rem; }
+            .footer-grid { grid-template-columns: 1fr; gap: 1.5rem; }
+            .footer-bottom { flex-direction: column; gap: 0.5rem; }
+        }
+
+        @media (min-width: 481px) and (max-width: 768px) {
+            /* ── Mobile biasa ── */
+            .nav-container { padding: 0.9rem 1.2rem; }
+            .category-nav { gap: 1rem; overflow-x: auto; padding-bottom: 2px; }
+            .nav-link { font-size: 0.78rem; }
+
+            main { padding: 1.5rem 1.2rem 3rem; }
+            .headline { font-size: 2.2rem; letter-spacing: -1.5px; }
+            .section-header { margin-bottom: 2rem; }
+
+            .article-grid { grid-template-columns: 1fr; gap: 2rem; }
+            .article-card.featured { grid-template-columns: 1fr; gap: 0; padding-bottom: 2rem; }
             .article-card.featured .article-image-box { margin-bottom: 1.2rem; }
-            .article-card.featured .article-title { font-size: 1.8rem; }
-            .footer-grid { grid-template-columns: 1fr; gap: 2rem; }
+            .article-card.featured .article-title { font-size: 1.9rem; letter-spacing: -1px; }
+            .article-card:not(.featured) .article-title { font-size: 1.2rem; }
+
+            .read-title { font-size: 2.2rem; letter-spacing: -1px; }
+            .read-content { font-size: 1.05rem; padding: 1.2rem 1.2rem 5rem; }
+            .reader-header { padding: 1.8rem 1.2rem 1.2rem; }
+            .reader-hero { padding: 0 1.2rem; }
+            .comments-section { padding: 0 1.2rem 3rem; }
+
+            footer { padding: 3rem 1.2rem; }
+            .footer-grid { grid-template-columns: 1fr 1fr; gap: 2rem; }
+            .footer-bottom { flex-direction: column; gap: 0.5rem; }
+        }
+
+        @media (min-width: 769px) and (max-width: 1024px) {
+            /* ── Tablet ── */
+            :root { --container-width: 960px; }
+
+            main { padding: 2rem 1.5rem 4rem; }
+            .headline { font-size: 2.8rem; }
+
+            .article-grid { grid-template-columns: repeat(2, 1fr); gap: 2rem; }
+            .article-card.featured { grid-template-columns: 1.2fr 1fr; gap: 2rem; }
+            .article-card.featured .article-title { font-size: 2rem; letter-spacing: -1px; }
+            .article-card:not(.featured) .article-title { font-size: 1.2rem; }
+
+            .read-title { font-size: 2.6rem; }
+            .footer-grid { grid-template-columns: repeat(2, 1fr); gap: 2.5rem; }
+        }
+
+        @media (min-width: 1025px) and (max-width: 1440px) {
+            /* ── Desktop standar ── */
+            :root { --container-width: 1200px; }
+        }
+
+        @media (min-width: 1441px) {
+            /* ── Layar besar / ultrawide ── */
+            :root { --container-width: 1400px; }
+
+            .headline { font-size: 4.5rem; letter-spacing: -3px; }
+            .article-card.featured { gap: 5rem; }
+            .article-card.featured .article-title { font-size: 3.2rem; letter-spacing: -2px; }
+            .article-card:not(.featured) .article-title { font-size: 1.5rem; }
+            .article-grid { gap: 3rem; }
+
+            .read-title { font-size: 4rem; }
+            .read-content { font-size: 1.35rem; max-width: 780px; }
+            .reader-header { max-width: 900px; }
+            .reader-hero { max-width: 900px; }
+            .comments-section { max-width: 780px; }
+        }
+
+        @media (min-width: 1921px) {
+            /* ── 2K / 4K ── */
+            :root { --container-width: 1600px; }
+
+            .headline { font-size: 5.5rem; }
+            .article-card.featured .article-title { font-size: 3.8rem; }
+            .article-grid { gap: 3.5rem; }
+            .article-card:not(.featured) .article-title { font-size: 1.7rem; }
         }
     </style>
 </head>
@@ -567,6 +764,19 @@
         </div>
 
         <div class="read-content" id="readContent"></div>
+
+        <!-- Komentar -->
+        <section class="comments-section">
+            <h3 class="comments-title" id="commentsTitle">Komentar</h3>
+            <form class="comment-form" id="commentForm">
+                <input type="text" id="commentName" placeholder="Nama kamu..." maxlength="60" required>
+                <textarea id="commentBody" placeholder="Tulis komentar..." maxlength="500" required></textarea>
+                <button type="submit" class="comment-submit" id="commentSubmitBtn">KIRIM</button>
+            </form>
+            <div class="comment-list" id="commentList">
+                <p class="comments-loading">Memuat komentar...</p>
+            </div>
+        </section>
 
         <!-- Floating zoom bar — tengah bawah -->
         <div class="reader-zoom-fab">
@@ -870,6 +1080,12 @@
             reader.scrollTop = 0;
             document.body.style.overflow = 'hidden';
 
+            // Load komentar untuk artikel ini
+            currentArticleId = art.id;
+            document.getElementById('commentName').value = '';
+            document.getElementById('commentBody').value = '';
+            loadComments(art.id);
+
             // URL pakai slug judul, simpan id di state supaya back/forward bisa cari artikel
             const slug = slugify(art.title);
             history.pushState({ view: 'article', articleId: art.id }, art.title, `${getNewsRoot()}/${slug}`);
@@ -878,6 +1094,7 @@
         document.getElementById('closeReader').onclick = () => {
             reader.classList.remove('open');
             document.body.style.overflow = '';
+            currentArticleId = null;
             history.pushState({ view: 'home' }, 'Pufutara News', getNewsRoot());
         };
 
@@ -1084,6 +1301,152 @@
                 showToast('Gagal menghapus: ' + err.message);
             }
         }
+
+        // ─────────────────────────────────────────────────────────────────────
+        //  KOMENTAR
+        // ─────────────────────────────────────────────────────────────────────
+        let currentArticleId = null;
+
+        async function loadComments(articleId) {
+            const list = document.getElementById('commentList');
+            list.innerHTML = `<p class="comments-loading">Memuat komentar...</p>`;
+            try {
+                const data = await sbRequest({
+                    path  : `/rest/v1/comments?article_id=eq.${articleId}&order=created_at.asc&select=*`,
+                    method: 'GET'
+                });
+                const comments = Array.isArray(data) ? data : [];
+                renderComments(comments);
+            } catch (err) {
+                list.innerHTML = `<p class="comments-empty">Gagal memuat komentar.</p>`;
+            }
+        }
+
+        function renderComments(comments) {
+            const list  = document.getElementById('commentList');
+            const title = document.getElementById('commentsTitle');
+            title.textContent = `Komentar (${comments.length})`;
+
+            if (comments.length === 0) {
+                list.innerHTML = `<p class="comments-empty">Belum ada komentar. Jadilah yang pertama!</p>`;
+                return;
+            }
+
+            list.innerHTML = comments.map(c => {
+                const initial  = (c.name || '?')[0].toUpperCase();
+                const dateStr  = new Date(c.created_at).toLocaleDateString('id-ID', {
+                    day: 'numeric', month: 'short', year: 'numeric'
+                });
+                return `
+                <div class="comment-item" data-id="${c.id}">
+                    <div class="comment-avatar">${initial}</div>
+                    <div class="comment-bubble">
+                        <div class="comment-meta">
+                            <span class="comment-name">${escHtml(c.name)}</span>
+                            <span class="comment-date">${dateStr}</span>
+                            <button class="comment-del-btn" data-cid="${c.id}" title="Hapus komentar">✕</button>
+                        </div>
+                        <p class="comment-body">${escHtml(c.body)}</p>
+                    </div>
+                </div>`;
+            }).join('');
+
+            // Event listener tombol hapus komentar (admin only)
+            list.querySelectorAll('.comment-del-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    if (!isAdminAuthed()) return;
+                    const cid  = btn.dataset.cid;
+                    const item = btn.closest('.comment-item');
+                    item.style.opacity = '0';
+                    try {
+                        await sbRequest({
+                            path  : `/rest/v1/comments?id=eq.${cid}`,
+                            method: 'DELETE'
+                        });
+                        item.remove();
+                        const remaining = document.querySelectorAll('.comment-item').length;
+                        document.getElementById('commentsTitle').textContent = `Komentar (${remaining})`;
+                    } catch (err) {
+                        item.style.opacity = '1';
+                        showToast('Gagal hapus komentar: ' + err.message);
+                    }
+                });
+            });
+        }
+
+        document.getElementById('commentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!currentArticleId) return;
+
+            const btn  = document.getElementById('commentSubmitBtn');
+            const name = document.getElementById('commentName').value.trim();
+            const body = document.getElementById('commentBody').value.trim();
+            if (!name || !body) return;
+
+            btn.textContent = 'Mengirim...';
+            btn.disabled    = true;
+
+            try {
+                const saved = await sbRequest({
+                    path  : '/rest/v1/comments',
+                    method: 'POST',
+                    body  : { article_id: currentArticleId, name, body },
+                    prefer: 'return=representation'
+                });
+                const c = Array.isArray(saved) ? saved[0] : saved;
+
+                // Hapus pesan "belum ada komentar" jika ada
+                const empty = document.querySelector('.comments-empty');
+                if (empty) empty.remove();
+
+                // Append komentar baru
+                const initial = (c.name || '?')[0].toUpperCase();
+                const dateStr = new Date(c.created_at).toLocaleDateString('id-ID', {
+                    day: 'numeric', month: 'short', year: 'numeric'
+                });
+                const list = document.getElementById('commentList');
+                const item = document.createElement('div');
+                item.className = 'comment-item';
+                item.dataset.id = c.id;
+                item.innerHTML = `
+                    <div class="comment-avatar">${initial}</div>
+                    <div class="comment-bubble">
+                        <div class="comment-meta">
+                            <span class="comment-name">${escHtml(c.name)}</span>
+                            <span class="comment-date">${dateStr}</span>
+                            <button class="comment-del-btn" data-cid="${c.id}" title="Hapus komentar">✕</button>
+                        </div>
+                        <p class="comment-body">${escHtml(c.body)}</p>
+                    </div>`;
+                list.appendChild(item);
+
+                // Update jumlah
+                const count = list.querySelectorAll('.comment-item').length;
+                document.getElementById('commentsTitle').textContent = `Komentar (${count})`;
+
+                // Tambah listener hapus untuk komentar baru
+                item.querySelector('.comment-del-btn').addEventListener('click', async () => {
+                    if (!isAdminAuthed()) return;
+                    item.style.opacity = '0';
+                    try {
+                        await sbRequest({ path: `/rest/v1/comments?id=eq.${c.id}`, method: 'DELETE' });
+                        item.remove();
+                        const rem = list.querySelectorAll('.comment-item').length;
+                        document.getElementById('commentsTitle').textContent = `Komentar (${rem})`;
+                    } catch { item.style.opacity = '1'; }
+                });
+
+                // Reset form
+                document.getElementById('commentName').value = '';
+                document.getElementById('commentBody').value = '';
+                showToast('Komentar terkirim 💬');
+            } catch (err) {
+                showToast('Gagal kirim komentar: ' + err.message);
+            } finally {
+                btn.textContent = 'KIRIM';
+                btn.disabled    = false;
+            }
+        });
 
         // ─────────────────────────────────────────────────────────────────────
         //  UPLOAD GAMBAR — binary via proxy
