@@ -406,7 +406,7 @@
         //  Komunikasi melalui serverless proxy /news/api/sb
         // ─────────────────────────────────────────────────────────────────────
 
-        const API = '/news/api/sb';   // Vercel serverless proxy
+        const API = '/api/news-sb';   // Vercel serverless function di /api/
 
         // ── Helper: POST ke proxy ─────────────────────────────────────────────
         async function sbRequest({ path, method = 'GET', body, prefer } = {}) {
