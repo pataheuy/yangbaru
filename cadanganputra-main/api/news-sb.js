@@ -87,6 +87,12 @@ export default async function handler(req, res) {
     return res.status(403).json({ error: 'Path not allowed' });
   }
 
+  // Hanya method yang diizinkan
+  const ALLOWED_METHODS = ['GET', 'POST', 'PATCH', 'DELETE'];
+  if (!ALLOWED_METHODS.includes(method.toUpperCase())) {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
   // ── Forward ke Supabase REST ──────────────────────────────────────────────
   const headers = {
     'apikey'        : SB_KEY,
