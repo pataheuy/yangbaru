@@ -999,7 +999,7 @@
                     catNav.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
                     btn.classList.add('active');
                     moveIndicator(btn);
-                    history.pushState({ filter: cat }, '', `${getNewsRoot()}/filter/${cat}`);
+                    history.pushState({ filter: cat }, '', `${getNewsRoot()}#filter-${cat}`);
                     renderArticles(cat);
                 });
             });
@@ -1086,9 +1086,8 @@
             document.getElementById('commentBody').value = '';
             loadComments(art.id);
 
-            // URL pakai slug judul, simpan id di state supaya back/forward bisa cari artikel
-            const slug = slugify(art.title);
-            history.pushState({ view: 'article', articleId: art.id }, art.title, `${getNewsRoot()}/${slug}`);
+            // Pakai hash supaya URL tidak berubah ke path baru (mencegah 404 di Vercel)
+            history.pushState({ view: 'article', articleId: art.id }, art.title, `${getNewsRoot()}#${art.id}`);
         }
 
         document.getElementById('closeReader').onclick = () => {
@@ -1114,9 +1113,8 @@
                 moveIndicator(link);
 
                 const filter = link.dataset.filter;
-                const root   = getNewsRoot();
-                const url    = filter !== 'all' ? `${root}/filter/${filter}` : root;
-                history.pushState({ filter }, '', url);
+                const hash   = filter !== 'all' ? `#filter-${filter}` : '#';
+                history.pushState({ filter }, '', `${getNewsRoot()}${hash}`);
 
                 renderArticles(filter);
             });
@@ -1312,7 +1310,7 @@
             list.innerHTML = `<p class="comments-loading">Memuat komentar...</p>`;
             try {
                 const data = await sbRequest({
-                    path  : `/rest/v1/comments?article_id=eq.${articleId}&order=created_at.asc&select=*`,
+                    path  : `/rest/v1/comments?article_id=eq.${String(articleId)}&order=created_at.asc&select=*`,
                     method: 'GET'
                 });
                 const comments = Array.isArray(data) ? data : [];
@@ -1390,7 +1388,7 @@
                 const saved = await sbRequest({
                     path  : '/rest/v1/comments',
                     method: 'POST',
-                    body  : { article_id: currentArticleId, name, body },
+                    body  : { article_id: String(currentArticleId), name, body },
                     prefer: 'return=representation'
                 });
                 const c = Array.isArray(saved) ? saved[0] : saved;
@@ -1717,26 +1715,29 @@
 
             // ── Load artikel ──────────────────────────────────────────────────
             loadArticles().then(() => {
-                // Handle deep-link saat pertama load (setelah artikel dimuat)
-                const path  = window.location.pathname;
-                const parts = path.split('/').filter(p => p);
-                if (parts.length >= 2 && parts[parts.length - 2] === 'article') {
-                    const articleId = parts[parts.length - 1];
-                    const art = articles.find(a => String(a.id) === articleId);
+                // Handle deep-link via hash (#articleId) saat pertama load
+                const hash = window.location.hash.replace('#', '');
+                if (hash) {
+                    const art = articles.find(a => String(a.id) === hash);
                     if (art) openReader(art);
-                } else if (parts.length >= 2 && parts[parts.length - 2] === 'filter') {
-                    renderArticles(parts[parts.length - 1]);
                 }
             });
 
             window.addEventListener('popstate', (event) => {
-                if (!event.state) return;
+                if (!event.state) {
+                    // Back ke hash kosong = tutup reader
+                    reader.classList.remove('open');
+                    document.body.style.overflow = '';
+                    currentArticleId = null;
+                    return;
+                }
                 if (event.state.view === 'article' && event.state.articleId) {
-                    const art = articles.find(a => a.id === event.state.articleId);
+                    const art = articles.find(a => String(a.id) === String(event.state.articleId));
                     if (art) openReader(art);
                 } else if (event.state.view === 'home') {
                     reader.classList.remove('open');
                     document.body.style.overflow = '';
+                    currentArticleId = null;
                 } else if (event.state.filter) {
                     renderArticles(event.state.filter);
                 }
