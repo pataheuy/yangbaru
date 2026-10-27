@@ -267,7 +267,7 @@
             top: 0; left: 0; right: 0;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: flex-start;
             padding: 1.2rem 2rem;
             background: rgba(255,255,255,0.92);
             backdrop-filter: blur(10px);
@@ -289,55 +289,77 @@
         }
         .reader-close:hover { background: #111; color: white; border-color: #111; }
 
-        .reader-zoom {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: #f4f4f4;
-            border-radius: 20px;
-            padding: 0.3rem 0.6rem;
-        }
         .zoom-btn {
-            width: 28px; height: 28px;
+            width: 32px; height: 32px;
             border: none;
             background: none;
             border-radius: 50%;
             cursor: pointer;
             font-size: 1rem;
             display: flex; align-items: center; justify-content: center;
-            color: #444;
+            color: #fff;
             transition: background 0.2s;
         }
-        .zoom-btn:hover { background: #e0e0e0; }
         .zoom-label {
             font-size: 0.75rem;
             font-weight: 700;
-            color: #888;
+            color: #ccc;
             min-width: 2.5rem;
             text-align: center;
             letter-spacing: 0.5px;
         }
 
-        /* Reader hero image */
+        /* Reader hero image — di bawah judul, tidak penuh layar */
         .reader-hero {
-            width: 100%;
-            max-height: 480px;
+            max-width: 800px;
+            margin: 0 auto 2rem;
+            padding: 0 2rem;
             overflow: hidden;
-            margin-top: 4rem; /* below topbar */
         }
         .reader-hero img {
             width: 100%;
-            height: 100%;
-            max-height: 480px;
+            max-height: 420px;
             object-fit: cover;
+            border-radius: 12px;
             display: block;
         }
 
-        .reader-header { max-width: 800px; margin: 0 auto; padding: 3rem 2rem 2rem; text-align: center; }
+        .reader-header { max-width: 800px; margin: 5rem auto 0; padding: 2rem 2rem 1.5rem; text-align: center; }
         .read-cat { color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem; margin-bottom: 1.5rem; display: block; }
         .read-title { font-size: 3.5rem; font-weight: 800; line-height: 1.1; letter-spacing: -2px; margin-bottom: 2rem; }
-        .read-content { max-width: 700px; margin: 0 auto; padding: 2rem; font-size: 1.25rem; line-height: 1.8; color: #333; transition: font-size 0.2s ease; }
+        .read-content { max-width: 700px; margin: 0 auto; padding: 2rem 2rem 5rem; font-size: 1.25rem; line-height: 1.8; color: #333; transition: font-size 0.2s ease; }
         .read-content p { margin-bottom: 2rem; }
+
+        /* Floating zoom bar — tengah bawah layar */
+        .reader-zoom-fab {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(20, 20, 20, 0.88);
+            backdrop-filter: blur(12px);
+            border-radius: 999px;
+            padding: 0.45rem 1rem;
+            z-index: 420;
+            box-shadow: 0 6px 24px rgba(0,0,0,0.25);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .reader-view.open .reader-zoom-fab {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .reader-zoom-fab .zoom-btn {
+            color: #fff;
+        }
+        .reader-zoom-fab .zoom-btn:hover { background: rgba(255,255,255,0.15); }
+        .reader-zoom-fab .zoom-label {
+            color: #ccc;
+        }
 
         /* --- Footer --- */
         footer { background: #fafafa; border-top: 1px solid var(--border-color); padding: 5rem 2rem; margin-top: 4rem; }
@@ -453,7 +475,7 @@
                 </div>
                 <div class="form-group">
                     <label>Penulis</label>
-                    <input type="text" id="authorInput" placeholder="Nama penulis..." required>
+                    <input type="text" id="authorInput" placeholder="Pufutara" value="Pufutara">
                 </div>
                 <div class="form-group">
                     <label>Ringkasan</label>
@@ -471,23 +493,9 @@
 
     <!-- Reader View -->
     <div class="reader-view" id="readerView">
-        <!-- Top bar: close + zoom -->
+        <!-- Top bar: close only -->
         <div class="reader-topbar">
-            <button class="reader-close" id="closeReader">← TUTUP</button>
-            <div class="reader-zoom">
-                <button class="zoom-btn" id="zoomOut" title="Perkecil teks">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                </button>
-                <span class="zoom-label" id="zoomLabel">100%</span>
-                <button class="zoom-btn" id="zoomIn" title="Perbesar teks">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                </button>
-            </div>
-        </div>
-
-        <!-- Hero image -->
-        <div class="reader-hero" id="readerHero">
-            <img id="readerHeroImg" src="" alt="">
+            <button class="reader-close" id="closeReader">&#8592; TUTUP</button>
         </div>
 
         <div class="reader-header">
@@ -495,7 +503,24 @@
             <h1 class="read-title" id="readTitle">Judul</h1>
             <div class="article-meta" style="justify-content: center;" id="readMeta"></div>
         </div>
+
+        <!-- Hero image — di bawah judul -->
+        <div class="reader-hero" id="readerHero">
+            <img id="readerHeroImg" src="" alt="">
+        </div>
+
         <div class="read-content" id="readContent"></div>
+
+        <!-- Floating zoom bar — tengah bawah -->
+        <div class="reader-zoom-fab">
+            <button class="zoom-btn" id="zoomOut" title="Perkecil teks">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+            <span class="zoom-label" id="zoomLabel">100%</span>
+            <button class="zoom-btn" id="zoomIn" title="Perbesar teks">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+        </div>
     </div>
 
     <!-- Modal Edit Artikel -->
@@ -522,7 +547,7 @@
                 </div>
                 <div class="form-group">
                     <label>Penulis</label>
-                    <input type="text" id="editAuthorInput" required>
+                    <input type="text" id="editAuthorInput" placeholder="Pufutara">
                 </div>
                 <div class="form-group">
                     <label>Ringkasan</label>
@@ -855,6 +880,7 @@
                 });
                 setAdminAuthed();
                 closePasswordModal();
+                renderArticles(currentFilter); // re-render supaya tombol edit/hapus muncul
                 uploadModal.style.display = 'flex';
             } catch (err) {
                 errEl.textContent   = err.message === 'Password salah' ? 'Password salah. Coba lagi.' : 'Terjadi kesalahan. Coba lagi.';
@@ -934,7 +960,7 @@
                         title   : document.getElementById('editTitleInput').value.trim(),
                         category: document.getElementById('editCategoryInput').value,
                         tag     : document.getElementById('editTagInput').value.trim(),
-                        author  : document.getElementById('editAuthorInput').value.trim(),
+                        author  : document.getElementById('editAuthorInput').value.trim() || 'Pufutara',
                         excerpt : document.getElementById('editExcerptInput').value.trim(),
                         content
                     },
@@ -949,7 +975,7 @@
                         title   : document.getElementById('editTitleInput').value.trim(),
                         category: document.getElementById('editCategoryInput').value,
                         tag     : document.getElementById('editTagInput').value.trim(),
-                        author  : document.getElementById('editAuthorInput').value.trim(),
+                        author  : document.getElementById('editAuthorInput').value.trim() || 'Pufutara',
                         excerpt : document.getElementById('editExcerptInput').value.trim(),
                         content
                     };
@@ -1163,21 +1189,21 @@
             return [
                 {
                     id: 1, title: "Arsitektur Keamanan Siber di Era Kuantum", category: "tech", tag: "Deep Tech",
-                    author: "Putra Perdana", featured: true,
+                    author: "Pufutara", featured: true,
                     image_url: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1200&q=80",
                     excerpt: "Menghadapi ancaman yang belum pernah ada sebelumnya, para insinyur dunia kini berlomba menciptakan enkripsi yang mustahil ditembus.",
                     content: `<p>Dunia digital sedang berada di ambang revolusi besar. Komputasi kuantum bukan lagi sekadar teori, melainkan ancaman nyata bagi protokol enkripsi standar saat ini.</p><p>Semua data yang kita anggap aman hari ini bisa dibuka oleh komputer kuantum dalam hitungan detik.</p><p>Inilah alasan mengapa "Post-Quantum Cryptography" menjadi topik paling krusial di tahun 2026.</p>`
                 },
                 {
                     id: 2, title: "Clean Code: Bukan Sekadar Estetika", category: "coding", tag: "Dev",
-                    author: "Editor", featured: false,
+                    author: "Pufutara", featured: false,
                     image_url: "https://images.unsplash.com/photo-1587620962725-abab7fe55159?auto=format&fit=crop&w=600&q=80",
                     excerpt: "Mengapa menjaga kualitas kode adalah investasi terbaik jangka panjang.",
                     content: `<p>Banyak developer pemula mengira bahwa selama aplikasi berjalan sesuai fungsinya, maka tugas selesai. Namun kode yang "sekadar jalan" seringkali menjadi bom waktu.</p><p>Clean code bukan hanya soal estetika, melainkan komunikasi efektif antar pengembang.</p>`
                 },
                 {
                     id: 3, title: "Deep Work di Dunia yang Bising", category: "lifestyle", tag: "Mindset",
-                    author: "Putra", featured: false,
+                    author: "Pufutara", featured: false,
                     image_url: "https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=600&q=80",
                     excerpt: "Strategi praktis untuk mempertahankan fokus tajam di tengah gempuran notifikasi digital.",
                     content: `<p>Fokus adalah mata uang baru di ekonomi modern. Kemampuan berkonsentrasi pada satu hal tanpa distraksi adalah keunggulan kompetitif yang semakin langka.</p><p>Deep work menuntut kita menciptakan lingkungan bebas gangguan, memungkinkan otak mencapai kondisi flow.</p>`
@@ -1222,11 +1248,15 @@
                         btnAdd.classList.add('unlocked');
                         sessionStorage.setItem(UNLOCK_KEY, '1');
                         showToast('Mode penulis aktif ✍️');
+                        renderArticles(currentFilter); // tampilkan tombol edit/hapus
                     } else {
                         // Klik 5x lagi = sembunyikan lagi (toggle)
                         btnAdd.classList.remove('unlocked');
                         sessionStorage.removeItem(UNLOCK_KEY);
+                        // Juga cabut sesi admin supaya tombol benar-benar hilang
+                        sessionStorage.removeItem(ADMIN_SESSION_KEY);
                         showToast('Mode penulis dinonaktifkan');
+                        renderArticles(currentFilter); // sembunyikan tombol edit/hapus
                     }
                 }
             });
