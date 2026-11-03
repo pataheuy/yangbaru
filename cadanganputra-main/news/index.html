@@ -1092,8 +1092,9 @@
             document.getElementById('commentBody').value = '';
             loadComments(art.id);
 
-            // Pakai hash supaya URL tidak berubah ke path baru (mencegah 404 di Vercel)
-            history.pushState({ view: 'article', articleId: art.id }, art.title, `${getNewsRoot()}#${art.id}`);
+            // Pakai slug judul — Vercel akan rewrite /news/* ke index.html, tidak 404
+            const slug = slugify(art.title);
+            history.pushState({ view: 'article', articleId: art.id }, art.title, `${getNewsRoot()}/${slug}`);
         }
 
         document.getElementById('closeReader').onclick = () => {
@@ -1722,11 +1723,28 @@
 
             // ── Load artikel ──────────────────────────────────────────────────
             loadArticles().then(() => {
-                // Handle deep-link via hash (#articleId) saat pertama load
-                const hash = window.location.hash.replace('#', '');
-                if (hash) {
+                // Handle deep-link saat pertama load — baca path atau hash
+                const path  = window.location.pathname;
+                const parts = path.split('/').filter(p => p);
+                const hash  = window.location.hash.replace('#', '');
+
+                if (hash && !hash.startsWith('filter-')) {
+                    // hash = id artikel (fallback lama)
                     const art = articles.find(a => String(a.id) === hash);
-                    if (art) openReader(art);
+                    if (art) { openReader(art); return; }
+                }
+
+                // Cek apakah ada slug di path: /news/<slug>
+                const newsIdx = parts.indexOf('news');
+                if (newsIdx !== -1 && parts.length > newsIdx + 1) {
+                    const slug = parts[newsIdx + 1];
+                    if (slug.startsWith('filter-')) {
+                        renderArticles(slug.replace('filter-', ''));
+                    } else {
+                        // Cari artikel berdasarkan slug judul
+                        const art = articles.find(a => slugify(a.title) === slug);
+                        if (art) openReader(art);
+                    }
                 }
             });
 
