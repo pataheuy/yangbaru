@@ -304,6 +304,9 @@
             left: 0 !important;
         }
 
+        /* Tombol Hubungi Saya: teks selalu putih, tanpa garis bawah aktif */
+        header nav a#nav-kontak-btn, header nav a#nav-kontak-btn.nav-active, header nav a#nav-kontak-btn:hover { color: #ffffff !important; }
+        header nav a#nav-kontak-btn::after { display: none !important; }
         /* Tombol Hubungi Saya — aktif saat di section kontak */
         #nav-kontak-btn.nav-kontak-active {
             color: #ffffff;
@@ -699,6 +702,215 @@
         </div>
     </section>
 
+    <!-- ===== CERITA: Dibuat di Sela-sela (v2) ===== -->
+    <section id="cerita" aria-label="Cerita pembuatan web ini">
+    <style>
+    #cerita{background:#0f172a;color:#fff;position:relative}
+    #cerita *{box-sizing:border-box}
+    #cerita .cr-act{--p:0;position:relative;height:var(--h,180vh)}
+    #cerita .cr-pin{position:sticky;top:0;height:100vh;height:100svh;padding:76px 1.25rem 1.5rem;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;overflow:hidden}
+    #cerita .cr-eyebrow{font-size:.75rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#94a3b8;margin-bottom:1rem;position:relative}
+    #cerita .cr-h{font-size:clamp(2.1rem,8vw,5rem);font-weight:800;line-height:1.05;max-width:14ch;margin-inline:auto;position:relative;text-wrap:balance}
+    #cerita .cr-w{display:inline-block;white-space:nowrap;margin:0 .12em}
+    #cerita .cr-l{display:inline-block;--k:clamp(0,calc(var(--p)*1.8),1);opacity:var(--k);transform:translate(calc((1 - var(--k))*var(--x)),calc((1 - var(--k))*var(--y))) rotate(calc((1 - var(--k))*var(--r)))}
+    #cerita .cr-bg{position:absolute;font-size:30vw;font-weight:800;color:transparent;-webkit-text-stroke:1px rgba(255,255,255,.09);white-space:nowrap;pointer-events:none;transform:translateY(calc((.5 - var(--p))*40vh))}
+    #cerita .cr-ic{position:absolute;color:rgba(255,255,255,.08);font-size:clamp(2.4rem,8vw,4.8rem);pointer-events:none;transform:translateY(calc((.5 - var(--p))*var(--sp)*1vh)) rotate(calc(var(--p)*40deg))}
+    #cerita .cr-sub{margin:1.25rem auto 0;color:#cbd5e1;font-size:1.05rem;line-height:1.65;max-width:34rem;opacity:clamp(0,calc((var(--p) - .55)*4),1);position:relative}
+    #cerita .rv{opacity:0;transform:translateY(28px) scale(.97);transition:opacity .7s ease,transform .7s ease;transition-delay:var(--dl,0s)}
+    #cerita .rv.in,#cerita.cr-rm .rv{opacity:1;transform:none}
+    #cerita .cr-desc{max-width:40rem;margin:0 auto;padding:16vh 1.25rem 4vh;text-align:center}
+    #cerita .cr-desc h2{font-size:clamp(1.8rem,6vw,3rem);font-weight:800;margin-bottom:1rem}
+    #cerita .cr-desc p{color:#cbd5e1;font-size:1.05rem;line-height:1.75;margin-bottom:1rem}
+    #cerita .cr-desc b{color:#fff}
+    #cerita .cr-stack{padding:0 0 4vh}
+    #cerita .cr-slot{position:sticky;top:0;height:100vh;height:100svh;margin-bottom:-6svh;padding:76px 1rem 1rem;display:flex;align-items:center;justify-content:center;pointer-events:none}
+    #cerita .cr-slot.last{margin-bottom:0}
+    #cerita .cr-card{--d:0;--e:1;--a:#94a3b8;pointer-events:auto;width:100%;max-width:580px;background:linear-gradient(160deg,color-mix(in srgb,var(--a) 16%,#1e293b),#1e293b 62%);border:1px solid #334155;border-top:3px solid var(--a);border-radius:20px;padding:1.25rem 1.5rem;box-shadow:0 -12px 32px rgba(0,0,0,.4);opacity:clamp(0,calc(var(--e)*1.8),1);transform:translateX(calc((1 - var(--e))*var(--dx,0vw))) translateY(calc(var(--d)*-16px)) scale(max(.8,calc(1 - var(--d)*.035))) rotate(calc((var(--i) - 3)*.4deg + (1 - var(--e))*var(--rt,0deg)));filter:brightness(max(.45,calc(1 - var(--d)*.12)))}
+    #cerita .cr-card small{color:var(--a);font-weight:800;letter-spacing:.08em;font-size:.7rem}
+    #cerita .cr-card h3{font-size:1.25rem;font-weight:800;margin:.15rem 0 .4rem}
+    #cerita .cr-card p{color:#cbd5e1;font-size:.9rem;line-height:1.6}
+    #cerita .cr-card.web{background:#fff;color:#0f172a;max-width:340px;padding:.9rem 1.1rem;margin-bottom:0}
+    #cerita .cr-card.web p{color:#475569}
+    #cerita .cr-note{max-width:30rem;margin:12vh auto 0;text-align:center;font-size:clamp(1.3rem,4vw,1.8rem);font-weight:800;line-height:1.3}
+    #cerita .cr-sec{max-width:64rem;margin:0 auto;padding:10vh 1.25rem 4vh;text-align:center}
+    #cerita .cr-sec h2{font-size:clamp(1.5rem,5vw,2.4rem);font-weight:800;margin-bottom:.6rem}
+    #cerita .cr-sec>p{color:#94a3b8;max-width:36rem;margin:0 auto 1.75rem;line-height:1.65}
+    #cerita .cr-hold{display:grid;grid-template-columns:1fr;gap:1rem;text-align:left}
+    @media(min-width:860px){#cerita .cr-hold{grid-template-columns:repeat(3,1fr)}}
+    #cerita .cr-hold div{--a:#94a3b8;background:linear-gradient(160deg,color-mix(in srgb,var(--a) 14%,#1e293b),#1e293b 65%);border:1px solid #334155;border-top:3px solid var(--a);border-radius:16px;padding:1.1rem 1.2rem}
+    #cerita .cr-hold small{color:var(--a);font-weight:800;font-size:.68rem;letter-spacing:.08em}
+    #cerita .cr-hold h3{font-size:1.1rem;font-weight:800;margin:.2rem 0 .4rem}
+    #cerita .cr-hold p{color:#cbd5e1;font-size:.86rem;line-height:1.6}
+    #cerita .cr-mq{overflow:hidden;padding:1rem 0 6vh;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+    #cerita .cr-mq>div{display:flex;gap:.7rem;width:max-content;margin-bottom:.7rem;animation:crmq 38s linear infinite}
+    #cerita .cr-mq>div.r{animation-direction:reverse;animation-duration:44s}
+    #cerita .cr-mq span{white-space:nowrap;border:1px solid #334155;border-radius:999px;padding:.45rem 1rem;font-size:.85rem;color:#cbd5e1;background:#1e293b}
+    #cerita .cr-mq .a span{border-color:#be123c;color:#fecdd3}
+    #cerita .cr-mq .r span{border-color:#4338ca;color:#c7d2fe}
+    @keyframes crmq{to{transform:translateX(-50%)}}
+    #cerita .cr-price{font-size:clamp(2.6rem,11vw,6rem);font-weight:800;font-variant-numeric:tabular-nums;position:relative;color:#fff}
+    #cerita .cr-price.zero{color:#4ade80;animation:crpop .6s ease}
+    #cerita .cr-ask{font-size:clamp(1.7rem,6vw,3.2rem);font-weight:800;line-height:1.12;max-width:20ch;margin:0 auto 1.3rem;text-wrap:balance;position:relative;color:#fff;background:none;-webkit-background-clip:unset;background-clip:unset;-webkit-text-fill-color:unset}
+    #cerita .cr-pre{transition:opacity .5s ease,transform .5s ease}
+    #cerita .cr-pre.gone{opacity:0;transform:translateY(-8px)}
+    @keyframes crpop{40%{transform:scale(1.18)}}
+    #cerita .cr-items{list-style:none;margin:1.25rem 0;padding:0;display:flex;flex-direction:column;gap:.55rem}
+    #cerita .cr-items li{position:relative;display:table;margin:0 auto;color:#cbd5e1;font-size:.98rem}
+    #cerita .cr-items li i{font-style:normal;color:#94a3b8;font-size:.8rem;margin-left:.5rem}
+    #cerita .cr-items li::after{content:"";position:absolute;left:-4px;right:-4px;top:52%;height:2px;background:#f87171;transform-origin:left;transform:scaleX(clamp(0,calc((var(--p) - .06)*8.5 - var(--n) - .3),1))}
+    #cerita .cr-zero{font-weight:800;font-size:1.15rem;opacity:clamp(0,calc((var(--p) - .64)*6),1)}
+    #cerita .cr-chips{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-top:.9rem}
+    #cerita .cr-chips span{background:#14532d;color:#bbf7d0;border-radius:999px;padding:.3rem .85rem;font-size:.8rem;font-weight:600;opacity:clamp(0,calc((var(--p) - .7 - var(--n)*.04)*8),1)}
+    #cerita .cr-fn{position:absolute;bottom:1rem;left:1rem;right:1rem;font-size:.7rem;color:#64748b}
+    #cerita .cf{position:absolute;top:40%;left:50%;width:8px;height:12px;border-radius:2px;pointer-events:none;animation:crcf 1.3s ease-out forwards}
+    @keyframes crcf{to{transform:translate(var(--cx),var(--cy)) rotate(var(--cr));opacity:0}}
+    #cerita .cr-dots{display:grid;grid-template-columns:repeat(20,1fr);gap:6px;width:min(88vw,380px);margin:0 auto 1.25rem}
+    #cerita .cr-dots i{aspect-ratio:1;border-radius:50%;background:#64748b;opacity:clamp(0,calc(var(--p)*3 - var(--d)*2),.55)}
+    #cerita .cr-dots i.on{background:#fbbf24;box-shadow:0 0 18px #fbbf24;opacity:clamp(0,calc((var(--p) - .65)*6),1);animation:crpl 1.6s ease-in-out infinite}
+    @keyframes crpl{50%{box-shadow:0 0 30px 8px #fbbf24}}
+    #cerita .cr-leg{display:flex;gap:1.1rem;justify-content:center;font-size:.78rem;color:#94a3b8;margin-bottom:1rem}
+    #cerita .cr-leg b{display:inline-block;width:.6rem;height:.6rem;border-radius:50%;margin-right:.35rem;background:#64748b}
+    #cerita .cr-leg b.g{background:#fbbf24}
+    #cerita .cr-wd{display:inline-block;margin:0 .14em;opacity:clamp(.12,calc(var(--p)*7 - var(--i)),1)}
+    #cerita .cr-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem 2.2rem;margin-top:2rem;position:relative}
+    @media(min-width:640px){#cerita .cr-stats{grid-template-columns:repeat(4,1fr)}}
+    #cerita .cr-st{opacity:clamp(0,calc((var(--p) - .5 - var(--n)*.07)*6),1)}
+    #cerita .cr-st b{display:block;font-size:1.7rem;font-weight:800}
+    #cerita .cr-st span{color:#94a3b8;font-size:.78rem}
+    #cerita .cr-cta{margin-top:1.75rem;color:#cbd5e1;font-weight:600;opacity:clamp(0,calc((var(--p) - .85)*6),1);position:relative}
+    #cerita .cr-shot{position:absolute;width:clamp(120px,24vw,230px);border-radius:12px;border:1px solid #334155;box-shadow:0 12px 30px rgba(0,0,0,.5);opacity:.4;pointer-events:none;transform:translateY(calc((.5 - var(--p))*var(--sp)*1vh)) rotate(var(--r))}
+    #cerita .cr-bridge{height:30vh;background:linear-gradient(#0f172a,#f8fafc)}
+    #cerita.cr-rm .cr-act{--p:1;height:auto}
+    #cerita.cr-rm .cr-pin{position:static;height:auto;padding:4rem 1rem}
+    #cerita.cr-rm .cr-slot{position:static;height:auto;margin:0 0 1rem;padding:0}
+    #cerita.cr-rm .cr-card{transform:none;opacity:1;filter:none}
+    #cerita.cr-rm .cr-mq>div{animation:none}
+    @media(max-height:700px){#cerita .cr-price{font-size:2.6rem}#cerita .cr-items{margin:.6rem 0;gap:.3rem}#cerita .cr-ask{margin-bottom:.8rem}}
+    </style>
+
+    <div class="cr-act" style="--h:260vh"><div class="cr-pin">
+        <div class="cr-bg" aria-hidden="true">SIBUK</div>
+        <i class="fa-solid fa-mosque cr-ic" style="--sp:60;left:8%;top:16%"></i>
+        <i class="fa-solid fa-book-quran cr-ic" style="--sp:-40;right:9%;top:18%"></i>
+        <i class="fa-solid fa-utensils cr-ic" style="--sp:80;left:12%;bottom:12%"></i>
+        <i class="fa-solid fa-laptop-code cr-ic" style="--sp:-70;right:12%;bottom:14%"></i>
+        <p class="cr-eyebrow">Di balik web ini</p>
+        <h2 class="cr-h" data-split="l">Web ini dibuat di sela-sela.</h2>
+        <p class="cr-sub">Di sela jadwal santri yang padat. Di sela tugas organisasi. Di sela waktu makan dan salat. Ini ceritanya.</p>
+    </div></div>
+
+    <div class="cr-desc rv">
+        <p class="cr-eyebrow">Sebelum kodenya</p>
+        <h2>Sehari di Assyifa</h2>
+        <p><b>Putra</b> adalah santri di SMPIT Assyifa Boarding School. Harinya diatur jadwal asrama dan sekolah. Di atas itu ada dua organisasi yang ia urus: <b>Komunitas Literasi Sekolah</b>, tempat ia menjadi ketua, dan <b>BEM Departemen Pendidikan</b>, tempat ia menjadi staf dan memegang beberapa program kerja.</p>
+        <p>Gulir pelan-pelan. Setiap kartu adalah satu bagian harinya. Semuanya menumpuk, sampai tersisa satu kartu kecil: jatah untuk membuat web ini.</p>
+    </div>
+    <div class="cr-stack">
+        <div class="cr-slot"><div class="cr-card" style="--i:0;--a:#fb7185"><small>KOMUNITAS LITERASI SEKOLAH</small><h3>Ketua, 20 anggota, 15 program kerja</h3><p>Silent Reading, Mading Literasi, Literasi Digital, Teka-Teki Literasi, Hari Besar Literasi, dan lainnya. Semuanya akan masuk LPJA.</p></div></div>
+        <div class="cr-slot"><div class="cr-card" style="--i:1;--a:#818cf8"><small>BEM DEPARTEMEN PENDIDIKAN</small><h3>Staf, dengan proker sendiri</h3><p>Di hari piket, Putra sudah standby 06.20: penghitungan asrama, sekolah, atau jaga gerbang. Program kerja departemen tetap harus berjalan.</p></div></div>
+        <div class="cr-slot"><div class="cr-card" style="--i:2;--a:#34d399"><small>SUBUH – PAGI</small><h3>Dimulai sebelum matahari</h3><p>Tahajud, tilawah, subuh, almatsurat pagi, dan istibad sampai 06.15. Lalu mandi, makan, bersiap, dan apel pagi 06.40, itu pun kalau tidak ada piket BEM.</p></div></div>
+        <div class="cr-slot"><div class="cr-card" style="--i:3;--a:#38bdf8"><small>SEKOLAH</small><h3>Belajar sampai zuhur</h3><p>Berangkat, belajar di kelas, lalu zuhur. Sesudahnya makan siang, hanya 30 menit.</p></div></div>
+        <div class="cr-slot"><div class="cr-card" style="--i:4;--a:#fbbf24"><small>SIANG – SORE</small><h3>Waktu &ldquo;kosong&rdquo; yang tidak kosong</h3><p>Selasa dan Rabu: lanjut belajar sampai sebelum ashar. Hari lain: eksul, baca buku, tidur siang, mading, proker, bimbel, latihan TKA, atau ke labkom untuk coding. Lalu ashar dan almatsurat sore.</p></div></div>
+        <div class="cr-slot"><div class="cr-card" style="--i:5;--a:#fb923c"><small>SORE – MAGRIB</small><h3>Makan, olahraga, siap ke masjid</h3><p>Kalau tidak ke labkom: mandi, makan (kadang hanya nasi dan sedikit lauk sisa), lalu jogging, basket, atau badminton. Sebelum magrib harus sudah siap ke masjid: gamis, peci, buku, Quran.</p></div></div>
+        <div class="cr-slot"><div class="cr-card" style="--i:6;--a:#a78bfa"><small>MALAM</small><h3>Masjid sampai larut</h3><p>Penghitungan masjid, murojaah, tilawah, asmaul husna, magrib, istibad sampai isya. Sesudahnya belajar, baca buku, lanjut proker, urus organisasi, rapat. Lalu tidur.</p></div></div>
+        <div class="cr-slot last"><div class="cr-card web" style="--i:7;--a:#22c55e"><small>JATAH UNTUK WEB INI</small><p>Senin, Kamis, dan Sabtu siang, kalau semua proker sudah selesai. Plus sore sebelum magrib.</p></div></div>
+        <p class="cr-note">Di sisa waktu paling tipis itulah web ini dibuat.</p>
+    </div>
+
+    <div class="cr-sec">
+        <h2 class="rv">Proker yang Putra pegang di BEM</h2>
+        <p class="rv">Dari 12 program kerja Departemen Pendidikan, tiga dipegang langsung oleh Putra. Yang paling berat adalah Open Labkom.</p>
+        <div class="cr-hold">
+            <div class="rv" style="--a:#fbbf24"><small>PALING BERAT</small><h3>Open Labkom</h3><p>Membuka labkom di luar jam pelajaran bagi murid kelas 7, 8, dan 9. Ada tiga fase (uji coba, evaluasi, buka massal), jadwal per angkatan, aturan dan sanksi bertingkat, piket pengawas, laporan, dan presensi. Target 48 kali per setengah periode, dijadwalkan setelah LPJT.</p></div>
+            <div class="rv" style="--a:#818cf8;--dl:.12s"><small>5 INDIKATOR</small><h3>Katanya vs Faktanya</h3><p>Mading dua kali sebulan, tiap edisi minimal tiga &ldquo;katanya&rdquo; dibantah &ldquo;faktanya&rdquo;. Namanya diubah dari Mitos vs Fakta lewat prosedur resmi dan disetujui MPM. Target 10 edisi per periode.</p></div>
+            <div class="rv" style="--a:#34d399;--dl:.24s"><small>LINTAS ORGANISASI</small><h3>Rapat Gabungan</h3><p>Forum BEM Departemen Pendidikan, Komunitas Literasi Sekolah, dan perwakilan MPM. Sebulan sekali, dengan notulensi di setiap rapat.</p></div>
+        </div>
+    </div>
+    <div class="cr-sec" style="padding-top:6vh;padding-bottom:0"><h2 class="rv">Dua organisasi, 15 + 12 program kerja</h2></div>
+    <div class="cr-mq" aria-hidden="true">
+        <div class="a"><span>Silent Reading</span><span>Mading Literasi</span><span>Danus Literasi</span><span>Rapat Organisasi</span><span>Literasi Digital</span><span>Teka-Teki Literasi</span><span>Reward Perpustakaan</span><span>Piket Perpustakaan</span><span>Kotak Aspirasi</span><span>Poster Perpus</span><span>Hari Besar Literasi</span><span>Silent Reading</span><span>Mading Literasi</span><span>Danus Literasi</span><span>Rapat Organisasi</span><span>Literasi Digital</span><span>Teka-Teki Literasi</span><span>Reward Perpustakaan</span><span>Piket Perpustakaan</span><span>Kotak Aspirasi</span><span>Poster Perpus</span><span>Hari Besar Literasi</span></div>
+        <div class="r"><span>Rapat Departemen</span><span>Rapat Gabungan</span><span>Tau Gak Sih?</span><span>Katanya vs Faktanya</span><span>Yatra Nusantara</span><span>Quest</span><span>Historical Day</span><span>Olimpiade Sains Assyifa</span><span>Hari Guru Nasional</span><span>Hari Kemerdekaan RI</span><span>Glosarium Assyifa</span><span>Open Labkom</span><span>Rapat Departemen</span><span>Rapat Gabungan</span><span>Tau Gak Sih?</span><span>Katanya vs Faktanya</span><span>Yatra Nusantara</span><span>Quest</span><span>Historical Day</span><span>Olimpiade Sains Assyifa</span><span>Hari Guru Nasional</span><span>Hari Kemerdekaan RI</span><span>Glosarium Assyifa</span><span>Open Labkom</span></div>
+    </div>
+
+    <div class="cr-act" id="cr-a3" style="--h:320vh"><div class="cr-pin">
+        <h2 class="cr-ask">Berapa banyak duit yang Putra habiskan untuk web ini!?</h2>
+        <p class="cr-eyebrow cr-pre" style="margin-bottom:.4rem">Di pasaran, web seperti ini mulai dari</p>
+        <div class="cr-price" id="cr-price">Rp 900.000+</div>
+        <ul class="cr-items">
+            <li style="--n:0">Biaya pembuatan website <i>mulai jutaan</i></li>
+            <li style="--n:1">Domain .com <i>±Rp120–180 rb per tahun</i></li>
+            <li style="--n:2">Hosting <i>±Rp240 rb+ per tahun</i></li>
+            <li style="--n:3">Indexing &amp; SEO <i>biasanya jasa tambahan</i></li>
+        </ul>
+        <p class="cr-zero">Biaya Putra: Rp 0.</p>
+        <div class="cr-chips"><span style="--n:0">Domain: subdomain .vercel.app</span><span style="--n:1">Belajar sendiri</span><span style="--n:2">Setup &amp; reset sendiri</span></div>
+        <p class="cr-fn">*Perkiraan harga pasar Indonesia 2026; bervariasi menurut penyedia.</p>
+    </div></div>
+
+    <div class="cr-act" style="--h:260vh"><div class="cr-pin">
+        <div class="cr-dots" id="cr-dots" aria-hidden="true"></div>
+        <div class="cr-leg" aria-hidden="true"><span><b class="g"></b>BEM Pendidikan</span><span><b></b>±200 murid lain</span></div>
+        <h2 class="cr-h" style="font-size:clamp(1.5rem,5vw,2.4rem);max-width:22ch">Labkom: 3–4 jam, seminggu sekali.</h2>
+        <p class="cr-sub" style="opacity:1">Akses ini datang lewat BEM Pendidikan. Sedikit, tapi cukup untuk lanjut coding, dan Putra sangat bersyukur. Sekitar 200 murid lain, termasuk departemen BEM lainnya, belum punya akses semacam ini. Karena itu ia memegang proker Open Labkom.</p>
+    </div></div>
+
+    <div class="cr-act" style="--h:250vh"><div class="cr-pin">
+        <img class="cr-shot" src="foto/pemira.png" alt="" style="--sp:50;--r:-8deg;left:3%;top:14%" loading="lazy">
+        <img class="cr-shot" src="foto/kiblat.png" alt="" style="--sp:-60;--r:7deg;right:3%;top:16%" loading="lazy">
+        <img class="cr-shot" src="foto/news.png" alt="" style="--sp:70;--r:6deg;left:5%;bottom:12%" loading="lazy">
+        <img class="cr-shot" src="foto/klsweb.png" alt="" style="--sp:-40;--r:-6deg;right:5%;bottom:10%" loading="lazy">
+        <h2 class="cr-h" data-split="w" style="max-width:16ch">Keterbatasan bukan alasan. Itu bahan.</h2>
+        <div class="cr-stats">
+            <div class="cr-st" style="--n:0"><b>Rp 0</b><span>biaya web &amp; domain</span></div>
+            <div class="cr-st" style="--n:1"><b>3–4 jam</b><span>labkom per minggu</span></div>
+            <div class="cr-st" style="--n:2"><b>20</b><span>anggota komunitas literasi</span></div>
+            <div class="cr-st" style="--n:3"><b>15</b><span>program kerja diurus</span></div>
+        </div>
+        <p class="cr-cta">Inilah hasil dari sela-sela itu ↓</p>
+    </div></div>
+    <div class="cr-bridge"></div>
+
+    <script>
+    (function(){
+      var s=document.getElementById('cerita');if(!s)return;
+      var rm=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      function R(n){return((Math.random()-.5)*n).toFixed(0)}
+      s.querySelectorAll('[data-split="l"]').forEach(function(el){
+        var t=el.textContent.trim().split(' ');el.setAttribute('aria-label',t.join(' '));el.textContent='';
+        t.forEach(function(w){var ws=document.createElement('span');ws.className='cr-w';ws.setAttribute('aria-hidden','true');
+          w.split('').forEach(function(c){var l=document.createElement('span');l.className='cr-l';l.textContent=c;
+            l.style.setProperty('--x',R(90)+'vw');l.style.setProperty('--y',R(80)+'vh');l.style.setProperty('--r',R(360)+'deg');ws.appendChild(l)});
+          el.appendChild(ws)})});
+      s.querySelectorAll('[data-split="w"]').forEach(function(el){
+        var t=el.textContent.trim().split(' ');el.setAttribute('aria-label',t.join(' '));el.textContent='';
+        t.forEach(function(w,i){var x=document.createElement('span');x.className='cr-wd';x.setAttribute('aria-hidden','true');x.style.setProperty('--i',i);x.textContent=w;el.appendChild(x)})});
+      var d=document.getElementById('cr-dots');
+      for(var i=0;i<200;i++){var e=document.createElement('i'),cx=i%20-9.5,cy=Math.floor(i/20)-4.5;
+        e.style.setProperty('--d',(Math.hypot(cx,cy)/11).toFixed(3));if(i===137)e.className='on';d.appendChild(e)}
+      var pre=s.querySelector('.cr-pre'),pr=document.getElementById('cr-price'),a3=document.getElementById('cr-a3'),done=false;
+      function boom(){for(var i=0;i<26;i++){var c=document.createElement('span');c.className='cf';
+        c.style.cssText='--cx:'+R(520)+'px;--cy:'+(-60-Math.random()*220).toFixed(0)+'px;--cr:'+R(720)+'deg;background:hsl('+(Math.random()*360|0)+',85%,60%)';
+        a3.firstElementChild.appendChild(c);setTimeout(function(x){x.remove()},1400,c)}}
+      function price(p){var k=Math.min(1,Math.max(0,(p-.08)/.54)),v=Math.round(900000*(1-k)/1000)*1000;
+        pr.textContent=v>0?'Rp '+v.toLocaleString('id-ID')+(k<.02?'+':''):'Rp 0';pr.classList.toggle('zero',v===0);pre.classList.toggle('gone',v===0);
+        if(v===0&&!done){done=true;boom()}if(v>0)done=false}
+      if('IntersectionObserver' in window&&!rm){var io=new IntersectionObserver(function(es){es.forEach(function(x){if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target)}})},{threshold:.2});
+        s.querySelectorAll('.rv').forEach(function(x){io.observe(x)})}else{s.querySelectorAll('.rv').forEach(function(x){x.classList.add('in')})}
+      if(rm){s.classList.add('cr-rm');pr.textContent='Rp 0';pr.classList.add('zero');return}
+      var acts=[].slice.call(s.querySelectorAll('.cr-act')),slots=[].slice.call(s.querySelectorAll('.cr-slot')),cards=slots.map(function(x){return x.firstElementChild}),stk=s.querySelector('.cr-stack'),tk=false;
+      cards.forEach(function(x,i){x.style.setProperty('--dx',(i%2?1:-1)*34+'vw');x.style.setProperty('--rt',(i%2?1:-1)*9+'deg')});
+      function upd(){tk=false;var vh=innerHeight;
+        acts.forEach(function(a){var r=a.getBoundingClientRect();if(r.bottom<-vh||r.top>2*vh)return;
+          var p=Math.min(1,Math.max(0,-r.top/(r.height-vh)));a.style.setProperty('--p',p.toFixed(4));if(a===a3)price(p)});
+        var sr=stk.getBoundingClientRect();
+        if(sr.bottom>-vh&&sr.top<2*vh){var ev=slots.map(function(sl){return Math.min(1,Math.max(0,1-sl.getBoundingClientRect().top/(vh*.6)))});
+          cards.forEach(function(x,i){var d=0;for(var j=i+1;j<ev.length;j++)d+=ev[j];x.style.setProperty('--e',ev[i].toFixed(3));x.style.setProperty('--d',d.toFixed(3))})}}
+      addEventListener('scroll',function(){if(!tk){tk=true;requestAnimationFrame(upd)}},{passive:true});
+      addEventListener('resize',upd);upd();
+    })();
+    </script>
+    </section>
+
     <!-- Tech Stack / Keahlian -->
     <!-- Tech Stack / Keahlian -->
     <section id="keahlian" class="hscroll bg-slate-50 border-y border-slate-200">
@@ -784,6 +996,63 @@
         </div>
     </section>
     <!-- Proyek Terbaik -->
+    <!-- ===== CHANGELOG (section scroll) ===== -->
+    <section id="changelog" class="py-20 bg-slate-50 border-t border-slate-200" aria-label="Changelog">
+    <style>
+    #changelog .cl{--p:0;position:relative;max-width:64rem;margin:2.5rem auto 0;padding:0 1rem;list-style:none;display:grid;grid-template-columns:1fr;gap:1.25rem;align-items:start}
+    #changelog .cl::before,#changelog .cl::after{content:"";position:absolute;left:1.75rem;top:.5rem;width:2px;border-radius:2px;transform:translateX(-50%)}
+    #changelog .cl::before{bottom:.5rem;background:#e2e8f0}
+    #changelog .cl::after{height:calc((100% - 1rem)*var(--p));background:#0f172a}
+    #changelog .cl-i{position:relative;margin-left:2.75rem;opacity:0;transform:translateX(var(--x,40px));transition:opacity .6s ease,transform .6s ease}
+    #changelog .cl-i.in{opacity:1;transform:none}
+    #changelog .cl-i::before{content:"";position:absolute;left:-2.4rem;top:1.3rem;width:.8rem;height:.8rem;border-radius:50%;background:#fff;border:3px solid #0f172a;z-index:1}
+    #changelog .cl-i::after{content:"";position:absolute;left:-1.6rem;top:calc(1.3rem + .4rem - 1px);width:1.6rem;height:2px;background:#cbd5e1}
+    @media(min-width:768px){
+      #changelog .cl{grid-template-columns:1fr 1fr;column-gap:3.5rem;padding:0}
+      #changelog .cl::before,#changelog .cl::after{left:50%}
+      #changelog .cl-i{margin:0}
+      #changelog .cl-i:nth-child(even){margin-top:3.5rem}
+      #changelog .cl-i:nth-child(odd)::before{left:auto;right:-2.15rem}
+      #changelog .cl-i:nth-child(odd)::after{left:auto;right:-1.35rem;width:1.35rem}
+      #changelog .cl-i:nth-child(even)::before{left:-2.15rem}
+      #changelog .cl-i:nth-child(even)::after{left:-1.35rem;width:1.35rem}
+    }
+    #changelog .cl-c{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:1.1rem 1.2rem;box-shadow:0 1px 3px rgba(15,23,42,.05)}
+    #changelog .cl-i.pride .cl-c{border-color:#fcd34d;background:linear-gradient(160deg,#fffbeb,#fff 60%)}
+    #changelog .cl-t{display:inline-block;font-size:.68rem;font-weight:800;letter-spacing:.06em;padding:.15rem .6rem;border-radius:999px;background:#0f172a;color:#fff;margin-right:.4rem}
+    #changelog .cl-t.up{background:#e2e8f0;color:#334155}
+    #changelog .cl-t.pr{background:#fef3c7;color:#92400e}
+    #changelog h3{font-size:1.1rem;font-weight:800;color:#0f172a;margin:.5rem 0 .3rem}
+    #changelog .cl-c p{font-size:.9rem;line-height:1.65;color:#475569}
+    #changelog .cl-s{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.7rem}
+    #changelog .cl-s span{font-size:.75rem;font-weight:700;background:#f1f5f9;border-radius:8px;padding:.25rem .6rem;color:#0f172a}
+    #changelog .cl-a{display:inline-block;margin-top:.8rem;font-size:.8rem;font-weight:700;color:#0f172a;border-bottom:2px solid #0f172a}
+    </style>
+    <div class="max-w-3xl mx-auto px-4 text-center">
+        <p class="text-xs font-bold tracking-widest uppercase text-slate-400 mb-2">Changelog</p>
+        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900">Yang baru dari Pufutara</h2>
+        <p class="text-slate-500 mt-2">Update terbaru di paling atas. Gulir untuk menelusuri perjalanannya.</p>
+    </div>
+    <ol class="cl" id="cl">
+        <li class="cl-i"><div class="cl-c"><span class="cl-t">BARU</span><h3>Pufutara Kiblat</h3><p>Arah kiblat digital dari mana saja. Panduan ibadah praktis untuk santri developer.</p><a class="cl-a" href="/kiblat/index.html">Buka Kiblat →</a></div></li>
+        <li class="cl-i pride"><div class="cl-c"><span class="cl-t">BARU</span><span class="cl-t pr">🏆 KEBANGGAAN</span><h3>Aplikasi Pemira</h3><p>E-voting Assyifa untuk pemilihan presiden BEM (OSIS). Web pertama yang paling bermanfaat bagi orang lain: dipakai murid, guru, dan staf Assyifa. Ada audit log, pengaturan waktu voting, pantauan yang belum memilih, dan ekspor hasil.</p><div class="cl-s"><span>412 pemilih terdaftar</span><span>314 siswa</span><span>98 guru &amp; staf</span><span>395 suara masuk</span></div><a class="cl-a" href="/aplikasipemira/">Lihat Pemira →</a></div></li>
+        <li class="cl-i pride"><div class="cl-c"><span class="cl-t">BARU</span><span class="cl-t pr">🏆 KEBANGGAAN</span><h3>nihkorangue</h3><p>Web berita dan koran milik teman, dengan konten yang ia buat di Canva. Web pertama yang menghasilkan uang: dibayar Rp 50.000, sudah termasuk Supabase, admin panel, indexing Google, revisi tanpa batas, dan tambah fitur tanpa batas.</p><div class="cl-s"><span>Supabase</span><span>Admin panel</span><span>Indexing Google</span><span>Revisi &amp; fitur tanpa batas</span></div><a class="cl-a" href="https://nkg.ct.ws" target="_blank" rel="noopener">Buka nihkorangue →</a></div></li>
+        <li class="cl-i"><div class="cl-c"><span class="cl-t up">KEAMANAN</span><h3>Supabase Key</h3><p>Key tidak lagi hardcoded di HTML. Semua app (chat, gallery, quiz, tube, shop, pemira) kini fetch config lewat Vercel Edge Function.</p></div></li>
+        <li class="cl-i"><div class="cl-c"><span class="cl-t up">UPDATE</span><h3>Pufutara Shop: Admin Panel</h3><p>Password admin hardcoded dihapus. Login pakai Supabase Auth, username tidak perlu diketik lagi.</p></div></li>
+        <li class="cl-i"><div class="cl-c"><span class="cl-t up">UPDATE</span><h3>Pufutara Drive</h3><p>Upload file, manajemen folder, dan berbagi link makin mulus dengan UI baru.</p></div></li>
+        <li class="cl-i"><div class="cl-c"><span class="cl-t up">UPDATE</span><h3>Pufutara Gallery</h3><p>Tampilan grid baru, filter album, rating &amp; komentar, dan lightbox yang lebih responsif.</p></div></li>
+    </ol>
+    <script>
+    (function(){
+      var ol=document.getElementById('cl');if(!ol)return;
+      var it=[].slice.call(ol.children);it.forEach(function(x,i){x.style.setProperty('--x',(i%2?1:-1)*40+'px')});
+      if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.25});it.forEach(function(x){io.observe(x)})}else{it.forEach(function(x){x.classList.add('in')})}
+      var tk=false;function u(){tk=false;var r=ol.getBoundingClientRect(),vh=innerHeight;ol.style.setProperty('--p',Math.min(1,Math.max(0,(vh*.6-r.top)/r.height)).toFixed(3))}
+      addEventListener('scroll',function(){if(!tk){tk=true;requestAnimationFrame(u)}},{passive:true});u();
+    })();
+    </script>
+    </section>
+
     <section id="proyek-terbaik" class="py-20 bg-white relative overflow-hidden reveal-on-scroll" data-delay="0">
         <!-- Dot pola A: kiri atas, kanan bawah -->
         <div class="dot-a-left" aria-hidden="true"></div>
@@ -930,6 +1199,7 @@
                 <div>
                     <h2 class="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent inline-block reveal-on-scroll" data-delay="0">Proyek Yang Berhasil Saya Buat</h2>
                     <p class="text-slate-500 mt-2">Kumpulan beberapa proyek aplikasi yang telah diselesaikan dengan sepenuh hati.</p>
+<p id="proj-count" class="text-sm font-bold text-slate-900 mt-2" aria-live="off"></p>
                 </div>
                 
                 <!-- Filter Tabs + Search Bar -->
@@ -1120,6 +1390,46 @@
         <div class="dot-a-left" aria-hidden="true"></div>
         <div class="dot-a-right" aria-hidden="true"></div>
         <div class="dot-center" aria-hidden="true"></div>
+        <style>
+        #prestasi .pr-f{width:130px;flex:none;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:6px 6px 8px;box-shadow:0 8px 24px rgba(15,23,42,.1);margin:0;scroll-snap-align:center}
+        #prestasi .pr-i{position:relative;aspect-ratio:4/3;border-radius:6px;overflow:hidden;display:flex;align-items:center;justify-content:center;text-align:center;font-size:.55rem;color:#94a3b8;background:repeating-linear-gradient(45deg,#f1f5f9,#f1f5f9 6px,#e2e8f0 6px,#e2e8f0 12px)}
+        #prestasi .pr-i img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+        #prestasi .pr-f figcaption{font-size:.6rem;font-weight:700;color:#475569;text-align:center;margin-top:5px}
+        #prestasi .pr-strip{display:flex;gap:.75rem;overflow-x:auto;scroll-snap-type:x mandatory;padding:0 1rem 1rem;margin-bottom:1.5rem}
+        #prestasi .pr-side{display:none}
+        @media(min-width:1280px){
+          #prestasi .pr-strip{display:none}
+          #prestasi .pr-side{--p:0;display:flex;flex-direction:column;gap:2rem;position:absolute;top:22%;z-index:1;transform:translateY(calc((.5 - var(--p))*var(--sp)*1vh))}
+          #prestasi .pr-side.l{left:2%}#prestasi .pr-side.r{right:2%}
+          #prestasi .pr-side .pr-f:nth-child(1){transform:rotate(-6deg)}#prestasi .pr-side .pr-f:nth-child(2){transform:rotate(5deg) translateX(18px)}#prestasi .pr-side .pr-f:nth-child(3){transform:rotate(-4deg)}
+          #prestasi .pr-side.r .pr-f:nth-child(1){transform:rotate(6deg)}#prestasi .pr-side.r .pr-f:nth-child(2){transform:rotate(-5deg) translateX(-18px)}#prestasi .pr-side.r .pr-f:nth-child(3){transform:rotate(4deg)}
+        }
+        </style>
+        <div class="pr-strip" aria-label="Galeri sertifikat dan organisasi">
+            <figure class="pr-f"><div class="pr-i">foto/sertifikat1.jpg<img src="foto/sertifikat1.png" alt="Sertifikat 1" loading="lazy" onerror="this.remove()"></div><figcaption>Sertifikat</figcaption></figure>
+            <figure class="pr-f"><div class="pr-i">foto/sertifikat2.jpg<img src="foto/sertifikat2.png" alt="Sertifikat 2" loading="lazy" onerror="this.remove()"></div><figcaption>Sertifikat</figcaption></figure>
+            <figure class="pr-f"><div class="pr-i">foto/sertifikat3.jpg<img src="foto/sertifikat3.png" alt="Sertifikat 3" loading="lazy" onerror="this.remove()"></div><figcaption>Sertifikat</figcaption></figure>
+            <figure class="pr-f"><div class="pr-i">foto/organisasi1.jpg<img src="foto/organisasi1.png" alt="Organisasi 1" loading="lazy" onerror="this.remove()"></div><figcaption>Organisasi</figcaption></figure>
+            <figure class="pr-f"><div class="pr-i">foto/organisasi2.jpg<img src="foto/organisasi2.png" alt="Organisasi 2" loading="lazy" onerror="this.remove()"></div><figcaption>Organisasi</figcaption></figure>
+            <figure class="pr-f"><div class="pr-i">foto/organisasi3.jpg<img src="foto/organisasi3.png" alt="Organisasi 3" loading="lazy" onerror="this.remove()"></div><figcaption>Organisasi</figcaption></figure>
+        </div>
+        <div class="pr-side l" style="--sp:50" aria-hidden="true">
+            <figure class="pr-f"><div class="pr-i">foto/sertifikat1.jpg<img src="foto/sertifikat1.png" alt="" loading="lazy" onerror="this.remove()"></div><figcaption>Sertifikat</figcaption></figure>
+            <figure class="pr-f"><div class="pr-i">foto/sertifikat2.jpg<img src="foto/sertifikat2.png" alt="" loading="lazy" onerror="this.remove()"></div><figcaption>Sertifikat</figcaption></figure>
+            <figure class="pr-f"><div class="pr-i">foto/sertifikat3.jpg<img src="foto/sertifikat3.png" alt="" loading="lazy" onerror="this.remove()"></div><figcaption>Sertifikat</figcaption></figure>
+        </div>
+        <div class="pr-side r" style="--sp:-60" aria-hidden="true">
+            <figure class="pr-f"><div class="pr-i">foto/organisasi1.jpg<img src="foto/organisasi1.png" alt="" loading="lazy" onerror="this.remove()"></div><figcaption>Organisasi</figcaption></figure>
+            <figure class="pr-f"><div class="pr-i">foto/organisasi2.jpg<img src="foto/organisasi2.png" alt="" loading="lazy" onerror="this.remove()"></div><figcaption>Organisasi</figcaption></figure>
+            <figure class="pr-f"><div class="pr-i">foto/organisasi3.jpg<img src="foto/organisasi3.png" alt="" loading="lazy" onerror="this.remove()"></div><figcaption>Organisasi</figcaption></figure>
+        </div>
+        <script>
+        (function(){var s=document.getElementById('prestasi');if(!s||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+          var sd=[].slice.call(s.querySelectorAll('.pr-side')),tk=false;
+          function u(){tk=false;var r=s.getBoundingClientRect(),vh=innerHeight,p=Math.min(1,Math.max(0,(vh-r.top)/(vh+r.height)));sd.forEach(function(x){x.style.setProperty('--p',p.toFixed(3))})}
+          addEventListener('scroll',function(){if(!tk){tk=true;requestAnimationFrame(u)}},{passive:true});u()})();
+        </script>
+
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-2xl mx-auto mb-12 reveal-on-scroll" data-delay="0">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Rekam Jejak</p>
@@ -1186,7 +1496,12 @@
                 </div>
             </div>
 
-            <!-- Cards -->
+            <div class="fx-cmp reveal-on-scroll" data-delay="0">
+<div class="fx-cmp-a"><small>Harga pasaran</small><b>Rp 900.000+</b><span>web seperti ini</span></div>
+<div class="fx-cmp-ar" aria-hidden="true">&rarr;</div>
+<div class="fx-cmp-b"><small>Bukti nyata: nihkorangue</small><b>Rp 50.000</b><span>sudah termasuk Supabase, admin panel, indexing Google, revisi dan tambah fitur tanpa batas</span></div>
+</div>
+<!-- Cards -->
             <div id="pricing-cards" class="grid gap-5 mb-8">
 
                 <!-- Basic -->
@@ -1287,7 +1602,6 @@
         <!-- Dot pola B: kiri bawah, kanan atas -->
         <div class="dot-b-left" aria-hidden="true"></div>
         <div class="dot-b-right" aria-hidden="true"></div>
-        <div class="dot-center" aria-hidden="true"></div>
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-2xl mx-auto mb-12 reveal-on-scroll" data-delay="0">
                 <h2 class="text-3xl font-extrabold mb-4">Mari Berkolaborasi</h2>
@@ -1298,7 +1612,7 @@
                 <!-- FORM KIRIM PESAN -->
                 <div class="bg-white border border-slate-200 p-6 md:p-8 rounded-2xl shadow-sm">
                     <h3 class="font-bold text-lg mb-1">Kirim Pesan</h3>
-                    <p class="text-slate-500 text-sm mb-6">Masukanmu sangat berarti untuk perkembangan Pufutara Archive.</p>
+                    <p class="text-slate-500 text-sm mb-6">Masukanmu sangat berarti untuk perkembangan Pufutara.</p>
 
                     <form id="contact-form" class="space-y-4">
                         <div>
@@ -1397,50 +1711,16 @@
                 <span style="font-size:0.7rem;font-weight:600;color:#94a3b8;">Update terbaru · September 2026</span>
             </div>
 
-            <!-- Changelog list -->
-            <ul style="display:flex;flex-direction:column;gap:0.6rem;margin:0;padding:0;list-style:none;max-height:55vh;overflow-y:auto;padding-right:4px;">
-                <!-- Keamanan -->
-                <li style="display:flex;align-items:flex-start;gap:0.625rem;">
-                    <span style="flex-shrink:0;width:28px;height:28px;border-radius:8px;background:#fef3c7;display:flex;align-items:center;justify-content:center;font-size:0.85rem;">🔐</span>
-                    <div>
-                        <p style="font-size:0.82rem;font-weight:700;color:#0f172a;margin:0 0 1px;">Keamanan — Supabase Key</p>
-                        <p style="font-size:0.75rem;color:#64748b;margin:0;line-height:1.4;">Key tidak lagi hardcoded di HTML. Semua app (chat, gallery, quiz, tube, shop, pemira) kini fetch config lewat Vercel Edge Function.</p>
-                    </div>
-                </li>
-                <!-- Shop -->
-                <li style="display:flex;align-items:flex-start;gap:0.625rem;">
-                    <span style="flex-shrink:0;width:28px;height:28px;border-radius:8px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:0.85rem;">🛒</span>
-                    <div>
-                        <p style="font-size:0.82rem;font-weight:700;color:#0f172a;margin:0 0 1px;">Pufutara Shop — Admin Panel</p>
-                        <p style="font-size:0.75rem;color:#64748b;margin:0;line-height:1.4;">Password admin hardcoded dihapus. Login pakai Supabase Auth, username tidak perlu diketik lagi.</p>
-                    </div>
-                </li>
-                <!-- Drive -->
-                <li style="display:flex;align-items:flex-start;gap:0.625rem;">
-                    <span style="flex-shrink:0;width:28px;height:28px;border-radius:8px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:0.85rem;">☁️</span>
-                    <div>
-                        <p style="font-size:0.82rem;font-weight:700;color:#0f172a;margin:0 0 1px;">Pufutara Drive</p>
-                        <p style="font-size:0.75rem;color:#64748b;margin:0;line-height:1.4;">Upload file, manajemen folder, dan berbagi link makin mulus dengan UI baru.</p>
-                    </div>
-                </li>
-                <!-- Gallery -->
-                <li style="display:flex;align-items:flex-start;gap:0.625rem;">
-                    <span style="flex-shrink:0;width:28px;height:28px;border-radius:8px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:0.85rem;">🖼️</span>
-                    <div>
-                        <p style="font-size:0.82rem;font-weight:700;color:#0f172a;margin:0 0 1px;">Pufutara Gallery</p>
-                        <p style="font-size:0.75rem;color:#64748b;margin:0;line-height:1.4;">Tampilan grid baru, filter album, rating & komentar, dan lightbox yang lebih responsif.</p>
-                    </div>
-                </li>
-            </ul>
+            <p style="font-size:0.9rem;line-height:1.65;color:#475569;margin:0 0 1rem;">Changelog lengkap sekarang ada di halaman ini sebagai bagian scroll, termasuk proyek baru Pufutara Kiblat, Aplikasi Pemira, dan nihkorangue.</p>
 
             <!-- CTA -->
             <div style="margin-top:1.125rem;display:flex;gap:0.5rem;">
-                <a href="#proyek" onclick="closeWelcomeModal()" style="
+                <a href="#changelog" onclick="closeWelcomeModal()" style="
                     flex:1;text-align:center;padding:0.6rem 1rem;
                     background:#0f172a;color:#fff;border-radius:12px;
                     font-size:0.8rem;font-weight:700;text-decoration:none;
                     transition:opacity 0.15s;
-                " onmouseenter="this.style.opacity='0.85'" onmouseleave="this.style.opacity='1'">Lihat Proyek</a>
+                " onmouseenter="this.style.opacity='0.85'" onmouseleave="this.style.opacity='1'">Lihat Update</a>
                 <button onclick="closeWelcomeModal()" style="
                     padding:0.6rem 1rem;border-radius:12px;
                     border:1.5px solid #e2e8f0;background:transparent;
@@ -1804,18 +2084,23 @@
     // SUPABASE — FORM KOLABORASI (inline agar Supabase sudah ready)
     // ============================================================
     (function () {
-        const SUPABASE_URL = "https://puywjdopumlzvmzbcudr.supabase.co";
-        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1eXdqZG9wdW1senZtemJjdWRyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDE3MTksImV4cCI6MjA4NzkxNzcxOX0.vvThyjtK2SlA9oA9Mr_XOmt1R_tNZk-ib3PO9XpiiSc";
-
+        // Config diambil dari server (/api/config) — tidak hardcoded di HTML.
         let supabaseClient = null;
-        try {
-            const sb = window.supabase || (typeof supabase !== 'undefined' ? supabase : null);
-            if (sb && sb.createClient) {
-                supabaseClient = sb.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        (async function initSupabase() {
+            try {
+                const res = await fetch('/api/config', { headers: { Accept: 'application/json' } });
+                const type = res.headers.get('content-type') || '';
+                if (!res.ok || !type.includes('application/json')) {
+                    throw new Error('/api/config tidak mengembalikan JSON (status ' + res.status + '). Buka situs dari deployment Vercel yang memuat folder api/ dan pastikan env SUPABASE_URL & SUPABASE_KEY terisi.');
+                }
+                const cfg = await res.json();
+                if (!cfg || !cfg.url || !cfg.key) throw new Error('Config Supabase kosong');
+                const sb = window.supabase || (typeof supabase !== 'undefined' ? supabase : null);
+                if (sb && sb.createClient) supabaseClient = sb.createClient(cfg.url, cfg.key);
+            } catch (e) {
+                console.warn('Form kolaborasi nonaktif:', e.message);
             }
-        } catch (e) {
-            console.error('Supabase gagal diinisialisasi:', e);
-        }
+        })();
 
         function showToast(message, isError = false) {
             const toast = document.getElementById('kolaborasi-toast');
@@ -1878,6 +2163,7 @@
                 if (error) throw error;
 
                 showToast('✅ Pesan terkirim! Terima kasih atas masukannya.');
+                document.dispatchEvent(new Event('pesanTerkirim'));
                 form.reset();
             } catch (err) {
                 console.error(err);
@@ -2295,6 +2581,11 @@
         function recalc() {
             if (isMobile.matches || isReduced.matches) {
                 section.style.height = '';
+                track.style.transform = '';
+                track.style.paddingLeft = '';
+                track.style.paddingRight = '';
+                if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+                curT = targetT = 0;
                 return;
             }
             cardW  = cards[0] ? cards[0].offsetWidth : 220;
@@ -2376,4 +2667,79 @@
         if (document.readyState === 'complete') recalc(); else window.addEventListener('load', recalc);
     })();
     </script>
+<style id="fx-css">
+.fx-cmp{display:grid;grid-template-columns:1fr;gap:.75rem;align-items:stretch;max-width:48rem;margin:0 auto 1.75rem}
+@media(min-width:768px){.fx-cmp{grid-template-columns:1fr auto 1.35fr}}
+.fx-cmp>div{border-radius:16px;padding:1rem 1.2rem;display:flex;flex-direction:column;justify-content:center;text-align:center}
+.fx-cmp small{font-size:.68rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.fx-cmp b{font-size:1.8rem;font-weight:800;line-height:1.2}
+.fx-cmp span{font-size:.78rem;line-height:1.5}
+.fx-cmp-a{background:#f1f5f9;border:1px solid #e2e8f0;color:#64748b}
+.fx-cmp-a b{text-decoration:line-through;text-decoration-color:#f87171;text-decoration-thickness:3px}
+.fx-cmp-ar{background:none!important;font-size:1.6rem;font-weight:800;color:#0f172a;padding:0 .2rem!important}
+.fx-cmp-b{background:#0f172a;color:#fff;border:1px solid #1e293b}
+.fx-cmp-b small{color:#fbbf24}.fx-cmp-b span{color:#cbd5e1}
+@property --ang{syntax:'<angle>';initial-value:0deg;inherits:false}
+.fx-border{position:relative}
+.fx-border::before{content:"";position:absolute;inset:-2px;border-radius:inherit;padding:2px;background:conic-gradient(from var(--ang),#fbbf24,#38bdf8,#a78bfa,#fbbf24);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:fxspin 4s linear infinite;pointer-events:none}
+@keyframes fxspin{to{--ang:360deg}}
+.fx-li{opacity:0;transform:translateX(-12px);transition:opacity .45s ease,transform .45s ease;transition-delay:calc(var(--k)*90ms + 150ms)}
+.fx-in .fx-li{opacity:1;transform:none}
+.fx-in .fa-check{animation:fxtick .45s both;animation-delay:calc(var(--k)*90ms + 300ms)}
+@keyframes fxtick{0%{transform:scale(0)}60%{transform:scale(1.5)}100%{transform:scale(1)}}
+.fx-tilt{position:relative}
+.fx-tilt::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;opacity:0;transition:opacity .25s;background:radial-gradient(240px circle at var(--mx,50%) var(--my,50%),rgba(100,116,139,.18),transparent 65%)}
+.fx-tilt:hover::after{opacity:1}
+.fx-rise{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease;transition-delay:calc(var(--k)*110ms)}
+#contact-form.fx-in .fx-rise{opacity:1;transform:none}
+#contact-form>div{position:relative}
+#contact-form>div::after{content:"";position:absolute;left:14px;right:14px;bottom:0;height:2px;background:#0f172a;transform:scaleX(0);transform-origin:left;transition:transform .35s ease}
+#contact-form>div:focus-within::after{transform:scaleX(1)}
+.fxcf{position:fixed;width:8px;height:12px;border-radius:2px;z-index:9999;pointer-events:none;animation:fxcfk 1.2s ease-out forwards}
+@keyframes fxcfk{to{transform:translate(var(--cx),var(--cy)) rotate(var(--cr));opacity:0}}
+@media(prefers-reduced-motion:reduce){.fx-li,.fx-rise{opacity:1;transform:none;transition:none}.fx-border::before{animation:none}.fx-in .fa-check{animation:none}}
+</style>
+<script id="fx-js">
+(function(){
+  var rm=matchMedia('(prefers-reduced-motion: reduce)').matches,$=function(s,r){return[].slice.call((r||document).querySelectorAll(s))};
+  function once(els,fn,th){if(!('IntersectionObserver' in window)){els.forEach(fn);return}
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){fn(e.target);io.unobserve(e.target)}})},{threshold:th||.25});els.forEach(function(x){io.observe(x)})}
+  function count(el,to,fmt){if(rm){el.textContent=fmt(to);return}var t0=performance.now();(function f(t){var k=Math.min(1,(t-t0)/1000),e=1-Math.pow(1-k,3);el.textContent=fmt(Math.round(to*e));if(k<1)requestAnimationFrame(f)})(t0)}
+  // Pricing: kartu naik, harga berputar, centang bergiliran, border berputar di paket unggulan
+  var pc=$('#pricing-cards>div');
+  pc.forEach(function(w,i){w.style.transitionDelay=(i*120)+'ms';$('li',w).forEach(function(l,k){l.classList.add('fx-li');l.style.setProperty('--k',k)});
+    if(i===1&&w.firstElementChild)w.firstElementChild.classList.add('fx-border')});
+  once(pc,function(w){w.classList.add('fx-in');var p=$('.text-3xl',w)[0];if(p){var m=/Rp\s*(\d+)\s*K/i.exec(p.textContent);if(m)count(p,+m[1],function(n){return'Rp '+n+'K'})}},.3);
+  // Proyek: counter jumlah proyek
+  var pj=document.getElementById('proj-count');
+  if(pj)once([pj],function(el){var n=$('#projects-grid a[data-category]').length;if(n)count(el,n,function(v){return v+' proyek selesai'});else el.textContent=''},.5);
+  // Form kontak: kolom masuk bergiliran
+  var cf=document.getElementById('contact-form');
+  if(cf){$('#contact-form>div,#contact-form>button').forEach(function(x,i){x.classList.add('fx-rise');x.style.setProperty('--k',i)});once([cf],function(f){f.classList.add('fx-in')},.2)}
+  // Submit: pesawat terbang + konfeti
+  document.addEventListener('pesanTerkirim',function(){var b=document.getElementById('kolaborasi-submit-btn');if(!b||rm)return;var ic=b.querySelector('i');
+    if(ic&&ic.animate)ic.animate([{transform:'none',opacity:1},{transform:'translate(90px,-50px) rotate(30deg)',opacity:0,offset:.6},{transform:'translate(-60px,20px)',opacity:0,offset:.61},{transform:'none',opacity:1}],{duration:1100,easing:'ease-in-out'});
+    var r=b.getBoundingClientRect();for(var i=0;i<30;i++){var c=document.createElement('span');c.className='fxcf';
+      c.style.cssText='left:'+(r.left+r.width/2)+'px;top:'+(r.top+r.height/2)+'px;--cx:'+((Math.random()-.5)*360|0)+'px;--cy:'+(-40-Math.random()*200|0)+'px;--cr:'+((Math.random()-.5)*720|0)+'deg;background:hsl('+(Math.random()*360|0)+',85%,60%)';
+      document.body.appendChild(c);setTimeout(function(x){x.remove()},1300,c)}});
+  if(rm)return;
+  // Kartu proyek: tilt 3D + cahaya mengikuti kursor
+  var cur=null,sel='#proyek-terbaik-grid>a,#projects-grid>a';
+  document.addEventListener('pointermove',function(e){if(e.pointerType!=='mouse')return;var a=e.target.closest&&e.target.closest(sel);
+    if(!a){if(cur){cur.style.transform='';cur=null}return}
+    var el=a.firstElementChild;if(!el)return;if(cur&&cur!==el)cur.style.transform='';cur=el;
+    var r=el.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;
+    el.classList.add('fx-tilt');el.style.setProperty('--mx',(x*100).toFixed(1)+'%');el.style.setProperty('--my',(y*100).toFixed(1)+'%');
+    el.style.transform='perspective(800px) rotateX('+((.5-y)*9).toFixed(2)+'deg) rotateY('+((x-.5)*11).toFixed(2)+'deg) translateY(-3px)'},{passive:true});
+  // Filter proyek: kartu muncul membal bergiliran
+  document.addEventListener('projectsFiltered',function(){setTimeout(function(){$('#projects-grid>a[data-category]').filter(function(a){return a.offsetParent}).forEach(function(a,i){
+    if(a.animate)a.animate([{opacity:0,scale:'.9'},{opacity:1,scale:'1'}],{duration:420,delay:Math.min(i,12)*35,easing:'cubic-bezier(.16,1,.3,1)',fill:'backwards'})})},40)});
+  // Parallax: kolom Proyek Terbaik beda kecepatan, titik dekor melayang
+  var sp=[0,-26,10,-38],pt=document.getElementById('proyek-terbaik'),pcards=$('#proyek-terbaik-grid>a'),dots=$('.dot-a-left,.dot-a-right,.dot-b-left,.dot-b-right'),tk=false;
+  function u(){tk=false;var vh=innerHeight;
+    if(pt){var r=pt.getBoundingClientRect();if(r.bottom>0&&r.top<vh){var p=(vh-r.top)/(vh+r.height);pcards.forEach(function(a,i){a.style.translate='0 '+((p-.5)*2*sp[i%4]).toFixed(1)+'px'})}}
+    dots.forEach(function(d,i){var r=d.getBoundingClientRect();if(r.bottom<-vh||r.top>2*vh)return;d.style.translate='0 '+(((r.top+r.height/2-vh/2)/vh)*(i%2?-50:50)).toFixed(1)+'px'})}
+  addEventListener('scroll',function(){if(!tk){tk=true;requestAnimationFrame(u)}},{passive:true});u();
+})();
+</script>
 </body></html>
