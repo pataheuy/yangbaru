@@ -37,6 +37,7 @@
     }
     </script>
 
+    <script>(function(){var q=matchMedia('(prefers-reduced-motion: reduce)').matches,f=false;try{f=localStorage.getItem('pufutara_motion')==='on'}catch(e){}window.__rmRaw=q;window.__rm=q&&!f;document.documentElement.classList.toggle('rm',window.__rm)})();</script>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -544,7 +545,7 @@
             transition: background 0.2s, width 0.25s cubic-bezier(0.25,1,0.5,1);
         }
         #skill-dots button.active { background: #0f172a; width: 20px; }
-        @media (max-width: 760px), (prefers-reduced-motion: reduce) {
+        @media (max-width: 760px) {
             .hscroll { height: auto !important; }
             .hscroll__pin { position: static; height: auto; overflow: visible; padding-top: 3rem; }
             #skill-track-wrapper {
@@ -559,6 +560,13 @@
             .skill-card { scroll-snap-align: center; opacity: 1; transform: scale(1); }
             .skill-card.is-active { border-color: #0f172a; }
         }
+        html.rm .hscroll { height: auto !important; }
+        html.rm .hscroll__pin { position: static; height: auto; overflow: visible; padding-top: 3rem; }
+        html.rm #skill-track-wrapper { overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; -webkit-mask-image: none; mask-image: none; }
+        html.rm #skill-track-wrapper::-webkit-scrollbar { display: none; }
+        html.rm #skill-track { padding-inline: calc((100vw - 220px) / 2); }
+        html.rm .skill-card { scroll-snap-align: center; opacity: 1; transform: scale(1); }
+        html.rm .skill-card.is-active { border-color: #0f172a; }
         .parallax-dot { will-change: transform; }
         #hero h1, #hero .hero-line { will-change: transform; }
     </style>
@@ -873,7 +881,7 @@
     <script>
     (function(){
       var s=document.getElementById('cerita');if(!s)return;
-      var rm=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var rm=!!window.__rm;
       function R(n){return((Math.random()-.5)*n).toFixed(0)}
       s.querySelectorAll('[data-split="l"]').forEach(function(el){
         var t=el.textContent.trim().split(' ');el.setAttribute('aria-label',t.join(' '));el.textContent='';
@@ -1424,7 +1432,7 @@
             <figure class="pr-f"><div class="pr-i">foto/organisasi3.jpg<img src="foto/organisasi3.png" alt="" loading="lazy" onerror="this.remove()"></div><figcaption>Organisasi</figcaption></figure>
         </div>
         <script>
-        (function(){var s=document.getElementById('prestasi');if(!s||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+        (function(){var s=document.getElementById('prestasi');if(!s||window.__rm)return;
           var sd=[].slice.call(s.querySelectorAll('.pr-side')),tk=false;
           function u(){tk=false;var r=s.getBoundingClientRect(),vh=innerHeight,p=Math.min(1,Math.max(0,(vh-r.top)/(vh+r.height)));sd.forEach(function(x){x.style.setProperty('--p',p.toFixed(3))})}
           addEventListener('scroll',function(){if(!tk){tk=true;requestAnimationFrame(u)}},{passive:true});u()})();
@@ -2571,7 +2579,7 @@
         if (!section || !pin || !track || !wrapper) return;
 
         var isMobile = window.matchMedia('(max-width: 760px)');
-        var isReduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+        var isReduced = { matches: !!window.__rm, addEventListener: function(){} };
         var cards = Array.from(track.querySelectorAll('.skill-card'));
         var cardCount = cards.length;
         var GAP = 20;
@@ -2697,11 +2705,11 @@
 #contact-form>div:focus-within::after{transform:scaleX(1)}
 .fxcf{position:fixed;width:8px;height:12px;border-radius:2px;z-index:9999;pointer-events:none;animation:fxcfk 1.2s ease-out forwards}
 @keyframes fxcfk{to{transform:translate(var(--cx),var(--cy)) rotate(var(--cr));opacity:0}}
-@media(prefers-reduced-motion:reduce){.fx-li,.fx-rise{opacity:1;transform:none;transition:none}.fx-border::before{animation:none}.fx-in .fa-check{animation:none}}
+html.rm .fx-li,html.rm .fx-rise{opacity:1;transform:none;transition:none}html.rm .fx-border::before{animation:none}html.rm .fx-in .fa-check{animation:none}
 </style>
 <script id="fx-js">
 (function(){
-  var rm=matchMedia('(prefers-reduced-motion: reduce)').matches,$=function(s,r){return[].slice.call((r||document).querySelectorAll(s))};
+  var rm=!!window.__rm,$=function(s,r){return[].slice.call((r||document).querySelectorAll(s))};
   function once(els,fn,th){if(!('IntersectionObserver' in window)){els.forEach(fn);return}
     var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){fn(e.target);io.unobserve(e.target)}})},{threshold:th||.25});els.forEach(function(x){io.observe(x)})}
   function count(el,to,fmt){if(rm){el.textContent=fmt(to);return}var t0=performance.now();(function f(t){var k=Math.min(1,(t-t0)/1000),e=1-Math.pow(1-k,3);el.textContent=fmt(Math.round(to*e));if(k<1)requestAnimationFrame(f)})(t0)}
@@ -2742,4 +2750,6 @@
   addEventListener('scroll',function(){if(!tk){tk=true;requestAnimationFrame(u)}},{passive:true});u();
 })();
 </script>
+<button id="motion-toggle" type="button" hidden style="position:fixed;left:1rem;bottom:1rem;z-index:60;background:#0f172a;color:#fff;border:0;border-radius:999px;padding:.5rem .9rem;font:600 .75rem 'Plus Jakarta Sans',sans-serif;box-shadow:0 6px 18px rgba(15,23,42,.3);cursor:pointer"></button>
+<script>(function(){var b=document.getElementById('motion-toggle');if(!b||!window.__rmRaw)return;var on=!window.__rm;b.hidden=false;b.textContent=on?'Matikan animasi':'Nyalakan animasi';b.onclick=function(){try{localStorage.setItem('pufutara_motion',on?'off':'on')}catch(e){}location.reload()}})();</script>
 </body></html>
