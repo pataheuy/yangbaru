@@ -3,7 +3,8 @@
  *
  * Env var (Vercel → Settings → Environment Variables):
  *   GEMINI_API_KEY = kunci dari Google AI Studio (WAJIB, jangan taruh di HTML)
- *   GEMINI_MODEL   = nama model (opsional, default gemini-2.5-flash)
+ *   GEMINI_MODEL   = nama model (opsional). Default: gemini-3.5-flash-lite, lalu cadangan gemini-3.1-flash-lite.
+ *                    Cek nama model terbaru di Google AI Studio; model lama bisa dimatikan Google.
  *
  * Pembatasan konteks berlapis:
  *   1. Penyaring awal di server (panjang, pola jebakan) -> tanpa memanggil AI.
@@ -64,19 +65,28 @@ export default async function handler(req, res) {
   if (q.length > MAX_Q) return res.status(400).json({ ok: false, error: 'Pertanyaan maksimal ' + MAX_Q + ' karakter.' });
   if (TRAP.test(q)) return res.status(200).json({ ok: true, answer: REFUSAL, projects: [] });
 
-  const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+  const models = [process.env.GEMINI_MODEL, 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite'].filter((m, i, a) => m && a.indexOf(m) === i);
   try {
-    const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + encodeURIComponent(model) + ':generateContent', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: SYSTEM }] },
-        contents: [{ role: 'user', parts: [{ text: 'PERTANYAAN: ' + q }] }],
-        generationConfig: { temperature: 0.2, maxOutputTokens: 1000, thinkingConfig: { thinkingBudget: 0 }, responseMimeType: 'application/json', responseSchema: SCHEMA }
-      })
-    });
+    let r = null;
+    for (const model of models) {
+      r = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + encodeURIComponent(model) + ':generateContent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: SYSTEM }] },
+          contents: [{ role: 'user', parts: [{ text: 'PERTANYAAN: ' + q }] }],
+          generationConfig: { temperature: 0.2, maxOutputTokens: 2048, responseMimeType: 'application/json', responseSchema: SCHEMA }
+        })
+      });
+      if (r.ok || r.status !== 404) break;   // 404 = model tidak ada/dimatikan -> coba model berikutnya
+      console.error('[chat] model tidak ditemukan:', model);
+    }
     if (r.status === 429) return res.status(429).json({ ok: false, error: 'Lagi ramai, coba lagi sebentar.' });
-    if (!r.ok) return res.status(502).json({ ok: false, error: 'Layanan AI sedang bermasalah.' });
+    if (!r.ok) {
+      let detail = ''; try { detail = (await r.text()).slice(0, 400); } catch (e) {}
+      console.error('[chat] Gemini error', r.status, detail);   // lihat di Vercel -> Logs
+      return res.status(502).json({ ok: false, error: 'Layanan AI sedang bermasalah.' });
+    }
     const data = await r.json();
     let out; try { out = JSON.parse(data.candidates[0].content.parts[0].text); } catch (e) { out = null; }
     if (!out || out.in_scope !== true || !String(out.answer || '').trim()) return res.status(200).json({ ok: true, answer: REFUSAL, projects: [] });
@@ -84,6 +94,7 @@ export default async function handler(req, res) {
     const projects = (Array.isArray(out.projects) ? out.projects : []).map(n => byName.get(String(n).toLowerCase())).filter(Boolean).slice(0, 3).map(p => ({ nama: p.nama, tautan: p.tautan }));
     return res.status(200).json({ ok: true, answer: String(out.answer).slice(0, 900), projects });
   } catch (e) {
+    console.error('[chat] exception', e && e.message);
     return res.status(502).json({ ok: false, error: 'Layanan AI sedang bermasalah.' });
   }
 }
