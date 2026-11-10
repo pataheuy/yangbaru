@@ -2715,6 +2715,7 @@ function ask(q){q=(q||'').trim();if(!q||busy)return;busy=true;btn.disabled=true;
  fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({q:q})})
  .then(function(r){return r.json().catch(function(){return{ok:false}})})
  .then(function(d){w.textContent=d&&d.ok?d.answer:((d&&d.error)||'Gagal terhubung. Coba lagi nanti.');
+  if(d&&d.ok&&d.general){out.appendChild(el('ft','Jawaban umum dari AI, bukan dari data portofolio Putra.'))}
   if(d&&d.ok&&d.projects&&d.projects.length){var c=el('ch');d.projects.forEach(function(p){if(typeof p.tautan!=='string'||p.tautan.charAt(0)!=='/')return;var a=document.createElement('a');a.className='ln';a.href=p.tautan;a.target='_blank';a.rel='noopener';a.textContent=p.nama+' →';c.appendChild(a)});out.appendChild(c)}
   var again=el('ch');var b=document.createElement('button');b.type='button';b.textContent='Tanya yang lain';b.onclick=home;again.appendChild(b);out.appendChild(again)})
  .catch(function(){w.textContent='Gagal terhubung. Coba lagi nanti.'})
