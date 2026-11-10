@@ -2669,4 +2669,60 @@ document.addEventListener('keydown',function(e){var t=e.target.tagName;if(e.key=
 var c=document.getElementById('hero-chips');['chat','drive','electron','game'].forEach(function(w){var b=document.createElement('button');b.type='button';b.textContent=w;b.className='text-[11px] font-semibold px-2.5 py-1 rounded-full border border-slate-200 bg-white text-slate-500 hover:bg-slate-900 hover:text-white transition-colors';b.onclick=function(){q.value=w;sync();go()};c.appendChild(b)});
 })();
 </script>
+
+<!-- Chatbot portofolio (Tanya AI) -->
+<style id="bot-css">
+#bot-fab{position:fixed;right:1.5rem;bottom:5rem;z-index:60;display:flex;align-items:center;gap:.45rem;background:#0f172a;color:#fff;border:0;border-radius:999px;padding:.6rem .95rem;font:700 .8rem 'Plus Jakarta Sans',system-ui,sans-serif;box-shadow:0 10px 24px -8px rgba(15,23,42,.45);cursor:pointer;transition:transform .2s}
+#bot-fab:hover{transform:translateY(-2px)}#bot-fab svg{width:16px;height:16px}
+#bot{position:fixed;right:1.5rem;bottom:8.6rem;z-index:61;width:min(92vw,360px);max-height:min(70vh,520px);display:flex;flex-direction:column;background:#fff;border:1px solid #e2e8f0;border-radius:18px;box-shadow:0 20px 50px -12px rgba(15,23,42,.3);font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:#0f172a;opacity:0;transform:translateY(12px) scale(.98);pointer-events:none;transition:opacity .25s,transform .35s cubic-bezier(.2,1,.3,1)}
+#bot.open{opacity:1;transform:none;pointer-events:auto}
+@media(max-width:520px){#bot{right:.6rem;left:.6rem;width:auto;bottom:7.5rem}}
+#bot .bh{display:flex;justify-content:space-between;align-items:flex-start;padding:.8rem .9rem .6rem;border-bottom:1px solid #f1f5f9}
+#bot .bh b{display:block;font-size:.92rem}#bot .bh small{font-size:.72rem;color:#64748b}
+#bot .bx{border:0;background:#f1f5f9;border-radius:99px;width:26px;height:26px;cursor:pointer;color:#475569;font-size:.9rem;line-height:1}
+#bot-out{padding:.8rem .9rem;overflow:auto;display:flex;flex-direction:column;gap:.55rem;font-size:.84rem;line-height:1.55}
+#bot .m{max-width:92%;padding:.5rem .75rem;border-radius:14px}
+#bot .u{align-self:flex-end;background:#0f172a;color:#fff;border-bottom-right-radius:4px}
+#bot .a{align-self:flex-start;background:#f1f5f9;border-bottom-left-radius:4px}
+#bot .ch{display:flex;flex-wrap:wrap;gap:.35rem}
+#bot .ch button,#bot .ln{font:600 .72rem 'Plus Jakarta Sans',system-ui,sans-serif;border:1px solid #e2e8f0;background:#fff;color:#475569;border-radius:99px;padding:.28rem .7rem;cursor:pointer;text-decoration:none}
+#bot .ch button:hover,#bot .ln:hover{background:#0f172a;color:#fff;border-color:#0f172a}
+#bot .dots i{display:inline-block;width:6px;height:6px;margin:0 2px;border-radius:50%;background:#94a3b8;animation:botd 1s infinite}
+#bot .dots i:nth-child(2){animation-delay:.15s}#bot .dots i:nth-child(3){animation-delay:.3s}
+@keyframes botd{50%{transform:translateY(-4px);opacity:.5}}
+#bot form{display:flex;gap:.4rem;padding:.6rem .9rem .5rem;border-top:1px solid #f1f5f9}
+#bot input{flex:1;min-width:0;font:inherit;font-size:.84rem;border:1px solid #e2e8f0;border-radius:10px;padding:.5rem .7rem;outline:0}
+#bot input:focus{border-color:#0f172a}
+#bot form button{border:0;border-radius:10px;background:#0f172a;color:#fff;font:700 .8rem 'Plus Jakarta Sans',system-ui,sans-serif;padding:0 .9rem;cursor:pointer}
+#bot form button:disabled{opacity:.5;cursor:default}
+#bot .ft{font-size:.65rem;color:#94a3b8;text-align:center;padding:0 .9rem .6rem}
+</style>
+<button id="bot-fab" type="button" aria-expanded="false" aria-controls="bot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 4.6L18 9.4l-4.2 1.8L12 16l-1.8-4.8L6 9.4l4.2-1.8z"/><path d="M19 15l.7 1.8L21.5 17.5l-1.8.7L19 20l-.7-1.8-1.8-.7 1.8-.7z"/></svg>Tanya AI</button>
+<div id="bot" role="dialog" aria-label="Tanya AI seputar portofolio"><div class="bh"><div><b>Tanya Putra AI</b><small>Hanya menjawab seputar proyek &amp; portofolio Putra</small></div><button class="bx" type="button" id="bot-x" aria-label="Tutup">×</button></div>
+<div id="bot-out" aria-live="polite"></div>
+<form id="bot-form" autocomplete="off"><input id="bot-q" maxlength="300" placeholder="Tulis pertanyaan…" aria-label="Pertanyaan"><button type="submit">Kirim</button></form>
+<div class="ft">Jawaban dibuat AI dari data portofolio dan bisa keliru.</div></div>
+<script id="bot-js">
+(function(){
+var fab=document.getElementById('bot-fab'),box=document.getElementById('bot'),out=document.getElementById('bot-out'),f=document.getElementById('bot-form'),inp=document.getElementById('bot-q'),btn=f.querySelector('button'),busy=false;
+var EX=['Proyek apa yang paling bermanfaat?','Teknologi apa yang Putra kuasai?','Berapa harga jasa bikin web?','Apa saja prestasinya?'];
+function el(c,t){var d=document.createElement('div');d.className=c;if(t!=null)d.textContent=t;return d}
+function open(v){box.classList.toggle('open',v);fab.setAttribute('aria-expanded',v);if(v){if(!out.firstChild)home();setTimeout(function(){inp.focus()},250)}}
+function home(){out.innerHTML='';out.appendChild(el('m a','Halo! Aku asisten portofolio Putra. Tanyakan apa saja soal proyek, teknologi, prestasi, organisasi, atau harga jasanya.'));
+ var c=el('ch');EX.forEach(function(q){var b=document.createElement('button');b.type='button';b.textContent=q;b.onclick=function(){ask(q)};c.appendChild(b)});out.appendChild(c)}
+function ask(q){q=(q||'').trim();if(!q||busy)return;busy=true;btn.disabled=true;inp.value='';out.innerHTML='';out.appendChild(el('m u',q));
+ var w=el('m a');w.innerHTML='<span class="dots"><i></i><i></i><i></i></span>';out.appendChild(w);
+ fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({q:q})})
+ .then(function(r){return r.json().catch(function(){return{ok:false}})})
+ .then(function(d){w.textContent=d&&d.ok?d.answer:((d&&d.error)||'Gagal terhubung. Coba lagi nanti.');
+  if(d&&d.ok&&d.projects&&d.projects.length){var c=el('ch');d.projects.forEach(function(p){if(typeof p.tautan!=='string'||p.tautan.charAt(0)!=='/')return;var a=document.createElement('a');a.className='ln';a.href=p.tautan;a.target='_blank';a.rel='noopener';a.textContent=p.nama+' →';c.appendChild(a)});out.appendChild(c)}
+  var again=el('ch');var b=document.createElement('button');b.type='button';b.textContent='Tanya yang lain';b.onclick=home;again.appendChild(b);out.appendChild(again)})
+ .catch(function(){w.textContent='Gagal terhubung. Coba lagi nanti.'})
+ .then(function(){busy=false;btn.disabled=false})}
+fab.onclick=function(){open(!box.classList.contains('open'))};
+document.getElementById('bot-x').onclick=function(){open(false)};
+f.onsubmit=function(e){e.preventDefault();ask(inp.value)};
+document.addEventListener('keydown',function(e){if(e.key==='Escape')open(false)});
+})();
+</script>
 </body></html>
