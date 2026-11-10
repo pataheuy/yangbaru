@@ -462,6 +462,10 @@
                 height: 200px;
             }
             /* Kecilkan font di mobile agar Elfathin tetap baris 2 */
+            #hero-stats{gap:.6rem;max-width:17.5rem;margin-left:auto;margin-right:auto}
+            #hero-stats .text-2xl{font-size:1.2rem}
+            #hero-stats .text-xs{font-size:.65rem;line-height:1.2}
+            #hero-stats .hero-stat-sep{height:1.75rem}
             #hero h1 {
                 font-size: 2.4rem;
                 line-height: 1.15;
@@ -651,7 +655,7 @@
     </header>
 
     <!-- Hero Section -->
-    <section id="hero" class="relative overflow-hidden bg-gradient-to-b from-slate-50 to-white min-h-screen flex flex-col items-center justify-center pt-20 pb-16">
+    <section id="hero" class="relative overflow-hidden bg-gradient-to-b from-slate-50 to-white min-h-screen flex flex-col items-center justify-center pt-24 pb-20">
         <!-- ===== DOT GRID POJOK KIRI ATAS ===== -->
         <div class="dot-grid-topleft pointer-events-none" aria-hidden="true"></div>
         <!-- ===== DOT GRID POJOK KANAN BAWAH ===== -->
@@ -670,7 +674,7 @@
                 Seorang santri developer yang mendedikasikan waktu di sela-sela mengaji untuk merakit aplikasi desktop yang powerful menggunakan Electron, bereksperimen dengan Next.js, dan menguasai dasar web HTML/CSS/JS.
             </p>
             <!-- Stats muncul satu per satu setelah Elfathin selesai, dikontrol JS -->
-            <div class="flex items-center justify-center gap-6 mb-8" id="hero-stats">
+            <div class="flex items-center justify-center gap-6 mb-6" id="hero-stats">
                 <!-- Tiap stat dimulai tersembunyi, JS yang munculkan satu per satu -->
                 <div class="text-center hero-stat-item" id="stat-item-proyek" style="opacity:0;transform:translateY(20px);filter:blur(4px);transition:opacity 0.5s cubic-bezier(0.34,1.56,0.64,1),transform 0.5s cubic-bezier(0.34,1.56,0.64,1),filter 0.4s ease">
                     <div class="text-2xl font-extrabold text-primary hero-counter" data-count="32" id="stat-proyek">0</div>
@@ -693,7 +697,7 @@
                 </div>
             </div>
             <!-- Typing & CTA: dikontrol JS, muncul setelah semua stat & counter selesai -->
-            <div class="flex items-center justify-center gap-2 mb-8" id="hero-typing" style="opacity:0;transform:translateY(20px);filter:blur(4px);transition:opacity 0.6s cubic-bezier(0.16,1,0.3,1),transform 0.6s cubic-bezier(0.16,1,0.3,1),filter 0.5s ease">
+            <div class="flex items-center justify-center gap-2 mb-6" id="hero-typing" style="opacity:0;transform:translateY(20px);filter:blur(4px);transition:opacity 0.6s cubic-bezier(0.16,1,0.3,1),transform 0.6s cubic-bezier(0.16,1,0.3,1),filter 0.5s ease">
                 <span class="text-slate-400 text-sm font-mono">&gt;</span>
                 <span id="typing-text" class="text-sm font-mono font-semibold text-slate-700"></span>
                 <span class="inline-block w-0.5 h-4 bg-slate-700 animate-pulse ml-0.5"></span>
@@ -707,12 +711,12 @@
                     Hubungi Kontak
                 </a>
             </div>
-            <div id="hero-search" style="opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease;margin-top:1.25rem;width:100%;max-width:20rem">
+            <div id="hero-search" style="opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease;margin-top:1rem;width:100%;max-width:20rem">
                 <div class="relative">
                     <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"><i class="fa-solid fa-magnifying-glass text-sm"></i></span>
                     <input id="hero-q" type="search" placeholder="Cari proyek... (tekan /)" autocomplete="off" class="w-full pl-10 pr-4 py-2.5 text-sm rounded-xl border border-slate-200 bg-white text-primary placeholder-slate-400 focus:outline-none focus:border-slate-400 transition-colors shadow-sm">
                 </div>
-                <div class="flex flex-wrap justify-center gap-1.5 mt-2" id="hero-chips"></div>
+                
             </div>
         </div>
     </section>
@@ -1674,16 +1678,20 @@
     #wn small{color:#94a3b8;font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
     #wn strong{display:block;font-size:.92rem}
     #wn .d{font-size:.8rem;color:#64748b;line-height:1.4}
-    #wn .bar{position:absolute;left:0;bottom:0;height:2px;width:100%;background:linear-gradient(90deg,#0f172a,#94a3b8);transform-origin:left;transform:scaleX(0)}
+    #wn .x{position:absolute;top:.4rem;right:.45rem;width:22px;height:22px;border:0;border-radius:99px;background:#f1f5f9;color:#475569;font-size:.95rem;line-height:1;cursor:pointer;display:grid;place-items:center;padding:0}
+#wn .x:hover{background:#0f172a;color:#fff}
+#wn strong{padding-right:1.4rem}
+#wn .bar{position:absolute;left:0;bottom:0;height:2px;width:100%;background:linear-gradient(90deg,#0f172a,#94a3b8);transform-origin:left;transform:scaleX(0)}
     #wn.show .bar{animation:wnbar 5s linear forwards}
     @keyframes wnbar{from{transform:scaleX(1)}to{transform:scaleX(0)}}
     </style>
-    <div id="wn" role="status" aria-live="polite"><div class="ic">P</div><div><small>Pufutara · Terbaru</small><strong>Ada yang baru!</strong><span class="d">Pufutara Kiblat, Aplikasi Pemira, dan nihkorangue sudah rilis. Ketuk untuk lihat.</span></div><i class="bar"></i></div>
+    <div id="wn" role="status" aria-live="polite"><div class="ic">P</div><div><small>Pufutara · Terbaru</small><strong>Ada yang baru!</strong><span class="d">Pufutara Kiblat, Aplikasi Pemira, dan nihkorangue sudah rilis. Ketuk untuk lihat.</span></div><button type="button" class="x" id="wn-x" aria-label="Tutup notifikasi">×</button><i class="bar"></i></div>
     <script>
     (function(){var n=document.getElementById('wn'),shown=false,t1,t2;
       function hide(){clearTimeout(t2);n.classList.remove('show')}
       function show(){if(shown)return;shown=true;n.classList.add('show');t2=setTimeout(hide,5000)}
       window.closeWelcomeModal=hide;
+      document.getElementById('wn-x').addEventListener('click',function(e){e.stopPropagation();hide()});
       n.addEventListener('click',function(){hide();var c=document.getElementById('changelog');if(c)c.scrollIntoView({behavior:'smooth'})});
       window.__openingAllDone=function(){clearTimeout(window._introSafetyTimer);clearTimeout(t1);t1=setTimeout(show,1500)};
       if(window.__ssGet&&window.__ssGet('pufutara_intro_shown')){document.addEventListener('DOMContentLoaded',function(){t1=setTimeout(show,1500)})}
@@ -2666,7 +2674,6 @@ function sync(){if(!ps)return;ps.value=q.value;ps.dispatchEvent(new Event('input
 q.addEventListener('input',sync);q.addEventListener('keydown',function(e){if(e.key==='Enter'){sync();go()}});
 if(ps)ps.addEventListener('input',function(){if(q.value!==ps.value)q.value=ps.value});
 document.addEventListener('keydown',function(e){var t=e.target.tagName;if(e.key==='/'&&t!=='INPUT'&&t!=='TEXTAREA'){e.preventDefault();q.focus()}});
-var c=document.getElementById('hero-chips');['chat','drive','electron','game'].forEach(function(w){var b=document.createElement('button');b.type='button';b.textContent=w;b.className='text-[11px] font-semibold px-2.5 py-1 rounded-full border border-slate-200 bg-white text-slate-500 hover:bg-slate-900 hover:text-white transition-colors';b.onclick=function(){q.value=w;sync();go()};c.appendChild(b)});
 })();
 </script>
 
