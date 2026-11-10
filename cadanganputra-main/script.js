@@ -220,13 +220,8 @@ const revealObserver = new IntersectionObserver((entries) => {
             setTimeout(() => {
                 el.classList.add('is-visible');
             }, delay);
-        } else {
-            // Elemen keluar viewport — reset agar animasi bisa muncul lagi
-            // Skip hero (agar tidak berkedip) dan section proyek (kartu tetap terlihat)
-            const inProyek = el.closest('#proyek') || el.closest('#proyek-terbaik');
-            if (!el.closest('#hero') && !inProyek) {
-                el.classList.remove('is-visible');
-            }
+            // Sekali muncul, tetap terlihat (tidak hilang saat scroll ke atas)
+            revealObserver.unobserve(el);
         }
     });
 }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
@@ -275,11 +270,11 @@ renderProyek();
 
         rows.forEach(function (row, rowIdx) {
             // Set opacity awal hanya untuk kartu yang belum pernah di-reveal
-            row.forEach(function (card) {
+            row.forEach(function (card, ci) {
                 if (!revealedCards.has(card)) {
                     card.classList.remove('reveal-on-scroll');
                     card.style.opacity    = '0';
-                    card.style.transform  = 'translateY(28px)';
+                    card.style.transform  = 'translate(' + (ci % 2 ? 40 : -40) + 'px,28px)';
                     card.style.transition = 'opacity 0.77s cubic-bezier(0.16,1,0.3,1), transform 0.77s cubic-bezier(0.16,1,0.3,1)';
                 }
             });
