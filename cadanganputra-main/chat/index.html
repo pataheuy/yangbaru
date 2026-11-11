@@ -455,6 +455,11 @@
         .scroll-latest.visible { opacity: 1; visibility: visible; transform: translateY(0); pointer-events: auto; }
         .scroll-latest .material-symbols-outlined { font-size: 20px; }
         .scroll-latest-count { font-size: 12px; font-weight: 700; }
+        #msgIn { resize:none; max-height:120px; overflow-y:auto; line-height:1.45; padding-top:10px; padding-bottom:10px; }
+        [data-theme="dark"] .input-field { background:var(--surface-container); color:var(--text-main); border-color:var(--border); }
+        [data-theme="dark"] .top-header, [data-theme="dark"] .sidebar, [data-theme="dark"] .chat-view { background:var(--bg-color); }
+        [data-theme="dark"] .chat-view-header { background:var(--surface); }
+        [data-theme="dark"] .btn-new { background:#f1f3f5; color:#15171c; }
         @media (max-width: 768px) { .scroll-latest { right: 16px; bottom: 92px; } }
     </style>
 </head>
@@ -492,6 +497,19 @@
             <button class="btn-black" style="width:100%; margin-top:12px;" onclick="startPrivateChatFromInput()">Mulai dengan Email di Atas</button>
         </div>
 
+        <div id="chatSettingsModal" class="modal-box" onclick="event.stopPropagation()" style="display:none;">
+            <button class="modal-close" onclick="closeModals()"><span class="material-symbols-outlined">close</span></button>
+            <h3>Profil & Preferensi</h3>
+            <p class="modal-sub">Perubahan nama akan tersimpan di akun Supabase.</p>
+            <label for="profileDisplayName" style="font-size:.85rem;font-weight:600;margin-bottom:6px;">Nama tampilan</label>
+            <input id="profileDisplayName" maxlength="40" placeholder="Nama yang terlihat di chat">
+            <label for="profileTheme" style="font-size:.85rem;font-weight:600;margin-bottom:6px;">Tema</label>
+            <select id="profileTheme" class="input-field" style="width:100%;margin-bottom:16px;padding:12px;border:1px solid var(--border);border-radius:12px;background:var(--surface-container);color:var(--text-main);">
+                <option value="system">Ikuti perangkat</option><option value="light">Terang</option><option value="dark">Gelap</option>
+            </select>
+            <button class="btn-black" style="width:100%;" onclick="saveChatSettings()">Simpan pengaturan</button>
+            <p id="chatSettingsStatus" class="modal-sub" style="margin:10px 0 0;"></p>
+        </div>
         <div id="usernameModal" class="modal-box" onclick="event.stopPropagation()" style="display: none;">
             <h3>Selamat Datang! 🎉</h3>
             <p class="modal-sub">Akun berhasil dibuat. Pilih username unik untuk profil Anda.</p>
@@ -522,6 +540,7 @@
             <span class="greeting" id="headerGreeting" style="display: none;">Halo, pufutara</span>
         </div>
         <div class="header-right">
+            <button type="button" class="theme-toggle" onclick="openChatSettings()" title="Pengaturan profil" aria-label="Pengaturan profil"><span class="material-symbols-outlined">manage_accounts</span></button>
             <button type="button" id="themeToggle" class="theme-toggle" onclick="cycleTheme()" title="Ganti tema" aria-label="Ganti tema">
                 <span class="material-symbols-outlined" id="themeToggleIcon">contrast</span>
             </button>
@@ -539,6 +558,7 @@
 
             <div class="sidebar-scroll">
                 <div class="sidebar-title">Menu Utama</div>
+                <input id="chatSidebarSearch" class="input-field" style="width:calc(100% - 24px);margin:8px 12px 12px;" placeholder="Cari percakapan..." oninput="filterSidebarChats(this.value)" aria-label="Cari percakapan">
                 <div class="chat-item active-chat" id="globalChatLink" onclick="switchChat('global')">
                     <div class="avatar-circle">
                         <span class="material-symbols-outlined" style="font-size: 20px;">public</span>
@@ -620,7 +640,7 @@
                         <span class="material-symbols-outlined">emoji_emotions</span>
                     </button>
                     
-                    <input type="text" id="msgIn" class="input-field" placeholder="Ketik pesan..." onkeypress="if(event.key==='Enter')sendMessage()">
+                    <textarea id="msgIn" class="input-field" rows="1" placeholder="Ketik pesan... (Enter untuk kirim, Shift+Enter untuk baris baru)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage();}" oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
                     
                     <button class="btn-send" onclick="sendMessage()" title="Kirim">
                         <span class="material-symbols-outlined" style="font-size: 18px;">send</span>
@@ -783,6 +803,7 @@
         }
 
         function enterDashboard() {
+            loadChatSettings();
             const auth = document.getElementById('authScreen');
             auth.classList.add('hiding');
             setTimeout(() => {
@@ -893,6 +914,7 @@
             document.getElementById('modalOverlay').style.display = 'none'; 
             document.getElementById('newChatModal').style.display = 'none';
             document.getElementById('usernameModal').style.display = 'none';
+            document.getElementById('chatSettingsModal').style.display = 'none';
         }
 
         function startPrivateChatFromInput() {
@@ -981,6 +1003,8 @@
 
         function switchChat(type, targetEmail = null) {
             currentChatType = type; currentTargetEmail = targetEmail;
+            const sidebarSearch=document.getElementById('chatSidebarSearch');if(sidebarSearch)sidebarSearch.value='';
+            filterSidebarChats('');
             _unseenMessageCount = 0;
             document.getElementById('chatTitle').innerText = type === 'global' ? "Cloud Global" : targetEmail.split('@')[0];
             document.getElementById('chatStatus').innerText = type === 'global' ? "Terhubung ke jaringan publik" : targetEmail;
@@ -1204,11 +1228,64 @@
             }
             localStorage.setItem(_themePreferenceKey, preference);
         }
-        function cycleTheme() {
+        async function cycleTheme() {
             const current = localStorage.getItem(_themePreferenceKey) || 'system';
             const next = current === 'system' ? 'light' : current === 'light' ? 'dark' : 'system';
             applyTheme(next);
+            if (_client && _userEmail) {
+                const { error } = await _client.from('chat_user_settings').upsert({user_email:_userEmail,theme:next,updated_at:new Date().toISOString()},{onConflict:'user_email'});
+                if(error) console.warn('Tema belum tersinkron ke akun:',error.message);
+            }
         }
+        async function loadChatSettings() {
+            if(!_client || !_userEmail) return;
+            const [{data:settings},{data:profile}] = await Promise.all([
+                _client.from('chat_user_settings').select('theme,notification_enabled,sound_enabled').eq('user_email',_userEmail).maybeSingle(),
+                _client.from('user_profiles').select('display_name').eq('email',_userEmail).maybeSingle()
+            ]);
+            if(settings?.theme) applyTheme(settings.theme);
+            if(profile?.display_name) _userDisplayName=profile.display_name;
+            const nameInput=document.getElementById('profileDisplayName');
+            const themeInput=document.getElementById('profileTheme');
+            if(nameInput) nameInput.value=_userDisplayName || _userEmail.split('@')[0];
+            if(themeInput) themeInput.value=settings?.theme || localStorage.getItem(_themePreferenceKey) || 'system';
+        }
+        function openChatSettings() {
+            document.getElementById('profileDisplayName').value=_userDisplayName || _userEmail.split('@')[0];
+            document.getElementById('profileTheme').value=localStorage.getItem(_themePreferenceKey)||'system';
+            document.getElementById('chatSettingsStatus').textContent='';
+            document.getElementById('modalOverlay').style.display='flex';
+            document.getElementById('chatSettingsModal').style.display='flex';
+        }
+        async function saveChatSettings() {
+            const display_name=document.getElementById('profileDisplayName').value.trim();
+            const theme=document.getElementById('profileTheme').value;
+            const status=document.getElementById('chatSettingsStatus');
+            if(!display_name){status.textContent='Nama tampilan tidak boleh kosong.';return;}
+            status.textContent='Menyimpan...';
+            const [{error:profileError},{error:settingsError}]=await Promise.all([
+                _client.from('user_profiles').upsert({email:_userEmail,username:_userUsername||null,display_name,updated_at:new Date().toISOString()},{onConflict:'email'}),
+                _client.from('chat_user_settings').upsert({user_email:_userEmail,theme,updated_at:new Date().toISOString()},{onConflict:'user_email'})
+            ]);
+            if(profileError||settingsError){status.textContent='Gagal menyimpan: '+(profileError||settingsError).message;return;}
+            _userDisplayName=display_name;
+            document.getElementById('headerGreeting').textContent='Halo, '+display_name;
+            applyTheme(theme);
+            status.textContent='Pengaturan tersimpan.';
+        }
+        function filterSidebarChats(query) {
+            const q=query.trim().toLowerCase();
+            document.getElementById('globalChatLink').style.display='cloud global'.includes(q)?'flex':'none';
+            document.querySelectorAll('#sidebarChatList .chat-item').forEach(item=>{
+                item.style.display=item.textContent.toLowerCase().includes(q)?'flex':'none';
+            });
+        }
+        document.addEventListener('keydown',e=>{
+            if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){
+                e.preventDefault();const search=document.getElementById('chatSidebarSearch');search?.focus();search?.select();
+            }
+            if(e.key==='Escape'){document.getElementById('chatSettingsModal').style.display='none';}
+        });
         applyTheme(localStorage.getItem(_themePreferenceKey) || 'system');
         _systemThemeQuery.addEventListener?.('change', () => {
             if ((localStorage.getItem(_themePreferenceKey) || 'system') === 'system') applyTheme('system');
