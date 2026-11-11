@@ -482,6 +482,8 @@
 
     <div id="actionMenu" class="action-menu">
         <button onclick="actionReply()"><span class="material-symbols-outlined">reply</span> Balas Pesan</button>
+        <button onclick="toggleMessageBookmark()"><span class="material-symbols-outlined">bookmark_add</span> Simpan pesan</button>
+        <button onclick="reactToMessage('👍')"><span class="material-symbols-outlined">add_reaction</span> Reaksi 👍</button>
         <button id="btnDel" class="danger" onclick="actionDelete()"><span class="material-symbols-outlined">delete</span> Hapus Pesan</button>
     </div>
 
@@ -1102,6 +1104,31 @@
             menu.style.left = posX + 'px';
             menu.style.top = posY + 'px';
             document.getElementById('btnDel').style.display = isMe ? 'flex' : 'none';
+        }
+
+        async function toggleMessageBookmark() {
+            if(!selectedMsg||!_userEmail)return;
+            const key={chat_type:currentChatType,message_id:Number(selectedMsg.id),user_email:_userEmail};
+            const {data:existing,error:readError}=await _client.from('chat_message_bookmarks').select('id').match(key).maybeSingle();
+            if(readError){alert('Tidak dapat memeriksa pesan tersimpan: '+readError.message);return;}
+            const result=existing
+                ? await _client.from('chat_message_bookmarks').delete().eq('id',existing.id)
+                : await _client.from('chat_message_bookmarks').insert([key]);
+            if(result.error)alert('Gagal mengubah pesan tersimpan: '+result.error.message);
+            else alert(existing?'Pesan dihapus dari tersimpan.':'Pesan disimpan.');
+            document.getElementById('actionMenu').style.display='none';
+        }
+        async function reactToMessage(emoji) {
+            if(!selectedMsg||!_userEmail)return;
+            const key={chat_type:currentChatType,message_id:Number(selectedMsg.id),user_email:_userEmail,emoji};
+            const {data:existing,error:readError}=await _client.from('chat_message_reactions').select('id').match(key).maybeSingle();
+            if(readError){alert('Tidak dapat memuat reaksi: '+readError.message);return;}
+            const result=existing
+                ? await _client.from('chat_message_reactions').delete().eq('id',existing.id)
+                : await _client.from('chat_message_reactions').insert([key]);
+            if(result.error)alert('Gagal menyimpan reaksi: '+result.error.message);
+            else alert(existing?'Reaksi dibatalkan.':'Reaksi 👍 ditambahkan.');
+            document.getElementById('actionMenu').style.display='none';
         }
 
         function actionReply() { 
