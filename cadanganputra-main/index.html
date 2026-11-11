@@ -2695,6 +2695,16 @@ document.addEventListener('keydown',function(e){var t=e.target.tagName;if(e.key=
 #bot .ch{display:flex;flex-wrap:wrap;gap:.35rem}
 #bot .ch button,#bot .ln{font:600 .72rem 'Plus Jakarta Sans',system-ui,sans-serif;border:1px solid #e2e8f0;background:#fff;color:#475569;border-radius:99px;padding:.28rem .7rem;cursor:pointer;text-decoration:none}
 #bot .ch button:hover,#bot .ln:hover{background:#0f172a;color:#fff;border-color:#0f172a}
+#bot .pcs{display:grid;grid-template-columns:1fr 1fr;gap:.45rem}
+#bot .pc{display:block;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;text-decoration:none;color:#0f172a;background:#fff;transition:border-color .2s,transform .2s}
+#bot .pc:hover{border-color:#0f172a;transform:translateY(-1px)}
+#bot .pc:last-child:nth-child(odd){grid-column:1/-1}
+#bot .pc img{display:block;width:100%;height:78px;object-fit:cover;background:#f1f5f9}
+#bot .pc:last-child:nth-child(odd) img{height:104px}
+#bot .pc span{display:block;font:700 .72rem 'Plus Jakarta Sans',system-ui,sans-serif;padding:.38rem .55rem}
+#bot .ch .go{background:#0f172a;color:#fff;border-color:#0f172a}
+#bot .ch .go:hover{opacity:.85}
+#bot .ch .sm{font-size:.68rem;color:#64748b}
 #bot .dots i{display:inline-block;width:6px;height:6px;margin:0 2px;border-radius:50%;background:#94a3b8;animation:botd 1s infinite}
 #bot .dots i:nth-child(2){animation-delay:.15s}#bot .dots i:nth-child(3){animation-delay:.3s}
 @keyframes botd{50%{transform:translateY(-4px);opacity:.5}}
@@ -2713,21 +2723,43 @@ document.addEventListener('keydown',function(e){var t=e.target.tagName;if(e.key=
 <script id="bot-js">
 (function(){
 var fab=document.getElementById('bot-fab'),box=document.getElementById('bot'),out=document.getElementById('bot-out'),f=document.getElementById('bot-form'),inp=document.getElementById('bot-q'),btn=f.querySelector('button'),busy=false;
+var hist=[];
 var prevDone=window.__openingAllDone;window.__openingAllDone=function(){if(prevDone)try{prevDone()}catch(e){}fab.classList.add('ready')};
 if(window.__introReturning)fab.classList.add('ready');
 var EX=['Proyek apa yang paling bermanfaat?','Rekomendasikan proyek untuk dicoba','Teknologi apa yang Putra kuasai?','Berapa harga jasa bikin web?'];
 function el(c,t){var d=document.createElement('div');d.className=c;if(t!=null)d.textContent=t;return d}
+function safe(u){return typeof u==='string'&&((u.charAt(0)==='/'&&u.charAt(1)!=='/')||u.indexOf('https://')===0)}
+var anchor=null;function bottom(){if(anchor)out.scrollTop+=anchor.getBoundingClientRect().top-out.getBoundingClientRect().top-8;else out.scrollTop=out.scrollHeight}
+function mk(label,fn,cls){var b=document.createElement('button');b.type='button';b.textContent=label;if(cls)b.className=cls;b.onclick=fn;return b}
+function row(){return el('ch x')}
 function open(v){box.classList.toggle('open',v);fab.setAttribute('aria-expanded',v);if(v){if(!out.firstChild)home();setTimeout(function(){inp.focus()},250)}}
-function home(){out.innerHTML='';out.appendChild(el('m a','Halo! Aku asisten portofolio Putra. Tanyakan apa saja soal proyek, teknologi, prestasi, organisasi, atau harga jasanya.'));
- var c=el('ch');EX.forEach(function(q){var b=document.createElement('button');b.type='button';b.textContent=q;b.onclick=function(){ask(q)};c.appendChild(b)});out.appendChild(c)}
-function ask(q){q=(q||'').trim();if(!q||busy)return;busy=true;btn.disabled=true;inp.value='';out.innerHTML='';out.appendChild(el('m u',q));
- var w=el('m a');w.innerHTML='<span class="dots"><i></i><i></i><i></i></span>';out.appendChild(w);
- fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({q:q})})
+function home(){out.innerHTML='';hist=[];out.appendChild(el('m a','Halo! Aku asisten portofolio Putra. Tanyakan apa saja soal proyek, teknologi, prestasi, organisasi, atau harga jasanya.'));
+ var c=row();EX.forEach(function(q){c.appendChild(mk(q,function(){ask(q)}))});out.appendChild(c)}
+function goTo(id,focusId){open(false);var t=document.getElementById(id);if(t)setTimeout(function(){t.scrollIntoView({behavior:'smooth'});if(focusId)setTimeout(function(){var i=document.getElementById(focusId);if(i)i.focus({preventScroll:true})},700)},250)}
+function act(a){
+ if(a.tipe==='filter_proyek'){var b=document.querySelector('.filter-btn[data-target="'+a.nilai+'"]');if(b)b.click();goTo('proyek')}
+ else if(a.tipe==='cari_proyek'){var all=document.querySelector('.filter-btn[data-target="semua"]');if(all)all.click();var ps=document.getElementById('project-search');if(ps){ps.value=a.nilai;ps.dispatchEvent(new Event('input',{bubbles:true}))}goTo('proyek')}
+ else if(a.tipe==='isi_kontak'){var m=document.getElementById('input-pesan');if(m){m.value=a.nilai;m.dispatchEvent(new Event('input',{bubbles:true}))}goTo('kontak','input-nama')}}
+function actLabel(a){return a.tipe==='filter_proyek'?(a.nilai==='desktop'?'Tampilkan proyek Desktop':a.nilai==='web'?'Tampilkan proyek Web App':'Tampilkan semua proyek'):a.tipe==='cari_proyek'?'Cari "'+a.nilai+'" di daftar proyek':'Isi pesan di formulir kontak'}
+function ask(q){q=(q||'').trim();if(!q||busy)return;busy=true;btn.disabled=true;inp.value='';
+ Array.prototype.forEach.call(out.querySelectorAll('.x'),function(n){n.remove()});
+ out.appendChild(el('m u',q));
+ var w=el('m a');w.innerHTML='<span class="dots"><i></i><i></i><i></i></span>';out.appendChild(w);anchor=null;bottom();anchor=w;
+ fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({q:q,h:hist.slice(-6)})})
  .then(function(r){return r.json().catch(function(){return{ok:false}})})
- .then(function(d){w.textContent=d&&d.ok?d.answer:((d&&d.error)||'Gagal terhubung. Coba lagi nanti.');
-  if(d&&d.ok&&d.general){out.appendChild(el('ft','Jawaban umum dari AI, bukan dari data portofolio Putra.'))}
-  if(d&&d.ok&&d.projects&&d.projects.length){var c=el('ch');d.projects.forEach(function(p){if(typeof p.tautan!=='string'||!(p.tautan.charAt(0)==='/'||p.tautan.indexOf('https://')===0))return;var a=document.createElement('a');a.className='ln';a.href=p.tautan;a.target='_blank';a.rel='noopener';a.textContent=p.nama+' →';c.appendChild(a)});var all=document.createElement('button');all.type='button';all.textContent='Lihat semua proyek ↓';all.onclick=function(){open(false);var t=document.getElementById('proyek');if(t)t.scrollIntoView({behavior:'smooth'})};c.appendChild(all);out.appendChild(c)}
-  var again=el('ch');var b=document.createElement('button');b.type='button';b.textContent='Tanya yang lain';b.onclick=home;again.appendChild(b);out.appendChild(again)})
+ .then(function(d){var ok=d&&d.ok;w.textContent=ok?d.answer:((d&&d.error)||'Gagal terhubung. Coba lagi nanti.');
+  if(ok){hist.push({q:q,a:d.answer,g:!!d.general});if(hist.length>6)hist.shift()}
+  if(ok&&d.general){var gn=el('ft x','Jawaban umum dari AI, bukan dari data portofolio Putra.');out.appendChild(gn);
+   if(d.ai&&safe(d.ai.tautan)){var g=row();var a=document.createElement('a');a.className='ln go';a.href=d.ai.tautan;a.target='_blank';a.rel='noopener';a.textContent='Ngobrol umum di '+d.ai.nama+' →';g.appendChild(a);out.appendChild(g)}}
+  if(ok&&d.projects&&d.projects.length){var pcs=el('pcs x');d.projects.forEach(function(p){if(!safe(p.tautan))return;var a=document.createElement('a');a.className='pc';a.href=p.tautan;a.target='_blank';a.rel='noopener';
+    if(safe(p.cover)){var im=document.createElement('img');im.src=p.cover;im.alt='Cover '+p.nama;im.loading='lazy';im.onload=bottom;im.onerror=function(){im.remove()};a.appendChild(im)}
+    var sp=document.createElement('span');sp.textContent=p.nama+' →';a.appendChild(sp);pcs.appendChild(a)});
+   if(pcs.firstChild)out.appendChild(pcs);
+   var c=row();c.appendChild(mk('Lihat semua proyek ↓',function(){goTo('proyek')}));out.appendChild(c)}
+  if(ok&&d.aksi&&d.aksi.tipe){var ar=row();ar.appendChild(mk(actLabel(d.aksi),function(){act(d.aksi)},'go'));out.appendChild(ar)}
+  if(ok&&d.sections&&d.sections.length){var sc=row();d.sections.forEach(function(x){if(!x||typeof x.id!=='string'||!document.getElementById(x.id))return;sc.appendChild(mk('Ke bagian '+x.nama+' ↓',function(){goTo(x.id)}))});if(sc.firstChild)out.appendChild(sc)}
+  if(ok&&d.lanjutan&&d.lanjutan.length){var lr=row();d.lanjutan.forEach(function(t){if(typeof t==='string')lr.appendChild(mk(t,function(){ask(t)}))});out.appendChild(lr)}
+  var again=row();again.appendChild(mk('Mulai obrolan baru',home,'sm'));out.appendChild(again);bottom()})
  .catch(function(){w.textContent='Gagal terhubung. Coba lagi nanti.'})
  .then(function(){busy=false;btn.disabled=false})}
 fab.onclick=function(){open(!box.classList.contains('open'))};
