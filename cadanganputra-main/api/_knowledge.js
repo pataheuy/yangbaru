@@ -491,7 +491,7 @@ export const KNOWLEDGE = {
   {"id": "pesantren", "nama": "Kisah Santri", "isi": "Keseimbangan dunia pesantren dan koding: menghafal Al-Qur'an, akademik, OSN, lalu coding dengan Electron dan JavaScript."},
   {"id": "galeri", "nama": "Galeri", "isi": "Foto dan video kegiatan Putra, bisa difilter foto atau video."},
   {"id": "prestasi", "nama": "Prestasi & Organisasi", "isi": "Daftar 7 organisasi dan 12 prestasi (medali olimpiade PUSKANAS, Dormitory Award, dan lainnya) yang dibuka lewat tombol."},
-  {"id": "pricing", "nama": "Pricing Jasa Website", "isi": "Tiga paket jasa pembuatan website (Basic, Standard, Premium) dengan promo diskon 75%, plus tombol Pilih Paket yang mengarah ke Kontak."},
+  {"id": "pricing", "nama": "Pricing Jasa Website", "isi": "Tiga paket jasa pembuatan website (Basic, Standard, Premium) dengan promo diskon 75%, plus tombol Pilih Paket yang membuka DM Instagram @pufutara dan menyalin pesan pemesanan."},
   {"id": "kontak", "nama": "Kontak / Mari Berkolaborasi", "isi": "Formulir kirim pesan (nama, email opsional, pesan) untuk kolaborasi, saran, kritik, atau pesan paket jasa."}
  ],
  "fitur_web": [
@@ -510,7 +510,7 @@ export const KNOWLEDGE = {
   {"t": "Proyek desktop (Electron) apa saja?", "j": "Pufutara Browser, Pufutara StikiNot, dan MutabaahOS."},
   {"t": "Proyek client / pesanan orang lain?", "j": "KCP Land (properti), Martabak Mertua (UMKM kuliner), Dapoer Mang Pey, dan nihkorangue."},
   {"t": "Apakah key database aman?", "j": "Ya, key Supabase tidak lagi ditulis langsung di kode. Semua aplikasi mengambil konfigurasi lewat Vercel Function."},
-  {"t": "Bagaimana cara memesan jasa pembuatan web?", "j": "Lihat paket di bagian Pricing, lalu isi formulir di bagian Kontak. Harga belum termasuk domain dan hosting (mulai Rp 25K per tahun)."},
+  {"t": "Bagaimana cara memesan jasa pembuatan web?", "j": "Lihat paket di bagian Pricing, lalu tekan Pilih Paket. Kamu diarahkan ke DM Instagram @pufutara dan pesan pemesanannya sudah disalin, tinggal ditempel. Formulir Kontak juga bisa dipakai. Harga belum termasuk domain dan hosting (mulai Rp 25K per tahun)."},
   {"t": "AI chatbot buatan Putra yang mana?", "j": "Pufutara AI, chatbot berbasis Gemini API di https://pufutaraai.vercel.app, cocok untuk ngobrol hal umum di luar portofolio."}
  ],
  "istilah": {
@@ -586,7 +586,8 @@ export const KNOWLEDGE = {
     "isi": "8+ halaman, full custom, CMS/admin panel dan database, SEO lanjutan, revisi unlimited, support 1 bulan"
    }
   ],
-  "catatan": "Harga belum termasuk domain dan hosting (mulai Rp 25K per tahun)."
+  "catatan": "Harga belum termasuk domain dan hosting (mulai Rp 25K per tahun).",
+  "cara_pesan": "Tombol Pilih Paket di bagian Pricing membuka DM Instagram @pufutara (https://ig.me/m/pufutara) dan menyalin pesan pemesanan otomatis, tinggal ditempel di DM. Formulir di bagian Kontak tetap bisa dipakai sebagai alternatif."
  },
  "changelog": [
   "Pufutara Kiblat: arah kiblat digital dan panduan ibadah praktis.",
