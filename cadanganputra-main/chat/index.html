@@ -568,7 +568,7 @@
                     <span class="material-symbols-outlined">notifications</span><span id="notificationBadge" class="notification-badge">0</span>
                 </button>
                 <div id="notificationPanel" class="notification-panel" role="dialog" aria-label="Pusat notifikasi">
-                    <div class="notification-head"><span>Notifikasi</span><button onclick="markAllNotificationsRead()">Tandai semua dibaca</button></div>
+                    <div class="notification-head"><span>Notifikasi</span><div style="display:flex;gap:10px;align-items:center;"><button onclick="enableBrowserNotifications()">Aktifkan browser</button><button onclick="markAllNotificationsRead()">Tandai dibaca</button></div></div>
                     <div id="notificationList" class="notification-list"><div class="notification-empty">Memuat notifikasi...</div></div>
                 </div>
             </div>
@@ -1252,6 +1252,23 @@
                             if (currentChatType === 'private' && currentTargetEmail === partner) renderMessage(payload.new);
                         }
                     }
+                } else if (payload.eventType === 'UPDATE') {
+                    const tableKey = payload.table === 'global_chat' ? 'global' : 'private';
+                    const row = payload.new;
+                    const partner = payload.table === 'private_chat' ? (row.sender === _userEmail ? row.receiver : row.sender) : null;
+                    const belongsToOpenChat = payload.table === 'global_chat'
+                        ? currentChatType === 'global'
+                        : (row.sender === _userEmail || row.receiver === _userEmail) && currentChatType === 'private' && currentTargetEmail === partner;
+                    if (belongsToOpenChat) {
+                        const el = document.getElementById(`msg-${tableKey}-${row.id}`);
+                        const bubble = el?.querySelector('.msg-bubble');
+                        if (bubble) {
+                            bubble.textContent = row.message;
+                            const time = el.querySelector('.msg-time');
+                            if (time && !time.textContent.includes('diedit')) time.textContent += ' · diedit';
+                        }
+                    }
+                    if (payload.table === 'private_chat') loadSidebarList();
                 } else if (payload.eventType === 'DELETE') {
                     const tableKey = payload.table === 'global_chat' ? 'global' : 'private';
                     const el = document.getElementById(`msg-${tableKey}-${payload.old.id}`);
@@ -1268,6 +1285,13 @@
                         new Notification('Pufutara Chat', { body: 'Kamu menerima pesan baru.' });
                     }
                 }).subscribe();
+        }
+
+        async function enableBrowserNotifications() {
+            if (!('Notification' in window)) { alert('Browser ini belum mendukung notifikasi desktop.'); return; }
+            const permission = await Notification.requestPermission();
+            if (permission === 'granted') alert('Notifikasi browser berhasil diaktifkan.');
+            else alert('Izin notifikasi belum diberikan. Kamu bisa mengubahnya di pengaturan browser.');
         }
 
         async function loadNotifications() {
