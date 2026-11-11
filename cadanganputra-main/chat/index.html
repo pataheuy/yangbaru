@@ -409,6 +409,53 @@
 
             .emoji-picker, .gif-picker { left: 8px; right: 8px; width: auto; bottom: 68px; }
         }
+
+        /* --- THEME SYSTEM: LIGHT / DARK / SYSTEM --- */
+        [data-theme="dark"] {
+            color-scheme: dark;
+            --bg-color: #111318;
+            --surface: #181b22;
+            --surface-container: #222630;
+            --primary: #f3f4f6;
+            --on-primary: #15171c;
+            --primary-container: #303642;
+            --on-primary-container: #f3f4f6;
+            --text-main: #f3f4f6;
+            --text-muted: #a0a7b4;
+            --border: #303642;
+            --hover-bg: #292f3a;
+            --danger: #ff6b6b;
+        }
+        [data-theme="dark"] #authScreen { background: var(--bg-color); }
+        [data-theme="dark"] .msg-row.me .msg-bubble { background: #e8ebf0; color: #17191e; }
+        [data-theme="dark"] .btn-outline,
+        [data-theme="dark"] .icon-btn,
+        [data-theme="dark"] .hamburger-btn { color: var(--text-main); border-color: var(--border); }
+        [data-theme="dark"] .input-wrapper input,
+        [data-theme="dark"] .modal-box input,
+        [data-theme="dark"] .auth-container input { color: var(--text-main); }
+        [data-theme="dark"] .action-menu,
+        [data-theme="dark"] .emoji-picker,
+        [data-theme="dark"] .gif-picker,
+        [data-theme="dark"] .modal-box { background: var(--surface); color: var(--text-main); border-color: var(--border); }
+        [data-theme="dark"] .chat-item:hover,
+        [data-theme="dark"] .chat-item.active-chat { background: var(--surface-container); }
+        .theme-toggle, .scroll-latest {
+            border: 1px solid var(--border); background: var(--surface); color: var(--text-main);
+            display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
+            transition: transform .18s ease, opacity .18s ease, background .18s ease;
+        }
+        .theme-toggle { width: 40px; height: 40px; border-radius: 12px; }
+        .theme-toggle:hover, .scroll-latest:hover { background: var(--hover-bg); transform: translateY(-1px); }
+        .scroll-latest {
+            position: absolute; right: 24px; bottom: 104px; z-index: 30; min-height: 42px;
+            padding: 0 14px; gap: 8px; border-radius: 999px; box-shadow: 0 8px 24px rgba(0,0,0,.14);
+            opacity: 0; visibility: hidden; transform: translateY(8px); pointer-events: none;
+        }
+        .scroll-latest.visible { opacity: 1; visibility: visible; transform: translateY(0); pointer-events: auto; }
+        .scroll-latest .material-symbols-outlined { font-size: 20px; }
+        .scroll-latest-count { font-size: 12px; font-weight: 700; }
+        @media (max-width: 768px) { .scroll-latest { right: 16px; bottom: 92px; } }
     </style>
 </head>
 <body>
@@ -475,6 +522,9 @@
             <span class="greeting" id="headerGreeting" style="display: none;">Halo, pufutara</span>
         </div>
         <div class="header-right">
+            <button type="button" id="themeToggle" class="theme-toggle" onclick="cycleTheme()" title="Ganti tema" aria-label="Ganti tema">
+                <span class="material-symbols-outlined" id="themeToggleIcon">contrast</span>
+            </button>
             <button onclick="logout()" id="logoutBtn" class="btn-outline" style="display: none;">Log Out</button>
         </div>
     </header>
@@ -515,6 +565,10 @@
             
             <div class="chat-messages" id="chatMessages">
                 </div>
+            <button type="button" id="scrollLatestBtn" class="scroll-latest" onclick="scrollToBottom(true)" aria-label="Ke pesan terbaru">
+                <span class="material-symbols-outlined">south</span>
+                <span class="scroll-latest-count" id="scrollLatestCount">Pesan terbaru</span>
+            </button>
             
             <div id="replyBar" class="reply-bar">
                 <div style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1;">
@@ -739,7 +793,7 @@
             const displayName = _userDisplayName || _userUsername || _userEmail.split('@')[0];
             document.getElementById('headerGreeting').innerText = `Halo, ${displayName}`;
             document.getElementById('headerGreeting').style.display = 'inline';
-            loadSidebarList(); switchChat('global'); listenRealtime();
+            loadSidebarList(); setupChatScrollControls(); switchChat('global'); listenRealtime();
         }
 
         async function logout() { 
@@ -927,6 +981,7 @@
 
         function switchChat(type, targetEmail = null) {
             currentChatType = type; currentTargetEmail = targetEmail;
+            _unseenMessageCount = 0;
             document.getElementById('chatTitle').innerText = type === 'global' ? "Cloud Global" : targetEmail.split('@')[0];
             document.getElementById('chatStatus').innerText = type === 'global' ? "Terhubung ke jaringan publik" : targetEmail;
             cancelReply(); renderSidebar(); loadMessages();
@@ -950,6 +1005,7 @@
         function renderMessage(m) {
             const box = document.getElementById('chatMessages');
             if (document.getElementById(`msg-${currentChatType}-${m.id}`)) return;
+            const shouldFollowLatest = !box.dataset.initialized || isNearChatBottom(box);
             const isMe = m.sender === _userEmail;
             const group = document.createElement('div');
             group.id = `msg-${currentChatType}-${m.id}`;
@@ -1000,7 +1056,14 @@
                         </div>
                     </div>`;
             }
-            box.appendChild(group); scrollToBottom(true);
+            box.appendChild(group);
+            box.dataset.initialized = 'true';
+            if (shouldFollowLatest) {
+                requestAnimationFrame(() => scrollToBottom(false));
+            } else {
+                _unseenMessageCount++;
+                updateScrollLatestButton();
+            }
         }
 
         function showActionMenu(e, id, sender, text, isMe) {
@@ -1095,10 +1158,61 @@
             }).subscribe();
         }
 
+        let _unseenMessageCount = 0;
+        function isNearChatBottom(box = document.getElementById('chatMessages')) {
+            return box.scrollHeight - box.scrollTop - box.clientHeight < 120;
+        }
+        function updateScrollLatestButton() {
+            const box = document.getElementById('chatMessages');
+            const button = document.getElementById('scrollLatestBtn');
+            const count = document.getElementById('scrollLatestCount');
+            if (!box || !button || !count) return;
+            const atBottom = isNearChatBottom(box);
+            button.classList.toggle('visible', !atBottom);
+            count.textContent = _unseenMessageCount > 0 ? _unseenMessageCount + ' pesan baru' : 'Pesan terbaru';
+            if (atBottom) _unseenMessageCount = 0;
+        }
         function scrollToBottom(smooth = false) {
             const box = document.getElementById('chatMessages');
-            box.scrollTo({ top: box.scrollHeight, behavior: smooth ? 'smooth' : 'instant' });
+            if (!box) return;
+            box.scrollTo({ top: box.scrollHeight, behavior: smooth ? 'smooth' : 'auto' });
+            _unseenMessageCount = 0;
+            requestAnimationFrame(() => requestAnimationFrame(updateScrollLatestButton));
         }
+        function setupChatScrollControls() {
+            const box = document.getElementById('chatMessages');
+            if (!box || box.dataset.scrollControlsReady) return;
+            box.dataset.scrollControlsReady = 'true';
+            box.addEventListener('scroll', updateScrollLatestButton, { passive: true });
+            window.addEventListener('resize', updateScrollLatestButton);
+            updateScrollLatestButton();
+        }
+
+        // Tema tersimpan per browser/perangkat; System mengikuti preferensi OS.
+        const _themePreferenceKey = 'pufutara-chat-theme';
+        const _systemThemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        function applyTheme(preference) {
+            const theme = preference === 'system' ? (_systemThemeQuery.matches ? 'dark' : 'light') : preference;
+            document.documentElement.dataset.theme = theme;
+            const icon = document.getElementById('themeToggleIcon');
+            const button = document.getElementById('themeToggle');
+            if (icon) icon.textContent = preference === 'system' ? 'contrast' : preference === 'dark' ? 'dark_mode' : 'light_mode';
+            if (button) {
+                const label = preference === 'system' ? 'Tema: Sistem' : preference === 'dark' ? 'Tema: Gelap' : 'Tema: Terang';
+                button.title = label;
+                button.setAttribute('aria-label', label);
+            }
+            localStorage.setItem(_themePreferenceKey, preference);
+        }
+        function cycleTheme() {
+            const current = localStorage.getItem(_themePreferenceKey) || 'system';
+            const next = current === 'system' ? 'light' : current === 'light' ? 'dark' : 'system';
+            applyTheme(next);
+        }
+        applyTheme(localStorage.getItem(_themePreferenceKey) || 'system');
+        _systemThemeQuery.addEventListener?.('change', () => {
+            if ((localStorage.getItem(_themePreferenceKey) || 'system') === 'system') applyTheme('system');
+        });
         // =============================================
         let _previewUrl = '';
         function openImagePreview(url) {
