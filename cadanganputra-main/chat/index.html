@@ -1014,7 +1014,7 @@
 
             if (displayTxt.startsWith('|URLIMG|')) {
                 const url = displayTxt.replace('|URLIMG|', '');
-                displayTxt = `<div class="msg-img-wrap" onclick="openImagePreview('${url}')"><img src="${url}" class="msg-img-adaptive" onload="this.parentElement.parentElement.parentElement.scrollIntoView({block:'end'})"></div>`;
+                displayTxt = `<div class="msg-img-wrap" onclick="openImagePreview('${url}')"><img src="${url}" class="msg-img-adaptive"></div>`;
                 rawText = "[Gambar]";
             } else if (displayTxt.startsWith('|URLGIF|')) {
                 const url = displayTxt.replace('|URLGIF|', '');
