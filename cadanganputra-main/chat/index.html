@@ -501,6 +501,7 @@
         [data-theme="dark"] .chat-view-header { background:var(--surface); }
         [data-theme="dark"] .btn-new { background:#f1f3f5; color:#15171c; }
         @media (max-width: 768px) { .scroll-latest { right: 16px; bottom: 92px; } }
+    .chat-feature-overlay{display:none;position:fixed;inset:0;z-index:12000;background:rgba(0,0,0,.48);backdrop-filter:blur(5px);align-items:center;justify-content:center;padding:18px}.chat-feature-overlay.open{display:flex}.chat-feature-panel{position:relative;width:min(620px,100%);max-height:78vh;overflow:auto;background:var(--surface);color:var(--text-main);border:1px solid var(--border);border-radius:22px;padding:26px;box-shadow:0 24px 80px rgba(0,0,0,.2)}.feature-sub{color:var(--text-muted);font-size:.84rem;margin:8px 0 14px}.feature-search{width:100%;padding:13px;border:1px solid var(--border);border-radius:12px;background:var(--surface-container);color:var(--text-main);margin:8px 0 14px}.feature-result{display:block;width:100%;text-align:left;border:1px solid var(--border);background:var(--surface);color:var(--text-main);padding:12px;border-radius:12px;margin:6px 0;cursor:pointer}.feature-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}.feature-action,.sticker-item{border:1px solid var(--border);border-radius:12px;background:var(--surface);color:var(--text-main);padding:14px;cursor:pointer}.sticker-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.sticker-item{font-size:2rem;background:var(--surface-container)}.msg-voice audio{width:210px;max-width:100%}.msg-read-state{font-size:.68rem;color:var(--text-muted);margin-left:5px}@media(max-width:520px){.chat-feature-panel{padding:22px 16px}.sticker-grid{grid-template-columns:repeat(4,1fr)}}
     </style>
 </head>
 <body>
@@ -696,14 +697,14 @@
                     <button class="btn-action" title="Kirim File" onclick="document.getElementById('fileUpload').click()">
                         <span class="material-symbols-outlined">attach_file</span>
                     </button>
-                    <button class="btn-action" title="GIF" onclick="toggleGifPicker(event)">
+                    <button class="btn-action" title="Sticker Studio" onclick="openStickerStudio()">✨</button><button class="btn-action" title="Rekam pesan suara" onclick="toggleVoiceRecording()">🎙</button><button class="btn-action" title="GIF" onclick="toggleGifPicker(event)">
                         <span style="font-size:0.75rem; font-weight:800; letter-spacing:-0.5px;">GIF</span>
                     </button>
                     <button class="btn-action" title="Emoji" onclick="toggleEmojiPicker(event)">
                         <span class="material-symbols-outlined">emoji_emotions</span>
                     </button>
                     
-                    <textarea id="msgIn" class="input-field" rows="1" placeholder="Ketik pesan... (Enter untuk kirim, Shift+Enter untuk baris baru)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage();}" oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
+                    <textarea id="msgIn" class="input-field" rows="1" placeholder="Ketik pesan... (Enter untuk kirim, Shift+Enter untuk baris baru)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage();}" oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px';handleTypingInput()"></textarea>
                     
                     <button class="btn-send" onclick="sendMessage()" title="Kirim">
                         <span class="material-symbols-outlined" style="font-size: 18px;">send</span>
@@ -713,6 +714,8 @@
         </main>
     </div>
 
+    <div id="chatFeatureOverlay" class="chat-feature-overlay" onclick="closeChatFeature()"><section class="chat-feature-panel" onclick="event.stopPropagation()" role="dialog" aria-modal="true"><button class="modal-close" onclick="closeChatFeature()">×</button><h3 id="chatFeatureTitle">Pufutara Chat</h3><div id="chatFeatureBody"></div></section></div>
+    <input id="stickerGifUpload" type="file" accept="image/gif" hidden onchange="uploadStudioGif(event)">
     <script>
         // Config dimuat dari server — key tidak ada di file ini
         let _client;
@@ -877,7 +880,7 @@
             const displayName = _userDisplayName || _userUsername || _userEmail.split('@')[0];
             document.getElementById('headerGreeting').innerText = `Halo, ${displayName}`;
             document.getElementById('headerGreeting').style.display = 'inline';
-            loadSidebarList(); setupChatScrollControls(); switchChat('global'); listenRealtime(); loadNotifications(); startPresenceTracking();
+            loadSidebarList(); setupChatScrollControls(); switchChat('global'); listenRealtime(); loadNotifications(); startPresenceTracking(); startChatEnhancements();
         }
 
         async function logout() { 
@@ -1072,7 +1075,7 @@
             _unseenMessageCount = 0;
             document.getElementById('chatTitle').innerText = type === 'global' ? "Cloud Global" : targetEmail.split('@')[0];
             document.getElementById('chatStatus').innerText = type === 'global' ? "Terhubung ke jaringan publik" : targetEmail;
-            cancelReply(); renderSidebar(); loadMessages(); loadPinnedMessages();
+            cancelReply(); renderSidebar(); loadMessages(); loadPinnedMessages(); clearTypingStatus();
             
             if(window.innerWidth <= 768) {
                 document.getElementById('appSidebar').classList.remove('open');
@@ -1088,6 +1091,7 @@
             const { data } = await query;
             if (data) data.reverse().forEach(m => renderMessage(m));
             scrollToBottom();
+            markVisibleMessagesRead();
         }
 
         function renderMessage(m) {
@@ -1121,6 +1125,7 @@
                 quoteHtml = `<div class="msg-quote"><strong>${parts[2].split('@')[0]}</strong>: ${parts[3]}</div>`;
                 displayTxt = parts.slice(4).join('|'); rawText = displayTxt;
             }
+            if (displayTxt.startsWith('|URLVOICE|')) { const audioUrl=displayTxt.replace('|URLVOICE|',''); displayTxt='<audio controls preload="none" src="'+audioUrl+'"></audio>'; rawText='[Pesan suara]'; }
             const time = new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
             
             if (isMe) {
@@ -1128,7 +1133,7 @@
                     <div class="msg-row me">
                         <div class="msg-content-wrapper">
                             <div class="msg-bubble" onclick="showActionMenu(event, '${m.id}', '${m.sender}', \`${rawText.replace(/`/g, '\\`')}\`, true)">${quoteHtml}${displayTxt}</div>
-                            <div class="msg-time">${time}</div>
+                            <div class="msg-time">${time}<span class="msg-read-state" data-read-for="${m.id}">Terkirim</span></div>
                         </div>
                     </div>`;
             } else {
@@ -1146,6 +1151,7 @@
             }
             box.appendChild(group);
             box.dataset.initialized = 'true';
+            if(isMe) refreshReadReceipt(m.id); else markMessageRead(m.id);
             if (shouldFollowLatest) {
                 requestAnimationFrame(() => scrollToBottom(false));
             } else {
@@ -1345,6 +1351,29 @@
         }
 
         function cancelReply() { replyingTo = null; document.getElementById('replyBar').style.display = 'none'; }
+
+
+        let _typingTimer=null,_typingPoll=null,_voiceRecorder=null,_voiceChunks=[];
+        function featurePanel(title,html){document.getElementById('chatFeatureTitle').textContent=title;document.getElementById('chatFeatureBody').innerHTML=html;document.getElementById('chatFeatureOverlay').classList.add('open');}
+        function closeChatFeature(){document.getElementById('chatFeatureOverlay').classList.remove('open');}
+        function startChatEnhancements(){_typingPoll=setInterval(refreshTypingStatus,1800);document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.shiftKey&&e.key.toLowerCase()==='p'){e.preventDefault();openCommandPalette();}if(e.key==='Escape')closeChatFeature();});}
+        function typingKey(){return currentChatType==='global'?'global':[_userEmail,currentTargetEmail].sort().join('|');}
+        function handleTypingInput(){clearTimeout(_typingTimer);_typingTimer=setTimeout(async()=>{if(document.getElementById('msgIn').value.trim()){const {error}=await _client.from('chat_typing_status').upsert({chat_type:currentChatType,conversation_key:typingKey(),user_email:_userEmail,updated_at:new Date().toISOString()},{onConflict:'chat_type,conversation_key,user_email'});if(error)console.warn(error.message);}else clearTypingStatus();},350);}
+        async function clearTypingStatus(){if(!_client||!_userEmail)return;clearTimeout(_typingTimer);await _client.from('chat_typing_status').delete().eq('user_email',_userEmail).eq('chat_type',currentChatType).eq('conversation_key',typingKey());}
+        async function refreshTypingStatus(){if(!_client||!_userEmail)return;const {data}=await _client.from('chat_typing_status').select('user_email,updated_at').eq('chat_type',currentChatType).eq('conversation_key',typingKey()).gt('updated_at',new Date(Date.now()-6500).toISOString()).neq('user_email',_userEmail);const el=document.getElementById('chatStatus');if(el){const base=currentChatType==='global'?'Terhubung ke jaringan publik':currentTargetEmail;el.textContent=data?.length?data[0].user_email.split('@')[0]+' sedang mengetik…':base;}}
+        async function markMessageRead(id){const {error}=await _client.from('chat_message_receipts').insert([{chat_type:currentChatType,message_id:Number(id),reader_email:_userEmail}]);if(error&&error.code!=='23505')console.warn(error.message);}
+        function markVisibleMessagesRead(){document.querySelectorAll('#chatMessages .msg-group').forEach(el=>markMessageRead(el.id.split('-').pop()));}
+        async function refreshReadReceipt(id){const el=document.querySelector('[data-read-for="'+CSS.escape(String(id))+'"]');if(!el)return;const {data}=await _client.from('chat_message_receipts').select('reader_email').eq('chat_type',currentChatType).eq('message_id',Number(id));el.textContent=(data||[]).some(x=>x.reader_email!==_userEmail)?'Dibaca':'Terkirim';}
+        function openMessageSearch(){featurePanel('Pencarian seluruh pesan','<p class="feature-sub">Cari isi pesan global dan percakapan pribadi.</p><input class="feature-search" id="chatSearchAll" placeholder="Ketik kata atau kalimat…" oninput="searchAllMessages(this.value)"><div id="chatFeatureResults"></div>');document.getElementById('chatSearchAll').focus();}
+        async function searchAllMessages(q){const out=document.getElementById('chatFeatureResults');if(!q.trim()){out.textContent='Ketik kata untuk mulai mencari.';return;}out.textContent='Mencari…';const term='%'+q.replace(/[%_]/g,'')+'%';const [g,p]=await Promise.all([_client.from('global_chat').select('id,message,sender,created_at').ilike('message',term).order('created_at',{ascending:false}).limit(40),_client.from('private_chat').select('id,message,sender,receiver,created_at').or('sender.eq.'+_userEmail+',receiver.eq.'+_userEmail).ilike('message',term).order('created_at',{ascending:false}).limit(40)]);const rows=[...(g.data||[]).map(x=>({...x,type:'global'})),...(p.data||[]).map(x=>({...x,type:'private'}))].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));out.replaceChildren();rows.forEach(r=>{const b=document.createElement('button');b.className='feature-result';b.textContent=(r.type==='global'?'Global · ':'Pribadi · ')+r.sender.split('@')[0]+': '+r.message.slice(0,160);b.onclick=()=>{closeChatFeature();r.type==='global'?switchChat('global'):switchChat('private',r.sender===_userEmail?r.receiver:r.sender);};out.appendChild(b);});if(!rows.length)out.textContent='Tidak ada pesan yang cocok.';}
+        async function openMediaGallery(){featurePanel('Galeri media','<p class="feature-sub">Media yang dibagikan di ruang chat yang bisa kamu akses.</p><div id="chatFeatureResults">Memuat…</div>');const [g,p]=await Promise.all([_client.from('global_chat').select('message,created_at').order('created_at',{ascending:false}).limit(200),_client.from('private_chat').select('message,created_at').or('sender.eq.'+_userEmail+',receiver.eq.'+_userEmail).order('created_at',{ascending:false}).limit(200)]);const rows=[...(g.data||[]),...(p.data||[])].filter(x=>/^\|URL(IMG|GIF|FILE|VOICE)\|/.test(x.message||''));const out=document.getElementById('chatFeatureResults');out.replaceChildren();rows.forEach(r=>{const b=document.createElement('div');b.className='feature-result';b.textContent=r.message.split('|')[2]||r.message.slice(0,90);out.appendChild(b);});if(!rows.length)out.textContent='Belum ada media.';}
+        function openStickerStudio(){featurePanel('Sticker Studio','<p class="feature-sub">Pilih stiker atau unggah GIF dari perangkat.</p><div class="sticker-grid">'+['😀','😂','🥹','😎','🤔','🔥','✨','💯','👏','❤️','🚀','🎉','👍','👀','🤝','🌙','⭐','📚','💡','🫡'].map(e=>'<button class="sticker-item" onclick="insertSticker(\''+e+'\')">'+e+'</button>').join('')+'</div><button class="btn-outline" style="width:100%;margin-top:12px" onclick="document.getElementById(\'stickerGifUpload\').click()">Unggah GIF</button>');}
+        function insertSticker(e){const i=document.getElementById('msgIn');i.value+=(i.value?' ':'')+e;i.focus();closeChatFeature();}
+        async function uploadStudioGif(e){const f=e.target.files[0];e.target.value='';if(!f)return;if(f.size>8*1024*1024){alert('GIF maksimal 8 MB.');return;}await withSendingStatus('Sedang mengirim GIF…',async()=>{const path='public/gif_'+Date.now()+'_'+f.name.replace(/[^a-zA-Z0-9._-]/g,'_');const {error}=await _client.storage.from('chat_images').upload(path,f);if(error)throw error;const {data}= _client.storage.from('chat_images').getPublicUrl(path);await insertChatPayload({sender:_userEmail,message:'|URLGIF|'+data.publicUrl});});closeChatFeature();}
+        function openCommandPalette(){featurePanel('Command Palette','<p class="feature-sub">Akses cepat fitur chat · Ctrl + Shift + P</p><div class="feature-actions"><button class="feature-action" onclick="openMessageSearch()">⌕ Cari pesan</button><button class="feature-action" onclick="openMediaGallery()">▧ Galeri media</button><button class="feature-action" onclick="openStickerStudio()">✦ Sticker Studio</button><button class="feature-action" onclick="toggleVoiceRecording()">🎙 Pesan suara</button><button class="feature-action" onclick="openDeviceManager()">▣ Perangkat & sesi</button></div>');}
+        async function openDeviceManager(){const {data}=await _client.auth.getSession();const ua=navigator.userAgent;const device=/Android|iPhone|iPad/i.test(ua)?'Mobile':/Windows/i.test(ua)?'Windows PC':/Mac/i.test(ua)?'Mac':'Perangkat lain';featurePanel('Device & Session Manager','<p class="feature-sub">Ringkasan sesi perangkat saat ini.</p><div class="feature-result"><b>'+device+'</b><small>'+_userEmail+' · '+(navigator.onLine?'Online':'Offline')+'</small><small>Token berakhir: '+(data.session?.expires_at?new Date(data.session.expires_at*1000).toLocaleString('id-ID'):'—')+'</small></div><button class="btn-outline" style="width:100%" onclick="signOutOtherSessions()">Keluar dari sesi lain</button><p id="sessionStatus" class="feature-sub"></p>');}
+        async function signOutOtherSessions(){const {error}=await _client.auth.signOut({scope:'others'});document.getElementById('sessionStatus').textContent=error?'Gagal: '+error.message:'Sesi lain berhasil diminta untuk keluar.';}
+        async function toggleVoiceRecording(){if(_voiceRecorder?.state==='recording'){_voiceRecorder.stop();return;}if(!navigator.mediaDevices?.getUserMedia||!window.MediaRecorder){alert('Browser tidak mendukung rekaman suara.');return;}try{const stream=await navigator.mediaDevices.getUserMedia({audio:true});_voiceChunks=[];_voiceRecorder=new MediaRecorder(stream);_voiceRecorder.ondataavailable=e=>{if(e.data.size)_voiceChunks.push(e.data);};_voiceRecorder.onstop=async()=>{stream.getTracks().forEach(t=>t.stop());const blob=new Blob(_voiceChunks,{type:_voiceRecorder.mimeType||'audio/webm'});if(!blob.size)return;await withSendingStatus('Sedang mengirim pesan suara…',async()=>{const path='public/voice_'+Date.now()+'.webm';const {error}=await _client.storage.from('chat_images').upload(path,blob,{contentType:blob.type});if(error)throw error;const {data}= _client.storage.from('chat_images').getPublicUrl(path);await insertChatPayload({sender:_userEmail,message:'|URLVOICE|'+data.publicUrl});});};_voiceRecorder.start();alert('Merekam. Tekan ikon mikrofon lagi untuk berhenti dan mengirim.');}catch(e){alert('Mikrofon tidak dapat diakses: '+e.message);}}
 
         function listenRealtime() {
             _client.channel('any').on('postgres_changes', { event: '*', schema: 'public' }, payload => {
