@@ -7,7 +7,7 @@ export const KNOWLEDGE = {
   "ringkas": "Santri yang membuat proyek digital (aplikasi desktop Electron, web app, AI chatbot) di sela jadwal pesantren dan organisasi. Semua proyek ada di platform Pufutara. Web portofolio dibuat tanpa biaya (domain subdomain vercel.app, belajar dan setup sendiri).",
   "github": "https://github.com/Pufutara",
   "email": "putra@pufutara.com",
-  "kontak": "Lewat formulir Kontak di situs ini atau email."
+  "kontak": "Cara utama menghubungi Putra: isi formulir di bagian Kontak (id: kontak) di halaman ini, cukup nama, pesan, dan email (opsional). Pesan langsung tersimpan. Email putra@pufutara.com hanya alternatif."
  },
  "keahlian": [
   "HTML",
@@ -481,6 +481,61 @@ export const KNOWLEDGE = {
    "keterangan": "Pemenang lomba tingkat kelas 2 SDIT Al-Hikmah."
   }
  ],
+ "bagian_web": [
+  {"id": "hero", "nama": "Beranda", "isi": "Perkenalan Putra, statistik (38+ proyek, 2+ tahun belajar, 7 organisasi, 12 prestasi), tombol Lihat Karya Saya dan Hubungi Kontak, kolom cari proyek."},
+  {"id": "cerita", "nama": "Cerita di Balik Web Ini", "isi": "Cerita web ini dibuat di sela jadwal padat santri: sehari di Assyifa, proker BEM yang dipegang Putra (Open Labkom, Katanya vs Faktanya, Rapat Gabungan), perbandingan biaya Rp 0 vs pasaran Rp 900.000+, dan akses labkom 3-4 jam seminggu."},
+  {"id": "keahlian", "nama": "Teknologi & Keahlian", "isi": "Kartu keahlian: HTML, CSS, JavaScript, Tailwind CSS, GitHub, Supabase, Electron.js, React dan Next.js, Android dan Kotlin."},
+  {"id": "changelog", "nama": "Changelog", "isi": "Yang baru dari Pufutara: Pufutara Kiblat, Aplikasi Pemira, nihkorangue, update keamanan Supabase, Shop, Drive, dan Gallery."},
+  {"id": "proyek-terbaik", "nama": "Proyek Terbaik", "isi": "Delapan karya unggulan: PufutaraOS, PufutaraCBT, PufutaraChat, PufutaraDrive, PufutaraTube, PufutaraGallery, ProPaint, MiniGames."},
+  {"id": "proyek", "nama": "Semua Proyek", "isi": "Daftar lengkap proyek dengan filter Desktop (Electron) dan Web App serta kolom pencarian, dikelompokkan per kategori."},
+  {"id": "pesantren", "nama": "Kisah Santri", "isi": "Keseimbangan dunia pesantren dan koding: menghafal Al-Qur'an, akademik, OSN, lalu coding dengan Electron dan JavaScript."},
+  {"id": "galeri", "nama": "Galeri", "isi": "Foto dan video kegiatan Putra, bisa difilter foto atau video."},
+  {"id": "prestasi", "nama": "Prestasi & Organisasi", "isi": "Daftar 7 organisasi dan 12 prestasi (medali olimpiade PUSKANAS, Dormitory Award, dan lainnya) yang dibuka lewat tombol."},
+  {"id": "pricing", "nama": "Pricing Jasa Website", "isi": "Tiga paket jasa pembuatan website (Basic, Standard, Premium) dengan promo diskon 75%, plus tombol Pilih Paket yang mengarah ke Kontak."},
+  {"id": "kontak", "nama": "Kontak / Mari Berkolaborasi", "isi": "Formulir kirim pesan (nama, email opsional, pesan) untuk kolaborasi, saran, kritik, atau pesan paket jasa."}
+ ],
+ "fitur_web": [
+  "Tombol panah di pojok kanan bawah untuk kembali ke atas.",
+  "Tombol Skip untuk melewati animasi pembuka.",
+  "Navigasi atas: Keahlian, Proyek, Prestasi, Pricing, Kisah Santri, Galeri, dan tombol Hubungi Saya.",
+  "Tekan tombol / untuk langsung mengetik di kolom cari proyek."
+ ],
+ "faq": [
+  {"t": "Berapa lama dan kapan Putra membuat web?", "j": "Di sela jadwal pesantren: Senin, Kamis, dan Sabtu siang kalau semua proker selesai, ditambah sore sebelum magrib."},
+  {"t": "Putra pakai komputer lab kapan?", "j": "Sekitar 3-4 jam, sekali seminggu, lewat BEM Pendidikan."},
+  {"t": "Kenapa web portofolio ini gratis?", "j": "Biayanya Rp 0: pakai subdomain vercel.app, dan Putra belajar serta setup sendiri. Pembandingnya, web serupa di pasaran sekitar Rp 900.000+."},
+  {"t": "Proyek mana yang paling bermanfaat bagi orang lain?", "j": "Aplikasi Pemira, e-voting Assyifa untuk pemilihan presiden BEM (OSIS). Dipakai murid, guru, dan staf: 412 pemilih terdaftar, 395 suara masuk."},
+  {"t": "Web pertama yang menghasilkan uang?", "j": "nihkorangue, web berita dan koran milik teman, dibayar Rp 50.000 termasuk Supabase, admin panel, indexing Google, serta revisi dan tambah fitur tanpa batas."},
+  {"t": "Proyek full stack pertama Putra?", "j": "PufutaraGallery: foto yang diunggah otomatis tersimpan di server dan bisa dilihat semua orang."},
+  {"t": "Proyek desktop (Electron) apa saja?", "j": "Pufutara Browser, Pufutara StikiNot, dan MutabaahOS."},
+  {"t": "Proyek client / pesanan orang lain?", "j": "KCP Land (properti), Martabak Mertua (UMKM kuliner), Dapoer Mang Pey, dan nihkorangue."},
+  {"t": "Apakah key database aman?", "j": "Ya, key Supabase tidak lagi ditulis langsung di kode. Semua aplikasi mengambil konfigurasi lewat Vercel Function."},
+  {"t": "Bagaimana cara memesan jasa pembuatan web?", "j": "Lihat paket di bagian Pricing, lalu isi formulir di bagian Kontak. Harga belum termasuk domain dan hosting (mulai Rp 25K per tahun)."},
+  {"t": "AI chatbot buatan Putra yang mana?", "j": "Pufutara AI, chatbot berbasis Gemini API di https://pufutaraai.vercel.app, cocok untuk ngobrol hal umum di luar portofolio."}
+ ],
+ "istilah": {
+  "Pufutara": "Nama platform dan merek semua proyek Putra.",
+  "Labkom": "Laboratorium komputer sekolah, tempat Putra mengerjakan web sekali seminggu.",
+  "BEM": "Organisasi tertinggi di Assyifa, setara OSIS negeri.",
+  "Proker": "Program kerja organisasi.",
+  "Halaqoh": "Kelompok pembinaan pribadi (bina pribadi) santri.",
+  "Revourner": "Nama organisasi angkatan 17 di Assyifa.",
+  "OSN": "Olimpiade Sains Nasional."
+ },
+ "topik_proyek": {
+  "desktop / Electron": ["Pufutara Browser", "Pufutara StikiNot", "MutabaahOS"],
+  "client / UMKM / pesanan": ["KCP Land", "Martabak Mertua", "Dapoer Mang Pey"],
+  "voting / pemilihan": ["Aplikasi Pemira", "Pufutara Vote System"],
+  "login, akun, atau data tersimpan": ["PufutaraChat", "Pufutara Shop", "PufutaraDrive", "PufutaraGallery", "Aplikasi Pemira"],
+  "game / hiburan / media": ["Pufutara MiniGames", "Pufutara SpinWheel", "Pufutara Quiz App", "PufutaraAudio", "PufutaraTube"],
+  "produktivitas / catatan / tugas": ["Pufutara ToDo List", "Pufutara Habit Tracker", "Pufutara Writer", "Pufutara Cahier", "Pufutara StikiNot", "Pufutara Workspace"],
+  "kalkulator / berita / utilitas": ["Pufutara Calc Pro", "Pufutara News & Calc"],
+  "desain / kreatif": ["Pufutara ProPaint", "PufutaraGallery"],
+  "ibadah": ["Pufutara Kiblat"],
+  "AI": ["Pufutara AI"],
+  "sekolah / organisasi / edukasi": ["Kabinet Literasi", "DepDik Putra Web V2", "DepDik Putra Web", "KLS WEB", "Revourner 17", "Pufutara Quiz App", "Pufutara DigLib"],
+  "portal / sistem / arsip": ["PufutaraOS", "Pufutara Launcher", "PufutaraArchive", "Pufutara Workspace"]
+ },
  "komunitas_literasi": {
   "peran": "Ketua Komunitas Literasi Sekolah",
   "anggota": 20,
@@ -540,4 +595,48 @@ export const KNOWLEDGE = {
   "Keamanan: key Supabase tidak lagi hardcoded; semua app mengambil config lewat Vercel Function.",
   "Update Pufutara Shop (admin login Supabase Auth), Drive, dan Gallery."
  ]
+};
+
+// Gambar sampul tiap proyek (dipakai server untuk kartu bergambar di chatbot; tidak dikirim ke AI).
+export const COVERS = {
+ "kabinet literasi": "/foto/kabinetliterasi.png",
+ "kcp land": "/foto/kcpland.png",
+ "martabak mertua": "/foto/martabakmertua.png",
+ "aplikasi pemira": "/foto/pemira.png",
+ "dapoer mang pey": "/foto/mangpey.png",
+ "pufutaraos": "/foto/os.png",
+ "pufutara shop": "/foto/shop.png",
+ "pufutaracbt": "/foto/cbt.png",
+ "online order system": "/foto/onlineorder.png",
+ "depdik putra web v2": "/foto/depdikputrawebv2.png",
+ "depdik putra web": "/foto/depdikweb.png",
+ "kls web": "/foto/klsweb.png",
+ "mutabaahos": "/foto/mutabaahos.png",
+ "pufutara stikinot": "/foto/stikinot.png",
+ "pufutara browser": "/foto/browser.png",
+ "pufutaradrive": "/foto/cloud.png",
+ "pufutarachat": "/foto/chat.png",
+ "pufutaratube": "/foto/tube.png",
+ "pufutaragallery": "/foto/image.png",
+ "pufutara ai": "/foto/ai1.png",
+ "pufutara propaint": "/foto/paint.png",
+ "pufutara cahier": "/foto/cashier.png",
+ "pufutara writer": "/foto/writer.png",
+ "pufutara habit tracker": "/foto/habit.png",
+ "pufutara news & calc": "/foto/news.png",
+ "pufutara quiz app": "/foto/quiz.png",
+ "pufutara vote system": "/foto/vote.png",
+ "pufutara diglib": "/foto/diglib.png",
+ "pufutara spinwheel": "/foto/spinwheel.png",
+ "pufutara todo list": "/foto/Todo.png",
+ "pufutara workspace": "/foto/workspace.png",
+ "pufutara kiblat": "/foto/kiblat.png",
+ "pufutara launcher": "/foto/launcher.png",
+ "pufutara calc pro": "/foto/calculator.png",
+ "pufutara minigames": "/foto/game.png",
+ "pufutara web v1": "/foto/webv1.png",
+ "pufutara web v2": "/foto/webv2.png",
+ "revourner 17": "/foto/revourner.png",
+ "pufutaraarchive": "/foto/archive.png",
+ "pufutaraaudio": "/foto/mp3music.png"
 };
