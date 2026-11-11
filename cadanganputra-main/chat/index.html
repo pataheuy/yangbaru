@@ -465,6 +465,11 @@
         .notification-empty { padding:28px 16px; text-align:center; color:var(--text-muted); font-size:.85rem; }
         .presence-dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:#16a34a; margin-left:5px; vertical-align:middle; }
         .presence-dot.away { background:#eab308; }
+        .pinned-bar { display:none; align-items:center; gap:8px; padding:8px 32px; border-bottom:1px solid var(--border); background:var(--surface-container); overflow-x:auto; }
+        .pinned-bar.visible { display:flex; }
+        .pinned-label { flex:0 0 auto; font-size:.72rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; letter-spacing:.06em; }
+        .pinned-chip { flex:0 0 auto; max-width:240px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; border:1px solid var(--border); background:var(--surface); color:var(--text-main); border-radius:999px; padding:6px 10px; font-size:.75rem; cursor:pointer; }
+        .pinned-chip:hover { border-color:var(--text-muted); }
         .theme-toggle:hover, .scroll-latest:hover { background: var(--hover-bg); transform: translateY(-1px); }
         .scroll-latest {
             position: absolute; right: 24px; bottom: 104px; z-index: 30; min-height: 42px;
@@ -503,6 +508,7 @@
         <button onclick="actionReply()"><span class="material-symbols-outlined">reply</span> Balas Pesan</button>
         <button onclick="toggleMessageBookmark()"><span class="material-symbols-outlined">bookmark_add</span> Simpan pesan</button>
         <button onclick="reactToMessage('👍')"><span class="material-symbols-outlined">add_reaction</span> Reaksi 👍</button>
+        <button id="btnPin" onclick="togglePinnedMessage()"><span class="material-symbols-outlined">push_pin</span> Sematkan pesan</button>
         <button id="btnEdit" onclick="actionEdit()"><span class="material-symbols-outlined">edit</span> Edit Pesan</button>
         <button id="btnDel" class="danger" onclick="actionDelete()"><span class="material-symbols-outlined">delete</span> Hapus Pesan</button>
     </div>
@@ -614,6 +620,7 @@
                 </div>
             </div>
             
+            <div id="pinnedMessagesBar" class="pinned-bar"><span class="pinned-label">Disematkan</span><div id="pinnedMessagesList" style="display:flex;gap:8px;"></div></div>
             <div class="chat-messages" id="chatMessages">
                 </div>
             <button type="button" id="scrollLatestBtn" class="scroll-latest" onclick="scrollToBottom(true)" aria-label="Ke pesan terbaru">
@@ -1040,7 +1047,7 @@
             _unseenMessageCount = 0;
             document.getElementById('chatTitle').innerText = type === 'global' ? "Cloud Global" : targetEmail.split('@')[0];
             document.getElementById('chatStatus').innerText = type === 'global' ? "Terhubung ke jaringan publik" : targetEmail;
-            cancelReply(); renderSidebar(); loadMessages();
+            cancelReply(); renderSidebar(); loadMessages(); loadPinnedMessages();
             
             if(window.innerWidth <= 768) {
                 document.getElementById('appSidebar').classList.remove('open');
@@ -1134,7 +1141,53 @@
             menu.style.left = posX + 'px';
             menu.style.top = posY + 'px';
             document.getElementById('btnDel').style.display = isMe ? 'flex' : 'none';
+            document.getElementById('btnPin').style.display = 'flex';
             document.getElementById('btnEdit').style.display = isMe && !String(text).startsWith('[Gambar]') && !String(text).startsWith('[GIF]') && !String(text).startsWith('[File:') ? 'flex' : 'none';
+        }
+
+        function getConversationKey() {
+            return currentChatType === 'global' ? 'global' : [_userEmail,currentTargetEmail].sort().join('|');
+        }
+        async function loadPinnedMessages() {
+            const bar=document.getElementById('pinnedMessagesBar');
+            const list=document.getElementById('pinnedMessagesList');
+            if(!bar||!list||!_client||!_userEmail) return;
+            list.replaceChildren();
+            const key=getConversationKey();
+            const {data:pins,error}=await _client.from('chat_pinned_messages').select('id,message_id,pinned_by,created_at').eq('chat_type',currentChatType).eq('conversation_key',key).order('created_at',{ascending:false}).limit(5);
+            if(error||!pins?.length){bar.classList.remove('visible');return;}
+            const table=currentChatType==='global'?'global_chat':'private_chat';
+            const rows=await Promise.all(pins.map(pin=>_client.from(table).select('id,message,sender').eq('id',pin.message_id).maybeSingle()));
+            rows.forEach((result,index)=>{
+                const row=result.data;if(!row)return;
+                const chip=document.createElement('button');chip.type='button';chip.className='pinned-chip';
+                const preview=String(row.message||'Pesan').replace(/^\|URLIMG\|/,'Gambar: ').replace(/^\|URLGIF\|/,'GIF: ').replace(/^\|URLFILE\|/,'File: ');
+                chip.textContent=(row.sender===_userEmail?'Kamu':row.sender.split('@')[0])+': '+preview;
+                chip.title='Buka pesan yang disematkan';
+                chip.addEventListener('click',()=>{
+                    const target=document.getElementById(`msg-${currentChatType}-${row.id}`);
+                    if(target) target.scrollIntoView({behavior:'smooth',block:'center'});
+                    else loadMessages().then(()=>document.getElementById(`msg-${currentChatType}-${row.id}`)?.scrollIntoView({behavior:'smooth',block:'center'}));
+                });
+                list.appendChild(chip);
+            });
+            bar.classList.toggle('visible',list.children.length>0);
+        }
+        async function togglePinnedMessage() {
+            if(!selectedMsg||!_userEmail)return;
+            const key={chat_type:currentChatType,message_id:Number(selectedMsg.id),conversation_key:getConversationKey()};
+            const {data:existing,error:readError}=await _client.from('chat_pinned_messages').select('id,pinned_by').match(key).maybeSingle();
+            if(readError){alert('Tidak dapat memeriksa pesan sematan: '+readError.message);return;}
+            let result;
+            if(existing){
+                if(existing.pinned_by!==_userEmail){alert('Pesan ini disematkan oleh pengguna lain.');return;}
+                result=await _client.from('chat_pinned_messages').delete().eq('id',existing.id).eq('pinned_by',_userEmail);
+            } else {
+                result=await _client.from('chat_pinned_messages').insert([{...key,pinned_by:_userEmail}]);
+            }
+            if(result.error)alert('Gagal mengubah pesan sematan: '+result.error.message);
+            else loadPinnedMessages();
+            document.getElementById('actionMenu').style.display='none';
         }
 
         async function toggleMessageBookmark() {
