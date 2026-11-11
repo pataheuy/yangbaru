@@ -446,6 +446,25 @@
             transition: transform .18s ease, opacity .18s ease, background .18s ease;
         }
         .theme-toggle { width: 40px; height: 40px; border-radius: 12px; }
+        .notification-wrap { position:relative; }
+        .notification-badge { position:absolute; top:-5px; right:-5px; min-width:18px; height:18px; padding:0 5px; border-radius:999px; background:#d93025; color:#fff; font-size:10px; font-weight:800; display:none; align-items:center; justify-content:center; border:2px solid var(--bg-color); }
+        .notification-panel { position:absolute; top:50px; right:0; width:min(360px, calc(100vw - 24px)); max-height:420px; overflow:hidden; display:none; flex-direction:column; background:var(--surface); border:1px solid var(--border); border-radius:16px; box-shadow:0 16px 48px rgba(0,0,0,.16); z-index:1000; }
+        .notification-panel.open { display:flex; animation:fadeIn .18s ease; }
+        .notification-head { display:flex; justify-content:space-between; align-items:center; padding:16px; border-bottom:1px solid var(--border); font-weight:700; }
+        .notification-head button { border:0; background:transparent; color:var(--text-muted); font-size:.75rem; font-weight:600; cursor:pointer; }
+        .notification-list { overflow-y:auto; padding:6px; }
+        .notification-item { width:100%; text-align:left; display:flex; gap:10px; padding:12px; border:0; border-radius:10px; background:transparent; color:var(--text-main); cursor:pointer; }
+        .notification-item:hover { background:var(--hover-bg); }
+        .notification-item.unread { background:var(--primary-container); }
+        .notification-dot { width:8px; height:8px; margin-top:6px; flex:0 0 8px; border-radius:50%; background:#3985f7; }
+        .notification-item:not(.unread) .notification-dot { background:transparent; }
+        .notification-copy { min-width:0; flex:1; }
+        .notification-copy strong { display:block; font-size:.85rem; margin-bottom:3px; }
+        .notification-copy span { display:block; font-size:.78rem; color:var(--text-muted); overflow-wrap:anywhere; }
+        .notification-copy small { display:block; font-size:.68rem; color:var(--text-muted); margin-top:5px; }
+        .notification-empty { padding:28px 16px; text-align:center; color:var(--text-muted); font-size:.85rem; }
+        .presence-dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:#16a34a; margin-left:5px; vertical-align:middle; }
+        .presence-dot.away { background:#eab308; }
         .theme-toggle:hover, .scroll-latest:hover { background: var(--hover-bg); transform: translateY(-1px); }
         .scroll-latest {
             position: absolute; right: 24px; bottom: 104px; z-index: 30; min-height: 42px;
@@ -484,6 +503,7 @@
         <button onclick="actionReply()"><span class="material-symbols-outlined">reply</span> Balas Pesan</button>
         <button onclick="toggleMessageBookmark()"><span class="material-symbols-outlined">bookmark_add</span> Simpan pesan</button>
         <button onclick="reactToMessage('👍')"><span class="material-symbols-outlined">add_reaction</span> Reaksi 👍</button>
+        <button id="btnEdit" onclick="actionEdit()"><span class="material-symbols-outlined">edit</span> Edit Pesan</button>
         <button id="btnDel" class="danger" onclick="actionDelete()"><span class="material-symbols-outlined">delete</span> Hapus Pesan</button>
     </div>
 
@@ -543,6 +563,15 @@
         </div>
         <div class="header-right">
             <button type="button" class="theme-toggle" onclick="openChatSettings()" title="Pengaturan profil" aria-label="Pengaturan profil"><span class="material-symbols-outlined">manage_accounts</span></button>
+            <div class="notification-wrap">
+                <button type="button" id="notificationToggle" class="theme-toggle" onclick="toggleNotificationCenter()" title="Notifikasi" aria-label="Notifikasi">
+                    <span class="material-symbols-outlined">notifications</span><span id="notificationBadge" class="notification-badge">0</span>
+                </button>
+                <div id="notificationPanel" class="notification-panel" role="dialog" aria-label="Pusat notifikasi">
+                    <div class="notification-head"><span>Notifikasi</span><button onclick="markAllNotificationsRead()">Tandai semua dibaca</button></div>
+                    <div id="notificationList" class="notification-list"><div class="notification-empty">Memuat notifikasi...</div></div>
+                </div>
+            </div>
             <button type="button" id="themeToggle" class="theme-toggle" onclick="cycleTheme()" title="Ganti tema" aria-label="Ganti tema">
                 <span class="material-symbols-outlined" id="themeToggleIcon">contrast</span>
             </button>
@@ -816,10 +845,11 @@
             const displayName = _userDisplayName || _userUsername || _userEmail.split('@')[0];
             document.getElementById('headerGreeting').innerText = `Halo, ${displayName}`;
             document.getElementById('headerGreeting').style.display = 'inline';
-            loadSidebarList(); setupChatScrollControls(); switchChat('global'); listenRealtime();
+            loadSidebarList(); setupChatScrollControls(); switchChat('global'); listenRealtime(); loadNotifications(); startPresenceTracking();
         }
 
         async function logout() { 
+            await setMyPresence('offline');
             await _client.auth.signOut(); 
             location.reload(); 
         }
@@ -1104,6 +1134,7 @@
             menu.style.left = posX + 'px';
             menu.style.top = posY + 'px';
             document.getElementById('btnDel').style.display = isMe ? 'flex' : 'none';
+            document.getElementById('btnEdit').style.display = isMe && !String(text).startsWith('[Gambar]') && !String(text).startsWith('[GIF]') && !String(text).startsWith('[File:') ? 'flex' : 'none';
         }
 
         async function toggleMessageBookmark() {
@@ -1136,6 +1167,27 @@
             document.getElementById('replyBar').style.display = 'flex'; 
             document.getElementById('replyTxt').innerText = selectedMsg.text; 
             document.getElementById('msgIn').focus(); 
+            document.getElementById('actionMenu').style.display = 'none';
+        }
+
+        async function actionEdit() {
+            if (!selectedMsg || selectedMsg.sender !== _userEmail) return;
+            const nextText = prompt('Edit pesan:', selectedMsg.text);
+            if (nextText === null) return;
+            const cleanText = nextText.trim();
+            if (!cleanText || cleanText.length > 5000) { alert('Pesan harus berisi 1–5000 karakter.'); return; }
+            const table = currentChatType === 'global' ? 'global_chat' : 'private_chat';
+            const { error } = await _client.from(table).update({ message: cleanText }).eq('id', selectedMsg.id).eq('sender', _userEmail);
+            if (error) { alert('Gagal mengedit pesan: ' + error.message); return; }
+            const { error: historyError } = await _client.from('chat_message_edits').insert([{chat_type:currentChatType,message_id:Number(selectedMsg.id),editor_email:_userEmail,previous_message:selectedMsg.text}]);
+            if (historyError) console.warn('Riwayat edit tidak tersimpan:', historyError.message);
+            const el = document.getElementById(`msg-${currentChatType}-${selectedMsg.id}`);
+            if (el) {
+                const bubble = el.querySelector('.msg-bubble');
+                if (bubble) bubble.textContent = cleanText;
+                const time = el.querySelector('.msg-time');
+                if (time) time.textContent = time.textContent.replace(' · diedit','') + ' · diedit';
+            }
             document.getElementById('actionMenu').style.display = 'none';
         }
 
@@ -1207,7 +1259,89 @@
                     if(payload.table === 'private_chat') loadSidebarList();
                 }
             }).subscribe();
+
+            _client.channel('chat-notifications-' + _userEmail)
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_notifications', filter: 'user_email=eq.' + _userEmail }, () => {
+                    loadNotifications();
+                    const settings = window.Notification;
+                    if (settings && Notification.permission === 'granted' && document.hidden) {
+                        new Notification('Pufutara Chat', { body: 'Kamu menerima pesan baru.' });
+                    }
+                }).subscribe();
         }
+
+        async function loadNotifications() {
+            if (!_client || !_userEmail) return;
+            const { data, error } = await _client.from('chat_notifications').select('*').eq('user_email', _userEmail).order('created_at', {ascending:false}).limit(30);
+            if (error) { document.getElementById('notificationList').textContent = 'Notifikasi belum dapat dimuat.'; return; }
+            const list = document.getElementById('notificationList');
+            list.replaceChildren();
+            const unread = (data || []).filter(n => !n.is_read).length;
+            const badge = document.getElementById('notificationBadge');
+            badge.textContent = unread > 99 ? '99+' : String(unread);
+            badge.style.display = unread ? 'flex' : 'none';
+            if (!data?.length) { const empty=document.createElement('div'); empty.className='notification-empty'; empty.textContent='Belum ada notifikasi.'; list.appendChild(empty); return; }
+            data.forEach(n => {
+                const item=document.createElement('button'); item.type='button'; item.className='notification-item'+(n.is_read?'':' unread');
+                const dot=document.createElement('span'); dot.className='notification-dot';
+                const copy=document.createElement('span'); copy.className='notification-copy';
+                const title=document.createElement('strong'); title.textContent=n.title || 'Notifikasi';
+                const body=document.createElement('span'); body.textContent=n.body || '';
+                const date=document.createElement('small'); date.textContent=new Date(n.created_at).toLocaleString('id-ID',{dateStyle:'medium',timeStyle:'short'});
+                copy.append(title,body,date); item.append(dot,copy);
+                item.addEventListener('click',()=>openChatNotification(n));
+                list.appendChild(item);
+            });
+        }
+        async function openChatNotification(n) {
+            if (!n.is_read) await _client.from('chat_notifications').update({is_read:true}).eq('id',n.id).eq('user_email',_userEmail);
+            document.getElementById('notificationPanel').classList.remove('open');
+            if (n.target_chat_type === 'private' && n.target_email) switchChat('private',n.target_email);
+            loadNotifications();
+        }
+        async function markAllNotificationsRead() {
+            const {error}=await _client.from('chat_notifications').update({is_read:true}).eq('user_email',_userEmail).eq('is_read',false);
+            if(error){alert('Gagal memperbarui notifikasi: '+error.message);return;}
+            loadNotifications();
+        }
+        function toggleNotificationCenter() {
+            const panel=document.getElementById('notificationPanel');
+            panel.classList.toggle('open');
+            if(panel.classList.contains('open')) loadNotifications();
+        }
+
+        let _presenceHeartbeat = null;
+        let _presenceRefresh = null;
+        async function setMyPresence(status) {
+            if(!_client || !_userEmail) return;
+            const now=new Date().toISOString();
+            const {error}=await _client.from('chat_user_presence').upsert({user_email:_userEmail,status,last_seen_at:now,updated_at:now},{onConflict:'user_email'});
+            if(error) console.warn('Presence tidak tersimpan:',error.message);
+        }
+        async function refreshPresence() {
+            const {data,error}=await _client.from('chat_user_presence').select('user_email,status,last_seen_at');
+            if(error) return;
+            const online=new Set((data||[]).filter(p=>p.status==='online' && Date.now()-new Date(p.updated_at||p.last_seen_at).getTime()<90000).map(p=>p.user_email));
+            document.querySelectorAll('#sidebarChatList .chat-item').forEach(item=>{
+                const name=item.querySelector('.chat-name');
+                if(!name) return;
+                const email=Object.keys(privateContacts).find(e=>e.split('@')[0]===name.textContent);
+                if(!email) return;
+                let dot=name.querySelector('.presence-dot');
+                if(online.has(email)){if(!dot){dot=document.createElement('i');dot.className='presence-dot';name.appendChild(dot);}dot.title='Online';}
+                else if(dot) dot.remove();
+            });
+        }
+        function startPresenceTracking() {
+            setMyPresence(document.hidden?'away':'online');
+            clearInterval(_presenceHeartbeat);
+            clearInterval(_presenceRefresh);
+            _presenceHeartbeat=setInterval(()=>setMyPresence(document.hidden?'away':'online'),45000);
+            _presenceRefresh=setInterval(refreshPresence,30000);
+            document.addEventListener('visibilitychange',()=>setMyPresence(document.hidden?'away':'online'));
+            refreshPresence();
+        }
+        window.addEventListener('beforeunload',()=>{ if(_client && _userEmail) _client.from('chat_user_presence').update({status:'offline',last_seen_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq('user_email',_userEmail); });
 
         let _unseenMessageCount = 0;
         function isNearChatBottom(box = document.getElementById('chatMessages')) {
@@ -1454,6 +1588,9 @@
         }
 
         document.addEventListener('click', (e) => {
+            const notificationPanel=document.getElementById('notificationPanel');
+            const notificationToggle=document.getElementById('notificationToggle');
+            if(notificationPanel && !notificationPanel.contains(e.target) && notificationToggle && !notificationToggle.contains(e.target)) notificationPanel.classList.remove('open');
             const menu = document.getElementById('actionMenu');
             if(e.target !== menu && !menu.contains(e.target)) {
                 menu.style.display = 'none';
