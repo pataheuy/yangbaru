@@ -2124,9 +2124,47 @@ body.reduce-motion .window { transition: none !important; }
 .wallpaper-upload-area:hover { background: #f9fafb; }
 .wallpaper-upload-icon { font-size: 48px; color: #9ca3af; }
 .wallpaper-upload-text { font-size: 14px; color: #6b7280; margin-top: 8px; }
+
+/* --- MOBILE ACCESS BLOCKER --- */
+#mobile-only-notice {
+    position: fixed; inset: 0; z-index: 200000;
+    display: none; align-items: center; justify-content: center;
+    padding: 24px; background: radial-gradient(circle at top right, #dbeafe 0, #eef2ff 38%, #f8fafc 100%);
+    font-family: Inter, sans-serif; color: #172033;
+}
+#mobile-only-notice .mobile-notice-card {
+    width: min(100%, 420px); padding: 34px 26px; border-radius: 26px;
+    background: rgba(255,255,255,.88); border: 1px solid rgba(255,255,255,.9);
+    box-shadow: 0 24px 70px rgba(31,41,55,.16); text-align: center;
+    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+}
+#mobile-only-notice .mobile-notice-icon {
+    width: 76px; height: 76px; margin: 0 auto 20px; border-radius: 24px;
+    display: grid; place-items: center; background: #eff6ff; color: #2563eb; font-size: 34px;
+}
+#mobile-only-notice h2 { margin: 0 0 10px; font: 700 23px/1.25 Poppins, sans-serif; }
+#mobile-only-notice p { margin: 0; color: #64748b; font-size: 14px; line-height: 1.7; }
+#mobile-only-notice .mobile-back-btn {
+    width: 100%; margin-top: 25px; padding: 14px 18px; border: 0; border-radius: 13px;
+    background: #2563eb; color: #fff; font: 600 14px Inter, sans-serif; cursor: pointer;
+    box-shadow: 0 8px 20px rgba(37,99,235,.22);
+}
+#mobile-only-notice .mobile-back-btn:active { transform: scale(.98); }
+body.mobile-access-blocked { overflow: hidden !important; }
+body.mobile-access-blocked > *:not(#mobile-only-notice) { visibility: hidden !important; }
+body.mobile-access-blocked #mobile-only-notice { visibility: visible !important; display: flex !important; }
+
 </style>
 </head>
 <body>
+<div id="mobile-only-notice" role="dialog" aria-modal="true" aria-labelledby="mobile-notice-title">
+    <div class="mobile-notice-card">
+        <div class="mobile-notice-icon"><i class="fas fa-desktop"></i></div>
+        <h2 id="mobile-notice-title">Pufutara OS untuk Windows</h2>
+        <p>Saat ini Pufutara OS dirancang untuk digunakan melalui komputer atau laptop Windows. Dukungan perangkat mobile sedang disiapkan dan akan hadir menyusul.</p>
+        <button class="mobile-back-btn" type="button" onclick="if (history.length > 1) { history.back(); } else { window.location.href = '../'; }">Kembali ke Halaman Sebelumnya</button>
+    </div>
+</div>
 
 <!-- WELCOME SCREEN -->
 <div id="welcome-screen">
@@ -2374,6 +2412,21 @@ body.reduce-motion .window { transition: none !important; }
         </div>
     </div>
 </div>
+
+<script>
+// ========== MOBILE DEVICE ACCESS GUARD ==========
+(function () {
+    const mobileUserAgent = /Android|iPhone|iPod|Mobile/i.test(navigator.userAgent);
+    const smallViewport = window.matchMedia('(max-width: 767px)').matches;
+    if (mobileUserAgent || smallViewport) {
+        document.body.classList.add('mobile-access-blocked');
+        document.documentElement.style.overflow = 'hidden';
+        const notice = document.getElementById('mobile-only-notice');
+        if (notice) notice.style.display = 'flex';
+        window.__PUFUTARA_MOBILE_BLOCKED__ = true;
+    }
+})();
+</script>
 
 <script>
 // ========== VARIABLES GLOBAL ==========
@@ -2917,6 +2970,7 @@ passwordInput.addEventListener('keydown', function(e) {
 // ========== WELCOME & BOOT SEQUENCE ==========
 let _bootStarted = false;
 function startBootSequence() {
+    if (window.__PUFUTARA_MOBILE_BLOCKED__) return;
     if (_bootStarted) return;
     _bootStarted = true;
     const welcomeScreen = document.getElementById('welcome-screen');
@@ -6913,29 +6967,27 @@ function minimizeWindow(winId) {
     const win = document.getElementById(winId);
     if (!win) return;
 
-    // Kalau sedang maximize, restore dulu
+    // Jika jendela sedang maximize, kembalikan ukurannya terlebih dahulu.
     if (win.classList.contains('maximized')) {
         restoreFromMaximize(win);
-        // restoreFromMaximize sudah center, cukup sampai sini
-        return;
     }
 
-    // Hitung posisi tengah
-    const w = parseFloat(win.style.width) || win.offsetWidth;
-    const h = parseFloat(win.style.height) || win.offsetHeight;
-    const targetLeft = (window.innerWidth  / 2) - (w / 2);
-    const targetTop  = (window.innerHeight / 2) - (h / 2);
+    // Selalu posisikan jendela tepat di tengah viewport setelah restore.
+    const width = win.offsetWidth || parseFloat(win.style.width) || 500;
+    const height = win.offsetHeight || parseFloat(win.style.height) || 400;
+    const targetLeft = Math.max(0, (window.innerWidth - width) / 2);
+    const targetTop = Math.max(0, (window.innerHeight - height) / 2);
 
-    // Animasi smooth pindah ke tengah
+    win.style.transition = 'none';
+    void win.offsetWidth; // Pastikan posisi/ukuran hasil restore sudah diterapkan.
     win.style.transition = 'left 0.4s cubic-bezier(0.16,1,0.3,1), top 0.4s cubic-bezier(0.16,1,0.3,1)';
     win.style.left = targetLeft + 'px';
-    win.style.top  = targetTop  + 'px';
+    win.style.top = targetTop + 'px';
 
-    // Bersihkan transisi setelah selesai
+    bringToFront(win);
     setTimeout(() => {
-        win.style.transition = '';
-        bringToFront(win);
-    }, 420);
+        if (win.isConnected) win.style.transition = '';
+    }, 450);
 }
 
 function hasMaximizedWindow() {
