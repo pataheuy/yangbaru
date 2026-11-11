@@ -1968,7 +1968,30 @@ function handleVideoFile(file) {
 function openApp(id) {
     updateDockState(id,true);
     if(!dockItems.includes(id)&&!pinnedApps.includes(id)) { addToDock(id); }
-    if(document.getElementById('win-'+id)) { bringToFront(document.getElementById('win-'+id)); return; }
+    const existingWindow = document.getElementById('win-' + id);
+    if (existingWindow) {
+        if (existingWindow.dataset.minimized === 'true') {
+            existingWindow.style.display = 'flex';
+            existingWindow.style.left = existingWindow.dataset.restoreLeft || existingWindow.style.left;
+            existingWindow.style.top = existingWindow.dataset.restoreTop || existingWindow.style.top;
+            existingWindow.style.width = existingWindow.dataset.restoreWidth || existingWindow.style.width;
+            existingWindow.style.height = existingWindow.dataset.restoreHeight || existingWindow.style.height;
+            existingWindow.style.transformOrigin = '';
+            existingWindow.style.transform = 'scale(0.8)';
+            existingWindow.style.opacity = '0';
+            existingWindow.style.pointerEvents = '';
+            existingWindow.classList.remove('open');
+            delete existingWindow.dataset.minimized;
+            void existingWindow.offsetWidth;
+            requestAnimationFrame(() => {
+                existingWindow.style.removeProperty('transform');
+                existingWindow.style.removeProperty('opacity');
+                existingWindow.classList.add('open');
+            });
+        }
+        bringToFront(existingWindow);
+        return;
+    }
     
     let app = apps[id];
     if (!app) {
@@ -1980,10 +2003,13 @@ function openApp(id) {
     win.id='win-'+id; 
     win.style.width=app.w+'px'; 
     win.style.height=app.h+'px';
-    const centerX=(window.innerWidth/2)-(app.w/2); 
-    const centerY=(window.innerHeight/2)-(app.h/2);
-    win.style.left=centerX+'px'; 
-    win.style.top=centerY+'px'; 
+    const windowsArea = document.getElementById('windows-area');
+    const areaWidth = windowsArea ? windowsArea.clientWidth : window.innerWidth;
+    const areaHeight = windowsArea ? windowsArea.clientHeight : window.innerHeight;
+    const centerX = Math.max(0, (areaWidth - app.w) / 2);
+    const centerY = Math.max(36, (areaHeight - app.h) / 2);
+    win.style.left = centerX + 'px';
+    win.style.top = centerY + 'px'; 
     win.style.zIndex=++zIndex;
     
     win.innerHTML=`
@@ -2039,13 +2065,41 @@ function closeWindow(winId) {
 }
 
 function minimizeWindow(winId) {
-    const win=document.getElementById(winId); 
-    const appId=winId.replace('win-','');
-    win.style.transform='scale(0.8) translateY(100px)'; 
-    win.style.opacity='0'; 
-    win.style.pointerEvents='none';
-    updateDockState(appId,false);
-    setTimeout(()=>{ win.style.display='none'; },300);
+    const win = document.getElementById(winId);
+    if (!win || win.dataset.minimized === 'true') return;
+
+    const appId = winId.replace('win-', '');
+    const rect = win.getBoundingClientRect();
+    const area = document.getElementById('windows-area');
+    const areaRect = area ? area.getBoundingClientRect() : {
+        left: 0, top: 0, width: window.innerWidth, height: window.innerHeight
+    };
+
+    win.dataset.restoreLeft = win.style.left;
+    win.dataset.restoreTop = win.style.top;
+    win.dataset.restoreWidth = win.style.width;
+    win.dataset.restoreHeight = win.style.height;
+    win.dataset.minimized = 'true';
+
+    const centerX = areaRect.left + areaRect.width / 2;
+    const centerY = areaRect.top + areaRect.height / 2;
+    const deltaX = centerX - (rect.left + rect.width / 2);
+    const deltaY = centerY - (rect.top + rect.height / 2);
+
+    win.style.transformOrigin = 'center center';
+    win.style.transform = 'translate(' + deltaX + 'px, ' + deltaY + 'px) scale(0.18)';
+    win.style.opacity = '0';
+    win.style.pointerEvents = 'none';
+    updateDockState(appId, false);
+
+    setTimeout(() => {
+        if (win.dataset.minimized === 'true') {
+            win.style.display = 'none';
+            win.style.removeProperty('transform');
+            win.style.removeProperty('opacity');
+            win.style.transformOrigin = '';
+        }
+    }, 420);
 }
 
 function maximizeWindow(winId) {
