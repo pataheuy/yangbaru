@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pengurus · Kabinet Satria Dharma</title>
+<style>
+:root{--ink:#2b1d18;--brown:#5d4037;--bg:#f7f3ee;--line:#d9cfc6}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.6 Georgia,"Times New Roman",serif}
+main{max-width:860px;margin:0 auto;padding:40px 20px 80px}
+.kecil,a.kembali{font:14px system-ui,sans-serif;color:var(--brown)}
+.atas{display:flex;gap:24px;align-items:center;margin:28px 0 32px}
+.foto{width:120px;height:150px;flex:none;object-fit:cover;background:var(--brown);color:#f7f3ee;display:flex;align-items:center;justify-content:center;font-size:44px}
+h1{font-size:clamp(28px,5vw,40px);line-height:1.15;margin:0 0 6px}
+.atas p{margin:0}
+img.sertif{width:100%;height:auto;border:1px solid var(--line);display:block}
+.btn{display:inline-block;margin-top:14px;padding:10px 18px;background:var(--brown);color:#fff;text-decoration:none;font:15px system-ui,sans-serif;border-radius:4px}
+h2{font:600 13px system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--brown);margin:0 0 12px}
+</style>
+</head>
+<body>
+<main id="isi"><p>Memuat…</p></main>
+<script>
+const slug = decodeURIComponent(location.pathname.split('/').filter(Boolean).pop() || '');
+const isi = document.getElementById('isi');
+fetch('/kabinetliterasi/anggota.json').then(r => r.json()).then(data => {
+  const m = data.find(x => x.slug === slug);
+  if (!m) {
+    isi.innerHTML = '<a class="kembali" href="/kabinetliterasi">← Daftar pengurus</a><h1 style="margin-top:24px">Nama tidak ditemukan</h1>';
+    return;
+  }
+  document.title = m.nama + ' · Kabinet Satria Dharma';
+  const ini = m.nama.split(' ').filter(w => /^[A-Za-z]/.test(w)).slice(0, 2).map(w => w[0]).join('');
+  isi.innerHTML = `
+    <a class="kembali" href="/kabinetliterasi">← Daftar pengurus</a>
+    <div class="atas">
+      <img class="foto" src="/kabinetliterasi/foto/${m.slug}.jpg" alt="Foto ${m.nama}">
+      <div>
+        <h1></h1>
+        <p></p>
+        <p class="kecil">Kabinet Satria Dharma · 2025/2026 · No. KLS/2025/${String(m.no).padStart(3, '0')}</p>
+      </div>
+    </div>
+    <h2>Sertifikat kepengurusan</h2>
+    <img class="sertif" src="/kabinetliterasi/sertifikat/${m.slug}.png" alt="Sertifikat ${m.nama}">
+    <a class="btn" href="/kabinetliterasi/sertifikat/${m.slug}.png" download="sertifikat-${m.slug}.png">Unduh sertifikat (PNG)</a>`;
+  isi.querySelector('h1').textContent = m.nama;
+  isi.querySelector('.atas p').textContent = m.jabatan + ' · ' + m.angkatan;
+  const f = isi.querySelector('.foto');
+  f.onerror = () => { const d = document.createElement('div'); d.className = 'foto'; d.textContent = ini; d.setAttribute('aria-hidden', 'true'); f.replaceWith(d); };
+});
+</script>
+</body>
+</html>

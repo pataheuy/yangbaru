@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kabinet Satria Dharma · Komunitas Literasi Sekolah</title>
+<meta name="description" content="Daftar pengurus Komunitas Literasi Sekolah SMPIT As-Syifa Boarding School, masa bakti 2025/2026.">
+<style>
+:root{--ink:#2b1d18;--brown:#5d4037;--bg:#f7f3ee;--line:#d9cfc6}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.6 Georgia,"Times New Roman",serif}
+main{max-width:720px;margin:0 auto;padding:56px 20px 80px}
+.kecil{font:13px/1.4 system-ui,sans-serif;color:var(--brown);letter-spacing:.04em;text-transform:uppercase}
+h1{font-size:clamp(32px,6vw,48px);line-height:1.15;margin:.3em 0 .4em}
+h2{font:600 13px system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--brown);margin:2.4em 0 .4em;border-bottom:1px solid var(--line);padding-bottom:6px}
+p{margin:0 0 1em}
+input{width:100%;padding:10px 12px;margin-top:20px;font:16px system-ui,sans-serif;border:1px solid var(--line);background:#fff;border-radius:4px}
+ul{list-style:none;margin:0;padding:0}
+li{display:flex;justify-content:space-between;gap:16px;padding:9px 0;border-bottom:1px solid var(--line)}
+li a{color:var(--ink);text-decoration:none}
+li a:hover{text-decoration:underline}
+li span{font:14px system-ui,sans-serif;color:var(--brown);text-align:right}
+footer{margin-top:64px;font:13px system-ui,sans-serif;color:var(--brown)}
+</style>
+</head>
+<body>
+<main>
+<div class="kecil">SMPIT As-Syifa Boarding School · Subang</div>
+<h1>Kabinet Satria Dharma</h1>
+<p>Pengurus Komunitas Literasi Sekolah masa bakti 2025/2026, gabungan angkatan Revourner 17 dan Ervinza 18. Pilih nama untuk melihat profil dan mengunduh sertifikat kepengurusan.</p>
+<input id="cari" type="search" placeholder="Cari nama…" aria-label="Cari nama pengurus">
+<div id="daftar"></div>
+<footer>© 2026 Komunitas Literasi Sekolah</footer>
+</main>
+<script>
+const URUT = ['BPH','Danus','Kebersihan','Kedisiplinan'];
+let data = [];
+function tampil() {
+  const q = document.getElementById('cari').value.toLowerCase().trim();
+  const el = document.getElementById('daftar');
+  el.textContent = '';
+  URUT.forEach(dv => {
+    const isi = data.filter(m => m.divisi === dv && (m.nama + ' ' + m.jabatan).toLowerCase().includes(q));
+    if (!isi.length) return;
+    const h = document.createElement('h2');
+    h.textContent = dv === 'BPH' ? 'Badan Pengurus Harian' : 'Divisi ' + dv;
+    const ul = document.createElement('ul');
+    isi.forEach(m => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = '/kabinetliterasi/' + m.slug;
+      a.textContent = m.nama;
+      const s = document.createElement('span');
+      s.textContent = m.jabatan + ' · ' + m.angkatan;
+      li.append(a, s);
+      ul.append(li);
+    });
+    el.append(h, ul);
+  });
+  if (!el.children.length) el.innerHTML = '<p style="margin-top:2em">Tidak ada nama yang cocok.</p>';
+}
+fetch('/kabinetliterasi/anggota.json').then(r => r.json()).then(d => { data = d; tampil(); });
+document.getElementById('cari').addEventListener('input', tampil);
+</script>
+</body>
+</html>
